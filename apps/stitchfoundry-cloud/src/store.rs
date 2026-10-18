@@ -81,6 +81,9 @@ struct State {
     /// Sew-out checks by id.
     #[serde(default)]
     checks: BTreeMap<String, Check>,
+    /// What the free offers cost the service each month (cents, by `"2026-10"`).
+    #[serde(default)]
+    free_spent: BTreeMap<String, u64>,
 }
 
 /// The most recent entries kept for an account's history.
@@ -205,6 +208,23 @@ impl Store {
             }
         }
         Ok(())
+    }
+
+    // ---------- the free offers' budget ----------
+
+    /// What the free offers have cost the service in `month` (cents).
+    pub fn free_spent(&self, month: &str) -> u64 {
+        self.state.free_spent.get(month).copied().unwrap_or(0)
+    }
+
+    /// Count `cents` more against `month`'s free offers.
+    pub fn add_free_spent(&mut self, month: &str, cents: u64) -> Result<(), StoreError> {
+        if cents == 0 {
+            return Ok(());
+        }
+        let spent = self.state.free_spent.entry(month.to_string()).or_insert(0);
+        *spent = spent.saturating_add(cents);
+        self.save()
     }
 
     // ---------- sew-out checks ----------

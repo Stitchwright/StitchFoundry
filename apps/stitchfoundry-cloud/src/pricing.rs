@@ -45,15 +45,31 @@ pub fn estimate(cfg: &Config, price: &ModelPrice, body: &Value, max_tokens: u64)
     credits(cfg, (input as f64 * per_input + max_tokens as f64 * price.output) / 1e6)
 }
 
-/// What a reply's `usage` cost (credits).
-pub fn charge(cfg: &Config, price: &ModelPrice, usage: &Value) -> u64 {
+/// What a reply's `usage` cost the service (cents, rounded up, without the markup).
+pub fn cost_cents(price: &ModelPrice, usage: &Value) -> u64 {
+    let c = (usd(price, usage) * 100.0).ceil();
+    if c.is_finite() && c > 0.0 { c as u64 } else { 0 }
+}
+
+/// The most `credits` given away can cost the service in AI (cents, rounded up).
+pub fn grant_cost_cents(cfg: &Config, credits: u64) -> u64 {
+    let c = (credits as f64 * cfg.cents_per_credit / cfg.markup).ceil();
+    if c.is_finite() && c > 0.0 { c as u64 } else { 0 }
+}
+
+/// What a reply's `usage` cost Anthropic's way (dollars).
+fn usd(price: &ModelPrice, usage: &Value) -> f64 {
     let n = |k: &str| usage.get(k).and_then(Value::as_u64).unwrap_or(0) as f64;
-    let usd = (n("input_tokens") * price.input
+    (n("input_tokens") * price.input
         + n("output_tokens") * price.output
         + n("cache_read_input_tokens") * price.cache_read
         + n("cache_creation_input_tokens") * price.cache_write)
-        / 1e6;
-    credits(cfg, usd)
+        / 1e6
+}
+
+/// What a reply's `usage` cost (credits).
+pub fn charge(cfg: &Config, price: &ModelPrice, usage: &Value) -> u64 {
+    credits(cfg, usd(price, usage))
 }
 
 #[cfg(test)]
@@ -74,6 +90,18 @@ mod tests {
         // a tiny reply still costs a credit; nothing used costs nothing
         assert_eq!(charge(&c, &p, &json!({"input_tokens": 10, "output_tokens": 1})), 1);
         assert_eq!(charge(&c, &p, &json!({})), 0);
+    }
+
+    #[test]
+    fn what_free_offers_cost_the_service() {
+        let c = cfg();
+        let p = c.model("claude-opus-5-5").unwrap().clone();
+        // $0.08 of AI is 8 cents, without the markup
+        assert_eq!(cost_cents(&p, &json!({"input_tokens": 10_000, "output_tokens": 2_000})), 8);
+        assert_eq!(cost_cents(&p, &json!({})), 0);
+        // 100 credits at 1 cent and a markup of 3 buy at most 34 cents of AI
+        assert_eq!(grant_cost_cents(&c, 100), 34);
+        assert_eq!(grant_cost_cents(&c, 0), 0);
     }
 
     #[test]

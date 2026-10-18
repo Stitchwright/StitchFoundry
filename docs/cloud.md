@@ -4,7 +4,7 @@
 > (CLOUD-01); StitchFoundry Account in the app, with Design from Prompt, Redraw Image, Ask About
 > Embroidery and Check My Sew-out paid with credits (CLOUD-02); Check My Sew-out's free monthly
 > checks, opt-in sharing and follow-ups (SO-01); a Postgres database and a Railway setup
-> (CLOUD-03). Not yet hosted.
+> (CLOUD-03); a monthly budget for the free offers (CLOUD-04). Not yet hosted.
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
@@ -59,6 +59,11 @@ The owner's prices (2026-10-18), the defaults; each is a setting:
   ($10 for 1,000), `medium:2750:2500` ($25 for 2,750), `large:6000:5000` ($50 for 6,000). Nothing
   under $10: card fees take too large a share of smaller payments.
 - 100 credits on sign-up.
+- The free offers (the sign-up credits and the free checks) may cost at most
+  `SF_CLOUD_FREE_BUDGET_CENTS` (2500: $25) of AI a calendar month. Sign-up credits count at the
+  most they can buy (100 credits are 34 cents of AI at a markup of 3), free checks at what each of
+  their requests used. Once the month's budget is spent, new accounts start with no credits and
+  checks are paid at their flat price, until the next month; nothing already given is taken back.
 
 ## Hosting on Railway
 
@@ -82,7 +87,8 @@ database beside it.
    | `SF_CLOUD_PUBLIC_URL` | the service's address (step 5), for Stripe's return pages |
 
    The prices have defaults (above); set `SF_CLOUD_MARKUP`, `SF_CLOUD_PACKS`,
-   `SF_CLOUD_SIGNUP_CREDITS`, `SF_CLOUD_FREE_CHECKS` or `SF_CLOUD_CHECK_CREDITS` only to change
+   `SF_CLOUD_SIGNUP_CREDITS`, `SF_CLOUD_FREE_CHECKS`, `SF_CLOUD_CHECK_CREDITS` or
+   `SF_CLOUD_FREE_BUDGET_CENTS` only to change
    them.
 5. **An address:** **Settings › Networking › Generate Domain** gives a `….up.railway.app` address
    with HTTPS; or add your own domain there (a `CNAME` at your domain's registrar). Railway gives
@@ -122,6 +128,7 @@ target/release/stitchfoundry-cloud
 | `SF_CLOUD_CENTS_PER_CREDIT`, `SF_CLOUD_MARKUP` | a credit's price in cents (1) and the markup on the AI's cost (3) |
 | `SF_CLOUD_PACKS` | the packs on sale (see Prices) |
 | `SF_CLOUD_FREE_CHECKS`, `SF_CLOUD_CHECK_CREDITS` | sew-out checks free a month (3) and a check's price after them (10) |
+| `SF_CLOUD_FREE_BUDGET_CENTS` | the most the free offers may cost in AI a month (2500: $25; see Prices) |
 
 It speaks plain HTTP: put it behind a TLS proxy (Caddy, nginx, or the host's load balancer, as
 Railway's is) so the app reaches it over HTTPS. One small machine is enough to start: it keeps

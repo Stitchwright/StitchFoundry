@@ -210,14 +210,22 @@ impl Service {
 
     fn account_json(&self, store: &Store, id: u64) -> Value {
         let a = store.account(id);
-        let used = store.checks_in(id, &sewout::month((self.clock)()));
+        let month = sewout::month((self.clock)());
+        let used = store.checks_in(id, &month);
+        // none while the month's free offers are used up
+        let free_checks = if self.free_left(store, &month) { self.cfg.free_checks.saturating_sub(used as u64) } else { 0 };
         json!({
             "email": a.map(|a| a.email.as_str()),
             "credits": a.map_or(0, |a| a.credits.saturating_sub(a.reserved)),
-            "freeChecks": self.cfg.free_checks.saturating_sub(used as u64),
+            "freeChecks": free_checks,
             "checkCredits": self.cfg.check_credits,
             "sharedChecks": store.shared_checks(id).len(),
         })
+    }
+
+    /// Whether the free offers have budget left in `month` (`SF_CLOUD_FREE_BUDGET_CENTS`).
+    fn free_left(&self, store: &Store, month: &str) -> bool {
+        store.free_spent(month) < self.cfg.free_budget_cents
     }
 
     fn new_session(&self, id: u64) -> Response {
@@ -257,9 +265,22 @@ impl Service {
             Err(e) => return Response::error(500, "api_error", e),
         };
         let now = (self.clock)();
-        let id = match self.store().create(&email, hash, self.cfg.signup_credits, now) {
-            Ok(id) => id,
-            Err(e) => return store_error(e),
+        let month = sewout::month(now);
+        let id = {
+            let mut store = self.store();
+            // the starting credits, while the month's free offers can afford them
+            let cost = pricing::grant_cost_cents(&self.cfg, self.cfg.signup_credits);
+            let credits = if store.free_spent(&month).saturating_add(cost) <= self.cfg.free_budget_cents { self.cfg.signup_credits } else { 0 };
+            let id = match store.create(&email, hash, credits, now) {
+                Ok(id) => id,
+                Err(e) => return store_error(e),
+            };
+            if credits > 0 {
+                if let Err(e) = store.add_free_spent(&month, cost) {
+                    log::error!("free budget: {e}");
+                }
+            }
+            id
         };
         self.new_session(id)
     }
@@ -460,7 +481,7 @@ impl Service {
                 // past the check: as any request
                 Some(c) => (Charge::Metered, c.free),
                 None => {
-                    let free = (store.checks_in(id, &month) as u64) < self.cfg.free_checks;
+                    let free = (store.checks_in(id, &month) as u64) < self.cfg.free_checks && self.free_left(&store, &month);
                     (Charge::Flat(if free { 0 } else { self.cfg.check_credits }), free)
                 }
             }
@@ -468,6 +489,16 @@ impl Service {
         let mut resp = self.forward(req, id, key, &body, max_tokens, charge, if free { "sew-out check (free)" } else { "sew-out check" });
         if (200..300).contains(&resp.status) {
             let mut store = self.store();
+            if free {
+                // a free check's rounds count against the month's free offers at what they cost
+                let cost = serde_json::from_str::<Value>(&resp.body).ok().map_or(0, |r| {
+                    let price = r.get("model").and_then(Value::as_str).and_then(|m| self.cfg.model(m)).cloned().unwrap_or_else(|| self.cfg.dearest());
+                    pricing::cost_cents(&price, r.get("usage").unwrap_or(&Value::Null))
+                });
+                if let Err(e) = store.add_free_spent(&month, cost) {
+                    log::error!("free budget: {e}");
+                }
+            }
             let noted = Check { account: id, month: month.clone(), created: now, requests: 0, free, shared: share, follow_up: follow_up.clone() };
             if let Err(e) = store.note_check(&check, noted) {
                 log::error!("sew-out check {check}: {e}");
@@ -479,7 +510,7 @@ impl Service {
                     log::error!("sew-out check {check}: {e}");
                 }
             }
-            let left = self.cfg.free_checks.saturating_sub(store.checks_in(id, &month) as u64);
+            let left = if self.free_left(&store, &month) { self.cfg.free_checks.saturating_sub(store.checks_in(id, &month) as u64) } else { 0 };
             resp.headers.push(("x-stitchfoundry-free-checks".into(), left.to_string()));
         }
         resp
@@ -607,11 +638,17 @@ mod tests {
     }
 
     fn service(reply: (u16, String), keys: bool) -> (Service, Calls) {
+        service_with(reply, keys, None)
+    }
+
+    /// A service with a free budget of `budget` cents (else the default).
+    fn service_with(reply: (u16, String), keys: bool, budget: Option<u64>) -> (Service, Calls) {
         let calls: Calls = Arc::default();
         let cfg = Config::from_env(|k| match k {
             "ANTHROPIC_API_KEY" if keys => Some("sk-ant-service".into()),
             "STRIPE_SECRET_KEY" if keys => Some("sk_test_x".into()),
             "STRIPE_WEBHOOK_SECRET" if keys => Some("whsec_x".into()),
+            "SF_CLOUD_FREE_BUDGET_CENTS" => budget.map(|b| b.to_string()),
             _ => None,
         })
         .unwrap();
@@ -790,6 +827,31 @@ mod tests {
         let d = s.handle(&req("POST", "/v1/sewout/delete", Some(&t), json!({})));
         assert_eq!(json_of(&d)["deleted"], 1);
         assert!(s.store().shared("1-aaaaaaaa").0.is_empty());
+    }
+
+    /// The month's free offers stop at the budget: new accounts start without credits, and checks
+    /// are paid, until the next month.
+    #[test]
+    fn free_offers_stop_at_the_months_budget() {
+        let reply = json!({"type": "message", "model": "claude-opus-5-5", "content": [{"type": "text", "text": "ok"}], "usage": {"input_tokens": 10_000, "output_tokens": 2_000}});
+        // 100 starting credits can buy 34 cents of AI; a check here costs 8
+        let (s, _) = service_with((200, reply.to_string()), true, Some(40));
+        let t = sign_up(&s);
+        let account = |t: &str| json_of(&s.handle(&req("POST", "/v1/account", Some(t), json!({}))));
+        assert_eq!(account(&t)["credits"], 100);
+        assert_eq!(account(&t)["freeChecks"], 3);
+        // the first check is free, and uses up the budget (34 + 8 = 42 cents)
+        assert_eq!(s.handle(&check(&t, "aaaaaaaa", "aGVsbG8=", false)).status, 200);
+        assert_eq!(account(&t)["credits"], 100);
+        assert_eq!(s.store().free_spent(&sewout::month(1_000_000)), 42);
+        assert_eq!(account(&t)["freeChecks"], 0, "no more free checks this month");
+        let r = s.handle(&check(&t, "bbbbbbbb", "aGVsbG8=", false));
+        assert!(r.headers.contains(&("x-stitchfoundry-free-checks".to_string(), "0".to_string())));
+        assert_eq!(account(&t)["credits"], 90, "the next check is paid");
+        // a new account starts without credits
+        let r = s.handle(&req("POST", "/v1/signup", None, json!({"email": "second@example.com", "password": "fire truck 2"})));
+        let t2 = json_of(&r)["token"].as_str().unwrap().to_string();
+        assert_eq!(account(&t2)["credits"], 0);
     }
 
     #[test]

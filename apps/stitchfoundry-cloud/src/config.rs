@@ -54,6 +54,11 @@ pub struct Config {
     /// them (`SF_CLOUD_CHECK_CREDITS`, 10).
     pub free_checks: u64,
     pub check_credits: u64,
+    /// The most the month's free offers may cost the service in AI (`SF_CLOUD_FREE_BUDGET_CENTS`,
+    /// 2500: $25): sign-up credits, counted at what they could buy, and free sew-out checks, at what
+    /// they used. Once it is reached, new accounts start without credits and checks are paid until
+    /// the next month.
+    pub free_budget_cents: u64,
     /// The Postgres database (`DATABASE_URL`, as Railway sets it); without it the data folder.
     pub database_url: Option<String>,
 }
@@ -97,6 +102,7 @@ impl Config {
             max_tokens: 16_000,
             free_checks: num("SF_CLOUD_FREE_CHECKS", 3.0)? as u64,
             check_credits: num("SF_CLOUD_CHECK_CREDITS", 10.0)? as u64,
+            free_budget_cents: num("SF_CLOUD_FREE_BUDGET_CENTS", 2500.0)? as u64,
             database_url: nonempty("DATABASE_URL"),
         })
     }
@@ -149,6 +155,7 @@ mod tests {
         let c = Config::from_env(|_| None).unwrap();
         assert_eq!(c.addr, "127.0.0.1:8080");
         assert_eq!(c.signup_credits, 100);
+        assert_eq!(c.free_budget_cents, 2500);
         assert_eq!(c.packs.len(), 3);
         assert!(c.anthropic_key.is_none() && c.stripe_key.is_none());
         let c = Config::from_env(|k| match k {
