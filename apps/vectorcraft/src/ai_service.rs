@@ -15,7 +15,7 @@ const TIMEOUT: Duration = Duration::from_secs(300);
 pub fn post(req: &HttpRequest) -> Result<(u16, String), String> {
     let tls = ureq::tls::TlsConfig::builder().root_certs(ureq::tls::RootCerts::PlatformVerifier).build();
     let agent: ureq::Agent = ureq::Agent::config_builder().tls_config(tls).timeout_global(Some(TIMEOUT)).http_status_as_error(false).build().into();
-    let mut call = agent.post(req.url);
+    let mut call = agent.post(&req.url);
     for (name, value) in &req.headers {
         call = call.header(*name, value.as_str());
     }
@@ -63,7 +63,12 @@ impl SecretFiles {
 
 /// The environment variable a secret falls back to.
 fn env_var(name: &str) -> Option<&'static str> {
-    (name == "anthropic-api-key").then_some("ANTHROPIC_API_KEY")
+    match name {
+        "anthropic-api-key" => Some("ANTHROPIC_API_KEY"),
+        // a StitchFoundry session (automation, testing)
+        "stitchfoundry-session" => Some("STITCHFOUNDRY_SESSION"),
+        _ => None,
+    }
 }
 
 impl SecretStore for SecretFiles {

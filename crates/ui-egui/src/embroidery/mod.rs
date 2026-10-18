@@ -1,6 +1,7 @@
 //! Embroidery mode UI: the stitch overlay on the canvas, the Embroidery and Stitch
 //! Sequence panels, the stitch player and the digitizing widget.
 
+pub mod account;
 pub mod ask;
 pub mod kiosk;
 pub mod overlay;
@@ -150,6 +151,8 @@ pub struct EmbroideryUi {
     pub ask: ask::AskState,
     /// Check My Sew-out: the photos and answers (SO-01).
     pub sewout: sewout::SewOutState,
+    /// StitchFoundry Account: the session and the credits (CLOUD-02).
+    pub account: account::AccountState,
     /// Get Embroidery Fonts' window (NEW-20).
     pub font_library: crate::dialogs::font_library::FontLibraryState,
     /// Compare Designs' window (CMP-01).
@@ -374,6 +377,7 @@ impl Default for EmbroideryUi {
             prompt: prompt::PromptState::default(),
             ask: Default::default(),
             sewout: Default::default(),
+            account: Default::default(),
             font_library: Default::default(),
             compare: Default::default(),
         }
@@ -385,6 +389,7 @@ impl Default for EmbroideryUi {
 pub fn tick(app: &mut crate::VectorcraftApp, ctx: &egui::Context) {
     prompt::poll(app, ctx);
     ask::poll(app, ctx);
+    account::poll(app, ctx);
     let tool = app.session.tool_id();
     if tool != app.embroidery.widget.last_tool {
         if tool == widget::TOOL {

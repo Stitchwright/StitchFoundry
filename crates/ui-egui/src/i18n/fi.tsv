@@ -6285,3 +6285,33 @@ machine	Stop	Pysäytys
 	The machine stopped with a message	Kone pysähtyi ilmoitukseen
 	While it sewed:	Kirjonnan aikana:
 	e.g. 75/11 ballpoint	esim. 75/11 pallokärki
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Tarkistus maksaa {n} krediittiä; ilmaiset tarkistukset palaavat ensi kuussa.
+	Account	Tili
+	Buy credits	Osta krediittejä
+	Buy…	Osta…
+	Create Account	Luo tili
+	Delete My Shared Sew-out Checks	Poista jakamani tarkistukset
+	Email	Sähköposti
+	Free sew-out checks left this month: {n}	Ilmaisia tarkistuksia jäljellä tässä kuussa: {n}
+	Leave it empty for StitchFoundry's own service.	Jätä tyhjäksi StitchFoundryn omalle palvelulle.
+	Paid with StitchFoundry credits ({n} left).	Maksettu StitchFoundry-krediiteillä ({n} jäljellä).
+	Paid with StitchFoundry credits.	Maksettu StitchFoundry-krediiteillä.
+	Pay for the AI features with my StitchFoundry credits	Maksa tekoälytoiminnot StitchFoundry-krediiteilläni
+	Pay with StitchFoundry credits instead	Maksa sen sijaan StitchFoundry-krediiteillä
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Maksu tehdään Stripen suojatulla sivulla selaimessasi; korttisi ei koskaan päädy StitchFoundrylle.
+	Reading your credits…	Luetaan krediittejä…
+	Server	Palvelin
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Jaa tämä tarkistus StitchFoundryn parantamiseksi (pysyy yksityisenä; poista milloin tahansa StitchFoundry-tilillä)
+	Sign In	Kirjaudu sisään
+	Sign Out	Kirjaudu ulos
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Kirjaudu sisään tai luo tili, niin voit maksaa tekoälytoiminnot StitchFoundry-krediiteillä oman Anthropic API -avaimesi sijaan. Uusi tili saa ilmaisia krediittejä.
+	Signed in as {email}	Kirjautuneena: {email}
+	StitchFoundry Account	StitchFoundry-tili
+	StitchFoundry Account…	StitchFoundry-tili…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-tilit eivät ole vielä auki. Siihen asti tekoälytoiminnot toimivat omalla Anthropic API -avaimellasi.
+	This is the sew-out after the fix from my last check	Tämä on kirjonta viime tarkistuksen korjauksen jälkeen
+	{n} credits for {price}	{n} krediittiä hintaan {price}
+	{n} credits	{n} krediittiä
+	{n} free checks left this month.	Ilmaisia tarkistuksia jäljellä tässä kuussa: {n}.

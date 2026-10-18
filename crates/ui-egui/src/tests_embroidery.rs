@@ -958,6 +958,77 @@ mod ask_about_embroidery {
         out
     }
 
+    /// CLOUD-02: signed in to StitchFoundry, the AI features are paid with credits: requests go to
+    /// the service with the session in place of an API key, its refusals read as its own, and a
+    /// sew-out check goes to its own endpoint with its id (and shared when asked).
+    #[test]
+    fn signed_in_the_ai_features_are_paid_with_credits_through_the_service() {
+        use crate::embroidery::account;
+        let token = "sfs_0123456789abcdef";
+        let (mut app, sent, keys) = app(vec![
+            (200, json!({"token": token, "account": {"email": "denise@example.com", "credits": 100}}).to_string()),
+            (200, json!({"email": "denise@example.com", "credits": 100, "freeChecks": 3, "packs": [], "payments": false}).to_string()),
+            answer("Cut-away on a T-shirt."),
+            (402, json!({"type": "error", "error": {"type": "billing_error", "message": "not enough credits"}}).to_string()),
+            answer("The gap is the knit pulling in."),
+        ]);
+        app.embroidery.account.server = "https://cloud.example".into();
+        assert_eq!(app.run("ui.account", json!({})).unwrap()["signedIn"], false);
+        app.embroidery.account.email = "denise@example.com".into();
+        app.embroidery.account.password = "short".into();
+        // checked before anything is sent
+        account::test_sign_in(&mut app, false);
+        assert_eq!(app.embroidery.account.error.as_deref(), Some("A password needs at least 8 characters."));
+        assert!(sent.lock().unwrap().is_empty());
+        app.embroidery.account.error = None;
+        let ctx = egui::Context::default();
+        let poll = |app: &mut VectorcraftApp| {
+            for _ in 0..400 {
+                account::poll(app, &ctx);
+                if app.embroidery.account.error.is_some()
+                    || !app.embroidery.account.token.is_empty() && app.embroidery.account.info.as_ref().is_some_and(|i| i.get("freeChecks").is_some())
+                {
+                    return;
+                }
+                std::thread::sleep(Duration::from_millis(5));
+            }
+        };
+        app.embroidery.account.password = "fire truck 1".into();
+        account::test_sign_in(&mut app, false);
+        poll(&mut app);
+        let st = &app.embroidery.account;
+        assert_eq!(st.token, token);
+        assert!(st.password.is_empty() && st.use_credits, "signing in is choosing credits; the password is forgotten");
+        assert_eq!(keys.load(vectorcraft_embroidery::sf_core::ai::cloud::TOKEN_NAME).as_deref(), Some(token));
+        assert_eq!(sent.lock().unwrap()[0].url, "https://cloud.example/v1/signin");
+        assert_eq!(sent.lock().unwrap()[1].url, "https://cloud.example/v1/account");
+        assert!(account::paying_with_credits(&app));
+        // a question goes to the service, with the session, not the Anthropic key
+        app.run("ui.askAboutEmbroidery", json!({"question": "Which stabilizer?"})).unwrap();
+        wait(&mut app);
+        let r = sent.lock().unwrap()[2].clone();
+        assert_eq!(r.url, "https://cloud.example/v1/messages");
+        assert!(r.headers.contains(&("authorization", format!("Bearer {token}"))));
+        assert!(r.headers.iter().all(|h| h.0 != "x-api-key"), "the Anthropic key stays here");
+        // out of credits: said as StitchFoundry's
+        app.embroidery.ask.input = "And the needle?".into();
+        ask::send(&mut app).unwrap();
+        wait(&mut app);
+        assert_eq!(app.embroidery.ask.error.as_deref(), Some("Not enough StitchFoundry credits: buy more in StitchFoundry Account."));
+        // a shared sew-out check goes to its own endpoint
+        let id =
+            ask::begin_check(&mut app, json!({"role": "user", "content": [{"type": "text", "text": "photos"}]}), "My sew-out".into(), true, None)
+                .unwrap();
+        wait(&mut app);
+        let r = sent.lock().unwrap()[4].clone();
+        assert_eq!(r.url, "https://cloud.example/v1/sewout");
+        assert!(r.headers.contains(&("x-stitchfoundry-check", id.clone())) && r.headers.contains(&("x-stitchfoundry-share", "1".to_string())));
+        // paying with credits off: back to the own key and Anthropic
+        app.embroidery.account.use_credits = false;
+        assert!(!account::paying_with_credits(&app));
+        assert_eq!(account::key_to_send(&mut app), "sk-ant-test");
+    }
+
     /// SO-01: photos of a sew-out are made the size Claude looks at; a check sends them with how
     /// the design should look, its summary and the answers, under the check's own instructions, and
     /// the answer (and the questions after it) are an Ask conversation in its sew-out mode.

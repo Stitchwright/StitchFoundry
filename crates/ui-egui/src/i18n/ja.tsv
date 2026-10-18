@@ -5947,3 +5947,46 @@ machine	Stop	停止
 @msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	この写真は読み込めません。JPEG で保存するか送ってください（iPhone では 設定 › カメラ › フォーマット › 互換性優先）。
 @msg	At most 6 photos: remove one first.	写真は 6 枚までです。先に 1 枚削除してください。
 @msg	no files here	ここにはファイルがありません
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	チェック 1 回は {n} クレジットです。無料チェックは来月また使えます。
+	Account	アカウント
+	Buy credits	クレジットを購入
+	Buy…	購入…
+	Create Account	アカウントを作成
+	Delete My Shared Sew-out Checks	共有したチェックを削除
+	Email	メール
+	Free sew-out checks left this month: {n}	今月の無料チェックの残り：{n}
+	Leave it empty for StitchFoundry's own service.	StitchFoundry 自身のサービスを使うときは空欄のままにします。
+	Paid with StitchFoundry credits ({n} left).	StitchFoundry クレジットで支払い（残り {n}）。
+	Paid with StitchFoundry credits.	StitchFoundry クレジットで支払い。
+	Pay for the AI features with my StitchFoundry credits	AI 機能を StitchFoundry クレジットで支払う
+	Pay with StitchFoundry credits instead	代わりに StitchFoundry クレジットで支払う
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	支払いはブラウザーで開く Stripe の安全なページで行います。カード情報が StitchFoundry に届くことはありません。
+	Reading your credits…	クレジットを読み込み中…
+	Server	サーバー
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	このチェックを共有して StitchFoundry の改善に協力する（非公開。StitchFoundry アカウントでいつでも削除できます）
+	Sign In	サインイン
+	Sign Out	サインアウト
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	サインインまたはアカウントを作成すると、AI 機能をご自分の Anthropic API キーの代わりに StitchFoundry クレジットで支払えます。新しいアカウントには無料クレジットが付きます。
+	Signed in as {email}	{email} でサインイン中
+	StitchFoundry Account	StitchFoundry アカウント
+	StitchFoundry Account…	StitchFoundry アカウント…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry アカウントはまだ始まっていません。それまでは、AI 機能はご自分の Anthropic API キーで使えます。
+	This is the sew-out after the fix from my last check	前回のチェックの直しを入れて刺しゅうしたものです
+	{n} credits for {price}	{n} クレジット（{price}）
+	{n} credits	{n} クレジット
+	{n} free checks left this month.	今月の無料チェックはあと {n} 回です。
+@msg	StitchFoundry Account needs the desktop app for now	「StitchFoundry アカウント」は今のところデスクトップアプリが必要です
+@msg	Type your email address.	メールアドレスを入力してください。
+@msg	A password needs at least 8 characters.	パスワードは 8 文字以上必要です。
+@msg	Account made: welcome to StitchFoundry.	アカウントを作成しました。StitchFoundry へようこそ。
+@msg	Signed in.	サインインしました。
+@msg	Pay on the page that opened in your browser, then press Refresh.	ブラウザーで開いたページで支払い、それから「更新」を押してください。
+@msg	Signed out.	サインアウトしました。
+@msg	Your shared sew-out checks are deleted.	共有したチェックを削除しました。
+@msg	StitchFoundry accounts aren't open yet.	StitchFoundry アカウントはまだ始まっていません。
+@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	StitchFoundry アカウントにサインインしてください（刺しゅう › StitchFoundry アカウント…）。
+@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	StitchFoundry クレジットが足りません。StitchFoundry アカウントで購入してください。
+@msg	An account with that email already exists: sign in instead.	そのメールのアカウントはすでにあります。サインインしてください。
+@msg	The StitchFoundry service can't do this yet: try again later.	StitchFoundry のサービスはまだこれに対応していません。後でもう一度お試しください。

@@ -7,5 +7,6 @@ pub mod api;
 pub mod auth;
 pub mod config;
 pub mod pricing;
+pub mod sewout;
 pub mod store;
 pub mod stripe;

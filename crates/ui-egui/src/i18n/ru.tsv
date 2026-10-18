@@ -5903,3 +5903,46 @@ machine	Stop	Остановка
 @msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Это фото не читается: сохраните или отправьте его в JPEG (на iPhone: Настройки › Камера › Форматы › Наиболее совместимый).
 @msg	At most 6 photos: remove one first.	Не больше 6 фото: сначала уберите одно.
 @msg	no files here	здесь нет файлов
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Проверка стоит {n} кредитов; бесплатные проверки вернутся в следующем месяце.
+	Account	Аккаунт
+	Buy credits	Купить кредиты
+	Buy…	Купить…
+	Create Account	Создать аккаунт
+	Delete My Shared Sew-out Checks	Удалить мои общие проверки
+	Email	Эл. почта
+	Free sew-out checks left this month: {n}	Бесплатных проверок в этом месяце осталось: {n}
+	Leave it empty for StitchFoundry's own service.	Оставьте пустым для собственного сервиса StitchFoundry.
+	Paid with StitchFoundry credits ({n} left).	Оплачено кредитами StitchFoundry (осталось {n}).
+	Paid with StitchFoundry credits.	Оплачено кредитами StitchFoundry.
+	Pay for the AI features with my StitchFoundry credits	Оплачивать функции ИИ моими кредитами StitchFoundry
+	Pay with StitchFoundry credits instead	Платить кредитами StitchFoundry
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Оплата проходит на защищённой странице Stripe в вашем браузере; ваша карта никогда не попадает в StitchFoundry.
+	Reading your credits…	Читаем ваши кредиты…
+	Server	Сервер
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Поделиться этой проверкой, чтобы помочь улучшить StitchFoundry (останется приватной; удалить можно в любое время в аккаунте StitchFoundry)
+	Sign In	Войти
+	Sign Out	Выйти
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Войдите или создайте аккаунт, чтобы оплачивать функции ИИ кредитами StitchFoundry вместо собственного ключа API Anthropic. Новый аккаунт начинается с бесплатными кредитами.
+	Signed in as {email}	Вход выполнен: {email}
+	StitchFoundry Account	Аккаунт StitchFoundry
+	StitchFoundry Account…	Аккаунт StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Аккаунты StitchFoundry ещё не открыты. До тех пор функции ИИ работают с вашим собственным ключом API Anthropic.
+	This is the sew-out after the fix from my last check	Это вышивка после исправления из моей прошлой проверки
+	{n} credits for {price}	{n} кредитов за {price}
+	{n} credits	Кредитов: {n}
+	{n} free checks left this month.	Бесплатных проверок в этом месяце осталось: {n}.
+@msg	StitchFoundry Account needs the desktop app for now	«Аккаунт StitchFoundry» пока требует настольного приложения
+@msg	Type your email address.	Введите адрес эл. почты.
+@msg	A password needs at least 8 characters.	В пароле должно быть не меньше 8 символов.
+@msg	Account made: welcome to StitchFoundry.	Аккаунт создан: добро пожаловать в StitchFoundry.
+@msg	Signed in.	Вход выполнен.
+@msg	Pay on the page that opened in your browser, then press Refresh.	Оплатите на странице, открывшейся в браузере, затем нажмите «Обновить».
+@msg	Signed out.	Выход выполнен.
+@msg	Your shared sew-out checks are deleted.	Ваши общие проверки удалены.
+@msg	StitchFoundry accounts aren't open yet.	Аккаунты StitchFoundry ещё не открыты.
+@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Войдите в аккаунт StitchFoundry (Вышивка › Аккаунт StitchFoundry…).
+@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Недостаточно кредитов StitchFoundry: купите ещё в аккаунте StitchFoundry.
+@msg	An account with that email already exists: sign in instead.	Аккаунт с этой почтой уже есть: войдите в него.
+@msg	The StitchFoundry service can't do this yet: try again later.	Сервис StitchFoundry пока этого не умеет: попробуйте позже.

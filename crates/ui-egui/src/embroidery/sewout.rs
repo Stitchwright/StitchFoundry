@@ -48,6 +48,11 @@ pub struct SewOutState {
     pub notes: String,
     /// Send the design open now with the photos.
     pub include_design: bool,
+    /// Keep the check to improve StitchFoundry (paid with credits only).
+    pub share: bool,
+    /// The last check's id, and whether this one is the sew-out after its fix.
+    pub last_check: Option<String>,
+    pub follow_up: bool,
     /// The web's picker is open for photos: the files it hands in are photos.
     pub waiting: bool,
     pub error: Option<String>,
@@ -241,8 +246,15 @@ pub fn check(app: &mut VectorcraftApp) -> Result<(), String> {
         }
     };
     let shown = crate::i18n::fmt(tl!("My sew-out ({n} photos)"), &[("n", &n.to_string())]);
-    app.embroidery.sewout.open = false;
-    ask::begin_check(app, message, shown)
+    let st = &mut app.embroidery.sewout;
+    st.open = false;
+    let share = st.share && super::account::paying_with_credits(app);
+    let follow_up = app.embroidery.sewout.last_check.clone().filter(|_| app.embroidery.sewout.follow_up);
+    let id = ask::begin_check(app, message, shown, share, follow_up)?;
+    let st = &mut app.embroidery.sewout;
+    st.last_check = Some(id);
+    st.follow_up = false;
+    Ok(())
 }
 
 /// The window, while open.
@@ -262,6 +274,8 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
         .and_then(|i| i["fabrics"].as_array().map(|a| a.iter().filter_map(|f| f.as_str().map(str::to_string)).collect()))
         .unwrap_or_default();
     let has_doc = app.session.active().is_some();
+    super::account::load(app);
+    let credits = super::account::paying_with_credits(app);
     egui::Window::new(tl!("Check My Sew-out"))
         .id(egui::Id::new("check-my-sewout"))
         .open(&mut open)
@@ -328,6 +342,12 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
             ui.add_enabled_ui(has_doc, |ui| {
                 ui.checkbox(&mut st.include_design, tl!("Include the design that was sewn (open now), so it can be fixed"));
             });
+            if credits {
+                ui.checkbox(&mut st.share, tl!("Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)"));
+            }
+            if st.last_check.is_some() {
+                ui.checkbox(&mut st.follow_up, tl!("This is the sew-out after the fix from my last check"));
+            }
             if let Some(e) = &st.error {
                 ui.label(RichText::new(crate::i18n::msg(e)).color(t.error));
             }
@@ -336,11 +356,22 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
             if ui.add_enabled_ui(ready, |ui| crate::widgets::primary_button(ui, tl!("Check My Sew-out"))).inner.clicked() {
                 go = true;
             }
-            ui.label(
-                RichText::new(tl!("Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first."))
-                    .size(11.0)
-                    .color(t.text_dim),
-            );
+            let paid_by_credits = super::account::paid_line(app, ui, &t);
+            if !paid_by_credits {
+                ui.label(
+                    RichText::new(tl!("Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first."))
+                        .size(11.0)
+                        .color(t.text_dim),
+                );
+            } else if let Some(n) = app.embroidery.account.info.as_ref().and_then(|i| i["freeChecks"].as_u64()) {
+                let line = if n > 0 {
+                    crate::i18n::fmt(tl!("{n} free checks left this month."), &[("n", &n.to_string())])
+                } else {
+                    let c = app.embroidery.account.info.as_ref().and_then(|i| i["checkCredits"].as_u64()).unwrap_or(10);
+                    crate::i18n::fmt(tl!("A check costs {n} credits; free checks come back next month."), &[("n", &c.to_string())])
+                };
+                ui.label(RichText::new(line).size(11.0).color(t.text_dim));
+            }
         });
     if let Some(i) = remove
         && i < app.embroidery.sewout.photos.len()

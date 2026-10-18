@@ -14,7 +14,7 @@ use serde_json::{Value, json};
 use vectorcraft_embroidery::MM_PER_PT;
 use vectorcraft_embroidery::sf_core::ai::ArtError;
 use vectorcraft_embroidery::sf_core::ai::ask::{self, Reply, ToolCall, ToolResult};
-use vectorcraft_embroidery::sf_core::ai::sewout;
+use vectorcraft_embroidery::sf_core::ai::{cloud, sewout};
 use vectorcraft_engine::CommandSpec;
 
 use super::prompt;
@@ -46,10 +46,21 @@ pub enum Mode {
     SewOut,
 }
 
+/// A sew-out check's headers for the StitchFoundry service: its id (the app makes it, the service
+/// keeps the check's requests together by it), shared or not, and the check it follows up.
+#[derive(Clone, Debug, PartialEq)]
+pub struct CheckHeaders {
+    pub id: String,
+    pub share: bool,
+    pub follow_up: Option<String>,
+}
+
 /// Ask About Embroidery between frames. Not saved: a conversation ends with the app.
 pub struct AskState {
     pub open: bool,
     pub mode: Mode,
+    /// A sew-out check's id and what goes with it to the StitchFoundry service.
+    pub check: Option<CheckHeaders>,
     /// The question being typed.
     pub input: String,
     /// The conversation as shown.
@@ -78,6 +89,7 @@ impl Default for AskState {
         Self {
             open: false,
             mode: Mode::Ask,
+            check: None,
             input: String::new(),
             entries: Vec::new(),
             messages: Vec::new(),
@@ -399,7 +411,7 @@ pub fn send(app: &mut VectorcraftApp) -> Result<(), String> {
         app.embroidery.ask.error = Some(m.clone());
         return Err(m);
     }
-    if let Err(e) = vectorcraft_embroidery::sf_core::ai::clean_key(&app.embroidery.prompt.key) {
+    if let Err(e) = vectorcraft_embroidery::sf_core::ai::clean_key(&super::account::key_to_send(app)) {
         return fail(app, e);
     }
     let design = if app.embroidery.ask.include_design { design_summary(app) } else { None };
@@ -407,8 +419,9 @@ pub fn send(app: &mut VectorcraftApp) -> Result<(), String> {
         Ok(m) => m,
         Err(e) => return fail(app, e),
     };
-    let keep = app.embroidery.ask.remember.then(|| app.embroidery.prompt.key.trim().to_string());
-    if keep.is_none() {
+    let credits = super::account::paying_with_credits(app);
+    let keep = (app.embroidery.ask.remember && !credits).then(|| app.embroidery.prompt.key.trim().to_string());
+    if keep.is_none() && !credits {
         prompt::keep_key(app.services.secrets.as_deref(), None);
     }
     let st = &mut app.embroidery.ask;
@@ -421,40 +434,61 @@ pub fn send(app: &mut VectorcraftApp) -> Result<(), String> {
 }
 
 /// Start a sew-out check (Check My Sew-out): a new conversation in [`Mode::SewOut`] whose first
-/// question is `message` ([`sewout::first_message`]), shown as `shown`.
-pub fn begin_check(app: &mut VectorcraftApp, message: Value, shown: String) -> Result<(), String> {
+/// question is `message` ([`sewout::first_message`]), shown as `shown`; paid with credits, shared
+/// to improve StitchFoundry when `share`, following up check `follow_up` → its id.
+pub fn begin_check(app: &mut VectorcraftApp, message: Value, shown: String, share: bool, follow_up: Option<String>) -> Result<String, String> {
     if app.embroidery.ask.asking() {
         return Err("already asking: wait for the answer".into());
     }
     clear(app);
+    let key = super::account::key_to_send(app);
+    let credits = super::account::paying_with_credits(app);
+    let id = cloud::check_id(&message, app.embroidery.prompt.now);
     let st = &mut app.embroidery.ask;
     st.open = true;
     st.mode = Mode::SewOut;
-    if let Err(e) = vectorcraft_embroidery::sf_core::ai::clean_key(&app.embroidery.prompt.key) {
+    st.check = Some(CheckHeaders { id: id.clone(), share, follow_up });
+    if let Err(e) = vectorcraft_embroidery::sf_core::ai::clean_key(&key) {
         st.show_key = true;
         let m = e.to_string();
         st.error = Some(m.clone());
         return Err(m);
     }
-    let keep = st.remember.then(|| app.embroidery.prompt.key.trim().to_string());
+    let keep = (st.remember && !credits).then(|| app.embroidery.prompt.key.trim().to_string());
     st.current = Some(Current { question: String::new(), start: 0, rounds: 0, keep });
     st.messages.push(message);
     st.entries.push(Entry::Question(shown));
     st.error = None;
-    request(app)
+    request(app).map(|_| id)
 }
 
 /// Send the conversation as it stands; the reply comes in through [`poll`].
 fn request(app: &mut VectorcraftApp) -> Result<(), String> {
-    let send = if app.embroidery.ask.mode == Mode::SewOut { sewout::request } else { ask::request };
-    let http = match send(&app.embroidery.prompt.key, &app.embroidery.ask.messages) {
+    let sew = app.embroidery.ask.mode == Mode::SewOut;
+    let send = if sew { sewout::request } else { ask::request };
+    let key = super::account::key_to_send(app);
+    let http = match send(&key, &app.embroidery.ask.messages) {
         Ok(h) => h,
         Err(e) => return give_up(app, e.to_string()),
     };
     if let Some(c) = app.embroidery.ask.current.as_mut() {
         c.rounds += 1;
     }
-    let rx = match prompt::post(app, http, "ask-about-embroidery", ask::parse_reply) {
+    // a sew-out check paid with credits goes to the service's own endpoint, with its id
+    let (path, extra) = match app.embroidery.ask.check.as_ref().filter(|_| sew) {
+        Some(c) => {
+            let mut h = vec![("x-stitchfoundry-check", c.id.clone())];
+            if c.share {
+                h.push(("x-stitchfoundry-share", "1".to_string()));
+            }
+            if let Some(f) = &c.follow_up {
+                h.push(("x-stitchfoundry-follow-up", f.clone()));
+            }
+            (cloud::SEWOUT, h)
+        }
+        None => (cloud::MESSAGES, Vec::new()),
+    };
+    let rx = match prompt::post_ai(app, http, "ask-about-embroidery", path, extra, ask::parse_reply) {
         Ok(rx) => rx,
         Err(e) => return give_up(app, e),
     };
@@ -492,6 +526,8 @@ pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
         Err(TryRecvError::Disconnected) => Err(ArtError::Network("the request stopped".into())),
     };
     app.embroidery.ask.pending = None;
+    // the credits it cost show next time the account is read
+    app.embroidery.account.stale |= super::account::paying_with_credits(app);
     // Anthropic took the key unless it said otherwise.
     let keep = app.embroidery.ask.current.as_ref().and_then(|c| c.keep.clone());
     if let Some(key) = keep.filter(|_| !matches!(r, Err(ArtError::Key(_)))) {
@@ -603,6 +639,7 @@ pub fn clear(app: &mut VectorcraftApp) {
     st.entries.clear();
     st.messages.clear();
     st.mode = Mode::Ask;
+    st.check = None;
     st.current = None;
     st.pending = None;
     st.approval = None;
@@ -632,7 +669,8 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
         .show(ctx, |ui| {
             let st = &app.embroidery.ask;
             // room under the conversation for the question box, its buttons, the key and the note
-            let footer = if st.show_key || app.embroidery.prompt.key.trim().is_empty() { 270.0 } else { 210.0 };
+            let credits = super::account::paying_with_credits(app);
+            let footer = if (st.show_key || app.embroidery.prompt.key.trim().is_empty()) && !credits { 270.0 } else { 210.0 };
             egui::ScrollArea::vertical()
                 .id_salt("ask-conversation")
                 .max_height((ui.available_height() - footer).max(120.0))
@@ -707,7 +745,11 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 }
             });
             ui.checkbox(&mut st.include_design, tl!("Include my design"));
-            let show_key = st.show_key || app.embroidery.prompt.key.trim().is_empty();
+            // paid with StitchFoundry credits: no key asked for
+            if super::account::paid_line(app, ui, &t) {
+                return;
+            }
+            let show_key = app.embroidery.ask.show_key || app.embroidery.prompt.key.trim().is_empty();
             if show_key {
                 ui.horizontal(|ui| {
                     ui.label(RichText::new(tl!("Anthropic API key:")).color(t.text_dim));

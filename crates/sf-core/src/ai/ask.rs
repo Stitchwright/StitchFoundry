@@ -172,7 +172,7 @@ pub(crate) fn request_with(key: &str, system: String, messages: &[Value]) -> Res
         "messages": messages,
     });
     Ok(HttpRequest {
-        url: API_URL,
+        url: API_URL.to_string(),
         headers: vec![
             ("content-type", "application/json".to_string()),
             ("x-api-key", key.to_string()),

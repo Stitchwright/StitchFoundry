@@ -5881,3 +5881,33 @@ machine	Stop	Dừng máy
 	The machine stopped with a message	Máy dừng và báo thông báo
 	While it sewed:	Trong khi thêu:
 	e.g. 75/11 ballpoint	vd. 75/11 đầu tròn
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Một lần kiểm tra tốn {n} tín dụng; lượt kiểm tra miễn phí sẽ có lại vào tháng sau.
+	Account	Tài khoản
+	Buy credits	Mua tín dụng
+	Buy…	Mua…
+	Create Account	Tạo tài khoản
+	Delete My Shared Sew-out Checks	Xóa các lần kiểm tra tôi đã chia sẻ
+	Email	Email
+	Free sew-out checks left this month: {n}	Lượt kiểm tra miễn phí còn lại tháng này: {n}
+	Leave it empty for StitchFoundry's own service.	Để trống để dùng dịch vụ của chính StitchFoundry.
+	Paid with StitchFoundry credits ({n} left).	Trả bằng tín dụng StitchFoundry (còn {n}).
+	Paid with StitchFoundry credits.	Trả bằng tín dụng StitchFoundry.
+	Pay for the AI features with my StitchFoundry credits	Trả tiền tính năng AI bằng tín dụng StitchFoundry của tôi
+	Pay with StitchFoundry credits instead	Trả bằng tín dụng StitchFoundry thay vào đó
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Thanh toán diễn ra trên trang bảo mật của Stripe trong trình duyệt; thẻ của bạn không bao giờ đến StitchFoundry.
+	Reading your credits…	Đang đọc tín dụng…
+	Server	Máy chủ
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Chia sẻ lần kiểm tra này để giúp cải thiện StitchFoundry (giữ riêng tư; xóa bất cứ lúc nào trong Tài khoản StitchFoundry)
+	Sign In	Đăng nhập
+	Sign Out	Đăng xuất
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Đăng nhập, hoặc tạo tài khoản, để trả tiền tính năng AI bằng tín dụng StitchFoundry thay vì khóa API Anthropic của riêng bạn. Tài khoản mới có sẵn tín dụng miễn phí.
+	Signed in as {email}	Đã đăng nhập: {email}
+	StitchFoundry Account	Tài khoản StitchFoundry
+	StitchFoundry Account…	Tài khoản StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Tài khoản StitchFoundry chưa mở. Cho đến lúc đó, tính năng AI dùng khóa API Anthropic của riêng bạn.
+	This is the sew-out after the fix from my last check	Đây là bản thêu sau khi sửa theo lần kiểm tra trước của tôi
+	{n} credits for {price}	{n} tín dụng giá {price}
+	{n} credits	{n} tín dụng
+	{n} free checks left this month.	Còn {n} lượt kiểm tra miễn phí tháng này.

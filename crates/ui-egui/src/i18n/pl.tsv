@@ -6157,3 +6157,33 @@ machine	Stop	Zatrzymanie
 	The machine stopped with a message	Maszyna zatrzymała się z komunikatem
 	While it sewed:	Podczas haftowania:
 	e.g. 75/11 ballpoint	np. 75/11 z kulistym ostrzem
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Sprawdzenie kosztuje {n} kredytów; darmowe sprawdzenia wrócą w przyszłym miesiącu.
+	Account	Konto
+	Buy credits	Kup kredyty
+	Buy…	Kup…
+	Create Account	Utwórz konto
+	Delete My Shared Sew-out Checks	Usuń moje udostępnione sprawdzenia
+	Email	E-mail
+	Free sew-out checks left this month: {n}	Darmowe sprawdzenia pozostałe w tym miesiącu: {n}
+	Leave it empty for StitchFoundry's own service.	Zostaw puste dla własnej usługi StitchFoundry.
+	Paid with StitchFoundry credits ({n} left).	Opłacone kredytami StitchFoundry (zostało {n}).
+	Paid with StitchFoundry credits.	Opłacone kredytami StitchFoundry.
+	Pay for the AI features with my StitchFoundry credits	Płać za funkcje AI moimi kredytami StitchFoundry
+	Pay with StitchFoundry credits instead	Zapłać zamiast tego kredytami StitchFoundry
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Płatność odbywa się na bezpiecznej stronie Stripe w Twojej przeglądarce; Twoja karta nigdy nie trafia do StitchFoundry.
+	Reading your credits…	Wczytywanie kredytów…
+	Server	Serwer
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Udostępnij to sprawdzenie, aby pomóc ulepszyć StitchFoundry (pozostaje prywatne; usuniesz je w każdej chwili w Koncie StitchFoundry)
+	Sign In	Zaloguj się
+	Sign Out	Wyloguj się
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Zaloguj się lub utwórz konto, aby płacić za funkcje AI kredytami StitchFoundry zamiast własnym kluczem API Anthropic. Nowe konto zaczyna z darmowymi kredytami.
+	Signed in as {email}	Zalogowano jako {email}
+	StitchFoundry Account	Konto StitchFoundry
+	StitchFoundry Account…	Konto StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Konta StitchFoundry nie są jeszcze otwarte. Do tego czasu funkcje AI działają z Twoim własnym kluczem API Anthropic.
+	This is the sew-out after the fix from my last check	To haft po poprawce z mojego ostatniego sprawdzenia
+	{n} credits for {price}	{n} kredytów za {price}
+	{n} credits	Kredyty: {n}
+	{n} free checks left this month.	Zostało {n} darmowych sprawdzeń w tym miesiącu.

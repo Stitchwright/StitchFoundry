@@ -1462,6 +1462,7 @@ impl VectorcraftApp {
         simple::words_window(self, &ctx);
         embroidery::ask::window(self, &ctx);
         embroidery::sewout::window(self, &ctx);
+        embroidery::account::window(self, &ctx);
         if simple {
             simple::windows(self, &ctx);
         } else {

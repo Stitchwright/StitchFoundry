@@ -35,10 +35,10 @@ pub struct Config {
     pub stripe_webhook_secret: Option<String>,
     /// The address people reach the service at (`SF_CLOUD_PUBLIC_URL`), for Stripe's return pages.
     pub public_url: String,
-    /// Credits a new account starts with (`SF_CLOUD_SIGNUP_CREDITS`, default 50).
+    /// Credits a new account starts with (`SF_CLOUD_SIGNUP_CREDITS`, default 100).
     pub signup_credits: u64,
     /// What one credit sells for, in cents (`SF_CLOUD_CENTS_PER_CREDIT`, default 1: a credit is a
-    /// cent), and how much over the AI's own cost a request is charged (`SF_CLOUD_MARKUP`, 1.5).
+    /// cent), and how much over the AI's own cost a request is charged (`SF_CLOUD_MARKUP`, 3).
     pub cents_per_credit: f64,
     pub markup: f64,
     /// The packs on sale (`SF_CLOUD_PACKS`: `id:credits:cents,…`).
@@ -50,10 +50,16 @@ pub struct Config {
     pub models: Vec<ModelPrice>,
     /// The most tokens one reply may use.
     pub max_tokens: u64,
+    /// Sew-out checks free each month (`SF_CLOUD_FREE_CHECKS`, 3) and what a check costs after
+    /// them (`SF_CLOUD_CHECK_CREDITS`, 10).
+    pub free_checks: u64,
+    pub check_credits: u64,
+    /// The Postgres database (`DATABASE_URL`, as Railway sets it); without it the data folder.
+    pub database_url: Option<String>,
 }
 
-/// The default packs: placeholders until the owner sets the prices.
-pub const DEFAULT_PACKS: &str = "small:500:500,medium:1200:1000,large:3000:2000";
+/// The default packs, as the owner priced them (2026-10-18): $10, $25 and $50.
+pub const DEFAULT_PACKS: &str = "small:1000:1000,medium:2750:2500,large:6000:5000";
 
 impl Config {
     /// The settings in `env` (`name → value`), defaults for the rest.
@@ -71,7 +77,8 @@ impl Config {
         }
         let nonempty = |name: &str| env(name).map(|v| v.trim().to_string()).filter(|v| !v.is_empty());
         Ok(Config {
-            addr: env("SF_CLOUD_ADDR").unwrap_or_else(|| "127.0.0.1:8080".into()),
+            // Railway (and most container hosts) give the port in PORT
+            addr: env("SF_CLOUD_ADDR").or_else(|| nonempty("PORT").map(|p| format!("0.0.0.0:{p}"))).unwrap_or_else(|| "127.0.0.1:8080".into()),
             data_dir: PathBuf::from(env("SF_CLOUD_DATA").unwrap_or_else(|| "stitchfoundry-cloud-data".into())),
             anthropic_key: nonempty("ANTHROPIC_API_KEY"),
             stripe_key: nonempty("STRIPE_SECRET_KEY"),
@@ -79,7 +86,7 @@ impl Config {
             public_url: env("SF_CLOUD_PUBLIC_URL").unwrap_or_else(|| "http://127.0.0.1:8080".into()).trim_end_matches('/').to_string(),
             signup_credits: num("SF_CLOUD_SIGNUP_CREDITS", 100.0)? as u64,
             cents_per_credit,
-            markup: num("SF_CLOUD_MARKUP", 1.5)?.max(1.0),
+            markup: num("SF_CLOUD_MARKUP", 3.0)?.max(1.0),
             packs,
             allowed: vec!["claude-opus-5-5".into()],
             models: vec![
@@ -88,6 +95,9 @@ impl Config {
                 ModelPrice { model: "claude-opus-4-8".into(), input: 5.0, output: 25.0, cache_read: 0.50, cache_write: 6.25 },
             ],
             max_tokens: 16_000,
+            free_checks: num("SF_CLOUD_FREE_CHECKS", 3.0)? as u64,
+            check_credits: num("SF_CLOUD_CHECK_CREDITS", 10.0)? as u64,
+            database_url: nonempty("DATABASE_URL"),
         })
     }
 

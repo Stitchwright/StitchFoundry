@@ -466,6 +466,7 @@ pub fn keeps(id: &str, _p: &Value) -> bool {
         "help.show",
         "ui.askAboutEmbroidery",
         "ui.checkSewout",
+        "ui.account",
         "help.about",
         "window.experience",
         "app.home",

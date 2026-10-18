@@ -5907,3 +5907,46 @@ machine	Stop	Arresto
 @msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Questa foto non si può leggere: salvala o inviala come JPEG (su iPhone: Impostazioni › Fotocamera › Formati › Più compatibile).
 @msg	At most 6 photos: remove one first.	Al massimo 6 foto: togline una prima.
 @msg	no files here	qui non ci sono file
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Un controllo costa {n} crediti; i controlli gratuiti tornano il mese prossimo.
+	Account	Account
+	Buy credits	Acquista crediti
+	Buy…	Acquista…
+	Create Account	Crea account
+	Delete My Shared Sew-out Checks	Elimina i miei controlli condivisi
+	Email	Email
+	Free sew-out checks left this month: {n}	Controlli gratuiti rimasti questo mese: {n}
+	Leave it empty for StitchFoundry's own service.	Lascia vuoto per il servizio di StitchFoundry.
+	Paid with StitchFoundry credits ({n} left).	Pagato con crediti StitchFoundry ({n} rimasti).
+	Paid with StitchFoundry credits.	Pagato con crediti StitchFoundry.
+	Pay for the AI features with my StitchFoundry credits	Paga le funzioni IA con i miei crediti StitchFoundry
+	Pay with StitchFoundry credits instead	Paga invece con i crediti StitchFoundry
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Il pagamento avviene sulla pagina sicura di Stripe, nel tuo browser; la tua carta non arriva mai a StitchFoundry.
+	Reading your credits…	Lettura dei crediti…
+	Server	Server
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Condividi questo controllo per aiutare a migliorare StitchFoundry (resta privato; eliminabile in qualsiasi momento in Account StitchFoundry)
+	Sign In	Accedi
+	Sign Out	Esci
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Accedi, o crea un account, per pagare le funzioni IA con i crediti StitchFoundry invece che con la tua chiave API Anthropic. Un nuovo account parte con crediti gratuiti.
+	Signed in as {email}	Accesso come {email}
+	StitchFoundry Account	Account StitchFoundry
+	StitchFoundry Account…	Account StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Gli account StitchFoundry non sono ancora aperti. Fino ad allora, le funzioni IA usano la tua chiave API Anthropic.
+	This is the sew-out after the fix from my last check	Questo è il ricamo dopo la correzione del mio ultimo controllo
+	{n} credits for {price}	{n} crediti per {price}
+	{n} credits	{n} crediti
+	{n} free checks left this month.	Restano {n} controlli gratuiti questo mese.
+@msg	StitchFoundry Account needs the desktop app for now	Account StitchFoundry per ora richiede l’app desktop
+@msg	Type your email address.	Scrivi il tuo indirizzo email.
+@msg	A password needs at least 8 characters.	Una password deve avere almeno 8 caratteri.
+@msg	Account made: welcome to StitchFoundry.	Account creato: benvenuto in StitchFoundry.
+@msg	Signed in.	Accesso eseguito.
+@msg	Pay on the page that opened in your browser, then press Refresh.	Paga nella pagina aperta nel browser, poi premi Aggiorna.
+@msg	Signed out.	Uscita eseguita.
+@msg	Your shared sew-out checks are deleted.	I tuoi controlli condivisi sono stati eliminati.
+@msg	StitchFoundry accounts aren't open yet.	Gli account StitchFoundry non sono ancora aperti.
+@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Accedi al tuo account StitchFoundry (Ricamo › Account StitchFoundry…).
+@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Crediti StitchFoundry insufficienti: acquistane altri in Account StitchFoundry.
+@msg	An account with that email already exists: sign in instead.	Esiste già un account con questa email: accedi.
+@msg	The StitchFoundry service can't do this yet: try again later.	Il servizio StitchFoundry non può ancora farlo: riprova più tardi.

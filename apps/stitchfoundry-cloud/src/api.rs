@@ -21,17 +21,30 @@ use serde_json::{Value, json};
 
 use crate::auth::{self, Throttle};
 use crate::config::Config;
-use crate::store::{Store, StoreError};
-use crate::{pricing, stripe};
+use crate::store::{Check, Store, StoreError};
+use crate::{pricing, sewout, stripe};
 
 /// The largest request body accepted (an image to redraw is the largest thing sent).
 pub const MAX_BODY: usize = 8 * 1024 * 1024;
 /// AI requests one account may have on their way at once.
 pub const MAX_IN_FLIGHT: u32 = 3;
+/// The fewest credits a paid-as-used request starts with. The most a request could cost (a long
+/// reply allowed) can be more than a new account's credits; it holds what there is, and is
+/// charged what it used, at most that.
+pub const MIN_TO_START: u64 = 25;
 /// The Anthropic Messages API.
 pub const ANTHROPIC_URL: &str = "https://api.anthropic.com/v1/messages";
 /// The keys of a Messages request passed on; any others are left out.
 const PASSED: &[&str] = &["model", "max_tokens", "system", "messages", "tools", "tool_choice", "output_config", "fallbacks", "thinking"];
+
+/// The headers that let the web app call from a browser.
+const CORS: &[(&str, &str)] = &[
+    ("Access-Control-Allow-Origin", "*"),
+    ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+    ("Access-Control-Allow-Headers", "authorization, content-type, anthropic-version, anthropic-beta"),
+    ("Access-Control-Expose-Headers", "x-stitchfoundry-credits, x-stitchfoundry-spent"),
+    ("Access-Control-Max-Age", "86400"),
+];
 
 pub struct Request {
     pub method: String,
@@ -147,12 +160,22 @@ impl Service {
         self.store.lock().unwrap_or_else(std::sync::PoisonError::into_inner)
     }
 
+    /// The answer to `req`, readable by the web app in a browser (CORS: sessions are bearer tokens,
+    /// never cookies, so any page may call; Stripe's own pages don't need it).
     pub fn handle(&self, req: &Request) -> Response {
+        let mut r = self.route(req);
+        r.headers.extend(CORS.iter().map(|(k, v)| (k.to_string(), v.to_string())));
+        r
+    }
+
+    fn route(&self, req: &Request) -> Response {
         if req.body.len() > MAX_BODY {
             return Response::error(413, "request_too_large", "the request is too large");
         }
         let path = req.path.split('?').next().unwrap_or_default();
         match (req.method.as_str(), path) {
+            // a browser asking whether it may call
+            ("OPTIONS", _) => Response { status: 204, content_type: "text/plain", body: String::new(), headers: Vec::new() },
             ("GET", "/v1/health") => Response::json(
                 200,
                 &json!({ "ok": true, "ai": self.cfg.anthropic_key.is_some(), "payments": self.cfg.stripe_key.is_some() && self.cfg.stripe_webhook_secret.is_some() }),
@@ -160,10 +183,13 @@ impl Service {
             ("POST", "/v1/signup") => self.signup(req),
             ("POST", "/v1/signin") => self.signin(req),
             ("POST", "/v1/signout") => self.signout(req),
-            ("GET", "/v1/account") => self.account(req),
+            // (POST too: the app's client only posts)
+            ("GET" | "POST", "/v1/account") => self.account(req),
             ("POST", "/v1/checkout") => self.checkout(req),
             ("POST", "/v1/stripe/webhook") => self.webhook(req),
             ("POST", "/v1/messages") => self.messages(req),
+            ("POST", "/v1/sewout") => self.sewout(req),
+            ("POST", "/v1/sewout/delete") => self.delete_shared(req),
             ("GET", "/paid") => Response::page(
                 "Thank you. Your credits are added as soon as the payment is through, usually within a minute: go back to StitchFoundry.",
             ),
@@ -184,9 +210,13 @@ impl Service {
 
     fn account_json(&self, store: &Store, id: u64) -> Value {
         let a = store.account(id);
+        let used = store.checks_in(id, &sewout::month((self.clock)()));
         json!({
             "email": a.map(|a| a.email.as_str()),
             "credits": a.map_or(0, |a| a.credits.saturating_sub(a.reserved)),
+            "freeChecks": self.cfg.free_checks.saturating_sub(used as u64),
+            "checkCredits": self.cfg.check_credits,
+            "sharedChecks": store.shared_checks(id).len(),
         })
     }
 
@@ -362,6 +392,26 @@ impl Service {
         }
     }
 
+    /// A Messages request checked and cut down to what is passed on → (body, max_tokens).
+    fn checked_body(&self, req: &Request) -> Result<(Value, u64), Response> {
+        let v = body_json(req)?;
+        let Some(o) = v.as_object() else { return Err(Response::error(400, "invalid_request_error", "the body is a JSON object")) };
+        if o.get("stream").and_then(Value::as_bool) == Some(true) {
+            return Err(Response::error(400, "invalid_request_error", "streaming isn't offered"));
+        }
+        let model = o.get("model").and_then(Value::as_str).unwrap_or_default();
+        if !self.cfg.allowed.iter().any(|m| m == model) {
+            return Err(Response::error(400, "invalid_request_error", format!("the model {model:?} isn't offered")));
+        }
+        let max_tokens = o.get("max_tokens").and_then(Value::as_u64).unwrap_or(0);
+        if max_tokens == 0 || max_tokens > self.cfg.max_tokens {
+            return Err(Response::error(400, "invalid_request_error", format!("max_tokens is 1 to {}", self.cfg.max_tokens)));
+        }
+        let body: serde_json::Map<String, Value> =
+            o.iter().filter(|(k, _)| PASSED.contains(&k.as_str())).map(|(k, v)| (k.clone(), v.clone())).collect();
+        Ok((Value::Object(body), max_tokens))
+    }
+
     fn messages(&self, req: &Request) -> Response {
         let id = match self.signed_in(req) {
             Ok(id) => id,
@@ -370,38 +420,122 @@ impl Service {
         let Some(key) = self.cfg.anthropic_key.clone() else {
             return Response::error(503, "api_error", "StitchFoundry's AI isn't open yet: use your own Anthropic API key for now");
         };
+        let (body, max_tokens) = match self.checked_body(req) {
+            Ok(b) => b,
+            Err(r) => return r,
+        };
+        self.forward(req, id, key, &body, max_tokens, Charge::Metered, "AI request")
+    }
+
+    /// Check My Sew-out: a check's requests, with the service's own instructions; the month's
+    /// first checks free, then a flat price a check (see `sewout.rs`).
+    fn sewout(&self, req: &Request) -> Response {
+        let id = match self.signed_in(req) {
+            Ok(id) => id,
+            Err(r) => return r,
+        };
+        let Some(key) = self.cfg.anthropic_key.clone() else {
+            return Response::error(503, "api_error", "StitchFoundry's AI isn't open yet: use your own Anthropic API key for now");
+        };
+        let (body, max_tokens) = match self.checked_body(req) {
+            Ok(b) => b,
+            Err(r) => return r,
+        };
+        if let Some(why) = sewout::not_a_check(&body) {
+            return Response::error(400, "invalid_request_error", why);
+        }
+        let Some(check) = req.header("x-stitchfoundry-check").filter(|c| sewout::good_id(c)).map(|c| format!("{id}-{c}")) else {
+            return Response::error(400, "invalid_request_error", "a check needs its id (x-stitchfoundry-check)");
+        };
+        let body = sewout::with_own_instructions(body);
+        let now = (self.clock)();
+        let month = sewout::month(now);
+        let share = req.header("x-stitchfoundry-share") == Some("1");
+        let follow_up = req.header("x-stitchfoundry-follow-up").filter(|c| sewout::good_id(c)).map(|c| format!("{id}-{c}"));
+        let (charge, free) = {
+            let store = self.store();
+            match store.check(&check).filter(|c| c.account == id) {
+                // its rounds are covered by what the check cost
+                Some(c) if now.saturating_sub(c.created) < sewout::CHECK_LIFE && c.requests < sewout::MAX_ROUNDS => (Charge::Flat(0), c.free),
+                // past the check: as any request
+                Some(c) => (Charge::Metered, c.free),
+                None => {
+                    let free = (store.checks_in(id, &month) as u64) < self.cfg.free_checks;
+                    (Charge::Flat(if free { 0 } else { self.cfg.check_credits }), free)
+                }
+            }
+        };
+        let mut resp = self.forward(req, id, key, &body, max_tokens, charge, if free { "sew-out check (free)" } else { "sew-out check" });
+        if (200..300).contains(&resp.status) {
+            let mut store = self.store();
+            let noted = Check { account: id, month: month.clone(), created: now, requests: 0, free, shared: share, follow_up: follow_up.clone() };
+            if let Err(e) = store.note_check(&check, noted) {
+                log::error!("sew-out check {check}: {e}");
+            }
+            if share {
+                let (files, line) = sewout::shared_round(&body, &resp.body, id, follow_up.as_deref(), now);
+                // (the check went through; keeping it is a bonus)
+                if let Err(e) = store.keep_shared(&check, &files, &line) {
+                    log::error!("sew-out check {check}: {e}");
+                }
+            }
+            let left = self.cfg.free_checks.saturating_sub(store.checks_in(id, &month) as u64);
+            resp.headers.push(("x-stitchfoundry-free-checks".into(), left.to_string()));
+        }
+        resp
+    }
+
+    /// Delete a shared check (`{check}`), or all of the account's (`{}`) → `{deleted}`.
+    fn delete_shared(&self, req: &Request) -> Response {
+        let id = match self.signed_in(req) {
+            Ok(id) => id,
+            Err(r) => return r,
+        };
         let v = match body_json(req) {
             Ok(v) => v,
             Err(r) => return r,
         };
-        let Some(o) = v.as_object() else { return Response::error(400, "invalid_request_error", "the body is a JSON object") };
-        if o.get("stream").and_then(Value::as_bool) == Some(true) {
-            return Response::error(400, "invalid_request_error", "streaming isn't offered");
+        let mut store = self.store();
+        let ids: Vec<String> = match v.get("check").and_then(Value::as_str) {
+            Some(c) if sewout::good_id(c) => vec![format!("{id}-{c}")],
+            Some(_) => return Response::error(400, "invalid_request_error", "no such check"),
+            None => store.shared_checks(id),
+        };
+        match store.delete_shared(&ids) {
+            Ok(n) => Response::json(200, &json!({ "deleted": n })),
+            Err(e) => store_error(e),
         }
-        let model = o.get("model").and_then(Value::as_str).unwrap_or_default();
-        if !self.cfg.allowed.iter().any(|m| m == model) {
-            return Response::error(400, "invalid_request_error", format!("the model {model:?} isn't offered"));
-        }
-        let max_tokens = o.get("max_tokens").and_then(Value::as_u64).unwrap_or(0);
-        if max_tokens == 0 || max_tokens > self.cfg.max_tokens {
-            return Response::error(400, "invalid_request_error", format!("max_tokens is 1 to {}", self.cfg.max_tokens));
-        }
-        let body: serde_json::Map<String, Value> =
-            o.iter().filter(|(k, _)| PASSED.contains(&k.as_str())).map(|(k, v)| (k.clone(), v.clone())).collect();
-        let body = Value::Object(body);
-        // hold the most it could cost, and no more than a few at once
-        let hold = pricing::estimate(&self.cfg, &self.cfg.dearest(), &body, max_tokens);
-        {
+    }
+
+    /// Send a checked request to Anthropic with the service's key, holding then taking its price:
+    /// what it used ([`Charge::Metered`]) or a flat price. Only a reply that came through is paid
+    /// for; a refused or failed one costs nothing.
+    #[allow(clippy::too_many_arguments)]
+    fn forward(&self, req: &Request, id: u64, key: String, body: &Value, max_tokens: u64, charge: Charge, note: &str) -> Response {
+        let most = pricing::estimate(&self.cfg, &self.cfg.dearest(), body, max_tokens);
+        let hold = {
             let mut flying = self.in_flight.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
             let n = flying.entry(id).or_default();
             if *n >= MAX_IN_FLIGHT {
                 return Response::error(429, "rate_limit_error", "a few requests are on their way already: wait for them");
             }
-            if let Err(e) = self.store().reserve(id, hold) {
+            let mut store = self.store();
+            let hold = match charge {
+                Charge::Metered => {
+                    let free = store.account(id).map_or(0, |a| a.credits.saturating_sub(a.reserved));
+                    if free < MIN_TO_START.min(most) {
+                        return store_error(StoreError::NotEnough);
+                    }
+                    most.min(free)
+                }
+                Charge::Flat(c) => c,
+            };
+            if let Err(e) = store.reserve(id, hold) {
                 return store_error(e);
             }
             *n += 1;
-        }
+            hold
+        };
         let headers = [
             ("content-type", "application/json".to_string()),
             ("x-api-key", key),
@@ -410,18 +544,18 @@ impl Service {
         ];
         let headers: Vec<(&str, String)> = headers.into_iter().filter(|(_, v)| !v.is_empty()).collect();
         let answer = self.upstream.post(ANTHROPIC_URL, &headers, &body.to_string());
-        // only a reply that came through is paid for, at what it used (a refused or failed one costs nothing)
-        let spent = match &answer {
-            Ok((200..=299, text)) => serde_json::from_str::<Value>(text).ok().map_or(0, |r| {
+        let spent = match (&answer, charge) {
+            (Ok((200..=299, text)), Charge::Metered) => serde_json::from_str::<Value>(text).ok().map_or(0, |r| {
                 let price = r.get("model").and_then(Value::as_str).and_then(|m| self.cfg.model(m)).cloned().unwrap_or_else(|| self.cfg.dearest());
                 pricing::charge(&self.cfg, &price, r.get("usage").unwrap_or(&Value::Null))
             }),
+            (Ok((200..=299, _)), Charge::Flat(c)) => c,
             _ => 0,
         };
         let now = (self.clock)();
         let left = {
             let mut store = self.store();
-            store.settle(id, hold, spent.min(hold), "AI request", now).map(|l| l.saturating_sub(store.account(id).map_or(0, |a| a.reserved)))
+            store.settle(id, hold, spent.min(hold), note, now).map(|l| l.saturating_sub(store.account(id).map_or(0, |a| a.reserved)))
         };
         // (the locks are always taken in-flight first, then the store: never the other way round)
         if let Some(n) = self.in_flight.lock().unwrap_or_else(std::sync::PoisonError::into_inner).get_mut(&id) {
@@ -444,6 +578,13 @@ impl Service {
             }
         }
     }
+}
+
+/// What a request costs: what it used, or a flat price (a sew-out check; 0 when free or covered).
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Charge {
+    Metered,
+    Flat(u64),
 }
 
 #[cfg(test)]
@@ -519,6 +660,21 @@ mod tests {
     }
 
     #[test]
+    fn the_web_app_may_call_and_the_account_answers_a_post() {
+        let (s, _) = service((200, String::new()), true);
+        let pre = s.handle(&req("OPTIONS", "/v1/messages", None, json!({})));
+        assert_eq!(pre.status, 204);
+        let allow = |r: &Response, k: &str| r.headers.iter().find(|h| h.0 == k).map(|h| h.1.clone());
+        assert_eq!(allow(&pre, "Access-Control-Allow-Origin").as_deref(), Some("*"));
+        assert!(allow(&pre, "Access-Control-Allow-Headers").unwrap().contains("authorization"));
+        let t = sign_up(&s);
+        let a = s.handle(&req("POST", "/v1/account", Some(&t), json!({})));
+        assert_eq!(a.status, 200);
+        assert_eq!(json_of(&a)["credits"], 100);
+        assert_eq!(allow(&a, "Access-Control-Allow-Origin").as_deref(), Some("*"), "every answer");
+    }
+
+    #[test]
     fn wrong_passwords_are_limited() {
         let (s, _) = service((200, String::new()), false);
         sign_up(&s);
@@ -540,8 +696,8 @@ mod tests {
         let out = s.handle(&r);
         assert_eq!(out.status, 200, "{}", out.body);
         assert_eq!(json_of(&out)["content"][0]["text"], "Use cut-away.", "Anthropic's reply as it came");
-        // 12 credits: 100 − 12 = 88 left
-        assert!(out.headers.contains(&("x-stitchfoundry-credits".to_string(), "88".to_string())), "{:?}", out.headers);
+        // 24 credits ($0.08 × 3): 100 − 24 = 76 left
+        assert!(out.headers.contains(&("x-stitchfoundry-credits".to_string(), "76".to_string())), "{:?}", out.headers);
         let calls = calls.lock().unwrap();
         let (url, headers, sent) = &calls[0];
         assert_eq!(url, ANTHROPIC_URL);
@@ -551,8 +707,8 @@ mod tests {
         assert!(sent.get("metadata").is_none(), "only the request's own keys go on");
         drop(calls);
         let a = json_of(&s.handle(&req("GET", "/v1/account", Some(&t), json!({}))));
-        assert_eq!(a["credits"], 88);
-        assert_eq!(a["history"][0]["credits"], -12);
+        assert_eq!(a["credits"], 76);
+        assert_eq!(a["history"][0]["credits"], -24);
     }
 
     #[test]
@@ -575,11 +731,65 @@ mod tests {
         let r = s.handle(&req("POST", "/v1/messages", Some(&t), ok.clone()));
         assert_eq!(r.status, 529);
         assert_eq!(json_of(&s.handle(&req("GET", "/v1/account", Some(&t), json!({}))))["credits"], 100);
-        // a long question with a big reply allowed needs more than 100 credits held
-        let long = json!({"model": "claude-opus-5-5", "max_tokens": 16000, "messages": [{"role": "user", "content": "x".repeat(400_000)}]});
-        let r = s.handle(&req("POST", "/v1/messages", Some(&t), long));
+        // under MIN_TO_START credits left: buy more first
+        s.store().settle(1, 0, 90, "test", 0).unwrap();
+        let r = s.handle(&req("POST", "/v1/messages", Some(&t), ok.clone()));
         assert_eq!(r.status, 402);
         assert!(json_of(&r)["error"]["message"].as_str().unwrap().contains("buy more"));
+    }
+
+    fn check(t: &str, id: &str, photo: &str, share: bool) -> Request {
+        let img = json!({"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": photo}});
+        let body = json!({"model": "claude-opus-5-5", "max_tokens": 16000, "system": "draw a cat", "messages": [{"role": "user", "content": [img, {"type": "text", "text": "Fabric: Jersey knit"}]}]});
+        let mut r = req("POST", "/v1/sewout", Some(t), body);
+        r.headers.push(("x-stitchfoundry-check".into(), id.into()));
+        if share {
+            r.headers.push(("x-stitchfoundry-share".into(), "1".into()));
+        }
+        r
+    }
+
+    /// SO-01: three checks a month free, then a flat price a check; a check's rounds are covered;
+    /// only photos make a check, under the service's own instructions; shared checks are kept until
+    /// deleted.
+    #[test]
+    fn sew_out_checks_are_free_three_times_a_month_then_flat() {
+        let reply = json!({"type": "message", "model": "claude-opus-5-5", "content": [{"type": "text", "text": "Overlap the shapes 1 mm."}], "stop_reason": "end_turn", "usage": {"input_tokens": 10_000, "output_tokens": 2_000}});
+        let (s, calls) = service((200, reply.to_string()), true);
+        let t = sign_up(&s);
+        let credits = |s: &Service| json_of(&s.handle(&req("POST", "/v1/account", Some(&t), json!({}))))["credits"].as_u64().unwrap();
+        for (i, id) in ["aaaaaaaa", "bbbbbbbb", "cccccccc"].iter().enumerate() {
+            let r = s.handle(&check(&t, id, "aGVsbG8=", i == 0));
+            assert_eq!(r.status, 200, "{}", r.body);
+            assert!(r.headers.contains(&("x-stitchfoundry-free-checks".to_string(), (2 - i).to_string())), "{:?}", r.headers);
+        }
+        assert_eq!(credits(&s), 100, "the month's first three are free");
+        // the instructions are the service's, whatever the app sent
+        let sent: Value = serde_json::from_str(&calls.lock().unwrap()[0].2).unwrap();
+        assert!(sent["system"].as_str().unwrap().contains("sew-out") && sent["tools"].as_array().unwrap().len() == 2);
+        // the fourth costs the flat price, its next rounds nothing more
+        assert_eq!(s.handle(&check(&t, "dddddddd", "aGVsbG8=", false)).status, 200);
+        assert_eq!(credits(&s), 90);
+        assert_eq!(s.handle(&check(&t, "dddddddd", "aGVsbG8=", false)).status, 200);
+        assert_eq!(credits(&s), 90, "a check's follow-up is covered");
+        let a = json_of(&s.handle(&req("POST", "/v1/account", Some(&t), json!({}))));
+        assert_eq!(a["freeChecks"], 0);
+        assert_eq!(a["sharedChecks"], 1);
+        // no photo, no check; no id, no check
+        let mut text = check(&t, "eeeeeeee", "aGVsbG8=", false);
+        text.body =
+            json!({"model": "claude-opus-5-5", "max_tokens": 100, "messages": [{"role": "user", "content": "draw a cat"}]}).to_string().into_bytes();
+        assert_eq!(s.handle(&text).status, 400);
+        let mut no_id = check(&t, "ffffffff", "aGVsbG8=", false);
+        no_id.headers.retain(|h| h.0 != "x-stitchfoundry-check");
+        assert_eq!(s.handle(&no_id).status, 400);
+        // the shared one kept its photo and answer, until deleted
+        let (files, rounds) = s.store().shared("1-aaaaaaaa");
+        assert_eq!(files, ["image-1.jpg"]);
+        assert!(rounds[0].contains("Overlap the shapes"), "{rounds:?}");
+        let d = s.handle(&req("POST", "/v1/sewout/delete", Some(&t), json!({})));
+        assert_eq!(json_of(&d)["deleted"], 1);
+        assert!(s.store().shared("1-aaaaaaaa").0.is_empty());
     }
 
     #[test]

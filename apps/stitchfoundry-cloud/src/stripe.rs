@@ -155,7 +155,7 @@ mod tests {
         let f = checkout_form(&cfg, &cfg.packs[0], 7, "denise+sew@example.com");
         assert!(f.contains("mode=payment&") && f.contains("client_reference_id=7"));
         assert!(f.contains("customer_email=denise%2Bsew%40example.com"));
-        assert!(f.contains("line_items%5B0%5D%5Bprice_data%5D%5Bunit_amount%5D=500"));
-        assert!(f.contains("metadata%5Bcredits%5D=500") && f.contains("success_url=https%3A%2F%2Fcloud.example%2Fpaid"));
+        assert!(f.contains("line_items%5B0%5D%5Bprice_data%5D%5Bunit_amount%5D=1000"));
+        assert!(f.contains("metadata%5Bcredits%5D=1000") && f.contains("success_url=https%3A%2F%2Fcloud.example%2Fpaid"));
     }
 }

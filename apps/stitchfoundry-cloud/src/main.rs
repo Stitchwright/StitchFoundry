@@ -19,10 +19,14 @@ fn main() {
 
 fn run() -> Result<(), String> {
     let cfg = Config::from_env(|k| std::env::var(k).ok())?;
-    let store = Store::open(&cfg.data_dir).map_err(|e| e.to_string())?;
+    let store = match &cfg.database_url {
+        Some(url) => Store::open_db(url).map_err(|e| e.to_string())?,
+        None => Store::open(&cfg.data_dir).map_err(|e| e.to_string())?,
+    };
     let addr = cfg.addr.clone();
     eprintln!(
-        "stitchfoundry-cloud: listening on {addr}; AI {}, payments {}",
+        "stitchfoundry-cloud: listening on {addr}; data in {}; AI {}, payments {}",
+        if cfg.database_url.is_some() { "the database" } else { "the data folder" },
         if cfg.anthropic_key.is_some() { "on" } else { "off (no ANTHROPIC_API_KEY)" },
         if cfg.stripe_key.is_some() && cfg.stripe_webhook_secret.is_some() { "on" } else { "off (no STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET)" },
     );

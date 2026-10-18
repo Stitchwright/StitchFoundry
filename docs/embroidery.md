@@ -25,6 +25,7 @@ the control channel, the CLI and the MCP server.
 - [Redraw Image with Claude](#redraw-image-with-claude)
 - [Ask About Embroidery](#ask-about-embroidery)
 - [Check My Sew-out](#check-my-sew-out)
+- [StitchFoundry Account](#stitchfoundry-account)
 - [Design settings: hoop, fabric, threads](#design-settings-hoop-fabric-threads)
 - [Stitch Sequence and the stitch player](#stitch-sequence-and-the-stitch-player)
 - [Machine files](#machine-files)
@@ -1442,9 +1443,36 @@ to tension and threading, not the design. It offers to make the design fixes, an
 only after you **Allow** it, as Ask About Embroidery does; ask follow-up questions in the same
 window. Try a fix on a scrap of the same fabric before the real piece.
 
-It uses your own Anthropic API key, as Design from Prompt and Ask do (`ui.checkSewout`). The
-photos and the design go to Anthropic for the check and aren't kept by StitchFoundry. StitchFoundry
-credits, with free checks each month, come with the cloud service.
+It uses your own Anthropic API key, as Design from Prompt and Ask do, or your StitchFoundry
+credits (below): then the first three checks each month are free, and a check after them costs 10
+credits, its follow-up questions and fixes included (`ui.checkSewout {photos?}`). With your own key,
+the photos and the design go to Anthropic for the check and StitchFoundry keeps nothing. With
+credits you can tick **Share this check to help improve StitchFoundry**: the photos, what was found
+and what was changed are kept, privately, so the software can learn from real sew-outs; and after
+sewing the fix, **This is the sew-out after the fix from my last check** tells it whether the fix
+worked. **Delete My Shared Sew-out Checks** in StitchFoundry Account removes them.
+
+## StitchFoundry Account
+
+**Embroidery › StitchFoundry Account…** (also in the Help menu) is the other way to pay for the AI
+features: instead of your own Anthropic API key, StitchFoundry credits.
+
+- **Sign in** with your email and password, or **Create Account** (a new account starts with free
+  credits). The password is sent once and forgotten; the app keeps only the sign-in, on this
+  computer, as it keeps the API key.
+- The window shows your **credits**, the free sew-out checks left this month, and the packs to
+  **Buy…**: the payment page opens in your browser, on Stripe's secure site (your card never
+  reaches StitchFoundry); afterwards press **Refresh**.
+- **Pay for the AI features with my StitchFoundry credits**, on once you sign in, sends Design from
+  Prompt, Redraw Image, Ask About Embroidery and Check My Sew-out through StitchFoundry: they
+  stop asking for an API key and say "Paid with StitchFoundry credits (N left)". Turn it off to use
+  your own key again. **Sign Out** ends the sign-in here and at the service.
+- Running out says so ("Not enough StitchFoundry credits: buy more in StitchFoundry Account");
+  nothing is charged for a request that fails.
+
+Until StitchFoundry's service opens, the window says accounts aren't open yet. The **Server** row
+names another service (one you run yourself: `docs/cloud.md`), and so does the
+`STITCHFOUNDRY_CLOUD_URL` environment variable (`ui.account`).
 
 ## Design settings: hoop, fabric, threads
 

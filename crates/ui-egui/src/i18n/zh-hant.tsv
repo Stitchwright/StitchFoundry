@@ -5190,3 +5190,33 @@ machine	Stop	停止
 	The machine stopped with a message	機器顯示訊息後停了
 	While it sewed:	刺繡時：
 	e.g. 75/11 ballpoint	例如 75/11 圓頭針
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	一次檢查需 {n} 點數；免費檢查下個月恢復。
+	Account	帳戶
+	Buy credits	購買點數
+	Buy…	購買…
+	Create Account	建立帳戶
+	Delete My Shared Sew-out Checks	刪除我共享的檢查
+	Email	電子郵件
+	Free sew-out checks left this month: {n}	本月剩餘免費檢查：{n}
+	Leave it empty for StitchFoundry's own service.	留空則使用 StitchFoundry 自己的服務。
+	Paid with StitchFoundry credits ({n} left).	以 StitchFoundry 點數支付（剩餘 {n}）。
+	Paid with StitchFoundry credits.	以 StitchFoundry 點數支付。
+	Pay for the AI features with my StitchFoundry credits	用我的 StitchFoundry 點數支付 AI 功能
+	Pay with StitchFoundry credits instead	改用 StitchFoundry 點數支付
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	在瀏覽器中的 Stripe 安全頁面付款；您的信用卡資料絕不會到達 StitchFoundry。
+	Reading your credits…	正在讀取點數…
+	Server	伺服器
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	共享這次檢查以協助改進 StitchFoundry（保持私密；可隨時在 StitchFoundry 帳戶中刪除）
+	Sign In	登入
+	Sign Out	登出
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	登入或建立帳戶，即可用 StitchFoundry 點數取代您自己的 Anthropic API 金鑰支付 AI 功能。新帳戶附有免費點數。
+	Signed in as {email}	已登入：{email}
+	StitchFoundry Account	StitchFoundry 帳戶
+	StitchFoundry Account…	StitchFoundry 帳戶…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry 帳戶尚未開放。在此之前，AI 功能使用您自己的 Anthropic API 金鑰。
+	This is the sew-out after the fix from my last check	這是依上次檢查修改後繡的成品
+	{n} credits for {price}	{n} 點數，{price}
+	{n} credits	{n} 點數
+	{n} free checks left this month.	本月還剩 {n} 次免費檢查。

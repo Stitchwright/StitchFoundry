@@ -6273,3 +6273,33 @@ machine	Stop	Στάση
 	The machine stopped with a message	Η μηχανή σταμάτησε με μήνυμα
 	While it sewed:	Ενώ κεντούσε:
 	e.g. 75/11 ballpoint	π.χ. 75/11 στρογγυλή μύτη
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Ένας έλεγχος κοστίζει {n} μονάδες· οι δωρεάν έλεγχοι επιστρέφουν τον επόμενο μήνα.
+	Account	Λογαριασμός
+	Buy credits	Αγορά μονάδων
+	Buy…	Αγορά…
+	Create Account	Δημιουργία λογαριασμού
+	Delete My Shared Sew-out Checks	Διαγραφή των κοινόχρηστων ελέγχων μου
+	Email	Email
+	Free sew-out checks left this month: {n}	Δωρεάν έλεγχοι που απομένουν αυτόν τον μήνα: {n}
+	Leave it empty for StitchFoundry's own service.	Αφήστε το κενό για την υπηρεσία του StitchFoundry.
+	Paid with StitchFoundry credits ({n} left).	Πληρωμή με μονάδες StitchFoundry (απομένουν {n}).
+	Paid with StitchFoundry credits.	Πληρωμή με μονάδες StitchFoundry.
+	Pay for the AI features with my StitchFoundry credits	Πληρωμή των λειτουργιών ΤΝ με τις μονάδες StitchFoundry μου
+	Pay with StitchFoundry credits instead	Πληρωμή με μονάδες StitchFoundry αντί γι' αυτό
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Η πληρωμή γίνεται στην ασφαλή σελίδα της Stripe, στο πρόγραμμα περιήγησής σας· η κάρτα σας δεν φτάνει ποτέ στο StitchFoundry.
+	Reading your credits…	Ανάγνωση των μονάδων σας…
+	Server	Διακομιστής
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Κοινοποίηση αυτού του ελέγχου για να βελτιωθεί το StitchFoundry (μένει ιδιωτικός· διαγράψτε τον όποτε θέλετε στον Λογαριασμό StitchFoundry)
+	Sign In	Σύνδεση
+	Sign Out	Αποσύνδεση
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Συνδεθείτε ή δημιουργήστε λογαριασμό για να πληρώνετε τις λειτουργίες ΤΝ με μονάδες StitchFoundry αντί για το δικό σας κλειδί API της Anthropic. Ένας νέος λογαριασμός ξεκινά με δωρεάν μονάδες.
+	Signed in as {email}	Συνδεδεμένος ως {email}
+	StitchFoundry Account	Λογαριασμός StitchFoundry
+	StitchFoundry Account…	Λογαριασμός StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Οι λογαριασμοί StitchFoundry δεν έχουν ανοίξει ακόμα. Ως τότε, οι λειτουργίες ΤΝ δουλεύουν με το δικό σας κλειδί API της Anthropic.
+	This is the sew-out after the fix from my last check	Αυτό είναι το κέντημα μετά τη διόρθωση από τον τελευταίο έλεγχό μου
+	{n} credits for {price}	{n} μονάδες για {price}
+	{n} credits	{n} μονάδες
+	{n} free checks left this month.	Απομένουν {n} δωρεάν έλεγχοι αυτόν τον μήνα.

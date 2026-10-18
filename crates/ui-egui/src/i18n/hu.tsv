@@ -6275,3 +6275,33 @@ machine	Stop	Megállás
 	The machine stopped with a message	A gép üzenettel megállt
 	While it sewed:	Hímzés közben:
 	e.g. 75/11 ballpoint	pl. 75/11 gömbölyített hegyű
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Egy ellenőrzés {n} kreditbe kerül; az ingyenes ellenőrzések jövő hónapban visszajönnek.
+	Account	Fiók
+	Buy credits	Kredit vásárlása
+	Buy…	Vásárlás…
+	Create Account	Fiók létrehozása
+	Delete My Shared Sew-out Checks	Megosztott ellenőrzéseim törlése
+	Email	E-mail
+	Free sew-out checks left this month: {n}	Ingyenes ellenőrzések ebben a hónapban: {n}
+	Leave it empty for StitchFoundry's own service.	Hagyja üresen a StitchFoundry saját szolgáltatásához.
+	Paid with StitchFoundry credits ({n} left).	StitchFoundry-kredittel fizetve ({n} maradt).
+	Paid with StitchFoundry credits.	StitchFoundry-kredittel fizetve.
+	Pay for the AI features with my StitchFoundry credits	Az MI-funkciók fizetése a StitchFoundry-kreditjeimmel
+	Pay with StitchFoundry credits instead	Fizetés inkább StitchFoundry-kredittel
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	A fizetés a Stripe biztonságos oldalán történik a böngészőjében; a kártyája sosem jut el a StitchFoundryhez.
+	Reading your credits…	Kreditek beolvasása…
+	Server	Kiszolgáló
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Ennek az ellenőrzésnek a megosztása a StitchFoundry javításáért (privát marad; bármikor törölhető a StitchFoundry-fiókban)
+	Sign In	Bejelentkezés
+	Sign Out	Kijelentkezés
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Jelentkezzen be vagy hozzon létre fiókot, hogy az MI-funkciókat StitchFoundry-kredittel fizesse a saját Anthropic API-kulcsa helyett. Az új fiók ingyenes kreditekkel indul.
+	Signed in as {email}	Bejelentkezve: {email}
+	StitchFoundry Account	StitchFoundry-fiók
+	StitchFoundry Account…	StitchFoundry-fiók…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	A StitchFoundry-fiókok még nem nyíltak meg. Addig az MI-funkciók a saját Anthropic API-kulcsával működnek.
+	This is the sew-out after the fix from my last check	Ez a hímzés a legutóbbi ellenőrzésem javítása után
+	{n} credits for {price}	{n} kredit {price} áron
+	{n} credits	{n} kredit
+	{n} free checks left this month.	Ebben a hónapban még {n} ingyenes ellenőrzés maradt.

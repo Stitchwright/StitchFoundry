@@ -6277,3 +6277,33 @@ machine	Stop	Stopp
 	The machine stopped with a message	Maskinen stannade med ett meddelande
 	While it sewed:	Medan den broderade:
 	e.g. 75/11 ballpoint	t.ex. 75/11 kulspets
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	En kontroll kostar {n} krediter; gratiskontrollerna kommer tillbaka nästa månad.
+	Account	Konto
+	Buy credits	Köp krediter
+	Buy…	Köp…
+	Create Account	Skapa konto
+	Delete My Shared Sew-out Checks	Radera mina delade kontroller
+	Email	E-post
+	Free sew-out checks left this month: {n}	Gratiskontroller kvar den här månaden: {n}
+	Leave it empty for StitchFoundry's own service.	Lämna tomt för StitchFoundrys egen tjänst.
+	Paid with StitchFoundry credits ({n} left).	Betalt med StitchFoundry-krediter ({n} kvar).
+	Paid with StitchFoundry credits.	Betalt med StitchFoundry-krediter.
+	Pay for the AI features with my StitchFoundry credits	Betala AI-funktionerna med mina StitchFoundry-krediter
+	Pay with StitchFoundry credits instead	Betala med StitchFoundry-krediter i stället
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Betalningen sker på Stripes säkra sida i din webbläsare; ditt kort når aldrig StitchFoundry.
+	Reading your credits…	Läser dina krediter…
+	Server	Server
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Dela den här kontrollen för att hjälpa till att förbättra StitchFoundry (förblir privat; radera den när som helst i StitchFoundry-kontot)
+	Sign In	Logga in
+	Sign Out	Logga ut
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Logga in, eller skapa ett konto, för att betala AI-funktionerna med StitchFoundry-krediter i stället för din egen API-nyckel från Anthropic. Ett nytt konto börjar med gratiskrediter.
+	Signed in as {email}	Inloggad som {email}
+	StitchFoundry Account	StitchFoundry-konto
+	StitchFoundry Account…	StitchFoundry-konto…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-konton har inte öppnat än. Tills dess fungerar AI-funktionerna med din egen API-nyckel från Anthropic.
+	This is the sew-out after the fix from my last check	Det här är broderiet efter rättelsen från min senaste kontroll
+	{n} credits for {price}	{n} krediter för {price}
+	{n} credits	{n} krediter
+	{n} free checks left this month.	{n} gratiskontroller kvar den här månaden.

@@ -49,6 +49,8 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
     let t = Tokens::get(ui.ctx());
     let now = ui.input(|i| i.time);
     app.embroidery.prompt.now = now;
+    crate::embroidery::account::load(app);
+    let credits = crate::embroidery::account::paying_with_credits(app);
     let drawing = app.embroidery.prompt.drawing_for(now);
     let redraw = redraw(d);
     label(ui, if redraw { tl!("What to change (optional):") } else { tl!("Describe the design:") });
@@ -61,18 +63,22 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
         label(ui, tl!("Thread colors"));
         number(ui, d, "colors", (1.0, 12.0), "");
         ui.end_row();
-        label(ui, tl!("Anthropic API key:"));
-        ui.add(egui::TextEdit::singleline(&mut app.embroidery.prompt.key).password(true).desired_width(260.0).hint_text("sk-ant-…"));
-        ui.end_row();
-        ui.label("");
-        form::check(ui, d, "remember", tl!("Remember the key on this computer"));
-        ui.end_row();
+        if !credits {
+            label(ui, tl!("Anthropic API key:"));
+            ui.add(egui::TextEdit::singleline(&mut app.embroidery.prompt.key).password(true).desired_width(260.0).hint_text("sk-ant-…"));
+            ui.end_row();
+            ui.label("");
+            form::check(ui, d, "remember", tl!("Remember the key on this computer"));
+            ui.end_row();
+        }
     });
     ui.add_space(6.0);
     if redraw {
         ui.label(egui::RichText::new(tl!("Only redraw artwork you own or have permission to use.")).size(11.0).color(t.text));
     }
-    ui.horizontal_wrapped(|ui| {
+    // paid with StitchFoundry credits, or with the user's own key
+    if !crate::embroidery::account::paid_line(app, ui, &t) {
+        ui.horizontal_wrapped(|ui| {
         let about = if redraw {
             tl!("Claude redraws the image as flat-colour art with your own Anthropic API key, billed to your Anthropic account; StitchFoundry then digitizes it. Check the stitches before you sew.")
         } else {
@@ -83,6 +89,7 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
             app.open_url(prompt::KEY_URL);
         }
     });
+    }
     ui.add_space(8.0);
     if let Some(secs) = drawing {
         ui.horizontal(|ui| {

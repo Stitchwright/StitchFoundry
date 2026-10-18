@@ -1,12 +1,14 @@
-//! Accounts, sessions and credits, kept in memory and written to the data folder after each
-//! change: `state.json` (written whole, through a temporary file, so a crash never leaves half a
-//! file) and `ledger.jsonl`, every credit added or spent, one line each, only ever added to. A
-//! single process serves everyone, so one lock is enough; a database replaces this when the
-//! service outgrows one machine.
+//! Accounts, sessions, credits and sew-out checks, kept in memory and written after each change,
+//! either to a Postgres database (`DATABASE_URL`, as on Railway) or to the data folder:
+//! the state written whole (`sf_state`, or `state.json` through a temporary file so a crash never
+//! leaves half a file), and the ledger, every credit added or spent, only ever added to
+//! (`sf_ledger`, or `ledger.jsonl`). Shared sew-out checks (photos and rounds) go with them
+//! (`sf_shared_*`, or `shared/<check>/`). A single process serves everyone, so one lock is enough.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
 
@@ -46,6 +48,25 @@ pub struct Entry {
     pub note: String,
 }
 
+/// A sew-out check (see `sewout.rs`).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Check {
+    pub account: u64,
+    /// The month it counts in (`"2026-10"`).
+    pub month: String,
+    pub created: u64,
+    /// The requests it has had.
+    pub requests: u32,
+    /// Whether it was one of the month's free checks.
+    pub free: bool,
+    /// Kept to improve StitchFoundry, with the user's leave.
+    #[serde(default)]
+    pub shared: bool,
+    /// The earlier check it follows up ("did the fix work?").
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub follow_up: Option<String>,
+}
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 struct State {
     next_id: u64,
@@ -57,6 +78,9 @@ struct State {
     /// The latest entries of each account (the whole history is in the ledger file).
     #[serde(default)]
     recent: BTreeMap<u64, Vec<Entry>>,
+    /// Sew-out checks by id.
+    #[serde(default)]
+    checks: BTreeMap<String, Check>,
 }
 
 /// The most recent entries kept for an account's history.
@@ -76,9 +100,31 @@ pub enum StoreError {
     Io(String),
 }
 
+/// Shared checks kept in memory: each check's files (name, bytes) and rounds.
+type SharedInMemory = Mutex<BTreeMap<String, (Vec<(String, Vec<u8>)>, Vec<String>)>>;
+
+/// Where the store is written.
+enum Backend {
+    /// Nowhere (tests); shared checks are kept in memory.
+    Memory(SharedInMemory),
+    Dir(PathBuf),
+    Db(Box<Mutex<postgres::Client>>),
+}
+
 pub struct Store {
-    dir: Option<PathBuf>,
+    backend: Backend,
     state: State,
+}
+
+/// The tables in a Postgres database.
+const SCHEMA: &str = "\
+CREATE TABLE IF NOT EXISTS sf_state (id INT PRIMARY KEY, data TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS sf_ledger (id BIGSERIAL PRIMARY KEY, at BIGINT NOT NULL, account BIGINT NOT NULL, entry TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS sf_shared_files (check_id TEXT NOT NULL, name TEXT NOT NULL, data BYTEA NOT NULL, PRIMARY KEY (check_id, name));
+CREATE TABLE IF NOT EXISTS sf_shared_rounds (id BIGSERIAL PRIMARY KEY, check_id TEXT NOT NULL, line TEXT NOT NULL);";
+
+fn db_error(e: postgres::Error) -> StoreError {
+    StoreError::Io(format!("database: {e}"))
 }
 
 impl Store {
@@ -91,20 +137,47 @@ impl Store {
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => State::default(),
             Err(e) => return Err(StoreError::Io(e.to_string())),
         };
-        Ok(Store { dir: Some(dir.to_path_buf()), state })
+        Ok(Store { backend: Backend::Dir(dir.to_path_buf()), state })
+    }
+
+    /// The store in the Postgres database at `url` (its tables made when missing). Railway's
+    /// private network needs no TLS; elsewhere, reach the database over a private network too.
+    pub fn open_db(url: &str) -> Result<Store, StoreError> {
+        let mut client = postgres::Client::connect(url, postgres::NoTls).map_err(db_error)?;
+        client.batch_execute(SCHEMA).map_err(db_error)?;
+        let row = client.query_opt("SELECT data FROM sf_state WHERE id = 1", &[]).map_err(db_error)?;
+        let state = match row {
+            Some(r) => {
+                let data: String = r.try_get(0).map_err(db_error)?;
+                serde_json::from_str(&data).map_err(|e| StoreError::Io(format!("sf_state: {e}")))?
+            }
+            None => State::default(),
+        };
+        Ok(Store { backend: Backend::Db(Box::new(Mutex::new(client))), state })
     }
 
     /// A store that keeps nothing on disk (tests).
     pub fn in_memory() -> Store {
-        Store { dir: None, state: State::default() }
+        Store { backend: Backend::Memory(Mutex::default()), state: State::default() }
     }
 
     fn save(&self) -> Result<(), StoreError> {
-        let Some(dir) = &self.dir else { return Ok(()) };
-        let bytes = serde_json::to_vec(&self.state).map_err(|e| StoreError::Io(e.to_string()))?;
-        let tmp = dir.join("state.json.tmp");
-        std::fs::write(&tmp, bytes).map_err(|e| StoreError::Io(e.to_string()))?;
-        std::fs::rename(&tmp, dir.join("state.json")).map_err(|e| StoreError::Io(e.to_string()))
+        match &self.backend {
+            Backend::Memory(_) => Ok(()),
+            Backend::Dir(dir) => {
+                let bytes = serde_json::to_vec(&self.state).map_err(|e| StoreError::Io(e.to_string()))?;
+                let tmp = dir.join("state.json.tmp");
+                std::fs::write(&tmp, bytes).map_err(|e| StoreError::Io(e.to_string()))?;
+                std::fs::rename(&tmp, dir.join("state.json")).map_err(|e| StoreError::Io(e.to_string()))
+            }
+            Backend::Db(c) => {
+                let data = serde_json::to_string(&self.state).map_err(|e| StoreError::Io(e.to_string()))?;
+                let mut c = c.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                c.execute("INSERT INTO sf_state (id, data) VALUES (1, $1) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data", &[&data])
+                    .map_err(db_error)?;
+                Ok(())
+            }
+        }
     }
 
     fn log(&mut self, e: Entry) -> Result<(), StoreError> {
@@ -114,16 +187,153 @@ impl Store {
             let extra = recent.len() - RECENT;
             recent.drain(..extra);
         }
-        if let Some(dir) = &self.dir {
-            let line = serde_json::to_string(&e).map_err(|err| StoreError::Io(err.to_string()))?;
-            let mut f = std::fs::OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(dir.join("ledger.jsonl"))
-                .map_err(|err| StoreError::Io(err.to_string()))?;
-            writeln!(f, "{line}").map_err(|err| StoreError::Io(err.to_string()))?;
+        let line = serde_json::to_string(&e).map_err(|err| StoreError::Io(err.to_string()))?;
+        match &self.backend {
+            Backend::Memory(_) => {}
+            Backend::Dir(dir) => {
+                let mut f = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(dir.join("ledger.jsonl"))
+                    .map_err(|err| StoreError::Io(err.to_string()))?;
+                writeln!(f, "{line}").map_err(|err| StoreError::Io(err.to_string()))?;
+            }
+            Backend::Db(c) => {
+                let mut c = c.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                let (at, account) = (e.at as i64, e.account as i64);
+                c.execute("INSERT INTO sf_ledger (at, account, entry) VALUES ($1, $2, $3)", &[&at, &account, &line]).map_err(db_error)?;
+            }
         }
         Ok(())
+    }
+
+    // ---------- sew-out checks ----------
+
+    pub fn check(&self, id: &str) -> Option<&Check> {
+        self.state.checks.get(id)
+    }
+
+    /// The checks `account` started in `month`.
+    pub fn checks_in(&self, account: u64, month: &str) -> usize {
+        self.state.checks.values().filter(|c| c.account == account && c.month == month).count()
+    }
+
+    /// A new check, or another request of one (its count up, shared once asked).
+    pub fn note_check(&mut self, id: &str, check: Check) -> Result<(), StoreError> {
+        let c = self.state.checks.entry(id.to_string()).or_insert(Check { requests: 0, ..check.clone() });
+        c.requests = c.requests.saturating_add(1);
+        c.shared |= check.shared;
+        self.save()
+    }
+
+    /// The ids of `account`'s shared checks (all of them, for deleting).
+    pub fn shared_checks(&self, account: u64) -> Vec<String> {
+        self.state.checks.iter().filter(|(_, c)| c.account == account && c.shared).map(|(id, _)| id.clone()).collect()
+    }
+
+    /// Keep a shared check's `files` (once each) and a round's `line`.
+    pub fn keep_shared(&self, check: &str, files: &[(String, Vec<u8>)], line: &str) -> Result<(), StoreError> {
+        let io = |e: std::io::Error| StoreError::Io(e.to_string());
+        match &self.backend {
+            Backend::Memory(m) => {
+                let mut m = m.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                let (f, lines) = m.entry(check.to_string()).or_default();
+                for (name, bytes) in files {
+                    if !f.iter().any(|(n, _)| n == name) {
+                        f.push((name.clone(), bytes.clone()));
+                    }
+                }
+                lines.push(line.to_string());
+            }
+            Backend::Dir(dir) => {
+                let d = dir.join("shared").join(check);
+                std::fs::create_dir_all(&d).map_err(io)?;
+                for (name, bytes) in files {
+                    let p = d.join(name);
+                    if !p.exists() {
+                        std::fs::write(p, bytes).map_err(io)?;
+                    }
+                }
+                let mut f = std::fs::OpenOptions::new().create(true).append(true).open(d.join("check.jsonl")).map_err(io)?;
+                writeln!(f, "{line}").map_err(io)?;
+            }
+            Backend::Db(c) => {
+                let mut c = c.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                for (name, bytes) in files {
+                    c.execute(
+                        "INSERT INTO sf_shared_files (check_id, name, data) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
+                        &[&check, name, bytes],
+                    )
+                    .map_err(db_error)?;
+                }
+                c.execute("INSERT INTO sf_shared_rounds (check_id, line) VALUES ($1, $2)", &[&check, &line]).map_err(db_error)?;
+            }
+        }
+        Ok(())
+    }
+
+    /// A shared check's files' names and its rounds (tests; reading the collection).
+    pub fn shared(&self, check: &str) -> (Vec<String>, Vec<String>) {
+        match &self.backend {
+            Backend::Memory(m) => {
+                let m = m.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                m.get(check).map(|(f, l)| (f.iter().map(|(n, _)| n.clone()).collect(), l.clone())).unwrap_or_default()
+            }
+            Backend::Dir(dir) => {
+                let d = dir.join("shared").join(check);
+                let mut names: Vec<String> = std::fs::read_dir(&d)
+                    .into_iter()
+                    .flatten()
+                    .flatten()
+                    .map(|e| e.file_name().to_string_lossy().to_string())
+                    .filter(|n| n != "check.jsonl")
+                    .collect();
+                names.sort();
+                let lines = std::fs::read_to_string(d.join("check.jsonl")).unwrap_or_default().lines().map(str::to_string).collect();
+                (names, lines)
+            }
+            Backend::Db(c) => {
+                let mut c = c.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                let names = c
+                    .query("SELECT name FROM sf_shared_files WHERE check_id = $1 ORDER BY name", &[&check])
+                    .map(|rows| rows.iter().filter_map(|r| r.try_get::<_, String>(0).ok()).collect())
+                    .unwrap_or_default();
+                let lines = c
+                    .query("SELECT line FROM sf_shared_rounds WHERE check_id = $1 ORDER BY id", &[&check])
+                    .map(|rows| rows.iter().filter_map(|r| r.try_get::<_, String>(0).ok()).collect())
+                    .unwrap_or_default();
+                (names, lines)
+            }
+        }
+    }
+
+    /// Delete the shared checks `ids` (their photos and rounds; the checks stay counted, no longer
+    /// shared) → how many there were.
+    pub fn delete_shared(&mut self, ids: &[String]) -> Result<usize, StoreError> {
+        let mut n = 0;
+        for id in ids {
+            let Some(c) = self.state.checks.get_mut(id).filter(|c| c.shared) else { continue };
+            c.shared = false;
+            n += 1;
+            match &self.backend {
+                Backend::Memory(m) => {
+                    m.lock().unwrap_or_else(std::sync::PoisonError::into_inner).remove(id);
+                }
+                Backend::Dir(dir) => {
+                    let d = dir.join("shared").join(id);
+                    if d.exists() {
+                        std::fs::remove_dir_all(d).map_err(|e| StoreError::Io(e.to_string()))?;
+                    }
+                }
+                Backend::Db(c) => {
+                    let mut c = c.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                    c.execute("DELETE FROM sf_shared_files WHERE check_id = $1", &[id]).map_err(db_error)?;
+                    c.execute("DELETE FROM sf_shared_rounds WHERE check_id = $1", &[id]).map_err(db_error)?;
+                }
+            }
+        }
+        self.save()?;
+        Ok(n)
     }
 
     pub fn account(&self, id: u64) -> Option<&Account> {
@@ -259,5 +469,39 @@ mod tests {
         s.reserve(id, 50).unwrap();
         assert_eq!(s.settle(id, 50, 0, "ask", 2).unwrap(), 88);
         assert_eq!(s.recent(id).iter().filter(|e| e.kind == "ai").count(), 1);
+    }
+
+    /// The Postgres store, with a database to try it on (`SF_CLOUD_TEST_DATABASE_URL`, whose
+    /// StitchFoundry tables it empties); skipped without one.
+    #[test]
+    fn the_database_keeps_accounts_credits_and_shared_checks() {
+        let Ok(url) = std::env::var("SF_CLOUD_TEST_DATABASE_URL") else { return };
+        let mut c = postgres::Client::connect(&url, postgres::NoTls).unwrap();
+        c.batch_execute("DROP TABLE IF EXISTS sf_state, sf_ledger, sf_shared_files, sf_shared_rounds").unwrap();
+        let id = {
+            let mut s = Store::open_db(&url).unwrap();
+            let id = s.create("a@b.c", "hash".into(), 100, 1000).unwrap();
+            s.add_session("t1".into(), id, 1000).unwrap();
+            assert!(s.add_credits(id, 1000, "purchase", "cs_1", "small pack", 1001).unwrap());
+            let check = Check { account: id, month: "2026-10".into(), created: 1000, requests: 0, free: true, shared: true, follow_up: None };
+            s.note_check("1-aaaaaaaa", check).unwrap();
+            s.keep_shared("1-aaaaaaaa", &[("image-1.jpg".into(), b"hello".to_vec())], "{\"said\":[\"overlap\"]}").unwrap();
+            s.keep_shared("1-aaaaaaaa", &[("image-1.jpg".into(), b"again".to_vec())], "{}").unwrap();
+            id
+        };
+        let mut s = Store::open_db(&url).unwrap();
+        assert_eq!(s.account(id).unwrap().credits, 1100);
+        assert_eq!(s.session("t1", 2000), Some(id));
+        assert_eq!(s.checks_in(id, "2026-10"), 1);
+        let (files, rounds) = s.shared("1-aaaaaaaa");
+        assert_eq!(files, ["image-1.jpg"]);
+        assert_eq!(rounds.len(), 2);
+        let n: i64 = c.query_one("SELECT count(*) FROM sf_ledger", &[]).unwrap().get(0);
+        assert_eq!(n, 2, "signup and purchase");
+        let photo: Vec<u8> = c.query_one("SELECT data FROM sf_shared_files", &[]).unwrap().get(0);
+        assert_eq!(photo, b"hello", "kept once");
+        assert_eq!(s.delete_shared(&["1-aaaaaaaa".into()]).unwrap(), 1);
+        assert!(s.shared("1-aaaaaaaa").0.is_empty());
+        assert!(s.shared_checks(id).is_empty());
     }
 }

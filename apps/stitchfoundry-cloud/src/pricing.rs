@@ -69,8 +69,8 @@ mod tests {
     fn a_reply_costs_what_it_used_with_the_markup() {
         let c = cfg();
         let p = c.model("claude-opus-5-5").unwrap().clone();
-        // 10,000 in at $4/M, 2,000 out at $20/M = $0.08; × 1.5 = 12 cents = 12 credits
-        assert_eq!(charge(&c, &p, &json!({"input_tokens": 10_000, "output_tokens": 2_000})), 12);
+        // 10,000 in at $4/M, 2,000 out at $20/M = $0.08; × 3 = 24 cents = 24 credits
+        assert_eq!(charge(&c, &p, &json!({"input_tokens": 10_000, "output_tokens": 2_000})), 24);
         // a tiny reply still costs a credit; nothing used costs nothing
         assert_eq!(charge(&c, &p, &json!({"input_tokens": 10, "output_tokens": 1})), 1);
         assert_eq!(charge(&c, &p, &json!({})), 0);
@@ -86,6 +86,6 @@ mod tests {
         assert!(held >= used, "{held} >= {used}");
         // an image is counted as one image, not as its base64 bytes
         let img = json!({"messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": "A".repeat(4_000_000)}}]}]});
-        assert!(estimate(&c, &p, &img, 16_000) < 60, "{}", estimate(&c, &p, &img, 16_000));
+        assert!(estimate(&c, &p, &img, 16_000) < 130, "{}", estimate(&c, &p, &img, 16_000));
     }
 }

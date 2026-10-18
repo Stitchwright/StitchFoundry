@@ -6303,3 +6303,33 @@ machine	Stop	Спиране
 	The machine stopped with a message	Машината спря със съобщение
 	While it sewed:	По време на бродирането:
 	e.g. 75/11 ballpoint	напр. 75/11 със сферичен връх
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Една проверка струва {n} кредита; безплатните проверки се връщат следващия месец.
+	Account	Акаунт
+	Buy credits	Купуване на кредити
+	Buy…	Купуване…
+	Create Account	Създаване на акаунт
+	Delete My Shared Sew-out Checks	Изтриване на споделените ми проверки
+	Email	Имейл
+	Free sew-out checks left this month: {n}	Оставащи безплатни проверки този месец: {n}
+	Leave it empty for StitchFoundry's own service.	Оставете празно за собствената услуга на StitchFoundry.
+	Paid with StitchFoundry credits ({n} left).	Платено с кредити на StitchFoundry (остават {n}).
+	Paid with StitchFoundry credits.	Платено с кредити на StitchFoundry.
+	Pay for the AI features with my StitchFoundry credits	Плащане на функциите с ИИ с моите кредити на StitchFoundry
+	Pay with StitchFoundry credits instead	Плащане с кредити на StitchFoundry вместо това
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Плащането става на защитената страница на Stripe в браузъра ви; картата ви никога не стига до StitchFoundry.
+	Reading your credits…	Четене на кредитите…
+	Server	Сървър
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Споделяне на тази проверка, за да се подобри StitchFoundry (остава лична; изтрийте я по всяко време в акаунта на StitchFoundry)
+	Sign In	Вход
+	Sign Out	Изход
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Влезте или създайте акаунт, за да плащате функциите с ИИ с кредити на StitchFoundry вместо със собствения си API ключ на Anthropic. Новият акаунт започва с безплатни кредити.
+	Signed in as {email}	Влезли сте като {email}
+	StitchFoundry Account	Акаунт в StitchFoundry
+	StitchFoundry Account…	Акаунт в StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Акаунтите в StitchFoundry още не са отворени. Дотогава функциите с ИИ работят със собствения ви API ключ на Anthropic.
+	This is the sew-out after the fix from my last check	Това е бродерията след поправката от последната ми проверка
+	{n} credits for {price}	{n} кредита за {price}
+	{n} credits	{n} кредита
+	{n} free checks left this month.	Остават {n} безплатни проверки този месец.

@@ -5404,3 +5404,46 @@ machine	Stop	停止
 @msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	无法读取这张照片：请另存或以 JPEG 发送（iPhone：设置 › 相机 › 格式 › 兼容性最佳）。
 @msg	At most 6 photos: remove one first.	最多 6 张照片：请先移除一张。
 @msg	no files here	这里没有文件
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	一次检查需 {n} 点数；免费检查下个月恢复。
+	Account	账户
+	Buy credits	购买点数
+	Buy…	购买…
+	Create Account	创建账户
+	Delete My Shared Sew-out Checks	删除我共享的检查
+	Email	电子邮件
+	Free sew-out checks left this month: {n}	本月剩余免费检查：{n}
+	Leave it empty for StitchFoundry's own service.	留空则使用 StitchFoundry 自己的服务。
+	Paid with StitchFoundry credits ({n} left).	用 StitchFoundry 点数支付（剩余 {n}）。
+	Paid with StitchFoundry credits.	用 StitchFoundry 点数支付。
+	Pay for the AI features with my StitchFoundry credits	用我的 StitchFoundry 点数支付 AI 功能
+	Pay with StitchFoundry credits instead	改用 StitchFoundry 点数支付
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	在浏览器中的 Stripe 安全页面付款；您的银行卡信息绝不会到达 StitchFoundry。
+	Reading your credits…	正在读取点数…
+	Server	服务器
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	共享这次检查以帮助改进 StitchFoundry（保持私密；可随时在 StitchFoundry 账户中删除）
+	Sign In	登录
+	Sign Out	退出登录
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	登录或创建账户，即可用 StitchFoundry 点数代替您自己的 Anthropic API 密钥支付 AI 功能。新账户附带免费点数。
+	Signed in as {email}	已登录：{email}
+	StitchFoundry Account	StitchFoundry 账户
+	StitchFoundry Account…	StitchFoundry 账户…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry 账户尚未开放。在此之前，AI 功能使用您自己的 Anthropic API 密钥。
+	This is the sew-out after the fix from my last check	这是按上次检查修改后绣的成品
+	{n} credits for {price}	{n} 点数，{price}
+	{n} credits	{n} 点数
+	{n} free checks left this month.	本月还剩 {n} 次免费检查。
+@msg	StitchFoundry Account needs the desktop app for now	“StitchFoundry 账户”目前需要桌面版应用
+@msg	Type your email address.	请输入您的电子邮件地址。
+@msg	A password needs at least 8 characters.	密码至少需要 8 个字符。
+@msg	Account made: welcome to StitchFoundry.	账户已创建：欢迎使用 StitchFoundry。
+@msg	Signed in.	已登录。
+@msg	Pay on the page that opened in your browser, then press Refresh.	请在浏览器打开的页面中付款，然后按“刷新”。
+@msg	Signed out.	已退出登录。
+@msg	Your shared sew-out checks are deleted.	您共享的检查已删除。
+@msg	StitchFoundry accounts aren't open yet.	StitchFoundry 账户尚未开放。
+@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	请登录您的 StitchFoundry 账户（刺绣 › StitchFoundry 账户…）。
+@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	StitchFoundry 点数不足：请在 StitchFoundry 账户中购买。
+@msg	An account with that email already exists: sign in instead.	该电子邮件已有账户：请直接登录。
+@msg	The StitchFoundry service can't do this yet: try again later.	StitchFoundry 服务暂时无法完成此操作：请稍后再试。

@@ -13,6 +13,7 @@
 use serde_json::{Value, json};
 
 pub mod ask;
+pub mod cloud;
 pub mod sewout;
 
 /// The Messages API endpoint.
@@ -64,7 +65,7 @@ pub struct ArtImage {
 /// An HTTP POST for the app's client to send.
 #[derive(Clone, Debug, PartialEq)]
 pub struct HttpRequest {
-    pub url: &'static str,
+    pub url: String,
     pub headers: Vec<(&'static str, String)>,
     pub body: String,
 }
@@ -131,6 +132,21 @@ pub enum ArtError {
     /// Check My Sew-out was asked with no photo.
     #[error("Add a photo of the sew-out first.")]
     NoPhoto,
+    /// No StitchFoundry service is set up in this build.
+    #[error("StitchFoundry accounts aren't open yet.")]
+    NoServer,
+    /// The StitchFoundry session ended, or there is none.
+    #[error("Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).")]
+    SignIn,
+    /// The StitchFoundry account hasn't the credits.
+    #[error("Not enough StitchFoundry credits: buy more in StitchFoundry Account.")]
+    NoCredits,
+    /// An account with the email exists already.
+    #[error("An account with that email already exists: sign in instead.")]
+    Taken,
+    /// The StitchFoundry service can't do it (its AI or payments aren't set up).
+    #[error("The StitchFoundry service can't do this yet: try again later.")]
+    CloudClosed,
     /// The request never got an answer (from the app's client).
     #[error("Couldn't reach the AI service: {0}")]
     Network(String),
@@ -265,7 +281,7 @@ that starts with \"DECLINED:\" followed by a short reason, instead of the SVG."
             return Err(ArtError::LongPrompt);
         }
         Ok(HttpRequest {
-            url: API_URL,
+            url: API_URL.to_string(),
             headers: vec![
                 ("content-type", "application/json".to_string()),
                 ("x-api-key", key.to_string()),

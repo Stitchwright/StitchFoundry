@@ -6316,3 +6316,46 @@ theme	Appearance	Apparence
 @msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Cette photo ne peut pas être lue : enregistrez-la ou envoyez-la en JPEG (sur iPhone : Réglages › Appareil photo › Formats › Le plus compatible).
 @msg	At most 6 photos: remove one first.	6 photos au maximum : retirez-en une d’abord.
 @msg	no files here	pas de fichiers ici
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Une vérification coûte {n} crédits ; les vérifications gratuites reviennent le mois prochain.
+	Account	Compte
+	Buy credits	Acheter des crédits
+	Buy…	Acheter…
+	Create Account	Créer un compte
+	Delete My Shared Sew-out Checks	Supprimer mes vérifications partagées
+	Email	E-mail
+	Free sew-out checks left this month: {n}	Vérifications gratuites restantes ce mois-ci : {n}
+	Leave it empty for StitchFoundry's own service.	Laissez vide pour le service de StitchFoundry.
+	Paid with StitchFoundry credits ({n} left).	Payé en crédits StitchFoundry ({n} restants).
+	Paid with StitchFoundry credits.	Payé en crédits StitchFoundry.
+	Pay for the AI features with my StitchFoundry credits	Payer les fonctions d’IA avec mes crédits StitchFoundry
+	Pay with StitchFoundry credits instead	Payer plutôt en crédits StitchFoundry
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Le paiement se fait sur la page sécurisée de Stripe, dans votre navigateur ; votre carte n’atteint jamais StitchFoundry.
+	Reading your credits…	Lecture de vos crédits…
+	Server	Serveur
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Partager cette vérification pour aider à améliorer StitchFoundry (reste privée ; supprimable à tout moment dans Compte StitchFoundry)
+	Sign In	Se connecter
+	Sign Out	Se déconnecter
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Connectez-vous, ou créez un compte, pour payer les fonctions d’IA en crédits StitchFoundry plutôt qu’avec votre propre clé API Anthropic. Un nouveau compte commence avec des crédits gratuits.
+	Signed in as {email}	Connecté en tant que {email}
+	StitchFoundry Account	Compte StitchFoundry
+	StitchFoundry Account…	Compte StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Les comptes StitchFoundry ne sont pas encore ouverts. D’ici là, les fonctions d’IA marchent avec votre propre clé API Anthropic.
+	This is the sew-out after the fix from my last check	C’est la broderie faite après la correction de ma dernière vérification
+	{n} credits for {price}	{n} crédits pour {price}
+	{n} credits	{n} crédits
+	{n} free checks left this month.	{n} vérifications gratuites restantes ce mois-ci.
+@msg	StitchFoundry Account needs the desktop app for now	Compte StitchFoundry nécessite pour l’instant l’application de bureau
+@msg	Type your email address.	Saisissez votre adresse e-mail.
+@msg	A password needs at least 8 characters.	Un mot de passe doit avoir au moins 8 caractères.
+@msg	Account made: welcome to StitchFoundry.	Compte créé : bienvenue dans StitchFoundry.
+@msg	Signed in.	Connecté.
+@msg	Pay on the page that opened in your browser, then press Refresh.	Payez sur la page ouverte dans votre navigateur, puis appuyez sur Actualiser.
+@msg	Signed out.	Déconnecté.
+@msg	Your shared sew-out checks are deleted.	Vos vérifications partagées sont supprimées.
+@msg	StitchFoundry accounts aren't open yet.	Les comptes StitchFoundry ne sont pas encore ouverts.
+@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Connectez-vous à votre compte StitchFoundry (Broderie › Compte StitchFoundry…).
+@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Pas assez de crédits StitchFoundry : achetez-en dans Compte StitchFoundry.
+@msg	An account with that email already exists: sign in instead.	Un compte existe déjà avec cet e-mail : connectez-vous plutôt.
+@msg	The StitchFoundry service can't do this yet: try again later.	Le service StitchFoundry ne peut pas encore faire cela : réessayez plus tard.

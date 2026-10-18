@@ -492,7 +492,7 @@ async fn post(request: &vectorcraft_ui_egui::HttpRequest) -> Result<(u16, String
     init.set_headers(&headers);
     init.set_body(&wasm_bindgen::JsValue::from_str(&request.body));
     let response: web_sys::Response =
-        JsFuture::from(window.fetch_with_str_and_init(request.url, &init)).await.map_err(js_err)?.dyn_into().map_err(js_err)?;
+        JsFuture::from(window.fetch_with_str_and_init(&request.url, &init)).await.map_err(js_err)?.dyn_into().map_err(js_err)?;
     let status = response.status();
     let text = JsFuture::from(response.text().map_err(js_err)?).await.map_err(js_err)?.as_string().unwrap_or_default();
     Ok((status, text))

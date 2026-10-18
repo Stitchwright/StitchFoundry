@@ -5887,3 +5887,46 @@ machine	Stop	Зупинка
 @msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Це фото не читається: збережіть або надішліть його як JPEG (на iPhone: Параметри › Камера › Формати › Найсумісніший).
 @msg	At most 6 photos: remove one first.	Не більше 6 фото: спершу приберіть одне.
 @msg	no files here	тут немає файлів
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Перевірка коштує {n} кредитів; безкоштовні перевірки повернуться наступного місяця.
+	Account	Обліковий запис
+	Buy credits	Купити кредити
+	Buy…	Купити…
+	Create Account	Створити обліковий запис
+	Delete My Shared Sew-out Checks	Видалити мої спільні перевірки
+	Email	Ел. пошта
+	Free sew-out checks left this month: {n}	Безкоштовних перевірок цього місяця лишилося: {n}
+	Leave it empty for StitchFoundry's own service.	Залиште порожнім для власного сервісу StitchFoundry.
+	Paid with StitchFoundry credits ({n} left).	Оплачено кредитами StitchFoundry (лишилося {n}).
+	Paid with StitchFoundry credits.	Оплачено кредитами StitchFoundry.
+	Pay for the AI features with my StitchFoundry credits	Оплачувати функції ШІ моїми кредитами StitchFoundry
+	Pay with StitchFoundry credits instead	Платити кредитами StitchFoundry
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Оплата відбувається на захищеній сторінці Stripe у вашому браузері; ваша картка ніколи не потрапляє до StitchFoundry.
+	Reading your credits…	Читаємо ваші кредити…
+	Server	Сервер
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Поділитися цією перевіркою, щоб допомогти покращити StitchFoundry (лишиться приватною; видалити можна будь-коли в обліковому записі StitchFoundry)
+	Sign In	Увійти
+	Sign Out	Вийти
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Увійдіть або створіть обліковий запис, щоб оплачувати функції ШІ кредитами StitchFoundry замість власного ключа API Anthropic. Новий обліковий запис починається з безкоштовними кредитами.
+	Signed in as {email}	Увійшли як {email}
+	StitchFoundry Account	Обліковий запис StitchFoundry
+	StitchFoundry Account…	Обліковий запис StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Облікові записи StitchFoundry ще не відкриті. Доти функції ШІ працюють з вашим власним ключем API Anthropic.
+	This is the sew-out after the fix from my last check	Це вишивка після виправлення з моєї минулої перевірки
+	{n} credits for {price}	{n} кредитів за {price}
+	{n} credits	Кредитів: {n}
+	{n} free checks left this month.	Безкоштовних перевірок цього місяця лишилося: {n}.
+@msg	StitchFoundry Account needs the desktop app for now	«Обліковий запис StitchFoundry» поки потребує настільного застосунку
+@msg	Type your email address.	Введіть адресу ел. пошти.
+@msg	A password needs at least 8 characters.	У паролі має бути щонайменше 8 символів.
+@msg	Account made: welcome to StitchFoundry.	Обліковий запис створено: ласкаво просимо до StitchFoundry.
+@msg	Signed in.	Ви увійшли.
+@msg	Pay on the page that opened in your browser, then press Refresh.	Оплатіть на сторінці, що відкрилася в браузері, потім натисніть «Оновити».
+@msg	Signed out.	Ви вийшли.
+@msg	Your shared sew-out checks are deleted.	Ваші спільні перевірки видалено.
+@msg	StitchFoundry accounts aren't open yet.	Облікові записи StitchFoundry ще не відкриті.
+@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Увійдіть до облікового запису StitchFoundry (Вишивка › Обліковий запис StitchFoundry…).
+@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Недостатньо кредитів StitchFoundry: купіть ще в обліковому записі StitchFoundry.
+@msg	An account with that email already exists: sign in instead.	Обліковий запис із цією поштою вже існує: увійдіть до нього.
+@msg	The StitchFoundry service can't do this yet: try again later.	Сервіс StitchFoundry поки цього не вміє: спробуйте пізніше.

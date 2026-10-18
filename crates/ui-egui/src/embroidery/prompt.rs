@@ -8,7 +8,7 @@ use std::sync::mpsc::{Receiver, TryRecvError, channel};
 
 use serde_json::{Value, json};
 use vectorcraft_doc::{NodeId, NodeKind};
-use vectorcraft_embroidery::sf_core::ai::{self, Art, ArtError, ArtImage, ArtRequest};
+use vectorcraft_embroidery::sf_core::ai::{self, Art, ArtError, ArtImage, ArtRequest, cloud};
 use vectorcraft_embroidery::{MM_PER_PT, PT_PER_MM};
 use vectorcraft_geom::Rect;
 
@@ -62,14 +62,45 @@ pub fn available(app: &VectorcraftApp) -> bool {
     app.services.http_post.is_some() || app.services.http_post_async.is_some()
 }
 
-/// Sends `http` with the host's service and reads the answer with `parse`: on the desktop on a
-/// thread named `thread`, on the web through the browser. The result arrives on the receiver;
-/// nothing waits for it once the receiver is dropped.
+/// Sends AI request `http` (see [`post_ai`]) to the AI service's messages endpoint.
 pub(crate) fn post<T: Send + 'static>(
     app: &VectorcraftApp,
     http: crate::HttpRequest,
     thread: &str,
     parse: fn(u16, &str) -> Result<T, ArtError>,
+) -> Result<Receiver<Result<T, ArtError>>, String> {
+    post_ai(app, http, thread, cloud::MESSAGES, Vec::new(), parse)
+}
+
+/// Sends AI request `http` (built with [`super::account::key_to_send`]): to Anthropic with the
+/// user's own key, or, when paying with StitchFoundry credits, to `path` on the StitchFoundry
+/// service with `extra` headers, its refusals read as the service's (sign in, credits).
+pub(crate) fn post_ai<T: Send + 'static>(
+    app: &VectorcraftApp,
+    http: crate::HttpRequest,
+    thread: &str,
+    path: &str,
+    extra: Vec<(&'static str, String)>,
+    parse: fn(u16, &str) -> Result<T, ArtError>,
+) -> Result<Receiver<Result<T, ArtError>>, String> {
+    let credits = super::account::paying_with_credits(app);
+    let http = match super::account::server(app).filter(|_| credits) {
+        Some(server) => cloud::through_cloud(http, &server, path, extra).map_err(|e| e.to_string())?,
+        None => http,
+    };
+    post_plain(app, http, thread, move |status, body| {
+        if credits && matches!(status, 401 | 402 | 403 | 503) { Err(cloud::status_error(status, body)) } else { parse(status, body) }
+    })
+}
+
+/// Sends `http` with the host's service and reads the answer with `parse`: on the desktop on a
+/// thread named `thread`, on the web through the browser. The result arrives on the receiver;
+/// nothing waits for it once the receiver is dropped.
+pub(crate) fn post_plain<T: Send + 'static, F: Fn(u16, &str) -> Result<T, ArtError> + Send + 'static>(
+    app: &VectorcraftApp,
+    http: crate::HttpRequest,
+    thread: &str,
+    parse: F,
 ) -> Result<Receiver<Result<T, ArtError>>, String> {
     let (tx, rx) = channel();
     if let Some(post) = app.services.http_post.clone() {
@@ -226,13 +257,16 @@ pub fn start(app: &mut VectorcraftApp, d: &Dialog) -> Result<Value, String> {
         request = request.with_image(image);
         frame = Some(at);
     }
-    let http = match request.http(&app.embroidery.prompt.key) {
+    let key = super::account::key_to_send(app);
+    let http = match request.http(&key) {
         Ok(h) => h,
         Err(e) => return fail(app, e.to_string()),
     };
     // Remember off forgets a kept key now; on, the key is kept once Anthropic takes it ([`poll`]).
-    let keep = d.bool("remember").then(|| app.embroidery.prompt.key.trim().to_string());
-    if keep.is_none() {
+    // Paid with credits, no key goes and none is kept or forgotten.
+    let credits = super::account::paying_with_credits(app);
+    let keep = (d.bool("remember") && !credits).then(|| app.embroidery.prompt.key.trim().to_string());
+    if keep.is_none() && !credits {
         keep_key(app.services.secrets.as_deref(), None);
     }
     let rx = post(app, http, "design-from-prompt", ai::parse_reply)?;
@@ -269,6 +303,8 @@ pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
         Err(TryRecvError::Disconnected) => Err(ArtError::Network("the request stopped".into())),
     };
     let Some(p) = app.embroidery.prompt.pending.take() else { return };
+    // the credits it cost show next time the account is read
+    app.embroidery.account.stale |= super::account::paying_with_credits(app);
     // Anthropic took the key unless it said otherwise.
     if let Some(key) = p.keep.as_deref().filter(|_| !matches!(r, Err(ArtError::Key(_)))) {
         keep_key(app.services.secrets.as_deref(), Some(key));

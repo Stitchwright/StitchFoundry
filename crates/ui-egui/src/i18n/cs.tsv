@@ -6304,3 +6304,46 @@ mark-style	Japanese	Japonské
 @msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Tuto fotku nelze přečíst: uložte nebo pošlete ji jako JPEG (na iPhonu: Nastavení › Fotoaparát › Formáty › Nejkompatibilnější).
 @msg	At most 6 photos: remove one first.	Nejvýš 6 fotek: nejdřív jednu odeberte.
 @msg	no files here	tady nejsou žádné soubory
+
+# Embroidery (StitchFoundry): StitchFoundry Account
+	A check costs {n} credits; free checks come back next month.	Kontrola stojí {n} kreditů; bezplatné kontroly se vrátí příští měsíc.
+	Account	Účet
+	Buy credits	Koupit kredity
+	Buy…	Koupit…
+	Create Account	Vytvořit účet
+	Delete My Shared Sew-out Checks	Smazat mé sdílené kontroly
+	Email	E-mail
+	Free sew-out checks left this month: {n}	Bezplatné kontroly zbývající tento měsíc: {n}
+	Leave it empty for StitchFoundry's own service.	Nechte prázdné pro vlastní službu StitchFoundry.
+	Paid with StitchFoundry credits ({n} left).	Placeno kredity StitchFoundry (zbývá {n}).
+	Paid with StitchFoundry credits.	Placeno kredity StitchFoundry.
+	Pay for the AI features with my StitchFoundry credits	Platit funkce AI mými kredity StitchFoundry
+	Pay with StitchFoundry credits instead	Platit raději kredity StitchFoundry
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Platí se na zabezpečené stránce Stripe ve vašem prohlížeči; vaše karta se do StitchFoundry nikdy nedostane.
+	Reading your credits…	Načítají se kredity…
+	Server	Server
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Sdílet tuto kontrolu a pomoci zlepšit StitchFoundry (zůstane soukromá; kdykoli ji smažete v Účtu StitchFoundry)
+	Sign In	Přihlásit se
+	Sign Out	Odhlásit se
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Přihlaste se nebo si vytvořte účet a plaťte funkce AI kredity StitchFoundry místo vlastního klíče API Anthropic. Nový účet začíná s bezplatnými kredity.
+	Signed in as {email}	Přihlášen jako {email}
+	StitchFoundry Account	Účet StitchFoundry
+	StitchFoundry Account…	Účet StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Účty StitchFoundry zatím nejsou otevřené. Do té doby funkce AI fungují s vaším vlastním klíčem API Anthropic.
+	This is the sew-out after the fix from my last check	Toto je výšivka po opravě z mé poslední kontroly
+	{n} credits for {price}	{n} kreditů za {price}
+	{n} credits	{n} kreditů
+	{n} free checks left this month.	Tento měsíc zbývá {n} bezplatných kontrol.
+@msg	StitchFoundry Account needs the desktop app for now	Účet StitchFoundry zatím vyžaduje desktopovou aplikaci
+@msg	Type your email address.	Napište svou e-mailovou adresu.
+@msg	A password needs at least 8 characters.	Heslo musí mít aspoň 8 znaků.
+@msg	Account made: welcome to StitchFoundry.	Účet vytvořen: vítejte ve StitchFoundry.
+@msg	Signed in.	Přihlášeno.
+@msg	Pay on the page that opened in your browser, then press Refresh.	Zaplaťte na stránce otevřené v prohlížeči a pak stiskněte Obnovit.
+@msg	Signed out.	Odhlášeno.
+@msg	Your shared sew-out checks are deleted.	Vaše sdílené kontroly jsou smazány.
+@msg	StitchFoundry accounts aren't open yet.	Účty StitchFoundry zatím nejsou otevřené.
+@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Přihlaste se ke svému účtu StitchFoundry (Výšivka › Účet StitchFoundry…).
+@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Málo kreditů StitchFoundry: kupte další v Účtu StitchFoundry.
+@msg	An account with that email already exists: sign in instead.	Účet s tímto e-mailem už existuje: raději se přihlaste.
+@msg	The StitchFoundry service can't do this yet: try again later.	Služba StitchFoundry to zatím neumí: zkuste to později.
