@@ -35,7 +35,7 @@ fn store_dir(name: &str) -> Option<PathBuf> {
     if std::env::var_os("VECTORCRAFT_NO_PREFS").is_some() {
         return None;
     }
-    Some(prefs_path_for("VectorCraft", "vectorcraft")?.parent()?.join(name))
+    Some(prefs_path_for(APP_FOLDER.0, APP_FOLDER.1)?.parent()?.join(name))
 }
 
 /// Register the ICC profiles `color.loadProfile` kept in the `Color Profiles` folder (#2174), and
