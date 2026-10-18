@@ -112,7 +112,7 @@ fn fill_shape(shape: &Shape, job: FillJob, guides: &[Guide], hint: Option<Point>
             && let Some(strip) = strip_from_guides(&piece.outer, guides)
         {
             let saved = std::mem::replace(&mut out.region, vec![piece.clone()]);
-            turning::turning_fill(&piece, &strip, params, &mut out, here, trim, max_stitch);
+            turning::turning_fill(&piece, &strip, params, &mut out, (here, ex), trim, max_stitch);
             out.region = saved;
             continue;
         }
@@ -510,6 +510,9 @@ const TRAVEL_STITCH: f64 = 2.5;
 /// at the last object's exit and ends at the next one's entry, on their edges.
 const TRAVEL_SLACK: f64 = 1.0;
 
+/// How much each object of a branch is grown (mm) to make the area that covers travel.
+const SEAM: f64 = 0.05;
+
 /// For each object of a branch but its first, what it and the rest of its branch
 /// cover: thread carried into the object under that area is sewn over and hidden.
 /// `None` outside branches.
@@ -527,8 +530,12 @@ fn branch_covers(design: &Design) -> Vec<Option<Vec<Polygon>>> {
         let mut acc: Vec<Polygon> = Vec::new();
         for k in (i + 1..end).rev() {
             // what is not sewn covers nothing
-            let mine: Vec<Polygon> =
-                if objs[k].visible { object_polygons(&objs[k]).into_iter().filter(|p| p.outer.len() >= 3).collect() } else { Vec::new() };
+            // grown a little, so pieces cut from one shape (which only touch) join up
+            let mine: Vec<Polygon> = if objs[k].visible {
+                poly::offset(&object_polygons(&objs[k]).into_iter().filter(|p| p.outer.len() >= 3).collect::<Vec<_>>(), SEAM)
+            } else {
+                Vec::new()
+            };
             if !mine.is_empty() {
                 acc = if acc.is_empty() { poly::union(&mine) } else { poly::union2(&acc, &mine) };
             }
@@ -581,7 +588,15 @@ fn branch_exit(design: &Design, index: usize, covers: &[Option<Vec<Polygon>>]) -
     if mine.is_empty() {
         return None;
     }
-    let under = poly::intersection(&mine, cover);
+    let under: Vec<Vec<Point>> = poly::intersection(&mine, cover).iter().flat_map(|p| p.rings().cloned()).collect();
+    // pieces that only touch what is still to come (a letter's strokes, cut apart) share no
+    // area with it: their outline where it meets it
+    let under = if under.iter().any(|r| !r.is_empty()) {
+        under
+    } else {
+        let meets = |q: &Point| cover.iter().any(|c| c.contains(*q) || c.distance_to_boundary(*q) <= TRAVEL_SLACK * 0.5);
+        vec![mine.iter().flat_map(|p| p.rings()).flatten().copied().filter(meets).collect()]
+    };
     let target = object_polygons(next);
     let bbox = next.bbox();
     let dist = |p: Point| {
@@ -595,7 +610,7 @@ fn branch_exit(design: &Design, index: usize, covers: &[Option<Vec<Polygon>>]) -
             target.iter().map(|t| t.distance_to_boundary(p)).fold(f64::INFINITY, f64::min)
         }
     };
-    under.iter().flat_map(|p| p.rings()).flatten().copied().min_by(|a, b| dist(*a).total_cmp(&dist(*b)))
+    under.iter().flatten().copied().min_by(|a, b| dist(*a).total_cmp(&dist(*b)))
 }
 
 /// Where an object should end so the next one, of the same thread, starts close by (then no

@@ -31,10 +31,20 @@ fn tatami_row(a: Point, b: Point, row: usize, params: &FillParams, out: &mut Vec
 
 /// Fills `piece` along `strip`. Underlay: edge run plus a centre walk along the strip,
 /// or for satin from a satin object, that satin's own column underlay.
-pub(crate) fn turning_fill(piece: &Polygon, strip: &Strip, params: &FillParams, out: &mut Out, hint: Option<Point>, trim: f64, max_stitch: f64) {
+/// A satin object's column (`satin_column`) ends nearest `exit` when given.
+pub(crate) fn turning_fill(
+    piece: &Polygon,
+    strip: &Strip,
+    params: &FillParams,
+    out: &mut Out,
+    ends: (Option<Point>, Option<Point>),
+    trim: f64,
+    max_stitch: f64,
+) {
+    let (hint, exit) = ends;
     let satin = params.kind == FillKind::Satin;
     if satin && let Some(sp) = &params.satin_column {
-        satin_column(strip, sp, out, hint, trim, max_stitch);
+        satin_column(strip, sp, out, (hint, exit), trim, max_stitch);
         return;
     }
     // Satin spacing is between penetrations on the same side → rows at half spacing.
@@ -194,7 +204,11 @@ fn emboss(pts: Vec<Point>, pairs: &[(Point, Point)], t: Texture) -> Vec<Point> {
 
 /// Satin along `strip` with a satin object's column settings: spacing opened up on
 /// narrow strips (auto spacing), underlay chosen by width, then the top stitches.
-fn satin_column(strip: &Strip, sp: &SatinParams, out: &mut Out, hint: Option<Point>, trim: f64, max_stitch: f64) {
+/// It starts at the end nearest the needle and, when `exit` lies nearer that end than the far
+/// one, comes back to it: the thread is carried to the far end under the column first, so the
+/// next piece (a letter's next stroke) is reached without a trim.
+fn satin_column(strip: &Strip, sp: &SatinParams, out: &mut Out, ends: (Option<Point>, Option<Point>), trim: f64, max_stitch: f64) {
+    let (hint, exit) = ends;
     let probe = strip_pairs(strip, sp.spacing.max(0.1));
     if probe.len() < 2 {
         return;
@@ -207,7 +221,7 @@ fn satin_column(strip: &Strip, sp: &SatinParams, out: &mut Out, hint: Option<Poi
     {
         pairs.reverse();
     }
-    satin::stitch_pairs(&pairs, sp, width, max_stitch, trim, out);
+    satin::stitch_pairs(&pairs, sp, width, max_stitch, trim, exit, out);
 }
 
 #[cfg(test)]
@@ -239,7 +253,7 @@ mod tests {
         let run = |sp: SatinParams| {
             let params = FillParams { kind: FillKind::Satin, satin_column: Some(sp), ..FillParams::satin() };
             let mut out = Out::new();
-            turning_fill(&poly, &strip, &params, &mut out, None, 2.0, 12.0);
+            turning_fill(&poly, &strip, &params, &mut out, (None, None), 2.0, 12.0);
             out.finish()
         };
         let bare = run(SatinParams {
@@ -279,7 +293,7 @@ mod tests {
         let run = |texture: Option<Texture>| {
             let params = FillParams { kind: FillKind::Satin, pull_comp: 0.0, texture, ..FillParams::default() };
             let mut out = Out::new();
-            turning_fill(&poly, &strip, &params, &mut out, None, 2.0, 12.0);
+            turning_fill(&poly, &strip, &params, &mut out, (None, None), 2.0, 12.0);
             out.finish()
         };
         let plain = run(None);
@@ -308,7 +322,7 @@ mod tests {
         for kind in [FillKind::Tatami, FillKind::Satin] {
             let params = FillParams { kind, pull_comp: 0.0, ..FillParams::default() };
             let mut out = Out::new();
-            turning_fill(&poly, &strip, &params, &mut out, None, 2.0, 12.0);
+            turning_fill(&poly, &strip, &params, &mut out, (None, None), 2.0, 12.0);
             let st = out.finish();
             assert!(st.len() > 200, "{kind:?}: {}", st.len());
             for s in &st {
@@ -316,5 +330,31 @@ mod tests {
                 assert!(r > 13.9 && r < 20.1, "{kind:?}: {s:?} r={r}");
             }
         }
+    }
+
+    /// A letter's stroke ends back where it started when the next stroke is there: the thread
+    /// goes out under the column first, then the satin comes back over it.
+    #[test]
+    fn a_satin_column_comes_back_to_an_exit_by_its_start() {
+        let (poly, guides) = band();
+        let strip = strip_from_guides(&poly.outer, &guides).expect("strip");
+        let bare = SatinUnderlay { auto: false, center_run: false, ..Default::default() };
+        let params = FillParams {
+            kind: FillKind::Satin,
+            satin_column: Some(SatinParams { pull_comp: 0.0, underlay: bare, ..Default::default() }),
+            ..FillParams::satin()
+        };
+        let (start, far) = (Point::new(17.0, 0.0), Point::new(-17.0, 0.0));
+        let end = |exit: Option<Point>| {
+            let mut out = Out::new();
+            turning_fill(&poly, &strip, &params, &mut out, (Some(start), exit), 2.0, 12.0);
+            let st = out.finish();
+            st.iter().rev().find(|s| s.cmd == crate::pattern::Cmd::Stitch).map(|s| s.pos()).expect("stitches")
+        };
+        let plain = end(None);
+        assert!(plain.distance(far) < plain.distance(start), "no exit: it ends at the far end, {plain:?}");
+        let back = end(Some(start));
+        assert!(back.distance(start) < 4.0, "{back:?}");
+        assert!(end(Some(far)).distance(far) < 4.0, "an exit at the far end changes nothing");
     }
 }

@@ -505,9 +505,15 @@ impl Planner {
             };
             let start = design.objects.len();
             let branch = branches.get(&n.id).map(|g| g.0);
-            for o in &objects {
+            // the columns a satin shape was cut into (a letter's strokes) sewn as one path
+            let (order, pieces) = if branch.is_none() && design.settings.hide_travel {
+                piece_branches(&objects, n.id.0, key.1)
+            } else {
+                ((0..objects.len()).collect(), vec![None; objects.len()])
+            };
+            for (o, auto) in order.iter().filter_map(|&k| objects.get(k)).zip(pieces) {
                 let mut o = o.clone();
-                o.branch = branch;
+                o.branch = branch.or(auto);
                 let rgb = Rgb::new((o.color >> 16) as u8, (o.color >> 8) as u8, o.color as u8);
                 let blended = match &e.stitch {
                     sf_core::attr::StitchType::Fill(f) => f.blend.iter().map(|l| &l.thread).find(|t| t.color == rgb).cloned(),
@@ -565,6 +571,153 @@ fn branch_groups(doc: &Document) -> HashMap<NodeId, NodeId> {
     out
 }
 
+/// The bit that marks a branch made of a shape's pieces (see [`piece_branches`]); document ids
+/// never reach it.
+const PIECE_BRANCH: u64 = 1 << 63;
+/// Objects of one node apart from this (mm) are pieces of different shapes.
+const PIECE_TOUCH: f64 = 0.3;
+
+/// The satin pieces a node's shape was cut into (an "E" into its strokes, an "O" into two
+/// columns) that touch one another, each group sewn as a branch of its own: the thread runs on
+/// under the pieces still to come instead of being cut between them, and the pieces are sewn in
+/// the order that keeps it short. Returns the order to add the node's objects in (each group
+/// together) and the branch of each, in that order; `None` for objects on their own, and for
+/// ones with their own entry, exit, trim or stop, which keep sewing as they are.
+fn piece_branches(objects: &[EmbObject], node: u64, copy: usize) -> (Vec<usize>, Vec<Option<u64>>) {
+    let candidate = |o: &EmbObject| {
+        matches!(&o.kind, ObjectKind::Fill(f) if f.params.kind == sf_core::model::FillKind::Satin)
+            && o.entry.is_none()
+            && o.exit.is_none()
+            && !o.trim_after
+            && !o.stop_after
+            && o.chenille.is_none()
+    };
+    let n = objects.len();
+    let mut group: Vec<usize> = (0..n).collect();
+    fn root(group: &mut [usize], mut i: usize) -> usize {
+        while let Some(&up) = group.get(i) {
+            if up == i {
+                break;
+            }
+            // halve the path on the way
+            let grand = group.get(up).copied().unwrap_or(up);
+            if let Some(g) = group.get_mut(i) {
+                *g = grand;
+            }
+            i = up;
+        }
+        i
+    }
+    let areas: Vec<Option<(Vec<Polygon>, BBox)>> =
+        objects.iter().map(|o| candidate(o).then(|| (object_polygons(o), o.bbox())).filter(|(p, b)| !p.is_empty() && !b.is_empty())).collect();
+    let touch = |a: &[Polygon], b: &[Polygon]| {
+        let near = |from: &[Polygon], to: &[Polygon]| {
+            from.iter().flat_map(|p| p.rings()).flatten().any(|q| to.iter().any(|t| t.contains(*q) || t.distance_to_boundary(*q) <= PIECE_TOUCH))
+        };
+        near(a, b) || near(b, a)
+    };
+    let mut links: Vec<(usize, usize)> = Vec::new();
+    for i in 0..n {
+        let Some(Some((pa, ba))) = areas.get(i) else { continue };
+        for j in i + 1..n {
+            let Some(Some((pb, bb))) = areas.get(j) else { continue };
+            let apart = ba.min.x > bb.max.x + PIECE_TOUCH
+                || bb.min.x > ba.max.x + PIECE_TOUCH
+                || ba.min.y > bb.max.y + PIECE_TOUCH
+                || bb.min.y > ba.max.y + PIECE_TOUCH;
+            if !apart && touch(pa, pb) {
+                links.push((i, j));
+                let (ra, rb) = (root(&mut group, i), root(&mut group, j));
+                if let Some(g) = group.get_mut(ra.max(rb)) {
+                    *g = ra.min(rb);
+                }
+            }
+        }
+    }
+    let roots: Vec<usize> = (0..n).map(|i| root(&mut group, i)).collect();
+    let mut sizes: HashMap<usize, usize> = HashMap::new();
+    for r in &roots {
+        *sizes.entry(*r).or_insert(0) += 1;
+    }
+    // each group where its first piece was (a group's root is its first piece), its pieces in
+    // the order that leaves the rest in one piece (see [`peel`])
+    let mut members: Vec<Vec<usize>> = vec![Vec::new(); n];
+    for (i, r) in roots.iter().enumerate() {
+        if let Some(m) = members.get_mut(*r) {
+            m.push(i);
+        }
+    }
+    let centers: Vec<sf_core::Point> = objects.iter().map(|o| o.bbox().center()).collect();
+    let mut order: Vec<usize> = Vec::with_capacity(n);
+    let mut at: Option<sf_core::Point> = None;
+    for m in members.iter().filter(|m| !m.is_empty()) {
+        let peeled = peel(m, &links, &centers, at);
+        at = peeled.last().and_then(|&k| centers.get(k)).copied();
+        order.extend(peeled);
+    }
+    let salt = (copy as u64).wrapping_mul(0x9e37_79b9_7f4a_7c15);
+    let branches = order
+        .iter()
+        .map(|&i| {
+            let r = roots.get(i).copied().unwrap_or(i);
+            // ids of their own, apart from the document's group ids
+            (sizes.get(&r).is_some_and(|&s| s > 1)).then(|| PIECE_BRANCH | ((node.wrapping_mul(1 << 16).wrapping_add(r as u64) ^ salt) >> 1))
+        })
+        .collect();
+    (order, branches)
+}
+
+/// The pieces `group` (connected by `links`) in an order where each, once sewn, leaves the
+/// pieces still to come touching it and in one piece: the thread then always reaches the next
+/// one hidden under them. Each is the nearest such piece to the one before (the first, the
+/// nearest to `from`, else the leftmost). Large groups keep their order.
+fn peel(group: &[usize], links: &[(usize, usize)], centers: &[sf_core::Point], from: Option<sf_core::Point>) -> Vec<usize> {
+    const MAX_PEEL: usize = 200;
+    if group.len() < 3 || group.len() > MAX_PEEL {
+        return group.to_vec();
+    }
+    let center = |k: usize| centers.get(k).copied().unwrap_or_default();
+    let linked = |a: usize, b: usize| links.iter().any(|&(x, y)| (x, y) == (a, b) || (x, y) == (b, a));
+    // whether `rest` holds together
+    let whole = |rest: &[usize]| {
+        let Some(&first) = rest.first() else { return true };
+        let mut seen = vec![first];
+        let mut todo = vec![first];
+        while let Some(k) = todo.pop() {
+            for &o in rest {
+                if !seen.contains(&o) && linked(k, o) {
+                    seen.push(o);
+                    todo.push(o);
+                }
+            }
+        }
+        seen.len() == rest.len()
+    };
+    let mut rest = group.to_vec();
+    let mut out = Vec::with_capacity(group.len());
+    let mut at = from;
+    while !rest.is_empty() {
+        let free: Vec<usize> = rest
+            .iter()
+            .copied()
+            .filter(|&k| {
+                let others: Vec<usize> = rest.iter().copied().filter(|&o| o != k).collect();
+                whole(&others)
+            })
+            .collect();
+        let pool = if free.is_empty() { rest.clone() } else { free };
+        let key = |k: &usize| match at {
+            Some(p) => center(*k).distance(p),
+            None => center(*k).x,
+        };
+        let Some(next) = pool.iter().copied().min_by(|a, b| key(a).total_cmp(&key(b))) else { break };
+        rest.retain(|&k| k != next);
+        out.push(next);
+        at = Some(center(next));
+    }
+    out
+}
+
 /// Sews each branch's objects in the order with the fewest colour changes and the
 /// shortest travel, starting where the design is before it, keeping objects that
 /// overlap in paint order.
@@ -576,6 +729,11 @@ fn order_branches(objects: &mut [EmbObject], nodes: &mut [NodeId]) {
             continue;
         };
         let end = (i..objects.len()).find(|&k| objects[k].branch != Some(b)).unwrap_or(objects.len());
+        // a shape's pieces come in their order already (see [`piece_branches`])
+        if b & PIECE_BRANCH != 0 {
+            i = end;
+            continue;
+        }
         let items: Vec<sf_core::sequence::Item> =
             objects[i..end].iter().map(|o| sf_core::sequence::Item { color: o.color, area: object_polygons(o), bbox: o.bbox() }).collect();
         let start = i.checked_sub(1).map(|k| objects[k].bbox().center());
@@ -702,6 +860,34 @@ mod tests {
         assert_eq!(plan.node_at_record(pat.stitches.len() / 2), Some(id));
         // the same document gives the same (cached) plan
         assert!(Arc::ptr_eq(&plan, &p.plan(&d)));
+    }
+
+    /// A letter in satin is cut into its strokes; they are sewn as one path, the thread
+    /// carried under the strokes still to come, not trimmed between them.
+    #[test]
+    fn a_letters_strokes_are_sewn_without_trims_between_them() {
+        let red = Color::rgb8(200, 20, 30);
+        let (bar, _) = doc_with(Embroidery::satin(), Rect::new(0.0, 0.0, 30.0, 8.0), red);
+        let trims = |d: &Document| Planner::new().plan(d).pattern().count(Cmd::Trim);
+        let e: Vec<kurbo::Point> = [(0, 0), (30, 0), (30, 8), (8, 8), (8, 21), (24, 21), (24, 29), (8, 29), (8, 42), (30, 42), (30, 50), (0, 50)]
+            .iter()
+            .map(|&(x, y)| kurbo::Point::new(f64::from(x), f64::from(y)))
+            .collect();
+        let mut d = Document::new(612.0, 792.0);
+        let layer = d.layers[0].id;
+        let id = d.alloc_id();
+        let mut n = Node::path(
+            id,
+            vectorcraft_geom::path::PathData::single(vectorcraft_geom::path::SubPath::polyline(&e, true)),
+            Appearance::basic(Paint::solid(red), Paint::None, 0.0),
+        );
+        n.embroidery = Some(Box::new(Embroidery::satin()));
+        d.insert(Some(layer), usize::MAX, n).unwrap();
+        let plan = Planner::new().plan(&d);
+        let objects = &plan.design.objects;
+        assert!(objects.len() >= 4, "the E is cut into its strokes: {}", objects.len());
+        assert!(objects.iter().all(|o| o.branch.is_some() && o.branch == objects[0].branch));
+        assert_eq!(trims(&d), trims(&bar), "no more trims than a single bar");
     }
 
     #[test]

@@ -83,18 +83,26 @@ fn split_tatami(p: Point, q: Point, len: f64, row: usize, out: &mut Vec<Point>) 
     out.push(q);
 }
 
+/// The narrowest a satin stitch is made (mm). Narrower ones, at a column's pointed tips,
+/// are shorter than many machines' (and designs') shortest stitch and get dropped, leaving
+/// the tip ragged; they don't sit up on the fabric either.
+pub(crate) const MIN_WIDTH: f64 = 0.8;
+
 /// Satin zigzag over a list of rail pairs. Even samples land on rail A, odd ones
 /// on rail B. `pull` is the pull compensation on (rail A, rail B).
 pub(crate) fn zigzag_points(pairs: &[(Point, Point)], params: &SatinParams, pull: (f64, f64), short: bool) -> Vec<Point> {
     if pairs.is_empty() {
         return Vec::new();
     }
-    // Pull compensation widens each pair, side by side.
+    // Pull compensation widens each pair, side by side; a pair still narrower than
+    // [`MIN_WIDTH`] (a pointed tip) is widened to it about its middle.
     let comp: Vec<(Point, Point)> = pairs
         .iter()
         .map(|&(a, b)| {
             let d = (a - b).normalized();
-            (a + d * pull.0, b - d * pull.1)
+            let (a, b) = (a + d * pull.0, b - d * pull.1);
+            let short = (MIN_WIDTH - a.distance(b)) * 0.5;
+            if short > 0.0 { (a + d * short, b - d * short) } else { (a, b) }
         })
         .collect();
 
@@ -210,6 +218,12 @@ fn underlay_passes(params: &SatinParams, width: f64) -> Vec<Pass> {
     }
 }
 
+/// Whether a column `width` mm wide sewn with `params` ends at its far end: each underlay
+/// pass but the edge run (out and back) turns the way the next one goes.
+pub(crate) fn ends_far(params: &SatinParams, width: f64) -> bool {
+    underlay_passes(params, width).iter().filter(|p| **p != Pass::Edge).count().is_multiple_of(2)
+}
+
 fn reversed_pairs(pairs: &[(Point, Point)]) -> Vec<(Point, Point)> {
     pairs.iter().rev().copied().collect()
 }
@@ -267,7 +281,7 @@ pub(crate) fn generate(col: &Column, params: &SatinParams, hint: Option<Point>, 
         out.stitches(end_cap(&fine, false, cap, spacing));
     }
     // the start cap ends by where the column starts: reached with running stitches
-    stitch_pairs(&fine, params, width, max_stitch, if cap.is_some() { 2.0 } else { 0.0 }, &mut out);
+    stitch_pairs(&fine, params, width, max_stitch, if cap.is_some() { 2.0 } else { 0.0 }, None, &mut out);
     if let Some(cap) = cap {
         let pts = end_cap(&fine, true, cap, spacing);
         if let Some(&p0) = pts.first() {
@@ -337,11 +351,30 @@ fn end_cap(fine: &[(Point, Point)], last: bool, past: f64, spacing: f64) -> Vec<
 /// satin of closed shapes that turns along inclination lines. When `out` already
 /// has a needle position, the first stitch is reached by [`Out::connect`] (`trim`
 /// is the trim threshold).
-pub(crate) fn stitch_pairs(fine: &[(Point, Point)], params: &SatinParams, width: f64, max_stitch: f64, trim: f64, out: &mut Out) {
+/// With an `exit`, the column finishes as near it as it can: when it lies nearer the column's
+/// start than the end the stitching would finish at, a run along the middle goes first (the
+/// thread carried to the far end under the column) so the top stitching comes back; and the
+/// last stitch lands on the side nearer it.
+pub(crate) fn stitch_pairs(
+    fine: &[(Point, Point)],
+    params: &SatinParams,
+    width: f64,
+    max_stitch: f64,
+    trim: f64,
+    exit: Option<Point>,
+    out: &mut Out,
+) {
     if fine.len() < 2 {
         return;
     }
-    let passes = underlay_passes(params, width);
+    let mut passes = underlay_passes(params, width);
+    if let (Some(e), Some(first), Some(last)) = (exit, fine.first(), fine.last()) {
+        let (start, far) = (first.0.midpoint(first.1), last.0.midpoint(last.1));
+        let (end, other) = if ends_far(params, width) { (far, start) } else { (start, far) };
+        if e.distance(other) + 0.5 < e.distance(end) {
+            passes.insert(0, Pass::Center);
+        }
+    }
     let u = &params.underlay;
     let run_step = u.stitch_length.max(0.5);
     if out.pos().is_some()
@@ -388,6 +421,21 @@ pub(crate) fn stitch_pairs(fine: &[(Point, Point)], params: &SatinParams, width:
         }
     }
     let pairs = if forward { fine.to_vec() } else { reversed_pairs(fine) };
+    // the last stitch on the side nearer the exit
+    let swapped;
+    let params = match (exit, pairs.last()) {
+        (Some(e), Some(&(a, b))) => {
+            let on_a = (pairs.len() - 1).is_multiple_of(2) != params.swap_sides;
+            let (land, other) = if on_a { (a, b) } else { (b, a) };
+            if e.distance(other) < e.distance(land) {
+                swapped = SatinParams { swap_sides: !params.swap_sides, ..params.clone() };
+                &swapped
+            } else {
+                params
+            }
+        }
+        _ => params,
+    };
     let pts = zigzag_points(&pairs, params, params.pull_sides(), params.short_stitches);
     if let Some(&p0) = pts.first()
         && out.pos().is_some()
@@ -457,6 +505,23 @@ mod tests {
     use crate::geom::{Node, NodeKind};
     use crate::model::SatinUnderlay;
     use crate::pattern::Cmd;
+
+    /// Sew-out on a T-shirt: serif tips narrower than the shortest stitch were dropped and
+    /// came out ragged. No satin stitch is narrower than `MIN_WIDTH`.
+    #[test]
+    fn pointed_tips_are_sewn_no_narrower_than_the_minimum() {
+        let pairs: Vec<(Point, Point)> = (0..20)
+            .map(|i| {
+                let (x, w) = (i as f64 * 0.2, 2.0 * (1.0 - i as f64 / 20.0));
+                (Point::new(x, -w / 2.0), Point::new(x, w / 2.0))
+            })
+            .collect();
+        let params = SatinParams { pull_comp: 0.0, auto_spacing: false, ..Default::default() };
+        let pts = zigzag_points(&pairs, &params, (0.0, 0.0), false);
+        assert!(pts.windows(2).all(|w| w[0].distance(w[1]) >= MIN_WIDTH - 1e-9), "{pts:?}");
+        // wide parts keep their width
+        assert!((pts[0].distance(pts[1]) - 2.0).abs() < 0.1);
+    }
 
     #[test]
     fn a_motif_column_sews_motifs_as_wide_as_the_column() {
