@@ -617,6 +617,52 @@ mod design_from_prompt {
             assert!((got - want).abs() < 0.5, "{b:?} in a frame at ({x0}, {y0}) {w} × {h}");
         }
     }
+
+    /// AI-03: another service paints the picture with its own key; Claude then redraws it as flat
+    /// shapes in the thread colours asked for, and the design is placed; the service's key is kept.
+    #[test]
+    fn another_services_picture_is_redrawn_by_claude_then_placed() {
+        let sent: Sent = Arc::default();
+        let keys = Keys::default();
+        keys.save(prompt::KEY_NAME, Some("sk-ant-test")).unwrap();
+        let log = sent.clone();
+        let mut png = Vec::new();
+        image::RgbImage::from_pixel(64, 64, image::Rgb([200, 30, 30]))
+            .write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png)
+            .unwrap();
+        let picture = json!({"data": [{"b64_json": vectorcraft_format::base64_encode(&png)}]}).to_string();
+        let services = Services {
+            http_post: Some(Arc::new(move |r: &HttpRequest| {
+                log.lock().unwrap().push(r.clone());
+                Ok(if r.url.contains("openai.com") { (200, picture.clone()) } else { (200, reply(ART)) })
+            })),
+            secrets: Some(Box::new(keys.clone())),
+            ..Default::default()
+        };
+        let mut app = VectorcraftApp::new(Session::new(), services);
+        app.run("file.new", json!({"width": 400, "height": 300})).unwrap();
+        app.run("ui.designFromPrompt", json!({"prompt": "a fire truck from the front", "colors": 4, "picture": "openai"})).unwrap();
+        assert_eq!(app.ui.dialog.as_ref().unwrap().str("maker"), "openai");
+        let text = dialog_text(&mut app);
+        assert!(text.iter().any(|t| t == "OpenAI GPT Image API key:"), "{text:?}");
+        // without the service's key nothing goes
+        assert!(crate::dialogs::confirm(&mut app).is_err());
+        assert!(sent.lock().unwrap().is_empty());
+        app.embroidery.prompt.picture_keys.insert("openai", "sk-openai-test".into());
+        app.embroidery.prompt.error = None;
+        crate::dialogs::confirm(&mut app).unwrap();
+        wait(&mut app);
+        let sent = sent.lock().unwrap();
+        assert_eq!(sent.len(), 2, "the picture, then the redrawing");
+        assert_eq!(sent[0].url, "https://api.openai.com/v1/images/generations");
+        assert!(sent[0].headers.contains(&("authorization", "Bearer sk-openai-test".to_string())));
+        let redraw: Value = serde_json::from_str(&sent[1].body).unwrap();
+        assert_eq!(redraw["messages"][0]["content"][0]["type"], "image", "Claude sees the picture");
+        assert!(redraw["system"].as_str().unwrap().contains("At most 4 different fill colours"));
+        assert!(app.embroidery.prompt.error.is_none(), "{:?}", app.embroidery.prompt.error);
+        assert!(app.ui.dialog.is_none(), "placed: the dialog closes");
+        assert_eq!(keys.load("openai-api-key").as_deref(), Some("sk-openai-test"), "the service's key is kept");
+    }
 }
 
 #[test]

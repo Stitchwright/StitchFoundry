@@ -6493,3 +6493,9 @@ machine	Stop	Stopp
 	Erase Cross Stitches	Radera korsstygn
 	Move Stitches	Flytta stygn
 	Overlap where shapes touch	Överlappning där former möts
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Bilden görs av
+	Claude (draws the shapes itself)	Claude (ritar formerna själv)
+	{name} API key:	API-nyckel för {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Bilden debiteras ditt konto hos den tjänsten. Claude ritar sedan om den som platta former i dina trådfärger, så att den broderas med få trådbyten.
+	Making the picture…	Bilden görs…

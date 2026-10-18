@@ -6486,3 +6486,12 @@ mark-style	Japanese	Japonesas
 	Erase Cross Stitches	Borrar puntos de cruz
 	Move Stitches	Mover puntadas
 	Overlap where shapes touch	Solapamiento donde se tocan las formas
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Imagen hecha por
+	Claude (draws the shapes itself)	Claude (dibuja él mismo las formas)
+	{name} API key:	Clave de API de {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	La imagen se cobra en su cuenta de ese servicio. Luego Claude la redibuja como formas planas en sus colores de hilo, para que se borde con pocos cambios de hilo.
+	Making the picture…	Haciendo la imagen…
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	Redibujar la imagen como puntadas necesita Claude: añada su clave de API de Anthropic o inicie sesión en Cuenta de StitchFoundry.
+@msg	the picture didn't come whole: try again	la imagen no llegó completa: inténtelo de nuevo
+@msg	The AI service sent no picture: try again, or choose another service.	El servicio de IA no envió ninguna imagen: inténtelo de nuevo o elija otro servicio.

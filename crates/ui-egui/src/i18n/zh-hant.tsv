@@ -5407,3 +5407,9 @@ machine	Stop	停止
 	Erase Cross Stitches	擦除十字繡
 	Move Stitches	移動針跡
 	Overlap where shapes touch	形狀相接處的重疊
+# Embroidery (StitchFoundry): picture services
+	Picture made by	圖片由誰產生
+	Claude (draws the shapes itself)	Claude（自己畫出形狀）
+	{name} API key:	{name} API 金鑰：
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	圖片費用計入您在該服務的帳戶。接著 Claude 會依您的線色把它重畫成平面形狀，繡製時換線較少。
+	Making the picture…	正在產生圖片…

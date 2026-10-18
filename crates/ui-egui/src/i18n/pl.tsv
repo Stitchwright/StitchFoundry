@@ -6380,3 +6380,9 @@ machine	Stop	Zatrzymanie
 	Erase Cross Stitches	Wymaż krzyżyki
 	Move Stitches	Przesuń ściegi
 	Overlap where shapes touch	Zakładka tam, gdzie kształty się stykają
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Obraz tworzy
+	Claude (draws the shapes itself)	Claude (sam rysuje kształty)
+	{name} API key:	Klucz API {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Obraz jest rozliczany na Twoim koncie w tej usłudze. Potem Claude przerysowuje go płaskimi kształtami w Twoich kolorach nici, aby haftował się z niewieloma zmianami nici.
+	Making the picture…	Tworzenie obrazu…

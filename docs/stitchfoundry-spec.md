@@ -890,6 +890,12 @@ Decided by the owner on 2026-10-11: StitchFoundry is free and open source, and s
      editing: Claude runs commands, each change after the user allows it.
   4. **Product mockups** (NEW-18): the design shown on a shirt, cap or bag, for selling to
      customers.
+  4b. **Pictures from other AIs** (AI-03, owner 2026-10-18, built with your own keys): Design from
+     Prompt's **Picture made by** takes Google's Nano Banana, OpenAI's GPT Image, Flux through fal
+     or any image model through OpenRouter (one key, many models); the picture is always redrawn
+     by Claude as flat shapes in the thread colours asked for before it is digitized, never
+     stitched as a photo (too many colours, too many thread changes). Paid with StitchFoundry
+     credits through the service: later, priced per model.
   5. **Check My Sew-out** (SO-01, decided by the owner on 2026-10-18): photos of a finished
      sew-out are diagnosed and the design fixed, as was done by hand for the first sew-out
      (phase 0). Built with your own key (Embroidery › Check My Sew-out…, desktop and web): the

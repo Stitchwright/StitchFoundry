@@ -6133,3 +6133,9 @@ machine	Stop	정지
 	Erase Cross Stitches	십자수 지우기
 	Move Stitches	땀 이동
 	Overlap where shapes touch	도형이 맞닿는 곳의 겹침
+# Embroidery (StitchFoundry): picture services
+	Picture made by	그림을 만드는 곳
+	Claude (draws the shapes itself)	Claude(모양을 직접 그림)
+	{name} API key:	{name} API 키:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	그림 요금은 그 서비스의 계정으로 청구됩니다. 그다음 Claude가 실 색상에 맞춰 평평한 도형으로 다시 그려, 실 교체가 적게 수놓아집니다.
+	Making the picture…	그림을 만드는 중…

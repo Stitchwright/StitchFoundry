@@ -6514,3 +6514,9 @@ machine	Stop	Megállás
 	Erase Cross Stitches	Keresztszemes öltések törlése
 	Move Stitches	Öltések mozgatása
 	Overlap where shapes touch	Átfedés, ahol az alakzatok érintkeznek
+# Embroidery (StitchFoundry): picture services
+	Picture made by	A képet készíti
+	Claude (draws the shapes itself)	Claude (maga rajzolja meg az alakzatokat)
+	{name} API key:	{name} API-kulcs:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	A képet az adott szolgáltatásnál lévő fiókja fizeti. Utána Claude lapos alakzatokként újrarajzolja a cérnaszíneiben, így kevés cérnacserével hímezhető.
+	Making the picture…	A kép készül…

@@ -1350,6 +1350,18 @@ digitizing, check the stitches (Check Design, the stitch player) before you sew.
 someone else's logo, trademark or character: the dialog says so, and an original design described
 in your own words draws fine.
 
+**A picture from another AI.** **Picture made by** chooses who makes the picture: **Claude**
+(the default) draws the flat shapes itself; **Google Nano Banana**, **OpenAI GPT Image**, **Flux
+(fal)** or **OpenRouter** (one key for many image models) paint a picture first, with your own key
+for that service (its row shows when it is chosen, with **Get a key**; kept as that service's own
+secret file, as the Anthropic key is), and **Model** names another of its models (empty: its
+current one). The picture is never stitched as it is: when it comes, Claude redraws it as flat
+shapes in the thread colours asked for, as Redraw Image does, and that is placed and digitized, so
+even a painterly picture sews with few thread changes. The dialog says "Making the picture…" then
+"Drawing the design…". Redrawing needs Claude, so an Anthropic key (or StitchFoundry credits) is
+needed too. The picture is billed to your account with that service
+(`ui.designFromPrompt {picture?: google|openai|fal|openrouter, model?}`).
+
 **Your own API key.** Design from Prompt uses your Anthropic API key, and each design is billed to
 your Anthropic account; get a key in the [Anthropic Console](https://console.anthropic.com/settings/keys).
 Paste it into the dialog. With **Remember the key on this computer**, once Anthropic accepts the

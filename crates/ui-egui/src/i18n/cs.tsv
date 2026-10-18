@@ -6533,3 +6533,12 @@ mark-style	Japanese	Japonské
 	Erase Cross Stitches	Smazat křížkové stehy
 	Move Stitches	Přesunout stehy
 	Overlap where shapes touch	Přesah, kde se tvary dotýkají
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Obrázek vytvoří
+	Claude (draws the shapes itself)	Claude (tvary nakreslí sám)
+	{name} API key:	Klíč API {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Obrázek se účtuje na váš účet u té služby. Claude ho pak překreslí na ploché tvary ve vašich barvách nití, aby se vyšíval s málo výměnami nití.
+	Making the picture…	Vytváří se obrázek…
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	K překreslení obrázku na stehy je potřeba Claude: přidejte klíč API Anthropic, nebo se přihlaste v Účtu StitchFoundry.
+@msg	the picture didn't come whole: try again	obrázek nepřišel celý: zkuste to znovu
+@msg	The AI service sent no picture: try again, or choose another service.	Služba AI neposlala žádný obrázek: zkuste to znovu, nebo zvolte jinou službu.

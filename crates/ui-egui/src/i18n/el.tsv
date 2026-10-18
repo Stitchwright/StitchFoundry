@@ -6489,3 +6489,9 @@ machine	Stop	Στάση
 	Erase Cross Stitches	Διαγραφή σταυροβελονιών
 	Move Stitches	Μετακίνηση βελονιών
 	Overlap where shapes touch	Επικάλυψη όπου ακουμπούν τα σχήματα
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Η εικόνα φτιάχνεται από
+	Claude (draws the shapes itself)	Claude (σχεδιάζει μόνο του τα σχήματα)
+	{name} API key:	Κλειδί API {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Η εικόνα χρεώνεται στον λογαριασμό σας σε εκείνη την υπηρεσία. Μετά το Claude την ξανασχεδιάζει σε επίπεδα σχήματα στα χρώματα κλωστής σας, ώστε να κεντιέται με λίγες αλλαγές κλωστής.
+	Making the picture…	Δημιουργία εικόνας…

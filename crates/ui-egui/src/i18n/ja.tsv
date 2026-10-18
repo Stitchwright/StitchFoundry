@@ -6211,3 +6211,12 @@ machine	Stop	停止
 	Erase Cross Stitches	クロスステッチを消去
 	Move Stitches	ステッチを移動
 	Overlap where shapes touch	形が接する部分の重なり
+# Embroidery (StitchFoundry): picture services
+	Picture made by	画像を作るサービス
+	Claude (draws the shapes itself)	Claude（形を自分で描く）
+	{name} API key:	{name} の API キー:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	画像の料金はそのサービスのアカウントに請求されます。その後 Claude が糸の色数に合わせて平らな形に描き直すので、糸替えの少ない刺しゅうになります。
+	Making the picture…	画像を作成中…
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	画像をステッチに描き直すには Claude が必要です。Anthropic API キーを入れるか、StitchFoundry アカウントにサインインしてください。
+@msg	the picture didn't come whole: try again	画像が完全に届きませんでした。もう一度お試しください
+@msg	The AI service sent no picture: try again, or choose another service.	AI サービスから画像が届きませんでした。もう一度試すか、別のサービスを選んでください。

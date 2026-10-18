@@ -6136,3 +6136,9 @@ machine	Stop	Dừng máy
 	Erase Cross Stitches	Xóa mũi thêu chữ thập
 	Move Stitches	Di chuyển mũi thêu
 	Overlap where shapes touch	Chồng lấn nơi các hình chạm nhau
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Hình do ai tạo
+	Claude (draws the shapes itself)	Claude (tự vẽ các hình)
+	{name} API key:	Khóa API {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Hình được tính phí vào tài khoản của bạn ở dịch vụ đó. Sau đó Claude vẽ lại thành các hình phẳng theo màu chỉ của bạn, để thêu ít lần đổi chỉ.
+	Making the picture…	Đang tạo hình…

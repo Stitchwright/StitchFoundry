@@ -6501,3 +6501,9 @@ machine	Stop	Pysäytys
 	Erase Cross Stitches	Pyyhi ristipistot
 	Move Stitches	Siirrä pistoja
 	Overlap where shapes touch	Limitys, missä muodot koskettavat
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Kuvan tekee
+	Claude (draws the shapes itself)	Claude (piirtää muodot itse)
+	{name} API key:	{name}-API-avain:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Kuva laskutetaan tililtäsi siinä palvelussa. Claude piirtää sen sitten uudelleen tasaisiksi muodoiksi lankaväreilläsi, jotta se kirjotaan vähin langanvaihdoin.
+	Making the picture…	Kuvaa tehdään…

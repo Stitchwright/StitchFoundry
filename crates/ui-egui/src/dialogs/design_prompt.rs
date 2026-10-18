@@ -15,6 +15,7 @@ use crate::embroidery::prompt;
 use crate::state::Dialog;
 use crate::theme::Tokens;
 use crate::{VectorcraftApp, widgets};
+use vectorcraft_embroidery::sf_core::ai::picture::Provider;
 
 pub(super) const SPEC: DialogSpec = DialogSpec {
     heading: |d| if redraw(d) { tl!("Redraw Image with Claude").into() } else { tl!("Design from Prompt").into() },
@@ -63,6 +64,38 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
         label(ui, tl!("Thread colors"));
         number(ui, d, "colors", (1.0, 12.0), "");
         ui.end_row();
+        if !redraw {
+            // who makes the picture: Claude draws the shapes itself; another service paints a
+            // picture, which Claude then redraws as shapes
+            label(ui, tl!("Picture made by"));
+            let mut options: Vec<&str> = vec![tl!("Claude (draws the shapes itself)")];
+            options.extend(Provider::ALL.iter().map(|p| p.name()));
+            let cur = Provider::from_id(&d.str("maker")).and_then(|p| Provider::ALL.iter().position(|x| *x == p)).map_or(0, |i| i + 1);
+            if let Some(i) = widgets::dropdown_names(ui, "design-prompt-maker", options.get(cur).copied().unwrap_or_default(), &options, 260.0) {
+                let id = i.checked_sub(1).and_then(|k| Provider::ALL.get(k)).map_or("claude", |p| p.id());
+                d.fields.insert("maker".into(), json!(id));
+            }
+            ui.end_row();
+            if let Some(p) = Provider::from_id(&d.str("maker")) {
+                label(ui, &crate::i18n::fmt(tl!("{name} API key:"), &[("name", p.name())]));
+                let mut get_key = false;
+                ui.horizontal(|ui| {
+                    let key = app.embroidery.prompt.picture_keys.entry(p.id()).or_default();
+                    ui.add(egui::TextEdit::singleline(key).password(true).desired_width(200.0));
+                    get_key = ui.link(egui::RichText::new(tl!("Get a key")).size(11.0)).clicked();
+                });
+                if get_key {
+                    app.open_url(p.key_url());
+                }
+                ui.end_row();
+                label(ui, tl!("Model"));
+                let mut model = d.str("model");
+                if ui.add(egui::TextEdit::singleline(&mut model).desired_width(260.0).hint_text(p.default_model())).changed() {
+                    d.fields.insert("model".into(), json!(model));
+                }
+                ui.end_row();
+            }
+        }
         if !credits {
             label(ui, tl!("Anthropic API key:"));
             ui.add(egui::TextEdit::singleline(&mut app.embroidery.prompt.key).password(true).desired_width(260.0).hint_text("sk-ant-…"));
@@ -75,6 +108,12 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
     ui.add_space(6.0);
     if redraw {
         ui.label(egui::RichText::new(tl!("Only redraw artwork you own or have permission to use.")).size(11.0).color(t.text));
+    } else if Provider::from_id(&d.str("maker")).is_some() {
+        ui.label(
+            egui::RichText::new(tl!("The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes."))
+                .size(11.0)
+                .color(t.text_dim),
+        );
     }
     // paid with StitchFoundry credits, or with the user's own key
     if !crate::embroidery::account::paid_line(app, ui, &t) {
@@ -94,7 +133,8 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
     if let Some(secs) = drawing {
         ui.horizontal(|ui| {
             ui.add(egui::Spinner::new());
-            ui.label(format!("{} {:.0} s", tl!("Drawing the design…"), secs));
+            let what = if app.embroidery.prompt.picturing() { tl!("Making the picture…") } else { tl!("Drawing the design…") };
+            ui.label(format!("{} {:.0} s", what, secs));
         });
     } else if let Some(e) = app.embroidery.prompt.error.clone() {
         ui.label(egui::RichText::new(crate::i18n::msg(&e)).color(t.error));

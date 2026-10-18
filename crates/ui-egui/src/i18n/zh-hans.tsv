@@ -6360,3 +6360,9 @@ machine	Stop	停止
 	Erase Cross Stitches	擦除十字绣
 	Move Stitches	移动针迹
 	Overlap where shapes touch	形状相接处的重叠
+# Embroidery (StitchFoundry): picture services
+	Picture made by	图片由谁生成
+	Claude (draws the shapes itself)	Claude（自己画出形状）
+	{name} API key:	{name} API 密钥：
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	图片费用计入您在该服务的账户。随后 Claude 会按您的线色把它重画成平面形状，绣制时换线较少。
+	Making the picture…	正在生成图片…

@@ -357,7 +357,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "ui.designFromPrompt",
         "Design from Prompt…",
         "",
-        "{prompt?, size?: mm (longest side), colors?: 1-12} open Design from Prompt: describe a design and Claude draws flat-colour artwork with your own Anthropic API key, which embroidery.placeArt places and digitizes (desktop only) → {open}",
+        "{prompt?, size?: mm (longest side), colors?: 1-12, picture?: google|openai|fal|openrouter (another service paints a picture first, with your key for it; Claude then redraws it as flat shapes), model?: that service's model id} open Design from Prompt: describe a design and Claude draws flat-colour artwork with your own Anthropic API key (or StitchFoundry credits), which embroidery.placeArt places and digitizes → {open}",
     ),
     (
         "ui.redrawImage",

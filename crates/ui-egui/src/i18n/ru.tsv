@@ -6167,3 +6167,12 @@ machine	Stop	Остановка
 	Erase Cross Stitches	Стереть крестики
 	Move Stitches	Переместить стежки
 	Overlap where shapes touch	Нахлёст там, где фигуры соприкасаются
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Картинку делает
+	Claude (draws the shapes itself)	Claude (сам рисует фигуры)
+	{name} API key:	Ключ API {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Картинка оплачивается с вашего аккаунта в этом сервисе. Затем Claude перерисовывает её плоскими фигурами в ваших цветах нитей, чтобы она вышивалась с немногими сменами нити.
+	Making the picture…	Делаем картинку…
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	Чтобы перерисовать картинку стежками, нужен Claude: добавьте ключ API Anthropic или войдите в аккаунт StitchFoundry.
+@msg	the picture didn't come whole: try again	картинка пришла не целиком: попробуйте ещё раз
+@msg	The AI service sent no picture: try again, or choose another service.	Сервис ИИ не прислал картинку: попробуйте ещё раз или выберите другой сервис.

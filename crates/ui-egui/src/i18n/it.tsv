@@ -6171,3 +6171,12 @@ machine	Stop	Arresto
 	Erase Cross Stitches	Cancella punti croce
 	Move Stitches	Sposta i punti
 	Overlap where shapes touch	Sovrapposizione dove le forme si toccano
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Immagine creata da
+	Claude (draws the shapes itself)	Claude (disegna da sé le forme)
+	{name} API key:	Chiave API {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	L’immagine è addebitata sul tuo account presso quel servizio. Poi Claude la ridisegna come forme piatte nei tuoi colori di filo, così si ricama con pochi cambi di filo.
+	Making the picture…	Creazione dell’immagine…
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	Ridisegnare l’immagine come punti richiede Claude: aggiungi la tua chiave API Anthropic o accedi ad Account StitchFoundry.
+@msg	the picture didn't come whole: try again	l’immagine non è arrivata intera: riprova
+@msg	The AI service sent no picture: try again, or choose another service.	Il servizio IA non ha inviato alcuna immagine: riprova o scegli un altro servizio.

@@ -6507,3 +6507,9 @@ machine	Stop	Спиране
 	Erase Cross Stitches	Изтриване на кръстати бодове
 	Move Stitches	Преместване на бодове
 	Overlap where shapes touch	Застъпване, където формите се допират
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Картината се прави от
+	Claude (draws the shapes itself)	Claude (сам рисува формите)
+	{name} API key:	API ключ за {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Картината се таксува към акаунта ви в тази услуга. След това Claude я прерисува като плоски форми във вашите цветове конци, за да се бродира с малко смени на конеца.
+	Making the picture…	Картината се прави…

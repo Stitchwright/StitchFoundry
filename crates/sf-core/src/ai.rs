@@ -14,6 +14,7 @@ use serde_json::{Value, json};
 
 pub mod ask;
 pub mod cloud;
+pub mod picture;
 pub mod sewout;
 
 /// The Messages API endpoint.
@@ -129,6 +130,9 @@ pub enum ArtError {
     /// The reply holds no answer, or ran out of room before one.
     #[error("The reply had no answer: try again, or ask something narrower.")]
     NoAnswer,
+    /// A picture service answered without a picture.
+    #[error("The AI service sent no picture: try again, or choose another service.")]
+    NoPicture,
     /// Check My Sew-out was asked with no photo.
     #[error("Add a photo of the sew-out first.")]
     NoPhoto,
@@ -155,7 +159,7 @@ pub enum ArtError {
 impl ArtError {
     /// Whether the same request may succeed if sent again shortly.
     pub fn retryable(&self) -> bool {
-        matches!(self, Self::Busy | Self::Service(_) | Self::Network(_) | Self::NoArt | Self::NoAnswer)
+        matches!(self, Self::Busy | Self::Service(_) | Self::Network(_) | Self::NoArt | Self::NoAnswer | Self::NoPicture)
     }
 }
 

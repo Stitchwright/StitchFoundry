@@ -8,6 +8,7 @@ use std::sync::mpsc::{Receiver, TryRecvError, channel};
 
 use serde_json::{Value, json};
 use vectorcraft_doc::{NodeId, NodeKind};
+use vectorcraft_embroidery::sf_core::ai::picture::{self, Provider};
 use vectorcraft_embroidery::sf_core::ai::{self, Art, ArtError, ArtImage, ArtRequest, cloud};
 use vectorcraft_embroidery::{MM_PER_PT, PT_PER_MM};
 use vectorcraft_geom::Rect;
@@ -31,6 +32,10 @@ pub struct PromptState {
     loaded: bool,
     /// The request on its way.
     pending: Option<Pending>,
+    /// The other picture services' API keys, by [`Provider::id`] (kept as their own secrets).
+    pub picture_keys: std::collections::HashMap<&'static str, String>,
+    /// A picture on its way from another service, to be redrawn by Claude when it comes.
+    picture: Option<PicturePending>,
     /// Why the last request drew nothing, shown in the dialog.
     pub error: Option<String>,
     /// The time of the last frame drawn (egui time, seconds).
@@ -50,10 +55,29 @@ struct Pending {
     since: f64,
 }
 
+/// A picture asked of another service: what to do with it when it comes.
+struct PicturePending {
+    rx: Receiver<Result<ArtImage, ArtError>>,
+    provider: Provider,
+    /// The service's key, kept once it takes it (Remember the key).
+    keep: Option<String>,
+    description: String,
+    size: f64,
+    colors: u32,
+    remember: bool,
+    since: f64,
+}
+
 impl PromptState {
-    /// Seconds since the request on its way was sent.
+    /// Seconds since the request on its way was sent (the picture, then the drawing).
     pub fn drawing_for(&self, now: f64) -> Option<f64> {
-        self.pending.as_ref().map(|p| (now - p.since).max(0.0))
+        let since = self.picture.as_ref().map(|p| p.since).or(self.pending.as_ref().map(|p| p.since))?;
+        Some((now - since).max(0.0))
+    }
+
+    /// Whether a picture from another service is on its way (then Claude redraws it).
+    pub fn picturing(&self) -> bool {
+        self.picture.is_some()
     }
 }
 
@@ -164,6 +188,11 @@ pub(crate) fn load_key(app: &mut VectorcraftApp) {
         if let Some(k) = app.services.secrets.as_ref().and_then(|s| s.load(KEY_NAME)) {
             st.key = k;
         }
+        for p in Provider::ALL {
+            if let Some(k) = app.services.secrets.as_ref().and_then(|s| s.load(p.key_name())) {
+                st.picture_keys.insert(p.id(), k);
+            }
+        }
     }
 }
 
@@ -224,11 +253,14 @@ fn image_to_send(app: &mut VectorcraftApp, id: NodeId, size_mm: f64) -> Result<(
 pub fn open(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     ready(app)?;
     let size = p.get("size").and_then(Value::as_f64).unwrap_or_else(|| default_size(app));
+    let maker = p.get("picture").and_then(Value::as_str).and_then(Provider::from_id).map_or("claude", Provider::id);
     let fields = json!({
         "prompt": p.get("prompt").and_then(Value::as_str).unwrap_or(""),
         "size": size,
         "colors": p.get("colors").and_then(Value::as_u64).unwrap_or(6),
         "remember": true,
+        "maker": maker,
+        "model": p.get("model").and_then(Value::as_str).unwrap_or(""),
     });
     app.ui.dialog = Some(Dialog::new(KIND, fields));
     Ok(json!({ "open": true }))
@@ -236,8 +268,12 @@ pub fn open(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
 
 /// Send the dialog's request (Generate). The dialog stays open, showing that it is drawing.
 pub fn start(app: &mut VectorcraftApp, d: &Dialog) -> Result<Value, String> {
-    if app.embroidery.prompt.pending.is_some() {
+    if app.embroidery.prompt.pending.is_some() || app.embroidery.prompt.picture.is_some() {
         return Err("already drawing: wait for it, or Cancel".into());
+    }
+    // a picture from another service first, redrawn by Claude when it comes
+    if let Some(provider) = Provider::from_id(&d.str("maker")).filter(|_| !d.fields.contains_key("image")) {
+        return start_picture(app, d, provider);
     }
     let now = app.embroidery.prompt.now;
     let size = d.f64("size", 100.0);
@@ -277,6 +313,69 @@ pub fn start(app: &mut VectorcraftApp, d: &Dialog) -> Result<Value, String> {
     Ok(json!({ "drawing": true }))
 }
 
+/// Generate with a picture from `provider`: its request goes out now; [`poll`] has Claude redraw
+/// the picture when it comes. Claude must be reachable for that (its key, or credits).
+fn start_picture(app: &mut VectorcraftApp, d: &Dialog, provider: Provider) -> Result<Value, String> {
+    let fail = |app: &mut VectorcraftApp, m: String| {
+        app.embroidery.prompt.error = Some(m.clone());
+        Err(m)
+    };
+    if ai::clean_key(&super::account::key_to_send(app)).is_err() {
+        return fail(app, "Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.".into());
+    }
+    let key = app.embroidery.prompt.picture_keys.get(provider.id()).cloned().unwrap_or_default();
+    let colors = d.f64("colors", 6.0).round().clamp(1.0, 12.0) as u32;
+    let description = d.str("prompt");
+    let http = match picture::request(provider, &key, &d.str("model"), &description, colors) {
+        Ok(h) => h,
+        Err(e) => return fail(app, e.to_string()),
+    };
+    let remember = d.bool("remember");
+    if !remember {
+        keep_picture_key(app.services.secrets.as_deref(), provider, None);
+    }
+    let rx = post_plain(app, http, "design-from-prompt-picture", picture::parse_reply)?;
+    let st = &mut app.embroidery.prompt;
+    st.error = None;
+    st.picture = Some(PicturePending {
+        rx,
+        provider,
+        keep: remember.then(|| key.trim().to_string()),
+        description: description.trim().to_string(),
+        size: d.f64("size", 100.0),
+        colors,
+        remember,
+        since: st.now,
+    });
+    Ok(json!({ "drawing": true, "picture": provider.id() }))
+}
+
+/// Keep `key` as `provider`'s API key (`None`: forget it).
+fn keep_picture_key(store: Option<&dyn crate::SecretStore>, provider: Provider, key: Option<&str>) {
+    if let Some(Err(e)) = store.map(|s| s.save(provider.key_name(), key)) {
+        log::warn!("Design from Prompt: the {} key: {e}", provider.name());
+    }
+}
+
+/// The picture came: Claude redraws it as flat shapes in the colours asked for, which [`poll`]
+/// places as for any drawing.
+fn redraw_picture(app: &mut VectorcraftApp, p: PicturePending, picture: ArtImage) -> Result<(), String> {
+    let bytes = vectorcraft_format::base64_decode(&picture.data_base64).ok_or("the picture didn't come whole: try again")?;
+    // as a photo is sent: upright, the size Claude looks at
+    let (image, _, _) = super::sewout::prepare(&bytes)?;
+    let notes = format!("The picture shows: {}", p.description);
+    let request = ArtRequest::new(&notes, p.size, p.colors).with_image(image);
+    let key = super::account::key_to_send(app);
+    let http = request.http(&key).map_err(|e| e.to_string())?;
+    let credits = super::account::paying_with_credits(app);
+    let keep = (p.remember && !credits).then(|| app.embroidery.prompt.key.trim().to_string());
+    let rx = post(app, http, "design-from-prompt", ai::parse_reply)?;
+    let name: String = p.description.chars().take(60).collect();
+    let now = app.embroidery.prompt.now;
+    app.embroidery.prompt.pending = Some(Pending { rx, keep, name, size: p.size, frame: None, since: now });
+    Ok(())
+}
+
 /// Keep `key` as the API key (`None`: forget it). A store that can't only costs the convenience.
 pub(crate) fn keep_key(store: Option<&dyn crate::SecretStore>, key: Option<&str>) {
     if let Some(Err(e)) = store.map(|s| s.save(KEY_NAME, key)) {
@@ -287,11 +386,37 @@ pub(crate) fn keep_key(store: Option<&dyn crate::SecretStore>, key: Option<&str>
 /// Stop waiting for the request on its way (Cancel). The service may still bill it.
 pub fn cancel(app: &mut VectorcraftApp) {
     app.embroidery.prompt.pending = None;
+    app.embroidery.prompt.picture = None;
+}
+
+/// A picture from another service that arrived: its key kept, and it goes to Claude to redraw.
+fn poll_picture(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    let Some(p) = app.embroidery.prompt.picture.as_ref() else { return };
+    let r = match p.rx.try_recv() {
+        Ok(r) => r,
+        Err(TryRecvError::Empty) => {
+            ctx.request_repaint_after(std::time::Duration::from_millis(250));
+            return;
+        }
+        Err(TryRecvError::Disconnected) => Err(ArtError::Network("the request stopped".into())),
+    };
+    let Some(p) = app.embroidery.prompt.picture.take() else { return };
+    if let Some(key) = p.keep.as_deref().filter(|_| !matches!(r, Err(ArtError::Key(_)))) {
+        keep_picture_key(app.services.secrets.as_deref(), p.provider, Some(key));
+    }
+    let done = r.map_err(|e| e.to_string()).and_then(|picture| redraw_picture(app, p, picture));
+    if let Err(e) = done {
+        if !app.ui.dialog.as_ref().is_some_and(|d| d.kind == KIND) {
+            app.status(crate::i18n::msg(&e));
+        }
+        app.embroidery.prompt.error = Some(e);
+    }
 }
 
 /// Each frame: place the art that arrived, or show why none did.
 pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
     app.embroidery.prompt.now = ctx.input(|i| i.time);
+    poll_picture(app, ctx);
     let Some(p) = app.embroidery.prompt.pending.as_ref() else { return };
     let r = match p.rx.try_recv() {
         Ok(r) => r,

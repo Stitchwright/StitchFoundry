@@ -6132,3 +6132,12 @@ effect	Regular	Regelmäßig
 	Erase Cross Stitches	Kreuzstiche löschen
 	Move Stitches	Stiche verschieben
 	Overlap where shapes touch	Überlappung, wo Formen sich berühren
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Bild erstellt von
+	Claude (draws the shapes itself)	Claude (zeichnet die Formen selbst)
+	{name} API key:	{name}-API-Schlüssel:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Das Bild wird über Ihr Konto bei diesem Dienst abgerechnet. Claude zeichnet es dann als flache Formen in Ihren Garnfarben neu, damit es mit wenigen Farbwechseln gestickt wird.
+	Making the picture…	Das Bild wird erstellt…
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	Um das Bild als Stiche neu zu zeichnen, braucht es Claude: Geben Sie Ihren Anthropic-API-Schlüssel ein oder melden Sie sich im StitchFoundry-Konto an.
+@msg	the picture didn't come whole: try again	das Bild kam nicht vollständig an: Versuchen Sie es noch einmal
+@msg	The AI service sent no picture: try again, or choose another service.	Der KI-Dienst hat kein Bild geschickt: Versuchen Sie es noch einmal oder wählen Sie einen anderen Dienst.
