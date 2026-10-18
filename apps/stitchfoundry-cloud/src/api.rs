@@ -275,10 +275,10 @@ impl Service {
                 Ok(id) => id,
                 Err(e) => return store_error(e),
             };
-            if credits > 0 {
-                if let Err(e) = store.add_free_spent(&month, cost) {
-                    log::error!("free budget: {e}");
-                }
+            if credits > 0
+                && let Err(e) = store.add_free_spent(&month, cost)
+            {
+                log::error!("free budget: {e}");
             }
             id
         };
