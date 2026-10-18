@@ -203,8 +203,11 @@ fn a_cmyk_document_starts_with_cmyk_swatches_and_stores_new_colours_as_cmyk() {
     assert_eq!(doc(&s).color_mode, vectorcraft_doc::ColorMode::Cmyk);
     assert!(doc(&s).swatches_iter().filter_map(|w| w.paint.color()).all(|c| !matches!(c, Color::Rgb { .. })));
     assert_eq!(doc(&s).swatch("Black").and_then(|w| w.paint.color()), Some(Color::cmyk(0.0, 0.0, 0.0, 1.0)));
+    // RGB colors separate through the color settings (Generic CMYK: red is C0 M97 Y100 K0).
+    let cms = vectorcraft_color::cms::active();
+    let managed = |c: Color| cms.convert(&c, vectorcraft_color::cms::Model::Cmyk, cms.settings().intent);
     let a = rect_filled(&mut s, json!({"color": "#ff0000"}));
-    assert_eq!(fill(&s, a), Paint::solid(Color::cmyk(0.0, 1.0, 1.0, 0.0)));
+    assert_eq!(fill(&s, a), Paint::solid(managed(Color::rgb(1.0, 0.0, 0.0))));
     // Gray stays Gray; keepModel keeps RGB; gradient stops follow the document too.
     run(&mut s, "paint.setFill", json!({"ids": [a.0], "color": {"gray": 0.4}}));
     assert_eq!(fill(&s, a), Paint::solid(Color::gray(0.4)));
@@ -218,8 +221,9 @@ fn a_cmyk_document_starts_with_cmyk_swatches_and_stores_new_colours_as_cmyk() {
     let Paint::Gradient(g) = fill(&s, a) else { panic!("a gradient") };
     assert!(g.gradient.stops.iter().all(|st| matches!(st.color, Color::Cmyk { .. })));
     // A swatch made from a hex colour is CMYK as well; the document round-trips natively.
-    let name = run(&mut s, "swatch.new", json!({"color": "#00ff00"}))["name"].clone();
-    assert_eq!(name, "C=100 M=0 Y=100 K=0");
+    let name = run(&mut s, "swatch.new", json!({"color": "#00ff00"}))["name"].as_str().unwrap().to_string();
+    assert_eq!(doc(&s).swatch(&name).and_then(|w| w.paint.color()), Some(managed(Color::rgb(0.0, 1.0, 0.0))));
+    assert_eq!(name, "C=62 M=0 Y=100 K=0");
     let json = serde_json::to_string(doc(&s)).unwrap();
     assert_eq!(serde_json::from_str::<vectorcraft_doc::Document>(&json).unwrap(), *doc(&s));
 }

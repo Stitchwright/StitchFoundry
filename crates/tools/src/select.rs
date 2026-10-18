@@ -1,12 +1,14 @@
 //! The Selection tool (V): click/shift-click, marquee (Shift-drag toggles the objects it reaches:
 //! the selected ones are deselected, the others selected), move (Alt copies, Shift constrains; Smart
 //! Guides, or with them off View › Snap to Point, snap it),
-//! bounding-box scale (Shift proportional, Alt from centre) and rotate (outside corners, Shift 45°),
+//! bounding-box scale (Shift proportional, Alt from center; Snap to Grid, Snap to Pixel, Smart
+//! Guides and Snap to Point snap what the handle moves) and rotate (outside corners, Shift 45°),
 //! drag a live rectangle's or polygon's corner widget to round its corners (Alt-click cycles their kind,
 //! double-click opens the Corners dialog), drag a live ellipse's pie widgets to set its pie angles
 //! (double-click makes it whole again: [`crate::pie`]), double-click a group or an object to enter isolation
 //! mode (Double Click To Isolate), Cmd/Ctrl-click to select the object behind (Command Click to Select Objects Behind),
-//! click or drag a ruler guide ([`crate::rulerguide`]), drag the brackets of type on a path
+//! click or drag a ruler guide ([`crate::rulerguide`]), Cmd/Ctrl+Shift-double-click a ruler guide or
+//! a guide path to release it ([`release_guide_at`]), drag the brackets of type on a path
 //! ([`crate::pathtype`]), double-click the type widget to convert point type to area type and back
 //! ([`crate::typewidget`]), click a Shaper Group's mode widget to switch between Face Selection and
 //! Construction mode ([`crate::shaperwidget`]).
@@ -15,6 +17,10 @@
 //! scaling its type: the text reflows at its size.
 //! E pressed during a marquee drag makes the marquee take only the objects entirely inside it, and
 //! E pressed again makes it take the objects it touches.
+//! A click on the red out port of selected area type whose text overflows loads the pointer with
+//! that text ([`Cursor::LoadedText`]): the next click threads it into the closed path or area type
+//! under the pointer, or into a new frame of the same shape and size at the click on empty canvas,
+//! and a drag draws a rectangle for the new frame (`text.thread.add`). Escape drops the loaded text.
 
 use serde_json::{Value, json};
 use vectorcraft_doc::hit::{hit_test, marquee, objects_at};
@@ -23,7 +29,7 @@ use vectorcraft_geom::{Affine, Point, Rect, Vec2};
 
 use crate::bbox::{Handle, hit_handle, in_rotate_zone, move_delta, rotate_for_drag, scale_for_drag};
 use crate::corners::{self, CornerDrag, over_widget};
-use crate::guides::Targets;
+use crate::guides::{PointSnap, Targets};
 use crate::pathtype::{self, BracketDrag, over_bracket};
 use crate::pie::{self, PieDrag};
 use crate::rulerguide::GuideEdit;
@@ -72,6 +78,12 @@ enum State {
     Pie(PieDrag),
     /// Dragging a bracket of type on a path.
     Bracket(BracketDrag),
+    /// Loaded with the text of area type `from` by a click on its out port; `press`: where the
+    /// next press went down and where the pointer is now.
+    Loaded {
+        from: NodeId,
+        press: Option<(Point, Point)>,
+    },
 }
 
 #[derive(Default)]
@@ -80,8 +92,10 @@ pub struct SelectionTool {
     measure: Option<(Point, String)>,
     guides: Vec<Overlay>,
     /// What a bounding-box handle being dragged snaps to.
-    targets: Option<Targets>,
+    targets: Option<PointSnap>,
     moving: Option<MoveSnap>,
+    /// The move snapped to a point or a guide at its last step: the arrow turns hollow.
+    snapped: bool,
     guide: GuideEdit,
     /// Smart Guides: the centre or anchor under the pointer, and its label ([`Self::hover_point`]).
     hover: Option<(Point, &'static str)>,
@@ -258,6 +272,45 @@ impl SelectionTool {
             })
         })
     }
+
+    /// The pointer loaded with the text of area type `from` ([`State::Loaded`]): a press starts
+    /// placing it, and its release threads it (`text.thread.add`). None when `from` is no longer
+    /// area type: the press is an ordinary one.
+    fn loaded(&mut self, cx: &ToolContext, ev: &PointerEvent, from: NodeId, press: Option<(Point, Point)>) -> Option<Vec<Action>> {
+        let p = ev.pos;
+        match (ev.kind, press) {
+            (PointerKind::Down, _) if !cx.doc.node(from).is_some_and(is_area_type) => {
+                self.state = State::Idle;
+                return None;
+            }
+            (PointerKind::Down, _) => self.state = State::Loaded { from, press: Some((p, p)) },
+            (PointerKind::Drag, Some((start, _))) => self.state = State::Loaded { from, press: Some((start, p)) },
+            (PointerKind::Up, Some((start, _))) => {
+                self.state = State::Idle;
+                return Some(vec![Action::Exec("text.thread.add".into(), thread_params(cx, from, start, p))]);
+            }
+            _ => {}
+        }
+        Some(vec![])
+    }
+}
+
+/// Where the text of `from` goes for a press at `start` released at `end`: a dragged rectangle,
+/// else the closed path or area type pressed on, else a new frame with its top-left at `start`.
+fn thread_params(cx: &ToolContext, from: NodeId, start: Point, end: Point) -> Value {
+    let r = Rect::from_points(start, end);
+    if r.width() > cx.tol(6.0) && r.height() > cx.tol(6.0) {
+        return json!({ "from": from.0, "rect": [r.x0, r.y0, r.width(), r.height()] });
+    }
+    let frame = |n: &vectorcraft_doc::Node| {
+        is_area_type(n) || matches!(&n.kind, vectorcraft_doc::NodeKind::Path { path, .. } if path.subpaths.first().is_some_and(|s| s.closed))
+    };
+    let to =
+        hit_test(cx.doc, start, cx.hit_options()).map(|h| h.top_object(cx.isolation)).filter(|id| *id != from && cx.doc.node(*id).is_some_and(frame));
+    match to {
+        Some(to) => json!({ "from": from.0, "to": to.0 }),
+        None => json!({ "from": from.0, "at": [start.x, start.y] }),
+    }
 }
 
 impl Tool for SelectionTool {
@@ -278,11 +331,19 @@ impl Tool for SelectionTool {
             *enclosed = !*enclosed;
             return vec![];
         }
+        if key == ToolKey::Escape && matches!(self.state, State::Loaded { .. }) {
+            self.state = State::Idle;
+            return vec![];
+        }
         if key == ToolKey::Escape { self.guide.cancel() } else { vec![] }
     }
 
     fn claims_key(&self, _cx: &ToolContext, key: ToolKey) -> bool {
-        key == ToolKey::Letter('e') && matches!(self.state, State::Marquee { .. })
+        match self.state {
+            State::Marquee { .. } => key == ToolKey::Letter('e'),
+            State::Loaded { .. } => key == ToolKey::Escape,
+            _ => false,
+        }
     }
 
     fn transforming(&self) -> bool {
@@ -295,6 +356,11 @@ impl Tool for SelectionTool {
     }
 
     fn pointer(&mut self, cx: &ToolContext, ev: &PointerEvent) -> Vec<Action> {
+        if let State::Loaded { from, press } = self.state
+            && let Some(out) = self.loaded(cx, ev, from, press)
+        {
+            return out;
+        }
         if let Some(out) = self.guide.pointer(cx, ev) {
             return out;
         }
@@ -317,6 +383,9 @@ impl Tool for SelectionTool {
                 if shaperwidget::over_widget(cx, p) {
                     return vec![];
                 }
+                if let Some(a) = release_guide_at(cx, p, m) {
+                    return vec![a];
+                }
                 if crate::rulerguide::guide_at(cx, p).is_some() {
                     return vec![];
                 }
@@ -335,6 +404,11 @@ impl Tool for SelectionTool {
                 vec![]
             }
             (PointerKind::Down, _) => {
+                // 0. The out port of selected area type: the pointer takes its text.
+                if let Some(from) = crate::text::out_port_at(cx, p) {
+                    self.state = State::Loaded { from, press: None };
+                    return vec![];
+                }
                 // 1. Live Corners widgets, pie widgets and type on a path's brackets, then the
                 // bounding-box handles of the current selection.
                 if let Some(c) = CornerDrag::hit(cx, ev, false) {
@@ -367,8 +441,10 @@ impl Tool for SelectionTool {
                             let areas = cx.selection.objects.iter().any(is_area);
                             // Only area type: the step resizes type areas; anything else scales.
                             let label = if areas && cx.selection.objects.iter().all(is_area) { "Resize Type Area" } else { "Scale" };
-                            // Smart Guides align what the handle moves with the other objects.
-                            self.targets = cx.smart_guides.then(|| Targets::collect(cx.doc, &cx.selection.objects, None).styled(cx));
+                            // What the handle moves snaps as a dragged point does: to pixels or the
+                            // grid, else with Smart Guides to the other objects, else with Snap to
+                            // Point to their anchors; the ruler guides with Snap to Point.
+                            self.targets = Some(PointSnap::new(cx, || Targets::collect(cx.doc, &cx.selection.objects, None)));
                             self.state = State::Scaling { handle, bx, areas };
                             return vec![Action::Begin(label.into())];
                         }
@@ -429,9 +505,12 @@ impl Tool for SelectionTool {
                     self.moving = Some(MoveSnap::new(cx));
                 }
                 let mut d = move_delta(start, p, m.shift);
+                let unsnapped = d;
                 if let Some(snap) = &self.moving {
                     (d, self.guides) = snap.snap(cx, start, d, m.alt);
                 }
+                // Shift has already constrained `d`: any change is a snap.
+                self.snapped = (d - unsnapped).hypot() > 1e-9;
                 self.state = State::Moving { start, began: true, deselect: None, key: None };
                 self.measure = cx.measurement_labels.then(|| (p, cx.offset_label(d.x, d.y)));
                 out.push(Action::Preview("object.transform".into(), json!({ "matrix": matrix_json(Affine::translate(d)), "copy": m.alt })));
@@ -442,7 +521,7 @@ impl Tool for SelectionTool {
                 let mut a = scale_for_drag(bx.rect, handle, bx.to_local(p), m.shift, m.alt);
                 self.guides.clear();
                 if let Some(t) = &self.targets {
-                    (a, self.guides) = t.snap_scale(&bx, handle, a, m.shift, m.alt, cx.snap_tol());
+                    (a, self.guides) = t.snap_scale(cx, &bx, handle, a, m.shift, m.alt);
                 }
                 let nr = a.transform_rect_bbox(bx.rect);
                 self.measure = cx.transform_tools_guides.then(|| (p, cx.size_label(nr.width(), nr.height())));
@@ -537,6 +616,7 @@ impl Tool for SelectionTool {
             State::Marquee { start, cur, .. } => o.push(Overlay::Marquee(Rect::from_points(*start, *cur))),
             State::Corner(c) => o.extend(c.overlays(cx)),
             State::Pie(d) => o.extend(d.overlays()),
+            State::Loaded { press: Some((start, cur)), .. } => o.push(Overlay::Marquee(Rect::from_points(*start, *cur))),
             _ => {}
         }
         o.extend(self.guides.iter().cloned());
@@ -555,12 +635,16 @@ impl Tool for SelectionTool {
 
     fn cursor(&self, cx: &ToolContext, p: Point, m: Mods) -> Cursor {
         match self.state {
-            State::Rotating { center, .. } => return Cursor::rotate_about(center, p),
-            State::Scaling { handle, bx, .. } => return handle_cursor(handle, bx.angle),
-            State::Moving { began: true, .. } => return Cursor::Arrow,
+            State::Rotating { center, .. } => return Cursor::rotate_about_in_view(center, p, cx.view_angle()),
+            State::Scaling { handle, bx, .. } => return handle_cursor(handle, bx.angle - cx.view_angle()),
+            // Alt-dragging leaves a copy behind; otherwise the filled arrow, hollow while the move
+            // snaps to a point or a guide.
+            State::Moving { began: true, .. } if m.alt => return Cursor::SelectionCopy,
+            State::Moving { began: true, .. } => return if self.snapped { Cursor::ArrowHollow } else { Cursor::Arrow },
             State::Corner(_) => return Cursor::CornerRadius,
             State::Pie(_) => return Cursor::ArrowHollow,
             State::Bracket(_) => return Cursor::PathBracket,
+            State::Loaded { .. } => return Cursor::LoadedText,
             _ => {}
         }
         if self.guide.busy() {
@@ -582,8 +666,8 @@ impl Tool for SelectionTool {
             && let Some(bx) = selection_box(cx)
         {
             match box_hit(cx, &bx, p) {
-                Some(BoxHit::Handle(h)) => return handle_cursor(h, bx.angle),
-                Some(BoxHit::Rotate) => return Cursor::rotate_about(bx.center(), p),
+                Some(BoxHit::Handle(h)) => return handle_cursor(h, bx.angle - cx.view_angle()),
+                Some(BoxHit::Rotate) => return Cursor::rotate_about_in_view(bx.center(), p, cx.view_angle()),
                 None => {}
             }
         }
@@ -639,8 +723,25 @@ pub fn isolates(kind: &vectorcraft_doc::NodeKind) -> bool {
     matches!(kind, K::Group { .. } | K::Compound { .. } | K::Path { .. } | K::Image(_) | K::Mesh(_) | K::PlacedDocument(_))
 }
 
+/// A Cmd/Ctrl+Shift double-click at `p` with a selection tool releases the guide there: the ruler
+/// guide under the pointer (`view.guides.release {index}`), else the guide path hit there
+/// (`view.guides.release {ids}`). It returns None without both keys, while guides are hidden or
+/// locked, or when no guide is at `p`.
+pub(crate) fn release_guide_at(cx: &ToolContext, p: Point, m: Mods) -> Option<Action> {
+    if !(m.cmd && m.shift && cx.guides) {
+        return None;
+    }
+    if let Some(i) = crate::rulerguide::guide_at(cx, p) {
+        return Some(Action::Exec("view.guides.release".into(), json!({ "index": i })));
+    }
+    let leaf = hit_test(cx.doc, p, cx.hit_options())?.leaf;
+    let guide = cx.doc.node(leaf).is_some_and(|n| matches!(n.kind, vectorcraft_doc::NodeKind::Path { guide: true, .. }));
+    guide.then(|| Action::Exec("view.guides.release".into(), json!({ "ids": [leaf.0] })))
+}
+
 /// The resize cursor for handle `h` of a box turned by `angle` (counter-clockwise degrees): the
-/// handle that sits where `h` appears on screen, in 45° steps.
+/// handle that sits where `h` appears on screen, in 45° steps. In a turned view, `angle` is the
+/// box's own angle less [`ToolContext::view_angle`].
 fn handle_cursor(h: Handle, angle: f64) -> Cursor {
     let steps = if angle.is_finite() { (angle / 45.0).round() as i64 } else { 0 };
     let h = Handle::ALL.get((h as i64 - steps).rem_euclid(8) as usize).copied().unwrap_or(h);
@@ -783,6 +884,34 @@ mod tests {
         assert!(t.pointer(&cx, &ev(PointerKind::DoubleClick, 160.0, 150.0)).is_empty());
     }
 
+    /// A Cmd/Ctrl+Shift double-click releases the ruler guide or the guide path under the pointer;
+    /// without both keys, or while guides are hidden or locked, nothing is released.
+    #[test]
+    fn a_cmd_shift_double_click_releases_the_guide_under_the_pointer() {
+        let (mut d, id) = doc_with_rect();
+        d.guides.push(vectorcraft_doc::Guide::new(false, 300.0));
+        let Some(vectorcraft_doc::NodeKind::Path { guide, .. }) = d.node_mut(id).map(|n| &mut n.kind) else { panic!("the rectangle is a path") };
+        *guide = true;
+        let s = Selection::default();
+        let p = paint();
+        let both = Mods { cmd: true, shift: true, ..Mods::default() };
+        let dbl = |c: &ToolContext, x: f64, y: f64, m: Mods| SelectionTool::default().pointer(c, &ev(PointerKind::DoubleClick, x, y).with_mods(m));
+        let releases = |a: &[Action]| a.iter().any(|a| matches!(a, Action::Exec(c, _) if c == "view.guides.release"));
+        let c = cx(&d, &s, &p);
+        assert_eq!(dbl(&c, 350.0, 301.0, both), vec![Action::Exec("view.guides.release".into(), json!({"index": 0}))]);
+        assert_eq!(dbl(&c, 200.0, 150.0, both), vec![Action::Exec("view.guides.release".into(), json!({"ids": [id.0]}))]);
+        assert!(dbl(&c, 350.0, 301.0, Mods::default()).is_empty(), "a plain double-click on a ruler guide");
+        for m in [Mods { cmd: true, ..Mods::default() }, Mods { shift: true, ..Mods::default() }, Mods::default()] {
+            assert!(!releases(&dbl(&c, 200.0, 150.0, m)), "{m:?}");
+        }
+        let locked = ToolContext { guides: false, ..cx(&d, &s, &p) };
+        assert!(!releases(&dbl(&locked, 350.0, 301.0, both)));
+        assert!(!releases(&dbl(&locked, 200.0, 150.0, both)));
+        // A double-click on art that is not a guide does not release it.
+        let (plain, _) = doc_with_rect();
+        assert!(!releases(&dbl(&cx(&plain, &s, &p), 200.0, 150.0, both)));
+    }
+
     /// Just outside each corner of the box the rotate cursor bows toward that corner, its arc
     /// opening toward the box: at the top right it opens to the bottom left.
     #[test]
@@ -799,6 +928,67 @@ mod tests {
         }
         assert_eq!(Cursor::rotate_about(Point::new(1.0, 1.0), Point::new(1.0, 1.0)), Cursor::Rotate, "on the centre");
         assert_eq!(Cursor::rotate_about(Point::ORIGIN, Point::new(0.0, -5.0)), Cursor::RotateToward(0), "straight up");
+    }
+
+    #[test]
+    fn turned_cursors_step_with_the_view() {
+        assert_eq!(Cursor::ResizeH.turned(90.0), Cursor::ResizeV);
+        assert_eq!(Cursor::ResizeNeSw.turned(45.0), Cursor::ResizeH);
+        assert_eq!(Cursor::ResizeH.turned(45.0), Cursor::ResizeNwSe);
+        assert_eq!(Cursor::ResizeNwSe.turned(-135.0), Cursor::ResizeV);
+        assert_eq!(Cursor::RotateToward(0).turned(90.0), Cursor::RotateToward(2));
+        assert_eq!(Cursor::RotateToward(1).turned(-45.0), Cursor::RotateToward(0));
+        assert_eq!(Cursor::RotateToward(7).turned(180.0), Cursor::RotateToward(3));
+        assert_eq!(Cursor::ResizeV.turned(20.0), Cursor::ResizeV, "under 22.5° it stays");
+        assert_eq!(Cursor::Pen.turned(90.0), Cursor::Pen);
+        assert_eq!(Cursor::Rotate.turned(90.0), Cursor::Rotate);
+        assert_eq!(Cursor::ResizeH.turned(f64::NAN), Cursor::ResizeH);
+        // `rotate_about_in_view` turns the pointer's direction by the view before it rounds: a
+        // pointer 15° clockwise from straight up, in a view turned 15°, shows 30° from straight up
+        // on screen, which rounds to the top right. `turned` rounds the 15° view to 0°.
+        let (sn, cs) = 15f64.to_radians().sin_cos();
+        let q = Point::new(sn, -cs);
+        assert_eq!(Cursor::rotate_about_in_view(Point::ORIGIN, q, 15.0), Cursor::RotateToward(1));
+        assert_eq!(Cursor::rotate_about(Point::ORIGIN, q).turned(15.0), Cursor::RotateToward(0));
+        assert_eq!(Cursor::rotate_about_in_view(Point::ORIGIN, q, 0.0), Cursor::rotate_about(Point::ORIGIN, q));
+        assert_eq!(Cursor::rotate_about_in_view(Point::ORIGIN, Point::new(0.0, -5.0), 90.0), Cursor::RotateToward(2));
+        assert_eq!(Cursor::rotate_about_in_view(Point::ORIGIN, Point::new(0.0, -5.0), f64::NAN), Cursor::RotateToward(0));
+        assert_eq!(Cursor::rotate_about_in_view(Point::ORIGIN, Point::ORIGIN, 90.0), Cursor::Rotate, "on the center");
+    }
+
+    /// In a rotated view the resize and rotate cursors turn with the view.
+    #[test]
+    fn box_cursors_turn_with_the_view() {
+        let (mut d, id) = doc_with_rect();
+        let mut s = Selection::default();
+        s.add(id);
+        let p = paint();
+        d.guides.push(vectorcraft_doc::Guide::new(false, 300.0));
+        let mut c = cx(&d, &s, &p);
+        c.screen = turned_view(90.0);
+        assert!((c.view_angle() - 90.0).abs() < 1e-9);
+        let t = SelectionTool::default();
+        // The box runs from (100, 100) to (200, 200). Its right side shows at the bottom, and its
+        // top shows on the right.
+        assert_eq!(t.cursor(&c, Point::new(200.0, 150.0), Mods::default()), Cursor::ResizeV, "right-middle");
+        assert_eq!(t.cursor(&c, Point::new(150.0, 100.0), Mods::default()), Cursor::ResizeH, "top-middle");
+        assert_eq!(t.cursor(&c, Point::new(207.0, 93.0), Mods::default()), Cursor::RotateToward(3), "out from the top right");
+        // While a rotate drags, the cursor turns with the view too: straight up the page shows to
+        // the right.
+        let mut r = SelectionTool::default();
+        assert_eq!(r.pointer(&c, &ev(PointerKind::Down, 207.0, 93.0)), vec![Action::Begin("Rotate".into())]);
+        assert_eq!(r.cursor(&c, Point::new(150.0, 80.0), Mods::default()), Cursor::RotateToward(2), "rotating");
+        // A horizontal ruler guide shows upright and moves left and right on screen.
+        assert_eq!(t.cursor(&c, Point::new(400.0, 300.0), Mods::default()), Cursor::ResizeH, "guide");
+        // A box turned 20° in a view turned 25° shows 5° off level: the right handle shows the
+        // left-right arrow.
+        let (center, a) = (Point::new(150.0, 150.0), 20f64.to_radians());
+        let turn = Affine::translate(center.to_vec2()) * Affine::rotate(-a) * Affine::translate(-center.to_vec2());
+        d.node_mut(id).unwrap().transform(turn, false);
+        let mut c = cx(&d, &s, &p);
+        c.screen = turned_view(25.0);
+        let right = Point::new(150.0 + 50.0 * a.cos(), 150.0 - 50.0 * a.sin());
+        assert_eq!(t.cursor(&c, right, Mods::default()), Cursor::ResizeH, "20° box, 25° view");
     }
 
     #[test]
@@ -870,6 +1060,33 @@ mod tests {
         assert_eq!(dx(&t.pointer(&c, &ev(PointerKind::Drag, 253.0, 150.0).with_mods(alt))), 100.0);
         // Without Alt nothing stays behind there.
         assert_eq!(dx(&t.pointer(&c, &ev(PointerKind::Drag, 253.0, 150.0))), 103.0);
+    }
+
+    /// A move shows the filled arrow, hollow while it snaps (here B's left side onto A's right
+    /// one); Alt, which leaves a copy behind, the double arrowhead.
+    #[test]
+    fn a_move_shows_the_filled_arrow_hollow_on_a_snap_and_alt_the_copy_cursor() {
+        use vectorcraft_doc::{Appearance, Node};
+        let (mut d, _) = doc_with_rect();
+        d.artboards[0].rect = Rect::new(0.0, 0.0, 1000.0, 1000.0);
+        let l = d.layers[0].id;
+        let b = d.alloc_id();
+        let sq = vectorcraft_geom::shapes::rectangle(Rect::new(300.0, 300.0, 400.0, 400.0));
+        d.insert(Some(l), 1, Node::path(b, sq, Appearance::default_art())).unwrap();
+        let mut s = Selection::default();
+        s.add(b);
+        let p = paint();
+        let c = cx(&d, &s, &p);
+        let none = Mods::default();
+        let mut t = SelectionTool::default();
+        t.pointer(&c, &ev(PointerKind::Down, 350.0, 350.0));
+        t.pointer(&c, &ev(PointerKind::Drag, 377.0, 371.0));
+        assert_eq!(t.cursor(&c, Point::new(377.0, 371.0), none), Cursor::Arrow);
+        t.pointer(&c, &ev(PointerKind::Drag, 253.0, 371.0));
+        assert_eq!(t.cursor(&c, Point::new(253.0, 371.0), none), Cursor::ArrowHollow, "lined up with A");
+        let alt = Mods { alt: true, ..none };
+        t.pointer(&c, &ev(PointerKind::Drag, 377.0, 371.0).with_mods(alt));
+        assert_eq!(t.cursor(&c, Point::new(377.0, 371.0), alt), Cursor::SelectionCopy);
     }
 
     /// #740: with Snap to Grid on, a moved object lands on the grid (every 9 pt by default) by
@@ -1241,6 +1458,97 @@ mod tests {
         assert!((height(&a) - 97.0).abs() < 1e-9, "{a:?}");
     }
 
+    /// The box the 100–200 rectangle's bounds become under the scale a handle drag previews.
+    fn scaled(a: &[Action]) -> Rect {
+        let Some(Action::Preview(_, v)) = a.last() else { panic!("{a:?}") };
+        let m: Vec<f64> = v["matrix"].as_array().unwrap().iter().map(|x| x.as_f64().unwrap()).collect();
+        Affine::new([m[0], m[1], m[2], m[3], m[4], m[5]]).transform_rect_bbox(Rect::new(100.0, 100.0, 200.0, 200.0))
+    }
+
+    fn near(a: Rect, b: Rect) -> bool {
+        [a.x0 - b.x0, a.y0 - b.y0, a.x1 - b.x1, a.y1 - b.y1].iter().all(|d| d.abs() < 1e-9)
+    }
+
+    /// #2054: with Snap to Grid on, a handle drag lands what the handle moves on the nearest
+    /// gridline (every 9 pt by default) while the opposite side stays put; Shift keeps the
+    /// proportions, and Alt keeps the center.
+    #[test]
+    fn handle_drag_lands_what_it_moves_on_the_grid() {
+        let (d, id) = doc_with_rect();
+        let mut s = Selection::default();
+        s.add(id);
+        let p = paint();
+        let c = ToolContext { snap_to_grid: true, ..cx(&d, &s, &p) };
+        let drag = |from: (f64, f64), to: (f64, f64), mods: Mods| {
+            let mut t = SelectionTool::default();
+            assert_eq!(t.pointer(&c, &ev(PointerKind::Down, from.0, from.1).with_mods(mods)), vec![Action::Begin("Scale".into())]);
+            scaled(&t.pointer(&c, &ev(PointerKind::Drag, to.0, to.1).with_mods(mods)))
+        };
+        let none = Mods::default();
+        // The right side, dragged to x = 213, lands on the gridline at 216.
+        let r = drag((200.0, 150.0), (213.0, 150.0), none);
+        assert!(near(r, Rect::new(100.0, 100.0, 216.0, 200.0)), "{r:?}");
+        // The bottom-right corner, dragged to (213, 204), lands on (216, 207).
+        let r = drag((200.0, 200.0), (213.0, 204.0), none);
+        assert!(near(r, Rect::new(100.0, 100.0, 216.0, 207.0)), "{r:?}");
+        // Shift: the corner, at (213, 213) in proportion, lands on (216, 216), still square.
+        let r = drag((200.0, 200.0), (213.0, 204.0), Mods { shift: true, ..none });
+        assert!(near(r, Rect::new(100.0, 100.0, 216.0, 216.0)), "{r:?}");
+        // Alt: the right side lands on 216 and the left side mirrors it about the center.
+        let r = drag((200.0, 150.0), (213.0, 150.0), Mods { alt: true, ..none });
+        assert!(near(r, Rect::new(84.0, 100.0, 216.0, 200.0)), "{r:?}");
+    }
+
+    /// #2054: with Snap to Pixel on, what a handle drag moves lands on whole pixels.
+    #[test]
+    fn handle_drag_lands_what_it_moves_on_whole_pixels() {
+        let (d, id) = doc_with_rect();
+        let mut s = Selection::default();
+        s.add(id);
+        let p = paint();
+        let c = ToolContext { snap_to_pixel: true, ..cx(&d, &s, &p) };
+        let mut t = SelectionTool::default();
+        t.pointer(&c, &ev(PointerKind::Down, 200.0, 200.0));
+        let r = scaled(&t.pointer(&c, &ev(PointerKind::Drag, 212.4, 230.7)));
+        assert!(near(r, Rect::new(100.0, 100.0, 212.0, 231.0)), "{r:?}");
+    }
+
+    /// #2054: with Smart Guides off, View › Snap to Point lands a dragged handle on another
+    /// object's anchor or a ruler guide within its distance (2 px); with Smart Guides on, the
+    /// ruler guides still pull it within the Snapping Tolerance (4 px), as a move does (#1534).
+    #[test]
+    fn handle_drag_snaps_to_anchors_and_ruler_guides_with_snap_to_point() {
+        use vectorcraft_doc::{Appearance, Node};
+        let (mut d, id) = doc_with_rect();
+        let l = d.layers[0].id;
+        let other = d.alloc_id();
+        let sq = vectorcraft_geom::shapes::rectangle(Rect::new(250.0, 250.0, 300.0, 300.0));
+        d.insert(Some(l), 1, Node::path(other, sq, Appearance::default_art())).unwrap();
+        d.guides = vec![vectorcraft_doc::Guide::new(true, 230.5)];
+        let mut s = Selection::default();
+        s.add(id);
+        let p = paint();
+        let drag = |c: &ToolContext, from: (f64, f64), to: (f64, f64)| {
+            let mut t = SelectionTool::default();
+            t.pointer(c, &ev(PointerKind::Down, from.0, from.1));
+            scaled(&t.pointer(c, &ev(PointerKind::Drag, to.0, to.1)))
+        };
+        let off = ToolContext { smart_guides: false, ..cx(&d, &s, &p) };
+        assert!(off.snap_to_point);
+        // The corner, 1.4 px from the other square's corner, lands on it.
+        let r = drag(&off, (200.0, 200.0), (249.0, 251.0));
+        assert!(near(r, Rect::new(100.0, 100.0, 250.0, 250.0)), "{r:?}");
+        // The right side, 1 px from the ruler guide, lands on it.
+        let r = drag(&off, (200.0, 150.0), (231.5, 150.0));
+        assert!(near(r, Rect::new(100.0, 100.0, 230.5, 200.0)), "{r:?}");
+        // Snap to Point off: the side follows the pointer.
+        let r = drag(&ToolContext { snap_to_point: false, ..off }, (200.0, 150.0), (231.5, 150.0));
+        assert!(near(r, Rect::new(100.0, 100.0, 231.5, 200.0)), "{r:?}");
+        // Smart Guides on: the ruler guide, 2.5 px away, pulls the side too.
+        let r = drag(&cx(&d, &s, &p), (200.0, 150.0), (233.0, 150.0));
+        assert!(near(r, Rect::new(100.0, 100.0, 230.5, 200.0)), "{r:?}");
+    }
+
     /// Smart Guides › Measurement Labels, Transform Tools and Snapping Tolerance (#394): the
     /// readouts while moving and while scaling each follow their option; the tolerance sets how
     /// far a dragged handle is pulled.
@@ -1395,5 +1703,81 @@ mod tests {
         let mut t = SelectionTool::default();
         t.pointer(&cx, &ev(PointerKind::Down, 400.0, 400.0));
         assert_eq!(t.pointer(&cx, &ev(PointerKind::Up, 400.0, 400.0)), vec![Action::Exec("select.none".into(), json!({}))]);
+    }
+
+    /// [`doc_with_area_type`] with more text than its frame holds, selected; the rectangle's id and
+    /// where the frame's out port is.
+    fn overflowing_area_type() -> (vectorcraft_doc::Document, NodeId, NodeId, Point) {
+        let (mut d, id) = doc_with_area_type();
+        let rect = d.children(Some(d.layers[0].id)).unwrap()[0].id;
+        let Some(vectorcraft_doc::NodeKind::Text(t)) = d.node_mut(id).map(|n| &mut n.kind) else { panic!("not text") };
+        let style = vectorcraft_doc::CharStyle { size: 20.0, ..Default::default() };
+        t.runs = vec![vectorcraft_doc::TextRun::new("Words that fill more than the frame holds. ".repeat(20), style)];
+        // On the frame's right side, above its bottom-right corner (120 × 40 at 100%).
+        let port = t.xf * Point::new(120.0, 40.0 - crate::text::PORT_RISE_PX);
+        (d, id, rect, port)
+    }
+
+    /// #2572: a click on the out port loads the pointer with the text; a click on empty canvas then
+    /// threads it into a new frame there, a click on a closed path into the path, a drag into the
+    /// rectangle it draws.
+    #[test]
+    fn a_click_on_the_out_port_loads_the_text_and_the_next_click_or_drag_threads_it() {
+        let (d, id, rect, port) = overflowing_area_type();
+        let mut s = Selection::default();
+        s.set([id]);
+        let p = paint();
+        let cx = cx(&d, &s, &p);
+        let mut t = SelectionTool::default();
+        let thread = |params: Value| vec![Action::Exec("text.thread.add".into(), params)];
+        let load = |t: &mut SelectionTool| {
+            assert!(t.pointer(&cx, &ev(PointerKind::Down, port.x, port.y)).is_empty());
+            assert!(t.pointer(&cx, &ev(PointerKind::Up, port.x, port.y)).is_empty());
+            assert_eq!(t.cursor(&cx, Point::new(30.0, 420.0), Mods::default()), Cursor::LoadedText);
+        };
+        load(&mut t);
+        assert!(t.pointer(&cx, &ev(PointerKind::Down, 30.0, 420.0)).is_empty());
+        assert_eq!(t.pointer(&cx, &ev(PointerKind::Up, 30.0, 420.0)), thread(json!({"from": id.0, "at": [30.0, 420.0]})));
+        assert_ne!(t.cursor(&cx, Point::new(30.0, 420.0), Mods::default()), Cursor::LoadedText, "the text is placed");
+        load(&mut t);
+        t.pointer(&cx, &ev(PointerKind::Down, 150.0, 150.0));
+        assert_eq!(t.pointer(&cx, &ev(PointerKind::Up, 150.0, 150.0)), thread(json!({"from": id.0, "to": rect.0})));
+        load(&mut t);
+        t.pointer(&cx, &ev(PointerKind::Down, 20.0, 20.0));
+        t.pointer(&cx, &ev(PointerKind::Drag, 80.0, 90.0));
+        assert!(t.overlays(&cx).contains(&Overlay::Marquee(Rect::new(20.0, 20.0, 80.0, 90.0))), "the new frame's outline");
+        assert_eq!(t.pointer(&cx, &ev(PointerKind::Up, 80.0, 90.0)), thread(json!({"from": id.0, "rect": [20.0, 20.0, 60.0, 70.0]})));
+        // The bounding box's corner handle below the port still resizes the frame.
+        let corner = Point::new(port.x, port.y + crate::text::PORT_RISE_PX);
+        assert_eq!(t.pointer(&cx, &ev(PointerKind::Down, corner.x, corner.y)), vec![Action::Begin("Resize Type Area".into())]);
+    }
+
+    /// Escape drops the loaded text, and the next click is an ordinary one; type that fits its
+    /// frame shows no out port to click.
+    #[test]
+    fn escape_drops_the_loaded_text_and_type_that_fits_has_no_port() {
+        let (d, id, _, port) = overflowing_area_type();
+        let mut s = Selection::default();
+        s.set([id]);
+        let p = paint();
+        let cx = cx(&d, &s, &p);
+        let mut t = SelectionTool::default();
+        t.pointer(&cx, &ev(PointerKind::Down, port.x, port.y));
+        t.pointer(&cx, &ev(PointerKind::Up, port.x, port.y));
+        assert!(t.claims_key(&cx, ToolKey::Escape), "Escape is the loaded pointer's");
+        assert!(t.key(&cx, ToolKey::Escape, Mods::default()).is_empty());
+        assert!(!t.claims_key(&cx, ToolKey::Escape));
+        assert_ne!(t.cursor(&cx, Point::new(30.0, 420.0), Mods::default()), Cursor::LoadedText);
+        t.pointer(&cx, &ev(PointerKind::Down, 30.0, 420.0));
+        assert_eq!(t.pointer(&cx, &ev(PointerKind::Up, 30.0, 420.0)), vec![Action::Exec("select.none".into(), json!({}))]);
+
+        let (d, id) = doc_with_area_type();
+        let mut s = Selection::default();
+        s.set([id]);
+        let cx = crate::testutil::cx(&d, &s, &p);
+        let mut t = SelectionTool::default();
+        t.pointer(&cx, &ev(PointerKind::Down, port.x, port.y));
+        t.pointer(&cx, &ev(PointerKind::Up, port.x, port.y));
+        assert_ne!(t.cursor(&cx, Point::new(30.0, 420.0), Mods::default()), Cursor::LoadedText);
     }
 }

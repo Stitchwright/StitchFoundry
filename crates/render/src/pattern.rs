@@ -89,6 +89,10 @@ struct TileEntry {
     sx: f64,
     sy: f64,
     pixmap: Arc<Pixmap>,
+    /// How many images in the art failed to decode while the tile was drawn
+    /// ([`crate::paint::decode_failures`]): each frame that draws from the tile counts them
+    /// again ([`crate::paint::add_decode_failures`]).
+    failed: u64,
 }
 
 struct PatternCache {
@@ -244,25 +248,35 @@ pub(crate) fn set_pattern_paint(ctx: &mut RenderContext, name: &str, xf: Affine,
                     && std::ptr::eq(e.cms.as_ptr(), Arc::as_ptr(&cms))
                     && e.deps.as_ref().is_none_or(|d| d.current(doc))
             })
-            .map(|e| (e.pixmap.clone(), e.sx, e.sy))
+            .map(|e| (e.pixmap.clone(), e.sx, e.sy, e.failed))
     });
     let (pm, sx, sy) = match hit {
-        Some(h) => h,
+        Some((pm, sx, sy, failed)) => {
+            crate::paint::add_decode_failures(failed);
+            (pm, sx, sy)
+        }
         None => {
             let w = (pw * scale).ceil().clamp(1.0, 4096.0) as u16;
             let h = (ph * scale).ceil().clamp(1.0, 4096.0) as u16;
+            let before = crate::paint::decode_failures();
             let Some(pm) = with_tile_renderer(|r| rasterize(r, doc, def, Rect::new(0.0, 0.0, pw, ph), w, h, ink)) else {
                 ctx.set_paint(missing());
                 return true;
             };
+            let failed = crate::paint::decode_failures() - before;
             let pm = Arc::new(pm);
             let (sx, sy) = (w as f64 / pw, h as f64 / ph);
             let deps = crate::fx::Reads::of_all(def.art.iter().map(|a| &**a)).any().then(|| Deps::of(doc));
+            // A cancelled export drew part of the tile: it isn't kept for later frames.
             CACHE.with(|c| {
+                if vectorcraft_doc::cancel::is_cancelled() {
+                    return;
+                }
                 let mut c = c.borrow_mut();
                 let tiles = &mut c.tiles[ink as usize];
                 let (t, bytes) = (tiles.tick(), size_of::<TileEntry>() + w as usize * h as usize * 4);
-                tiles.insert(key, TileEntry { art: def.art.clone(), deps, cms: Arc::downgrade(&cms), params, sx, sy, pixmap: pm.clone() }, bytes, t);
+                let entry = TileEntry { art: def.art.clone(), deps, cms: Arc::downgrade(&cms), params, sx, sy, pixmap: pm.clone(), failed };
+                tiles.insert(key, entry, bytes, t);
             });
             (pm, sx, sy)
         }
@@ -571,6 +585,27 @@ mod tests {
         frame(&mut r, &d, 1.0);
         assert!(tiles_rasterized() > before, "a tile of 100% was dropped");
         assert!(kept().1 <= budget, "{:?}", kept());
+    }
+
+    /// A pattern whose art is an image that can't be decoded: every frame that draws the pattern
+    /// counts the failure ([`crate::paint::decode_failures`]), from a new tile or from the
+    /// tile kept.
+    #[test]
+    fn kept_tiles_count_the_images_they_could_not_decode() {
+        use vectorcraft_doc::{ImageBlob, ImageObject};
+        let mut d = doc_with_pattern(TileType::Grid);
+        // A PNG signature with nothing after it.
+        d.images.insert("cut".into(), ImageBlob::new("image/png", b"\x89PNG\r\n\x1a\n".to_vec()));
+        let im = ImageObject { key: "cut".into(), width: 10, height: 10, xf: Affine::IDENTITY, link: None, placement: Default::default() };
+        d.patterns[0].art = vec![Arc::new(Node::new(NodeId(901), NodeKind::Image(Box::new(im))))];
+        let mut r = Renderer::new();
+        let start = tiles_rasterized();
+        for n in 0..3 {
+            let before = crate::paint::decode_failures();
+            frame(&mut r, &d, 1.0);
+            assert!(crate::paint::decode_failures() > before, "frame {n}");
+        }
+        assert_eq!(tiles_rasterized() - start, 1, "the later frames draw from the tile kept");
     }
 
     #[test]

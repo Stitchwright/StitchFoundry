@@ -58,9 +58,10 @@ pub fn printers(app: &mut VectorcraftApp) -> Value {
     json!({ "printers": printers, "service": app.services.print.is_some(), "setup": setup })
 }
 
-/// `file.print` with settings: print the active document with `settings` (over the document's)
-/// on `printer` (default: the system's default), or save the job as a PDF at `path` (else a picked
-/// file, the web downloads it) with `toFile`, a `path` or no print service. A PostScript file
+/// `file.print` with settings: print the active document with `settings` (over the document's, or
+/// over those of the print preset `preset` names) on `printer` (default: the system's default), or
+/// save the job as a PDF at `path` (else a picked file, the web downloads it) with `toFile`, a
+/// `path` or no print service. A PostScript file
 /// (`format: "postscript"` or a `.ps` path, at `level`, flattened with `flattenerPreset`) is saved
 /// the same way.
 pub fn run(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
@@ -68,7 +69,7 @@ pub fn run(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     let postscript = s("format").as_deref() == Some("postscript") || s("path").is_some_and(|path| fileio::extension(&path) == "ps");
     let to_file = p.get("toFile").and_then(Value::as_bool).unwrap_or(false) || s("path").is_some() || postscript;
     let mut q = json!({});
-    for k in ["settings", "format", "level", "flattenerPreset"] {
+    for k in ["preset", "settings", "format", "level", "flattenerPreset"] {
         if let Some(v) = p.get(k).filter(|v| !v.is_null()) {
             q[k] = v.clone();
         }

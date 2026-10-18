@@ -26,10 +26,11 @@
 //! of a PostScript file without one. A file whose program can't be read (an operator the
 //! interpreter doesn't know, an error, a limit reached) or that draws nothing comes in from its
 //! layers when its program has them (a `.ai` in PostScript form whose prolog is named but not
-//! included, as other apps write it), else as its preview (a TIFF image, a Windows metafile or an
-//! EPSI bitmap), with a warning that names the error, the operator and the procedures it ran in;
-//! without a preview, what was drawn before the error is kept (with that warning), else the file
-//! is refused.
+//! included, as other apps write it), or with its art on one layer when it is in the legacy format
+//! without layers (Illustrator 3, as image editors still export their paths), else as its preview
+//! (a TIFF image, a Windows metafile or an EPSI bitmap), with a warning that names the error, the
+//! operator and the procedures it ran in; without a preview, what was drawn before the error is
+//! kept (with that warning), else the file is refused.
 
 mod ai;
 mod ate;
@@ -198,7 +199,7 @@ pub fn import_with(bytes: &[u8], editing_data: bool) -> Result<Imported, String>
     // printed).
     if editing_data
         && dsc.own_legacy
-        && let Some(Ok((document, warnings))) = native::program_alone(ps)
+        && let Some(Ok((document, warnings))) = native::program_alone(ps, dsc.illustrator)
     {
         return Ok(Imported { document, warnings, preview: false });
     }
@@ -224,8 +225,9 @@ pub fn import_with(bytes: &[u8], editing_data: bool) -> Result<Imported, String>
         (Err(e), _) => reason(e, fault.as_ref()),
     };
     // A file in the legacy Illustrator format whose program can't be run (a `.ai` that names the
-    // prolog defining its operators without including it): its layers, which the program has.
-    let why = match editing_data.then(|| native::program_alone(ps)).flatten() {
+    // prolog defining its operators without including it): its layers, which the program has, or
+    // its art on one layer when it has none (Illustrator 3).
+    let why = match editing_data.then(|| native::program_alone(ps, dsc.illustrator)).flatten() {
         Some(Ok((document, warnings))) => return Ok(Imported { document, warnings, preview: false }),
         Some(Err(e)) => format!("{why}; its layers couldn't be read either ({e})"),
         None => why,

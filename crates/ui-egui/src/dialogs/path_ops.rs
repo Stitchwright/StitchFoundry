@@ -111,7 +111,7 @@ fn simplify_fields(ui: &mut egui::Ui, d: &mut Dialog, unit: Unit) {
     });
     ui.add_space(8.0);
     form::row_label(ui, tl!("Corner Point Angle Threshold:"));
-    ui.horizontal(|ui| form::slider_field(ui, d, "angleThreshold", 0.0..=180.0, "°", &|_| rail));
+    ui.horizontal(|ui| form::slider_field_named(ui, d, "angleThreshold", tl!("Corner Point Angle Threshold:"), 0.0..=180.0, "°", &|_| rail));
     ui.add_space(8.0);
     form::check(ui, d, "straightLines", tl!("Convert to Straight Lines"));
     form::check(ui, d, "showOriginal", tl!("Show Original Path"));

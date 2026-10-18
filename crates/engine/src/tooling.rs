@@ -25,6 +25,8 @@ pub struct ViewInfo {
     pub corner_widgets: bool,
     /// The document window (none headless): screen-fixed widgets sit in it.
     pub screen: Option<vectorcraft_tools::ScreenFrame>,
+    /// The view's active artboard (an index): artboard rulers measure from it.
+    pub artboard: usize,
 }
 
 impl Default for ViewInfo {
@@ -40,6 +42,7 @@ impl Default for ViewInfo {
             snap_to_point: true,
             corner_widgets: true,
             screen: None,
+            artboard: 0,
         }
     }
 }
@@ -189,6 +192,7 @@ impl Session {
             doc: &st.doc,
             embroidery_beads: &beads,
             embroidery_stitches: &needles,
+            ruler_origin: st.doc.ruler_origin_for(view.artboard),
             revision: (st.uid, st.revision),
             selection: &st.selection,
             zoom: view.zoom,
@@ -404,6 +408,12 @@ impl Session {
 
     pub fn overlays(&mut self, view: ViewInfo) -> Vec<Overlay> {
         let mut v = self.with_tool_cx(view, |t, cx| t.overlays(cx));
+        // The Type tools draw the overflow markers of selected type themselves.
+        if !matches!(self.tool.id(), "type" | "areaType" | "typeOnPath" | "verticalType" | "verticalAreaType" | "verticalTypeOnPath") {
+            let mut marks = std::mem::take(&mut self.overflow_marks);
+            v.extend(self.with_tool_cx(view, |_, cx| vectorcraft_tools::text::overflow_markers(&mut marks, cx)));
+            self.overflow_marks = marks;
+        }
         if let Some(g) = self.ruler_guide.take() {
             v.extend(self.with_tool_cx(view, |_, cx| g.overlays(cx)));
             self.ruler_guide = Some(g);
@@ -538,7 +548,11 @@ impl Session {
                     self.cancel_interaction()?
                 }
                 Action::Exec(cmd, p) => {
-                    self.execute(&cmd, &p)?;
+                    // A command's warning (Crop Image's when the image couldn't be decoded) goes to the
+                    // status bar too.
+                    if let Some(w) = self.execute(&cmd, &p)?.get("warning").and_then(Value::as_str) {
+                        ui.push(UiRequest::Status(w.to_string()));
+                    }
                 }
                 Action::Dialog(k, p) => ui.push(UiRequest::Dialog(k, p)),
                 Action::SwitchTool(t) => ui.push(UiRequest::SwitchTool(t)),

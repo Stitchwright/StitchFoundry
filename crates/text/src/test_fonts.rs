@@ -91,6 +91,85 @@ pub fn variable_font() -> Option<Vec<u8>> {
     Some(builder.build())
 }
 
+/// The family of [`two_axis_font`].
+pub const TWO_AXIS_FAMILY: &str = "Biaxtest Sans";
+
+/// How much narrower [`two_axis_font`] makes [`VARIABLE_CHARS`] at its narrowest width.
+pub const TWO_AXIS_NARROW: f32 = 0.2;
+
+/// The bundled Source Sans 3 Regular as a variable font of family [`TWO_AXIS_FAMILY`] with two axes:
+/// weight (`wght` 400–700, default 400), whose maximum makes the glyphs of [`VARIABLE_CHARS`]
+/// [`VARIABLE_WIDEN`] wider, and width (`wdth` 75–100, default 100), whose minimum makes them
+/// [`TWO_AXIS_NARROW`] narrower (outlines and advances, through `gvar`). Its named instances are
+/// Regular (the default), Bold (`wght` 700) and Condensed (`wdth` 75). `None` when it can't be
+/// built.
+pub fn two_axis_font() -> Option<Vec<u8>> {
+    const BASE: &[u8] = include_bytes!("../../../assets/fonts/SourceSans3-Regular.ttf");
+    let font = skrifa::FontRef::new(BASE).ok()?;
+    let (glyf, loca) = (font.glyf().ok()?, font.loca(None).ok()?);
+    let metrics = font.glyph_metrics(Size::unscaled(), LocationRef::default());
+    let charmap = font.charmap();
+    let varied: Vec<GlyphId> = VARIABLE_CHARS.chars().filter_map(|c| charmap.map(c)).collect();
+    let mut variations = Vec::new();
+    for g in 0..u32::from(font.maxp().ok()?.num_glyphs()) {
+        let id = GlyphId::new(g);
+        let mut deltas = vec![];
+        if varied.contains(&id) {
+            let Ok(Some(Glyph::Simple(s))) = loca.get_glyf(id, &glyf) else { return None };
+            let advance = metrics.advance_width(id)?;
+            // At each axis's far end: every point and the advance phantom point moved by `k` of their x.
+            let moved = |k: f32| {
+                let by = |x: f32| (x * k).round() as i16;
+                let mut d: Vec<GlyphDelta> = s.points().map(|p| GlyphDelta::required(by(f32::from(p.x)), 0)).collect();
+                d.extend([(0, 0), (by(advance), 0), (0, 0), (0, 0)].map(|(x, y)| GlyphDelta::required(x, y)));
+                d
+            };
+            let peak = |w: f32, d: f32| vec![Tent::new(F2Dot14::from_f32(w), None), Tent::new(F2Dot14::from_f32(d), None)];
+            deltas.push(GlyphDeltas::new(peak(1.0, 0.0), moved(VARIABLE_WIDEN)));
+            deltas.push(GlyphDeltas::new(peak(0.0, -1.0), moved(-TWO_AXIS_NARROW)));
+        }
+        variations.push(GlyphVariations::new(write_fonts::types::GlyphId::new(g), deltas));
+    }
+    let gvar = Gvar::new(variations, 2).ok()?;
+    let axis = |tag: &[u8; 4], min: i32, default: i32, max: i32, name: u16| VariationAxisRecord {
+        axis_tag: Tag::new(tag),
+        min_value: Fixed::from_i32(min),
+        default_value: Fixed::from_i32(default),
+        max_value: Fixed::from_i32(max),
+        flags: 0,
+        axis_name_id: NameId::new(name),
+    };
+    let instance = |name: u16, wght: i32, wdth: i32| InstanceRecord {
+        subfamily_name_id: NameId::new(name),
+        flags: 0,
+        coordinates: vec![Fixed::from_i32(wght), Fixed::from_i32(wdth)],
+        post_script_name_id: None,
+    };
+    let axes = vec![axis(b"wght", 400, 400, 700, 256), axis(b"wdth", 75, 100, 100, 257)];
+    let fvar = Fvar::new(AxisInstanceArrays::new(axes, vec![instance(258, 400, 100), instance(259, 700, 100), instance(260, 400, 75)]));
+    let name = name_table(&[
+        (1, TWO_AXIS_FAMILY),
+        (2, "Regular"),
+        (4, "Biaxtest Sans Regular"),
+        (6, "BiaxtestSans-Regular"),
+        (256, "Weight"),
+        (257, "Width"),
+        (258, "Regular"),
+        (259, "Bold"),
+        (260, "Condensed"),
+    ])?;
+    let mut builder = FontBuilder::new();
+    builder.add_raw(Tag::new(b"name"), name);
+    builder.add_table(&fvar).ok()?.add_table(&gvar).ok()?;
+    for r in font.table_directory.table_records() {
+        let tag = Tag::new(&r.tag().to_be_bytes());
+        if !builder.contains(tag) {
+            builder.add_raw(tag, font.table_data(r.tag())?.as_bytes());
+        }
+    }
+    Some(builder.build())
+}
+
 /// A `name` table of Windows English (US) records (name id, string).
 pub fn name_table(records: &[(u16, &str)]) -> Option<Vec<u8>> {
     let mut records = records.to_vec();
@@ -212,6 +291,44 @@ pub fn vertical_punctuation_font(alternates: bool) -> Option<Vec<u8>> {
     for r in font.table_directory.table_records() {
         let tag = Tag::new(&r.tag().to_be_bytes());
         if tag != Tag::new(b"GSUB") && !builder.contains(tag) {
+            builder.add_raw(tag, font.table_data(r.tag())?.as_bytes());
+        }
+    }
+    Some(builder.build())
+}
+
+/// The family of [`pair_kerning_font`].
+pub const PAIR_KERNING_FAMILY: &str = "Pairtest Sans";
+
+/// The bundled Source Sans 3 Regular as family [`PAIR_KERNING_FAMILY`], its `GPOS` replaced by two
+/// `kern` pairs, A followed by V and S followed by S: each takes 60 units off the first glyph's
+/// advance (the pair's first value record) and moves the second 100 units left (its second).
+/// `None` when it can't be built.
+pub fn pair_kerning_font() -> Option<Vec<u8>> {
+    use write_fonts::tables::gpos::{Gpos, PairPos, PairSet, PairValueRecord, PositionLookup, PositionLookupList, ValueRecord};
+    use write_fonts::tables::layout::{CoverageFormat1, Feature, FeatureList, FeatureRecord, LangSys, Lookup, Script, ScriptList, ScriptRecord};
+    use write_fonts::types::GlyphId16;
+
+    const BASE: &[u8] = include_bytes!("../../../assets/fonts/SourceSans3-Regular.ttf");
+    let font = skrifa::FontRef::new(BASE).ok()?;
+    let charmap = font.charmap();
+    let gid = |c| Some(GlyphId16::new(u16::try_from(charmap.map(c)?.to_u32()).ok()?));
+    let pair = |second| PairValueRecord::new(second, ValueRecord::new().with_x_advance(-60), ValueRecord::new().with_x_placement(-100));
+    let mut pairs = [(gid('A')?, gid('V')?), (gid('S')?, gid('S')?)];
+    pairs.sort_by_key(|p| p.0);
+    let coverage = CoverageFormat1::new(pairs.iter().map(|p| p.0).collect());
+    let pos = PairPos::format_1(coverage.into(), pairs.iter().map(|p| PairSet::new(vec![pair(p.1)])).collect());
+    let scripts = ScriptList::new(vec![ScriptRecord::new(Tag::new(b"DFLT"), Script::new(Some(LangSys::new(vec![0])), vec![]))]);
+    let features = FeatureList::new(vec![FeatureRecord::new(Tag::new(b"kern"), Feature::new(None, vec![0]))]);
+    let lookups = PositionLookupList::new(vec![PositionLookup::Pair(Lookup::new(Default::default(), vec![pos]))]);
+    let family = PAIR_KERNING_FAMILY;
+    let name = name_table(&[(1, family), (2, "Regular"), (4, "Pairtest Sans Regular"), (6, "PairtestSans-Regular")])?;
+    let mut builder = FontBuilder::new();
+    builder.add_table(&Gpos::new(scripts, features, lookups)).ok()?;
+    builder.add_raw(Tag::new(b"name"), name);
+    for r in font.table_directory.table_records() {
+        let tag = Tag::new(&r.tag().to_be_bytes());
+        if tag != Tag::new(b"kern") && !builder.contains(tag) {
             builder.add_raw(tag, font.table_data(r.tag())?.as_bytes());
         }
     }

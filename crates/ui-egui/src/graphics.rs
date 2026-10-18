@@ -97,7 +97,7 @@ impl VectorcraftApp {
         if let Err(e) = self.session.execute("file.recovery.save", &serde_json::json!({})) {
             log::warn!("vectorcraft: no recovery copies after losing the graphics ({why}): {e}");
         }
-        self.session.documents().iter().filter(|st| st.is_dirty()).all(|st| st.recovery.as_ref().is_some_and(|c| Arc::ptr_eq(&c.doc, &st.doc)))
+        self.session.documents().iter().filter(|st| st.is_dirty()).all(|st| st.recovery.as_ref().is_some_and(|c| st.same_content(&c.doc)))
     }
 
     /// Textures live in one egui context. When the host hands the app a new one (it started again

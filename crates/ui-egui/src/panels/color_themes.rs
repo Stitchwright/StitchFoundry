@@ -164,7 +164,10 @@ fn create(app: &mut VectorcraftApp, ui: &mut Ui) {
     if let Some(k) = w.pressed {
         d.sel = k;
     }
-    if let Some((k, hsb)) = w.moved {
+    if let Some((k, set)) = w.moved
+        && let Some(cur) = d.colors.get(k).map(Color::to_hsb)
+    {
+        let hsb = [0, 1, 2].map(|n| set[n].unwrap_or(cur[n]));
         move_on_wheel(&mut d.colors, k, hsb, d.rule.is_some());
     }
     ui.add_space(8.0);
@@ -212,7 +215,9 @@ fn create(app: &mut VectorcraftApp, ui: &mut Ui) {
             None => tl!("Save theme to My Themes").into(),
         };
         // The tip is translated around the theme's name, not looked up whole.
-        if widgets::icon_button(ui, "save", "", false, 24.0).on_hover_text(tip).clicked() {
+        let resp = widgets::icon_button(ui, "save", "", false, 24.0);
+        resp.widget_info(|| widgets::icon_button_info(ui.is_enabled(), false, &tip));
+        if resp.on_hover_text(tip).clicked() {
             save(app, &ctx);
         }
         let doc = app.session.active().is_some();
@@ -366,6 +371,15 @@ mod tests {
 
     fn themes(app: &VectorcraftApp) -> &[ColorTheme] {
         &app.session.prefs.color_themes
+    }
+
+    /// Screen readers name the Save button by its tool tip.
+    #[test]
+    fn screen_readers_name_the_save_button() {
+        use crate::widgets::accessibility_tests::{role_and_state, tree};
+        let mut app = app();
+        let shown = tree(|ui| show(&mut app, ui));
+        assert_eq!(role_and_state(&shown, "Save theme to My Themes"), (egui::accesskit::Role::Button, None));
     }
 
     #[test]

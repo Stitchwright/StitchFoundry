@@ -697,7 +697,7 @@ mod tests {
         assert_eq!(pick.name, "Untitled-1 template.vctemplate");
         assert_eq!(pick.folder.as_deref().map(std::path::Path::new), Some(folder.as_path()));
         assert_eq!(pick.filters, [("StitchFoundry Template", &["vctemplate"][..]), ("PDF-compatible .ait template", &["ait"][..])]);
-        assert_eq!(written.borrow()[1].0, "copy.vectorcraft", "the picked name is kept");
+        assert_eq!(written.borrow()[1].0, "copy.vectorcraft.vctemplate", "the picked name, with the template's extension");
     }
 
     #[test]
@@ -724,6 +724,22 @@ mod tests {
         let (name, bytes) = written.borrow()[0].clone();
         assert_eq!(name, "Untitled-1 template.ait");
         assert!(bytes.starts_with(b"%PDF"));
+    }
+
+    /// A name typed in the Save as Template panel with a Save As format's extension gets the
+    /// template's extension added, as Save As adds its own to a name it doesn't write.
+    #[test]
+    fn save_as_template_adds_its_extension_to_a_save_formats_name() {
+        for (picked, saved) in
+            [("card.pdf", "card.pdf.vctemplate"), ("card.vectorcraft", "card.vectorcraft.vctemplate"), ("card.svg", "card.svg.vctemplate")]
+        {
+            let (mut app, written, _) = desktop(picked);
+            app.session.prefs.templates_folder = vectorcraft_testkit::temp_dir("save-template-ext").to_string_lossy().into_owned();
+            app.run("file.saveAsTemplate", json!({})).unwrap();
+            let (path, bytes) = written.borrow()[0].clone();
+            assert_eq!(path, saved, "typed {picked}");
+            assert!(vectorcraft_format::load(&bytes).is_ok_and(|d| d.template), "typed {picked}: a native template");
+        }
     }
 
     #[test]

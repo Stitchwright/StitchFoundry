@@ -32,6 +32,17 @@ pub fn needs_outline(n: &Node) -> bool {
     )
 }
 
+/// Is `n` a path or compound path with a visible Transform effect that makes copies and a gradient
+/// in a fill or stroke? Such an object is drawn through its art ([`outline_art`]) so that each copy
+/// paints its gradient by itself ([`copy_with_gradients`]), as a group's copies do.
+pub fn has_gradient_copies(n: &Node) -> bool {
+    matches!(n.kind, NodeKind::Path { guide: false, clipping: false, .. } | NodeKind::Compound { .. })
+        && (n.appearance.has_unplaced_gradient() || n.appearance.has_placed_gradient())
+        && geometry_effects(n)
+            .iter()
+            .any(|e| e.id == "distort.transform" && crate::distort::transform_map(Rect::ZERO, &merged_params(&e.id, &e.params), 0).1 > 0)
+}
+
 /// Is `n` type without inline graphics that has a fill or stroke of its own that paints and has a
 /// visible geometry effect? Such an effect reshapes the whole outline that its fill or stroke
 /// paints ([`outline_text`], which leaves inline graphics out).
@@ -127,6 +138,16 @@ pub fn outline_art(n: &Node, symbol_art: Option<&Node>) -> Option<Node> {
             a.transform(*xf, false);
             Node::group(n.id, vec![Arc::new(a)])
         }
+        // The object as the one piece the copies of its Transform effect are made from.
+        _ if has_gradient_copies(n) => {
+            let mut one = n.clone();
+            one.opacity = 1.0;
+            one.blend = Default::default();
+            one.isolate = false;
+            one.extras_mut().mask = None;
+            one.appearance.effects.clear();
+            Node::group(n.id, vec![Arc::new(one)])
+        }
         _ if vectorcraft_doc::live::is_live(n) => vectorcraft_doc::live::expand_deep(n, Some(hook)),
         _ => return None,
     };
@@ -171,16 +192,21 @@ pub(crate) fn outline_nested_text(n: &mut Node, clipping: bool) {
 /// a geometry effect on a fill or stroke of its own ([`has_item_geometry`]), or has no art (a
 /// symbol instance without `symbol_art`).
 pub fn reshape(n: &Node, symbol_art: Option<&Node>) -> Option<Node> {
-    if (geometry_effects(n).is_empty() && n.projection().is_none() && !has_item_geometry(n)) || !needs_outline(n) {
+    if (geometry_effects(n).is_empty() && n.projection().is_none() && !has_item_geometry(n)) || !(needs_outline(n) || has_gradient_copies(n)) {
         return None;
     }
     as_art(n, symbol_art)
 }
 
-/// `n` (see [`needs_outline`]) as plain art for Expand Appearance: [`reshape`]d when it has
+/// `n` (see [`needs_outline`], or a path with [`has_gradient_copies`]) as plain art for Expand
+/// Appearance: [`reshape`]d when it has
 /// geometry effects, else type with fills or strokes of its own outlined, in the same form. `None`
 /// when it has neither.
 pub fn expand_outlined(n: &Node, symbol_art: Option<&Node>) -> Option<Node> {
+    // A path whose Transform effect copies it with a gradient: each copy an object of its own.
+    if has_gradient_copies(n) {
+        return as_art(n, symbol_art);
+    }
     let own_paint = matches!(n.kind, NodeKind::Text(_)) && !n.appearance.items.is_empty();
     if !needs_outline(n) || (geometry_effects(n).is_empty() && !own_paint) {
         return None;
@@ -268,19 +294,55 @@ pub(crate) fn reshape_leaves(art: &mut Node, fx: &[&Effect]) {
     for e in fx {
         let Some(bounds) = art.geometric_bounds() else { break };
         let params = merged_params(&e.id, &e.params);
+        let transform = (e.id == "distort.transform").then(|| crate::distort::transform_map(bounds, &params, seed));
         for_each_leaf(art, &mut |leaf| {
             let Some((path, rule)) = leaf_geometry(leaf) else { return };
+            // A gradient paints each copy by itself, not the one piece the copies make together.
+            if let Some((m, copies)) = transform
+                && copies > 0
+                && (leaf.appearance.has_unplaced_gradient() || leaf.appearance.has_placed_gradient())
+            {
+                copy_with_gradients(leaf, &path, m, copies);
+                return;
+            }
             let out = apply_one(&e.id, &params, &path, bounds, &GeomContext { seed, ..GeomContext::of(leaf) });
             set_geometry(leaf, out, rule);
         });
-        if e.id == "distort.transform" {
-            let (m, copies) = crate::distort::transform_map(bounds, &params, seed);
+        if let Some((m, copies)) = transform {
             transform_placed(art, m, copies);
         }
     }
     if !fx.is_empty() && outlines.iter().any(Option::is_some) {
         rebase_type_outlines(art, &mut outlines.into_iter());
     }
+}
+
+/// Replace `leaf` (a path or compound path with geometry `path`) by a group of it and `copies`
+/// more, each mapped once more by `m` than the last, as a Transform effect copies an object. Each
+/// copy is an object of its own, so its gradients fit it (a placed gradient moves with it) rather
+/// than spanning every copy. The copies stop where [`crate::distort::transform_within`]'s would.
+fn copy_with_gradients(leaf: &mut Node, path: &PathData, m: Affine, copies: usize) {
+    let each = path.anchor_count();
+    let mut anchors = each;
+    let mut placements: Vec<Arc<Node>> = vec![Arc::new(leaf.clone())];
+    let mut xf = Affine::IDENTITY;
+    for _ in 0..copies {
+        anchors = anchors.saturating_add(each);
+        if anchors > crate::distort::MAX_COPY_ANCHORS {
+            break;
+        }
+        xf *= m;
+        let mut copy = leaf.clone();
+        copy.transform(xf, vectorcraft_doc::Scaling::default());
+        if !copy.geometric_bounds().is_some_and(crate::distort::within_reach) {
+            break;
+        }
+        placements.push(Arc::new(copy));
+    }
+    // The copies become nodes of their own under a group with the object's id and name.
+    let mut g = Node::group(leaf.id, placements);
+    g.name = leaf.name.clone();
+    *leaf = g;
 }
 
 /// The bounds of each group of type's outlines under `n` ([`outline_text`]), `n` included, in

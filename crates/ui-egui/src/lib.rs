@@ -160,6 +160,8 @@ mod tests_sysclip_emf;
 #[cfg(test)]
 mod tests_sysclip_probe;
 #[cfg(test)]
+mod tests_taskbar;
+#[cfg(test)]
 mod tests_transparencygrid;
 #[cfg(test)]
 mod tests_widthtool;
@@ -197,6 +199,7 @@ pub type PickOpen = Box<dyn FnMut(&FilePick) -> Option<String>>;
 pub type PickSave = Box<dyn FnMut(&FilePick) -> Option<String>>;
 pub type ReadFn = Box<dyn Fn(&str) -> Result<Vec<u8>, String>>;
 pub type WriteFn = Box<dyn FnMut(&str, &[u8]) -> Result<(), String>>;
+pub type ExistsFn = Box<dyn Fn(&str) -> bool>;
 pub type Inbox = Arc<Mutex<Vec<(String, Vec<u8>)>>>;
 /// Starts a browser download of the bytes under a file name; an error when it couldn't be started
 /// (the save or export then fails as a refused write does: #1693).
@@ -204,6 +207,18 @@ pub type DownloadFn = Box<dyn FnMut(&str, &[u8]) -> Result<(), String>>;
 
 /// Opens a URL in the system browser.
 pub type OpenUrlFn = Box<dyn FnMut(&str)>;
+
+/// Whether a URL from a document may open in the browser: an `http:`, `https:` or `mailto:` URL
+/// without control characters. The system hands other schemes (`file:`, application schemes) to
+/// other programs.
+pub(crate) fn browsable_url(url: &str) -> Result<(), String> {
+    let scheme = url.split_once(':').map_or("", |(s, _)| s);
+    if ["http", "https", "mailto"].iter().any(|k| scheme.eq_ignore_ascii_case(k)) && !url.chars().any(char::is_control) {
+        Ok(())
+    } else {
+        Err(format!("only http, https and mailto URLs open in the browser, not “{url}”"))
+    }
+}
 
 /// Shows a file in the system file manager, or opens it in its app.
 pub type RevealFn = Box<dyn FnMut(&str) -> Result<(), String>>;
@@ -240,6 +255,10 @@ pub struct Services {
     pub pick_save: Option<PickSave>,
     pub read: Option<ReadFn>,
     pub write: Option<WriteFn>,
+    /// Is there a file or folder at a path (desktop)? The app asks before replacing a file that a
+    /// save panel's name names once the app gives it an extension ([`picks::ask_to_replace`]).
+    /// Without it, no file counts as there.
+    pub exists: Option<ExistsFn>,
     /// Files that arrived asynchronously (web open / drops): (name, bytes).
     pub inbox: Option<Inbox>,
     /// Web: trigger a browser download instead of writing a path.
@@ -314,6 +333,10 @@ pub struct Services {
     /// The window is on Wayland: the tool cursors are painted into it instead of handed to the
     /// compositor as bitmaps ([`cursors::os_cursors`]).
     pub wayland: bool,
+    /// On Wayland, no cursor theme can be loaded, so winit sets no pointer and the compositor's
+    /// default one would never come back once the canvas hid it: the canvas keeps the system
+    /// pointer visible next to the tool glyph ([`cursors::hide_system_pointer`], #2450).
+    pub no_cursor_theme: bool,
 }
 
 /// Cached canvas raster.
@@ -322,9 +345,9 @@ pub struct CanvasCache {
     pub texture: Option<egui::TextureHandle>,
     pub key: Option<CacheKey>,
     pub last_ms: f64,
-    /// The frame shown drew raster effects from rasters made before their objects moved
-    /// ([`vectorcraft_render::FrameStats::moved`]): the next frame outside an interaction runs
-    /// them again, on the worker when there is one.
+    /// The frame shown drew raster effects from rasters made before their objects moved, or at a
+    /// drag's lower resolution ([`vectorcraft_render::FrameStats::moved`]): the next frame outside
+    /// an interaction runs them again, on the worker when there is one.
     pub moved: bool,
     pub worker: Option<render_worker::Worker>,
     pub worker_started: bool,
@@ -357,6 +380,8 @@ pub struct CacheKey {
     pub revision: u64,
     /// An interaction is in progress ([`vectorcraft_render::RenderOptions::interacting`]).
     pub interacting: bool,
+    /// A tool's drag on the canvas is in progress ([`vectorcraft_render::RenderOptions::dragging`]).
+    pub dragging: bool,
     pub zoom: f64,
     pub cx: f64,
     pub cy: f64,
@@ -371,6 +396,8 @@ pub struct CacheKey {
     pub rot: f64,
     /// General › Anti-aliased Artwork.
     pub anti_alias: bool,
+    /// Type › Highlight Alternate Glyphs (#394).
+    pub highlight_alternate_glyphs: bool,
     /// [`vectorcraft_render::placed_document::generation`]: placed documents' bitmaps made since.
     pub placed: u64,
     /// View › Pixel Preview: the document pixels rendered (x0, y0, x1, y1), one per point, shown
@@ -667,9 +694,11 @@ impl VectorcraftApp {
         self.session.active_index().and_then(|i| self.views.get(i))
     }
 
-    /// The zero point shown by rulers and position fields; command coordinates stay absolute.
+    /// The zero point shown by rulers and position fields: the document's with global rulers, the
+    /// active artboard's with artboard rulers. Command coordinates stay absolute.
     pub(crate) fn ruler_origin(&self) -> vectorcraft_geom::Point {
-        self.session.active().map_or(vectorcraft_geom::Point::ZERO, |d| d.doc.ruler_origin_or_zero())
+        let artboard = self.view().map_or(0, |v| v.artboard);
+        self.session.active().map_or(vectorcraft_geom::Point::ZERO, |d| d.doc.ruler_origin_for(artboard))
     }
     pub fn view_mut(&mut self) -> Option<&mut View> {
         self.sync_views();
@@ -691,6 +720,7 @@ impl VectorcraftApp {
             snap_to_point: self.ui.view.snap_to_point,
             corner_widgets: self.ui.view.corner_widgets && self.ui.view.edges,
             screen: self.screen_frame(),
+            artboard: self.view().map_or(0, |v| v.artboard),
         }
     }
 
@@ -785,6 +815,12 @@ impl VectorcraftApp {
         match &r {
             Err(e) => self.ui.status = e.clone(),
             Ok(v) => {
+                // Image Trace's notes (a large image traces more slowly, or was scaled down).
+                if id.starts_with("imageTrace.make")
+                    && let Some(w) = v["warnings"].as_array().and_then(|w| w.first()).and_then(Value::as_str)
+                {
+                    self.ui.status = w.to_string();
+                }
                 if id == "file.new" {
                     self.ui.status.clear();
                     // New Document's Pixel preview mode (Overprint Preview is the engine's).
@@ -800,6 +836,11 @@ impl VectorcraftApp {
                     r.insert(0, font.to_string());
                     r.truncate(MAX_RECENT_FONTS);
                 }
+                // A command's warning (Rasterize's when an image couldn't be decoded) shows in the
+                // status bar, as a tool preview's does.
+                if let Some(w) = v.get("warning").and_then(Value::as_str) {
+                    self.ui.status = w.to_string();
+                }
             }
         }
         r
@@ -812,6 +853,24 @@ impl VectorcraftApp {
             None => self.pending_url = Some(url.to_string()),
         }
         self.ui.status = format!("Opened {url}");
+    }
+
+    /// Open `url`, which came from a document (an object's URL attribute), in the browser:
+    /// [`browsable_url`]s only.
+    pub(crate) fn open_document_url(&mut self, url: &str) -> Result<(), String> {
+        browsable_url(url)?;
+        self.open_url(url);
+        Ok(())
+    }
+
+    /// Refuse UI command `id`, which hands something to another app, when automation sent it (a
+    /// control or MCP request, or a frame of synthetic input): the automation roots don't confine
+    /// what that app does.
+    pub(crate) fn refuse_automation(&self, id: &str) -> Result<(), String> {
+        if self.ui.answering_control || self.synthetic_frame {
+            return Err(format!("{id} opens another app: only the person at the keyboard can run it"));
+        }
+        Ok(())
     }
 
     /// Run a Help link command and open the URL it returns.
@@ -1409,6 +1468,7 @@ impl VectorcraftApp {
             return;
         }
         let t0 = now_ms();
+        widgets::set_dialog_open(&ctx, self.ui.dialog.is_some());
         scrub::begin_frame(self, &ctx);
         embroidery::tick(self, &ctx);
         // the lettering kiosk: its panel and the design, nothing else
@@ -1442,6 +1502,7 @@ impl VectorcraftApp {
             // Keeps the previous frame's value valid for menus drawn above, before the bars.
             widgets::set_menu_floor(&ctx, ctx.content_rect().bottom());
         }
+        panels::library_panel::tidy(self);
         if simple && self.ui.screen_mode < 3 {
             simple::left_bar(self, ui);
             simple::right_panel(self, ui);
@@ -1469,7 +1530,6 @@ impl VectorcraftApp {
             dock::floating_panel(self, &ctx);
             floating::show(self, &ctx);
         }
-        panels::library_panel::show_window(self, &ctx);
         dialogs::show(self, &ctx);
         palette::show(self, &ctx);
         if self.custom_titlebar {

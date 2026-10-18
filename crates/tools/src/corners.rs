@@ -29,8 +29,10 @@ const MIN_SIDE_PX: f64 = 3.0 * MIN_INSET_PX;
 struct Widget {
     /// The corner, in the corners' own space.
     corner: Corner,
-    /// The radius it is set to (document units) and its kind.
+    /// The radius it is set to (document units), the one it is drawn with (no larger than its
+    /// neighbours leave room for) and its kind.
     radius: f64,
+    drawn: f64,
     kind: CornerKind,
     /// The angle between its sides in the document, in degrees.
     angle: f64,
@@ -76,9 +78,9 @@ impl PathWidgets {
             .map(|c| {
                 // On the bisector at the centre of the arc as drawn, at least the minimum inset
                 // in and at most half the shorter side.
-                let radius = lc.radius(c.index);
-                let k = (c.fitted(radius) / c.sin()).max(MIN_INSET_PX / (scale * (1.0 + c.cos()).sqrt())).min(c.lu.min(c.lv) / 2.0);
-                Widget { corner: *c, radius, kind: lc.kind(c.index), angle: angle_in(lc.xf, c), at: lc.xf * c.on_bisector(k) }
+                let (radius, drawn) = (lc.radius(c.index), lc.drawn_radius(c.index));
+                let k = (drawn / c.sin()).max(MIN_INSET_PX / (scale * (1.0 + c.cos()).sqrt())).min(c.lu.min(c.lv) / 2.0);
+                Widget { corner: *c, radius, drawn, kind: lc.kind(c.index), angle: angle_in(lc.xf, c), at: lc.xf * c.on_bisector(k) }
             })
             .collect();
         let all = widgets.len() == lc.corners.len();
@@ -217,6 +219,8 @@ pub fn double_click(cx: &ToolContext, p: Point, any_path: bool) -> Option<Action
 #[derive(Clone, Debug)]
 struct Outline {
     base: PathData,
+    /// The corners of `base`.
+    corners: Vec<Corner>,
     radii: Vec<f64>,
     kinds: Vec<CornerKind>,
     xf: Affine,
@@ -278,7 +282,7 @@ impl CornerDrag {
                 let lc = cx.doc.node(w.id).and_then(LiveCorners::of)?;
                 let n = lc.base.anchor_count();
                 let (radii, kinds) = ((0..n).map(|k| lc.radius(k)).collect(), (0..n).map(|k| lc.kind(k)).collect());
-                Some(Outline { base: lc.base.into_owned(), radii, kinds, xf: w.xf })
+                Some(Outline { corners: lc.corners.clone(), base: lc.base.into_owned(), radii, kinds, xf: w.xf })
             })
             .collect::<Option<Vec<_>>>()?;
         Some(Self { widgets, widget, outlines, start: p, began: false, alt: ev.mods.alt, radius, at_limit: false, at: p, click })
@@ -293,15 +297,23 @@ impl CornerDrag {
             return (self.radius, self.at_limit);
         };
         let inv = xf.inverse();
-        let max = w.corner.max_radius();
-        let r = w.corner.fitted(w.radius) + w.corner.radius_change(inv * p - inv * self.start);
+        let max = self.max_radius(path, &w.corner);
+        let r = w.drawn + w.corner.radius_change(inv * p - inv * self.start);
         (r.min(max).max(0.0), max > 0.0 && r >= max)
+    }
+
+    /// The largest radius `corner` of shown path `path` draws while the drag sets every shown
+    /// corner of that path to one radius: up to the cuts of its neighbours, as far as its own
+    /// sides when they are square (#2332).
+    fn max_radius(&self, path: usize, corner: &Corner) -> f64 {
+        let (Some(shown), Some(o)) = (self.widgets.paths.get(path), self.outlines.get(path)) else { return corner.max_radius() };
+        corner.max_shared_radius(&o.corners, &o.radii, |k| shown.widgets.iter().any(|w| w.corner.index == k))
     }
 
     /// The cuts of the edited corners that are at their largest radius, in document coordinates.
     fn corners_at_limit(&self) -> BezPath {
         let mut out = BezPath::new();
-        for (shown, o) in self.widgets.paths.iter().zip(&self.outlines) {
+        for (n, (shown, o)) in self.widgets.paths.iter().zip(&self.outlines).enumerate() {
             let shown = &shown.widgets;
             let mut radii = o.radii.clone();
             for w in shown {
@@ -309,7 +321,7 @@ impl CornerDrag {
                     *r = self.radius;
                 }
             }
-            let full = |k: &usize| shown.iter().any(|w| w.corner.index == *k && self.radius >= w.corner.max_radius() - 1e-9);
+            let full = |k: &usize| shown.iter().any(|w| w.corner.index == *k && self.radius >= self.max_radius(n, &w.corner) - 1e-9);
             let (path, sources) = cut_corners(&o.base, &radii, &o.kinds);
             for (sp, from) in path.transformed(o.xf).subpaths.iter().zip(&sources) {
                 // A corner's cut is the segment between its two anchors (the last one, for a
@@ -609,6 +621,34 @@ mod tests {
         assert_eq!(a[0], Action::Begin("Corner Radius".into()));
         assert_eq!(a[1], Action::Preview("object.setLiveShape".into(), json!({"id": id.0, "radius": 15.0, "corners": [2]})));
         assert_eq!(t.pointer(&cx, &PointerEvent::new(PointerKind::Up, 175.0, 176.0)), vec![Action::Commit]);
+    }
+
+    /// #2332: one corner rounded alone goes past half the side, until its cut reaches the
+    /// neighbouring anchors (the whole side of a square), or a rounded neighbour's cut.
+    #[test]
+    fn a_corner_rounded_alone_rounds_up_to_its_neighbours() {
+        for (top_right, max) in [(0.0, 100.0), (30.0, 70.0)] {
+            let live = LiveShape::Rectangle {
+                w: 100.0,
+                h: 100.0,
+                radii: [0.0, top_right, 0.0, 0.0],
+                kinds: Default::default(),
+                xf: Affine::translate((100.0, 100.0)),
+            };
+            let (d, id) = doc_with(live.to_path(), Some(live));
+            // Direct Selection picked the bottom-right anchor.
+            let mut s = selected(id);
+            s.anchors.insert(id, [(0, if top_right > 0.0 { 3 } else { 2 })].into());
+            let p = paint();
+            let cx = cx(&d, &s, &p);
+            assert_eq!(CornerWidgets::of(&d, &s, 1.0, true).unwrap().corners(), [2]);
+            let mut t = crate::create("directSelection");
+            t.pointer(&cx, &PointerEvent::new(PointerKind::Down, 190.0, 190.0));
+            assert!((radius(&t.pointer(&cx, &PointerEvent::new(PointerKind::Drag, 130.0, 130.0))[1]) - 60.0).abs() < 1e-9);
+            assert!(!t.overlays(&cx).iter().any(|o| matches!(o, Overlay::Path { .. })), "60 is below the limit");
+            assert_eq!(radius(&t.pointer(&cx, &PointerEvent::new(PointerKind::Drag, 0.0, 0.0))[0]), max);
+            assert!(t.overlays(&cx).iter().any(|o| matches!(o, Overlay::Path { .. })), "the limit shows");
+        }
     }
 
     #[test]

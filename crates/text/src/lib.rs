@@ -304,16 +304,20 @@ pub fn caret_position(layout: &TextLayout, byte: usize) -> (Point, Point) {
 /// Byte offset nearest to the text-space point `p` (for clicking/dragging with the Type tool).
 pub fn hit_byte(layout: &TextLayout, p: Point) -> usize {
     if layout.on_path {
-        let best = layout.glyphs.iter().min_by(|a, b| {
+        let best = layout.glyphs.iter().enumerate().min_by(|(_, a), (_, b)| {
             let ca = a.origin + dir(a.angle) * (a.advance * 0.5);
             let cb = b.origin + dir(b.angle) * (b.advance * 0.5);
             (p - ca).hypot2().total_cmp(&(p - cb).hypot2())
         });
-        return match best {
-            Some(g) if ((p - g.origin).dot(dir(g.angle)) < g.advance * 0.5) != g.rtl => g.byte,
-            Some(g) => g.byte + g.len,
-            None => layout.lines.first().map_or(0, |l| l.start),
-        };
+        let Some((i, g)) = best else { return layout.lines.first().map_or(0, |l| l.start) };
+        // `first` and `last` are the first and last glyphs of the cluster. A click before the middle of
+        // the cluster, measured along the first glyph's direction, goes to the cluster's start.
+        let same = |o: &&PositionedGlyph| o.byte == g.byte && o.len == g.len;
+        let first = layout.glyphs[..=i].iter().rev().take_while(same).last().unwrap_or(g);
+        let last = layout.glyphs[i..].iter().take_while(same).last().unwrap_or(g);
+        let along = dir(first.angle);
+        let span = (last.origin + dir(last.angle) * last.advance - first.origin).dot(along);
+        return if ((p - first.origin).dot(along) < span * 0.5) != g.rtl { g.byte } else { g.byte + g.len };
     }
     let p = layout.logical_point(p);
     // Nearest line band (vertical distance first, then distance to the line's column).
@@ -349,13 +353,20 @@ pub fn hit_byte(layout: &TextLayout, p: Point) -> usize {
 pub fn byte_in_line(layout: &TextLayout, li: usize, x: f64) -> usize {
     let Some(line) = layout.lines.get(li) else { return 0 };
     let glyphs = &layout.glyphs[line.glyph_start..line.glyph_end];
-    let nearest = glyphs
+    // A cluster drawn with several adjacent glyphs (a Devanagari pre-base matra and its consonant,
+    // a consonant and its reph) has one caret stop at each end of its glyphs taken together.
+    let mut clusters: Vec<(f64, f64, &PositionedGlyph)> = Vec::with_capacity(glyphs.len());
+    for g in glyphs {
+        let left = layout.logical_point(g.origin).x;
+        let right = left + g.advance;
+        match clusters.last_mut() {
+            Some((l, r, c)) if c.byte == g.byte && c.len == g.len => (*l, *r) = (l.min(left), r.max(right)),
+            _ => clusters.push((left, right, g)),
+        }
+    }
+    let nearest = clusters
         .iter()
-        .flat_map(|g| {
-            let left = layout.logical_point(g.origin).x;
-            let right = left + g.advance;
-            if g.rtl { [(right, g.byte), (left, g.byte + g.len)] } else { [(left, g.byte), (right, g.byte + g.len)] }
-        })
+        .flat_map(|&(left, right, g)| if g.rtl { [(right, g.byte), (left, g.byte + g.len)] } else { [(left, g.byte), (right, g.byte + g.len)] })
         .min_by(|a, b| (a.0 - x).abs().total_cmp(&(b.0 - x).abs()));
     nearest.map_or(line.start, |(_, byte)| byte)
 }
@@ -514,9 +525,13 @@ pub fn logical_order(visual: &str) -> Option<(Vec<usize>, bool)> {
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
+mod tests_axes;
+#[cfg(test)]
 mod tests_bidi;
 #[cfg(test)]
 mod tests_combos;
+#[cfg(test)]
+mod tests_devanagari;
 #[cfg(test)]
 mod tests_embed;
 #[cfg(test)]

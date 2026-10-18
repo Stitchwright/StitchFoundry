@@ -141,7 +141,7 @@ fn divide_section(app: &VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog, keys:
     ui.add_enabled_ui(enabled, |ui| {
         ui.indent(on, |ui| {
             ui.horizontal(|ui| {
-                if widgets::radio(ui, "", !by_size, enabled) {
+                if widgets::radio_button(ui, labels[1], !by_size, enabled) {
                     d.fields.insert(mode.into(), json!("count"));
                 }
                 if let Some(n) = widgets::plain_field(ui, ("divide", count), d.f64(count, 2.0), "", 0, 50.0) {
@@ -150,7 +150,7 @@ fn divide_section(app: &VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog, keys:
                 widgets::dim_label(ui, labels[1]);
             });
             ui.horizontal(|ui| {
-                if widgets::radio(ui, "", by_size, enabled) {
+                if widgets::radio_button(ui, tl!("per slice"), by_size, enabled) {
                     d.fields.insert(mode.into(), json!("size"));
                 }
                 form::length(ui, d, size, app.session.general_unit(), 70.0);
@@ -242,6 +242,19 @@ mod tests {
         app.run("edit.undo", json!({})).unwrap();
         let l = app.run("slice.list", json!({})).unwrap();
         assert!(l["slices"].as_array().unwrap().iter().any(|s| s["options"]["kind"] == "image" && s["source"] == "object"));
+    }
+
+    /// Screen readers name Divide Slices' radio buttons by the text after their fields.
+    #[test]
+    fn screen_readers_name_the_divide_radio_buttons() {
+        use crate::widgets::accessibility_tests::{role_and_state, tree};
+        use egui::accesskit::{Role, Toggled};
+        let mut app = app();
+        app.run("object.slice.divide", json!({})).unwrap();
+        set(&mut app, "divideRows", json!(true));
+        let shown = tree(|ui| super::super::show(&mut app, ui.ctx()));
+        assert_eq!(role_and_state(&shown, "slices down, evenly spaced"), (Role::RadioButton, Some(Toggled::True)));
+        assert_eq!(role_and_state(&shown, "per slice"), (Role::RadioButton, Some(Toggled::False)));
     }
 
     #[test]

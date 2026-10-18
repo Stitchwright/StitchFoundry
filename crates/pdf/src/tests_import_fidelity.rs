@@ -644,3 +644,16 @@ fn clips_with_the_page_as_bounding_box_still_clip() {
     assert!(!clipped("0 0 100 100 re"), "the page");
     assert!(!clipped("50 -60 m 160 50 l 50 160 l -60 50 l h"), "a turned square around the page");
 }
+
+/// Issue #2674: `0 w` is the thinnest line the device can draw (ISO 32000-1, 8.4.3.2), not no
+/// line: it imports as a visible hairline and survives a PDF round trip.
+#[test]
+fn zero_width_lines_import_as_hairlines() {
+    let d = open(&one_page("0 0 0 RG 0 w 10 50 m 90 50 l S 0.9 g 0 w 20 60 30 20 re b 1 w 10 20 m 90 20 l S", "", &[]));
+    let widths = |d: &Document| -> Vec<f64> { all(d).iter().filter_map(|n| n.appearance.stroke().map(|s| s.width)).collect() };
+    let w = widths(&d);
+    assert_eq!(w.len(), 3, "{w:?}");
+    assert!(w.iter().all(|w| *w > 0.0 && *w <= 1.0), "zero width strokes become hairlines: {w:?}");
+    let back = widths(&roundtrip(&d));
+    assert_eq!(back.len(), 3, "hairlines survive the PDF round trip: {back:?}");
+}

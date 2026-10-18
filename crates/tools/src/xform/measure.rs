@@ -68,7 +68,7 @@ impl Tool for MeasureTool {
     }
 
     fn cursor(&self, _cx: &ToolContext, _p: Point, _m: Mods) -> Cursor {
-        Cursor::Crosshair
+        Cursor::Measure
     }
 
     fn options(&self) -> Value {

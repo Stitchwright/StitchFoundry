@@ -88,6 +88,7 @@ mod halftone;
 pub mod help;
 pub mod importmatches;
 pub(crate) mod inline;
+mod interactivity;
 mod intertwine;
 mod layer;
 mod layerpanel;
@@ -373,6 +374,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(library::specs());
         v.extend(expand::specs());
         v.extend(attributes::specs());
+        v.extend(interactivity::specs());
         v.extend(newart::specs());
         v.extend(colortheme::specs());
         v.extend(fileio::pdf::specs());

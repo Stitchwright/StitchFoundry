@@ -191,6 +191,20 @@ fn spaces_read_from_wide_gaps_keep_the_glyphs_after_them_in_place() {
     assert!((at(9) - f64::from(x2)).abs() < 0.05, "the third group starts where the file has it: {} vs {x2}", at(9));
 }
 
+#[test]
+fn words_set_ems_apart_keep_their_place() {
+    // Gaps of about 1.75 and 2.6 em (#2384): each space's own tracking is more than an em.
+    let (x1, x2) = (48.0, 84.0);
+    let bytes = source_sans(&[(20.0, 50.0, 10.0, "ab"), (x1, 50.0, 10.0, "cd"), (x2, 50.0, 10.0, "ef")]);
+    let t = texts(&import(&bytes).unwrap());
+    assert_eq!(t.len(), 1);
+    assert_eq!(t[0].plain_text(), "ab cd ef");
+    let laid = vectorcraft_text::layout(vectorcraft_text::FontDb::global(), &t[0]);
+    let at = |byte: usize| (t[0].xf * laid.glyphs.iter().find(|g| g.byte == byte).unwrap().origin).x;
+    assert!((at(3) - f64::from(x1)).abs() < 0.05, "the second word starts where the file has it: {} vs {x1}", at(3));
+    assert!((at(6) - f64::from(x2)).abs() < 0.05, "the third word starts where the file has it: {} vs {x2}", at(6));
+}
+
 /// A document of area type `text` (Source Sans 3, 10 pt) `width` wide at (20, 30).
 fn area_doc(text: &str, justify: Justify, width: f64, space_before: f64) -> Document {
     let style = CharStyle { size: 10.0, fill: Paint::solid(Color::BLACK), ..Default::default() };

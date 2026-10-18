@@ -490,4 +490,20 @@ mod tests {
         assert_eq!(out.appearance.items[0].paint(), p.appearance.items[0].paint());
         assert!(out.appearance.items[1].effects().is_empty());
     }
+
+    #[test]
+    fn adjust_recolours_the_points_of_a_freeform_gradient() {
+        use vectorcraft_doc::color::{Freeform, FreeformPoint, Gradient, GradientKind, GradientPaint};
+        let mut gp = GradientPaint::new(Gradient { kind: GradientKind::Freeform, ..Gradient::default() });
+        let pt = |x, c| FreeformPoint::new(kurbo::Point::new(x, 5.0), c);
+        gp.set_freeform(Freeform { points: vec![pt(2.0, Color::rgb(1.0, 0.0, 0.0)), pt(8.0, Color::rgb(0.0, 0.0, 1.0))], ..Default::default() });
+        let fill = Appearance::basic(Paint::Gradient(Box::new(gp)), Paint::None, 0.0);
+        let mut p = Node::path(NodeId(1), shapes::rectangle(Rect::new(0.0, 0.0, 10.0, 10.0)), fill);
+        p.appearance.effects.push(Effect { id: "adjust.hueSaturation".into(), params: json!({"hue": 120}), visible: true });
+        let out = adjust(&p, None, &mut |_, _| None).unwrap();
+        let Paint::Gradient(g) = out.appearance.fill_paint() else { panic!("a gradient fill") };
+        // The points are what a freeform gradient draws from, not its stops.
+        let hexes: Vec<String> = g.freeform.as_ref().unwrap().points.iter().map(|p| p.color.to_hex()).collect();
+        assert_eq!(hexes, ["#00ff00", "#ff0000"]);
+    }
 }

@@ -396,3 +396,24 @@ fn golden_page_one() {
         assert!(c.iter().zip(want).all(|(a, b)| a.abs_diff(b) < 40), "({px}, {py}): {c:?} vs {want:?}");
     }
 }
+
+/// Separations go through the document's colour spaces: the CMYK profile assigned to it, not the
+/// working one (a document opened again in a new session keeps its profile, while the working
+/// spaces go back to the defaults).
+#[test]
+fn separations_use_the_cmyk_profile_assigned_to_the_document() {
+    let mut d = doc(100.0, 100.0, &[(Rect::new(0.0, 0.0, 50.0, 50.0), rgb(0.5, 0.5, 0.5))]);
+    d.color_mode = vectorcraft_doc::ColorMode::Cmyk;
+    // The cyan of the grey square, in percent.
+    let cyan = |d: &Document| -> f32 {
+        let p = pages(&job(d, json!({"output": {"mode": "separations"}})).bytes);
+        match p[0].1.iter().find(|(b, _)| (b.width() - 50.0).abs() < 1.0).and_then(|(_, p)| p.color()) {
+            Some(Color::Gray { k }) => (k * 100.0).round(),
+            c => panic!("{c:?}"),
+        }
+    };
+    let working = cyan(&d);
+    assert!(working > 0.0, "the working CMYK profile separates grey into four inks: cyan {working}");
+    d.color_profiles.cmyk = Some(vectorcraft_color::cms::DEVICE_CMYK.into());
+    assert_eq!(cyan(&d), 0.0, "Device CMYK puts a neutral grey on the black plate only");
+}

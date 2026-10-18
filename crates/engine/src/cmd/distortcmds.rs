@@ -746,13 +746,9 @@ fn puppet_warp(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 /// Forget the Puppet Warp pins: not an undo step, and a saved document stays saved (pins are
-/// never saved).
+/// never saved, [`crate::DocState::change_unsaved`]).
 pub(crate) fn drop_puppet_pins(st: &mut crate::DocState) {
-    let clean = !st.is_dirty();
-    Arc::make_mut(&mut st.doc).puppet = None;
-    if clean {
-        st.mark_saved();
-    }
+    st.change_unsaved(|d| Arc::make_mut(d).puppet = None);
 }
 
 fn puppet_pins(s: &mut Session, p: &Value) -> Result<Value> {
@@ -1335,7 +1331,8 @@ fn edit_text(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 /// Edit Text ends (isolation mode on `id` exits): the type is projected again, in the document and
-/// in every undo state (the flat view is never an undo step of its own).
+/// in every undo state (the flat view is never an undo step of its own, and never saved: a saved
+/// state stays saved, [`crate::DocState::change_unsaved`]).
 pub(crate) fn finish_edit_text(st: &mut crate::DocState, id: NodeId) {
     let clear = |doc: &mut Arc<Document>| {
         // Undo steps keep no lookup cache: look without building one, and drop the one an edit
@@ -1346,14 +1343,14 @@ pub(crate) fn finish_edit_text(st: &mut crate::DocState, id: NodeId) {
             p.editing = false;
         }
     };
-    let saved = Arc::ptr_eq(&st.doc, &st.saved_doc);
-    clear(&mut st.doc);
-    if saved {
-        st.saved_doc = st.doc.clone();
-    }
+    st.change_unsaved(clear);
     for e in st.history.undo.iter_mut().chain(st.history.redo.iter_mut()) {
+        let saved = Arc::ptr_eq(&e.doc, &st.saved_doc);
         clear(&mut e.doc);
         e.doc.drop_lookup_cache();
+        if saved {
+            st.saved_doc = e.doc.clone();
+        }
     }
     if let Some(it) = &mut st.interaction {
         clear(&mut it.doc);

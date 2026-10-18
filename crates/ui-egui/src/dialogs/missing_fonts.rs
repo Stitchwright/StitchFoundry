@@ -264,7 +264,8 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
                             }
                             ui.add(egui::Label::new(egui::RichText::new(path).size(11.0).color(t.text_dim)).truncate()).on_hover_text(path);
                         }
-                        if files.is_empty() && !state.is_empty() {
+                        // A failed search (a folder it refuses) didn't look: `progress` says why.
+                        if files.is_empty() && !state.is_empty() && state != "failed" {
                             widgets::dim_label(ui, if searching { tl!("Searching…") } else { tl!("Not found") });
                         }
                         ui.add_space(3.0);
@@ -326,10 +327,13 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
 }
 
 /// A folder search's progress under the dialog's buttons (fields `state`, `folder`, `searched`,
-/// `skipped`, `unreadable` and `stopped`), in Find Linked Files too.
+/// `skipped`, `unreadable`, `stopped` and `error`), in Find Linked Files too.
 pub(super) fn progress(ui: &mut egui::Ui, d: &Dialog) {
     if d.str("state") == "searching" {
         widgets::dim_name(ui, &d.str("folder"));
+    }
+    if let Some(e) = d.fields.get("error").and_then(Value::as_str) {
+        widgets::dim_name(ui, &crate::i18n::message(crate::i18n::current(), e));
     }
     if let Some(s) = d.fields.get("searched") {
         let (folders, files) = (s["folders"].to_string(), s["files"].to_string());

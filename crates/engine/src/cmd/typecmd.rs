@@ -35,6 +35,15 @@ pub fn specs() -> Vec<CommandSpec> {
             create_outlines
         ),
         cmd!(
+            "type.opticalMarginAlignment",
+            "Optical Margin Alignment",
+            ["Type"],
+            None,
+            "{ids?|id?, on?: bool} turn Optical Margin Alignment on or off for the selected type and every frame of its threads (on omitted: the opposite of the first object's setting): in every left-to-right paragraph of point and area type, quotation marks, hyphens, full stops and commas at a line's start or end hang wholly outside the margin there; asterisks, tildes, ellipses, en and em dashes, colons and semicolons hang by half; and A, V, W, Y, v, w and y hang by a tenth of their advance; a left-aligned line hangs at its left margin, a right-aligned line hangs at its right margin, and centered and justified lines hang at both → {on, ids}",
+            has_selection,
+            optical_margin_alignment
+        ),
+        cmd!(
             "text.setText",
             "Set Text",
             [],
@@ -95,6 +104,28 @@ fn orientation(s: &mut Session, p: &Value, vertical: bool) -> Result<Value> {
         Ok(())
     })?;
     Ok(json!({"vertical": vertical, "ids": ids.iter().map(|id| id.0).collect::<Vec<_>>()}))
+}
+
+/// Type › Optical Margin Alignment: set `on` (without it, the opposite of the first object's
+/// setting) on every selected text object and every frame of their threads, in one undo step.
+fn optical_margin_alignment(s: &mut Session, p: &Value) -> Result<Value> {
+    let ids = super::threads::with_threads(&s.doc()?.doc, &text_targets(s, p, "Optical Margin Alignment")?);
+    let first = ids.first().and_then(|id| match s.doc().ok()?.doc.node(*id).map(|n| &n.kind) {
+        Some(NodeKind::Text(t)) => Some(t.optical_margin),
+        _ => None,
+    });
+    let on = p.get("on").and_then(Value::as_bool).unwrap_or(!first.unwrap_or(false));
+    s.edit("Optical Margin Alignment", |d, _| {
+        for id in &ids {
+            let Some(NodeKind::Text(t)) = d.node_mut(*id).map(|n| &mut n.kind) else {
+                return Err(EngineError::NoNode(*id));
+            };
+            t.optical_margin = on;
+            refresh_bounds(t);
+        }
+        Ok(())
+    })?;
+    Ok(json!({"on": on, "ids": ids.iter().map(|id| id.0).collect::<Vec<_>>()}))
 }
 
 /// Recompute the layout caches (bounds and baselines) after a text edit. Every engine text edit ends here (typing
@@ -269,10 +300,32 @@ pub(crate) fn with_overflow(s: &Session, ids: &[NodeId], mut result: Value) -> V
     result
 }
 
+/// Adds `bounds` to the result of a command that made the type object `id`: the same
+/// `{x, y, width, height}` box `document.inspect` reports for it (after `justify`, so a script can
+/// place the new type without a helper object); `null` when it has none.
+pub(crate) fn with_bounds(s: &Session, id: Option<NodeId>, mut result: Value) -> Value {
+    let Ok(st) = s.doc() else { return result };
+    let symbols = st.doc.symbol_boxes();
+    let b = id.and_then(|i| st.doc.node(i)).and_then(|n| n.geometric_bounds_with(&symbols));
+    result["bounds"] = crate::inspect::rect_json(b);
+    result
+}
+
 /// The warning that Print gives for `ids`, area type and type on a path whose text doesn't fit
 /// (as [`with_overflow`] finds it): the text past the end of their frames doesn't print. It names
 /// the first 20 ids and counts the rest; `None` when `ids` is empty.
 pub(crate) fn overflow_warning(ids: &[NodeId]) -> Option<String> {
+    overflow_note(ids, "doesn't print")
+}
+
+/// [`overflow_warning`] as an export that draws type gives it: the text past the end of the frames
+/// isn't drawn in the export.
+pub(crate) fn export_overflow_warning(ids: &[NodeId]) -> Option<String> {
+    overflow_note(ids, "isn't drawn in the export")
+}
+
+/// [`overflow_warning`], saying that the text past the end of the frames `left_out`.
+fn overflow_note(ids: &[NodeId], left_out: &str) -> Option<String> {
     const NAMED: usize = 20;
     let (named, rest) = ids.split_at(ids.len().min(NAMED));
     let mut list = named.iter().map(|i| i.0.to_string()).collect::<Vec<_>>().join(", ");
@@ -281,8 +334,8 @@ pub(crate) fn overflow_warning(ids: &[NodeId]) -> Option<String> {
     }
     match ids {
         [] => None,
-        [_] => Some(format!("1 text object doesn't fit its frame: the text past the end of the frame doesn't print (id {list})")),
-        _ => Some(format!("{} text objects don't fit their frames: the text past the end of each frame doesn't print (ids {list})", ids.len())),
+        [_] => Some(format!("1 text object doesn't fit its frame: the text past the end of the frame {left_out} (id {list})")),
+        _ => Some(format!("{} text objects don't fit their frames: the text past the end of each frame {left_out} (ids {list})", ids.len())),
     }
 }
 
@@ -524,9 +577,10 @@ fn set_style(s: &mut Session, p: &Value) -> Result<Value> {
                 if let Some(f) = &style {
                     st.font_style = f.clone();
                 }
-                // Another font: none of the old one's versions.
+                // Another font: none of the old one's versions or Variable Font settings.
                 if font.is_some() || style.is_some() {
                     st.font_version = None;
+                    st.font_axes.clear();
                 }
                 if let Some(v) = size {
                     st.size = v;
@@ -560,10 +614,12 @@ fn set_style(s: &mut Session, p: &Value) -> Result<Value> {
                 if let Some(f) = &font {
                     st.font_family = f.clone();
                     st.font_version = None;
+                    st.font_axes.clear();
                 }
                 if let Some(f) = &style {
                     st.font_style = f.clone();
                     st.font_version = None;
+                    st.font_axes.clear();
                 }
                 if let Some(v) = size {
                     st.size = v.clamp(0.1, 1296.0);
@@ -783,6 +839,30 @@ fn reshape_area(s: &mut Session, p: &Value) -> Result<Value> {
 mod area_tests {
     use super::*;
 
+    /// #2413: `text.create` and `text.createInPath` return the new type's `bounds`, the box
+    /// `document.inspect` reports for it, so a script can place it without a helper object.
+    #[test]
+    fn text_create_returns_the_inspect_bounds() {
+        let mut s = Session::new();
+        s.execute("file.new", &json!({"width": 600, "height": 400})).unwrap();
+        let inspected = |s: &mut Session, id: &Value| {
+            let doc = s.execute("document.inspect", &json!({})).unwrap();
+            fn find(v: &Value, id: &Value) -> Option<Value> {
+                if &v["id"] == id {
+                    return Some(v["bounds"].clone());
+                }
+                v.get("children").or_else(|| v.get("layers"))?.as_array()?.iter().find_map(|c| find(c, id))
+            }
+            find(&doc, id).unwrap()
+        };
+        let made = s.execute("text.create", &json!({"x": 300, "y": 100, "text": "Hello", "size": 24, "justify": "center"})).unwrap();
+        assert!(made["bounds"]["width"].as_f64().unwrap() > 10.0, "{made}");
+        assert_eq!(made["bounds"], inspected(&mut s, &made["id"]));
+        let rect = s.execute("shape.rectangle", &json!({"x": 10, "y": 200, "width": 100, "height": 50})).unwrap();
+        let area = s.execute("text.createInPath", &json!({"path": rect["id"], "mode": "area", "text": "Boxed"})).unwrap();
+        assert_eq!(area["bounds"], inspected(&mut s, &area["id"]));
+    }
+
     /// #1748: `text.create` takes `justify`; point type then lines up on its point (centred on
     /// it, or ending there), and `text.setStyle` moves it the same way afterwards.
     #[test]
@@ -888,6 +968,57 @@ mod area_tests {
         assert_eq!(old.burasagari, Burasagari::None);
     }
 
+    /// Type › Optical Margin Alignment: `type.opticalMarginAlignment` sets or toggles the flag on
+    /// the selected type in one undo step, the opening quotation mark then hangs left of the
+    /// frame, and the flag is saved only when on and survives a native save.
+    #[test]
+    fn optical_margin_alignment_is_set_per_object_and_saved_only_when_on() {
+        let mut s = Session::new();
+        s.execute("file.new", &json!({"width": 400, "height": 400})).unwrap();
+        let id = s
+            .execute("text.create", &json!({"x": 10, "y": 10, "size": 40, "text": "“Quoted” words", "area": {"width": 300, "height": 100}}))
+            .unwrap()["id"]
+            .as_u64()
+            .unwrap();
+        let text = |s: &Session| match &s.doc().unwrap().doc.node(NodeId(id)).unwrap().kind {
+            NodeKind::Text(t) => (**t).clone(),
+            _ => panic!("text"),
+        };
+        // The left edge of the glyphs in text space, where the frame's left edge is at 0.
+        let left = |s: &Session| text(s).cached_bounds.unwrap().x0;
+        // New type: off, and not saved.
+        assert!(!text(&s).optical_margin);
+        assert!(serde_json::to_value(text(&s)).unwrap().get("opticalMarginAlignment").is_none());
+        let inside = left(&s);
+        assert!(inside >= 0.0, "{inside}");
+        // Nothing but a rectangle selected: an error.
+        let rect = s.execute("shape.rectangle", &json!({"x": 0, "y": 200, "width": 20, "height": 20})).unwrap()["id"].as_u64().unwrap();
+        s.execute("select.set", &json!({"ids": [rect]})).unwrap();
+        assert!(s.execute("type.opticalMarginAlignment", &json!({})).is_err());
+        // Toggled on: the quotation mark hangs outside the frame.
+        s.execute("select.set", &json!({"ids": [id]})).unwrap();
+        assert_eq!(s.execute("type.opticalMarginAlignment", &json!({})).unwrap()["on"], true);
+        assert!(text(&s).optical_margin);
+        assert!(left(&s) < inside - 5.0, "{} {inside}", left(&s));
+        assert_eq!(serde_json::to_value(text(&s)).unwrap()["opticalMarginAlignment"], true);
+        // `on` sets it; without `on` it toggles.
+        assert_eq!(s.execute("type.opticalMarginAlignment", &json!({"on": true})).unwrap()["on"], true);
+        assert!(text(&s).optical_margin);
+        assert_eq!(s.execute("type.opticalMarginAlignment", &json!({})).unwrap()["on"], false);
+        assert!(!text(&s).optical_margin);
+        assert_eq!(left(&s), inside);
+        // One undo step each.
+        s.execute("edit.undo", &json!({})).unwrap();
+        assert!(text(&s).optical_margin);
+        // Saved and reopened as it was; a document from before it reads as off.
+        let back = vectorcraft_format::load(&vectorcraft_format::save(&s.doc().unwrap().doc, false)).unwrap();
+        let NodeKind::Text(t) = &back.node(NodeId(id)).unwrap().kind else { panic!("text") };
+        assert!(t.optical_margin);
+        let mut old = serde_json::to_value(text(&s)).unwrap();
+        old.as_object_mut().unwrap().remove("opticalMarginAlignment");
+        assert!(!serde_json::from_value::<TextObject>(old).unwrap().optical_margin);
+    }
+
     /// Paragraph panel menu › Hyphenation…: `text.setFormat` sets each paragraph's hyphenation
     /// options, rounded and clamped, in one undo step; they are saved only when not the defaults,
     /// and paragraph styles carry them.
@@ -928,6 +1059,43 @@ mod area_tests {
         assert_eq!(paras(&s).0.hyphenation, HyphenationOptions { words_longer_than: 9, ..HyphenationOptions::default() });
         let old: vectorcraft_doc::ParaStyle = serde_json::from_value(json!({"justify": "Left", "hyphenate": true})).unwrap();
         assert_eq!(old.hyphenation, HyphenationOptions::default());
+    }
+
+    /// Paragraph panel menu › Roman Hanging Punctuation: `text.setFormat {romanHangingPunctuation}`
+    /// sets it per paragraph in one undo step, the opening quotation mark then hangs left of the
+    /// frame, it is saved only when on, and paragraph styles carry it.
+    #[test]
+    fn roman_hanging_punctuation_is_set_per_paragraph_and_saved_only_when_on() {
+        let mut s = Session::new();
+        s.execute("file.new", &json!({"width": 400, "height": 400})).unwrap();
+        let id = s
+            .execute("text.create", &json!({"x": 10, "y": 10, "size": 40, "text": "“Quoted”\n“Two”", "area": {"width": 300, "height": 200}}))
+            .unwrap()["id"]
+            .as_u64()
+            .unwrap();
+        let text = |s: &Session| match &s.doc().unwrap().doc.node(NodeId(id)).unwrap().kind {
+            NodeKind::Text(t) => (**t).clone(),
+            _ => panic!("text"),
+        };
+        let left = |s: &Session| text(s).cached_bounds.unwrap().x0;
+        assert!(!text(&s).para_at(0).roman_hanging);
+        assert!(serde_json::to_value(text(&s).para_at(0)).unwrap().get("roman_hanging").is_none());
+        let inside = left(&s);
+        s.execute("select.set", &json!({"ids": [id]})).unwrap();
+        // Only the first paragraph (the caret's range).
+        s.execute("text.setFormat", &json!({"romanHangingPunctuation": true, "start": 0, "end": 0})).unwrap();
+        assert!(text(&s).para_at(0).roman_hanging && !text(&s).para_at(1).roman_hanging);
+        assert!(left(&s) < inside - 5.0, "{} {inside}", left(&s));
+        assert_eq!(serde_json::to_value(text(&s).para_at(0)).unwrap()["roman_hanging"], true);
+        let back: vectorcraft_doc::ParaStyle = serde_json::from_value(serde_json::to_value(text(&s).para_at(0)).unwrap()).unwrap();
+        assert!(back.roman_hanging);
+        s.execute("edit.undo", &json!({})).unwrap();
+        assert!(!text(&s).para_at(0).roman_hanging);
+        assert!((left(&s) - inside).abs() < 1e-9);
+        // A paragraph style carries it.
+        s.execute("paraStyle.new", &json!({"name": "Hung", "attrs": {"roman_hanging": true}})).unwrap();
+        s.execute("paraStyle.apply", &json!({"name": "Hung", "id": id})).unwrap();
+        assert!(text(&s).para_at(1).roman_hanging);
     }
 
     /// #432: while the interface is in Japanese, new type (text.create, text.createInPath) starts
@@ -1118,6 +1286,80 @@ mod area_tests {
         s.execute("text.setRangeStyle", &json!({"id": id, "start": 9, "end": 11, "digits": "farsi"})).unwrap();
         let set: Vec<_> = runs(&s).iter().map(|r| (r.text.clone(), r.style.digits)).collect();
         assert_eq!(set, [("صفحة ".to_string(), Digits::Default), ("12".to_string(), Digits::Farsi)]);
+    }
+
+    /// Variable Font settings (Character panel › Variable Font): a character attribute, saved only
+    /// when set, each value clamped to its axis's range, and cleared by another font or style.
+    #[test]
+    fn variable_font_settings_are_a_character_attribute_saved_only_when_set() {
+        use vectorcraft_text::test_fonts::{TWO_AXIS_FAMILY as FAMILY, two_axis_font};
+        vectorcraft_text::FontDb::global().add_font(two_axis_font().unwrap());
+        let mut s = Session::new();
+        s.execute("file.new", &json!({"width": 400, "height": 400})).unwrap();
+        let id = s.execute("text.create", &json!({"x": 10, "y": 50, "text": "lIn lIn", "font": FAMILY, "size": 40})).unwrap()["id"].as_u64().unwrap();
+        let runs = |s: &Session| match &s.doc().unwrap().doc.node(NodeId(id)).unwrap().kind {
+            NodeKind::Text(t) => t.runs.clone(),
+            _ => panic!("text"),
+        };
+        let saved = |s: &Session| serde_json::to_value(&runs(s)[0].style).unwrap().get("fontAxes").cloned();
+        let width = |s: &Session| s.doc().unwrap().doc.bounds_of(&[NodeId(id)], false).unwrap().width();
+        assert_eq!(saved(&s), None);
+        let regular = width(&s);
+        s.execute("select.set", &json!({"ids": [id]})).unwrap();
+        s.execute("text.setFormat", &json!({"fontAxes": {"wght": 650}})).unwrap();
+        assert_eq!(saved(&s), Some(json!({"wght": 650.0})));
+        assert!(width(&s) > regular * 1.1, "the type is set heavier and wider: {regular} -> {}", width(&s));
+        // Past the axis's range: its maximum; an axis the font hasn't: left out; others kept.
+        s.execute("text.setFormat", &json!({"fontAxes": {"wght": 2000, "opsz": 12, "wdth": 80}})).unwrap();
+        assert_eq!(saved(&s), Some(json!({"wdth": 80.0, "wght": 700.0})));
+        // Null goes back to the style's own setting, and so does a value equal to it.
+        s.execute("text.setFormat", &json!({"fontAxes": {"wght": null}})).unwrap();
+        assert_eq!(saved(&s), Some(json!({"wdth": 80.0})));
+        s.execute("text.setFormat", &json!({"fontAxes": {"wdth": 100}})).unwrap();
+        assert_eq!(saved(&s), None);
+        assert!((width(&s) - regular).abs() < 1e-6);
+        s.execute("edit.undo", &json!({})).unwrap();
+        assert_eq!(saved(&s), Some(json!({"wdth": 80.0})));
+        // Characters selected with the Type tool: only the range takes it.
+        s.execute("text.setRangeStyle", &json!({"id": id, "start": 4, "end": 7, "fontAxes": {"wght": 550}})).unwrap();
+        let set: Vec<_> = runs(&s).iter().map(|r| (r.text.clone(), r.style.font_axes.clone())).collect();
+        let axes = |v: &[(&str, f64)]| v.iter().map(|(t, v)| (t.to_string(), *v)).collect::<std::collections::BTreeMap<_, _>>();
+        assert_eq!(set, [("lIn ".to_string(), axes(&[("wdth", 80.0)])), ("lIn".to_string(), axes(&[("wdth", 80.0), ("wght", 550.0)]))]);
+        // A saved file keeps them.
+        let back = vectorcraft_format::load(&vectorcraft_format::save(&s.doc().unwrap().doc, false)).unwrap();
+        let NodeKind::Text(t) = &back.node(NodeId(id)).unwrap().kind else { panic!("text") };
+        assert_eq!(t.runs, runs(&s));
+        // Another style or font clears them: their settings were the old face's.
+        s.execute("text.setRangeStyle", &json!({"id": id, "start": 4, "end": 7, "style": "Bold"})).unwrap();
+        assert_eq!(runs(&s).last().map(|r| (r.style.font_style.as_str(), r.style.font_axes.is_empty())), Some(("Bold", true)));
+        s.execute("text.setStyle", &json!({"style": "Bold"})).unwrap();
+        assert!(runs(&s).iter().all(|r| r.style.font_axes.is_empty()));
+        s.execute("text.setFormat", &json!({"fontAxes": {"wdth": 75}})).unwrap();
+        s.execute("text.replaceFont", &json!({"from": {"family": FAMILY}, "to": {"family": "Inter"}})).unwrap();
+        assert!(runs(&s).iter().all(|r| r.style.font_axes.is_empty()));
+        // A static font has no axes to set.
+        s.execute("text.setFormat", &json!({"fontAxes": {"wght": 650}})).unwrap();
+        assert_eq!(saved(&s), None);
+        // A missing font keeps them as given, for when it is installed.
+        s.execute("text.setStyle", &json!({"font": "No Such Variable Sans"})).unwrap();
+        s.execute("text.setFormat", &json!({"fontAxes": {"wght": 2000}})).unwrap();
+        assert_eq!(saved(&s), Some(json!({"wght": 2000.0})));
+        for (bad, says) in
+            [(json!({"weight": 650}), "not an axis tag"), (json!({"wght": "heavy"}), "must be a number"), (json!(650), "must be an object")]
+        {
+            let err = s.execute("text.setFormat", &json!({"fontAxes": bad})).unwrap_err().to_string();
+            assert!(err.contains(says), "{err}");
+        }
+        // The axes and the setting of a style, as the sliders show them.
+        let list = s.execute("text.fontList", &json!({"family": FAMILY, "style": "Bold"})).unwrap();
+        assert_eq!(
+            list["axes"],
+            json!([
+                {"tag": "wght", "name": "Weight", "min": 400.0, "default": 400.0, "max": 700.0, "value": 700.0, "hidden": false},
+                {"tag": "wdth", "name": "Width", "min": 75.0, "default": 100.0, "max": 100.0, "value": 100.0, "hidden": false},
+            ])
+        );
+        assert_eq!(s.execute("text.fontList", &json!({"family": "Inter"})).unwrap()["axes"], json!([]));
     }
 
     #[test]

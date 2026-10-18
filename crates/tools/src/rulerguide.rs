@@ -125,7 +125,7 @@ impl GuideSnap {
     fn snap(&mut self, cx: &ToolContext, vertical: bool, v: f64, shift: bool) -> f64 {
         self.snapped.clear();
         if shift {
-            let origin = cx.doc.ruler_origin_or_zero();
+            let origin = cx.ruler_origin;
             let origin = if vertical { origin.x } else { origin.y };
             return origin + cx.unit.snap_to_ruler_tick(v - origin, cx.zoom);
         }
@@ -145,7 +145,7 @@ impl GuideSnap {
     fn overlays(&self, cx: &ToolContext, vertical: bool, at: f64, pointer: Point) -> Vec<Overlay> {
         let mut o = self.snapped.clone();
         if cx.measurement_labels {
-            let origin = cx.doc.ruler_origin_or_zero();
+            let origin = cx.ruler_origin;
             let (axis, zero) = if vertical { ("X", origin.x) } else { ("Y", origin.y) };
             o.push(Overlay::Measure { p: pointer, text: format!("{axis}: {}", cx.len(at - zero)) });
         }
@@ -310,12 +310,12 @@ impl GuideEdit {
         out
     }
 
-    /// The pointer over a guide, or while one is dragged.
+    /// The pointer over a guide, or while one is dragged, turned with the view.
     pub fn cursor(&self, cx: &ToolContext, p: Point) -> Option<Cursor> {
         if let Some(d) = &self.drag {
-            return Some(guide_cursor(d.vertical));
+            return Some(guide_cursor(d.vertical).turned(cx.view_angle()));
         }
-        guide_at(cx, p).and_then(|i| cx.doc.guides.get(i)).map(|g| guide_cursor(g.vertical))
+        guide_at(cx, p).and_then(|i| cx.doc.guides.get(i)).map(|g| guide_cursor(g.vertical).turned(cx.view_angle()))
     }
 
     /// While a guide is dragged: the smart guide it snapped to and its position by the pointer.
@@ -688,6 +688,7 @@ mod tests {
         for (unit, zoom, origin, pointer, expected, tick) in origin_tick_cases() {
             let (mut doc, _) = doc_with_rect();
             doc.ruler_origin = origin;
+            doc.rulers = vectorcraft_doc::RulerMode::Global;
             let (selection, paint) = (Selection::default(), paint());
             let c = ToolContext { unit, zoom, smart_guides: false, snap_to_point: false, ..cx(&doc, &selection, &paint) };
             for vertical in [false, true] {
@@ -713,6 +714,7 @@ mod tests {
         for (unit, zoom, origin, pointer, expected, _) in origin_tick_cases() {
             let mut doc = guides_doc();
             doc.ruler_origin = origin;
+            doc.rulers = vectorcraft_doc::RulerMode::Global;
             let paint = paint();
             for (index, vertical, from) in [(0, true, 300.0), (1, false, 400.0)] {
                 let mut selection = Selection::default();
@@ -753,6 +755,7 @@ mod tests {
         ] {
             let mut doc = guides_doc();
             doc.ruler_origin = origin;
+            doc.rulers = vectorcraft_doc::RulerMode::Global;
             let paint = paint();
             for (index, vertical, from, want) in [(0, true, 300.0, 225.0), (1, false, 400.0, 235.0)] {
                 let mut selection = Selection::default();
@@ -776,6 +779,7 @@ mod tests {
         for origin in [Point::ZERO, Point::new(17.0, 23.0), Point::new(-17.0, -23.0)] {
             let mut doc = guides_doc();
             doc.ruler_origin = origin;
+            doc.rulers = vectorcraft_doc::RulerMode::Global;
             let paint = paint();
             for (index, vertical, from) in [(0, true, 300.0), (1, false, 400.0)] {
                 let mut selection = Selection::default();
@@ -814,6 +818,7 @@ mod tests {
         ] {
             let mut doc = guides_doc();
             doc.ruler_origin = origin;
+            doc.rulers = vectorcraft_doc::RulerMode::Global;
             let paint = paint();
             for unit in [vectorcraft_doc::Unit::Points, vectorcraft_doc::Unit::Millimeters] {
                 for (index, vertical, from) in [(0, true, 300.0), (1, false, 400.0)] {
@@ -845,6 +850,41 @@ mod tests {
                     let quiet = ToolContext { measurement_labels: false, ..c };
                     assert!(new.overlays(&quiet).is_empty(), "measurement-label preference is preserved");
                 }
+            }
+        }
+    }
+
+    #[test]
+    fn ruler_guide_readouts_count_from_the_active_artboard_with_artboard_rulers() {
+        let mut doc = guides_doc();
+        doc.artboards.push(vectorcraft_doc::Artboard {
+            id: 2,
+            name: "Artboard 2".into(),
+            rect: Rect::new(150.0, 200.0, 350.0, 400.0),
+            show_center_mark: false,
+            show_cross_hairs: false,
+        });
+        doc.ruler_origin = Point::new(5.0, 5.0);
+        let (paint, selection) = (paint(), Selection::default());
+        for (rulers, active, zero) in [
+            (vectorcraft_doc::RulerMode::Artboard, 1, Point::new(150.0, 200.0)),
+            (vectorcraft_doc::RulerMode::Artboard, 0, Point::new(doc.artboards[0].rect.x0, doc.artboards[0].rect.y0)),
+            (vectorcraft_doc::RulerMode::Global, 1, Point::new(5.0, 5.0)),
+        ] {
+            doc.rulers = rulers;
+            let c =
+                ToolContext { ruler_origin: doc.ruler_origin_for(active), smart_guides: false, snap_to_point: false, ..cx(&doc, &selection, &paint) };
+            assert_eq!(c.ruler_origin, zero, "{rulers:?} {active}");
+            for vertical in [true, false] {
+                let mut new = NewGuide::new(&c, vertical, None);
+                new.pointer(&c, &ev(PointerKind::Drag, 222.0, 238.0, Mods::default()), true);
+                let want = if vertical { format!("X: {}", c.len(222.0 - zero.x)) } else { format!("Y: {}", c.len(238.0 - zero.y)) };
+                assert!(matches!(new.overlays(&c).last(), Some(Overlay::Measure { text, .. }) if text == &want), "{rulers:?} {active}: want {want}");
+                // Shift puts the guide on a ruler tick counted from the same zero point.
+                let snapped = new.pointer(&c, &ev(PointerKind::Drag, 222.0, 238.0, Mods { shift: true, ..Default::default() }), true);
+                let at = guide_preview_position(&snapped, vertical, None);
+                let from = if vertical { zero.x } else { zero.y };
+                assert_eq!(at, from + c.unit.snap_to_ruler_tick(if vertical { 222.0 } else { 238.0 } - from, c.zoom), "{rulers:?} {active}");
             }
         }
     }

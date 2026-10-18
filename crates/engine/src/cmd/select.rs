@@ -259,9 +259,16 @@ fn all_on_artboard(s: &mut Session, p: &Value) -> Result<Value> {
     let st = s.doc()?;
     let i = p.get("artboard").and_then(Value::as_u64).unwrap_or(0) as usize;
     let r = st.doc.artboards.get(i).map(|a| a.rect).ok_or_else(|| bad("select.allOnArtboard", "no such artboard"))?;
+    // Symbol instances are measured by their art.
+    let symbols = st.doc.symbol_boxes();
     let ids: Vec<NodeId> = selectable(&st.doc, st.isolation)
         .into_iter()
-        .filter(|id| st.doc.node(*id).and_then(|n| n.geometric_bounds()).is_some_and(|b| b.intersect(r).area() > 0.0 || r.contains(b.center())))
+        .filter(|id| {
+            st.doc
+                .node(*id)
+                .and_then(|n| n.geometric_bounds_with(&symbols))
+                .is_some_and(|b| b.intersect(r).area() > 0.0 || vectorcraft_doc::artboard_holds(r, b.center()))
+        })
         .collect();
     s.select(|_, sel| sel.set(ids.iter().copied()))?;
     ok()

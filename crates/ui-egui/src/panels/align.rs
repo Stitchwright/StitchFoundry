@@ -250,9 +250,12 @@ pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
 
 #[cfg(test)]
 mod tests {
+    use egui::accesskit::{Role, Toggled};
+
     use super::super::tests_appearance::{click, frame_events, text_rect};
     use super::*;
     use crate::toolbar::tests::widget_rects;
+    use crate::widgets::accessibility_tests::{role_and_state, tree};
 
     #[test]
     fn single_object_aligns_to_artboard() {
@@ -464,6 +467,20 @@ mod tests {
         app.run("select.set", json!({"ids": [front]})).unwrap();
         assert_eq!(chosen_align_to(&mut app, &ctx), [artboard], "one object");
         assert_eq!(align_to(&app), AlignTo::Selection, "the stored choice");
+    }
+
+    /// Screen readers name the align buttons, with no pressed state, and the Align To buttons, the
+    /// chosen one pressed.
+    #[test]
+    fn screen_readers_name_the_buttons_and_the_align_to_choice() {
+        let (mut app, _, _) = back_and_front();
+        let tree = tree(|ui| show(&mut app, ui));
+        for (_, label, _, _) in ALIGN.iter().chain(DISTRIBUTE.iter()) {
+            assert_eq!(role_and_state(&tree, label), (Role::Button, None), "{label}");
+        }
+        assert_eq!(role_and_state(&tree, "Align to Selection"), (Role::Button, Some(Toggled::True)));
+        assert_eq!(role_and_state(&tree, "Align to Key Object"), (Role::Button, None));
+        assert_eq!(role_and_state(&tree, "Align to Artboard"), (Role::Button, None));
     }
 
     /// #789: the Control bar's and the Properties panel's align buttons follow Align To too.

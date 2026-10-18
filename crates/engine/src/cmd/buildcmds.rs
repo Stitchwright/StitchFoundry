@@ -15,7 +15,7 @@ use std::sync::Arc;
 use serde_json::{Value, json};
 use vectorcraft_color::{Color, Paint};
 use vectorcraft_doc::appearance::{AppearanceItem, FillLayer, LineCap, LineJoin, StrokeLayer};
-use vectorcraft_doc::{Appearance, Document, LiveShape, Node, NodeId, NodeKind, Selection, TraceView};
+use vectorcraft_doc::{Appearance, Document, GapOptions, GapSize, LiveShape, Node, NodeId, NodeKind, Selection, TraceView};
 use vectorcraft_geom::{FillRule, PathData, Point, Rect, SubPath};
 use vectorcraft_pathops as po;
 use vectorcraft_tools::builder::{
@@ -89,6 +89,15 @@ pub fn specs() -> Vec<CommandSpec> {
             lp_expand
         ),
         cmd!(
+            "livePaint.gapOptions",
+            "Gap Options",
+            [],
+            None,
+            "{id?, ids?: [id…] (instead of id; default: the selected Live Paint groups), detect?: bool (Gap Detection: paint stops at gaps up to size wide), size?: \"small\" (3 pt) | \"medium\" (6 pt) | \"large\" (12 pt) | pt (custom, over 0 up to 72) (Paint Stops At), color?: #rrggbb or a layer color's name such as \"Red\" (Gap Preview Color), closeGaps?: bool (add an unpainted path across each gap up to size wide to the group's paths)} set the Gap Options of Live Paint groups (what is not given stays as it was; a group starts with detect false, small and Red) and make their faces again, keeping their paint → {ids, faces, gaps: [[x0,y0,x1,y1]…] (the gaps up to size wide that no path closes, from a loose end of a path to where it closes to; detect closes them for paint), closed (paths added)}",
+            has_selection_or_ids,
+            lp_gap_options
+        ),
+        cmd!(
             "livePaint.fill",
             "Live Paint Bucket",
             [],
@@ -111,7 +120,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Live Paint Info",
             [],
             None,
-            "{group, id?: object id (default: the selection)} → {faces: [{id, fill, bounds}], edges: [{id, stroke, width}], sources}",
+            "{group, id?: object id (default: the selection)} → {faces: [{id, fill, bounds}], edges: [{id, stroke, width}], sources, gapOptions: {detect, size: \"small\"|\"medium\"|\"large\"|pt, points, color: #rrggbb} (as livePaint.gapOptions sets them), gaps: [[x0,y0,x1,y1]…] (as livePaint.gapOptions returns them)}",
             has_doc,
             lp_info
         ),
@@ -120,7 +129,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Make",
             ["Object", "Image Trace"],
             None,
-            "{id?: image or Image Trace group (default: selection), preset?: name (imageTrace.presets), enhanced?: false (the preset's enhanced version: with Auto Grouping, and with Shapes in all but High Fidelity Photo; Flat Logo has none and is traced as it is), params?: {mode: \"blackAndWhite\"|\"grayscale\"|\"color\"|\"logo\", threshold: 0-255, palette: \"limited\"|\"fullTone\"|\"automatic\"|\"documentLibrary\" (color mode; limited: the `colors` best colours, fullTone: as many as the tones need, more with colorDetail, automatic: flat art with its own colours, else fullTone, documentLibrary: at most `colors` of the library's colours, as they are), colors: 2-256, colorDetail: 0-100 (fullTone, automatic), library: \"document\" (the document's swatches) or a swatch library id or name (swatch.library.list; documentLibrary), paths: 0-100, corners: 0-100, noise: px, method: \"abutting\"|\"overlapping\", ignoreWhite (leave out white areas), ignoreColor?: \"#rrggbb\" (with ignoreWhite: the colour left out instead of white), snapCurvesToLines, shapes: false (filled outlines that are a circle, an ellipse, a rectangle or a regular polygon come out as that live shape), autoGrouping: false (each path that has others inside it is grouped with them), gradients: false (grayscale and color: an area whose colour changes evenly along one direction is one path with a linear gradient fill), fills: true, strokes: false (Create: lines up to strokeWidth wide become stroked centre lines; without fills, wider areas become stroked outlines), strokeWidth: px (10), logoColors?: [\"#rrggbb\"…] (mode logo: flat-colour logos only; colours found automatically or named here, white is always its own colour, at most ten; noise = areas under noise/10 px ignored; edges to a fraction of a pixel, sharp corners restored, lines and circles snapped; enclosed transparent areas are painted white unless ignoreWhite makes them holes; fills/strokes are ignored; gradients and photos are refused)}, view?: as imageTrace.setView (default: the traced object's own, else tracingResult), ids?: [id…] (instead of id)} → {id, paths, anchors, colors}",
+            "{id?: image or Image Trace group (default: selection), preset?: name (imageTrace.presets), enhanced?: false (the preset's enhanced version: with Auto Grouping, and with Shapes in all but High Fidelity Photo; Flat Logo has none and is traced as it is), params?: {mode: \"blackAndWhite\"|\"grayscale\"|\"color\"|\"logo\", threshold: 0-255, palette: \"limited\"|\"fullTone\"|\"automatic\"|\"documentLibrary\" (color mode; limited: the `colors` best colours, fullTone: as many as the tones need, more with colorDetail, automatic: flat art with its own colours, else fullTone, documentLibrary: at most `colors` of the library's colours, as they are), colors: 2-256, colorDetail: 0-100 (fullTone, automatic), library: \"document\" (the document's swatches) or a swatch library id or name (swatch.library.list; documentLibrary), paths: 0-100, corners: 0-100, noise: px, method: \"abutting\"|\"overlapping\", ignoreWhite (leave out white areas), ignoreColor?: \"#rrggbb\" (with ignoreWhite: the colour left out instead of white), snapCurvesToLines, shapes: false (filled outlines that are a circle, an ellipse, a rectangle or a regular polygon come out as that live shape), autoGrouping: false (each path that has others inside it is grouped with them), gradients: false (grayscale and color: an area whose colour changes evenly along one direction is one path with a linear gradient fill), fills: true, strokes: false (Create: lines up to strokeWidth wide become stroked centre lines; without fills, wider areas become stroked outlines), strokeWidth: px (10), logoColors?: [\"#rrggbb\"…] (mode logo: flat-colour logos only; colours found automatically or named here, white is always its own colour, at most ten; noise = areas under noise/10 px ignored; edges to a fraction of a pixel, sharp corners restored, lines and circles snapped; enclosed transparent areas are painted white unless ignoreWhite makes them holes; fills/strokes are ignored; gradients and photos are refused)}, view?: as imageTrace.setView (default: the traced object's own, else tracingResult), ids?: [id…] (instead of id)} → {id, paths, anchors, colors, warnings: [text…] (the image is over 1500 px on a side, so it traces more slowly; or it was traced scaled down)}",
             has_selection_or_ids,
             |s, p| trace_make(s, p, false)
         ),
@@ -383,10 +392,11 @@ fn source_nodes(n: &Node) -> Vec<Arc<Node>> {
     if is_live_paint(n) { b::sources(n).and_then(|g| g.children().cloned()).unwrap_or_default() } else { vec![Arc::new(n.clone())] }
 }
 
-/// Planar map children (sources group, faces, edges) for `sources`.
-fn build_children(d: &mut Document, sources: Vec<Arc<Node>>) -> Result<(Vec<Arc<Node>>, usize, usize)> {
+/// The planar map's inputs from `sources` (paths and compound paths, back → front), with the
+/// fill, stroke and stroke width of each.
+fn source_shapes(sources: &[Arc<Node>]) -> (Vec<po::Shape>, Vec<(Paint, Paint, f64)>) {
     let mut lv = vec![];
-    for n in &sources {
+    for n in sources {
         b::leaf_shapes(n, &mut lv);
     }
     let mut shapes = vec![];
@@ -400,6 +410,13 @@ fn build_children(d: &mut Document, sources: Vec<Arc<Node>>) -> Result<(Vec<Arc<
             styles.push((a.fill_paint(), a.stroke_paint(), a.stroke().map(|s| s.width).unwrap_or(1.0)));
         }
     }
+    (shapes, styles)
+}
+
+/// Planar map children (sources group, faces, edges) for `sources`; with `max_gap` (Gap
+/// Detection), paint stops at the gaps up to that wide.
+fn build_children(d: &mut Document, sources: Vec<Arc<Node>>, max_gap: Option<f64>) -> Result<(Vec<Arc<Node>>, usize, usize)> {
+    let (shapes, styles) = source_shapes(&sources);
     if shapes.is_empty() {
         return Err(EngineError::Other("Live Paint: select paths or compound paths".into()));
     }
@@ -410,7 +427,13 @@ fn build_children(d: &mut Document, sources: Vec<Arc<Node>>) -> Result<(Vec<Arc<
     src_group.visible = false;
     children.push(Arc::new(src_group));
     // Every path is an edge, open ones included; faces are the areas they enclose.
-    let (regs, edges) = po::live_paint(&shapes);
+    let (regs, edges) = match max_gap {
+        Some(gap) => {
+            let (regs, edges, _) = po::live_paint_with_gaps(&shapes, gap);
+            (regs, edges)
+        }
+        None => po::live_paint(&shapes),
+    };
     if regs.is_empty() && edges.is_empty() {
         return Err(EngineError::Other("Live Paint: these paths are too degenerate to paint".into()));
     }
@@ -433,6 +456,51 @@ fn build_children(d: &mut Document, sources: Vec<Arc<Node>>) -> Result<(Vec<Arc<
     Ok((children, nfaces, nedges))
 }
 
+/// Give the faces and edges of `g`, a Live Paint group made again from the sources of `old`, the
+/// look of `old`'s face or edge where they lie: each face takes everything but the outline (its
+/// appearance, none included, its transparency and the rest) of the old face its inside point is
+/// in, and each edge that of the old edge its middle lies on. Faces and edges where `old` had none
+/// keep the paint of their sources.
+fn repaint_from(g: &mut Node, old: &Node) {
+    /// How far an edge's middle may be from the old edge it lies on.
+    const ON_EDGE: f64 = 1e-3;
+    let Some(ch) = g.children_mut() else { return };
+    for c in ch.iter_mut() {
+        let Some(pd) = c.path_data() else { continue };
+        let was = match c.name.as_deref() {
+            Some(FACE_NAME) => po::interior_point(pd).and_then(|pt| face_at(old, pt)),
+            Some(EDGE_NAME) => pd
+                .subpaths
+                .first()
+                .filter(|sp| sp.segment_count() > 0)
+                .and_then(|sp| edge_near(old, kurbo::ParamCurve::eval(&sp.segment(0), 0.5), ON_EDGE)),
+            _ => None,
+        };
+        if let Some(was) = was {
+            let mut n = (**was).clone();
+            // Gradients fitted to the old outline keep that fit on the new one.
+            n.pin_gradients();
+            n.id = c.id;
+            n.kind = c.kind.clone();
+            n.bbox_angle = c.bbox_angle;
+            *c = Arc::new(n);
+        }
+    }
+}
+
+/// `options` as stored on a Live Paint group: none for the defaults.
+fn stored_gap_options(options: GapOptions) -> Option<Box<GapOptions>> {
+    (options != GapOptions::default()).then(|| Box::new(options))
+}
+
+/// The Gap Options of Live Paint groups merged into one, given bottom-most first: the bottom-most
+/// group's when its Gap Detection is on; else Gap Detection on with Small Gaps when another
+/// group's is on; else the bottom-most group's.
+fn merged_gap_options(groups: &[GapOptions]) -> GapOptions {
+    let Some(&bottom) = groups.first() else { return GapOptions::default() };
+    if !bottom.detect && groups.iter().any(|g| g.detect) { GapOptions { detect: true, size: GapSize::Small, ..bottom } } else { bottom }
+}
+
 /// Make a Live Paint group from `roots`; returns (group, faces, edges).
 fn make_live(d: &mut Document, sel: &mut Selection, roots: &[NodeId]) -> Result<(NodeId, usize, usize)> {
     let mut sources = vec![];
@@ -440,7 +508,7 @@ fn make_live(d: &mut Document, sel: &mut Selection, roots: &[NodeId]) -> Result<
         let n = d.node(*r).ok_or(EngineError::NoNode(*r))?;
         sources.extend(source_nodes(n));
     }
-    let (children, nf, ne) = build_children(d, sources)?;
+    let (children, nf, ne) = build_children(d, sources, None)?;
     let gid = d.alloc_id();
     let mut g = Node::group(gid, children);
     g.name = Some(LIVE_PAINT_NAME.into());
@@ -484,11 +552,15 @@ fn lp_merge(s: &mut Session, p: &Value) -> Result<Value> {
                 sources.extend(source_nodes(d.node(*r).ok_or(EngineError::NoNode(*r))?));
             }
         }
-        let (children, nf, ne) = build_children(d, sources)?;
+        // Merge applies the Gap Options' merge rules to the groups' options, bottom-most first.
+        let groups: Vec<GapOptions> = roots.iter().filter_map(|r| d.node(*r)).filter(|n| is_live_paint(n)).map(Node::gap_options).collect();
+        let options = merged_gap_options(&groups);
+        let (children, nf, ne) = build_children(d, sources, options.max_gap())?;
         let mut g = Node::group(target, children);
         g.name = old.name.clone();
         g.opacity = old.opacity;
         g.blend = old.blend;
+        g.extras_mut().live_paint_gaps = stored_gap_options(options);
         for (pt, paint) in keep_faces {
             if let Some(fid) = face_at(&g, pt).map(|f| f.id)
                 && let Some(ch) = g.children_mut()
@@ -553,7 +625,11 @@ fn lp_expand(s: &mut Session, p: &Value) -> Result<Value> {
         for g in &targets {
             let n = d.node_mut(*g).ok_or(EngineError::NoNode(*g))?;
             n.name = None;
-            n.extras_mut().trace = None;
+            {
+                let mut e = n.extras_mut();
+                e.trace = None;
+                e.live_paint_gaps = None;
+            }
             if let Some(ch) = n.children_mut() {
                 ch.retain(|c| match c.name.as_deref() {
                     Some(SOURCES_NAME) => false,
@@ -567,6 +643,81 @@ fn lp_expand(s: &mut Session, p: &Value) -> Result<Value> {
         Ok(())
     })?;
     Ok(json!({ "ids": ids_json(&targets) }))
+}
+
+/// Gaps as `[x0, y0, x1, y1]` (the loose end, then where it closes to).
+fn gaps_json(gaps: &[[Point; 2]]) -> Value {
+    json!(gaps.iter().map(|[a, b]| [a.x, a.y, b.x, b.y]).collect::<Vec<_>>())
+}
+
+/// A group's Gap Options as `livePaint.info` gives them.
+fn gap_options_json(o: GapOptions) -> Value {
+    let [r, g, b] = o.color;
+    let size = o.size.id().map_or_else(|| json!(o.size.points()), |id| json!(id));
+    json!({ "detect": o.detect, "size": size, "points": o.size.points(), "color": format!("#{r:02x}{g:02x}{b:02x}") })
+}
+
+/// The gaps up to `options`' size wide among a Live Paint group's sources.
+fn open_gaps(group: &Node, options: GapOptions) -> Vec<[Point; 2]> {
+    po::find_gaps(&source_shapes(&source_nodes(group)).0, options.size.points())
+}
+
+fn lp_gap_options(s: &mut Session, p: &Value) -> Result<Value> {
+    const C: &str = "livePaint.gapOptions";
+    let detect = match p.get("detect").filter(|v| !v.is_null()) {
+        Some(v) => Some(v.as_bool().ok_or_else(|| bad(C, "detect must be true or false"))?),
+        None => None,
+    };
+    let size =
+        match p.get("size").filter(|v| !v.is_null()) {
+            Some(v) => Some(GapSize::parse(v).ok_or_else(|| {
+                bad(C, format!("size must be \"small\", \"medium\", \"large\" or a number of points over 0 up to {}", GapSize::MAX))
+            })?),
+            None => None,
+        };
+    let color = match p.get("color").filter(|v| !v.is_null()) {
+        Some(v) => Some(super::layer::layer_color_param(v).map_err(|e| bad(C, e))?.rgb()),
+        None => None,
+    };
+    let close = bool_or(p, "closeGaps", false);
+    let targets = live_targets(s, p)?;
+    let (faces, gaps, closed) = s.edit("Gap Options", |d, sel| {
+        let (mut faces, mut gaps, mut closed) = (0, vec![], 0);
+        let mut changed = Beside::replacing(d, &targets);
+        for g in &targets {
+            let old = d.node(*g).cloned().ok_or(EngineError::NoNode(*g))?;
+            let mut options = old.gap_options();
+            options.detect = detect.unwrap_or(options.detect);
+            options.size = size.unwrap_or(options.size);
+            options.color = color.unwrap_or(options.color);
+            let mut sources = source_nodes(&old);
+            if close {
+                // Close Gaps With Paths adds an unpainted line across each gap to the group's paths.
+                for gap in po::find_gaps(&source_shapes(&sources).0, options.size.points()) {
+                    let line = PathData::single(SubPath::polyline(&gap, false));
+                    sources.push(Arc::new(Node::path(d.alloc_id(), line, Appearance::default())));
+                    closed += 1;
+                }
+            }
+            let mut n = old.clone();
+            // The faces change only with what paint stops at, or with new paths.
+            if close || options.max_gap() != old.gap_options().max_gap() {
+                let (children, _, _) = build_children(d, sources, options.max_gap())?;
+                if let Some(ch) = n.children_mut() {
+                    *ch = children;
+                }
+                repaint_from(&mut n, &old);
+            }
+            n.extras_mut().live_paint_gaps = stored_gap_options(options);
+            faces += b::faces(&n).len();
+            gaps.extend(open_gaps(&n, options));
+            changed.put(d, *g, vec![n])?;
+        }
+        changed.finish(d)?;
+        sel.set(targets.iter().copied());
+        Ok((faces, gaps, closed))
+    })?;
+    Ok(json!({ "ids": ids_json(&targets), "faces": faces, "gaps": gaps_json(&gaps), "closed": closed }))
 }
 
 fn lp_fill(s: &mut Session, p: &Value) -> Result<Value> {
@@ -637,7 +788,14 @@ fn lp_info(s: &mut Session, p: &Value) -> Result<Value> {
         .map(|e| json!({ "id": e.id.0, "stroke": e.appearance.stroke_paint().label(), "width": e.appearance.stroke_width() }))
         .collect();
     let sources = b::sources(n).and_then(|g| g.children()).map(|c| c.len()).unwrap_or(0);
-    Ok(json!({ "faces": faces, "edges": edges, "sources": sources }))
+    let options = n.gap_options();
+    Ok(json!({
+        "faces": faces,
+        "edges": edges,
+        "sources": sources,
+        "gapOptions": gap_options_json(options),
+        "gaps": gaps_json(&open_gaps(n, options)),
+    }))
 }
 
 // ---------- Image Trace ----------
@@ -701,9 +859,16 @@ fn trace_library(s: &Session, params: &mut tr::TraceParams) -> Result<Vec<([u8; 
     Ok(library)
 }
 
-/// The most anchor points an Image Trace may make: a photo traced at high fidelity can make
-/// millions, more than the canvas draws smoothly or a laptop has memory for, so the trace is
-/// refused with advice instead (#525).
+/// The most anchor points an Image Trace may make, a guard for memory: a trace past it is refused
+/// with advice instead (#525). A trace keeps about 90 bytes an anchor in the document (measured on
+/// code-drawn photos of 2000 × 2000 to 6000 × 4000 pixels), so 8,000,000 anchors are about
+/// 0.7 GB, with a peak of about 1 GB while tracing: a 4000 × 3000 photo at High Fidelity Photo
+/// makes about 1.9 million, and even at Paths 100, Noise 1 and every tone about 7.9 million. On the
+/// web, where a page has at most 4 GB of memory, the limit stays at 2,000,000.
+#[cfg(not(target_arch = "wasm32"))]
+pub const MAX_TRACE_ANCHORS: usize = 8_000_000;
+/// The most anchor points an Image Trace may make on the web (see the native limit).
+#[cfg(target_arch = "wasm32")]
 pub const MAX_TRACE_ANCHORS: usize = 2_000_000;
 
 /// The live shape for a shape the tracer found (in the image's pixels), placed in the document by `xf`.
@@ -817,6 +982,7 @@ fn trace_make(s: &mut Session, p: &Value, expand: bool) -> Result<Value> {
     let raster = tr::Raster::decode_to_fit(&blob.bytes).map_err(|e| EngineError::Other(e.to_string()))?;
     let library = trace_library(s, &mut params)?;
     let res = tr::trace_within(&raster, &params, MAX_TRACE_ANCHORS).map_err(|e| EngineError::Other(e.to_string()))?;
+    let warnings = trace_warnings((img.width, img.height), (raster.width, raster.height));
     // Pixel space of the decoded raster → the image object's pixel space → document.
     let sx = img.width.max(1) as f64 / raster.width.max(1) as f64;
     let sy = img.height.max(1) as f64 / raster.height.max(1) as f64;
@@ -886,7 +1052,34 @@ fn trace_make(s: &mut Session, p: &Value, expand: bool) -> Result<Value> {
         sel.set([gid]);
         Ok(gid)
     })?;
-    Ok(json!({ "id": id.0, "paths": npaths, "anchors": anchors, "colors": colors }))
+    Ok(json!({ "id": id.0, "paths": npaths, "anchors": anchors, "colors": colors, "warnings": warnings }))
+}
+
+/// Images larger than this on a side are traced, but more slowly: the trace says so.
+pub const LARGE_TRACE_SIDE: u32 = 1500;
+
+/// What a trace of an image of `size` pixels, traced at `traced` pixels, tells the user: that a
+/// large image takes longer (the public documentation's warning for images over 1500 px), and that
+/// one over the tracer's [`tr::MAX_PIXELS`] was traced scaled down.
+pub(crate) fn trace_warnings(size: (u32, u32), traced: (u32, u32)) -> Vec<String> {
+    let mut out = vec![];
+    if size.0.max(size.1) > LARGE_TRACE_SIDE {
+        out.push(format!(
+            "The image is {} × {} pixels, more than {LARGE_TRACE_SIDE} on a side: it is traced, but more slowly. A lower-fidelity preset or a smaller copy of the image traces faster.",
+            size.0, size.1
+        ));
+    }
+    if u64::from(traced.0) * u64::from(traced.1) < u64::from(size.0) * u64::from(size.1) {
+        out.push(format!(
+            "The image was traced at {} × {} pixels, scaled down from {} × {} ({} megapixels at most).",
+            traced.0,
+            traced.1,
+            size.0,
+            size.1,
+            tr::MAX_PIXELS >> 20
+        ));
+    }
+    out
 }
 
 fn trace_targets(s: &Session, p: &Value) -> Result<Vec<NodeId>> {
@@ -954,4 +1147,22 @@ fn trace_expand(s: &mut Session, p: &Value) -> Result<Value> {
         Ok(())
     })?;
     Ok(json!({ "ids": ids_json(&targets) }))
+}
+
+#[cfg(test)]
+mod trace_limit_tests {
+    use super::{MAX_TRACE_ANCHORS, trace_warnings};
+
+    #[test]
+    fn trace_warnings_name_a_large_or_scaled_down_image() {
+        assert!(trace_warnings((1500, 1500), (1500, 1500)).is_empty());
+        assert_eq!(trace_warnings((1501, 10), (1501, 10)).len(), 1);
+        let w = trace_warnings((16000, 12000), (9459, 7094));
+        assert_eq!(w.len(), 2, "{w:?}");
+        assert!(w[0].contains("16000 × 12000") && w[1].contains("9459 × 7094") && w[1].contains("64 megapixels"), "{w:?}");
+    }
+
+    // A 4000 × 3000 photo at High Fidelity Photo makes about 1.9 million anchors, which must fit;
+    // the limit still guards memory (about 90 bytes an anchor). Checked when the tests build.
+    const _: () = assert!(MAX_TRACE_ANCHORS >= 2_000_000 && MAX_TRACE_ANCHORS <= 16_000_000);
 }

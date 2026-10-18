@@ -253,6 +253,8 @@ impl Headless {
         let scale = p.get("scale").and_then(Value::as_f64).unwrap_or(1.0).clamp(0.01, 16.0);
         vectorcraft_render::raster_size(r, scale)?;
         let img = self.renderer.render_region(&doc, r, scale, true);
+        // A cancelled render stops drawing: the picture is not whole and is not written.
+        vectorcraft_engine::cancel::check().map_err(|e| e.to_string())?;
         let png = img.to_png()?;
         let mut out = json!({"width": img.width, "height": img.height});
         match s(p, "path") {

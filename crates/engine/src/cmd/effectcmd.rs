@@ -59,7 +59,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Expand Appearance",
             ["Object"],
             None,
-            "{ids?|id?: [..], target?} turn each object's appearance into objects: every fill and stroke becomes an object of its own (strokes outlined, brushed strokes their brush art) grouped in paint order under the object's id and transparency, geometry effects are baked, raster effects become an embedded image (shadows and outer glows below the art; blur, feather and inner glow replace it), type with effects or fills of its own is outlined; Crop Marks become a group of the object and its marks; a group's or layer's own fills and strokes become objects among its members, which are expanded too. Hidden fills, strokes and effects are dropped. Enabled when a selected or targeted object's appearance isn't basic (`ids` then pick which objects) → {ids}",
+            "{ids?|id?: [..], target?} turn each object's appearance into objects: every fill and stroke becomes an object of its own (strokes outlined, brushed strokes their brush art) grouped in paint order under the object's id and transparency, geometry effects are baked, raster effects become an embedded image (shadows and outer glows below the art; blur, feather and inner glow replace it; an object whose only raster effect is its own Rasterize becomes the image object.rasterize makes with the effect's options), type with effects or fills of its own is outlined; Crop Marks become a group of the object and its marks; a group's or layer's own fills and strokes become objects among its members, which are expanded too. Hidden fills, strokes and effects are dropped. Enabled when a selected or targeted object's appearance isn't basic (`ids` then pick which objects) → {ids, warning? (an image in the art couldn't be decoded, as object.rasterize says)}",
             can_expand,
             expand_appearance
         ),
@@ -138,6 +138,7 @@ pub(crate) fn apply(s: &mut Session, p: &Value) -> Result<Value> {
     if !params.is_null() && !params.is_object() {
         return Err(bad(C, "`params` must be an object"));
     }
+    super::params::check_effect_color(C, id, &params)?;
     // Crop Marks take their style from the preferences when applied.
     if id == effects::CROP_MARKS && params.get("style").is_none() {
         params["style"] = json!(s.crop_mark_style().id());
@@ -313,7 +314,11 @@ fn set_params(s: &mut Session, p: &Value) -> Result<Value> {
         .transpose()?;
     let visible = p.get("visible").and_then(Value::as_bool);
     let item = item_target(s, p, C)?;
-    if set_params_effects(s, p).iter().any(|e| e == GLASS) {
+    let edited = set_params_effects(s, p);
+    for effect in &edited {
+        super::params::check_effect_color(C, effect, &params)?;
+    }
+    if edited.iter().any(|e| e == GLASS) {
         load_texture(&mut params, C)?;
     }
     for id in appearance_targets(s, p)? {
@@ -421,9 +426,10 @@ fn is_container(n: &Node) -> bool {
 }
 
 /// The raster effects of `n` (its own, its fills' and strokes') as an embedded image rendered at
-/// the document's raster effects resolution, with whether they all paint below it (shadows and
-/// outer glows: the image then holds just them). A group's or layer's image leaves out its
-/// members' raster effects, which are expanded with them. `None` when it has none.
+/// the document's raster effects resolution or a Rasterize effect's finer one, with whether they
+/// all paint below it (shadows and outer glows: the image then holds just them). A group's or
+/// layer's image leaves out its members' raster effects, which are expanded with them. `None`
+/// when it has none.
 fn raster_image(d: &mut Document, n: &Node) -> Option<(Node, bool)> {
     let fx = rasterfx::raster_fx(n);
     if fx.is_empty() {
@@ -504,10 +510,11 @@ pub(crate) fn expand_node(d: &mut Document, id: NodeId, brushes: &[vectorcraft_b
                     expand_pieces(d, &mut m, false, &mut stroke_art);
                     m
                 })
-            } else if matches!(n.kind, NodeKind::Path { .. } | NodeKind::Compound { .. }) {
+            } else if matches!(n.kind, NodeKind::Path { .. } | NodeKind::Compound { .. }) && !effects::has_gradient_copies(&v) {
                 effects::expand_leaf(d, &v, &mut stroke_art)
             } else {
-                // Type, images, symbol instances, live objects: through their outlines.
+                // Type, images, symbol instances, live objects (and paths whose Transform effect copies
+                // them with a gradient): through their outlines.
                 let symbol = match &n.kind {
                     NodeKind::SymbolInstance { symbol, .. } => d.symbols.iter().find(|s| s.name == *symbol).map(|s| s.art.clone()),
                     _ => None,
@@ -545,6 +552,7 @@ pub(crate) fn expand_node(d: &mut Document, id: NodeId, brushes: &[vectorcraft_b
 
 fn expand_appearance(s: &mut Session, p: &Value) -> Result<Value> {
     let roots = appearance_targets(s, p)?;
+    let failed = vectorcraft_render::decode_failures();
     let ids = s.edit("Expand Appearance", |d, _| {
         let brushes = vectorcraft_brush::library(d);
         let mut out = vec![];
@@ -556,7 +564,12 @@ fn expand_appearance(s: &mut Session, p: &Value) -> Result<Value> {
         }
         Ok(out)
     })?;
-    Ok(json!({ "ids": ids_json(&ids) }))
+    let mut out = json!({ "ids": ids_json(&ids) });
+    // Raster effects become images rendered from the art.
+    if let Some(w) = rasterfx::undecoded_warning(failed) {
+        out["warning"] = json!(w);
+    }
+    Ok(out)
 }
 
 #[cfg(test)]
@@ -994,5 +1007,28 @@ mod tests {
         let ch = n.children().unwrap();
         assert_eq!(ch.len(), 1);
         assert!((ch[0].geometric_bounds().unwrap().width() - 50.0).abs() < 1e-6);
+    }
+    #[test]
+    fn expand_appearance_gives_each_copy_of_a_transform_its_own_gradient() {
+        use vectorcraft_color::{Color, Gradient, GradientKind, GradientPaint, GradientStop, Paint};
+        let (mut s, id) = session_with_rect();
+        let stops = vec![GradientStop::new(0.0, Color::rgb(1.0, 0.0, 0.0)), GradientStop::new(1.0, Color::rgb(0.0, 0.0, 1.0))];
+        let ramp = Paint::Gradient(Box::new(GradientPaint::new(Gradient { kind: GradientKind::Linear, stops })));
+        s.edit("gradient", |d, _| {
+            let n = d.node_mut(id).unwrap();
+            n.appearance.set_fill(ramp);
+            Ok(())
+        })
+        .unwrap();
+        s.execute("effect.apply", &json!({"effect":"distort.transform","ids":[id.0],"item":null})).unwrap();
+        s.execute("effect.setParams", &json!({"index":0,"params":{"moveH":150,"copies":2},"ids":[id.0],"item":null})).unwrap();
+        s.execute("effect.expandAppearance", &json!({"ids":[id.0]})).unwrap();
+        let mut boxes = vec![];
+        node(&s, id).walk(&mut |n| {
+            if matches!(n.kind, NodeKind::Path { .. }) && matches!(n.appearance.fill_paint(), Paint::Gradient(_)) {
+                boxes.push(n.geometric_bounds().unwrap().width());
+            }
+        });
+        assert_eq!(boxes, vec![100.0; 3], "three squares, each with its own gradient");
     }
 }

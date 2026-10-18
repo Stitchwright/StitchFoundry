@@ -32,6 +32,11 @@ pub struct CharStyle {
     /// wouldn't pick (an imported file's type matched to it); None = the one they pick.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub font_version: Option<String>,
+    /// Variation axis settings of a variable font (Character panel › Variable Font), by axis tag
+    /// (`wght`, `wdth`), in the axis's own units. They replace the named instance's setting of
+    /// each axis they name; the other axes keep the style's settings. Empty: the style as it is.
+    #[serde(default, rename = "fontAxes", skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub font_axes: std::collections::BTreeMap<String, f64>,
     /// Size in points.
     pub size: f64,
     /// Leading in points; None = Auto (120% of size).
@@ -174,6 +179,18 @@ pub struct ScriptMetrics {
 
 impl ScriptMetrics {
     pub const DEFAULT: Self = Self { size: 58.3, position: 33.3 };
+    /// Returns these proportions with the size kept to 1 to 500% and the position kept to -500 to
+    /// 500%, the ranges `document.setup` takes for `superscript` and `subscript`. A value outside
+    /// its range becomes the nearer end.
+    pub fn in_range(self) -> Self {
+        Self { size: self.size.clamp(1.0, 500.0), position: self.position.clamp(-500.0, 500.0) }
+    }
+}
+
+/// Returns a small caps size kept to 1 to 200%, the range `document.setup` takes for
+/// `smallCapsSize`. A size outside it becomes the nearer end.
+fn small_caps_in_range(size: f64) -> f64 {
+    size.clamp(1.0, 200.0)
 }
 
 impl Default for ScriptMetrics {
@@ -210,6 +227,14 @@ impl CharPosition {
             CharPosition::Subscript(_) => "subscript",
         }
     }
+    /// Returns this position with its proportions kept by [`ScriptMetrics::in_range`].
+    pub fn in_range(self) -> Self {
+        match self {
+            CharPosition::Normal => CharPosition::Normal,
+            CharPosition::Superscript(m) => CharPosition::Superscript(m.in_range()),
+            CharPosition::Subscript(m) => CharPosition::Subscript(m.in_range()),
+        }
+    }
 }
 
 fn ten() -> f64 {
@@ -231,6 +256,7 @@ impl Default for CharStyle {
             font_family: "Source Sans 3".into(),
             font_style: "Regular".into(),
             font_version: None,
+            font_axes: std::collections::BTreeMap::new(),
             size: 12.0,
             leading: None,
             tracking: 0.0,
@@ -266,6 +292,20 @@ impl Default for CharStyle {
 impl CharStyle {
     pub fn effective_leading(&self) -> f64 {
         self.leading.unwrap_or(self.size * 1.2)
+    }
+    /// Keeps the size, leading, baseline shift and horizontal and vertical scales in range: a size
+    /// or scale of 0 or less becomes the default new type takes (12 pt, 100%), a negative leading
+    /// becomes Auto, and a value past [`crate::MAX_COORD`] (a baseline shift past it either way)
+    /// becomes the nearer end. A leading of 0, which legacy `.ai` import stores, stays, and a
+    /// baseline shift that is not a number becomes 0.
+    pub fn keep_dimensions_in_range(&mut self) {
+        let default = Self::default();
+        let within = |v: f64, or: f64| if v > 0.0 { v.min(crate::MAX_COORD) } else { or };
+        self.size = within(self.size, default.size);
+        self.h_scale = within(self.h_scale, default.h_scale);
+        self.v_scale = within(self.v_scale, default.v_scale);
+        self.leading = self.leading.filter(|l| *l >= 0.0).map(|l| l.min(crate::MAX_COORD));
+        self.baseline_shift = if self.baseline_shift.is_nan() { 0.0 } else { self.baseline_shift.clamp(-crate::MAX_COORD, crate::MAX_COORD) };
     }
     /// Do the characters draw a stroke (a paint and a positive weight)?
     pub fn has_stroke(&self) -> bool {
@@ -326,6 +366,60 @@ impl CharStyle {
     /// no paint): the appearance the Eyedropper and graphic styles take from type.
     pub fn basic_appearance(&self) -> Appearance {
         Appearance { items: vec![AppearanceItem::Fill(self.fill_layer()), AppearanceItem::Stroke(self.stroke_layer())], ..Default::default() }
+    }
+    /// Keeps the superscript or subscript proportions in range with [`CharPosition::in_range`] and
+    /// keeps the small caps size to 1 to 200%, the range `document.setup` takes for `smallCapsSize`.
+    pub fn keep_scripts_in_range(&mut self) {
+        self.position = self.position.in_range();
+        self.small_caps = self.small_caps.map(small_caps_in_range);
+    }
+}
+
+impl crate::Document {
+    /// Keeps the superscript, subscript and small caps proportions to the ranges `document.setup`
+    /// takes ([`CharStyle::keep_scripts_in_range`]) in the type of the layers, symbols, graph
+    /// designs, pattern swatches and the pattern definition that pattern editing's Cancel puts
+    /// back (opacity-mask art included), in graphs' label styles and in the character styles. It
+    /// recurses through the art: call it on a document no deeper than [`crate::depth::MAX_DEPTH`].
+    pub fn keep_scripts_in_range(&mut self) {
+        let mut fix = |n: &mut crate::Node| {
+            if let crate::NodeKind::Text(t) = &mut n.kind {
+                for r in &mut t.runs {
+                    r.style.keep_scripts_in_range();
+                }
+            }
+            if let Some(g) = n.extras_if_any().and_then(|e| e.graph.as_deref_mut()) {
+                let l = &mut g.label_styles;
+                for st in [&mut l.values, &mut l.categories, &mut l.legend].into_iter().flatten() {
+                    st.keep_scripts_in_range();
+                }
+            }
+        };
+        let roots = self
+            .layers
+            .iter_mut()
+            .chain(self.symbols.iter_mut().map(|s| &mut s.art))
+            .chain(self.graph_designs.iter_mut().map(|g| &mut g.art))
+            .chain(self.patterns.iter_mut().flat_map(|p| p.art.iter_mut()))
+            .chain(self.pattern_edit.iter_mut().filter_map(|pe| pe.original.as_mut()).flat_map(|p| p.art.iter_mut()));
+        for root in roots {
+            crate::placed_document::each_mut(std::sync::Arc::make_mut(root), &mut fix);
+        }
+        // Character styles store the attributes they set by their serialized names.
+        for def in self.char_styles.iter_mut() {
+            if let Some(v) = def.attrs.get_mut("position")
+                && let Ok(p) = serde_json::from_value::<CharPosition>(v.clone())
+                && p.in_range() != p
+            {
+                *v = serde_json::to_value(p.in_range()).unwrap_or(serde_json::Value::Null);
+            }
+            if let Some(v) = def.attrs.get_mut("small_caps")
+                && let Some(size) = v.as_f64()
+                && small_caps_in_range(size) != size
+            {
+                *v = small_caps_in_range(size).into();
+            }
+        }
     }
 }
 
@@ -452,6 +546,26 @@ pub struct ParaStyle {
     /// Kinsoku (Paragraph panel › Kinsoku Set): which Japanese characters may not start or end a
     /// line.
     pub kinsoku: Kinsoku,
+    /// Roman Hanging Punctuation (Paragraph panel menu): quotation marks, hyphens, full stops and
+    /// commas starting or ending a line hang outside the margin, and asterisks, tildes, ellipses,
+    /// dashes, colons and semicolons hang by half. East Asian punctuation hangs by burasagari.
+    pub roman_hanging: bool,
+}
+
+impl ParaStyle {
+    /// Keeps the indents and the space before and after to -[`crate::MAX_COORD`] to
+    /// [`crate::MAX_COORD`], and the tab stop positions to 0 to 100,000 pt, the range
+    /// `text.tabs.set` takes. A value outside its range becomes the nearer end, and one that is
+    /// not a number becomes 0.
+    pub fn keep_spacing_in_range(&mut self) {
+        let within = |v: f64, lo: f64, hi: f64| if v.is_nan() { 0.0 } else { v.clamp(lo, hi) };
+        for v in [&mut self.left_indent, &mut self.right_indent, &mut self.first_line_indent, &mut self.space_before, &mut self.space_after] {
+            *v = within(*v, -crate::MAX_COORD, crate::MAX_COORD);
+        }
+        for t in &mut self.tabs {
+            t.position = within(t.position, 0.0, 100_000.0);
+        }
+    }
 }
 
 /// [`ParaStyle`] as saved. [`Justify::Auto`] is written as the alignment it has in the paragraph
@@ -493,6 +607,8 @@ struct ParaStyleFile {
     burasagari: Burasagari,
     #[serde(default, skip_serializing_if = "crate::skip::is_default")]
     kinsoku: Kinsoku,
+    #[serde(default, skip_serializing_if = "crate::skip::is_default")]
+    roman_hanging: bool,
 }
 
 impl From<ParaStyle> for ParaStyleFile {
@@ -519,6 +635,7 @@ impl From<ParaStyle> for ParaStyleFile {
             leading_model,
             burasagari,
             kinsoku,
+            roman_hanging,
             ..
         } = p;
         Self {
@@ -539,6 +656,7 @@ impl From<ParaStyle> for ParaStyleFile {
             leading_model,
             burasagari,
             kinsoku,
+            roman_hanging,
         }
     }
 }
@@ -562,6 +680,7 @@ impl From<ParaStyleFile> for ParaStyle {
             leading_model,
             burasagari,
             kinsoku,
+            roman_hanging,
             ..
         } = f;
         Self {
@@ -581,6 +700,7 @@ impl From<ParaStyleFile> for ParaStyle {
             leading_model,
             burasagari,
             kinsoku,
+            roman_hanging,
         }
     }
 }
@@ -1067,6 +1187,12 @@ pub struct TextObject {
     /// Wrap objects above this area type, resolved by the engine after each edit (text space).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub wrap: Vec<WrapShape>,
+    /// Type › Optical Margin Alignment: in every paragraph, Latin punctuation and the slanted
+    /// sides of letters such as A and W at a line's start or end hang outside the margin there
+    /// (point and area type of left-to-right paragraphs; see the layout's `optical_hangs`). Off
+    /// for new type and for documents from before it, and saved only when on.
+    #[serde(default, rename = "opticalMarginAlignment", skip_serializing_if = "crate::skip::is_default")]
+    pub optical_margin: bool,
     /// Cached layout bounds in text space, filled in by the layout engine (not serialized).
     #[serde(skip)]
     pub cached_bounds: Option<Rect>,
@@ -1132,6 +1258,7 @@ impl TextObject {
             path_align: PathAlign::default(),
             path_spacing: 0.0,
             wrap: Vec::new(),
+            optical_margin: false,
             cached_bounds: None,
             cached_baselines: Vec::new(),
         }
@@ -1347,6 +1474,87 @@ impl TextObject {
             if self.vertical { (Point::new(0.0, b.y0), Point::new(0.0, b.y1)) } else { (Point::new(b.x0, 0.0), Point::new(b.x1, 0.0)) }
         });
         self.cached_baselines.iter().copied().chain(first)
+    }
+    /// Keeps every run's size, leading, baseline shift and scales in range
+    /// ([`CharStyle::keep_dimensions_in_range`]) and every paragraph's indents, spacing and tab
+    /// stops ([`ParaStyle::keep_spacing_in_range`]).
+    pub fn keep_type_values_in_range(&mut self) {
+        for r in &mut self.runs {
+            r.style.keep_dimensions_in_range();
+        }
+        for p in self.para_styles_mut() {
+            p.keep_spacing_in_range();
+        }
+    }
+}
+
+impl crate::Document {
+    /// Keeps the character dimensions, indents, paragraph spacing and tab stops in range
+    /// ([`TextObject::keep_type_values_in_range`]) in the type of the layers, symbols, graph
+    /// designs, pattern swatches and the pattern definition that pattern editing's Cancel puts
+    /// back (opacity-mask art included), and the same attributes of the character and paragraph
+    /// styles. It recurses through the art: call it on a document no deeper than
+    /// [`crate::depth::MAX_DEPTH`].
+    pub fn keep_type_values_in_range(&mut self) {
+        let mut fix = |n: &mut crate::Node| {
+            if let crate::NodeKind::Text(t) = &mut n.kind {
+                t.keep_type_values_in_range();
+            }
+        };
+        let roots = self
+            .layers
+            .iter_mut()
+            .chain(self.symbols.iter_mut().map(|s| &mut s.art))
+            .chain(self.graph_designs.iter_mut().map(|g| &mut g.art))
+            .chain(self.patterns.iter_mut().flat_map(|p| p.art.iter_mut()))
+            .chain(self.pattern_edit.iter_mut().filter_map(|pe| pe.original.as_mut()).flat_map(|p| p.art.iter_mut()));
+        for root in roots {
+            crate::placed_document::each_mut(std::sync::Arc::make_mut(root), &mut fix);
+        }
+        // Styles store the attributes they set by their serialized names (a number, or null for
+        // Auto leading); a number is rewritten only when it changes.
+        for def in self.char_styles.iter_mut() {
+            let num = |k: &str| def.attrs.get(k).and_then(serde_json::Value::as_f64);
+            let mut st = CharStyle { leading: num("leading"), ..CharStyle::default() };
+            st.size = num("size").unwrap_or(st.size);
+            st.h_scale = num("h_scale").unwrap_or(st.h_scale);
+            st.v_scale = num("v_scale").unwrap_or(st.v_scale);
+            st.baseline_shift = num("baseline_shift").unwrap_or(st.baseline_shift);
+            st.keep_dimensions_in_range();
+            let kept = [
+                ("size", Some(st.size)),
+                ("h_scale", Some(st.h_scale)),
+                ("v_scale", Some(st.v_scale)),
+                ("baseline_shift", Some(st.baseline_shift)),
+                ("leading", st.leading),
+            ];
+            for (k, v) in kept {
+                if let Some(old) = def.attrs.get_mut(k)
+                    && old.is_number()
+                    && old.as_f64() != v
+                {
+                    *old = v.into();
+                }
+            }
+        }
+        for def in self.para_styles.iter_mut() {
+            for k in ["left_indent", "right_indent", "first_line_indent", "space_before", "space_after"] {
+                if let Some(v) = def.attrs.get_mut(k)
+                    && let Some(x) = v.as_f64()
+                    && x.abs() > crate::MAX_COORD
+                {
+                    *v = x.clamp(-crate::MAX_COORD, crate::MAX_COORD).into();
+                }
+            }
+            for t in def.attrs.get_mut("tabs").and_then(serde_json::Value::as_array_mut).into_iter().flatten() {
+                if let Some(v) = t.get_mut("position")
+                    && let Some(x) = v.as_f64()
+                    && !(0.0..=100_000.0).contains(&x)
+                {
+                    *v = x.clamp(0.0, 100_000.0).into();
+                }
+            }
+        }
     }
 }
 

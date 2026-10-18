@@ -212,3 +212,29 @@ fn plugin_management_commands() {
     assert_eq!(run(&mut s, "plugin.list", json!({}))["folder"]["loaded"], json!(["test.engine.folder"]));
     std::fs::remove_dir_all(&dir).ok();
 }
+
+/// #2541: a plug-in installed in a session with a plug-in store is installed again in the next
+/// session that attaches the store, and Remove Plug-in takes it out of the store.
+#[test]
+fn installed_plugins_are_kept_in_the_store() {
+    let folder = crate::tests_links::Folder::new("plugin-store");
+    let id = "test.engine.stored";
+    let src = tpl::returning(&tpl::manifest(id, "filter", "{}"), r#"{"objects":[]}"#);
+    let mut s = session();
+    s.attach_plugin_store(folder.0.clone());
+    install_wat(&mut s, &src);
+    assert_eq!(std::fs::read_dir(&folder.0).unwrap().count(), 1, "one file in the store");
+    vectorcraft_plugins::registry::remove(id);
+
+    let mut next = session();
+    next.attach_plugin_store(folder.0.clone());
+    assert!(vectorcraft_plugins::registry::get(id).is_some(), "installed again from the store");
+    run(&mut next, "plugin.remove", json!({"id": id}));
+    assert_eq!(std::fs::read_dir(&folder.0).unwrap().count(), 0, "removed from the store");
+
+    // A file that isn't a plug-in is skipped; the store still attaches.
+    std::fs::write(folder.0.join("broken.wasm"), b"\0asm?").unwrap();
+    let mut third = session();
+    third.attach_plugin_store(folder.0.clone());
+    assert!(vectorcraft_plugins::registry::get(id).is_none());
+}

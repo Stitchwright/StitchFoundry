@@ -100,6 +100,7 @@ pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::widgets::accessibility_tests::{named, tree};
     use vectorcraft_engine::doc::{NodeId, NodeKind};
 
     /// #1635: a stroked object expanded inside a group leaves a group holding one group (its fill
@@ -124,5 +125,21 @@ mod tests {
         assert!(matches!(united.kind, NodeKind::Path { .. }), "one path, the stroke's inner edge gone: {:?}", united.kind);
         let b = united.geometric_bounds().unwrap();
         assert_eq!((b.x0, b.y0, b.x1, b.y1), (5.0, 5.0, 65.0, 65.0), "the stroke's outer edge");
+    }
+
+    /// Screen readers name each Shape Mode and Pathfinder button, enabled for two selected objects.
+    #[test]
+    fn screen_readers_name_the_buttons() {
+        let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), Default::default());
+        app.run("file.new", json!({"width": 200, "height": 200})).unwrap();
+        let a = app.run("shape.rectangle", json!({"x": 10, "y": 10, "width": 50, "height": 50})).unwrap()["id"].clone();
+        let b = app.run("shape.rectangle", json!({"x": 40, "y": 40, "width": 50, "height": 50})).unwrap()["id"].clone();
+        app.run("select.set", json!({"ids": [a, b]})).unwrap();
+        let tree = tree(|ui| show(&mut app, ui));
+        for (_, label, _) in SHAPE_MODES.into_iter().chain(PATHFINDERS) {
+            let node = named(&tree, label);
+            assert_eq!(node.role(), egui::accesskit::Role::Button, "{label}");
+            assert!(!node.is_disabled(), "{label}");
+        }
     }
 }

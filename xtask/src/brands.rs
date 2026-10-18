@@ -6,6 +6,7 @@
 //!   MCP tool definitions…). Comments and test code (`tests*.rs`, `*_tests.rs`, `tests/` and
 //!   `benches/` folders, items under `#[cfg(test)]`) are skipped;
 //! * the `description` of every `Cargo.toml`;
+//! * the cursor manifest `crates/tools/src/cursors.toml` (designers read it);
 //! * every text file under `packaging/`, and under `docs/` except Markdown pages: Markdown docs
 //!   (like `README.md` and `ROADMAP.md`) may name the reference app and compare against it.
 //!
@@ -41,6 +42,9 @@ const ALLOW: &str = "brand-ok";
 
 /// This file lists the names it rejects.
 const SELF: &str = "xtask/src/brands.rs";
+
+/// The cursor manifest, which designers read.
+const CURSOR_MANIFEST: &str = "crates/tools/src/cursors.toml";
 
 /// A denied name found in a file.
 #[derive(Debug, PartialEq)]
@@ -93,7 +97,7 @@ enum Kind {
 }
 
 fn kind_of(path: &str) -> Option<Kind> {
-    if (path.starts_with("docs/") && !path.ends_with(".md")) || path.starts_with("packaging/") {
+    if (path.starts_with("docs/") && !path.ends_with(".md")) || path.starts_with("packaging/") || path == CURSOR_MANIFEST {
         Some(Kind::Text)
     } else if path == "Cargo.toml" || path.ends_with("/Cargo.toml") {
         Some(Kind::Manifest)
@@ -355,6 +359,7 @@ line Pantone"; }
         assert_eq!(kind_of("crates/ui-egui/Cargo.toml"), Some(Kind::Manifest));
         assert_eq!(kind_of("docs/brand/LICENSE-brand.txt"), Some(Kind::Text));
         assert_eq!(kind_of("packaging/linux/nfpm.yaml"), Some(Kind::Text));
+        assert_eq!(kind_of(CURSOR_MANIFEST), Some(Kind::Text));
         for skipped in ["README.md", "ROADMAP.md", "CLAUDE.md", "AGENTS.md", ".github/workflows/release.yml", "ASSETS.md", "docs/mcp.md"] {
             assert_eq!(kind_of(skipped), None, "{skipped}");
         }

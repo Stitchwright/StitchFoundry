@@ -516,6 +516,21 @@ fn type_is_written_as_text_objects() {
     assert!(!out.warnings.iter().any(|w| w == TYPE), "{:?}", out.warnings);
 }
 
+/// A legacy `.ai` text object names a font, not a setting of its variation axes: type with
+/// Variable Font settings is written in the font's style, with the warning that they are left out.
+#[test]
+fn variable_font_settings_are_warned_as_left_out() {
+    let mut doc = typed();
+    assert!(!write(&doc).warnings.iter().any(|w| w == TYPE_ATTRIBUTES));
+    let id = texts(&doc)[0].0.id;
+    if let Some(NodeKind::Text(t)) = doc.node_mut(id).map(|n| &mut n.kind) {
+        t.runs[0].style.font_axes.insert("wght".into(), 650.0);
+    }
+    let out = write(&doc);
+    assert!(out.warnings.iter().any(|w| w == TYPE_ATTRIBUTES), "{:?}", out.warnings);
+    assert!(String::from_utf8(out.bytes).unwrap().contains("(H\\351llo \\2005\\r) Tx\n"), "still written as text");
+}
+
 #[test]
 fn type_reads_back_as_text() {
     use vectorcraft_doc::{Justify, TextKind};
@@ -626,4 +641,27 @@ fn hidden_objects_can_be_left_out_or_shown() {
     let pair = children(&children(&doc.layers[0])[0]);
     assert_eq!(pair.len(), 2);
     assert!(pair.iter().all(|n| n.visible));
+}
+
+#[test]
+fn layer_names_outside_latin_1_are_replaced_and_warned() {
+    let layered = |name: &str| {
+        let mut doc = Document::new(100.0, 100.0);
+        doc.layers.clear();
+        let layer = doc.add_layer(Some(name));
+        let n = shape(&mut doc, shapes::rectangle(Rect::new(10.0, 10.0, 40.0, 40.0)), red(), Paint::None);
+        doc.insert(Some(layer), usize::MAX, n).unwrap();
+        // A hidden object, so the layer also gets a hidden layer named after it.
+        let mut hidden = shape(&mut doc, shapes::rectangle(Rect::new(50.0, 10.0, 80.0, 40.0)), red(), Paint::None);
+        hidden.visible = false;
+        doc.insert(Some(layer), usize::MAX, hidden).unwrap();
+        write(&doc)
+    };
+    let out = layered("\u{b808}\u{c774}\u{c5b4} 1 Caf\u{e9}");
+    let text = String::from_utf8_lossy(&out.bytes);
+    assert!(text.contains("(??? 1 Caf\\351) Ln"), "{text}");
+    assert!(text.contains("(??? 1 Caf\\351 \\(hidden\\)) Ln"), "{text}");
+    assert!(out.warnings.iter().any(|w| w == LAYER_NAME), "{:?}", out.warnings);
+    // A name Latin-1 can hold is written as it is, with no warning.
+    assert!(!layered("Caf\u{e9}").warnings.iter().any(|w| w == LAYER_NAME));
 }

@@ -13,7 +13,9 @@
 //! command with its default. So are the `params` of an effect (#1592): `effect.apply` and
 //! `effect.setParams` answer a key the effect doesn't take, or a value of another type than its
 //! default, with a parameter error ([`check_effect_params`]). [`Session::execute`] itself takes
-//! what it is given, so the journal of an older version still replays.
+//! what it is given, so the journal of an older version still replays, except for an effect's
+//! `color` that the effect can't read, which `effect.apply` and `effect.setParams` refuse
+//! themselves ([`check_effect_color`]).
 
 use serde_json::Value;
 
@@ -212,8 +214,9 @@ fn unknown(id: &str, key: &str, keys: &[&str]) -> crate::EngineError {
 
 /// `params` of built-in effect `effect`, as command `id` was given them (#1592): only keys the
 /// effect takes (those of its dialog defaults and of its params description), each of its
-/// default's type. Numbers out of range pass: the effect clamps them when it draws. An effect
-/// plug-in resolves its own against its manifest, and an unknown effect is the command's to report.
+/// default's type, and a `color` the effect can draw ([`check_effect_color`]). Numbers out of
+/// range pass: the effect clamps them when it draws. An effect plug-in resolves its own against
+/// its manifest, and an unknown effect is the command's to report.
 pub fn check_effect_params(id: &str, effect: &str, params: &Value) -> Result<()> {
     let Value::Object(given) = params else { return Ok(()) };
     if effect.starts_with(vectorcraft_plugins::effect::PREFIX) {
@@ -239,6 +242,40 @@ pub fn check_effect_params(id: &str, effect: &str, params: &Value) -> Result<()>
             Some(Value::String(_)) if v.is_number() || v.is_boolean() => return Err(bad(id, format!("`{key}` must be a string"))),
             _ => {}
         }
+    }
+    check_effect_color(id, effect, params)
+}
+
+/// Can an effect read `v` as its `color`: a string [`Color::from_hex`] reads (`#rrggbb`, `#rgb`,
+/// `#rrggbbaa`, black, white, red, green, blue), `[r, g, b]` whose first three entries are numbers
+/// (read on a 0..1 scale) or a color object (`{"model": "rgb", "r": …}`)? The effect draws its
+/// default color for any other value, except that an array of three or more entries draws an
+/// entry that isn't a number as 0.
+///
+/// [`Color::from_hex`]: vectorcraft_color::Color::from_hex
+fn is_effect_color(v: &Value) -> bool {
+    match v {
+        Value::String(s) => vectorcraft_color::Color::from_hex(s).is_some(),
+        Value::Array(a) => a.len() >= 3 && a.iter().take(3).all(Value::is_number),
+        Value::Object(_) => serde_json::from_value::<vectorcraft_color::Color>(v.clone()).is_ok(),
+        _ => false,
+    }
+}
+
+/// The `color` in `params` of built-in effect `effect`, when the effect has a `color` parameter,
+/// as command `id` was given it: a parameter error naming it unless the effect can read it
+/// ([`is_effect_color`]). `effect.apply` and `effect.setParams` run this themselves before they
+/// edit, so the app's own edits, the steps of a `command.batch` and a replayed journal are held to
+/// it too.
+pub(crate) fn check_effect_color(id: &str, effect: &str, params: &Value) -> Result<()> {
+    let key = "color";
+    let Some(v) = params.get(key) else { return Ok(()) };
+    if effect.starts_with(vectorcraft_plugins::effect::PREFIX) {
+        return Ok(());
+    }
+    let takes_color = vectorcraft_render::effects::effect_info(effect).is_some_and(|info| info.defaults.get(key).is_some_and(Value::is_string));
+    if takes_color && !is_effect_color(v) {
+        return Err(bad(id, format!("`{key}` must be a #rrggbb color")));
     }
     Ok(())
 }

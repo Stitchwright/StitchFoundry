@@ -338,8 +338,9 @@ fn template_opens_as_untitled() {
     let dir = std::env::temp_dir().join(format!("vc-tpl-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let path = dir.join("letterhead.vectorcraft");
-    s.execute("file.saveAsTemplate", &json!({"path": path.to_str().unwrap()})).unwrap();
-    s.execute("document.open", &json!({"path": path.to_str().unwrap()})).unwrap();
+    let r = s.execute("file.saveAsTemplate", &json!({"path": path.to_str().unwrap()})).unwrap();
+    assert_eq!(r["path"], dir.join("letterhead.vctemplate").to_str().unwrap(), "saved with the template's extension");
+    s.execute("document.open", &json!({"path": r["path"]})).unwrap();
     let st = s.doc().unwrap();
     assert!(st.path.is_none() && !st.doc.template);
     assert!(st.doc.title.starts_with("Untitled-"), "{}", st.doc.title);

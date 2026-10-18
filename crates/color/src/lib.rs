@@ -181,6 +181,10 @@ impl Color {
             _ => {}
         }
         let h = s.strip_prefix('#').unwrap_or(s);
+        // `from_str_radix` accepts a leading `+`, so check the digits first.
+        if !h.chars().all(|c| c.is_ascii_hexdigit()) {
+            return None;
+        }
         let p = |i: usize, n: usize| u8::from_str_radix(h.get(i..i + n)?, 16).ok();
         match h.len() {
             3 => Some(Color::rgb8(p(0, 1)? * 17, p(1, 1)? * 17, p(2, 1)? * 17)),
@@ -383,7 +387,9 @@ impl Paint {
     }
     /// Apply `f` to the colours of this paint that can link to a swatch (a solid colour, each
     /// gradient stop) with their link and tint; `f` returns true when it changed them. A colour
-    /// left without a link gets tint 1. Returns whether anything changed.
+    /// left without a link gets tint 1. A freeform gradient's points, which it draws from, go
+    /// through `f` too, as unlinked colours (a link `f` gives them is dropped). Returns whether
+    /// anything changed.
     pub fn map_links(&mut self, f: &mut dyn FnMut(&mut Color, &mut Option<String>, &mut f32) -> bool) -> bool {
         let mut one = |c: &mut Color, link: &mut Option<String>, tint: &mut f32| {
             let changed = f(c, link, tint);
@@ -394,7 +400,12 @@ impl Paint {
         };
         match self {
             Paint::Solid { color, swatch, tint } => one(color, swatch, tint),
-            Paint::Gradient(g) => g.gradient.stops.iter_mut().fold(false, |ch, s| one(&mut s.color, &mut s.swatch, &mut s.tint) | ch),
+            Paint::Gradient(g) => {
+                let stops = g.gradient.stops.iter_mut().fold(false, |ch, s| one(&mut s.color, &mut s.swatch, &mut s.tint) | ch);
+                let points =
+                    g.freeform.iter_mut().flat_map(|ff| ff.points.iter_mut()).fold(false, |ch, p| one(&mut p.color, &mut None, &mut 1.0) | ch);
+                stops | points
+            }
             _ => false,
         }
     }
@@ -410,6 +421,14 @@ mod tests {
         assert_eq!(c.to_hex(), "#ff8000");
         assert_eq!(Color::from_hex("#fff").unwrap().to_hex(), "#ffffff");
         assert_eq!(Color::from_hex("zz"), None);
+    }
+
+    #[test]
+    fn hex_rejects_sign_characters() {
+        for bad in ["#+1+2+3", "+f+f+f", "#-1-2-3", "#+12+34+56", "#+f+f+f+f", "#12345+"] {
+            assert_eq!(Color::from_hex(bad), None, "{bad}");
+        }
+        assert_eq!(Color::from_hex("#123"), Color::from_hex("#112233"));
     }
 
     #[test]

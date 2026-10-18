@@ -263,7 +263,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         }
         let sw = (ui.available_width() - 30.0).max(40.0);
         let track = |_: f32| t.input_border;
-        if let (Some(v), phase) = widgets::color_slider(ui, "nav-slider", zoom_to_slider(zoom) as f32, sw, &track)
+        if let (Some(v), phase) = widgets::color_slider_named(ui, "nav-slider", tl!("Zoom"), zoom_to_slider(zoom) as f32, sw, &track)
             && phase != widgets::Live::Idle
         {
             z = Some(slider_to_zoom(v as f64));

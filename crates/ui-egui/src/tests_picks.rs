@@ -12,7 +12,7 @@ use serde_json::{Value, json};
 use vectorcraft_engine::Session;
 
 use crate::panels::graphic_styles::GraphicStyleLibraries;
-use crate::panels::library_panel::library_menu;
+use crate::panels::library_panel::{self, library_menu};
 use crate::panels::swatches::SwatchLibraries;
 use crate::picks::{self, PickRequest};
 use crate::state::Dialog;
@@ -232,10 +232,10 @@ fn other_swatch_library_asks_off_the_ui_thread() {
     click(&mut app, "Other Library…", library_menu::<SwatchLibraries>);
     assert!(matches!(shown.requests().as_slice(), [PickRequest::Open(_)]));
     poll(&mut app);
-    assert!(app.ui.library_panel.is_none() && app.ui.status.is_empty(), "{}", app.ui.status);
+    assert!(library_panel::last_open(&app.ui).is_none() && app.ui.status.is_empty(), "{}", app.ui.status);
     shown.answer(&[&file]);
     poll(&mut app);
-    let open = app.ui.library_panel.clone().unwrap_or_else(|| panic!("no library open: {}", app.ui.status));
+    let open = library_panel::last_open(&app.ui).cloned().unwrap_or_else(|| panic!("no library open: {}", app.ui.status));
     assert_eq!(open.kind, "swatches");
     let (_, lib) = vectorcraft_engine::cmd::swatchlib::library(&app.session, &open.id).unwrap();
     assert!(lib.swatch("Signal").is_some(), "{}", open.id);
@@ -255,7 +255,7 @@ fn other_graphic_style_library_asks_off_the_ui_thread() {
     assert!(matches!(shown.requests().as_slice(), [PickRequest::Open(_)]));
     shown.answer(&[&file]);
     poll(&mut app);
-    let open = app.ui.library_panel.clone().unwrap_or_else(|| panic!("no library open: {}", app.ui.status));
+    let open = library_panel::last_open(&app.ui).cloned().unwrap_or_else(|| panic!("no library open: {}", app.ui.status));
     assert_eq!(open.kind, "graphicStyles");
     let (_, lib) = vectorcraft_engine::cmd::stylelib::library(&app.session, &open.id).unwrap();
     assert!(lib.style("Poster Look").is_some(), "{}", open.id);
@@ -367,6 +367,58 @@ fn preset_dialogs_export_asks_off_the_ui_thread() {
         assert_eq!(*written.borrow(), [path], "{open}: {}", app.ui.status);
         assert_eq!(dialog_kind(&app), Some(kind.as_str()), "{open}");
     }
+}
+
+/// A sheet's answer that names a file that is there once given its extension asks before replacing
+/// it, with no "cancelled" in the status bar, and the question's OK writes it without another sheet.
+#[test]
+fn a_sheets_answer_given_its_extension_asks_before_replacing() {
+    let (mut app, shown, written) = app();
+    app.services.exists = Some(Box::new(|p: &str| p == "/art/card.vectorcraft"));
+    app.run("file.new", json!({"width": 100, "height": 80})).unwrap();
+    assert!(app.run("file.save", json!({})).is_err());
+    shown.answer(&["/art/card"]);
+    poll(&mut app);
+    assert_eq!(dialog_kind(&app), Some(crate::dialogs::confirm::REPLACE));
+    assert!(written.borrow().is_empty());
+    poll(&mut app);
+    assert_eq!(app.ui.status, "");
+    crate::dialogs::confirm(&mut app).unwrap();
+    assert_eq!(*written.borrow(), ["/art/card.vectorcraft"]);
+    assert!(shown.requests().is_empty(), "{:?}", shown.requests());
+}
+
+/// Export… in a presets dialog whose save dialog shows in line (Windows): a name that is there
+/// once given its extension asks over the presets dialog; Cancel shows it again and writes
+/// nothing, and OK writes the preset and shows it again.
+#[test]
+fn a_preset_dialogs_export_asks_before_replacing_over_it() {
+    let written = Written::default();
+    let w = written.clone();
+    let services = Services {
+        pick_save: Some(Box::new(|_: &FilePick| Some("/presets/mine".to_string()))),
+        write: Some(Box::new(move |path: &str, _: &[u8]| {
+            w.borrow_mut().push(path.to_string());
+            Ok(())
+        })),
+        exists: Some(Box::new(|_: &str| true)),
+        ..Default::default()
+    };
+    let mut app = VectorcraftApp::new(Session::new(), services);
+    app.run("file.new", json!({"width": 100, "height": 80})).unwrap();
+    app.run("pdf.preset.save", json!({"name": "Mine"})).unwrap();
+    app.run("ui.pdfPresetsDialog", json!({"selected": "Mine"})).unwrap();
+    let kind = dialog_kind(&app).unwrap().to_string();
+    click(&mut app, "Export…", dialogs);
+    assert_eq!(dialog_kind(&app), Some(crate::dialogs::confirm::REPLACE));
+    crate::dialogs::cancel(&mut app);
+    assert_eq!(dialog_kind(&app), Some(kind.as_str()));
+    assert!(written.borrow().is_empty());
+    click(&mut app, "Export…", dialogs);
+    crate::dialogs::confirm(&mut app).unwrap();
+    let path = format!("/presets/mine.{}", vectorcraft_engine::cmd::pdfcmds::PRESET_FORMAT);
+    assert_eq!(*written.borrow(), [path], "{}", app.ui.status);
+    assert_eq!(dialog_kind(&app), Some(kind.as_str()));
 }
 
 /// Save As answers on the document that asked for it: the one made active meanwhile isn't saved,
@@ -861,4 +913,45 @@ fn only_picks_shows_the_hosts_dialogs() {
     }
     let found: Vec<String> = scanned.iter().flat_map(|(file, code)| in_line_dialogs(code).into_iter().map(move |c| format!("{file}: {c}"))).collect();
     assert!(found.is_empty(), "file dialogs shown in line, not through `picks`: {found:#?}");
+}
+
+/// #2200: Missing Fonts › Find in Folder… (a sheet on macOS) on a folder the search refuses, a
+/// home folder's Library where font tools leave fonts to test: the dialog says why. Without it
+/// the dialog reads as before the folder was picked, only with "Not found" under each font, and
+/// the reason is in the status bar alone.
+#[test]
+fn missing_fonts_says_why_the_folder_picked_wasnt_searched() {
+    let (mut app, shown, _) = app();
+    app.services.read = Some(Box::new(|p: &str| std::fs::read(p).map_err(|e| e.to_string())));
+    app.services.write = None;
+    let root = std::fs::canonicalize(vectorcraft_testkit::temp_dir("missing-fonts-refused")).unwrap();
+    app.run("file.new", json!({"width": 400, "height": 300})).unwrap();
+    app.run("text.create", json!({"x": 10, "y": 40, "text": "Type", "font": "Findme Sans 3"})).unwrap();
+    let doc = root.join("doc.vectorcraft");
+    app.run("document.save", json!({"path": doc.to_string_lossy()})).unwrap();
+    app.session.execute("file.close", &json!({})).unwrap();
+    crate::io::open_path(&mut app, &doc.to_string_lossy()).unwrap();
+    assert_eq!(dialog_kind(&app), Some("missingFonts"));
+    // The test's folder is the home folder: its Library holds other apps' folders.
+    app.session.search_rules = Some(vectorcraft_engine::cmd::findfiles::Rules { home: Some(root.clone()), ..Default::default() });
+    let fonts = root.join("Library").join("Application Support").join("Font Tool").join("Export");
+    std::fs::create_dir_all(&fonts).unwrap();
+    std::fs::write(fonts.join("Findme.otf"), vectorcraft_testkit::fonts::renamed("Findme Sans 3")).unwrap();
+    click(&mut app, "Find in Folder…", dialogs);
+    assert_eq!(shown.requests(), [PickRequest::Folder]);
+    shown.answer(&[&fonts.to_string_lossy()]);
+    let ctx = egui::Context::default();
+    let until = std::time::Instant::now() + std::time::Duration::from_secs(10);
+    loop {
+        app_frame(&ctx, &mut app, false);
+        let searching = app.ui.dialog.as_ref().is_some_and(|d| d.str("state") == "searching");
+        if !searching || std::time::Instant::now() > until {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(5));
+    }
+    assert_eq!(app.ui.dialog.as_ref().map(|d| d.str("state")).as_deref(), Some("failed"));
+    let text = crate::tests_labels::painted_text(&mut app, |app, ui| crate::dialogs::show(app, ui.ctx()));
+    assert!(text.contains("VectorCraft doesn't search other apps' or the system's folders"), "{text}");
+    assert!(!text.contains("Not found"), "the folder wasn't searched: {text}");
 }

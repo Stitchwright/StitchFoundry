@@ -642,6 +642,38 @@ fn family_display_name_follows_show_font_names_in_english() {
     assert_eq!(face.family, "Hiragino Sans");
 }
 
+/// #2208: English-only typographic names must not hide a localized legacy family name.
+/// Cover both fonts added as bytes and the system-font catalog before a face is loaded.
+#[test]
+fn family_display_name_falls_back_to_localized_legacy_names() {
+    const ZH: u16 = 0x0804;
+    for (case, (typographic, legacy, expected)) in
+        [(None, Some("宋体"), "宋体"), (Some("排印宋体"), Some("宋体"), "排印宋体"), (None, None, "SimSun")].into_iter().enumerate()
+    {
+        let mut records = vec![(3, EN, 1, "SimSun"), (3, EN, 2, "Regular"), (3, EN, 6, "SimSun-Regular"), (3, EN, 16, "SimSun")];
+        if let Some(label) = typographic {
+            records.push((3, ZH, 16, label));
+        }
+        if let Some(label) = legacy {
+            records.push((3, ZH, 1, label));
+        }
+        let bytes = named(&records);
+        let loaded = FontDb::with_font_dirs(vec![]);
+        assert!(loaded.add_font(bytes.clone()) > 0);
+        let dir = std::env::temp_dir().join(format!("vc-sysfonts-{}-localized-family-{case}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("localized.ttf"), bytes).unwrap();
+        let catalog = FontDb::with_font_dirs(vec![dir.clone()]);
+        for (source, db) in [("loaded", loaded), ("catalog", catalog)] {
+            assert_eq!(db.family_display_name("SimSun", true), "SimSun", "{source}, case {case}: English requested");
+            assert_eq!(db.family_display_name("SimSun", false), expected, "{source}, case {case}: native requested");
+            assert_eq!(db.family_display_name("SimSun", true), "SimSun", "{source}, case {case}: switch back to English");
+            assert_eq!(db.is_loaded("SimSun"), source == "loaded", "{source}, case {case}: catalog names need no face loading");
+        }
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+}
+
 /// Thai typed in a font without Thai takes an installed font made for Thai (Leelawadee UI,
 /// Thonburi, Noto Sans Thai…), whatever other face covering Thai loaded first; Latin beside it keeps
 /// the font chosen. Skipped where none of those families is installed.

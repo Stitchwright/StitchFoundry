@@ -8,6 +8,7 @@
 pub mod appearance;
 pub mod assets;
 pub mod blend;
+pub mod cancel;
 pub mod clipnest;
 pub mod cmyk;
 pub mod corners;
@@ -21,13 +22,16 @@ mod inline;
 pub mod intertwine;
 pub mod shared;
 mod symbol_export_type;
+mod symbol_nine_slice;
 mod symbol_registration;
 pub use inline::{SYMBOL_HALF, SYMBOL_SIZES};
 pub use shared::Shared;
 pub use symbol_export_type::{SYMBOL_EXPORT_TYPE, SymbolExportType};
+pub use symbol_nine_slice::{SYMBOL_NINE_SLICE, SymbolNineSlice};
 pub use symbol_registration::{SYMBOL_REGISTRATION, SymbolRegistration};
 pub mod links;
 pub mod live;
+pub mod live_paint;
 pub mod marks;
 mod mem;
 pub mod metadata;
@@ -89,17 +93,18 @@ pub use assets::ExportAsset;
 pub use corners::LiveCorners;
 pub use depth::MAX_DEPTH;
 pub use graph::{
-    GraphDesign, GraphKind, GraphSpec, LabelStyles, MAX_GRAPH_CATEGORIES, MAX_GRAPH_SERIES, PiePosition, PieSort, SeriesPaint, TickLength,
-    ValueAxisSide,
+    ColumnDesign, ColumnType, Fractions, GraphDesign, GraphKind, GraphSpec, LabelStyles, MAX_GRAPH_CATEGORIES, MAX_GRAPH_SERIES, PiePosition,
+    PieSort, SeriesPaint, TickLength, ValueAxisSide,
 };
 pub use hit::{Hit, HitKind};
 pub use links::{LinkInfo, PlacementOptions};
 pub use live::{BlendOrientation, BlendSpacing, BlendSpec, EnvelopeKind, GradientMesh, MeshPoint};
+pub use live_paint::{GapOptions, GapSize};
 pub use metadata::{CopyrightStatus, DocMetadata};
 pub use node::Knockout;
 pub use node::Scaling;
 pub use node::{Extras, ExtrasMut, ImageObject, LAYER_COLORS, LayerColor, LiveShape, Node, NodeExtras, NodeId, NodeKind, OpacityMask};
-pub use node::{ImageMap, ObjectAttributes};
+pub use node::{ImageMap, MAX_SVG_SCRIPTS, ObjectAttributes, SVG_EVENTS};
 pub use orient::OrientedBox;
 pub use pattern::{Overlap, PatternDef, PatternEdit, RepeatKind, RepeatSpec, TileType};
 pub use perspective::PerspectiveAttachment;
@@ -591,6 +596,23 @@ pub struct ImageBlob {
     pub proxy: Option<Arc<Vec<u8>>>,
 }
 
+/// What the rulers measure from (View › Rulers): the active artboard's origin, the default of a
+/// new document, or one origin for the whole document.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum RulerMode {
+    #[default]
+    Artboard,
+    Global,
+}
+
+impl RulerMode {
+    /// The mode of a document saved before the choice existed: global, as its rulers measured.
+    pub fn legacy() -> Self {
+        Self::Global
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Document {
     pub version: u32,
@@ -604,6 +626,15 @@ pub struct Document {
     /// The rulers' zero point in document coordinates. Moving it changes measurements, never art.
     #[serde(default, skip_serializing_if = "skip::is_default")]
     pub ruler_origin: Point,
+    /// View › Rulers › Change to Global / Artboard Rulers: whether the rulers and position fields
+    /// measure from [`Self::ruler_origin`] (global) or from the active artboard's own origin.
+    /// Documents saved before the choice existed measured globally and open that way.
+    #[serde(default = "RulerMode::legacy")]
+    pub rulers: RulerMode,
+    /// Artboard rulers' zero point of each artboard (by [`Artboard::id`]), as an offset from its
+    /// top-left corner; an artboard not listed measures from that corner.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub artboard_ruler_origins: BTreeMap<u32, Vec2>,
     #[serde(default)]
     pub color_mode: ColorMode,
     pub artboards: Vec<Artboard>,
@@ -697,6 +728,10 @@ pub struct Document {
     /// save time only, so changing the view never marks the document modified.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_view: Option<SavedView>,
+    /// View → Show Transparency Grid when the document was saved. Written at save time only,
+    /// like [`Document::last_view`]; older files open with the grid hidden.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub transparency_grid: bool,
     /// The layers, sublayers and groups open in the Layers panel when the document was saved; they
     /// reopen that way. `None`: the default, only the top-level layers open. Written at save time
     /// only, like [`Document::last_view`].
@@ -729,6 +764,10 @@ pub struct Document {
     /// export settings are Export for Screens' ([`Document::export_settings`]).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub assets: Vec<ExportAsset>,
+    /// Window › SVG Interactivity › Link JavaScript Files: the JavaScript files (paths or URLs, as
+    /// given) SVG export links with `<script>` elements, in order.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub svg_scripts: Vec<String>,
     /// Puppet Warp pins on the selected artwork while the tool edits it ([`PuppetPins`]): editing
     /// state, never saved.
     #[serde(skip)]
@@ -750,6 +789,14 @@ fn yes() -> bool {
     true
 }
 
+/// Is point `p` on the artboard at `rect`, its edges included, within a millionth of a point? This
+/// is the rule [`Document::art_on_artboard`] applies to art flush with an edge (#890), where
+/// `Rect::contains` leaves out the right and bottom edges.
+pub fn artboard_holds(rect: Rect, p: Point) -> bool {
+    let r = rect.inflate(1e-6, 1e-6);
+    r.x0 <= p.x && p.x <= r.x1 && r.y0 <= p.y && p.y <= r.y1
+}
+
 /// Listed nodes by parent: the parent's index path (empty for the top-level layers), then the index
 /// of each listed child in it, in order, with the child's place in the list.
 type Places = BTreeMap<Vec<usize>, Vec<(usize, usize)>>;
@@ -762,6 +809,27 @@ impl Document {
     pub fn ruler_origin_or_zero(&self) -> Point {
         let origin = self.ruler_origin;
         if origin.is_finite() && origin.x.abs() <= MAX_COORD && origin.y.abs() <= MAX_COORD { origin } else { Point::ZERO }
+    }
+
+    /// Where the rulers measure from with artboard `index` active: [`Self::ruler_origin_or_zero`]
+    /// with global rulers; with artboard rulers that artboard's top-left corner moved by its own
+    /// offset (the first artboard's when `index` is out of range, the global zero point when the
+    /// document has no artboard or the result is out of the supported range).
+    pub fn ruler_origin_for(&self, index: usize) -> Point {
+        if self.rulers == RulerMode::Global {
+            return self.ruler_origin_or_zero();
+        }
+        let Some(ab) = self.artboards.get(index).or_else(|| self.artboards.first()) else { return self.ruler_origin_or_zero() };
+        let corner = Point::new(ab.rect.x0, ab.rect.y0);
+        let offset = self.artboard_ruler_origins.get(&ab.id).copied().unwrap_or(Vec2::ZERO);
+        let origin = corner + offset;
+        if origin.is_finite() && origin.x.abs() <= MAX_COORD && origin.y.abs() <= MAX_COORD {
+            origin
+        } else if corner.is_finite() && corner.x.abs() <= MAX_COORD && corner.y.abs() <= MAX_COORD {
+            corner
+        } else {
+            Point::ZERO
+        }
     }
 
     /// A new RGB document with one artboard of `size` and one layer ("Layer 1").
@@ -778,6 +846,8 @@ impl Document {
             template: false,
             units: Unit::Points,
             ruler_origin: Point::ZERO,
+            rulers: RulerMode::Artboard,
+            artboard_ruler_origins: BTreeMap::new(),
             color_mode: mode,
             artboards: vec![Artboard {
                 id: 1,
@@ -816,6 +886,7 @@ impl Document {
             metadata: DocMetadata::default(),
             raster_effects: RasterEffectsSettings::default(),
             last_view: None,
+            transparency_grid: false,
             layers_open: None,
             color_profiles: ColorProfiles::default(),
             export_settings: Default::default(),
@@ -824,6 +895,7 @@ impl Document {
             slices_clip_to_artboard: true,
             print_setup: None,
             assets: vec![],
+            svg_scripts: vec![],
             puppet: None,
             dimensions: false,
             index: Default::default(),
@@ -1296,9 +1368,24 @@ impl Document {
         let symbols = self.symbol_boxes();
         self.layers.iter().fold(None, |acc, l| vectorcraft_geom::union_opt(acc, l.visual_bounds_with(&symbols)))
     }
-    /// Artboard index containing point `p` (topmost = last).
+    /// Artboard index containing point `p` (topmost = last), its edges included
+    /// ([`Document::artboard_holding`]).
     pub fn artboard_at(&self, p: Point) -> Option<usize> {
-        self.artboards.iter().rposition(|a| a.rect.contains(p))
+        self.artboard_holding(p, true)
+    }
+    /// Index of the artboard that holds point `p`: the first (the last when `topmost`) that holds it
+    /// inside or on its left or top edge, else the first (the last) that holds it by
+    /// [`artboard_holds`]: on its right or bottom edge, or within a millionth of a point outside an
+    /// edge. On an edge two artboards share, the artboard to the right of it or below it holds the
+    /// point, except at the end of the edge that lies on that artboard's bottom or right edge, such
+    /// as the point where both artboards' bottom edges meet; there the first (the last) holds it.
+    pub fn artboard_holding(&self, p: Point, topmost: bool) -> Option<usize> {
+        let pick = |on: &dyn Fn(Rect) -> bool| {
+            let on = |i: &usize| self.artboards.get(*i).is_some_and(|a| on(a.rect));
+            let mut all = 0..self.artboards.len();
+            if topmost { all.rfind(on) } else { all.find(on) }
+        };
+        pick(&|r| r.contains(p)).or_else(|| pick(&|r| artboard_holds(r, p)))
     }
     /// The art that moves with an artboard at `rect`: top-level objects (children of layers and
     /// sublayers) lying entirely inside it, with symbol instances measured by their art. Locked and
@@ -1630,6 +1717,37 @@ impl Document {
         self.clear_symbol_export_type(from);
         self.set_symbol_export_type(to, kind);
     }
+
+    /// Symbol Options › 9-slice guides for `name`: `None` when 9-slice scaling is off (default).
+    pub fn symbol_nine_slice(&self, name: &str) -> Option<SymbolNineSlice> {
+        self.unknown.get(SYMBOL_NINE_SLICE).and_then(|m| m.get(name)).and_then(SymbolNineSlice::from_value)
+    }
+
+    /// Turn 9-slice scaling on with `guides`, or off with `None`, for `name`.
+    pub fn set_symbol_nine_slice(&mut self, name: &str, guides: Option<SymbolNineSlice>) {
+        let Some(g) = guides else {
+            let Some(o) = self.unknown.get_mut(SYMBOL_NINE_SLICE).and_then(|m| m.as_object_mut()) else { return };
+            o.remove(name);
+            if o.is_empty() {
+                self.unknown.remove(SYMBOL_NINE_SLICE);
+            }
+            return;
+        };
+        let m = self.unknown.entry(SYMBOL_NINE_SLICE.to_string()).or_insert_with(|| serde_json::json!({}));
+        if let Some(o) = m.as_object_mut() {
+            o.insert(name.into(), g.to_value());
+        }
+    }
+
+    /// Move the stored 9-slice guides when a symbol is renamed.
+    pub fn rename_symbol_nine_slice(&mut self, from: &str, to: &str) {
+        if from == to {
+            return;
+        }
+        let g = self.symbol_nine_slice(from);
+        self.set_symbol_nine_slice(from, None);
+        self.set_symbol_nine_slice(to, g);
+    }
 }
 
 fn default_graphic_styles() -> Vec<GraphicStyle> {
@@ -1746,6 +1864,44 @@ mod tests {
         d.insert(Some(layer), 0, Node::new(id, NodeKind::SymbolInstance { symbol: "Box".into(), xf: Affine::translate((2.0, 2.0)) })).unwrap();
         // The art, (2, 2) to (12, 12), lies inside; the 20 × 20 square, (-8, -8) to (12, 12), doesn't.
         assert_eq!(d.art_on_artboard(Rect::new(0.0, 0.0, 15.0, 15.0), false), vec![id]);
+    }
+
+    #[test]
+    fn artboard_at_counts_the_right_and_bottom_edges() {
+        // Artboard 0 is (0, 0) to (100, 100), artboard 1 is to its right and artboard 2 below it.
+        let mut d = Document::new(100.0, 100.0);
+        for rect in [Rect::new(100.0, 0.0, 200.0, 100.0), Rect::new(0.0, 100.0, 100.0, 200.0)] {
+            let mut a = d.artboards[0].clone();
+            a.rect = rect;
+            d.artboards.push(a);
+        }
+        let held = |d: &Document, x: f64, y: f64| (d.artboard_at(Point::new(x, y)), d.artboard_holding(Point::new(x, y), false));
+        // Each artboard's own right and bottom edges, edges with roundoff, and points beyond them.
+        assert_eq!(held(&d, 200.0, 50.0), (Some(1), Some(1)), "right edge");
+        assert_eq!(held(&d, 150.0, 100.0), (Some(1), Some(1)), "bottom edge");
+        assert_eq!(held(&d, 200.0, 100.0), (Some(1), Some(1)), "bottom right corner");
+        assert_eq!(held(&d, 100.0, 150.0), (Some(2), Some(2)), "right edge");
+        assert_eq!(held(&d, 50.0, 200.0 + 1e-9), (Some(2), Some(2)), "roundoff past the bottom edge");
+        assert_eq!(held(&d, -1e-9, 50.0), (Some(0), Some(0)), "roundoff past the left edge");
+        assert_eq!(held(&d, 200.001, 50.0), (None, None));
+        assert_eq!(held(&d, 50.0, 200.001), (None, None));
+        // On an edge two artboards share, the artboard to the right of it or below it holds the
+        // point, in either list order, except at the end of the edge that lies on that artboard's
+        // bottom or right edge.
+        assert_eq!(held(&d, 100.0, 50.0), (Some(1), Some(1)));
+        assert_eq!(held(&d, 50.0, 100.0), (Some(2), Some(2)));
+        // The bottom edges of artboards 0 and 1 meet at (100, 100), which is also artboard 2's top
+        // right corner: the first holds the point, or the last when `topmost`.
+        assert_eq!(held(&d, 100.0, 100.0), (Some(2), Some(0)), "shared corner");
+        d.artboards.swap(0, 1);
+        assert_eq!(held(&d, 100.0, 50.0), (Some(0), Some(0)));
+        // Where two artboards overlap, the topmost holds the point, or the first one when not
+        // `topmost`.
+        let mut inner = d.artboards[1].clone();
+        inner.rect = Rect::new(10.0, 10.0, 90.0, 90.0);
+        d.artboards.push(inner);
+        assert_eq!(held(&d, 50.0, 50.0), (Some(3), Some(1)));
+        assert_eq!(held(&d, 90.0, 50.0), (Some(1), Some(1)), "inside artboard 1, on the right edge of artboard 3");
     }
 
     #[test]

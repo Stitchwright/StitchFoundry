@@ -82,6 +82,23 @@ pub(crate) fn dropped_link(app: &VectorcraftApp, params: &Value) -> Option<(Stri
     Some((base, tint))
 }
 
+/// Recolor the selected stop of the gradient behind the active proxy with `c`, as dropping the
+/// paint of `params` on the stop does (fully opaque, linked by [`dropped_link`]), or the selected
+/// point of a freeform gradient; the stop or point stays selected. Returns false, and changes
+/// nothing, when the active paint is not a gradient or no stop or point is selected.
+pub(crate) fn recolor_selected(app: &mut VectorcraftApp, c: Color, params: &Value) -> bool {
+    let Paint::Gradient(g) = active_paint(app) else { return false };
+    if g.gradient.kind == GradientKind::Freeform {
+        let Some(i) = app.session.selected_freeform_point().filter(|i| *i < shown_points(&g).points.len()) else { return false };
+        edit_point(app, "paint.freeform.setPoint", json!({ "index": i, "color": super::color_json(&c) }));
+        return true;
+    }
+    let Some(i) = app.session.selected_stop().filter(|i| *i < g.gradient.stops.len()) else { return false };
+    let (v, i) = drop_color(&g.gradient, Some(i), 0.0, c, dropped_link(app, params));
+    set_stops(app, &v, Some(i), Live::Released);
+    true
+}
+
 /// The stops after dragging stop `i` of `origin` to `offset`: moved, or with `copy` (Alt) a copy
 /// left there, or the colours swapped with stop `over` when the copy is dropped on it. Returns
 /// the stops and the stop to select.
@@ -165,14 +182,14 @@ fn save_to_swatches(app: &mut VectorcraftApp, g: &GradientPaint) {
 }
 
 /// The document's gradient swatches (groups included): name and gradient.
-fn gradient_swatches(app: &VectorcraftApp) -> Vec<(String, Gradient)> {
+fn gradient_swatches(app: &VectorcraftApp) -> Vec<(String, GradientPaint)> {
     let Some(st) = app.session.active() else { return vec![] };
     let d = &st.doc;
     d.swatches
         .iter()
         .chain(d.swatch_groups.iter().flat_map(|g| g.swatches.iter()))
         .filter_map(|s| match &s.paint {
-            Paint::Gradient(g) => Some((s.name.clone(), g.gradient.clone())),
+            Paint::Gradient(g) => Some((s.name.clone(), (**g).clone())),
             _ => None,
         })
         .collect()
@@ -370,7 +387,7 @@ fn freeform_section(app: &mut VectorcraftApp, ui: &mut Ui, g: &GradientPaint) {
 fn thumbnail(app: &mut VectorcraftApp, ui: &mut Ui, g: &GradientPaint, is_grad: bool) {
     let t = Tokens::get(ui.ctx());
     let (r, resp) = ui.allocate_exact_size(vec2(40.0, 40.0), Sense::click_and_drag());
-    widgets::gradient_chip(ui, r, &g.gradient);
+    widgets::gradient_chip(ui, r, g);
     ui.painter().rect_stroke(r, 0.0, Stroke::new(1.0, t.border), StrokeKind::Inside);
     let resp = resp.on_hover_text(tl!("Gradient Fill: click to apply, drag onto art"));
     if resp.clicked() && !is_grad {

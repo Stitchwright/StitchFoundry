@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use vectorcraft_color::{BlendMode, GradientKind, GradientPaint, Paint};
 use vectorcraft_doc::{
-    AppearanceItem, Document, FillLayer, LineCap, LineJoin, Node, NodeId, NodeKind, StrokeAlign, StrokeLayer, TextKind, TextObject,
+    AppearanceItem, Document, FillLayer, LineCap, LineJoin, Node, NodeId, NodeKind, SVG_EVENTS, StrokeAlign, StrokeLayer, TextKind, TextObject,
 };
 use vectorcraft_doc::{CharStyle, ImageBlob, Justify};
 use vectorcraft_effects::stroke::{self, Written, WrittenShape};
@@ -141,6 +141,15 @@ fn write(doc: &Document, opts: &ExportOptions, native: Option<&[u8]>, id_prefix:
     if !doc.metadata.description.trim().is_empty() {
         out.push_str(&w.indent(1));
         out.push_str(&format!("<desc>{}</desc>{nl}", xml_escape(&doc.metadata.description)));
+    }
+    // Window › SVG Interactivity › Link JavaScript Files.
+    for file in &doc.svg_scripts {
+        if file.is_empty() || !valid_xml_value(file) {
+            w.warn("JavaScript files with empty names or invalid XML characters were left out of SVG");
+            continue;
+        }
+        out.push_str(&w.indent(1));
+        out.push_str(&format!("<script xlink:href=\"{}\"/>{nl}", xml_attr_escape(file)));
     }
     let latin1 = encoding == Encoding::Latin1;
     if latin1 {
@@ -320,11 +329,13 @@ struct Writer<'a> {
 }
 
 /// The characters type uses from one face, under one `@font-face` description: the family the
-/// type names and the weight and italic its style asks for.
+/// type names and the weight, italic and width its style asks for.
 struct FontUse {
     family: String,
     weight: u16,
     italic: bool,
+    /// The `font-stretch` percentage ([`css::font_stretch`]), as bits; `None` for the normal width.
+    stretch: Option<u64>,
     face: Arc<FontFace>,
     chars: BTreeSet<char>,
 }
@@ -637,7 +648,33 @@ impl Writer<'_> {
             self.non_latin1_names |= k.chars().any(|c| u32::from(c) > 0xff);
             out.push_str(&format!(" data-{k}=\"{}\"", xml_attr_escape(v)));
         }
+        self.event_attrs(n, &mut out);
         out
+    }
+    /// Window › SVG Interactivity: `n`'s events as event attributes (`onclick="…"`), added to
+    /// `out`. The SVG Tiny 1.2 profile leaves them out with a warning.
+    fn event_attrs(&mut self, n: &Node, out: &mut String) {
+        let events = n.extras().attrs.as_deref().map_or(&[][..], |a| a.events.as_slice());
+        if events.is_empty() {
+            return;
+        }
+        if self.tiny() {
+            self.warn("SVG Tiny 1.2 has no event attributes: SVG Interactivity events were left out");
+            return;
+        }
+        let mut seen = HashSet::new();
+        for (event, script) in events {
+            // Native data can name anything: only the panel's events are written, once each.
+            if !SVG_EVENTS.contains(&event.as_str()) || !valid_xml_value(script) {
+                self.warn("SVG Interactivity events with unknown names or invalid XML characters were left out of SVG");
+                continue;
+            }
+            if !seen.insert(event.as_str()) {
+                self.warn("Repeated SVG Interactivity events were written only once in SVG");
+                continue;
+            }
+            out.push_str(&format!(" {event}=\"{}\"", xml_attr_escape(script)));
+        }
     }
     fn matrix(&self, m: Affine) -> String {
         let c = m.as_coeffs();
@@ -654,12 +691,13 @@ impl Writer<'_> {
         match styling {
             Styling::PresentationAttributes => {
                 // CSS-only properties go in a style attribute (SVG Tiny has none: left out).
-                let (style, attrs): (Vec<_>, Vec<_>) =
-                    props.iter().partition(|(k, _)| matches!(*k, "mix-blend-mode" | "isolation" | "font-feature-settings" | "font-kerning"));
+                let (style, attrs): (Vec<_>, Vec<_>) = props.iter().partition(|(k, _)| {
+                    matches!(*k, "mix-blend-mode" | "isolation" | "font-feature-settings" | "font-variation-settings" | "font-kerning")
+                });
                 let mut s: String = attrs.iter().map(|(k, v)| format!(" {k}=\"{}\"", xml_escape(v))).collect();
                 if !style.is_empty() {
                     if self.tiny() {
-                        self.warn("SVG Tiny 1.2 has no style sheets: blend modes, isolation and font features are left out");
+                        self.warn("SVG Tiny 1.2 has no style sheets: blend modes, isolation, font features and font variation settings are left out");
                     } else {
                         s.push_str(&format!(" style=\"{}\"", xml_escape(&css::declarations(style))));
                     }
@@ -1617,7 +1655,7 @@ impl Writer<'_> {
         let region = bounds.map(|b| self.xf.transform_rect_bbox(b).inflate(reach, reach));
         let mut opened = 0;
         for f in fx.iter().rev() {
-            if matches!(f, RasterFx::Pixel(_)) {
+            if matches!(f, RasterFx::Pixel(_) | RasterFx::Rasterize(_)) {
                 self.warn("SVG has no pixel effects such as Radial Blur, Smart Blur or Unsharp Mask: they are left out");
                 continue;
             }
@@ -1653,8 +1691,9 @@ impl Writer<'_> {
                     self.num(*dy),
                     flood(color, *opacity)
                 ),
+                // The glow blurs a solid silhouette: alpha × 255 makes any alpha full.
                 RasterFx::OuterGlow { opacity, blur, color, .. } => format!(
-                    "<feGaussianBlur in=\"SourceAlpha\" stdDeviation=\"{}\" result=\"glow\"/>{}<feComposite in2=\"glow\" operator=\"in\" result=\"paint\"/><feMerge><feMergeNode in=\"paint\"/><feMergeNode in=\"SourceGraphic\"/></feMerge>",
+                    "<feComponentTransfer in=\"SourceAlpha\"><feFuncA type=\"linear\" slope=\"255\"/></feComponentTransfer><feGaussianBlur stdDeviation=\"{}\" result=\"glow\"/>{}<feComposite in2=\"glow\" operator=\"in\" result=\"paint\"/><feMerge><feMergeNode in=\"paint\"/><feMergeNode in=\"SourceGraphic\"/></feMerge>",
                     sd(*blur),
                     flood(color, *opacity)
                 ),
@@ -1678,7 +1717,7 @@ impl Writer<'_> {
                     sd(*radius)
                 ),
                 RasterFx::GaussianBlur { radius } => format!("<feGaussianBlur in=\"SourceGraphic\" stdDeviation=\"{}\"/>", sd(*radius)),
-                RasterFx::Pixel(_) => continue,
+                RasterFx::Pixel(_) | RasterFx::Rasterize(_) => continue,
             };
             // Filters composite normally: a shadow's or glow's other blend mode is recorded for import.
             let mode = match f {
@@ -1941,7 +1980,7 @@ impl Writer<'_> {
 
     /// One line of laid-out text starting at `start`. Default: a positioned `<tspan>` per segment
     /// (only the first of an anchored line). Fewer tspans: one positioned `<tspan>` per line with
-    /// the style changes nested in it, positioned again only after tabs and justified word spaces.
+    /// the style changes nested in it, positioned again only after tabs and inline graphics.
     /// Baseline shifts are relative (`dy`), undone by the next segment that isn't shifted.
     /// `positioned`: false when the caller already positioned the line (an outer `<tspan>`).
     fn text_line(&mut self, s: &mut String, t: &TextObject, line: &[Segment], start: (f64, f64), base: &TextBase, positioned: bool) {
@@ -1966,7 +2005,8 @@ impl Writer<'_> {
                 attrs.push_str(&format!(" dy=\"{}\"", self.num(shift - st.baseline_shift)));
                 shift = st.baseline_shift;
             }
-            // After a tab or a justified word space the next segment is placed.
+            // After a tab, an inline graphic or a justified word space, and before a character that a
+            // reader would draw elsewhere, the next segment is placed.
             place = seg.brk || (!fewer && !base.anchored && positioned);
             if (st.h_scale - st.v_scale).abs() > 1e-9 {
                 attrs.push_str(&format!(" textLength=\"{}\" lengthAdjust=\"spacingAndGlyphs\"", self.num(seg.advance)));
@@ -2007,10 +2047,14 @@ impl Writer<'_> {
             }
             let Some(f) = &face else { continue };
             let (weight, italic) = font_descriptor(st);
-            let at = self.fonts.iter().position(|u| u.face.id() == f.id() && (u.weight, u.italic) == (weight, italic) && u.family == st.font_family);
+            let stretch = css::font_stretch(st).map(f64::to_bits);
+            let at = self
+                .fonts
+                .iter()
+                .position(|u| u.face.id() == f.id() && (u.weight, u.italic, u.stretch) == (weight, italic, stretch) && u.family == st.font_family);
             let at = at.unwrap_or_else(|| {
                 let family = st.font_family.clone();
-                self.fonts.push(FontUse { family, weight, italic, face: f.clone(), chars: BTreeSet::new() });
+                self.fonts.push(FontUse { family, weight, italic, stretch, face: f.clone(), chars: BTreeSet::new() });
                 self.fonts.len() - 1
             });
             let Some(chars) = self.fonts.get_mut(at).map(|u| &mut u.chars) else { continue };
@@ -2029,10 +2073,30 @@ impl Writer<'_> {
     /// The `@font-face` rules of the faces type uses ([`ExportOptions::embed_fonts`]): each face
     /// subset to its characters (whole when its licence forbids subsetting, left out with a
     /// warning when it forbids embedding). Faces sharing a description cover their own
-    /// characters (`unicode-range`).
+    /// characters (`unicode-range`); where two of them share characters as well, a warning says
+    /// that browsers draw those in one of the faces.
     fn font_faces(&mut self) -> Vec<String> {
         let uses = std::mem::take(&mut self.fonts);
         let mut rules = Vec::new();
+        fn described(u: &FontUse) -> (&str, u16, bool, Option<u64>) {
+            (&u.family, u.weight, u.italic, u.stretch)
+        }
+        let mut clashing: Vec<&String> = vec![];
+        for (i, u) in uses.iter().enumerate() {
+            let clash = uses
+                .get(..i)
+                .unwrap_or_default()
+                .iter()
+                .any(|o| described(o) == described(u) && o.face.id() != u.face.id() && !o.chars.is_disjoint(&u.chars));
+            if clash && !clashing.contains(&&u.family) {
+                clashing.push(&u.family);
+            }
+        }
+        for family in clashing {
+            self.warn(&format!(
+                "type in {family} uses faces of one weight, style and width that share characters: browsers draw those characters in one of the embedded faces"
+            ));
+        }
         for u in &uses {
             let chars: Vec<char> = u.chars.iter().copied().collect();
             let name = format!("{} {}", u.face.family, u.face.style);
@@ -2043,11 +2107,12 @@ impl Writer<'_> {
             if !font.subset {
                 self.warn(&format!("the font {name} is embedded whole: its licence doesn't allow subsetting"));
             }
-            let shared = uses.iter().filter(|o| (&o.family, o.weight, o.italic) == (&u.family, u.weight, u.italic)).count() > 1;
+            let shared = uses.iter().filter(|o| described(o) == described(u)).count() > 1;
             let range = if shared { format!(";unicode-range:{}", unicode_range(&u.chars)) } else { String::new() };
+            let stretch = u.stretch.map(|w| format!(";font-stretch:{}%", fmt_num(f64::from_bits(w), 3))).unwrap_or_default();
             let (mime, format) = if font.cff { ("font/otf", "opentype") } else { ("font/ttf", "truetype") };
             rules.push(format!(
-                "@font-face{{font-family:{};font-weight:{};font-style:{};src:url(data:{mime};base64,{}) format(\"{format}\"){range}}}",
+                "@font-face{{font-family:{};font-weight:{};font-style:{}{stretch};src:url(data:{mime};base64,{}) format(\"{format}\"){range}}}",
                 css_string(&u.family),
                 u.weight,
                 if u.italic { "italic" } else { "normal" },
@@ -2106,7 +2171,7 @@ fn run_diff(base: &Props, run: Props) -> Props {
 /// on a `<tspan>`).
 fn initial_value(k: &str) -> Option<&'static str> {
     Some(match k {
-        "font-weight" | "font-style" | "font-feature-settings" => "normal",
+        "font-weight" | "font-style" | "font-stretch" | "font-feature-settings" | "font-variation-settings" => "normal",
         "stroke" | "stroke-dasharray" => "none",
         "stroke-width" | "stroke-opacity" => "1",
         "stroke-linecap" => "butt",
@@ -2164,26 +2229,49 @@ struct Line {
 struct Segment {
     /// Index into `TextObject::runs`.
     run: usize,
-    /// Where the segment starts (text space; `y` is the baseline).
+    /// Where a reader starts drawing the segment (text space; `y` is the baseline).
     x: f64,
     y: f64,
     text: String,
-    /// The laid-out width (tracking and justification included).
+    /// The width a reader gives the segment (tracking included). On a line that is justified or
+    /// set with Mojikumi (unless `fewer`), that is the width without justification and Mojikumi
+    /// ([`reader_advances`]), for horizontally scaled type also without its last character's
+    /// kerning against the character after it ([`end_segment`]); elsewhere, the laid-out width.
     advance: f64,
-    /// The next segment needs its own position (after a tab, or a word space of a justified line).
+    /// The next segment needs its own position (after a tab, a word space of a justified line, or
+    /// the next segment starts with a character the layout draws elsewhere than a reader would).
     brk: bool,
 }
+
+/// How far a reader may draw a character from where the layout draws it before the character is
+/// given its own position (points).
+const PLACE_TOLERANCE: f64 = 1e-6;
 
 /// The laid-out lines of `t` as segments: a new segment at every style change, after tabs and,
 /// on justified lines, after each word space (unless `fewer`). The text comes from the clusters
 /// the layout placed: soft hyphens draw nothing, a line broken by hyphenation ends in `-`, all
-/// caps are upper case.
+/// caps are upper case. Unless `fewer`, a line that is justified or composed with Mojikumi also
+/// starts a new segment at each character the layout draws elsewhere than a reader continuing
+/// the segment would ([`reader_advances`]): a Justify All line's letter gaps, the gaps between
+/// the characters of a justified Japanese line, and the spacing Mojikumi changes.
 fn text_lines(t: &TextObject, lay: &vectorcraft_text::TextLayout, fewer: bool) -> Vec<Line> {
     let plain = t.plain_text();
     let mut lines = Vec::with_capacity(lay.lines.len());
+    let (mut kerned, mut unkerned) = (None, None);
     for line in &lay.lines {
         let para = plain.as_bytes().get(..line.start).map_or(0, |b| b.iter().filter(|&&c| c == b'\n').count());
-        let split_words = !fewer && !matches!(t.para_at(para).justify, Justify::Auto | Justify::Left | Justify::Center | Justify::Right);
+        let style = t.para_at(para);
+        let split_words = !fewer && !matches!(style.justify, Justify::Auto | Justify::Left | Justify::Center | Justify::Right);
+        // Each cluster's advance and drawing offset as a reader gives them, by its byte offset.
+        let reader = if split_words || (!fewer && !style.mojikumi.is_none()) {
+            Some(&*kerned.get_or_insert_with(|| reader_advances(t, lay, true)))
+        } else {
+            None
+        };
+        // Where a reader draws the next character of the last segment, and the byte offset and
+        // reader's advance of the last segment's last cluster.
+        let mut pen = 0.0;
+        let mut tail = None;
         let mut segs: Vec<Segment> = Vec::new();
         let mut cluster = None;
         let source = |g: &vectorcraft_text::PositionedGlyph| if g.len == 0 { "-" } else { plain.get(g.byte..g.byte + g.len).unwrap_or("") };
@@ -2206,26 +2294,51 @@ fn text_lines(t: &TextObject, lay: &vectorcraft_text::TextLayout, fewer: bool) -
                 cluster = None;
                 continue;
             }
+            // The cluster as a reader sets it (a hyphen the layout adds is set as laid out).
+            let set = reader.and_then(|r| r.get(&g.byte)).filter(|_| g.len > 0);
             if g.len > 0 && cluster == Some(g.byte) {
-                // Another glyph of the same cluster.
-                if let Some(last) = segs.last_mut() {
+                // Another glyph of the same cluster (a reader's advance covers the whole cluster).
+                if let Some(last) = segs.last_mut().filter(|_| set.is_none()) {
                     last.advance += g.advance;
+                    pen += g.advance;
                 }
                 continue;
             }
             cluster = Some(g.byte);
+            let (advance, x) = match set {
+                Some(&(advance, offset)) => {
+                    // A glyph the layout draws before its pen (Mojikumi) starts that much earlier.
+                    let x = g.xf.translation().x - offset;
+                    (advance, if (x - g.origin.x).abs() > PLACE_TOLERANCE { x } else { g.origin.x })
+                }
+                None => (g.advance, g.origin.x),
+            };
             let src: String = source(g).chars().filter(|c| *c != '\u{ad}').map(|c| run.style.digits.map(c)).collect();
             let piece = if run.style.all_caps { src.to_uppercase() } else { src };
             let brk = piece == "\t" || (split_words && !piece.is_empty() && piece.chars().all(char::is_whitespace));
             let fresh = std::mem::take(&mut after_inline);
+            // The layout draws the character elsewhere than a reader continuing the line would.
+            let moved = reader.is_some()
+                && segs.last().is_some_and(|last| (x - pen).abs() > PLACE_TOLERANCE || (g.origin.y - last.y).abs() > PLACE_TOLERANCE);
+            pen = x + advance;
             match segs.last_mut() {
-                Some(last) if last.run == g.run && !last.brk && !fresh => {
+                Some(last) if last.run == g.run && !last.brk && !fresh && !moved => {
                     last.text.push_str(&piece);
-                    last.advance += g.advance;
+                    last.advance += advance;
                     last.brk = brk;
                 }
-                _ => segs.push(Segment { run: g.run, x: g.origin.x, y: g.origin.y, text: piece, advance: g.advance, brk }),
+                last => {
+                    if let Some(last) = last {
+                        last.brk |= moved;
+                        end_segment(last, tail, t, lay, &mut unkerned);
+                    }
+                    segs.push(Segment { run: g.run, x, y: g.origin.y, text: piece, advance, brk });
+                }
             }
+            tail = set.map(|_| (g.byte, advance));
+        }
+        if let Some(last) = segs.last_mut() {
+            end_segment(last, tail, t, lay, &mut unkerned);
         }
         segs.retain(|s| !s.text.is_empty());
         if !segs.is_empty() {
@@ -2235,7 +2348,50 @@ fn text_lines(t: &TextObject, lay: &vectorcraft_text::TextLayout, fewer: bool) -
     lines
 }
 
-/// Where a line of segments starts: its first segment's origin or, `anchor`ed (0.5: centre, 1:
+/// Ends segment `seg` of horizontally scaled type, which a reader stretches to its width
+/// (`textLength`): its last cluster (`tail`: byte offset and reader's advance) takes the advance
+/// a reader gives it at the end of a `<tspan>`, without the font's kerning against the character
+/// after it. `unkerned` holds [`reader_advances`] without kerning once a segment needs them.
+fn end_segment(
+    seg: &mut Segment,
+    tail: Option<(usize, f64)>,
+    t: &TextObject,
+    lay: &vectorcraft_text::TextLayout,
+    unkerned: &mut Option<HashMap<usize, (f64, f64)>>,
+) {
+    let Some((byte, advance)) = tail else { return };
+    if t.runs.get(seg.run).is_none_or(|r| (r.style.h_scale - r.style.v_scale).abs() <= 1e-9) {
+        return;
+    }
+    if let Some(&(alone, _)) = unkerned.get_or_insert_with(|| reader_advances(t, lay, false)).get(&byte) {
+        seg.advance += alone - advance;
+    }
+}
+
+/// The advance a reader of live SVG text gives each character cluster of `t` and how far from
+/// its pen it draws the cluster's first glyph, keyed by the cluster's byte offset: `t` laid out
+/// as point type (which isn't justified) without Mojikumi, scaled as `t`'s layout `lay` is by
+/// Shrink Text to Fit. Without `kerning`, the font's pair kerning is left out (as manual
+/// kerning leaves it out).
+fn reader_advances(t: &TextObject, lay: &vectorcraft_text::TextLayout, kerning: bool) -> HashMap<usize, (f64, f64)> {
+    let mut set = TextObject { kind: TextKind::Point, ..t.clone() };
+    for p in std::iter::once(&mut set.para).chain(set.paras.iter_mut()) {
+        p.mojikumi = vectorcraft_doc::Mojikumi::None;
+    }
+    if !kerning {
+        for r in &mut set.runs {
+            r.style.kerning.get_or_insert(0.0);
+        }
+    }
+    let mut out: HashMap<usize, (f64, f64)> = HashMap::new();
+    for g in vectorcraft_text::layout(FontDb::global(), &set).glyphs.iter().filter(|g| g.len > 0) {
+        let (advance, _) = out.entry(g.byte).or_insert((0.0, (g.xf.translation().x - g.origin.x) * lay.fit_scale));
+        *advance += g.advance * lay.fit_scale;
+    }
+    out
+}
+
+/// Where a line of segments starts: where its first segment starts or, `anchor`ed (0.5: center, 1:
 /// right end), that point of its width. `None` for an empty line.
 fn line_start(line: &[Segment], anchor: Option<f64>) -> Option<(f64, f64)> {
     let (first, last) = (line.first()?, line.last()?);

@@ -70,6 +70,27 @@ fn rectangle_gives_background_border_and_radius() {
     );
 }
 
+/// An object centered on an artboard's right or bottom edge is positioned from that artboard's
+/// top-left corner; on the edge two artboards share, away from its ends, from the one to the right
+/// of it.
+#[test]
+fn position_is_from_the_artboard_whose_edge_holds_the_center() {
+    let mut d = doc();
+    // Artboard 2 is (500, 0) to (900, 300); artboard 3 starts at its right edge.
+    for rect in [Rect::new(500.0, 0.0, 900.0, 300.0), Rect::new(900.0, 0.0, 1000.0, 300.0)] {
+        let mut a = d.artboards[0].clone();
+        a.rect = rect;
+        d.artboards.push(a);
+    }
+    let opts = CssOptions { position: true, ..CssOptions::default() };
+    for ((x, y), want) in [((980.0, 100.0), ("80px", "100px")), ((600.0, 280.0), ("100px", "280px")), ((880.0, 100.0), ("-20px", "100px"))] {
+        let n = rect(&mut d, (x, y, 40.0, 40.0), 0.0);
+        let id = add(&mut d, n);
+        let r = one(&d, id, &opts);
+        assert_eq!((prop(&r, "left"), prop(&r, "top")), (Some(want.0), Some(want.1)), "at ({x}, {y})");
+    }
+}
+
 #[test]
 fn live_corners_give_per_corner_radii_and_only_round_ones() {
     let mut d = doc();
@@ -84,13 +105,13 @@ fn live_corners_give_per_corner_radii_and_only_round_ones() {
         kinds[1] = CornerKind::InvertedRound;
     }
     assert!(prop(&one(&d, id, &CssOptions::default()), "border-radius").is_none(), "CSS can't cut a corner in");
-    // A radius past half the shorter side is drawn at half of it (#442), and exported so: CSS
-    // would draw it larger, its neighbours leaving room.
+    // A radius is drawn no larger than its neighbours leave room for, past half the shorter
+    // side when they are small (#2332), and exported as drawn: 50 less the 4 below it.
     if let Some(LiveShape::Rectangle { radii, kinds, .. }) = d.node_mut(id).and_then(|n| n.live_shape_mut()) {
         *radii = [60.0, 8.0, 0.0, 4.0];
         *kinds = Default::default();
     }
-    assert_eq!(prop(&one(&d, id, &CssOptions::default()), "border-radius"), Some("25px 8px 0 4px"));
+    assert_eq!(prop(&one(&d, id, &CssOptions::default()), "border-radius"), Some("46px 8px 0 4px"));
 }
 
 #[test]
@@ -258,4 +279,16 @@ fn groups_stand_for_their_objects_and_hidden_ones_are_left_out() {
     let sheet = css_rules(&d, &[g, d.layers[0].id], &CssOptions::default());
     assert_eq!(sheet.rules.len(), 1, "one visible rectangle, once: {sheet:?}");
     assert_eq!(sheet.text(), sheet.rules[0].text());
+}
+
+#[test]
+fn font_family_with_quote_or_backslash_is_escaped() {
+    for (family, want) in [("Bob's Font", r"'Bob\'s Font'"), (r"Back\slash Font", r"'Back\\slash Font'"), ("Bob's", r"'Bob\'s'")] {
+        let mut d = doc();
+        let st = CharStyle { font_family: family.into(), size: 18.0, ..CharStyle::default() };
+        let n = text(&mut d, "Hello", st);
+        let id = add(&mut d, n);
+        let r = one(&d, id, &CssOptions::default());
+        assert_eq!(prop(&r, "font-family"), Some(want));
+    }
 }

@@ -130,6 +130,130 @@ fn duplicate_artboard_copies_its_art() {
     assert_eq!(ids(&s.execute("artboard.duplicate", &json!({"index": 0, "art": true})).unwrap()["ids"]).len(), 1);
 }
 
+/// New Artboard and Artboard Options trim the name they are given, as the Artboards panel's rename
+/// does, and a blank name gives the artboard its default name, Artboard N for the Nth artboard.
+#[test]
+fn new_and_renamed_artboards_trim_their_names() {
+    let mut s = session();
+    let new = |s: &mut Session, name: &str| s.execute("artboard.new", &json!({"name": name})).unwrap();
+    new(&mut s, "  Cover \t");
+    new(&mut s, " \t ");
+    new(&mut s, "");
+    let names = |s: &Session| boards(s).into_iter().map(|(_, n)| n).collect::<Vec<_>>();
+    assert_eq!(names(&s), ["Artboard 1", "Cover", "Artboard 3", "Artboard 4"]);
+    s.execute("artboard.setProps", &json!({"index": 0, "name": " Back\t"})).unwrap();
+    s.execute("artboard.setProps", &json!({"index": 1, "name": "  "})).unwrap();
+    s.execute("artboard.setProps", &json!({"index": 3, "name": ""})).unwrap();
+    assert_eq!(names(&s), ["Back", "Artboard 2", "Artboard 3", "Artboard 4"]);
+}
+
+/// Duplicate, Copy and Cut Artboard and Move Artboard Up/Down fail with `no such artboard` on an
+/// `index` that names no artboard (past the last, negative, fractional, a string or null), and the
+/// artboards, the art and the clipboard stay as they were.
+#[test]
+fn artboard_copies_refuse_an_index_that_names_no_artboard() {
+    let mut s = session();
+    rect(&mut s);
+    s.execute("artboard.new", &json!({})).unwrap();
+    s.set_tool_options(Some("artboard"), json!({"active": 1}).as_object().unwrap());
+    let (was, n) = (boards(&s), s.doc().unwrap().history.undo.len());
+    for index in [json!(99), json!(-1), json!(1.5), json!("1"), serde_json::Value::Null] {
+        for cmd in ["artboard.duplicate", "artboard.copy", "artboard.cut", "artboard.reorder"] {
+            let p = if cmd == "artboard.reorder" { json!({"index": index, "to": 0}) } else { json!({"index": index}) };
+            assert_eq!(s.execute(cmd, &p).unwrap_err().to_string(), "no such artboard", "{cmd} {p}");
+        }
+    }
+    let st = s.doc().unwrap();
+    assert_eq!((boards(&s), st.doc.layers[0].children().unwrap().len(), st.history.undo.len()), (was, 1, n));
+    assert!(s.clipboard.nodes.is_empty() && s.clipboard.artboards.is_empty(), "nothing copied");
+}
+
+/// Artboards 1 and 2, each with a square on it, and an artboard 3 below artboard 1 with a square on
+/// it, with the Artboard tool selecting artboards 1 and 2 → the squares' ids, artboard by artboard.
+fn two_selected_artboards(s: &mut Session) -> [u64; 3] {
+    s.execute("artboard.new", &json!({"x": 1000, "y": 0, "width": 100, "height": 100})).unwrap();
+    s.execute("artboard.new", &json!({"x": 0, "y": 700, "width": 100, "height": 100, "name": "Small"})).unwrap();
+    let sq = |s: &mut Session, x: u64, y: u64| {
+        s.execute("shape.rectangle", &json!({"x": x, "y": y, "width": 10, "height": 10})).unwrap()["id"].as_u64().unwrap()
+    };
+    let ids = [sq(s, 10, 10), sq(s, 1010, 10), sq(s, 10, 710)];
+    s.execute("select.none", &json!({})).unwrap();
+    s.select_tool("artboard", ViewInfo::default()).unwrap();
+    s.set_tool_option("selected", &json!([0, 1]));
+    ids
+}
+
+/// The objects on the document's layers, in paint order.
+fn objects(s: &Session) -> Vec<u64> {
+    s.doc().unwrap().doc.layers.iter().flat_map(|l| l.children().into_iter().flatten().map(|n| n.id.0)).collect()
+}
+
+/// Duplicate Artboards copies every selected artboard with its art, in one undo step (the public
+/// Use the artboard context menu page). The copies keep their places relative to each other, right
+/// of the last artboard.
+#[test]
+fn duplicate_artboards_copies_every_selected_artboard_in_one_step() {
+    let mut s = session();
+    let [a, b, _] = two_selected_artboards(&mut s);
+    let before = (boards(&s), objects(&s));
+    for p in [json!({"indices": [0, 1]}), json!({})] {
+        let out = s.execute("artboard.duplicate", &p).unwrap();
+        assert_eq!((out["index"].clone(), out["indices"].clone()), (json!(3), json!([3, 4])), "{p}");
+        let copies = ids(&out["ids"]);
+        assert_eq!(copies.len(), 2, "{p}");
+        assert_eq!(boards(&s)[3..], [(1120.0, "Artboard 1 copy".to_string()), (2120.0, "Artboard 2 copy".to_string())], "{p}");
+        assert_eq!((left(&s, copies[0]), left(&s, copies[1])), (1130.0, 2130.0), "{p}: each square on its artboard's copy");
+        assert!(left(&s, a) == 10.0 && left(&s, b) == 1010.0, "{p}: the originals stay");
+        s.execute("edit.undo", &json!({})).unwrap();
+        assert_eq!((boards(&s), objects(&s)), before, "{p}: one undo step");
+    }
+}
+
+/// With the Artboard tool, Copy takes every selected artboard and the art on each (the public Cut,
+/// copy, and paste artboards page). Paste adds a copy of each with its art in one undo step,
+/// together right of the last artboard; Paste in Place puts them where they were. The tool then
+/// selects the pasted artboards.
+#[test]
+fn artboard_tool_copy_and_paste_bring_every_selected_artboard() {
+    let mut s = session();
+    two_selected_artboards(&mut s);
+    let before = (boards(&s), objects(&s));
+    assert_eq!(s.execute("edit.copy", &json!({})).unwrap()["copied"], 2, "the squares on artboards 1 and 2");
+    let out = s.execute("edit.paste", &json!({})).unwrap();
+    assert_eq!((out["artboard"].clone(), out["artboards"].clone()), (json!(3), json!([3, 4])));
+    assert_eq!(boards(&s)[3..], [(1120.0, "Artboard 1 copy".to_string()), (2120.0, "Artboard 2 copy".to_string())]);
+    let pasted = ids(&out["ids"]);
+    assert_eq!((left(&s, pasted[0]), left(&s, pasted[1])), (1130.0, 2130.0));
+    assert_eq!(s.tool_options()["selected"], json!([3, 4]), "the tool selects the pasted artboards");
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!((boards(&s), objects(&s)), before, "one undo step");
+    let out = s.execute("edit.pasteInPlace", &json!({})).unwrap();
+    let d = &s.doc().unwrap().doc;
+    assert_eq!((d.artboards[3].rect, d.artboards[4].rect), (d.artboards[0].rect, d.artboards[1].rect));
+    let pasted = ids(&out["ids"]);
+    assert_eq!((left(&s, pasted[0]), left(&s, pasted[1])), (10.0, 1010.0));
+}
+
+/// With the Artboard tool, Cut takes every selected artboard and the art on each away in one undo
+/// step, and leaves the other artboards and their art; it fails when every artboard is selected.
+#[test]
+fn artboard_tool_cut_removes_every_selected_artboard() {
+    let mut s = session();
+    let [a, b, c] = two_selected_artboards(&mut s);
+    let before = (boards(&s), objects(&s));
+    assert_eq!(s.execute("edit.cut", &json!({})).unwrap()["copied"], 2);
+    assert_eq!((boards(&s), objects(&s)), (vec![(0.0, "Small".into())], vec![c]));
+    s.execute("edit.pasteInPlace", &json!({})).unwrap();
+    assert_eq!(boards(&s), vec![(0.0, "Small".into()), (0.0, "Artboard 1".into()), (1000.0, "Artboard 2".into())]);
+    s.execute("edit.undo", &json!({})).unwrap();
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!((boards(&s), objects(&s)), before, "the cut is one undo step");
+    assert!(objects(&s).contains(&a) && objects(&s).contains(&b));
+    s.set_tool_option("selected", &json!([0, 1, 2]));
+    assert!(s.execute("edit.cut", &json!({})).is_err(), "every artboard");
+    assert_eq!(boards(&s), before.0);
+}
+
 /// With the Artboard tool, Copy and Paste copy its artboard with the art on it (#446): Paste places
 /// it right of the last artboard, Paste in Place where it was, also in another document; each paste
 /// is one undo step, and the tool takes the pasted artboard.

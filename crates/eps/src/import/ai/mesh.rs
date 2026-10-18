@@ -96,8 +96,24 @@ impl MeshReader {
         let [n0, n1, n2, n3] = corners else { return None };
         // (anchor, towards the next corner, towards the previous one, colour, opacity)
         let read = |n: &Vec<f64>| -> Option<(Point, Vec2, Vec2, Color, f32)> {
-            let comps = n.len().checked_sub(9)?;
-            let &[opacity, x, y, nx, ny, _, px, py, _] = n.get(comps..)? else { return None };
+            // Older editing streams omit opacity; the colour space determines the number
+            // of colour components, so a coordinate must never be mistaken for opacity.
+            let comps = match self.space.as_str() {
+                "DeviceRGB" => 3,
+                "DeviceCMYK" => 4,
+                "DeviceGray" => 1,
+                _ => return None,
+            };
+            let (opacity, geometry) = match n.get(comps..)? {
+                geometry if geometry.len() == 8 => (1.0, geometry),
+                [opacity, geometry @ ..] if geometry.len() == 8 => (*opacity, geometry),
+                _ => return None,
+            };
+            let &[x, y, nx, ny, nw, px, py, pw] = geometry else { return None };
+            // Non-unit rational weights need a different surface representation.
+            if nw != 1.0 || pw != 1.0 {
+                return None;
+            }
             if ![opacity, x, y, nx, ny, px, py].iter().all(|v| v.is_finite()) {
                 return None;
             }

@@ -393,7 +393,7 @@ impl Tool for ShaperTool {
         vec![Overlay::Path { path: crate::draw2::polyline(&self.points), color: BLUE, width: 1.5, dashed: false }]
     }
     fn cursor(&self, _cx: &ToolContext, _p: Point, _mods: Mods) -> Cursor {
-        Cursor::Crosshair
+        Cursor::Shaper
     }
 }
 

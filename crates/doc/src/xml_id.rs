@@ -27,7 +27,8 @@ pub fn to_object_name(id: &str) -> String {
     out
 }
 
-/// The XML id for an object name (the inverse of [`to_object_name`]).
+/// The XML id for an object name (the inverse of [`to_object_name`]). The empty name stays empty,
+/// since a bare `_` would read back as a space.
 pub fn from_object_name(name: &str) -> String {
     let mut out = String::with_capacity(name.len().saturating_mul(2));
     for (i, c) in name.chars().enumerate() {
@@ -35,16 +36,13 @@ pub fn from_object_name(name: &str) -> String {
             out.push('_');
         } else if c == '_' {
             out.push_str("_x5F_");
-        } else if i == 0 && c.is_ascii_digit() {
+        } else if (i == 0 && !(c.is_alphabetic() || c == ':')) || !(c.is_alphanumeric() || c == '.' || c == '-' || c == ':') {
+            // A first character that cannot start an XML name is escaped, never given a bare `_`
+            // prefix (that would read back as a space).
             out.push_str(&format!("_x{:X}_", u32::from(c)));
-        } else if c.is_alphanumeric() || c == '.' || c == '-' || c == ':' {
-            out.push(c);
         } else {
-            out.push_str(&format!("_x{:X}_", u32::from(c)));
+            out.push(c);
         }
-    }
-    if out.is_empty() || !starts_name(&out) {
-        out.insert(0, '_');
     }
     out
 }
@@ -64,10 +62,6 @@ pub fn is_valid(id: &str) -> bool {
         return false;
     }
     chars.all(|c| c.is_alphanumeric() || matches!(c, '_' | '.' | '-' | ':'))
-}
-
-fn starts_name(id: &str) -> bool {
-    id.starts_with(|c: char| c.is_alphabetic() || c == '_' || c == ':')
 }
 
 /// `_xHHHH_` at the start of `s`: the character and the escape's length.
@@ -113,5 +107,16 @@ mod tests {
         assert_eq!(to_object_name("S_00000092429200007574234970000005974767392385616558_"), "S");
         assert!(is_valid("Layer_1") && is_valid("_x31_abc") && is_valid(":root"));
         assert!(!is_valid("My Rect") && !is_valid("1abc") && !is_valid(""));
+    }
+
+    #[test]
+    fn round_trip_names_that_cannot_start_an_xml_name() {
+        for name in ["-abc", ".5 mm", "²x", "Ⅷ", "", "1abc", "Layer 1", " lead", "_a", ":a", "#"] {
+            let id = from_object_name(name);
+            assert_eq!(to_object_name(&id), name, "name {name:?} -> id {id:?}");
+        }
+        assert_eq!(from_object_name("-abc"), "_x2D_abc");
+        assert_eq!(from_object_name(".5 mm"), "_x2E_5_mm");
+        assert_eq!(from_object_name("²x"), "_xB2_x");
     }
 }

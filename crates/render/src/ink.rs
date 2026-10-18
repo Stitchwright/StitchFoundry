@@ -153,7 +153,7 @@ pub(crate) struct InkLut(CmykLut);
 impl InkLut {
     fn build(cms: &Cms) -> Self {
         Self(CmykLut::build(|inks| {
-            let [x, y, z] = lab::lab_to_xyz(cms.cmyk_to_lab(inks));
+            let [x, y, z] = lab::lab_to_xyz(cms.cmyk_display_lab(inks));
             [x, y, z, 0.0]
         }))
     }

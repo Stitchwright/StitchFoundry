@@ -211,7 +211,7 @@ fn body(app: &mut VectorcraftApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             }
             ui.add_space(6.0);
             let track = |z: f32| c32(&Picked::of(slider_color(channel, z, x, y)).snapped(web).color);
-            if let (Some(z), _) = widgets::channel_slider(ui, "cp-slider", z, vec2(22.0, FIELD), &track) {
+            if let (Some(z), _) = widgets::channel_slider_named(ui, "cp-slider", tl!(channel.label()), z, vec2(22.0, FIELD), &track) {
                 pick = Some(field_pick(channel, z, x, y));
             }
         }

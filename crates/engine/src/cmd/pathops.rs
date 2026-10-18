@@ -585,9 +585,9 @@ pub(crate) fn with_transparency(d: &mut Document, mut n: Node, opacity: f32, ble
     n
 }
 
-/// The art stroke `st` of a path (`path`, `rule`) paints, as fills: its brush art, or the
-/// outline of the stroke (as on the canvas) filled with the stroke's paint, opacity, blend mode
-/// and effects (a gradient along or across the stroke: gradient meshes in a clip group shaped
+/// The art stroke `st` of a path (`path`, `rule`) paints, as fills: its brush art (with the
+/// stroke's opacity, blend mode and raster effects), or the outline of the stroke (as on the canvas)
+/// filled with the stroke's paint, opacity, blend mode and effects (a gradient along or across the stroke: gradient meshes in a clip group shaped
 /// like the outline). `None` when it paints nothing.
 pub(crate) fn outlined_stroke(
     d: &mut Document,
@@ -604,7 +604,15 @@ pub(crate) fn outlined_stroke(
             _ => Node::group(NodeId(0), pieces.into_iter().map(Arc::new).collect()),
         };
         let art = d.reid(&art);
-        return Some(with_transparency(d, art, st.opacity, st.blend));
+        let mut art = with_transparency(d, art, st.opacity, st.blend);
+        let raster: Vec<_> = st.effects.iter().filter(|e| !vectorcraft_render::effects::is_geometry(&e.id)).cloned().collect();
+        if !raster.is_empty() {
+            if !art.appearance.effects.is_empty() {
+                art = Node::group(d.alloc_id(), vec![Arc::new(art)]);
+            }
+            art.appearance.effects = raster;
+        }
+        return Some(art);
     }
     let outline = vectorcraft_render::effects::stroke::outline_region(path, rule, st);
     if outline.is_empty() {
@@ -676,12 +684,13 @@ pub(crate) fn styled_copy(d: &mut Document, l: &Node, items: Vec<AppearanceItem>
     f
 }
 
-/// What stands for object `l` once its appearance became `parts` (paint order): the one part or a
-/// group of them, with `l`'s transparency, name, opacity mask and effects. `None` without parts.
+/// What stands for object `l` once its appearance became `parts` (paint order): the one part (in a
+/// group when it has effects of its own) or a group of them, with `l`'s transparency, name, opacity
+/// mask and effects. `None` without parts.
 pub(crate) fn assemble(d: &mut Document, l: &Node, mut parts: Vec<Node>) -> Option<Node> {
     let root = match parts.len() {
         0 => return None,
-        1 => parts.remove(0),
+        1 if parts[0].appearance.effects.is_empty() => parts.remove(0),
         _ => Node::group(d.alloc_id(), parts.into_iter().map(Arc::new).collect()),
     };
     let mut root = with_transparency(d, root, l.opacity, l.blend);

@@ -16,6 +16,9 @@
 //!   (`crop: "bounding"`).
 //! - A text file becomes area type, decoded and cleaned up with the Text Import Options (`text`,
 //!   [`text`]).
+//! - An RTF file becomes area type with its character and paragraph formatting ([`rtf`]).
+//! - A Word document (`.docx`) becomes area type with the character and paragraph formatting its
+//!   styles and direct formatting give ([`docx`]).
 //! - A VectorCraft document placed from a file with Link (the default) becomes a placed document:
 //!   one locked object showing the artboard `page`, linked to the file and read again when it
 //!   changes ([`document`]); without Link, an editable copy of its art.
@@ -27,6 +30,8 @@
 
 pub(crate) mod adopt;
 pub(crate) mod document;
+mod docx;
+mod rtf;
 mod text;
 
 use std::sync::Arc;
@@ -96,8 +101,9 @@ pub fn specs() -> Vec<CommandSpec> {
 /// A file's art at its natural size, before it joins a document.
 enum Art {
     Image(RasterImage),
-    /// A text file's text, placed as area type filling the natural box.
-    Text(String),
+    /// A text file's, an RTF file's or a Word document's text, placed as area type filling the
+    /// natural box.
+    Text(text::Story),
     /// A VectorCraft document placed linked: the file read, the link, and whether the art's
     /// bounds (not the artboard) are shown.
     Document(document::Source, LinkInfo, bool),
@@ -142,7 +148,24 @@ fn load(p: &Value, cmd: &str, board: Option<Rect>) -> Result<Loaded> {
         if text.trim().is_empty() {
             return Err(bad(cmd, format!("`{name}` has no text to place")));
         }
-        return Ok(Loaded { name, format: &text::FORMAT, art: Art::Text(text), natural: TEXT_FRAME, warnings: vec![], link: None, board: None });
+        let art = Art::Text(text::Story::plain(text));
+        return Ok(Loaded { name, format: &text::FORMAT, art, natural: TEXT_FRAME, warnings: vec![], link: None, board: None });
+    }
+    // An RTF file is recognized by its content, whatever its name says (a .txt file is plain text).
+    if rtf::is_rtf(&src.bytes) {
+        let story = rtf::import(&src.bytes, cmd)?;
+        if story.plain_text().trim().is_empty() {
+            return Err(bad(cmd, format!("`{name}` has no text to place")));
+        }
+        return Ok(Loaded { name, format: &rtf::FORMAT, art: Art::Text(story), natural: TEXT_FRAME, warnings: vec![], link: None, board: None });
+    }
+    // A Word document is recognized by its name or by its package's `word/document.xml`.
+    if docx::is_docx(src.name, &src.bytes) {
+        let story = docx::import(&src.bytes, cmd)?;
+        if story.plain_text().trim().is_empty() {
+            return Err(bad(cmd, format!("`{name}` has no text to place")));
+        }
+        return Ok(Loaded { name, format: &docx::FORMAT, art: Art::Text(story), natural: TEXT_FRAME, warnings: vec![], link: None, board: None });
     }
     let format = fileio::detect(src.name, &src.bytes)
         .ok_or_else(|| bad(cmd, format!("can't place `{name}`: not a format StitchFoundry reads (see document.formats)")))?;
@@ -298,7 +321,7 @@ fn build(d: &mut Document, l: Loaded, link: Option<LinkInfo>) -> Node {
             };
             Node::new(d.alloc_id(), NodeKind::Image(Box::new(im)))
         }
-        Art::Text(t) => Node::new(d.alloc_id(), NodeKind::Text(Box::new(text::area_text(t, l.natural)))),
+        Art::Text(t) => Node::new(d.alloc_id(), NodeKind::Text(Box::new(text::area_text(t, l.natural, &d.setup)))),
         Art::Document(s, link, bounding) => document::node(d, &s, link, bounding),
         Art::Vector { src, mut nodes, clip } => {
             adopt::adopt(d, &src, &mut nodes);
@@ -521,9 +544,9 @@ fn pruned(nodes: Vec<Node>, keep: &dyn Fn(&Node) -> bool) -> Vec<Node> {
         .collect()
 }
 
-/// The artboard under `at`, else the first.
+/// The artboard under `at` (its edges included, [`Document::artboard_holding`]), else the first.
 fn board_at(d: &Document, at: Option<Point>) -> Option<Rect> {
-    at.and_then(|c| d.artboards.iter().find(|a| a.rect.contains(c))).or(d.artboards.first()).map(|a| a.rect)
+    at.and_then(|c| d.artboard_holding(c, false)).and_then(|i| d.artboards.get(i)).or(d.artboards.first()).map(|a| a.rect)
 }
 
 /// Placed type's frame without `rect` or Replace: the artboard under `at` (else the first) less a

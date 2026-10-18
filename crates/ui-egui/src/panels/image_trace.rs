@@ -53,7 +53,7 @@ fn library_label(app: &VectorcraftApp, key: &str) -> String {
 fn library_list(app: &VectorcraftApp, ui: &mut Ui, current: &str) -> Option<String> {
     let document = menu_item(ui, swatches::DOCUMENT_SWATCHES, true, current == DOCUMENT_SWATCHES).then(|| DOCUMENT_SWATCHES.to_string());
     ui.separator();
-    library_panel::library_items(ui, &swatches::colour_libraries(app), Some(current)).or(document)
+    library_panel::library_items(ui, &swatches::colour_libraries(app), &|id| id == current).or(document)
 }
 
 /// Panel state: the preset name, the current parameters, the view and the last result's counts.
@@ -174,11 +174,10 @@ pub(crate) const TRACE_BUTTON_W: f32 = 104.0;
 /// The Image Trace button for a selected image (Control bar, Properties): a click traces it with
 /// the Default preset, its arrow lists the presets to trace it with.
 pub(crate) fn trace_button(app: &mut VectorcraftApp, ui: &mut Ui, width: f32) {
-    let (main, arrow) = widgets::split_button(ui, tl!("Image Trace"), width);
+    let (main, arrow) = widgets::split_button_named(ui, tl!("Image Trace"), tl!("Tracing Presets"), width);
     if main.on_hover_text(tl!("Trace the image with the Default preset")).clicked() {
         trace_with(app, "Default");
     }
-    let arrow = arrow.on_hover_text(tl!("Tracing Presets"));
     if let Some(p) = egui::Popup::menu(&arrow).show(|ui| preset_list(app, ui, "")).and_then(|r| r.inner) {
         trace_with(app, &p);
     }
@@ -518,6 +517,20 @@ mod tests {
         app.run("file.place", json!({"name": "half.png", "dataBase64": data, "link": false})).unwrap();
         app.run("imageTrace.make", json!({"preset": "Default"})).unwrap();
         app
+    }
+
+    #[test]
+    fn a_large_image_traces_and_the_status_bar_says_it_is_slower() {
+        let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), Default::default());
+        app.session.execute("file.new", &json!({"width": 100, "height": 100})).unwrap();
+        let img = image::RgbaImage::from_fn(1601, 12, |x, _| image::Rgba(if x < 800 { [0, 0, 0, 255] } else { [255, 255, 255, 255] }));
+        let mut png = vec![];
+        img.write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).unwrap();
+        let data = vectorcraft_format::base64_encode(&png);
+        app.run("file.place", json!({"name": "wide.png", "dataBase64": data, "link": false})).unwrap();
+        trace_with(&mut app, "Default");
+        assert!(target(&app).2.is_some(), "the image is traced");
+        assert!(app.ui.status.contains("1601 × 12") && app.ui.status.contains("more slowly"), "{}", app.ui.status);
     }
 
     #[test]

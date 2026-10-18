@@ -1,6 +1,9 @@
 //! Save PDF › Output: colours converted to a destination profile, the ICC profiles that tag them,
 //! and the output intent and Trapped entries.
 //!
+//! A document's colours are in its own colour spaces ([`document_cms`]): the profiles assigned to
+//! it (Edit › Assign Profile), which it keeps when saved and opened again, else the working spaces.
+//!
 //! - Conversion ([`ColorConversion`]): `destination` converts every colour to the destination
 //!   profile's model (CMYK or RGB) with the colour settings' intent, also colours already in that
 //!   model when their profile differs from the destination; `preserveNumbers` converts only the
@@ -49,8 +52,10 @@ struct Dest {
 
 /// How an export writes colours (see the module documentation).
 pub(crate) struct ColorOut {
-    /// The colour settings colours come from.
+    /// The colour settings colours come from: the document's colour spaces ([`document_cms`]).
     source: Arc<Cms>,
+    /// Why colours aren't in a profile assigned to the document (warnings).
+    pub profile_notes: Vec<String>,
     dest: Option<Dest>,
     /// Colours are written in ICC-based colour spaces.
     pub tagged: bool,
@@ -97,6 +102,7 @@ impl Default for ColorOut {
         let intent = source.settings().intent;
         Self {
             source,
+            profile_notes: vec![],
             dest: None,
             tagged: false,
             cmyk_profile,
@@ -106,6 +112,38 @@ impl Default for ColorOut {
             intent,
             catalog: None,
             standard: Standard::None,
+        }
+    }
+}
+
+/// The colour settings `doc`'s colours are in: the active ones, with the profiles assigned to the
+/// document (Edit › Assign Profile) as its RGB and CMYK spaces. The document keeps them when it
+/// is saved and opened again, while the working spaces are the app's (a new session starts with
+/// the defaults), so the two can differ. An assigned profile that isn't available leaves its
+/// working space, with a warning in the second value.
+pub(crate) fn document_cms(doc: &Document) -> (Arc<Cms>, Vec<String>) {
+    let active = cms::active();
+    let mut settings = active.settings().clone();
+    let mut notes = vec![];
+    let assigned = [(&doc.color_profiles.rgb, ProfileKind::Rgb, "RGB"), (&doc.color_profiles.cmyk, ProfileKind::Cmyk, "CMYK")];
+    for (name, kind, label) in assigned {
+        let Some(name) = name else { continue };
+        let space = if kind == ProfileKind::Rgb { &mut settings.rgb } else { &mut settings.cmyk };
+        match cms::profile(name).filter(|p| p.kind == kind) {
+            Some(p) => *space = p.name,
+            None => notes.push(format!(
+                "the document's {label} profile “{name}” isn't available: its {label} colours are written in the working {label} space, {space}"
+            )),
+        }
+    }
+    if settings == *active.settings() {
+        return (active, notes);
+    }
+    match Cms::new(&settings) {
+        Ok(own) => (Arc::new(own), notes),
+        Err(e) => {
+            notes.push(format!("the document's colour profiles can't be used ({e}): its colours are written in the working spaces"));
+            (active, notes)
         }
     }
 }
@@ -172,9 +210,11 @@ pub(crate) fn warnings(set: &PdfSettings) -> Vec<String> {
 }
 
 impl ColorOut {
-    /// How `set` writes the colours of `doc` (the colour settings are the source).
+    /// How `set` writes the colours of `doc` (its colour spaces, [`document_cms`], are the source).
     pub(crate) fn new(doc: &Document, set: &PdfSettings) -> Result<Self, PdfError> {
-        let mut out = Self::default();
+        let (source, profile_notes) = document_cms(doc);
+        let cmyk_profile = source.settings().cmyk.clone();
+        let mut out = Self { source, profile_notes, cmyk_profile, ..Self::default() };
         let source = out.source.clone();
         let st = source.settings();
         if let Some((name, model)) = destination(set, doc.color_mode, &source)? {

@@ -240,6 +240,13 @@ fn headless_end_to_end() {
     assert_eq!(skel["artboards"], doc["artboards"]);
     assert_eq!(call(&mut s, 42, "inspect_document", json!({"depth": -1}))["isError"], true);
 
+    // Scoping reaches the command: one node by id equals its part of the full tree;
+    // an unknown id is a tool error.
+    let r = call(&mut s, 43, "doc_inspect", json!({"ids": [id]}));
+    let one: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    assert_eq!(one["nodes"], json!([rect]), "{one}");
+    assert_eq!(call(&mut s, 44, "doc_inspect", json!({"ids": [999_999]}))["isError"], true);
+
     // Screenshot returns image content (base64 PNG) and text.
     let shot_path = tmp("shot.png");
     let r = call(&mut s, 5, "screenshot", json!({"path": shot_path.to_str().unwrap()}));
@@ -1070,6 +1077,21 @@ fn show_font_names_in_english_does_not_change_font_list_for_agents() {
     let families = serde_json::from_str::<Value>(&text_of(&r)).unwrap()["families"].as_array().unwrap().clone();
     // Canonical English name for commands, whatever the UI labels show with the preference off.
     assert!(families.iter().any(|f| f.as_str() == Some("Source Sans 3")), "{families:?}");
+}
+
+/// Preferences › Type › Highlight Alternate Glyphs (#394): off by default so the canvas stays
+/// clear until an agent (or the Preferences dialog) turns it on. Headless MCP has no canvas.
+#[test]
+fn highlight_alternate_glyphs_pref_round_trips_for_agents() {
+    let mut s = server();
+    let r = call(&mut s, 1, "run_command", json!({"command": "prefs.get", "params": {"key": "highlightAlternateGlyphs"}}));
+    assert_eq!(r["isError"], false, "{r}");
+    assert_eq!(serde_json::from_str::<Value>(&text_of(&r)).unwrap(), json!(false));
+    let r = call(&mut s, 2, "run_command", json!({"command": "prefs.set", "params": {"key": "highlightAlternateGlyphs", "value": true}}));
+    assert_eq!(r["isError"], false, "{r}");
+    let r = call(&mut s, 3, "run_command", json!({"command": "prefs.get", "params": {"key": "highlightAlternateGlyphs"}}));
+    assert_eq!(r["isError"], false, "{r}");
+    assert_eq!(serde_json::from_str::<Value>(&text_of(&r)).unwrap(), json!(true));
 }
 
 /// Type preferences reach agents (#394): type the Type tool places starts with placeholder text,

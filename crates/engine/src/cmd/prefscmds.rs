@@ -89,8 +89,10 @@ pub const GPU_PREFERENCES: &[(&str, &str)] =
     &[("automatic", "Automatic"), ("lowPower", "Power Saving (integrated)"), ("highPerformance", "High Performance (discrete)")];
 /// Performance › Linux Display Server (`linuxDisplayServer`), read by the desktop app at startup:
 /// `x11` opens the window through XWayland on a Wayland session, where dropped files arrive
-/// (winit 0.30 has no Wayland drag and drop, #1151).
-const LINUX_DISPLAY_SERVERS: &[(&str, &str)] = &[("automatic", "Automatic"), ("x11", "X11 (XWayland)")];
+/// (winit 0.30 has no Wayland drag and drop, #1151); `x11WithPen` does the same only when a pen is
+/// attached as the app starts: under XWayland a drawing tablet's pen draws as a mouse (#2028).
+const LINUX_DISPLAY_SERVERS: &[(&str, &str)] =
+    &[("automatic", "Automatic"), ("x11", "X11 (XWayland)"), ("x11WithPen", "X11 (XWayland) When a Pen Is Attached")];
 const BLACK: &[(&str, &str)] = &[("accurate", "Display All Blacks Accurately"), ("rich", "Display All Blacks as Rich Black")];
 const BLACK_OUT: &[(&str, &str)] = &[("accurate", "Output All Blacks Accurately"), ("rich", "Output All Blacks as Rich Black")];
 
@@ -139,6 +141,7 @@ pub const PREF_SPECS: &[PrefSpec] = &[
     p!("scaleStrokes", "General", "Options", "Scale Strokes & Effects", bool),
     p!("zoomWithMouseWheel", "General", "Options", "Zoom with Mouse Wheel", bool),
     p!("scrubNumericFields", "General", "Options", "Scrub Numeric Fields by Dragging", bool),
+    p!("trackpadRotateView", "General", "Options", "Trackpad Gesture to Rotate View", bool),
     // Selection & Anchor Display
     p!("selectionTolerance", "Selection & Anchor Display", "Selection", "Tolerance", num(1.0, 8.0, "px")),
     p!("objectSelectionByPathOnly", "Selection & Anchor Display", "Selection", "Object Selection by Path Only", bool),

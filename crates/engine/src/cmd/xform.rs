@@ -27,7 +27,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Sample Color",
             [],
             None,
-            "{color, stroke?: bool (default: whichever proxy is active), ids?, stop?: index} sample a colour into the active fill/stroke (and the selection); with `stop`, recolour that stop of the gradient behind the proxy instead (paint.editGradient)",
+            "{color, stroke?: bool (default: whichever proxy is active), ids?, stop?: index} sample a colour into the active fill/stroke (and the selection); with `stop`, recolour that stop of the gradient behind the proxy instead (paint.editGradient); in a CMYK document an RGB color is stored as CMYK through the color settings, as paint.setFill stores it",
             has_doc,
             sample_color
         ),
@@ -346,7 +346,7 @@ fn sample_color(s: &mut Session, p: &Value) -> Result<Value> {
         None | Some(Value::Null) => (if stroke { "paint.setStroke" } else { "paint.setFill" }, json!({ "color": c })),
         Some(v) => {
             let i = v.as_u64().ok_or_else(|| bad(C, "`stop` must be a stop index"))? as usize;
-            let color = color_value(c).ok_or_else(|| bad(C, format!("bad color {c}")))?;
+            let color = super::paint::new_color(s, p, color_value(c).ok_or_else(|| bad(C, format!("bad color {c}")))?);
             let (fill, stroke_paint) = s.proxy_paints();
             let Paint::Gradient(g) = (if stroke { stroke_paint } else { fill }) else {
                 return Err(bad(C, "the paint behind the proxy is not a gradient"));

@@ -347,8 +347,7 @@ fn layout_once(db: &FontDb, t: &TextObject, opts: &LayoutOptions) -> TextLayout 
         TextKind::OnPath { .. } => Affine::IDENTITY,
         TextKind::Point => {
             let first = cx.style_at(0);
-            let centre =
-                db.face_version(&first.font_family, &first.font_style, first.font_version.as_deref()).map_or(EM_CENTER, |f| f.ideographic_centre());
+            let centre = db.style_face(first).map_or(EM_CENTER, |f| f.ideographic_centre());
             Affine::translate((-centre * first.size, 0.0)) * QUARTER_TURN
         }
         _ => QUARTER_TURN,
@@ -1162,6 +1161,16 @@ fn tab_advance<'t>(tabs: &'t [vectorcraft_doc::TabStop], origin: f64, x: f64, re
     ((at - rel).max(0.0), leader)
 }
 
+/// The width of glyphs `from..to` of `sg` set on a line whose content starts `x_start` from the
+/// tab origin: tabs take what [`tab_advance`] gives them, not the width of their glyph.
+fn set_width(sg: &[SGlyph], from: usize, to: usize, tabs: &[vectorcraft_doc::TabStop], x_start: f64) -> f64 {
+    let mut x = x_start;
+    for (j, g) in sg.iter().enumerate().take(to).skip(from) {
+        x += if g.ch == '\t' { tab_advance(tabs, 0.0, x, sg.get(j + 1..to).unwrap_or_default()).0 } else { g.adv };
+    }
+    x - x_start
+}
+
 /// Most copies of a leader drawn in one tab: a tiny type size and a far stop must not make
 /// millions of outlines.
 const MAX_LEADER_COPIES: f64 = 4096.0;
@@ -1223,12 +1232,16 @@ fn word_width(g: &[SGlyph], i: usize) -> f64 {
 /// With burasagari, a comma or full stop that doesn't fit ends the line, hanging outside it.
 /// `hyphenate` holds the paragraph's Hyphenation options and the Hyphenation Zone in force when
 /// the line may hyphenate a word; a line whose text before the overflowing word already ends
-/// within the zone breaks before that word.
+/// within the zone breaks before that word. A tab is as wide as it is set: up to its next stop
+/// (`tabs`), with the line's content starting `x_start` from the tab origin.
+#[allow(clippy::too_many_arguments)]
 fn break_line(
     text: &str,
     g: &[SGlyph],
     i: usize,
     width: f64,
+    tabs: &[vectorcraft_doc::TabStop],
+    x_start: f64,
     hyphenate: Option<(&HyphenationOptions, f64)>,
     burasagari: Burasagari,
     kinsoku: Kinsoku,
@@ -1245,7 +1258,11 @@ fn break_line(
         while g.get(cluster_end).is_some_and(|next| next.byte == gl.byte) {
             cluster_end += 1;
         }
-        let cluster_width: f64 = g[j..cluster_end].iter().map(|glyph| glyph.adv).sum();
+        let cluster_width: f64 = if gl.ch == '\t' {
+            tab_advance(tabs, 0.0, x_start + x, g.get(cluster_end..).unwrap_or_default()).0
+        } else {
+            g[j..cluster_end].iter().map(|glyph| glyph.adv).sum()
+        };
         if j > i && !gl.is_space() && x + cluster_width > width + EPS {
             // It ends the line with the spaces after it.
             if burasagari != Burasagari::None && hangs(gl) && kinsoku_allows(g, cluster_end - 1, kinsoku) {
@@ -1316,6 +1333,71 @@ fn break_line(
 /// its line breaks and composer). Never an inline graphic (U+FFFC).
 fn hangs(g: &SGlyph) -> bool {
     g.inline.is_none() && matches!(g.ch, '、' | '。' | '，' | '．' | '､' | '｡') && g.tcy.is_none()
+}
+
+/// Optical Margin Alignment: the share of glyph `g`'s advance that hangs outside the margin when
+/// `g` starts or ends a line. Quotation marks, hyphens, full stops and commas hang whole, and
+/// asterisks, tildes, ellipses, en and em dashes, colons and semicolons hang by half (the amounts
+/// published for Roman Hanging Punctuation). A, V, W, Y, v, w and y hang by a tenth of their
+/// advance, VectorCraft's own amount for their slanted sides. Other characters, East Asian
+/// punctuation (which burasagari hangs) and inline graphics don't hang.
+fn optical_share(g: &SGlyph) -> f64 {
+    if g.inline.is_some() || g.tcy.is_some() {
+        return 0.0;
+    }
+    match g.ch {
+        '-' | '\u{2010}' | '\u{2011}' | '.' | ',' => 1.0,
+        c if is_quote(c) => 1.0,
+        '*' | '~' | '…' | '–' | '—' | ':' | ';' => 0.5,
+        'A' | 'V' | 'W' | 'Y' | 'v' | 'w' | 'y' => 0.1,
+        _ => 0.0,
+    }
+}
+
+/// Roman Hanging Punctuation: the share of glyph `g`'s advance that hangs outside the margin when
+/// `g` starts or ends a line: [`optical_share`]'s punctuation, and no letters.
+fn roman_share(g: &SGlyph) -> f64 {
+    if g.ch.is_alphabetic() { 0.0 } else { optical_share(g) }
+}
+
+/// A punctuation mark that hangs ([`optical_share`]), not a letter.
+fn optical_punct(g: &SGlyph) -> bool {
+    !g.ch.is_alphabetic() && optical_share(g) > 0.0
+}
+
+/// A single or double quotation mark: straight, curly, low-9 or reversed-9.
+fn is_quote(c: char) -> bool {
+    matches!(c, '\'' | '"' | '‘' | '’' | '‚' | '‛' | '“' | '”' | '„' | '‟')
+}
+
+/// Optical Margin Alignment and Roman Hanging Punctuation: how far a line hangs outside its left
+/// and right margins, from the glyph at each end of `line` (its glyphs in visual order, each with
+/// the advance it is set with) and its `share` ([`optical_share`] or [`roman_share`]), and how many glyphs hang at each end → (left, right, left glyphs,
+/// right glyphs). A punctuation mark followed by a quotation mark hangs together with it: `."`
+/// ending a line and `'"` starting one hang both their glyphs. A line of one glyph hangs at
+/// neither end.
+fn optical_hangs(line: &[(&SGlyph, f64)], share: fn(&SGlyph) -> f64) -> (f64, f64, usize, usize) {
+    let n = line.len();
+    if n < 2 {
+        return (0.0, 0.0, 0, 0);
+    }
+    let hang = |k: usize| line.get(k).map_or(0.0, |&(g, adv)| share(g) * adv.max(0.0));
+    let punct = |k: usize| line.get(k).is_some_and(|&(g, _)| optical_punct(g));
+    let quote = |k: usize| line.get(k).is_some_and(|&(g, _)| is_quote(g.ch) && share(g) > 0.0);
+    let mut left = hang(0);
+    // The glyphs that hang at the left; the right end takes none of them.
+    let mut taken = usize::from(left > 0.0);
+    if left > 0.0 && n > 2 && punct(0) && quote(1) {
+        left += hang(1);
+        taken = 2;
+    }
+    let mut right = hang(n - 1);
+    let mut right_glyphs = usize::from(right > 0.0);
+    if right > 0.0 && n > 2 && n - 2 >= taken && punct(n - 2) && quote(n - 1) {
+        right += hang(n - 2);
+        right_glyphs = 2;
+    }
+    (left, right, taken, right_glyphs)
 }
 
 /// Does kinsoku allow a line break after glyph `j`? Not after an opening bracket, nor before a
@@ -1390,7 +1472,7 @@ mod wrapping_tests {
         let text = "بَت";
         let glyphs = synthetic_glyphs(&[(0, 4, 2.0, 'ب'), (0, 4, 2.0, 'ب'), (4, 2, 1.0, 'ت')]);
 
-        let (end, hyphenated) = break_line(text, &glyphs, 0, 3.0, None, Burasagari::None, Kinsoku::Hard);
+        let (end, hyphenated) = break_line(text, &glyphs, 0, 3.0, &[], 0.0, None, Burasagari::None, Kinsoku::Hard);
 
         assert!(!hyphenated);
         assert_eq!(end, 2, "oversized base-plus-mark cluster must stay together");
@@ -1403,11 +1485,11 @@ mod wrapping_tests {
         let text = "بَتَث";
         let glyphs = synthetic_glyphs(&[(0, 4, 1.0, 'ب'), (4, 4, 2.0, 'ت'), (4, 4, 2.0, 'ت'), (8, 2, 1.0, 'ث')]);
 
-        let (first_end, _) = break_line(text, &glyphs, 0, 3.0, None, Burasagari::None, Kinsoku::Hard);
+        let (first_end, _) = break_line(text, &glyphs, 0, 3.0, &[], 0.0, None, Burasagari::None, Kinsoku::Hard);
         assert_eq!(first_end, 1);
         assert_eq!(source_range(&glyphs, 0, first_end), 0..4);
 
-        let (second_end, hyphenated) = break_line(text, &glyphs, first_end, 3.0, None, Burasagari::None, Kinsoku::Hard);
+        let (second_end, hyphenated) = break_line(text, &glyphs, first_end, 3.0, &[], 0.0, None, Burasagari::None, Kinsoku::Hard);
 
         assert!(!hyphenated);
         assert_eq!(second_end, 3, "oversized cluster at the next line start must stay together");
@@ -1567,7 +1649,10 @@ fn compose_para(cx: &Ctx<'_>, sg: &[SGlyph], para: &ParaStyle, pen: &Pen<'_>, rt
     // A paragraph whose commas or full stops may hang is composed line by line (as the Japanese
     // single-line composer does).
     let may_hang = para.burasagari != Burasagari::None && sg.iter().any(hangs);
-    if composer != Composer::EveryLine || pen.regions.is_none() || sg.len() < 2 || sg.len() > MAX_COMPOSE_GLYPHS || may_hang {
+    // A tab's width depends on where it falls in its line, which the composer's fixed glyph widths
+    // can't follow: such a paragraph is broken line by line ([`break_line`] measures its tabs).
+    let has_tab = sg.iter().any(|g| g.ch == '\t');
+    if composer != Composer::EveryLine || pen.regions.is_none() || sg.len() < 2 || sg.len() > MAX_COMPOSE_GLYPHS || may_hang || has_tab {
         return None;
     }
     let m = Metrics::of(&sg[0]);
@@ -1649,8 +1734,7 @@ fn flow(cx: &mut Ctx<'_>, paras: &[Range<usize>], t: &TextObject, regions: Optio
             let (asc, desc, lead) = style_metrics(cx.db, cx.style_at(pr.start));
             let st = cx.style_at(pr.start);
             let (cap, xh) = cap_x_heights(cx.db, st);
-            let centre =
-                cx.db.face_version(&st.font_family, &st.font_style, st.font_version.as_deref()).map_or(EM_CENTER, |f| f.ideographic_centre());
+            let centre = cx.db.style_face(st).map_or(EM_CENTER, |f| f.ideographic_centre());
             Metrics { asc, desc, lead, cap, xh, top: (centre + 0.5) * st.size * st.v_scale / 100.0 }
         };
         if pi > 0 {
@@ -1695,7 +1779,7 @@ fn flow(cx: &mut Ctx<'_>, paras: &[Range<usize>], t: &TextObject, regions: Optio
                 let hyphenate = (para.hyphenate && (hyphen_limit == 0 || hyphen_run < hyphen_limit)).then_some((&para.hyphenation, zone));
                 let (end, hyph) = match composed.as_ref().and_then(|c| c.get(li_para)) {
                     Some(&(e, h)) if e > i => (e, h),
-                    _ if i < n => break_line(cx.text, &sg, i, width, hyphenate, para.burasagari, para.kinsoku),
+                    _ if i < n => break_line(cx.text, &sg, i, width, &para.tabs, ind_l, hyphenate, para.burasagari, para.kinsoku),
                     _ => (n, false),
                 };
                 let m = Metrics::max(&sg[i..end]).unwrap_or(pm);
@@ -1739,7 +1823,7 @@ fn flow(cx: &mut Ctx<'_>, paras: &[Range<usize>], t: &TextObject, regions: Optio
                 }
                 None => 0.0,
             };
-            let w: f64 = sg[i..trimmed].iter().map(|g| g.adv).sum::<f64>() + hyphen.as_ref().map_or(0.0, |h| h.adv) - end_trim;
+            let w: f64 = set_width(&sg, i, trimmed, &para.tabs, ind_l) + hyphen.as_ref().map_or(0.0, |h| h.adv) - end_trim;
             // Burasagari: a comma or full stop ending an area type line hangs outside it (Standard:
             // when it doesn't fit; Forced: always). The rest of the line is aligned and justified
             // without it, and it follows the line's last character.
@@ -1755,6 +1839,42 @@ fn flow(cx: &mut Ctx<'_>, paras: &[Range<usize>], t: &TextObject, regions: Optio
                 });
             let body = if hang.is_some() { trimmed - 1 } else { trimmed };
             let w = w - hang.unwrap_or(0.0);
+            let line_start = sg.get(i).map_or(pr.start, |g| g.byte);
+            let line_end = sg.get(end).map_or(pr.end, |g| g.byte);
+            let order = visual_order(bidi.as_ref().filter(|_| !cx.vertical), pr.start, line_start..line_end, &sg[i..end]);
+            // Optical Margin Alignment: the glyphs at the ends of a left-to-right line hang
+            // outside its margins by `opt_l` and `opt_r`. The line is aligned and justified in a
+            // measure that much wider at each end. A left-aligned line then hangs only at its
+            // left, a right-aligned line hangs only at its right, and centered and justified lines
+            // hang at both. A line that ends in a burasagari mark hangs only at its left.
+            // Justification adds no space after a punctuation mark hanging at the left, nor before
+            // one hanging at the right (`held`). A letter that hangs by part of its width keeps its
+            // gaps. Roman Hanging Punctuation (a paragraph attribute) hangs the same punctuation
+            // by the same amounts, and no letters; with Optical Margin Alignment on as well, the
+            // letters hang too.
+            let (opt_l, opt_r, held) = if (t.optical_margin || para.roman_hanging) && !rtl {
+                let share: fn(&SGlyph) -> f64 = if t.optical_margin { optical_share } else { roman_share };
+                let at: Vec<usize> = order.iter().map(|&offset| i + offset).filter(|&j| j < body).collect();
+                let mut visible: Vec<(&SGlyph, f64)> =
+                    at.iter().filter_map(|&j| sg.get(j).map(|g| (g, if j + 1 == trimmed { g.adv - end_trim } else { g.adv }))).collect();
+                if let Some(h) = &hyphen {
+                    visible.push((h, h.adv));
+                }
+                let (l, r, left_glyphs, right_glyphs) = optical_hangs(&visible, share);
+                let (r, right_glyphs) = if hang.is_some() { (0.0, 0) } else { (r, right_glyphs) };
+                let n_visible = visible.len();
+                let punct = |k: usize| visible.get(k).is_some_and(|&(g, _)| optical_punct(g));
+                let held: Vec<usize> = at
+                    .iter()
+                    .enumerate()
+                    .filter(|&(k, _)| (k < left_glyphs && punct(k)) || (right_glyphs > 0 && k + 1 + right_glyphs >= n_visible && punct(k + 1)))
+                    .map(|(_, &j)| j)
+                    .collect();
+                (l, r, held)
+            } else {
+                (0.0, 0.0, vec![])
+            };
+            let room = width + opt_l + opt_r;
             let (align, justify) = match para.justify {
                 Justify::Auto => (if rtl { 2 } else { 0 }, false),
                 Justify::Left => (0, false),
@@ -1772,41 +1892,43 @@ fn flow(cx: &mut Ctx<'_>, paras: &[Range<usize>], t: &TextObject, regions: Optio
             // gaps next to a CJK character, not inside a Latin word or a tate-chu-yoko block.
             let cjk_gap = |j: usize| {
                 j + 1 < body
+                    && !held.contains(&j)
                     && sg
                         .get(j)
                         .zip(sg.get(j + 1))
                         .is_some_and(|(a, b)| !a.is_space() && !b.is_space() && !b.continues_tcy() && a.ch != '\t' && (is_cjk(a.ch) || is_cjk(b.ch)))
             };
             let cjk_gaps = (i..body).filter(|&j| cjk_gap(j)).count();
-            if justify && (width - w).abs() > EPS {
-                if cjk_gaps > 0 && width > w {
+            if justify && (room - w).abs() > EPS {
+                if cjk_gaps > 0 && room > w {
                     // Spread over the CJK gaps and the word spaces alike.
-                    let per = (width - w) / (cjk_gaps + spaces) as f64;
+                    let per = (room - w) / (cjk_gaps + spaces) as f64;
                     (per_space, per_cjk) = (per, per);
                 } else if spaces > 0 {
                     // Composed lines may shrink word spaces (never below zero).
                     per_space =
-                        ((width - w) / spaces as f64).max(-sg[i..body].iter().filter(|g| g.is_space()).map(|g| g.adv).fold(f64::MAX, f64::min));
-                } else if para.justify == Justify::JustifyAll && width > w {
-                    let gaps = sg.get(i + 1..body).map_or(0, |s| s.iter().filter(|g| !g.continues_tcy()).count());
+                        ((room - w) / spaces as f64).max(-sg[i..body].iter().filter(|g| g.is_space()).map(|g| g.adv).fold(f64::MAX, f64::min));
+                } else if para.justify == Justify::JustifyAll && room > w {
+                    let gaps =
+                        (i..body).filter(|&j| j + 1 < body && !held.contains(&j) && sg.get(j + 1).is_some_and(|next| !next.continues_tcy())).count();
                     if gaps > 0 {
-                        per_gap = (width - w) / gaps as f64;
+                        per_gap = (room - w) / gaps as f64;
                     }
                 }
             }
             let start_x = if justify {
-                ax0
+                ax0 - opt_l
             } else if regions.is_none() {
                 match align {
-                    0 => ind_l,
-                    1 => (ind_l - para.right_indent - w) * 0.5,
-                    _ => -para.right_indent - w,
+                    0 => ind_l - opt_l,
+                    1 => (ind_l - opt_l - para.right_indent + opt_r - w) * 0.5,
+                    _ => -para.right_indent + opt_r - w,
                 }
             } else {
                 match align {
-                    0 => ax0,
-                    1 => ax0 + (width - w) * 0.5,
-                    _ => ax1 - w,
+                    0 => ax0 - opt_l,
+                    1 => ax0 - opt_l + (room - w) * 0.5,
+                    _ => ax1 + opt_r - w,
                 }
             };
             let li = cx.out.lines.len();
@@ -1816,9 +1938,9 @@ fn flow(cx: &mut Ctx<'_>, paras: &[Range<usize>], t: &TextObject, regions: Optio
             let mut x_end = start_x;
             // Tab stops are measured from the frame's left edge (point type: the origin).
             let tab_origin = if regions.is_some() { x0 } else { 0.0 };
-            let line_start = sg.get(i).map_or(pr.start, |g| g.byte);
-            let line_end = sg.get(end).map_or(pr.end, |g| g.byte);
-            let order = visual_order(bidi.as_ref().filter(|_| !cx.vertical), pr.start, line_start..line_end, &sg[i..end]);
+            // A line with tabs is measured as if it started at the left (see `set_width`), then
+            // aligned as a whole: its tabs stop where they were measured, however it is aligned.
+            let tab_shift = start_x - if regions.is_some() { ax0 } else { ind_l };
             // RTL's logical trailing spaces precede the visible content. Keep them outside
             // the aligned content extent, just as LTR trailing spaces extend to its right.
             let leading_space_width: f64 =
@@ -1833,7 +1955,7 @@ fn flow(cx: &mut Ctx<'_>, paras: &[Range<usize>], t: &TextObject, regions: Optio
                 }
                 let mut leader = "";
                 if g.ch == '\t' {
-                    (adv, leader) = tab_advance(&para.tabs, tab_origin, x, &sg[j + 1..trimmed.max(j + 1)]);
+                    (adv, leader) = tab_advance(&para.tabs, tab_origin, x - tab_shift, &sg[j + 1..trimmed.max(j + 1)]);
                 } else if j < body {
                     if g.is_space() {
                         adv += per_space;
@@ -1841,7 +1963,7 @@ fn flow(cx: &mut Ctx<'_>, paras: &[Range<usize>], t: &TextObject, regions: Optio
                         if cjk_gap(j) {
                             adv += per_cjk;
                         }
-                    } else if j + 1 < body && sg.get(j + 1).is_some_and(|next| !next.continues_tcy()) {
+                    } else if j + 1 < body && !held.contains(&j) && sg.get(j + 1).is_some_and(|next| !next.continues_tcy()) {
                         // Between glyphs, never inside a tate-chu-yoko block (one cell).
                         adv += per_gap;
                     }

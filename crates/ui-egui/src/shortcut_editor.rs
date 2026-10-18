@@ -476,7 +476,8 @@ pub fn run_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<Resu
         "shortcuts.export" => {
             let v = export_json(&app.ui.shortcut_set, &app.ui.shortcut_overrides);
             let bytes = serde_json::to_vec_pretty(&v).unwrap_or_default();
-            let path = s("path").or_else(|| crate::picks::save(app, &crate::FilePick::named("StitchFoundry Shortcuts.json")));
+            let pick = crate::FilePick { filters: vec![("Shortcut sets", &["json"])], ..crate::FilePick::named("StitchFoundry Shortcuts.json") };
+            let path = s("path").or_else(|| crate::picks::save(app, &pick));
             match path {
                 Some(path) => match app.services.write.as_mut() {
                     Some(w) => w(&path, &bytes).map(|_| json!({"path": path})),

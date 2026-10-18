@@ -202,3 +202,157 @@ fn a_group_keeps_the_colours_no_art_row_took() {
     assert_eq!((&after[0], &after[1]), (&before[0], &json!("rgb 1 2 3")));
     assert_eq!(after[2..], before[2..]);
 }
+
+/// Recolor Artwork on art filled with `colors`, on the Edit tab, drawn by a kittest harness.
+fn edit_harness(colors: &[&str]) -> egui_kittest::Harness<'static, VectorcraftApp> {
+    let mut app = app();
+    art(&mut app, colors);
+    app.run("ui.recolorDialog", json!({})).unwrap();
+    set(&mut app, "tab", json!("edit"));
+    assert_eq!(field(&app, "linked"), json!(true));
+    let mut fonts = false;
+    let mut h = egui_kittest::Harness::builder().with_size(vec2(900.0, 800.0)).build_ui_state(
+        move |ui, app: &mut VectorcraftApp| {
+            if !std::mem::replace(&mut fonts, true) {
+                crate::theme::install_fonts(ui.ctx());
+                return;
+            }
+            dialogs::show(app, ui.ctx());
+        },
+        app,
+    );
+    h.run_steps(4);
+    h
+}
+
+/// The rect of the widget drawn `size` big (the wheel is 220 across, its Brightness slider 220 by 22).
+fn widget_of_size(h: &egui_kittest::Harness<'_, VectorcraftApp>, size: egui::Vec2) -> Rect {
+    h.ctx
+        .viewport(|vp| vp.prev_pass.widgets.layers().flat_map(|(_, w)| w.iter()).find(|w| w.rect.size() == size).map(|w| w.rect))
+        .expect("the widget")
+}
+
+fn new_hsb(app: &VectorcraftApp) -> Vec<[f32; 3]> {
+    field(app, "rows").as_array().unwrap().iter().map(|row| vectorcraft_engine::cmd::color_value(&row["to"]).unwrap().to_hsb()).collect()
+}
+
+/// #1733: on the Edit tab, dragging a handle of CMYK art (linked, Complementary) must leave every
+/// handle on the wheel. The others turn with it (intended), but they keep their place relative to
+/// it: they don't drift while the pointer is held still and don't end up under the dragged one.
+#[test]
+fn dragging_a_wheel_handle_keeps_the_other_handles_apart() {
+    let mut h = edit_harness(&["cmyk 0 100 100 0", "cmyk 100 0 0 0"]);
+    let wheel = widget_of_size(&h, vec2(220.0, 220.0));
+    let (c, r) = (wheel.center(), 100.0);
+    // Each row's new colour: its hue, and where its handle is drawn (as `widgets::harmony_wheel`).
+    let handles = |app: &VectorcraftApp| -> Vec<(f32, Pos2)> {
+        field(app, "rows")
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|row| {
+                let [hue, s, _] = vectorcraft_engine::cmd::color_value(&row["to"]).unwrap().to_hsb();
+                (hue, c + vec2(hue.to_radians().cos(), -hue.to_radians().sin()) * r * s)
+            })
+            .collect()
+    };
+    let gap = |a: f32, b: f32| (a - b).rem_euclid(360.0).min((b - a).rem_euclid(360.0));
+    let start = handles(h.state());
+    // Drag the red handle a quarter turn, a few points at a time.
+    h.hover_at(start[0].1);
+    h.run_steps(1);
+    h.drag_at(start[0].1);
+    h.run_steps(1);
+    let (mut p, s0) = (start[0].1, start[0].1.distance(c) / r);
+    for k in 1..=12 {
+        let (a, s) = ((start[0].0 + 6.0 * k as f32).to_radians(), s0 + (0.75 - s0) * k as f32 / 12.0);
+        p = c + vec2(a.cos(), -a.sin()) * r * s;
+        h.hover_at(p);
+        h.run_steps(1);
+    }
+    let moved = handles(h.state());
+    assert!(gap(moved[1].0, start[1].0) > 10.0, "linked: the other handle turned with it (intended): {start:?} -> {moved:?}");
+    let brightness = |app: &VectorcraftApp| -> Vec<f32> {
+        field(app, "rows").as_array().unwrap().iter().map(|row| vectorcraft_engine::cmd::color_value(&row["to"]).unwrap().to_hsb()[2]).collect()
+    };
+    let moved_v = brightness(h.state());
+    // Hold the pointer still: nothing should change.
+    h.run_steps(20);
+    let held = handles(h.state());
+    let held_v = brightness(h.state());
+    assert!(
+        moved_v.iter().zip(&held_v).all(|(a, b)| (a - b).abs() < 0.01),
+        "the brightness changed while the pointer was held still: {moved_v:?} -> {held_v:?}"
+    );
+    assert!(gap(held[1].0, moved[1].0) < 1.0, "the other handle turned on its own while the pointer was held still: {moved:?} -> {held:?}");
+    assert!(held[0].1.distance(held[1].1) > 18.0, "the other handle went under the dragged one (pointer {p:?}): {held:?}");
+    let rows = field(h.state(), "rows");
+    h.drop_at(p);
+    h.run_steps(1);
+    assert_eq!(field(h.state(), "rows"), rows, "releasing keeps the colours the drag ended on");
+    // OK keeps the whole drag as one undo step; undo brings the art's colours back.
+    let keys = |app: &mut VectorcraftApp| -> Vec<Value> {
+        let mut k: Vec<Value> =
+            app.session.execute("recolor.colors", &json!({})).unwrap()["colors"].as_array().unwrap().iter().map(|c| c["key"].clone()).collect();
+        k.sort_by_key(Value::to_string);
+        k
+    };
+    let app = h.state_mut();
+    let undo = app.session.doc().unwrap().history.undo.len();
+    dialogs::confirm(app).unwrap();
+    assert_eq!(app.session.doc().unwrap().history.undo.len(), undo + 1);
+    let mut to: Vec<Value> = rows.as_array().unwrap().iter().map(|r| r["to"].clone()).collect();
+    to.sort_by_key(Value::to_string);
+    assert_eq!(keys(app), to);
+    app.run("edit.undo", json!({})).unwrap();
+    assert_eq!(keys(app), [json!("cmyk 0 100 100 0"), json!("cmyk 100 0 0 0")]);
+}
+
+/// A marker dragged past the wheel's edge is fully saturated, every frame and after the release.
+#[test]
+fn a_marker_dragged_past_the_edge_stays_fully_saturated() {
+    let mut h = edit_harness(&["rgb 200 100 100", "rgb 100 200 200"]);
+    let wheel = widget_of_size(&h, vec2(220.0, 220.0));
+    let (c, r) = (wheel.center(), 100.0);
+    let [hue, s, _] = new_hsb(h.state())[0];
+    let along = |d: f32| c + vec2(hue.to_radians().cos(), -hue.to_radians().sin()) * d;
+    let (at, out) = (along(r * s), along(r + 8.0));
+    h.hover_at(at);
+    h.run_steps(1);
+    h.drag_at(at);
+    h.run_steps(1);
+    // Outwards a few points at a time, so the drag starts on the marker.
+    for k in 1..=10 {
+        h.hover_at(along(r * s + (r + 8.0 - r * s) * k as f32 / 10.0));
+        h.run_steps(1);
+    }
+    for _ in 0..3 {
+        h.run_steps(1);
+        assert_eq!(new_hsb(h.state())[0][1], 1.0, "held past the edge");
+    }
+    h.drop_at(out);
+    h.run_steps(1);
+    assert_eq!(new_hsb(h.state())[0][1], 1.0, "released past the edge");
+}
+
+/// The Brightness slider dragged to its top gives full brightness, every frame and after the release.
+#[test]
+fn the_brightness_slider_dragged_to_the_top_stays_there() {
+    let mut h = edit_harness(&["rgb 200 100 100", "rgb 100 200 200"]);
+    let slider = widget_of_size(&h, vec2(220.0, 22.0));
+    let v = new_hsb(h.state())[0][2];
+    let at = egui::pos2(slider.left() + 4.0 + v * (slider.width() - 8.0), slider.center().y);
+    let top = egui::pos2(slider.right() + 10.0, slider.center().y);
+    h.hover_at(at);
+    h.run_steps(1);
+    h.drag_at(at);
+    h.run_steps(1);
+    h.hover_at(top);
+    for _ in 0..3 {
+        h.run_steps(1);
+        assert_eq!(new_hsb(h.state())[0][2], 1.0, "held at the top");
+    }
+    h.drop_at(top);
+    h.run_steps(1);
+    assert_eq!(new_hsb(h.state())[0][2], 1.0, "released at the top");
+}

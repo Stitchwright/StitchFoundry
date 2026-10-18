@@ -307,6 +307,32 @@ fn use_artboards(p: &Value) -> Result<Option<bool>> {
     }
 }
 
+/// The `rect` param of a raster export: `[x, y, width, height]` in points, y down. `None` when
+/// absent; an error when it is not four finite numbers with a positive size, when the format isn't
+/// a raster one, or when it comes with an artboard choice (`rect` is the area, so those would
+/// contradict it). The image size limits are checked with the scale, as for an artboard.
+fn page_rect(f: &Format, p: &Value) -> Result<Option<Rect>> {
+    let v = match p.get("rect") {
+        None | Some(Value::Null) => return Ok(None),
+        Some(v) => v,
+    };
+    if !f.raster {
+        return Err(bad(C, format!("rect applies to raster formats, not {}", f.label)));
+    }
+    if let Some(k) = ARTBOARD_PARAMS.iter().chain(["useArtboards"].iter()).find(|k| p.get(**k).is_some_and(|v| !v.is_null())) {
+        return Err(bad(C, format!("rect and {k} contradict each other: give the area or the artboards")));
+    }
+    let nums: Option<Vec<f64>> = v.as_array().filter(|a| a.len() == 4).and_then(|a| a.iter().map(Value::as_f64).collect());
+    let Some(&[x, y, w, h]) = nums.as_deref() else {
+        return Err(bad(C, "rect is [x, y, width, height] in points"));
+    };
+    let (x1, y1) = (x + w, y + h);
+    if !(x.is_finite() && y.is_finite() && w > 0.0 && h > 0.0 && x1.is_finite() && y1.is_finite()) {
+        return Err(bad(C, "rect needs finite numbers and a positive width and height"));
+    }
+    Ok(Some(Rect::new(x, y, x1, y1)))
+}
+
 /// A copy of `doc` with one artboard, `rect` (exports of the art's or the selection's bounds).
 pub(super) fn single_artboard(doc: &Document, rect: Rect, name: &str) -> Document {
     with_single_artboard(doc.clone(), rect, name)
@@ -359,7 +385,7 @@ pub fn encode(doc: &Document, format: &str, p: &Value) -> Result<Vec<u8>> {
 
 /// Like [`encode`], also returning the encoder's warnings (PDF and SVG: options not applied yet,
 /// features approximated or left out; every format that draws type: fonts written in the fallback
-/// font).
+/// font; PDF, EPS, SVG, EMF, WMF and the raster formats: type that doesn't fit its frame).
 pub fn encode_with_warnings(doc: &Document, format: &str, p: &Value) -> Result<(Vec<u8>, Vec<String>)> {
     let f = super::writable(C, Some(format), None)?;
     encode_all(doc, f.id, p)?.single(f)
@@ -387,10 +413,14 @@ fn encode_all_of(doc: &Document, format: &str, p: &Value) -> Result<Encoded> {
     let f = super::writable(C, Some(format), None)?;
     let failed = vectorcraft_render::decode_failures();
     let mut enc = encode_files(doc, f, p)?;
+    // Baking, flattening and drawing stop early when cancelled and leave a truncated result.
+    vectorcraft_doc::cancel::check()?;
     // An image the renderer couldn't decode draws nothing: say so rather than write a picture
     // that silently lacks it.
-    if f.raster && vectorcraft_render::decode_failures() > failed {
-        enc.warnings.push("an image couldn't be decoded and is missing from the picture".into());
+    if f.raster
+        && let Some(w) = crate::cmd::rasterfx::undecoded_warning(failed)
+    {
+        enc.warnings.push(w.into());
     }
     // Formats that draw type: missing fonts come out in the fallback font (PDF and SVG say so
     // themselves: SVG only when it outlines or embeds fonts).
@@ -408,6 +438,15 @@ fn encode_files(doc: &Document, f: &Format, p: &Value) -> Result<Encoded> {
     let n = doc.artboards.len();
     // SVG reads its own `useArtboards` (an SVG option).
     let use_artboards = if f.raster || matches!(f.id, "pdf" | "ai" | "dxf" | "emf" | "wmf") { use_artboards(p)? } else { None };
+    // `rect`: that area of the page, as if it were the only artboard (the document is not changed).
+    if let Some(rect) = page_rect(f, p)? {
+        let mut q = super::export::without_artboards(p);
+        if let Some(o) = q.as_object_mut() {
+            o.remove("rect");
+            o.remove("useArtboards");
+        }
+        return encode_files(&single_artboard(doc, rect, "Rect"), f, &q);
+    }
     if use_artboards == Some(false) {
         let bounds = vectorcraft_render::encode::art_bounds(doc).ok_or_else(|| bad(C, "nothing to export: the document has no visible art"))?;
         let mut q = super::export::without_artboards(p);
@@ -467,7 +506,10 @@ fn encode_files(doc: &Document, f: &Format, p: &Value) -> Result<Encoded> {
             };
             let mut enc = Encoded::default();
             let mut renderer = vectorcraft_render::Renderer::new();
-            for b in chosen {
+            let total = chosen.len() as u64;
+            for (done, b) in chosen.into_iter().enumerate() {
+                vectorcraft_doc::cancel::check()?;
+                vectorcraft_doc::cancel::progress(done as u64, total, &format!("Rendering artboard {} of {total}", done + 1));
                 let region = doc.artboards.get(b).ok_or_else(|| bad(C, format!("no artboard {}", b + 1)))?.rect;
                 check_format_size(f, region.width() * scale, region.height() * scale)?;
                 vectorcraft_render::raster_size(region, scale).map_err(|e| bad(C, e))?;
@@ -479,11 +521,16 @@ fn encode_files(doc: &Document, f: &Format, p: &Value) -> Result<Encoded> {
                 } else {
                     bytes
                 };
+                // PNG: say the colours are sRGB (what the renderer draws), unless `embedIcc` is false.
+                let bytes =
+                    if format == RasterFormat::Png && settings.jpeg.embed_icc { vectorcraft_render::encode::png::with_srgb(bytes) } else { bytes };
                 enc.files.push((Some(b), bytes));
             }
             if enc.files.is_empty() {
                 return Err(bad(C, "the document has no artboard"));
             }
+            let regions: Vec<Rect> = enc.files.iter().filter_map(|(b, _)| b.and_then(|b| doc.artboards.get(b))).map(|a| a.rect).collect();
+            enc.warnings.extend(crate::cmd::fonts::export_overflow_warning(doc, &doc.layers, Some(&regions)));
             if format == RasterFormat::WebP && o.lossless == Some(false) {
                 enc.warnings.push("lossy WebP isn't available yet: the file is lossless (exact, but larger)".into());
             }

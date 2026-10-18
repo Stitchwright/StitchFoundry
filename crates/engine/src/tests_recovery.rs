@@ -88,6 +88,22 @@ fn recovery_save_writes_modified_documents_once() {
     assert!(offered(&mut s).is_empty());
 }
 
+/// Selecting other art drops the Puppet Warp pins, which a copy never holds: no new copy is written.
+#[test]
+fn dropping_puppet_warp_pins_writes_no_new_copy() {
+    let (mut s, _) = session();
+    let id = s.doc().unwrap().selection.objects[0];
+    s.execute("object.puppetWarp", &json!({"id": id.0, "pins": [[35, 20]], "moved": [[35, 20]], "rest": true})).unwrap();
+    assert!(s.doc().unwrap().doc.puppet.is_some());
+    let r = s.execute("file.recovery.save", &json!({})).unwrap();
+    assert_eq!(r["saved"].as_array().unwrap().len(), 1, "{r}");
+    s.execute("select.none", &json!({})).unwrap();
+    assert!(s.doc().unwrap().doc.puppet.is_none());
+    let again = s.execute("file.recovery.save", &json!({})).unwrap();
+    assert!(again["saved"].as_array().unwrap().is_empty(), "{again}");
+    assert_eq!(again["skipped"][0]["reason"], "unchanged since its last recovery copy");
+}
+
 #[test]
 fn a_crash_leaves_copies_that_restore_modified_and_titled() {
     let (mut s, store) = session();

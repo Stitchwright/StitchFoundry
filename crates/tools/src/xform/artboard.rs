@@ -481,9 +481,10 @@ impl Tool for ArtboardTool {
                 Handle::Left | Handle::Right => Cursor::ResizeH,
                 Handle::TopLeft | Handle::BottomRight => Cursor::ResizeNwSe,
                 Handle::TopRight | Handle::BottomLeft => Cursor::ResizeNeSw,
-            };
+            }
+            .turned(cx.view_angle());
         }
-        if cx.doc.artboards.iter().any(|a| a.rect.contains(p)) { Cursor::Move } else { Cursor::Crosshair }
+        if cx.doc.artboard_at(p).is_some() { Cursor::Move } else { Cursor::Crosshair }
     }
 
     fn options(&self) -> Value {
@@ -647,6 +648,20 @@ mod tests {
         assert_eq!(v["width"].as_f64(), Some(210.0));
     }
 
+    /// In a view turned 90° the handles' cursors turn with the view.
+    #[test]
+    fn handle_cursors_turn_with_the_view() {
+        let d = two_boards();
+        let (s, p) = (Selection::default(), paint());
+        let t = ArtboardTool { active: 1, ..Default::default() };
+        let mut c = cx(&d, &s, &p);
+        let (top, right) = (Point::new(700.0, 0.0), Point::new(800.0, 100.0));
+        assert_eq!(t.cursor(&c, top, Mods::default()), Cursor::ResizeV);
+        c.screen = turned_view(90.0);
+        assert_eq!(t.cursor(&c, top, Mods::default()), Cursor::ResizeH);
+        assert_eq!(t.cursor(&c, right, Mods::default()), Cursor::ResizeV);
+    }
+
     /// Shift-click selects several artboards (#1139): a drag moves them all, Shift-click takes one
     /// out again, a plain click on an unselected one selects just it, and Delete removes all the
     /// selected ones (one artboard is always left).
@@ -712,6 +727,22 @@ mod tests {
         let v = preview_params(&t.pointer(&c, &ev(PointerKind::Drag, 713.0, 100.0)));
         assert_eq!((v["width"].as_f64(), v["scaleArt"].as_bool()), (Some(113.0), Some(true)));
         assert!((v["height"].as_f64().unwrap() - 113.0).abs() < 1e-9);
+    }
+
+    /// Over an artboard's right or bottom edge the cursor shows Move and a click selects that
+    /// artboard, as on its left or top edge.
+    #[test]
+    fn a_click_on_an_artboards_right_or_bottom_edge_selects_it() {
+        let d = two_boards();
+        let (s, p) = (Selection::default(), paint());
+        let c = cx(&d, &s, &p);
+        for at in [Point::new(800.0, 100.0), Point::new(700.0, 200.0)] {
+            let mut t = ArtboardTool::default();
+            assert_eq!(t.cursor(&c, at, Mods::default()), Cursor::Move, "{at:?}");
+            t.pointer(&c, &ev(PointerKind::Down, at.x, at.y));
+            t.pointer(&c, &ev(PointerKind::Up, at.x, at.y));
+            assert_eq!(t.options()["selected"], json!([1]), "{at:?}");
+        }
     }
 
     /// A proportional resize never asks for a side under 1 pt, which the command would lengthen

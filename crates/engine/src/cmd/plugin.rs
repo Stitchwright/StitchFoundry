@@ -1,7 +1,8 @@
 //! `plugin.*` commands: sandboxed WebAssembly plug-ins (`vectorcraft-plugins`).
 //!
-//! Plug-ins are installed per process (`plugin.install`, or every `*.wasm` in the Additional
-//! Plug-ins Folder preference) and listed with `plugin.list` / `plugin.info`. Object filters run
+//! Plug-ins are installed with `plugin.install` (kept across restarts in the apps' plug-in folder,
+//! [`Session::attach_plugin_store`]) or from every `*.wasm` in the Additional Plug-ins Folder
+//! preference, and listed with `plugin.list` / `plugin.info`. Object filters run
 //! with `plugin.run` on the selected paths and compound paths (one undo step, transactional: a
 //! plug-in that fails leaves the document untouched); live-effect plug-ins are applied like any
 //! effect (`effect.apply {effect: "plugin.<id>"}`) and drawn by `vectorcraft-effects`.
@@ -85,19 +86,20 @@ const MAX_DATA_CHARS: usize = (32 << 20) / 3 * 4 + 4;
 /// The `.wasm` extension plug-in files have (File › Open installs them).
 pub const EXTS: &[&str] = &["wasm"];
 
-fn install(_: &mut Session, p: &Value) -> Result<Value> {
+fn install(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "plugin.install";
-    let plugin = match (str_param(p, "path").filter(|s| !s.is_empty()), str_param(p, "dataBase64")) {
+    let (plugin, bytes) = match (str_param(p, "path").filter(|s| !s.is_empty()), str_param(p, "dataBase64")) {
         (_, Some(data)) => {
             if data.len() > MAX_DATA_CHARS {
                 return Err(bad(C, "`dataBase64` is larger than the module limit"));
             }
             let bytes = vectorcraft_format::base64_decode(data).ok_or_else(|| bad(C, "`dataBase64` is not valid base64"))?;
             let plugin = Plugin::load(&bytes, vectorcraft_plugins::Limits::default()).map_err(err)?;
-            match str_param(p, "name") {
+            let plugin = match str_param(p, "name") {
                 Some(name) => plugin.with_source(name),
                 None => plugin,
-            }
+            };
+            (plugin, bytes)
         }
         (Some(path), None) => load_path(path)?,
         (None, None) => return Err(bad(C, "give `path` (a .wasm file) or `dataBase64` (the module)")),
@@ -105,17 +107,22 @@ fn install(_: &mut Session, p: &Value) -> Result<Value> {
     if !p.get("replace").and_then(Value::as_bool).unwrap_or(true) && registry::get(plugin.id()).is_some() {
         return Err(bad(C, format!("a plug-in with id {:?} is already installed", plugin.id())));
     }
+    // Installed plug-ins stay installed after a restart (#2541).
+    s.store_plugin(plugin.id(), &bytes);
     Ok(describe(&registry::install(plugin)))
 }
 
+/// The plug-in in the `.wasm` file `path`, and its module.
 #[cfg(not(target_arch = "wasm32"))]
-fn load_path(path: &str) -> Result<Plugin> {
+fn load_path(path: &str) -> Result<(Plugin, Vec<u8>)> {
     crate::file_access::check_read(path).map_err(EngineError::Other)?;
-    registry::load_file(std::path::Path::new(path), vectorcraft_plugins::Limits::default()).map_err(err)
+    let limits = vectorcraft_plugins::Limits::default();
+    let bytes = crate::store::read_capped(std::path::Path::new(path), limits.max_module_bytes as u64).map_err(EngineError::Other)?;
+    Ok((Plugin::load(&bytes, limits).map_err(err)?.with_source(path), bytes))
 }
 
 #[cfg(target_arch = "wasm32")]
-fn load_path(_: &str) -> Result<Plugin> {
+fn load_path(_: &str) -> Result<(Plugin, Vec<u8>)> {
     Err(EngineError::Other("installing from a path is not available on the web; pass the module as `dataBase64`".into()))
 }
 
@@ -186,8 +193,9 @@ fn info(_: &mut Session, p: &Value) -> Result<Value> {
     Ok(v)
 }
 
-fn remove(_: &mut Session, p: &Value) -> Result<Value> {
+fn remove(s: &mut Session, p: &Value) -> Result<Value> {
     let id = str_param(p, "id").ok_or_else(|| bad("plugin.remove", "missing `id`"))?;
+    s.unstore_plugin(id);
     if registry::remove(id) { Ok(json!({"removed": id})) } else { Err(err(vectorcraft_plugins::Error::NotFound(id.into()))) }
 }
 

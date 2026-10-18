@@ -186,6 +186,7 @@ pub const ICON_PANELS: &[(&str, &str, &str)] = &[
     ("transform", "Transform", "dc-transform-panel"),
     ("align", "Align", "dc-align"),
     ("pathfinder", "Pathfinder", "dc-pathfinder"),
+    (crate::panels::blend::ID, "Blend", "dc-blend"),
     ("character", "Character", "type"),
     ("paragraph", "Paragraph", "pilcrow"),
     ("glyphs", "Glyphs", "text-cursor-input"),
@@ -203,6 +204,7 @@ pub const ICON_PANELS: &[(&str, &str, &str)] = &[
     ("magicWand", "Magic Wand", "wand-sparkles"),
     (crate::panels::flattener_preview::ID, "Flattener Preview", "eye"),
     ("attributes", "Attributes", "settings"),
+    (crate::panels::svg_interactivity::ID, "SVG Interactivity", "spline-pointer"),
     ("colorThemes", "Color Themes", "sun"),
     (crate::panels::links::ID, "Links", "link"),
     (crate::panels::asset_export::ID, "Asset Export", "share-2"),
@@ -465,9 +467,11 @@ pub struct UiState {
     /// Color Guide panel: variation kind, steps and amount (Color Guide Options).
     #[serde(default)]
     pub color_guide: vectorcraft_color::harmony::GuideOptions,
-    /// The library open in the library panel (Window → Swatch Libraries).
+    /// The library panels' settings (Window → Swatch Libraries, Graphic Style Libraries): of each
+    /// library opened, and of the persistent ones, which reopen at startup, also once closed
+    /// ([`crate::panels::library_panel`], `ui.libraryPanel`).
     #[serde(default)]
-    pub library_panel: Option<crate::panels::library_panel::OpenLibrary>,
+    pub library_panels: Vec<crate::panels::library_panel::LibraryPanel>,
     /// Flattener Preview panel: highlight, overprints, preset and options (`ui.flattenerPreview`).
     #[serde(default)]
     pub flattener_preview: crate::panels::flattener_preview::Settings,
@@ -523,6 +527,10 @@ pub struct UiState {
     /// dialog opens on them (#1152).
     #[serde(default)]
     pub offset_path: Value,
+    /// The Move dialog's checkboxes as it was last confirmed with (copy, objects, preview; null:
+    /// never used): it opens with them.
+    #[serde(default)]
+    pub move_options: Value,
     /// The DXF Import Options chosen last (fit, scaleLineweights, center, mergeLayers; null:
     /// never used).
     #[serde(default)]
@@ -709,7 +717,7 @@ impl FloatingPanels {
     pub fn sanitize(groups: &mut Vec<FloatingPanels>, toolbar_pos: &mut Option<[f32; 2]>) {
         let mut seen = std::collections::BTreeSet::new();
         groups.retain_mut(|g| {
-            g.panels.retain(|id| all_panels().any(|(p, _)| p == id) && seen.insert(id.clone()));
+            g.panels.retain(|id| crate::menus::normalize_panel(id) == Some(id.as_str()) && seen.insert(id.clone()));
             g.active = g.active.min(g.panels.len().saturating_sub(1));
             !g.panels.is_empty()
         });
@@ -841,7 +849,7 @@ impl Default for UiState {
             favorite_fonts: vec![],
             engine_prefs: Value::Null,
             color_guide: Default::default(),
-            library_panel: None,
+            library_panels: vec![],
             flattener_preview: Default::default(),
             color_guide_limit: String::new(),
             align_to: Default::default(),
@@ -857,6 +865,7 @@ impl Default for UiState {
             dxf_options: Value::Null,
             eps_options: Value::Null,
             offset_path: Value::Null,
+            move_options: Value::Null,
             dxf_import: Value::Null,
             home: None,
             layers_panel: Default::default(),

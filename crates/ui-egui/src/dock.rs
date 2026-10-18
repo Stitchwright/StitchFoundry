@@ -305,12 +305,20 @@ pub(crate) fn panel_tabs(
 /// A panel popped out next to the icon column: an icon panel, or one of the tabbed group's panels
 /// while the dock is collapsed. Dragging its title floats it.
 pub fn floating_panel(app: &mut VectorcraftApp, ctx: &egui::Context) {
-    let Some((id, label)) = app.ui.open_panel.as_deref().and_then(|p| crate::state::all_panels().find(|(q, _)| *q == p)) else { return };
+    let open = app.ui.open_panel.as_deref();
+    let Some(id) =
+        open.and_then(|p| crate::state::all_panels().map(|(q, _)| q).find(|q| *q == p).or_else(|| crate::panels::library_panel::intern(p)))
+    else {
+        return;
+    };
     let tab = DockTab::from_id(id);
     // Expanded, the group shows its panels in the dock itself; a floating panel shows in its group.
     if tab.is_some() && !app.ui.dock_collapsed || floating::group_of(&app.ui, id).is_some() {
         return;
     }
+    // A library panel (in a collapsed dock) is titled by its library's name.
+    let label = crate::panels::library_panel::tab_label(app, id)
+        .unwrap_or_else(|| crate::state::all_panels().find(|(q, _)| *q == id).map_or(id, |(_, label)| tl!(label)).to_string());
     let t = Tokens::get(ctx);
     let screen = ctx.content_rect();
     // Pinned by its right edge, 6 points left of the icon column wherever the dock's width (or its
@@ -338,12 +346,10 @@ pub fn floating_panel(app: &mut VectorcraftApp, ctx: &egui::Context) {
             ui.set_width(width);
             let (strip, _) = ui.allocate_exact_size(vec2(width, 26.0), Sense::hover());
             ui.painter().rect_filled(strip, CornerRadius { nw: 4, ne: 4, sw: 0, se: 0 }, t.panel_darker);
-            let title = Rect::from_min_size(
-                strip.min,
-                vec2(ui.painter().layout_no_wrap(tl!(label).to_string(), theme::semibold(12.0), t.text).size().x + 24.0, 26.0),
-            );
+            let title =
+                Rect::from_min_size(strip.min, vec2(ui.painter().layout_no_wrap(label.clone(), theme::semibold(12.0), t.text).size().x + 24.0, 26.0));
             ui.painter().rect_filled(title, CornerRadius { nw: 4, ne: 0, sw: 0, se: 0 }, t.panel);
-            ui.painter().text(title.left_center() + vec2(12.0, 0.0), egui::Align2::LEFT_CENTER, tl!(label), theme::semibold(12.0), t.text);
+            ui.painter().text(title.left_center() + vec2(12.0, 0.0), egui::Align2::LEFT_CENTER, &label, theme::semibold(12.0), t.text);
             let close = Rect::from_center_size(strip.right_center() - vec2(13.0, 0.0), vec2(14.0, 14.0));
             let cr = ui.interact(close, ui.id().with("close-panel"), Sense::click());
             icons::paint(ui, "chevrons-right", close, if cr.hovered() { t.text } else { t.text_dim });

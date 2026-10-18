@@ -122,9 +122,15 @@ pub(crate) fn group_rect_id(first: &str) -> Id {
     Id::new(("floating-group-rect", first))
 }
 
-/// Panel `id` (`window.panel`) as a static string and its English label, if it is a panel.
+/// Panel `id` (`window.panel`) as a static string and its English label, if it is a panel (a
+/// library panel's label is its id: [`label`] gives its library's name).
 fn panel(id: &str) -> Option<(&'static str, &'static str)> {
-    all_panels().find(|(p, _)| *p == id)
+    all_panels().find(|(p, _)| *p == id).or_else(|| crate::panels::library_panel::intern(id).map(|p| (p, p)))
+}
+
+/// Panel `id`'s tab label: its English label, or a library panel's library name.
+fn label(app: &VectorcraftApp, id: &str) -> String {
+    crate::panels::library_panel::tab_label(app, id).unwrap_or_else(|| panel(id).map_or(id, |(_, label)| label).to_string())
 }
 
 /// The floating group holding panel `id`.
@@ -816,10 +822,7 @@ fn show_set(app: &mut VectorcraftApp, ctx: &egui::Context, set: &[usize], action
                     let tabs_width: f32 = g
                         .ids
                         .iter()
-                        .map(|id| {
-                            let label = panel(id).map_or(*id, |(_, label)| label);
-                            ui.painter().layout_no_wrap(tl!(label).to_string(), theme::semibold(12.0), t.text).size().x + 24.0
-                        })
+                        .map(|id| ui.painter().layout_no_wrap(tl!(&label(app, id)).to_string(), theme::semibold(12.0), t.text).size().x + 24.0)
                         .sum();
                     g.ids.iter().map(|id| dock::panel_width(id)).fold(tabs_width + 32.0, f32::max)
                 })
@@ -882,7 +885,8 @@ fn draw_groups(
         let lone = g.ids.len() == 1;
         let menu = Rect::from_center_size(strip.right_center() - vec2(14.0, 0.0), vec2(16.0, 16.0));
         let tab_area = Rect::from_min_max(strip.min, pos2((menu.left() - 4.0).max(strip.left()), strip.bottom()));
-        let names: Vec<_> = g.ids.iter().map(|&id| (id, panel(id).map_or(id, |(_, label)| label))).collect();
+        let labels: Vec<String> = g.ids.iter().map(|id| label(app, id)).collect();
+        let names: Vec<_> = g.ids.iter().zip(&labels).map(|(&id, label)| (id, label.as_str())).collect();
         let selected = g.ids.iter().position(|&id| id == g.active).unwrap_or(0);
         let out = dock::panel_tabs(ui, &format!("native-set-tabs-{}", g.gi), tab_area, &names, selected, theme::semibold(12.0), false);
         for (j, resp) in out.responses {

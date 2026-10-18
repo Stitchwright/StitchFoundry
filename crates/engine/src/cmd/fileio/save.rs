@@ -185,6 +185,9 @@ fn parent_folder(path: &str) -> Option<String> {
 fn save_format_of(f: &str) -> std::result::Result<&'static Format, String> {
     match format(f) {
         Some(f) if SAVE_FORMATS.contains(&f.id) => Ok(f),
+        Some(f) if TEMPLATE_FORMATS.contains(&f.id) => {
+            Err(format!("Save writes {}, not {}: use file.saveAsTemplate to write it", SAVE_FORMATS.join(", "), f.label))
+        }
         Some(f) => Err(format!("Save writes {}, not {}: use document.export for other formats", SAVE_FORMATS.join(", "), f.label)),
         None => Err(format!("unknown format `{f}` (Save writes {})", SAVE_FORMATS.join(", "))),
     }
@@ -194,6 +197,18 @@ fn save_format_of(f: &str) -> std::result::Result<&'static Format, String> {
 /// names, else native (see [`SAVE_FORMATS`]); other formats are exports.
 pub fn save_format(format: Option<&str>, path: Option<&str>) -> std::result::Result<&'static Format, String> {
     save_format_of(format.or_else(|| path.and_then(format_for_name).map(|f| f.id)).unwrap_or("vectorcraft"))
+}
+
+/// `path` for a template in format `f`: kept when its extension names `f`, with the extension
+/// replaced when it names another format (`card.png` → `card.vctemplate`), else with `f`'s
+/// extension added (`card`, `card v1.2`).
+fn template_path(path: &str, f: &Format) -> String {
+    let ext = f.extensions[0];
+    match format_for_name(path) {
+        Some(g) if g.id == f.id => path.to_string(),
+        Some(_) => std::path::Path::new(path).with_extension(ext).to_string_lossy().into_owned(),
+        None => format!("{path}.{ext}"),
+    }
 }
 
 /// [`save_format_of`] for command `cmd`.
@@ -217,6 +232,7 @@ pub fn save_plan(s: &Session, mode: SaveMode, p: &Value) -> Result<SavePlan> {
         (_, None, Some(f)) => checked(cmd, f.id)?,
         (_, None, None) => checked(cmd, st.format)?,
     };
+    let path = if mode == SaveMode::Template { path.map(|p| template_path(&p, format)) } else { path };
     let mut given: Map<String, Value> = match p.get("options") {
         Some(Value::Object(o)) => o.iter().filter(|(k, _)| reads_option(format, k)).map(|(k, v)| (k.clone(), v.clone())).collect(),
         None | Some(Value::Null) => Map::new(),
@@ -280,17 +296,18 @@ fn is_svg(f: &Format) -> bool {
 }
 
 /// The document as written: native files carry the view to reopen at and the Layers panel's open
-/// rows.
+/// rows and transparency grid visibility.
 fn doc_to_save(st: &DocState, f: &Format) -> Arc<Document> {
     if !is_native(f) {
         return st.doc.clone();
     }
     let open = st.layers_open.saved(&st.doc);
-    if st.doc.last_view == st.view && st.doc.layers_open == open {
+    if st.doc.last_view == st.view && st.doc.layers_open == open && st.doc.transparency_grid == st.transparency_grid {
         return st.doc.clone();
     }
     let mut d = (*st.doc).clone();
     d.last_view = st.view.clone();
+    d.transparency_grid = st.transparency_grid;
     d.layers_open = open;
     Arc::new(d)
 }
@@ -638,7 +655,8 @@ impl SaveJob {
 
     /// Once written: Save and Save As (except to a template) make the file `st`'s own: path,
     /// title, format, options, and the snapshot as the saved state (edits made since the job was
-    /// made keep the document modified).
+    /// made keep the document modified; changes that are not edits to save don't,
+    /// [`DocState::same_content`]).
     pub fn finish(self, st: &mut DocState) {
         let retargets = self.plan.retargets();
         if let (true, Some(path)) = (retargets, self.plan.path) {
@@ -650,6 +668,12 @@ impl SaveJob {
             if let Some(at) = self.stamped {
                 if Arc::ptr_eq(&st.doc, &self.source) {
                     st.doc = self.snapshot.clone();
+                } else if st.same_content(&self.source) {
+                    // Changed while the save ran only by changes that are not edits to save
+                    // (Puppet Warp pins dropped, Edit Text ended, type laid out again after a font
+                    // scan): with the dates, the document counts as saved.
+                    stamp_save_dates(st, at);
+                    return st.mark_saved();
                 } else {
                     // Edited while the save ran: the dates still go on, the edits stay unsaved. The
                     // undo history holds the document as it was before the dates, so that is the
@@ -762,7 +786,7 @@ pub(super) fn specs() -> Vec<CommandSpec> {
             "Save As…",
             ["File"],
             Some("Cmd+Shift+S"),
-            "{…as document.save} {path?, format?: vectorcraft|template|pdf|svg|svgz|ai (default: the path's extension, else the document's own), options?, svg?, modified?} the document takes on the new path, name and format (except a template, which is always a copy) → {path, format, bytes, warnings}; no path → {dataBase64, format, name, folder?, warnings}",
+            "{…as document.save} {path?, format?: vectorcraft|template|pdf|svg|svgz|ai (default: the path's extension, else the document's own; ait, a .ait template, is written by file.saveAsTemplate), options?, svg?, modified?} the document takes on the new path, name and format (except a template, which is always a copy) → {path, format, bytes, warnings}; no path → {dataBase64, format, name, folder?, warnings}",
             has_doc,
             |s, p| save(s, SaveMode::SaveAs, p)
         ),
@@ -780,7 +804,7 @@ pub(super) fn specs() -> Vec<CommandSpec> {
             "Save as Template…",
             ["File"],
             None,
-            "{…as document.save} {path?, format?: template (default) | ait (also when format is not given and the path ends in .ait), compress?, version?, preview?} a template that opens as a new untitled document: a native template (.vctemplate), or a PDF-compatible .ait written as a .ai file is (the .ai options and the PDF options, as document.save takes them for .ai); the document is unchanged → {path, format, bytes, warnings}; no path → {dataBase64, format, name: \"<name> template.<ext>\", folder: the Templates folder (preference templatesFolder), warnings}",
+            "{…as document.save} {path? (saved with the format's extension: one naming another format is replaced, and one is added to a name without it), format?: template (default) | ait (also when format is not given and the path ends in .ait), compress?, version?, preview?} a template that opens as a new untitled document: a native template (.vctemplate), or a PDF-compatible .ait written as a .ai file is (the .ai options and the PDF options, as document.save takes them for .ai); the document is unchanged → {path, format, bytes, warnings}; no path → {dataBase64, format, name: \"<name> template.<ext>\", folder: the Templates folder (preference templatesFolder), warnings}",
             has_doc,
             |s, p| save(s, SaveMode::Template, p)
         ),

@@ -248,9 +248,20 @@ impl PatternDef {
         let ab = self.art_bounds().unwrap_or(self.tile).union(self.tile) - self.tile.origin().to_vec2();
         let (sx, sy) = self.tile_type.steps(w, h);
         // Shifts of brick/hex rows or columns are < one tile.
-        let (i0, i1) = (((region.x0 - ab.x1 - w) / sx).floor() as i64 - 1, ((region.x1 - ab.x0 + w) / sx).ceil() as i64 + 1);
-        let (j0, j1) = (((region.y0 - ab.y1 - h) / sy).floor() as i64 - 1, ((region.y1 - ab.y0 + h) / sy).ceil() as i64 + 1);
-        if (i1 - i0).saturating_mul(j1 - j0) > 250_000 {
+        // A region whose tile indices do not fit in integers (or are not finite) gives none, as does
+        // one with more than 250,000 positions or none.
+        let index = |v: f64| (v.abs() < 9.0e18).then_some(v as i64);
+        let (Some(i0), Some(i1), Some(j0), Some(j1)) = (
+            index(((region.x0 - ab.x1 - w) / sx).floor()),
+            index(((region.x1 - ab.x0 + w) / sx).ceil()),
+            index(((region.y0 - ab.y1 - h) / sy).floor()),
+            index(((region.y1 - ab.y0 + h) / sy).ceil()),
+        ) else {
+            return vec![];
+        };
+        let (i0, i1, j0, j1) = (i0 - 1, i1 + 1, j0 - 1, j1 + 1);
+        let (ni, nj) = (i1.saturating_sub(i0), j1.saturating_sub(j0));
+        if ni < 1 || nj < 1 || ni.saturating_mul(nj) > 250_000 {
             return vec![];
         }
         let mut out = vec![];
@@ -282,8 +293,15 @@ impl PatternDef {
         out
     }
     /// Instances covering `region` (document space) as plain nodes for a pattern painted with
-    /// `paint_xf` (pattern space → document), fresh-id-less (id 0). Used by exporters and Expand.
+    /// `paint_xf` (pattern space → document), fresh-id-less (id 0). Used by exporters and Distort
+    /// Pattern Fills; Expand uses [`Self::instances_in_with`].
     pub fn instances_in(&self, paint_xf: Affine, region: Rect) -> Vec<Node> {
+        self.instances_in_with(paint_xf, region, false)
+    }
+    /// [`Self::instances_in`], each instance placed with `scaling` (what scales with `paint_xf`
+    /// besides geometry).
+    pub fn instances_in_with(&self, paint_xf: Affine, region: Rect, scaling: impl Into<crate::node::Scaling>) -> Vec<Node> {
+        let scaling = scaling.into();
         let inv = paint_xf.inverse();
         let pr = inv.transform_rect_bbox(region);
         let mut out = vec![];
@@ -291,12 +309,37 @@ impl PatternDef {
             let m = paint_xf * self.instance_xf(o);
             for a in &self.art {
                 let mut n = (**a).clone();
-                n.transform(m, false);
+                place_art(&mut n, m, scaling);
                 zero_ids(&mut n);
                 out.push(n);
             }
         }
         out
+    }
+}
+
+/// Transform pattern art `n` by `m` with `scaling`, as a pattern places its art: the opacity masks
+/// in it move with it, unlinked ones included (the canvas draws a tile's art and masks together).
+pub fn place_art(n: &mut Node, m: Affine, scaling: impl Into<crate::node::Scaling>) {
+    let scaling = scaling.into();
+    n.transform(m, scaling);
+    place_unlinked_masks(n, m, scaling);
+}
+
+/// Transform the art of the unlinked opacity masks of `n` and its descendants by `m`, the masks
+/// inside mask art included.
+fn place_unlinked_masks(n: &mut Node, m: Affine, scaling: crate::node::Scaling) {
+    if let Some(mask) = n.extras_if_any().and_then(|e| e.mask.as_mut()) {
+        let linked = mask.linked;
+        let art = Arc::make_mut(&mut mask.art);
+        // A linked mask's art moved with `n`; an unlinked one's moves here.
+        if !linked {
+            art.transform(m, scaling);
+        }
+        place_unlinked_masks(art, m, scaling);
+    }
+    for c in n.children_mut().into_iter().flatten() {
+        place_unlinked_masks(Arc::make_mut(c), m, scaling);
     }
 }
 
@@ -671,12 +714,51 @@ mod tests {
     }
 
     #[test]
+    fn a_region_too_large_to_count_has_no_offsets() {
+        // A pattern scaled by 1e-20 covers a 100 pt square with a region of 1e22 pt.
+        let def = PatternDef::new("p", vec![sq(0.0, 0.0, 10.0)]);
+        assert!(def.offsets_covering(Rect::new(-1e22, -1e22, 1e22, 1e22)).is_empty());
+        assert!(def.offsets_covering(Rect::new(f64::NEG_INFINITY, 0.0, f64::INFINITY, 10.0)).is_empty());
+        // Far out, a region one tile wide and 1e12 pt tall still counts its rows.
+        assert!(def.offsets_covering(Rect::new(1e18, 0.0, 1e18, 1e12)).is_empty());
+        let tiny = Affine::scale(1e-20);
+        assert!(def.instances_in(tiny, Rect::new(0.0, 0.0, 100.0, 100.0)).is_empty());
+    }
+
+    #[test]
     fn instances_follow_paint_xf() {
         let def = PatternDef::new("p", vec![sq(100.0, 100.0, 10.0)]);
         let n = def.instances_in(Affine::translate((3.0, 0.0)), Rect::new(0.0, 0.0, 20.0, 10.0));
         let xs: Vec<f64> = n.iter().filter_map(|n| n.geometric_bounds()).map(|b| b.x0).collect();
         assert!(xs.contains(&3.0) && xs.contains(&-7.0) && xs.contains(&13.0), "{xs:?}");
         assert!(n.iter().all(|n| n.id == NodeId(0)));
+    }
+
+    #[test]
+    fn instances_carry_unlinked_masks_with_them() {
+        let mut art = (*sq(100.0, 100.0, 10.0)).clone();
+        let mut mask = crate::node::OpacityMask::new((*sq(100.0, 100.0, 5.0)).clone(), true);
+        mask.linked = false;
+        art.extras_mut().mask = Some(Box::new(mask));
+        let def = PatternDef::new("p", vec![Arc::new(art)]);
+        for n in def.instances_in(Affine::translate((3.0, 0.0)), Rect::new(0.0, 0.0, 20.0, 10.0)) {
+            let (b, m) = (n.geometric_bounds().unwrap(), n.extras().mask.as_ref().unwrap());
+            assert_eq!(m.art.geometric_bounds().unwrap().origin(), b.origin(), "the mask moves with its art");
+            assert!(!m.linked, "the mask stays unlinked");
+        }
+        // An unlinked mask inside a linked mask's art moves too.
+        let mut inner = (*sq(100.0, 100.0, 5.0)).clone();
+        let mut nested = crate::node::OpacityMask::new((*sq(100.0, 100.0, 2.0)).clone(), true);
+        nested.linked = false;
+        inner.extras_mut().mask = Some(Box::new(nested));
+        let mut art = (*sq(100.0, 100.0, 10.0)).clone();
+        art.extras_mut().mask = Some(Box::new(crate::node::OpacityMask::new(inner, true)));
+        let def = PatternDef::new("p", vec![Arc::new(art)]);
+        for n in def.instances_in(Affine::translate((3.0, 0.0)), Rect::new(0.0, 0.0, 20.0, 10.0)) {
+            let outer = n.extras().mask.as_ref().unwrap();
+            let nested = outer.art.extras().mask.as_ref().unwrap();
+            assert_eq!(nested.art.geometric_bounds().unwrap().origin(), n.geometric_bounds().unwrap().origin());
+        }
     }
 
     #[test]

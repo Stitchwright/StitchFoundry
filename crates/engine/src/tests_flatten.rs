@@ -7,6 +7,7 @@ use vectorcraft_doc::{AppearanceItem, Node, NodeKind};
 use vectorcraft_geom::{BezPath, Point, Rect, Shape};
 use vectorcraft_render::{Rendered, Renderer};
 
+use super::tests_menucmds::{place_undecodable_png, warns_undecoded};
 use super::*;
 
 /// Colours here go through the process-wide colour settings, which the colour management tests
@@ -290,6 +291,18 @@ fn gradients_rasterize_and_flat_areas_stay_vector() {
         assert_regions_match(&s, &before, ids[0], 1, "gradient");
         assert!(changed(&before, &picture(&s)) < 0.02, "clip {clip}");
     }
+}
+
+#[test]
+fn flatten_says_when_an_image_could_not_be_decoded() {
+    let _settings = settings_lock();
+    let mut s = session();
+    let cut = place_undecodable_png(&mut s).0;
+    let t = rect(&mut s, 60.0, 60.0, 100.0, 100.0, "#20c040");
+    run(&mut s, "transparency.set", json!({"ids": [t], "opacity": 50}));
+    let r = run(&mut s, "object.flattenTransparency", json!({"ids": [cut, t]}));
+    assert!(warns_undecoded(&r), "{r}");
+    assert_eq!(r["rasterized"], 1, "the image area is still flattened: {r}");
 }
 
 #[test]

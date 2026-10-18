@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 use vectorcraft_color::BlendMode;
 use vectorcraft_doc::{Node, NodeKind};
 
+use super::tests_menucmds::{place_undecodable_png, warns_undecoded};
 use super::*;
 
 fn session() -> Session {
@@ -115,6 +116,16 @@ fn a_blur_turns_the_object_into_an_image() {
     let n = node(&s, id);
     assert!(matches!(n.kind, NodeKind::Image(_)), "{}", n.kind_label());
     assert!(n.appearance.effects.is_empty());
+}
+
+#[test]
+fn expanding_a_blur_says_when_an_image_could_not_be_decoded() {
+    let mut s = session();
+    let cut = place_undecodable_png(&mut s);
+    run(&mut s, "effect.apply", json!({"effect": "blur.gaussian", "params": {"radius": 3}, "ids": [cut.0]}));
+    let r = run(&mut s, "effect.expandAppearance", json!({"ids": [cut.0]}));
+    assert!(warns_undecoded(&r), "{r}");
+    assert!(matches!(node(&s, cut).kind, NodeKind::Image(_)));
 }
 
 #[test]

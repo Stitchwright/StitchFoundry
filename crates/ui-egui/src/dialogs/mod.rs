@@ -49,10 +49,12 @@ pub mod halftone;
 pub mod help;
 pub mod hyphenation;
 pub mod import_pdf;
+pub mod javascript_files;
 pub mod layer_options;
 pub mod layers_panel_options;
 pub mod life_size;
 pub mod liquify;
+pub mod live_paint_gaps;
 pub mod missing_fonts;
 pub mod missing_links;
 pub(crate) mod modal;
@@ -103,7 +105,7 @@ pub mod text_import;
 mod tiff_bmp_tga;
 pub mod tile_edge_color;
 mod tools;
-mod transform;
+pub(crate) mod transform;
 pub mod transform_each;
 pub mod variables;
 mod warp_effect;
@@ -114,13 +116,14 @@ use serde_json::{Value, json};
 pub use color_picker::open as open_color_picker;
 pub use document_setup::open as open_document_setup;
 pub use effect::open as open_effect_dialog;
-pub(crate) use effect::{FILM_GRAIN_FIELDS, SHADES};
+pub(crate) use effect::{FILM_GRAIN_FIELDS, SHADES, shown_choices};
 pub use export_as::open as open_export_as;
 pub use export_for_screens::open as open_export_for_screens;
 pub(crate) use export_for_screens::{
     KIND as EXPORT_FOR_SCREENS, formats as screen_formats, open_assets as open_export_for_screens_assets, saved_options as screen_saved_options,
     saved_rows as screen_saved_rows,
 };
+pub(crate) use form::humanize;
 pub(crate) use new_document::preset_name;
 pub use new_document::{open as open_new_document, preset_card};
 pub use png_options::open as open_raster_options;
@@ -246,10 +249,12 @@ registry! {
     SwatchOptions: [swatch_options::KIND] => swatch_options::SPEC,
     Confirm: [confirm::KIND] => confirm::SPEC,
     Message: [confirm::MESSAGE] => confirm::MESSAGE_SPEC,
+    Replace: [confirm::REPLACE] => confirm::REPLACE_SPEC,
     NewSwatch: [new_swatch::KIND] => new_swatch::SPEC,
     NewColorGroup: [new_color_group::KIND] => new_color_group::SPEC,
     GraphData: [graph_data::KIND] => graph_data::SPEC,
     GraphDesign: [graph_design::DESIGN] => graph_design::DESIGN_SPEC,
+    GraphColumn: [graph_design::COLUMN] => graph_design::COLUMN_SPEC,
     GraphMarker: [graph_design::MARKER] => graph_design::MARKER_SPEC,
     GradientStop: ["gradientStop"] => gradient_stop::SPEC,
     ColorPicker: [color_picker::KIND] => color_picker::SPEC,
@@ -272,6 +277,7 @@ registry! {
     Hyphenation: [hyphenation::KIND] => hyphenation::SPEC,
     SavePdf: [save_pdf::KIND] => save_pdf::SPEC,
     SvgOptions: [svg_options::KIND] => svg_options::SPEC,
+    JavaScriptFiles: [javascript_files::KIND] => javascript_files::SPEC,
     NewDocumentMore: [new_document::MORE] => new_document::MORE_SPEC,
     Place: [place::KIND] => place::SPEC,
     RasterOptions: ["pngOptions", "jpgOptions", "webpOptions", "gifOptions", "png8Options"] => png_options::SPEC,
@@ -317,6 +323,7 @@ registry! {
     PerspectiveGridPresets: [perspective_presets::KIND] => perspective_presets::SPEC,
     PerspectiveGridOptions: [perspective_options::KIND] => perspective_options::SPEC,
     BlendOptions: [blend_options::KIND] => blend_options::SPEC,
+    LivePaintGaps: [live_paint_gaps::KIND] => live_paint_gaps::SPEC,
     BrushOptions: [brush_options::KIND] => brush_options::SPEC,
     EditSelection: [edit_selection::KIND] => edit_selection::SPEC,
     PerspectivePlane: [perspective_plane::KIND] => perspective_plane::SPEC,

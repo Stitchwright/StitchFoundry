@@ -312,7 +312,16 @@ impl Tool for GestureTool {
         o
     }
     fn cursor(&self, _cx: &ToolContext, _p: Point, _m: Mods) -> Cursor {
-        Cursor::Crosshair
+        match self.id {
+            "paintbrush" => Cursor::Paintbrush,
+            "blobBrush" => Cursor::BlobBrush,
+            "eraser" => Cursor::Eraser,
+            "knife" => Cursor::Knife,
+            "smooth" => Cursor::Smooth,
+            "pathEraser" => Cursor::PathEraser,
+            "join" => Cursor::Join,
+            _ => Cursor::Pencil,
+        }
     }
     fn options(&self) -> Value {
         match self.id {

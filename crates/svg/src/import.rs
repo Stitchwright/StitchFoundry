@@ -8,8 +8,8 @@ use std::sync::Arc;
 use usvg::roxmltree;
 use vectorcraft_color::{BlendMode, Color, Gradient, GradientGeom, GradientKind, GradientPaint, GradientStop, Paint};
 use vectorcraft_doc::{
-    Appearance, AppearanceItem, Dash, Document, FillLayer, ImageBlob, ImageObject, LayerColor, LineCap, LineJoin, Node, NodeId, NodeKind, PatternDef,
-    StrokeLayer, Unit,
+    Appearance, AppearanceItem, Dash, Document, FillLayer, ImageBlob, ImageObject, LayerColor, LineCap, LineJoin, MAX_SVG_SCRIPTS, Node, NodeId,
+    NodeKind, PatternDef, SVG_EVENTS, StrokeLayer, Unit,
 };
 use vectorcraft_geom::{Affine, BezPath, FillRule, PathData, Point, Rect, Vec2, shapes};
 
@@ -90,10 +90,12 @@ pub(crate) fn import(svg: &str, opts: &ImportOptions) -> Result<(Document, Vec<S
         files,
         non_scaling: found.non_scaling,
         data: found.data,
+        events: found.events,
         sublayers: found.sublayers,
         sublayer_groups: HashSet::new(),
         screen: k,
     };
+    im.doc.svg_scripts = found.scripts;
     if im.files.nested_text() {
         im.warn("text inside an SVG image isn't imported".into());
     }
@@ -166,6 +168,7 @@ pub(crate) fn import(svg: &str, opts: &ImportOptions) -> Result<(Document, Vec<S
             im.add_unclipped(&mut l, 0, std::mem::take(&mut loose));
             l.visible = !im.hidden.contains(g.id());
             im.keep_data(g.id(), &mut l);
+            im.keep_events(g.id(), &mut l);
             im.doc.layers.push(Arc::new(l));
         }
     } else {
@@ -374,6 +377,8 @@ struct Importer {
     non_scaling: HashSet<String>,
     /// The `data-*` attributes of elements, by id ([`user_data`]).
     data: HashMap<String, Vec<(String, String)>>,
+    /// The event attributes of elements, by id ([`user_events`]).
+    events: HashMap<String, Vec<(String, String)>>,
     /// Ids of the `<g>` elements marked as layers ([`marked_layer`]).
     sublayers: HashSet<String>,
     /// The groups made of them, made sublayers where they sit in a layer ([`promote_sublayers`]).
@@ -490,6 +495,10 @@ struct Found {
     non_scaling: HashSet<String>,
     /// The `data-*` attributes of elements, by id ([`user_data`]).
     data: HashMap<String, Vec<(String, String)>>,
+    /// The event attributes of elements, by id ([`user_events`]).
+    events: HashMap<String, Vec<(String, String)>>,
+    /// The JavaScript files `<script>` elements link to ([`linked_scripts`]).
+    scripts: Vec<String>,
     /// Ids of the `<g>` elements marked as layers ([`marked_layer`]).
     sublayers: HashSet<String>,
     warnings: Vec<String>,
@@ -576,6 +585,8 @@ impl Edits {
 /// * undisplayed objects (`display: none`, as Save writes hidden layers) are shown and recorded,
 ///   to come back hidden; one something links to (a `<use>` template) stays as it is;
 /// * shapes with a non-scaling stroke get an id when they have none, recorded ([`vector_effect`]);
+/// * objects with event attributes get an id when they have none, recorded with them
+///   ([`user_events`]), and the `<script>` links are recorded ([`linked_scripts`]);
 /// * linked files are read ([`files`]);
 /// * percentage lengths in a `<symbol>` with a `viewBox` become numbers ([`symbol_units`]);
 /// * what style sheet rules with a `:not()` set goes in `style` attributes ([`not_rules`]).
@@ -584,9 +595,11 @@ fn prepass<'s>(svg: &'s str, xml: &roxmltree::Document, opts: &ImportOptions) ->
     // (`:` for prefixed elements such as `<svg:image>`.)
     let css_transform = has_css_transform(svg);
     let not = svg.contains(":not(");
+    let events = SVG_EVENTS.iter().any(|e| svg.contains(e));
     if !css_transform
         && !not
-        && !["<a", "display", "<use", ":use", "<image", ":image", vector_effect::NON_SCALING, "data-", "groupmode", INKSTITCH]
+        && !events
+        && !["<a", "display", "<use", ":use", "<image", ":image", vector_effect::NON_SCALING, "data-", "groupmode", "script", INKSTITCH]
             .iter()
             .any(|t| svg.contains(t))
     {
@@ -606,6 +619,17 @@ fn prepass<'s>(svg: &'s str, xml: &roxmltree::Document, opts: &ImportOptions) ->
                 found.data.insert(edits.id(svg, e), data);
             }
         }
+    }
+    if events {
+        for e in elements().filter(|e| EVENT_ELEMENTS.contains(&e.tag_name().name())) {
+            let events = user_events(e);
+            if !events.is_empty() {
+                found.events.insert(edits.id(svg, e), events);
+            }
+        }
+    }
+    if svg.contains("script") {
+        found.scripts = linked_scripts(xml, &mut found.warnings);
     }
     found.sublayers = elements().filter(|g| marked_layer(*g)).filter_map(|g| g.attribute("id")).map(str::to_string).collect();
     let symbols: HashSet<&str> = elements().filter(|n| n.tag_name().name() == "symbol").filter_map(|n| n.attribute("id")).collect();
@@ -704,6 +728,44 @@ fn user_data(e: XNode) -> Vec<(String, String)> {
         .map(|(k, v)| (k.to_string(), v.to_string()));
     let inkstitch = e.attributes().filter(|a| a.namespace() == Some(INKSTITCH)).map(|a| (format!("inkstitch-{}", a.name()), a.value().to_string()));
     own.chain(inkstitch).take(MAX_DATA).collect()
+}
+
+/// The elements whose event attributes are kept: the objects, and type.
+const EVENT_ELEMENTS: &[&str] = &["g", "a", "use", "path", "rect", "circle", "ellipse", "line", "polyline", "polygon", "image", "text"];
+
+/// The event attributes of element `e` that the SVG Interactivity panel lists ([`SVG_EVENTS`]),
+/// in order: the JavaScript is kept as text and never run.
+fn user_events(e: XNode) -> Vec<(String, String)> {
+    e.attributes()
+        .filter(|a| a.namespace().is_none() && SVG_EVENTS.contains(&a.name()))
+        .map(|a| (a.name().to_string(), a.value().to_string()))
+        .collect()
+}
+
+/// The JavaScript files the `<script>` elements link to, in order and each once, at most
+/// [`MAX_SVG_SCRIPTS`] (the file is untrusted): the links are kept as text, and the files are never
+/// read or run. Inline scripts and the links past the limit are left out with a warning.
+fn linked_scripts(xml: &roxmltree::Document, warnings: &mut Vec<String>) -> Vec<String> {
+    let mut out: Vec<String> = vec![];
+    let mut over = false;
+    for s in xml.descendants().filter(|n| n.is_element() && n.tag_name().name() == "script") {
+        match href(s) {
+            Some(h) if out.iter().any(|o| o == h) => {}
+            Some(h) if out.len() < MAX_SVG_SCRIPTS => out.push(h.to_string()),
+            Some(_) => over = true,
+            None if s.text().is_some_and(|t| !t.trim().is_empty()) => {
+                let w = "inline scripts were left out: only linked JavaScript files are kept".to_string();
+                if !warnings.contains(&w) {
+                    warnings.push(w);
+                }
+            }
+            None => {}
+        }
+    }
+    if over {
+        warnings.push(format!("more than {MAX_SVG_SCRIPTS} JavaScript files are linked: only the first {MAX_SVG_SCRIPTS} were kept"));
+    }
+    out
 }
 
 /// Make `n` link to `url`, unless it links somewhere already (an inner link wins).
@@ -851,6 +913,7 @@ impl Importer {
             out.visible = false;
         }
         self.keep_data(n.id(), &mut out);
+        self.keep_events(n.id(), &mut out);
         Some(out)
     }
 
@@ -859,6 +922,14 @@ impl Importer {
     fn keep_data(&self, id: &str, n: &mut Node) {
         if let Some(data) = self.data.get(id).filter(|_| n.extras().attrs.as_ref().is_none_or(|a| a.data.is_empty())) {
             n.edit_attrs(|a| a.data = data.clone());
+        }
+    }
+
+    /// Give `n` the event attributes of element `id`, unless it has events already (what an inner
+    /// element made of it keeps).
+    fn keep_events(&self, id: &str, n: &mut Node) {
+        if let Some(events) = self.events.get(id).filter(|_| n.extras().attrs.as_ref().is_none_or(|a| a.events.is_empty())) {
+            n.edit_attrs(|a| a.events = events.clone());
         }
     }
 
@@ -1064,8 +1135,10 @@ impl Importer {
             }
             // An id-less wrapper around a single object (usvg adds these for opacity/transform on
             // shapes): fold its opacity, blend and effects into the object (unless the object
-            // blends or masks before the effects). A text takes its own mask too.
-            if (is_text || id.is_empty() && mask.is_none())
+            // blends or masks before the effects). A text takes its own mask too. A group with
+            // `data-*` or event attributes of its own stays a group, and keeps them.
+            let own = self.data.contains_key(g.id()) || self.events.contains_key(g.id());
+            if (is_text || id.is_empty() && mask.is_none() && !own)
                 && children.len() == 1
                 && (g.blend_mode() == usvg::BlendMode::Normal || children[0].blend == BlendMode::Normal)
                 && (effects.is_empty() || children[0].blend == BlendMode::Normal && children[0].extras().mask.is_none())
@@ -1404,9 +1477,10 @@ impl Importer {
             std::mem::take(&mut self.labels),
             std::mem::take(&mut self.non_scaling),
             std::mem::take(&mut self.data),
+            std::mem::take(&mut self.events),
         );
         let art = self.group_node(tree.root(), acc);
-        (self.links, self.hidden, self.uses, self.labels, self.non_scaling, self.data) = outer;
+        (self.links, self.hidden, self.uses, self.labels, self.non_scaling, self.data, self.events) = outer;
         art
     }
 }

@@ -36,7 +36,7 @@ use kurbo::{Affine, Rect};
 use serde::Serialize;
 use vectorcraft_color::cms::{self, ProfileKind};
 use vectorcraft_doc::marks::PrinterMarks;
-use vectorcraft_doc::overprint::{clear_overprints, multiply_overprints};
+use vectorcraft_doc::overprint::{clear_overprints, darken_overprints};
 use vectorcraft_doc::{ColorMode, Document, Node, NodeKind};
 
 pub use layout::{MAX_TILES, TileGrid};
@@ -167,7 +167,7 @@ pub fn printed_document<'a>(doc: &'a Document, set: &PrintSettings) -> Cow<'a, D
 }
 
 /// Overprinting fills and strokes in composite output: discarded (they knock out) or simulated
-/// (drawn with Multiply, as Overprint Preview shows them), after which nothing overprints any
+/// (drawn with Darken, as Overprint Preview shows them), after which nothing overprints any
 /// more; or preserved. Separations always honour them.
 fn composite_overprints(doc: &mut Document, set: &PrintSettings) {
     let how = set.advanced.overprints;
@@ -179,7 +179,7 @@ fn composite_overprints(doc: &mut Document, set: &PrintSettings) {
     let nodes = doc.layers.iter_mut().chain(symbols).chain(doc.patterns.iter_mut().flat_map(|p| p.art.iter_mut()));
     for n in nodes {
         if how == PrintOverprints::Simulate {
-            multiply_overprints(n, discard_white);
+            darken_overprints(n, discard_white);
         }
         clear_overprints(n);
     }
@@ -411,7 +411,7 @@ fn print_inner(doc: &Document, opts: &PrintOptions) -> Result<PrintReport, PdfEr
         ex.intent = opts.settings.color.intent;
         // The writer's colour output: the printer profile's conversion.
         ex.out = w.out.clone();
-        // Composite output keeps overprints as the Advanced option says (plates multiply them).
+        // Composite output keeps overprints as the Advanced option says (plates darken them).
         ex.overprint = !separations && pdf.advanced.overprint == Overprint::Preserve;
     }
     for &i in &plan.order {

@@ -7,10 +7,18 @@ use serde_json::{Value, json};
 
 const BIN: &str = env!("CARGO_BIN_EXE_stitchfoundry-cli");
 
+/// Returns the path of `name` in `vectorcraft-cli-test-<pid>` in the temp folder. The first call removes
+/// that folder and creates it again empty.
 fn tmp(name: &str) -> std::path::PathBuf {
-    let dir = std::env::temp_dir().join(format!("vectorcraft-cli-test-{}", std::process::id()));
+    static DIR: std::sync::OnceLock<std::path::PathBuf> = std::sync::OnceLock::new();
+    DIR.get_or_init(|| empty_dir(std::env::temp_dir().join(format!("vectorcraft-cli-test-{}", std::process::id())))).join(name)
+}
+
+/// Removes `dir` and everything in it, creates it again empty and returns it.
+fn empty_dir(dir: std::path::PathBuf) -> std::path::PathBuf {
+    let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
-    dir.join(name)
+    dir
 }
 
 #[test]
@@ -87,7 +95,20 @@ fn mcp_headless_over_stdio() {
 /// server starts, and the process then reads and writes only inside its roots.
 #[test]
 fn mcp_automation_roots() {
-    let base = tmp("roots");
+    automation_roots(&tmp("roots"));
+}
+
+/// A run that has the process id of an earlier run finds that run's files and links in its folder.
+/// `empty_dir`, which `tmp` uses, removes them, so the run can make them again instead of failing
+/// with "File exists".
+#[test]
+fn mcp_automation_roots_in_a_folder_an_earlier_run_left() {
+    let dir = tmp("earlier-run");
+    automation_roots(&dir.join("roots"));
+    automation_roots(&empty_dir(dir).join("roots"));
+}
+
+fn automation_roots(base: &std::path::Path) {
     for d in ["in", "out", "outside"] {
         std::fs::create_dir_all(base.join(d)).unwrap();
     }
@@ -345,4 +366,98 @@ fn run_with_a_closed_stdout_ends_quietly_and_finishes_the_batch() {
     assert!(svg.is_file(), "the export after the closed reader still ran");
     let out = Command::new(BIN).args(["run", "--cmd", "not-a-command"]).stdout(Stdio::null()).output().unwrap();
     assert!(!out.status.success());
+}
+
+/// A fresh settings folder for one test (`VECTORCRAFT_CONFIG_DIR`), so no run reads or writes the
+/// developer's real profile.
+fn config_dir(name: &str) -> std::path::PathBuf {
+    let dir = tmp(&format!("config-{name}"));
+    let _ = std::fs::remove_dir_all(&dir);
+    dir
+}
+
+/// One `vectorcraft-cli run` with `steps` ((command, params)) against the settings folder `config`;
+/// the result of each step.
+fn run_in(config: &std::path::Path, steps: &[(&str, Value)]) -> Vec<Value> {
+    let mut cmd = Command::new(BIN);
+    cmd.arg("run").env("VECTORCRAFT_CONFIG_DIR", config).env_remove("VECTORCRAFT_NO_PREFS");
+    for (id, params) in steps {
+        cmd.args(["--cmd", id, "--params", &params.to_string()]);
+    }
+    let out = cmd.output().unwrap();
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    String::from_utf8(out.stdout).unwrap().lines().map(|l| serde_json::from_str::<Value>(l).unwrap()["result"].clone()).collect()
+}
+
+/// An ICC file of an RGB profile named `name` (a built-in one with its description replaced by a
+/// name of the same length).
+fn icc_file_named(path: &std::path::Path, name: &str) {
+    let builtin = "Display P3";
+    assert_eq!(builtin.len(), name.len());
+    let utf16 = |s: &str| s.encode_utf16().flat_map(u16::to_be_bytes).collect::<Vec<u8>>();
+    let mut bytes = vectorcraft_color::cms::icc_bytes(builtin).unwrap().to_vec();
+    let (from, to) = (utf16(builtin), utf16(name));
+    let at = bytes.windows(from.len()).position(|w| w == from).expect("the description in the profile");
+    bytes[at..at + to.len()].copy_from_slice(&to);
+    std::fs::write(path, bytes).unwrap();
+}
+
+fn profile_names(settings: &Value) -> Vec<&str> {
+    settings["profiles"].as_array().unwrap().iter().map(|p| p["name"].as_str().unwrap()).collect()
+}
+
+/// #2168, #2174: the PDF presets saved and the ICC profiles loaded in one headless run are there in
+/// the next run, and gone again once deleted.
+#[test]
+fn saved_pdf_presets_and_loaded_profiles_survive_a_restart() {
+    let config = config_dir("restart");
+    let icc = tmp("studio-p3.icc");
+    icc_file_named(&icc, "StudioRGB3");
+    let r = run_in(
+        &config,
+        &[
+            ("pdf.preset.save", json!({"name": "Press", "description": "for the printer"})),
+            ("color.loadProfile", json!({"path": icc.to_str().unwrap()})),
+        ],
+    );
+    assert_eq!(r[1]["name"], "StudioRGB3");
+
+    let r = run_in(&config, &[("pdf.preset.list", json!({})), ("edit.colorSettings", json!({}))]);
+    let presets: Vec<&str> =
+        r[0]["presets"].as_array().unwrap().iter().filter(|p| p["builtIn"] == false).map(|p| p["name"].as_str().unwrap()).collect();
+    assert_eq!(presets, ["Press"]);
+    assert_eq!(r[0]["presets"].as_array().unwrap().iter().find(|p| p["name"] == "Press").unwrap()["description"], "for the printer");
+    assert!(profile_names(&r[1]).contains(&"StudioRGB3"), "{:?}", profile_names(&r[1]));
+    // The profile works as a working space, and the file it came from can go.
+    std::fs::remove_file(&icc).unwrap();
+    let steps = [
+        ("edit.colorSettings", json!({"rgb": "StudioRGB3"})),
+        ("pdf.preset.delete", json!({"name": "Press"})),
+        ("edit.colorSettings", json!({"rgb": vectorcraft_color::cms::SRGB})),
+        ("color.removeProfile", json!({"name": "StudioRGB3"})),
+    ];
+    let r = run_in(&config, &steps);
+    assert_eq!(r[0]["rgb"], "StudioRGB3");
+    assert_eq!(r[3]["removed"], "StudioRGB3");
+
+    let r = run_in(&config, &[("pdf.preset.list", json!({})), ("edit.colorSettings", json!({}))]);
+    assert!(r[0]["presets"].as_array().unwrap().iter().all(|p| p["builtIn"] == true));
+    assert!(!profile_names(&r[1]).contains(&"StudioRGB3"));
+}
+
+/// Runs without preferences (`VECTORCRAFT_NO_PREFS`) keep what they save for the run only, and
+/// leave nothing in the settings folder.
+#[test]
+fn runs_without_preferences_remember_nothing() {
+    let config = config_dir("noprefs");
+    let out = Command::new(BIN)
+        .args(["run", "--cmd", "pdf.preset.save", "--params", r#"{"name":"Press"}"#])
+        .env("VECTORCRAFT_CONFIG_DIR", &config)
+        .env("VECTORCRAFT_NO_PREFS", "1")
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    assert!(!config.exists(), "nothing written");
+    let r = run_in(&config, &[("pdf.preset.list", json!({}))]);
+    assert!(r[0]["presets"].as_array().unwrap().iter().all(|p| p["builtIn"] == true));
 }

@@ -94,6 +94,28 @@ fn blend_specified_steps_count() {
     assert_eq!(steps_of(&s, g).len(), 5);
 }
 
+/// Specified Steps that are not a whole number are an error, in Make and in Blend Options, and
+/// nothing changes; 4.0 is a whole number of steps.
+#[test]
+fn blend_steps_that_are_not_a_whole_number_are_refused() {
+    let mut s = session();
+    let (_, _, g) = blend(&mut s, json!({"steps": 3}));
+    let (a, b) = (rect(&mut s, 0.0, 50.0, 10.0, 10.0), rect(&mut s, 100.0, 50.0, 10.0, 10.0));
+    let n = undo_len(&s);
+    for p in [json!({"ids": [a.0, b.0], "steps": 2.5}), json!({"ids": [a.0, b.0], "spacing": "steps", "value": 2.5})] {
+        let key = if p.get("value").is_some() { "value" } else { "steps" };
+        let r = s.execute("object.blend.make", &p);
+        assert!(matches!(&r, Err(EngineError::BadParams { msg, .. }) if *msg == format!("`{key}` must be a whole number")), "{p}: {r:?}");
+    }
+    sel(&mut s, &[g]);
+    for p in [json!({"steps": 2.5}), json!({"spacing": "steps", "value": 1.5})] {
+        assert!(s.execute("object.blend.options", &p).is_err(), "{p}");
+    }
+    assert_eq!((undo_len(&s), steps_of(&s, g).len()), (n, 5), "nothing changed");
+    s.execute("object.blend.options", &json!({"steps": 4.0})).unwrap();
+    assert_eq!(steps_of(&s, g).len(), 6);
+}
+
 #[test]
 fn blend_mid_step_interpolates_geometry_and_colour() {
     let mut s = session();
@@ -582,6 +604,36 @@ fn mesh_add_line_and_delete_point() {
     assert!(s.execute("object.mesh.deletePoint", &json!({"id": a.0, "index": 0})).is_err(), "corner lines can't go");
 }
 
+/// A mesh point `index`, and `rows`, `cols` or `columns` for Create Gradient Mesh, that is not a
+/// whole number is an error that changes nothing; 4.0 names point 4.
+#[test]
+fn mesh_commands_refuse_an_index_or_count_that_is_not_a_whole_number() {
+    let mut s = session();
+    let a = rect(&mut s, 0.0, 0.0, 100.0, 100.0);
+    let b = rect(&mut s, 200.0, 0.0, 100.0, 100.0);
+    sel(&mut s, &[a]);
+    s.execute("object.mesh.create", &json!({"rows": 2, "cols": 2})).unwrap();
+    let (before, n) = (mesh_of(&s, a), undo_len(&s));
+    sel(&mut s, &[b]);
+    for (key, p) in [("rows", json!({"rows": 2.5})), ("cols", json!({"cols": 1.5})), ("columns", json!({"columns": 3.25}))] {
+        let r = s.execute("object.mesh.create", &p);
+        assert!(matches!(&r, Err(EngineError::BadParams { msg, .. }) if *msg == format!("`{key}` must be a whole number")), "{p}: {r:?}");
+    }
+    assert!(matches!(node(&s, b).kind, NodeKind::Path { .. }), "still a path");
+    for (cmd, p) in [
+        ("object.mesh.setPointColor", json!({"id": a.0, "index": 4.5, "color": "#00ff00"})),
+        ("object.mesh.movePoint", json!({"id": a.0, "index": 4.5, "x": 10, "y": 10})),
+        ("object.mesh.movePoint", json!({"id": a.0, "index": 3.5, "x": 10, "y": 10, "handle": 0})),
+        ("object.mesh.deletePoint", json!({"id": a.0, "index": 4.5})),
+    ] {
+        let r = s.execute(cmd, &p);
+        assert!(matches!(&r, Err(EngineError::BadParams { msg, .. }) if msg == "`index` must be a whole number"), "{cmd} {p}: {r:?}");
+    }
+    assert_eq!((mesh_of(&s, a), undo_len(&s)), (before, n), "nothing changed");
+    s.execute("object.mesh.movePoint", &json!({"id": a.0, "index": 4.0, "x": 40, "y": 60})).unwrap();
+    assert_eq!(mesh_of(&s, a).points[4].p, Point::new(40.0, 60.0));
+}
+
 #[test]
 fn mesh_create_at_point_single_undo() {
     let mut s = session();
@@ -731,4 +783,67 @@ fn disabled_without_live_selection() {
     assert!(s.execute("object.mesh.expand", &json!({})).is_err());
     assert!(s.execute("object.blend.make", &json!({})).is_err(), "needs two objects");
     let _ = Paint::solid(Color::BLACK);
+}
+
+/// A selected embedded 8×4 image at (100, 50), 2 pt per pixel: red on the left half, blue on the
+/// right half (which is transparent when `clear_right`). `link` makes it a linked image.
+fn two_colour_image(s: &mut Session, clear_right: bool, linked: bool) -> NodeId {
+    let right = image::Rgba([0, 0, 255, if clear_right { 0 } else { 255 }]);
+    let img = image::RgbaImage::from_fn(8, 4, |x, _| if x < 4 { image::Rgba([255, 0, 0, 255]) } else { right });
+    let mut png = vec![];
+    img.write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).unwrap();
+    s.edit("Place", |d, sel| {
+        d.images.insert("pic".into(), vectorcraft_doc::ImageBlob::png(png));
+        let id = d.alloc_id();
+        let xf = vectorcraft_geom::Affine::translate((100.0, 50.0)) * vectorcraft_geom::Affine::scale(2.0);
+        let link = linked.then(|| vectorcraft_doc::LinkInfo { path: "/tmp/pic.png".into(), ..Default::default() });
+        let im = vectorcraft_doc::ImageObject { key: "pic".into(), width: 8, height: 4, xf, link, placement: Default::default() };
+        d.insert(d.default_layer(), 0, Node::new(id, NodeKind::Image(Box::new(im))))?;
+        sel.set([id]);
+        Ok(id)
+    })
+    .unwrap()
+}
+
+#[test]
+fn mesh_create_on_an_embedded_image_takes_its_colours_and_placement() {
+    let mut s = session();
+    let id = two_colour_image(&mut s, false, false);
+    let undo = s.doc().unwrap().history.undo.len();
+    s.execute("object.mesh.create", &json!({"rows": 1, "cols": 2})).unwrap();
+    assert_eq!(s.doc().unwrap().history.undo.len(), undo + 1, "one undo step");
+    let m = mesh_of(&s, id);
+    assert_eq!((m.rows, m.cols, m.points.len()), (1, 2, 6));
+    // Row 0 is the image's top: red at the left edge, the average of both halves in the middle
+    // (an area, not one pixel), blue at the right edge.
+    let hex = |i: usize| m.points[i].color.to_hex();
+    assert_eq!((hex(0).as_str(), hex(1).as_str(), hex(2).as_str()), ("#ff0000", "#800080", "#0000ff"));
+    assert_eq!((hex(3).as_str(), hex(5).as_str()), ("#ff0000", "#0000ff"));
+    assert!(m.points.iter().all(|p| p.opacity == 1.0));
+    // The mesh keeps the image's transform: (100, 50) to (116, 58).
+    let near = |p: Point, x: f64, y: f64| close(p.x, x) && close(p.y, y);
+    assert!(near(m.points[0].p, 100.0, 50.0) && near(m.points[2].p, 116.0, 50.0) && near(m.points[5].p, 116.0, 58.0));
+    assert_eq!(node(&s, id).kind_label(), "Mesh");
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!(node(&s, id).kind_label(), "Image");
+}
+
+#[test]
+fn mesh_create_on_an_image_keeps_alpha_and_refuses_linked_and_big_grids() {
+    let mut s = session();
+    let id = two_colour_image(&mut s, true, false);
+    s.execute("object.mesh.create", &json!({"rows": 1, "cols": 1})).unwrap();
+    let m = mesh_of(&s, id);
+    assert_eq!(m.points.iter().map(|p| p.opacity).collect::<Vec<_>>(), [1.0, 0.0, 1.0, 0.0]);
+    assert_eq!(m.points[0].color.to_hex(), "#ff0000");
+
+    let mut s = session();
+    two_colour_image(&mut s, false, false);
+    assert!(s.execute("object.mesh.create", &json!({"rows": 51, "cols": 4})).is_err(), "grid capped");
+
+    let mut s = session();
+    let id = two_colour_image(&mut s, false, true);
+    let e = s.execute("object.mesh.create", &json!({})).unwrap_err().to_string();
+    assert!(e.contains("linked"), "{e}");
+    assert_eq!(node(&s, id).kind_label(), "Image", "left as it was");
 }

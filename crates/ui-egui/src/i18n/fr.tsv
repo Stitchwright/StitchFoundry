@@ -354,6 +354,7 @@
 	Change Case	Modifier la casse
 	Change Screen Mode (F)	Changer de mode d’affichage (F)
 	Change to Global Rulers	Passer aux règles globales
+	Change to Artboard Rulers	Passer aux règles du plan de travail
 	Change to Right-to-Left Layout	Passer à la disposition de droite à gauche
 	Changed since the last Refresh.	Modifié depuis la dernière actualisation.
 	Changes allowed:	Modifications autorisées :
@@ -504,6 +505,7 @@
 	Color Model:	Modèle colorimétrique :
 	Color Models	Modèles colorimétriques
 	Color Picker	Sélecteur de couleurs
+	Color wheel	Roue chromatique
 	Color Picker…	Sélecteur de couleurs…
 	Color Reduction:	Réduction des couleurs :
 	Color Settings	Paramètres de couleur
@@ -542,6 +544,7 @@
 	Condition identifier:	Identifiant de condition :
 	Conflict {n} of {count}	Conflit {n} sur {count}
 	Connect Selected End Points	Relier les extrémités sélectionnées
+	Connect	Relier
 	Consolidate All Windows	Regrouper toutes les fenêtres
 	Constrain Angle	Contraindre l’angle
 	Constrain Width and Height Proportions	Conserver les proportions de largeur et de hauteur
@@ -550,6 +553,7 @@
 	Contextual Task Bar	Barre des tâches contextuelle
 	Pin Bar Position	Épingler la position de la barre
 	Reset Bar Position	Réinitialiser la position de la barre
+	Resize	Redimensionner
 	Contrast	Contraste
 	Control	Contrôle
 	Convert	Convertir
@@ -636,6 +640,7 @@
 	Created:	Création :
 	Crop	Recadrer
 	Crop Image	Recadrer l’image
+	Edit Path	Modifier le tracé
 	Mask	Masque
 	Crop Marks	Traits de coupe
 	Crop To	Recadrer selon
@@ -782,6 +787,7 @@
 	Document open password	Mot de passe d’ouverture du document
 	Document profile	Profil du document
 	Document Raster Effects Settings	Paramètres des effets de pixellisation du document
+	Use Document Raster Effects Resolution	Utiliser la résolution des paramètres des effets de pixellisation du document
 	Document Raster Effects Settings Dialog	Boîte de dialogue Paramètres des effets de pixellisation du document
 	Document Raster Effects Settings…	Paramètres des effets de pixellisation du document…
 	Document Setup	Format de document
@@ -1149,6 +1155,7 @@
 	Font List	Liste des polices
 	Font Preview Size	Taille de l’aperçu des polices
 	Font Size	Taille de police
+	Variable Font	Police variable
 	Font:	Police :
 	Fonts	Polices
 	Fonts in Document	Polices du document
@@ -1178,6 +1185,14 @@
 	Gamut Warning	Alerte de gamme
 	gap	espace
 	Gap Options…	Options d’espacement…
+	Gap Options	Options d’espacement
+	Gap Detection	Détection des espaces
+	Paint Stops At:	Arrêt de la peinture à :
+	Small Gaps	Petits espaces
+	Medium Gaps	Espaces moyens
+	Large Gaps	Grands espaces
+	Gap Preview Color:	Couleur d’aperçu des espaces :
+	Close Gaps With Paths	Fermer les espaces avec des tracés
 	Gaussian Blur…	Flou gaussien…
 	General	Général
 	General › Placement › X	Général › Placement › X
@@ -1194,6 +1209,10 @@
 	glyph {id}	glyphe {id}
 	Glyphs	Glyphes
 	Go to Artboard	Atteindre le plan de travail
+	First Artboard	Premier plan de travail
+	Previous Artboard	Plan de travail précédent
+	Next Artboard	Plan de travail suivant
+	Last Artboard	Dernier plan de travail
 	Go To Link	Atteindre le lien
 	GPL palettes keep solid colours only, as RGB.	Les palettes GPL ne conservent que les couleurs unies, en RVB.
 	GPU Performance	Performances GPU
@@ -1219,6 +1238,16 @@
 	Delete Design	Supprimer la conception
 	Paste Design	Coller la conception
 	Select Unused	Sélectionner les éléments inutilisés
+	Graph Column	Colonne de graphe
+	Column Type:	Type de colonne :
+	Vertically Scaled	Mise à l’échelle verticale
+	Uniformly Scaled	Mise à l’échelle uniforme
+	Repeating	Répétition
+	Sliding	Glissement
+	Each Design Represents:	Chaque conception représente :
+	For Fractions:	Pour les fractions :
+	Chop Design	Rogner la conception
+	Scale Design	Mettre la conception à l’échelle
 	Import Data…	Importer des données…
 	Transpose	Transposer
 	Switch x/y	Permuter x/y
@@ -1312,7 +1341,80 @@
 	Highlight Substituted Glyphs	Surligner les glyphes remplacés
 	History	Historique
 	History Options…	Options d’historique…
+	Step Backward	Pas en arrière
+	Step Forward	Pas en avant
+	Set History Limit…	Définir la limite de l’historique…
 	History States	États de l’historique
+# History panel: the names of undo steps (`every_undo_label_is_translated`).
+	Apply Data Set	Appliquer le jeu de données
+	Cancel Pattern Editing	Annuler la modification du motif
+	Copy Appearance	Copier l’aspect
+	Copy Guide	Copier le repère
+	Copy in Perspective	Copier en perspective
+	Create Slice from Selection	Créer une tranche à partir de la sélection
+	Create Slices from Guides	Créer des tranches à partir des repères
+	Delete All Slices	Supprimer toutes les tranches
+	Delete Data Sets	Supprimer les jeux de données
+	Delete Graphic Styles	Supprimer les styles graphiques
+	Delete Guide	Supprimer le repère
+	Delete Guides	Supprimer les repères
+	Delete Slice	Supprimer la tranche
+	Delete Style	Supprimer le style
+	Delete Variables	Supprimer les variables
+	Delete View	Supprimer la vue
+	Done Editing Pattern	Terminer la modification du motif
+	Duplicate Rows	Dupliquer les lignes
+	Edit Perspective Grid	Modifier la grille de perspective
+	Expand Blend	Décomposer le dégradé de formes
+	Expand Envelope	Décomposer l’enveloppe
+	Expand Image Trace	Décomposer la vectorisation de l’image
+	Expand Live Paint	Décomposer la peinture dynamique
+	Live Shape	Forme dynamique
+	Make Blend	Créer un dégradé de formes
+	Make Dynamic	Rendre dynamique
+	Make Intertwine	Créer un entrelacement
+	Make Live Paint	Créer une peinture dynamique
+	Make Pattern	Créer un motif
+	Make Slice	Créer une tranche
+	Merge Live Paint	Fusionner la peinture dynamique
+	Mesh Point Color	Couleur du point de filet
+	Move Envelope Point	Déplacer le point d’enveloppe
+	Move Plane and Copy Objects	Déplacer le plan et copier les objets
+	Move Plane and Objects	Déplacer le plan et les objets
+	Move Slice	Déplacer la tranche
+	Move Type on a Path	Déplacer le texte curviligne
+	New Guide	Nouveau repère
+	Place from Library	Importer depuis la bibliothèque
+	Rearrange Artboards	Réorganiser les plans de travail
+	Release Blend	Annuler le dégradé de formes
+	Release Envelope	Annuler l’enveloppe
+	Release Intertwine	Annuler l’entrelacement
+	Release Live Paint	Annuler la peinture dynamique
+	Release Repeat	Annuler la répétition
+	Release Slice	Annuler la tranche
+	Release Threaded Text	Annuler le texte lié
+	Rename Design	Renommer la conception
+	Rename Style	Renommer le style
+	Rename View	Renommer la vue
+	Reorder Appearance	Réorganiser l’aspect
+	Reorder Artboards	Changer l’ordre des plans de travail
+	Reshape Spine	Modeler la dorsale
+	Resize Artboard	Redimensionner le plan de travail
+	Resize Slice	Redimensionner la tranche
+	Resize Type Area	Redimensionner la zone de texte
+	Scale in Perspective	Mettre à l’échelle en perspective
+	Shape Builder Delete	Concepteur de forme (suppression)
+	Sort Swatches	Trier les nuances
+	Symbol Screener	Transparence de symboles
+	Symbol Scruncher	Espacement de symboles
+	Symbol Shifter	Glissement de symboles
+	Symbol Sizer	Redimensionnement de symboles
+	Symbol Spinner	Rotation de symboles
+	Symbol Stainer	Coloration de symboles
+	Symbol Styler	Stylisation de symboles
+	Text Orientation	Orientation du texte
+	Thread Text	Chaîner le texte
+	Typing	Saisie
 	Hollow	Évidé
 	Home	Accueil
 	Horizon Height:	Hauteur de l’horizon :
@@ -1591,6 +1693,7 @@
 	Live Paint Selection Tool	Outil Sélection de peinture dynamique
 	Live Shape Properties	Propriétés de la forme dynamique
 	Load Color Profile…	Charger un profil colorimétrique…
+	Remove Color Profile…	Supprimer un profil colorimétrique…
 	Load Image into Clipboard	Charger une image dans le presse-papiers
 	Load Metafile into Clipboard	Charger un métafichier dans le presse-papiers
 	Load PDF into Clipboard	Charger un PDF dans le presse-papiers
@@ -1823,6 +1926,7 @@
 	New Graphic Style	Nouveau style graphique
 	New Graphic Style (Alt-click to name it)	Nouveau style graphique (Alt+clic pour le nommer)
 	New Graphic Style…	Nouveau style graphique…
+	New Artboard Options…	Options du nouveau plan de travail…
 	New Layer Options…	Options du nouveau calque…
 	New Layer…	Nouveau calque…
 	New Opacity Masks Are Clipping	Les nouveaux masques d’opacité sont des masques d’écrêtage
@@ -2472,6 +2576,9 @@
 	Revert	Version précédente
 	Revert to the saved version of “{name}”?	Revenir à la version enregistrée de « {name} » ?
 	Replace “{name}”, the file this document was opened from?	Remplacer « {name} », le fichier à partir duquel ce document a été ouvert ?
+	Opening it left out what VectorCraft can't read yet ({what}), so replacing it loses that for good. Save under another name to keep it.	Son ouverture a laissé de côté ce que VectorCraft ne sait pas encore lire ({what}) : le remplacer le perd définitivement. Enregistrez sous un autre nom pour le conserver.
+	“{name}” already exists. Replace it?	« {name} » existe déjà. Le remplacer ?
+	The name in the save panel was “{typed}”; VectorCraft added the file type's extension. Replacing the file overwrites its contents.	Le nom dans la fenêtre d’enregistrement était « {typed} », puis VectorCraft a ajouté l’extension du type de fichier. Remplacer le fichier écrase son contenu.
 	Revolve…	Révolution…
 	RGB Color	Couleur RVB
 	Right	Droite
@@ -2489,6 +2596,7 @@
 	Rotate 90° CW	Rotation de 90° horaire
 	Rotate Tool	Outil Rotation
 	Rotate View Tool	Outil Faire pivoter l’affichage
+	Trackpad Gesture to Rotate View	Faire pivoter l’affichage avec un geste du trackpad
 	Rotate…	Rotation…
 	Rotation	Rotation
 	Roughen…	Rugosité…
@@ -2968,6 +3076,16 @@
 	Superscript:	Exposant :
 	SVG Filters	Filtres SVG
 	SVG Interactivity	Interactivité SVG
+	Event:	Événement :
+	JavaScript:	JavaScript :
+	Add Event	Ajouter un événement
+	Remove Selected Entry	Supprimer l’entrée sélectionnée
+	Clear Events	Effacer les événements
+	Link JavaScript Files…	Lier des fichiers JavaScript…
+	JavaScript Files	Fichiers JavaScript
+	File or URL:	Fichier ou URL :
+	Add JavaScript File	Ajouter un fichier JavaScript
+	Remove JavaScript File	Supprimer le fichier JavaScript
 	SVG Options	Options SVG
 	SVG Profile:	Profil SVG :
 	Swap Fill and Stroke	Permuter le fond et le contour
@@ -3269,6 +3387,8 @@
 	Variables	Variables
 	New Variable	Nouvelle variable
 	Delete Variable	Supprimer la variable
+	Lock Variables	Verrouiller les variables
+	Unlock Variables	Déverrouiller les variables
 	List Variables	Lister les variables
 	Bind Variable	Lier la variable
 	Unbind Variable	Délier la variable
@@ -3618,6 +3738,7 @@ axis	Both	Les deux
 @msg	SVG parse error: {0}	Erreur d’analyse SVG : {0}
 @msg	Save for Web: the image is empty	Enregistrer pour le Web : l’image est vide
 @msg	Save writes {_1}, not {_2}: use document.export for other formats	Enregistrer écrit du {_1}, pas du {_2} : utilisez document.export pour les autres formats
+@msg	Save writes {_1}, not {_2}: use file.saveAsTemplate to write it	Enregistrer écrit du {_1}, pas du {_2} : utilisez file.saveAsTemplate pour l’écrire
 @msg	Saved recovery data for {title}	Données de récupération enregistrées pour {title}
 @msg	Saved to User Defined: {_1}	Enregistré dans Défini par l’utilisateur : {_1}
 @msg	Saved {path}	{path} enregistré
@@ -3647,6 +3768,7 @@ axis	Both	Les deux
 @msg	`{id}` has no envelope dialog	`{id}` n’a pas de boîte de dialogue d’enveloppe
 @msg	`{keep}` is not a side of this axis	`{keep}` n’est pas un côté de cet axe
 @msg	`{key}` must be `auto` or a language code such as `en` or `zh-hant`	`{key}` doit être `auto` ou un code de langue comme `en` ou `zh-hant`
+@msg	`{key}` must be a #rrggbb color	`{key}` doit être une couleur #rrggbb
 @msg	`{key}` must be a #rrggbb colour	`{key}` doit être une couleur #rrggbb
 @msg	`{key}` must be a number	`{key}` doit être un nombre
 @msg	`{key}` must be a string	`{key}` doit être une chaîne
@@ -3681,6 +3803,7 @@ axis	Both	Les deux
 @msg	a freeform gradient keeps at least one point	un dégradé de forme libre garde au moins un point
 @msg	a gradient needs at least two stops	un dégradé doit avoir au moins deux étapes de dégradé
 @msg	a graphic style named `{to}` already exists	un style graphique nommé `{to}` existe déjà
+@msg	a key object sits on that point	un objet clé se trouve sur ce point
 @msg	a page is missing	une page est manquante
 @msg	a page out of range	une page hors limites
 @msg	a page tree kid isn't a reference	un enfant de l’arborescence des pages n’est pas une référence
@@ -3688,6 +3811,7 @@ axis	Both	Les deux
 @msg	a page's placement is not finite	la position d’une page n’est pas finie
 @msg	a preset named `{_1}` exists	un paramètre prédéfini nommé `{_1}` existe déjà
 @msg	a slice size must be a positive number of points	la taille d’une tranche doit être un nombre de points positif
+@msg	a spine keeps at least two points	une dorsale garde au moins deux points
 @msg	a stream runs past the end	un flux dépasse la fin du fichier
 @msg	a stream's length is wrong	la longueur d’un flux est incorrecte
 @msg	a stream's length isn't a number	la longueur d’un flux n’est pas un nombre
@@ -3747,11 +3871,13 @@ axis	Both	Les deux
 @msg	give horizontal or vertical	indiquez horizontal ou vertical
 @msg	give the path `id` and the width point `index`	indiquez l’`id` du tracé et l’`index` du point de largeur
 @msg	guides are locked	les repères sont verrouillés
+@msg	handle must be in or out	handle doit valoir in ou out
 @msg	image '{key}' has no pixels and was left out	l’image « {key} » n’a aucun pixel et a été ignorée
 @msg	image data `{_1}` is missing	les données d’image `{_1}` sont manquantes
 @msg	image would be too large; lower the resolution	l’image serait trop grande ; réduisez la résolution
 @msg	index must be a number or first, previous, next or last	index doit être un nombre ou first, previous, next ou last
 @msg	index must be a number or first, previous, next or last, not `{other}`	index doit être un nombre ou first, previous, next ou last, pas `{other}`
+@msg	index must be ≥ 0	index ne peut pas être négatif
 @msg	installing from a path is not available on the web; pass the module as `dataBase64`	l’installation depuis un chemin n’est pas disponible sur le web ; transmettez le module sous forme de `dataBase64`
 @msg	internal error in `{cmd}`: {msg} (the document was left as it was before; please report this bug)	erreur interne dans `{cmd}` : {msg} (le document est resté tel qu’il était ; veuillez signaler ce bogue)
 @msg	internal error: {msg} (please report this bug)	erreur interne : {msg} (veuillez signaler ce bogue)
@@ -3768,6 +3894,7 @@ axis	Both	Les deux
 @msg	missing `name`	`name` manquant
 @msg	missing `tool`	`tool` manquant
 @msg	missing index	index manquant
+@msg	missing number `{key}`	nombre `{key}` manquant
 @msg	multiple windows land with M11.5	les fenêtres multiples arrivent avec M11.5
 @msg	name the file	nommez le fichier
 @msg	no CSS to copy: select objects with CSS of their own	aucun CSS à copier : sélectionnez des objets ayant leur propre CSS
@@ -3848,6 +3975,8 @@ axis	Both	Les deux
 @msg	no such recent font	police récente inexistante
 @msg	no such saved selection	sélection enregistrée inexistante
 @msg	no such segment	segment inexistant
+@msg	no such spine point	point de la dorsale inexistant
+@msg	no such spine segment	segment de la dorsale inexistant
 @msg	no such subpath	sous-tracé inexistant
 @msg	no such user library	bibliothèque utilisateur inexistante
 @msg	no such view	vue inexistante
@@ -3862,6 +3991,8 @@ axis	Both	Les deux
 @msg	node {_1} is not text	le nœud {_1} n’est pas du texte
 @msg	not a DXF drawing	ce n’est pas un dessin DXF
 @msg	not a VectorCraft file: {0}	ce n’est pas un fichier VectorCraft : {0}
+@msg	not a VectorCraft shortcut set (missing `overrides`)	ce n’est pas un jeu de raccourcis VectorCraft (`overrides` manquant)
+@msg	not a blend	ce n’est pas un dégradé de formes
 @msg	not a graphic style library (format `{_1}`)	ce n’est pas une bibliothèque de styles graphiques (format `{_1}`)
 @msg	not a shortcut set: the text doesn't start with a slash name and an opening brace	ce n’est pas un jeu de raccourcis, car le texte ne commence pas par un nom précédé d’une barre oblique et une accolade ouvrante
 @msg	not a stored central record	ce n’est pas un enregistrement central stocké
@@ -3918,6 +4049,7 @@ axis	Both	Les deux
 @msg	select (or target) objects whose appearance isn't basic	sélectionnez (ou ciblez) des objets dont l’aspect n’est pas basique
 @msg	select a Live Paint group	sélectionnez un groupe de peinture dynamique
 @msg	select a blend	sélectionnez un dégradé de formes
+@msg	select a blend or give `id`	sélectionnez un dégradé de formes ou indiquez son `id`
 @msg	select a clip group	sélectionnez un groupe d’écrêtage
 @msg	select a gradient mesh	sélectionnez un filet de dégradé
 @msg	select a linked image: an embedded one has no file	sélectionnez une image liée : une image incorporée n’a pas de fichier
@@ -3951,6 +4083,7 @@ axis	Both	Les deux
 @msg	stop {i} needs `offset`	l’étape de dégradé {i} nécessite `offset`
 @msg	stop {i} needs a valid `color`	l’étape de dégradé {i} nécessite une `color` valide
 @msg	stop {i}: `{k}` must be a number	étape de dégradé {i} : `{k}` doit être un nombre
+@msg	t, dx and dy must be finite	t, dx et dy doivent être finis
 @msg	the EMF header is damaged	l’en-tête EMF est endommagé
 @msg	the PDF has no pages	le PDF n’a aucune page
 @msg	the PDF is no longer loaded	le PDF n’est plus chargé
@@ -3963,6 +4096,7 @@ axis	Both	Les deux
 @msg	the art is too light for any dots	l’illustration est trop claire pour produire des points
 @msg	the artboard to fit must be a positive size up to {_1} pt	le plan de travail cible doit avoir une taille positive d’au plus {_1} pt
 @msg	the background worker stopped	le processus d’arrière-plan s’est arrêté
+@msg	the blend has no spine	le dégradé de formes n’a pas de dorsale
 @msg	the compressed file unpacks to more than {_1} MB	le fichier compressé dépasse {_1} Mo une fois décompressé
 @msg	the document has never been saved	le document n’a jamais été enregistré
 @msg	the document has no artboard	le document n’a pas de plan de travail
@@ -4003,6 +4137,7 @@ axis	Both	Les deux
 @msg	the selected stroke's profile is already listed as {_1}	le profil du contour sélectionné figure déjà sous le nom {_1}
 @msg	the selection has no URL (or they differ)	la sélection n’a pas d’URL (ou les URL diffèrent)
 @msg	the selection isn't in perspective	la sélection n’est pas en perspective
+@msg	the spine has no segments	la dorsale n’a aucun segment
 @msg	the stroke has no weight	le contour n’a pas d’épaisseur
 @msg	the thumbnail image is malformed	la vignette est mal formée
 @msg	the top object must be a path, compound path or text object to use as a clipping mask	l’objet du dessus doit être un tracé, un tracé transparent ou un objet texte pour servir de masque d’écrêtage
@@ -4038,9 +4173,11 @@ axis	Both	Les deux
 @msg	unknown tool or command `{key}`	outil ou commande inconnu `{key}`
 @msg	unknown workspace (one of {_1})	espace de travail inconnu (valeurs possibles : {_1})
 @msg	unsupported: {0}	non pris en charge : {0}
+@msg	variables are locked	les variables sont verrouillées
 @msg	version {0} files can't be compressed: only version {COMPRESSED_SINCE} and later open compressed files	les fichiers de version {0} ne peuvent pas être compressés : seules les versions {COMPRESSED_SINCE} et ultérieures ouvrent les fichiers compressés
 @msg	width and height are at least 1 pixel	la largeur et la hauteur valent au moins 1 pixel
 @msg	workspace name can't be empty	le nom de l’espace de travail ne peut pas être vide
+@msg	x and y must be finite	x et y doivent être finis
 @msg	{C}: no effect at index {from}	{C} : aucun effet à l’indice {from}
 @msg	{_1} failed: {e}	échec de {_1} : {e}
 @msg	{_1} files can be opened but not written (see document.formats)	les fichiers {_1} peuvent être ouverts mais pas écrits (voir document.formats)
@@ -4328,6 +4465,7 @@ effect	Soft	Doux
 	Reset all	Tout réinitialiser
 	Reset to default	Valeur par défaut
 	Reset all Revolve settings to their defaults.	Rétablir les valeurs par défaut de tous les réglages de révolution.
+	Step up or down	Augmenter ou diminuer d’un cran
 	Drag values or labels. Double-click a value to type.	Faites glisser les valeurs ou les libellés. Double-cliquez sur une valeur pour la saisir.
 	Drag rings to rotate. Shift snaps to 15°.	Faites glisser les anneaux pour tourner. Maj contraint par pas de 15°.
 	Drag the light, or its rings. Shift snaps to 15°.	Faites glisser la lumière ou ses anneaux. Maj contraint par pas de 15°.
@@ -4371,6 +4509,8 @@ lighting	Light	Lumière
 @msg	missing panel layout	Disposition des panneaux manquante
 @msg	unsupported native docking operation	Opération native d’ancrage non prise en charge
 	Linux Display Server	Serveur d’affichage Linux
+	X11 (XWayland) When a Pen Is Attached	X11 (XWayland) quand un stylet est branché
+	If a drawing tablet's pen doesn't draw, choose an X11 (XWayland) option.	Si le stylet d’une tablette graphique ne dessine pas, choisissez une option X11 (XWayland).
 	X11 (XWayland)	X11 (XWayland)
 	About StitchFoundry	À propos de StitchFoundry
 	Applies the next time StitchFoundry starts.	S’applique au prochain démarrage de StitchFoundry.
@@ -4802,7 +4942,6 @@ machine	Stop	Arrêt
 	Fade out	Fondu sortant
 	Fade in	Fondu entrant
 	Blend into	Fondre vers
-	Make Blend	Créer le fondu
 	Blend Colors	Fondre les couleurs
 
 # Embroidery (StitchFoundry): outlines and borders
@@ -5652,6 +5791,20 @@ machine	Stop	Arrêt
 	Reset Ruler Origin	Réinitialiser l’origine des règles
 	Artistic	Artistique
 	Film Grain…	Grain photographique…
+	Cutout…	Découpage…
+	Cutout	Découpage
+	Neon Glow…	Néon…
+	Neon Glow	Néon
+	Poster Edges…	Bords d’affiche…
+	Poster Edges	Bords d’affiche
+	Levels	Niveaux
+	Edge Simplicity	Simplicité des contours
+	Edge Fidelity	Fidélité des contours
+	Glow Size	Taille de la lueur
+	Glow Brightness	Luminosité de la lueur
+	Edge Thickness	Épaisseur des contours
+	Edge Intensity	Intensité des contours
+	Posterization	Postérisation
 	Highlight Area	Zone des tons clairs
 @msg	the compressed file unpacks to more than StitchFoundry reads ({_1} MB of document, {_2} MB per image)	le fichier compressé dépasse une fois décompressé ce que StitchFoundry lit ({_1} Mo de document, {_2} Mo par image)
 @msg	the document is too large to save compressed ({0}): save it with Use Compression off	le document est trop volumineux pour être enregistré compressé ({0}) : enregistrez-le avec Utiliser la compression désactivé
@@ -6134,6 +6287,11 @@ theme	Appearance	Apparence
 	Softness	Douceur
 	Ambient Light	Lumière ambiante
 	Light behind the object	Lumière derrière l'objet
+# 3D light management.
+	Lights	Lumières
+	Add Light	Ajouter une lumière
+	Delete Light	Supprimer la lumière
+3d	Light	Lumière
 	Registration:	Repère d'alignement :
 	Dimension	Cote
 	Drawing : real size — 1:10 labels 1 unit on the page as 10.	Dessin : taille réelle — 1:10 étiquette 1 unité de la page comme 10.
@@ -6359,3 +6517,23 @@ theme	Appearance	Apparence
 @msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Pas assez de crédits StitchFoundry : achetez-en dans Compte StitchFoundry.
 @msg	An account with that email already exists: sign in instead.	Un compte existe déjà avec cet e-mail : connectez-vous plutôt.
 @msg	The StitchFoundry service can't do this yet: try again later.	Le service StitchFoundry ne peut pas encore faire cela : réessayez plus tard.
+# Links and Attributes: files and URLs handed to other apps.
+@msg	Edit Original opens image and document files only; “{name}” is not one	Modifier l’original n’ouvre que les fichiers d’image et de document ; « {name} » n’en est pas un
+@msg	only http, https and mailto URLs open in the browser, not “{url}”	seules les URL http, https et mailto s’ouvrent dans le navigateur, pas « {url} »
+@msg	{id} opens another app: only the person at the keyboard can run it	{id} ouvre une autre application : seule la personne devant le clavier peut l’exécuter
+@msg	“{name}” is not a file	« {name} » n’est pas un fichier
+	Enable Guides for 9-Slice Scaling	Activer les repères pour la mise à l’échelle 9-slice
+@msg	a mask has more than one art block	un masque contient plusieurs blocs graphiques
+@msg	mask art ends outside a mask dictionary	les éléments graphiques du masque se terminent en dehors d’un dictionnaire de masque
+@msg	cancelled; nothing was changed	annulé ; rien n'a été modifié
+@msg	a linked image can't become a gradient mesh: embed it first	une image liée ne peut pas devenir un filet de dégradé : incorporez-la d’abord
+@msg	the image has no usable size or position	l’image n’a ni taille ni position utilisables
+@msg	the image's pixels can't be read	impossible de lire les pixels de l’image
+	Persistent	Persistante
+	Library Panel Options	Options du panneau de bibliothèque
+@msg	Persistent libraries not found: {files}	Bibliothèques persistantes introuvables : {files}
+@msg	`{given}` isn't a library panel (see window.swatchLibrary)	`{given}` n’est pas un panneau de bibliothèque (voir window.swatchLibrary)
+@msg	library panel `{given}` isn't open	le panneau de bibliothèque `{given}` n’est pas ouvert
+@msg	too many library panels were opened in this session	trop de panneaux de bibliothèque ont été ouverts dans cette session
+@msg	The image is {_1} × {_2} pixels, more than {LARGE_TRACE_SIDE} on a side: it is traced, but more slowly. A lower-fidelity preset or a smaller copy of the image traces faster.	L’image fait {_1} × {_2} pixels, plus de {LARGE_TRACE_SIDE} sur un côté : elle est vectorisée, mais plus lentement. Un paramètre prédéfini moins fidèle ou une copie plus petite de l’image se vectorise plus vite.
+@msg	The image was traced at {_1} × {_2} pixels, scaled down from {_3} × {_4} ({_5} megapixels at most).	L’image a été vectorisée à {_1} × {_2} pixels, réduite de {_3} × {_4} ({_5} mégapixels au plus).

@@ -290,6 +290,26 @@ impl Renderer {
         ctx.set_fill_rule(peniko::Fill::NonZero);
         let grow = f.px * 0.5;
         let alpha = self.alpha;
+        // Where a patch narrows to slivers, many quads share each pixel, each covering a little of it: their edges
+        // composite to part coverage, and hard edges drop each one. An opaque patch is backed by its own outline in
+        // its middle colour, one path that covers fully, so the background can't show through.
+        for r in 0..m.rows as usize {
+            for c in 0..m.cols as usize {
+                if [m.idx(r, c), m.idx(r, c + 1), m.idx(r + 1, c), m.idx(r + 1, c + 1)].iter().any(|&i| m.points[i].opacity < 1.0) {
+                    continue;
+                }
+                let (top, right, bottom, left) = (m.edge_u(r, c), m.edge_v(r, c + 1), m.edge_u(r + 1, c), m.edge_v(r, c));
+                let mut bp = BezPath::new();
+                bp.move_to(top.p0);
+                bp.curve_to(top.p1, top.p2, top.p3);
+                bp.curve_to(right.p1, right.p2, right.p3);
+                bp.curve_to(bottom.p2, bottom.p1, bottom.p0);
+                bp.curve_to(left.p2, left.p1, left.p0);
+                bp.close_path();
+                ctx.set_paint(f.ink.color(&m.color_at(r, c, 0.5, 0.5).0, alpha));
+                ctx.fill_path(&bp);
+            }
+        }
         for q in quads.iter() {
             if q.opacity <= 0.0 {
                 continue;
@@ -326,6 +346,42 @@ impl Renderer {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_mesh_patch_of_slivers_leaves_no_holes_with_hard_edges() {
+        // GUARDS: patches that narrow to slivers (here fanning out from nearly one point) draw as many sub-pixel quads;
+        // with hard edges each was dropped below half coverage, leaving holes through the mesh.
+        use vectorcraft_doc::live::MeshPoint;
+        let point = |x: f64, y: f64, handles: [(f64, f64); 4]| MeshPoint {
+            p: vectorcraft_geom::Point::new(x, y),
+            color: vectorcraft_color::Color::rgb(0.7, 0.8, 0.9),
+            opacity: 1.0,
+            handles: handles.map(|(x, y)| Vec2::new(x, y)),
+        };
+        let rows = [
+            ((100.0, 60.0), (84.0, 46.0)),
+            ((98.5, 60.0), (60.0, 51.0)),
+            ((97.8, 60.0), (42.0, 52.0)),
+            ((70.0, 59.0), (28.0, 51.5)),
+            ((15.0, 56.0), (12.0, 55.0)),
+        ];
+        let mut points = vec![];
+        for (i, &((x0, y0), (x1, y1))) in rows.iter().enumerate() {
+            let along = if i < 3 { 5.0 } else { 20.0 };
+            points.push(point(x0, y0, [((x1 - x0) * 0.35, (y1 - y0) * 0.1), (0.0, 0.0), (-along, 0.0), (if i > 0 { 5.0 } else { 0.0 }, 0.0)]));
+            points.push(point(x1, y1, [(0.0, 0.0), ((x0 - x1) * 0.35, (y0 - y1) * 0.6), (-8.0, 0.5), (8.0, -0.5)]));
+        }
+        let mut d = Document::new(110.0, 30.0);
+        let l = d.layers[0].id;
+        let id = d.alloc_id();
+        d.insert(Some(l), 0, Node::new(id, NodeKind::Mesh(GradientMesh { rows: 4, cols: 1, points }))).unwrap();
+        let view = Affine::scale(4.0) * Affine::translate((0.0, -40.0));
+        let draw = |anti_alias| crate::Renderer::new().render(&d, 440, 120, view, &crate::RenderOptions { anti_alias, ..Default::default() });
+        let (smooth, hard) = (draw(crate::AntiAlias::Art), draw(crate::AntiAlias::None));
+        let holes =
+            (0..120).flat_map(|y| (0..440).map(move |x| (x, y))).filter(|&(x, y)| smooth.pixel(x, y)[3] >= 200 && hard.pixel(x, y)[3] == 0).count();
+        assert!(holes < 60, "{holes} pixels the smooth render covers are empty with hard edges");
+    }
     use vectorcraft_doc::{Appearance, EnvelopeKind, Symbol};
     use vectorcraft_geom::{Affine, Rect, shapes};
 

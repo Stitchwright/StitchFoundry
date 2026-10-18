@@ -153,7 +153,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Lock Guides",
             ["View", "Guides"],
             Some("Cmd+Alt+;"),
-            "{locked?: bool} toggle (or set) the session's guide lock → {locked}",
+            "{locked?: bool} toggle (or set) the session's guide lock; locking deselects the ruler guides and guide paths in every open document → {locked}",
             has_doc,
             lock_guides
         ),
@@ -601,11 +601,19 @@ fn release_guides(s: &mut Session, p: &Value) -> Result<Value> {
 fn lock_guides(s: &mut Session, p: &Value) -> Result<Value> {
     let v = p.get("locked").and_then(Value::as_bool).unwrap_or(!s.menu.guides_locked);
     s.menu.guides_locked = v;
-    // Locked guides can't stay selected, ruler guides or guide paths ([`Session::select`] lets
-    // those go).
+    // Locked guides can't stay selected, ruler guides or guide paths, in any open document
+    // ([`Session::select`] lets those go in the active one).
     let st = s.doc()?;
     if v && (!st.selection.guides.is_empty() || st.selection.objects.iter().any(|id| crate::is_guide_path(&st.doc, *id))) {
         s.select(|_, sel| sel.guides.clear())?;
+    }
+    if v {
+        let active = s.active;
+        for (i, st) in s.docs.iter_mut().enumerate() {
+            if Some(i) != active && crate::deselect_guides(&st.doc, &mut st.selection) {
+                st.revision += 1;
+            }
+        }
     }
     Ok(json!({ "locked": v }))
 }

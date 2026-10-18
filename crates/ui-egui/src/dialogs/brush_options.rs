@@ -207,7 +207,7 @@ fn bristle_body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) {
     });
     let rail = Tokens::get(ui.ctx()).input_border;
     for (key, text, (lo, hi)) in BRISTLE {
-        widgets::label_row(ui, tl!(text), LABEL_W, |ui| form::slider_field(ui, d, key, lo..=hi, "%", &|_| rail));
+        widgets::label_row(ui, tl!(text), LABEL_W, |ui| form::slider_field_named(ui, d, key, tl!(text), lo..=hi, "%", &|_| rail));
     }
     ui.add_space(8.0);
     let p = params(d);

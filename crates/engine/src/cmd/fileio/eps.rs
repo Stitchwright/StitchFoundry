@@ -270,6 +270,7 @@ pub(super) fn encode(doc: &Document, p: &Value) -> Result<Encoded> {
     if pages.is_empty() {
         return Err(bad(C, "the document has no artboard"));
     }
+    let regions: Vec<Rect> = pages.iter().map(|(_, region, _)| *region).collect();
     let transparent = doc.layers.iter().any(|l| l.shows_transparency());
     let flat = flatten_document(doc, &set.flatten)?;
     let drawn = flat.as_ref().unwrap_or(doc);
@@ -302,6 +303,7 @@ pub(super) fn encode(doc: &Document, p: &Value) -> Result<Encoded> {
             }
         }
     }
+    enc.warnings.extend(crate::cmd::fonts::export_overflow_warning(doc, &doc.layers, Some(&regions)));
     Ok(enc)
 }
 

@@ -741,7 +741,8 @@ fn mapped_bounds(n: &Node, hi: &Homography) -> Option<Rect> {
     if ok { acc } else { None }
 }
 
-fn in_quad(q: &[Point; 4], p: Point) -> bool {
+/// Is `p` inside the convex quad `q` (either winding; a point on an edge is inside)?
+pub(crate) fn in_quad(q: &[Point; 4], p: Point) -> bool {
     let mut sign = 0.0;
     for i in 0..4 {
         let (a, b) = (q[i], q[(i + 1) % 4]);
@@ -1039,6 +1040,7 @@ impl Tool for PerspectiveGridTool {
             Some(_) => Cursor::Move,
             None => Cursor::Arrow,
         }
+        .turned(cx.view_angle())
     }
     fn busy(&self) -> bool {
         self.drag.is_some() || self.plane.is_some()
@@ -1279,7 +1281,8 @@ impl Tool for PerspectiveSelectionTool {
             && let Some(k) = handle.or_else(|| persp_handle_at(rect, &h, p, cx.tol(5.0)))
             && let (Some(a), Some(c)) = (h.apply(k.pos(rect)), h.apply(rect.center()))
         {
-            return resize_cursor(a - c);
+            // The handle's direction on screen: the view turns it clockwise.
+            return resize_cursor((Affine::rotate(cx.view_angle().to_radians()) * (a - c).to_point()).to_vec2());
         }
         Cursor::Arrow
     }
@@ -1397,6 +1400,13 @@ mod tests {
         let c = cx(&d, &s, &p);
         let g = PerspectiveGrid::effective(&d);
         let mut t = PerspectiveGridTool::default();
+        // The horizon handle drags up and down; in a view turned 90° it drags left and right on
+        // screen.
+        let horizon = handles(&g, c.tol(1.0)).into_iter().find(|h| h.0 == Handle::Horizon).map(|h| h.1).unwrap();
+        assert_eq!(t.cursor(&c, horizon, Mods::default()), Cursor::ResizeV);
+        let mut turned = cx(&d, &s, &p);
+        turned.screen = turned_view(90.0);
+        assert_eq!(t.cursor(&turned, horizon, Mods::default()), Cursor::ResizeH);
         // Click the right face of the widget.
         let (faces, _) = g.widget(&d, 1.0);
         let q = faces[1].1;
@@ -1483,6 +1493,10 @@ mod tests {
         // A corner handle scales.
         let corner = h.apply(Point::new(rect.x1, rect.y1)).unwrap();
         assert!(matches!(t.cursor(&c, corner, Mods::default()), Cursor::ResizeNwSe | Cursor::ResizeNeSw));
+        // In a view turned 90° its cursor turns with the view.
+        let mut turned = cx(&d, &s, &p);
+        turned.screen = turned_view(90.0);
+        assert_eq!(t.cursor(&turned, corner, Mods::default()), t.cursor(&c, corner, Mods::default()).turned(90.0));
         assert_eq!(t.pointer(&c, &PointerEvent::new(PointerKind::Down, corner.x, corner.y)), vec![Action::Begin("Scale in Perspective".into())]);
         let acts = t.pointer(&c, &PointerEvent::new(PointerKind::Drag, corner.x + 10.0, corner.y + 10.0));
         assert!(matches!(&acts[0], Action::Preview(cmd, _) if cmd == "perspective.transform"));

@@ -204,7 +204,7 @@ fn swatch_new(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 /// The `names` list and `name` parameters, without repeats; at least one is required.
-fn names_param(p: &Value, cmd: &str) -> Result<Vec<String>> {
+pub(super) fn names_param(p: &Value, cmd: &str) -> Result<Vec<String>> {
     let mut names: Vec<String> = vec![];
     for n in str_list(p, "names").into_iter().chain(str_param(p, "name").map(str::to_string)) {
         if !names.contains(&n) {

@@ -267,8 +267,20 @@ pub fn twist(path: &PathData, b: Rect, angle: f64) -> PathData {
 
 const ZIGZAG_ARCLEN_ACCURACY: f64 = 1e-4;
 
+/// A Zig Zag ridge: where it sits, the path's unit direction there, and the length along the
+/// path to the ridges before and after it (zero at an open path's ends).
+struct Ridge {
+    p: Point,
+    dir: Vec2,
+    gap_in: f64,
+    gap_out: f64,
+}
+
 /// Zig Zag: `ridges` extra points per segment, evenly spaced along its length and alternately
-/// displaced along the normal.
+/// displaced along the normal. Corner points join them with straight lines. Smooth points make a
+/// wave: every peak and valley is a smooth point whose handles run along the path, a third of the
+/// way to the next ridge, so each span between them follows a half cosine (an S through the path)
+/// whatever the size of the ridges (#2343).
 pub fn zig_zag(path: &PathData, b: Rect, p: &Value) -> PathData {
     let size = num(p, "size", 10.0).clamp(-1e4, 1e4);
     let amp = if flag(p, "relative", false) { size / 100.0 * mean_size(b) } else { size };
@@ -277,29 +289,33 @@ pub fn zig_zag(path: &PathData, b: Rect, p: &Value) -> PathData {
     let mut subs = vec![];
     for sp in &path.subpaths {
         let segs = sp.segment_count();
-        let mut pts = vec![];
+        let gap = |i: usize| sp.segment(i).arclen(ZIGZAG_ARCLEN_ACCURACY) / (ridges + 1) as f64;
+        let mut pts: Vec<Ridge> = vec![];
         let mut k = 0usize;
         for i in 0..segs {
             let c = sp.segment(i);
             // Ridges are spaced by length, not by `t`: a line's retracted handles bunch `t` up
             // near the anchors, and so does any uneven curve.
             let len = c.arclen(ZIGZAG_ARCLEN_ACCURACY);
+            let step = len / (ridges + 1) as f64;
             for j in 0..=ridges {
                 let s = j as f64 / (ridges + 1) as f64;
                 let t = if j > 0 && len > 1e-9 { c.inv_arclen(s * len, ZIGZAG_ARCLEN_ACCURACY).clamp(0.0, 1.0) } else { s };
+                let mut gap_in = step;
                 let nrm = if j == 0 {
                     // Average the normals of the segments meeting at the anchor.
                     let prev = if i > 0 {
-                        Some(sp.segment(i - 1))
+                        Some(i - 1)
                     } else if sp.closed {
-                        Some(sp.segment(segs - 1))
+                        Some(segs - 1)
                     } else {
                         None
                     };
+                    gap_in = prev.map_or(0.0, gap);
                     let n1 = normal_at(&c, 0.0);
                     match prev {
-                        Some(pc) => {
-                            let s = n1 + normal_at(&pc, 1.0);
+                        Some(pi) => {
+                            let s = n1 + normal_at(&sp.segment(pi), 1.0);
                             if s.hypot() > 1e-9 { s / s.hypot() } else { n1 }
                         }
                         None => n1,
@@ -308,7 +324,7 @@ pub fn zig_zag(path: &PathData, b: Rect, p: &Value) -> PathData {
                     normal_at(&c, t)
                 };
                 let sign = if k.is_multiple_of(2) { 1.0 } else { -1.0 };
-                pts.push(c.eval(t) + nrm * (amp * sign));
+                pts.push(Ridge { p: c.eval(t) + nrm * (amp * sign), dir: Vec2::new(-nrm.y, nrm.x), gap_in, gap_out: step });
                 k += 1;
             }
         }
@@ -316,12 +332,18 @@ pub fn zig_zag(path: &PathData, b: Rect, p: &Value) -> PathData {
             if segs > 0 {
                 let c = sp.segment(segs - 1);
                 let sign = if k.is_multiple_of(2) { 1.0 } else { -1.0 };
-                pts.push(c.p3 + normal_at(&c, 1.0) * (amp * sign));
+                let nrm = normal_at(&c, 1.0);
+                pts.push(Ridge { p: c.p3 + nrm * (amp * sign), dir: Vec2::new(-nrm.y, nrm.x), gap_in: gap(segs - 1), gap_out: 0.0 });
             } else {
-                pts.extend(sp.anchors.iter().map(|a| a.p));
+                pts.extend(sp.anchors.iter().map(|a| Ridge { p: a.p, dir: Vec2::ZERO, gap_in: 0.0, gap_out: 0.0 }));
             }
         }
-        subs.push(if smooth { catmull_rom(&pts, sp.closed, 1.0) } else { SubPath::polyline(&pts, sp.closed) });
+        subs.push(if smooth {
+            let anchors = pts.iter().map(|r| Anchor::with_handles(r.p, r.p - r.dir * (r.gap_in / 3.0), r.p + r.dir * (r.gap_out / 3.0))).collect();
+            SubPath::new(anchors, sp.closed)
+        } else {
+            SubPath::polyline(&pts.iter().map(|r| r.p).collect::<Vec<_>>(), sp.closed)
+        });
     }
     PathData::new(subs)
 }

@@ -159,6 +159,16 @@ fn main() -> ExitCode {
     }
 }
 
+/// A headless session that remembers what the user keeps between runs: the PDF presets saved, the
+/// ICC profiles loaded and the plug-ins installed (#2168, #2174, #2541), in the folders next to the preferences that the desktop
+/// app uses too. `VECTORCRAFT_NO_PREFS` and `VECTORCRAFT_CONFIG_DIR` apply as they do there.
+fn with_stores(mut h: Headless) -> Headless {
+    prefs_dir::attach_profile_store(&mut h.session);
+    prefs_dir::attach_plugin_store(&mut h.session);
+    prefs_dir::attach_pdf_preset_store(&mut h.session);
+    h
+}
+
 fn mcp(args: &[String]) -> Result<(), String> {
     let mut connect: Option<String> = None;
     let mut headless = false;
@@ -198,14 +208,14 @@ fn mcp(args: &[String]) -> Result<(), String> {
         eprintln!("stitchfoundry-cli: files confined: read root {}, write root {}", show(roots.read_root()), show(roots.write_root()));
         Box::new(Headless::with_document().with_automation_roots(Some(roots)))
     } else if headless {
-        Box::new(Headless::with_document())
+        Box::new(with_stores(Headless::with_document()))
     } else if let Some(addr) = connect {
         // Explicit address: fail loudly if the app isn't there.
         Box::new(Remote::connect(&addr).map_err(|e| format!("cannot connect to {addr}: {e}"))?)
     } else {
         match Remote::connect(DEFAULT_ADDR) {
             Ok(r) => Box::new(r),
-            Err(_) => Box::new(Headless::with_document()),
+            Err(_) => Box::new(with_stores(Headless::with_document())),
         }
     };
     eprintln!("stitchfoundry-cli: MCP server on stdio ({})", backend.describe());
@@ -213,8 +223,8 @@ fn mcp(args: &[String]) -> Result<(), String> {
     // uses `vectorcraft_mcp` free to bring its own. Silent until a client sends logging/setLevel.
     vectorcraft_mcp::logging::install();
     let stdin = std::io::stdin();
-    let stdout = std::io::stdout();
-    Server::new(backend).serve(stdin.lock(), stdout.lock()).map_err(|e| e.to_string())
+    // The server reads and writes from threads of its own, so it takes the handles, not locks held here.
+    Server::new(backend).serve(std::io::BufReader::new(stdin), std::io::stdout()).map_err(|e| e.to_string())
 }
 
 fn commands() -> Result<(), String> {
@@ -327,7 +337,7 @@ fn run(args: &[String]) -> Result<(), String> {
         }
     }
 
-    let mut h = Headless::new();
+    let mut h = with_stores(Headless::new());
     let mut out = std::io::stdout().lock();
     // A reader that stopped early (a closed pipe) isn't an error, and the batch goes on: its later
     // steps (an export…) still run, unprinted.

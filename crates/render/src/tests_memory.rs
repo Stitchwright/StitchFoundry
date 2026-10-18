@@ -1535,7 +1535,8 @@ fn proof_previews_draw_changes_as_a_new_renderer_does() {
     // A square in spot color `Lab Spot`, defined in Lab in a color group, on its own plate.
     let lab_doc = || {
         let mut d = proof_doc();
-        let lab = Color::lab(50.0, 60.0, 40.0);
+        // Outside the press gamut, so its CMYK alternate looks different from the Lab colour.
+        let lab = Color::lab(50.0, 90.0, 70.0);
         let swatch = vectorcraft_color::Swatch { name: "Lab Spot".into(), paint: Paint::solid(lab), global: true, spot: true };
         d.swatch_groups.push(vectorcraft_color::SwatchGroup { name: "Lab".into(), swatches: vec![swatch] });
         let fill = Paint::Solid { color: lab, swatch: Some("Lab Spot".into()), tint: 1.0 };

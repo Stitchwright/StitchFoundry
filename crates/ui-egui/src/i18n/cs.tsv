@@ -185,6 +185,7 @@
 	Expand…	Rozložit…
 	Expand Appearance	Rozložit vzhled
 	Crop Image	Oříznout obraz
+	Edit Path	Upravit cestu
 	Mask	Maska
 	Rasterize…	Rastrovat…
 	Create Gradient Mesh…	Vytvořit přechodovou síť…
@@ -252,6 +253,14 @@
 	Live Paint	Živá malba
 	Merge	Sloučit
 	Gap Options…	Možnosti mezer…
+	Gap Options	Možnosti mezer
+	Gap Detection	Detekce mezer
+	Paint Stops At:	Barva se zastaví u:
+	Small Gaps	Malé mezery
+	Medium Gaps	Střední mezery
+	Large Gaps	Velké mezery
+	Gap Preview Color:	Barva náhledu mezer:
+	Close Gaps With Paths	Uzavřít mezery cestami
 	Image Trace	Vektorizace obrazu
 	Image Trace (Make and Expand)	Vektorizace obrazu (vytvořit a rozložit)
 	Release Image Trace	Uvolnit vektorizaci obrazu
@@ -273,6 +282,16 @@
 	Design…	Návrh…
 	Graph Design	Návrh grafu
 	Graph Marker	Značka grafu
+	Graph Column	Sloupec grafu
+	Column Type:	Typ sloupce:
+	Vertically Scaled	Svislá změna velikosti
+	Uniformly Scaled	Rovnoměrná změna velikosti
+	Repeating	Opakování
+	Sliding	Posouvání
+	Each Design Represents:	Každý návrh představuje:
+	For Fractions:	Pro zlomky:
+	Chop Design	Oříznout návrh
+	Scale Design	Změnit velikost návrhu
 	Column…	Sloupec…
 	Marker…	Značka…
 	Collect for Export	Shromáždit pro export
@@ -374,6 +393,7 @@
 	Font Family & Style	Rodina a řez písma
 	Font Family, Style & Size	Rodina, řez a velikost písma
 	Font Size	Velikost písma
+	Variable Font	Variabilní písmo
 	Text Fill Color	Barva výplně textu
 	Text Stroke Color	Barva tahu textu
 	All on Same Layers	Vše ve stejných vrstvách
@@ -503,6 +523,7 @@
 	Show Rulers	Zobrazit pravítka
 	Hide Rulers	Skrýt pravítka
 	Change to Global Rulers	Přepnout na globální pravítka
+	Change to Artboard Rulers	Přepnout na pravítka pracovní plochy
 	Show Video Rulers	Zobrazit video pravítka
 	Hide Bounding Box	Skrýt ohraničovací rámeček
 	Show Bounding Box	Zobrazit ohraničovací rámeček
@@ -575,6 +596,7 @@
 	Contextual Task Bar	Kontextový panel úloh
 	Pin Bar Position	Připnout polohu panelu
 	Reset Bar Position	Obnovit polohu panelu
+	Resize	Změnit velikost
 	Tools	Nástroje
 	Toolbars	Panely nástrojů
 	Advanced	Rozšířené
@@ -608,6 +630,16 @@
 	Separations Preview	Náhled separací
 	Stroke	Tah
 	SVG Interactivity	Interaktivita SVG
+	Event:	Událost:
+	JavaScript:	JavaScript:
+	Add Event	Přidat událost
+	Remove Selected Entry	Odebrat vybranou položku
+	Clear Events	Vymazat události
+	Link JavaScript Files…	Propojit soubory JavaScript…
+	JavaScript Files	Soubory JavaScript
+	File or URL:	Soubor nebo URL:
+	Add JavaScript File	Přidat soubor JavaScript
+	Remove JavaScript File	Odebrat soubor JavaScript
 	Swatches	Vzorník
 	Symbols	Symboly
 	Transparency	Průhlednost
@@ -620,6 +652,8 @@
 	New Variable…	Nová proměnná…
 	Unbind Variable	Zrušit přiřazení proměnné
 	Delete Variable	Odstranit proměnnou
+	Lock Variables	Zamknout proměnné
+	Unlock Variables	Odemknout proměnné
 	New Data Set…	Nová sada dat…
 	Edit Data Set…	Upravit sadu dat…
 	Delete Data Set	Odstranit sadu dat
@@ -801,6 +835,7 @@
 	Reset all	Obnovit vše
 	Reset to default	Obnovit výchozí hodnotu
 	Reset all Revolve settings to their defaults.	Obnovit výchozí hodnoty všech nastavení rotačního tělesa.
+	Step up or down	O krok nahoru nebo dolů
 	Drag values or labels. Double-click a value to type.	Upravte hodnoty přetažením čísel nebo popisků. Dvojím kliknutím na hodnotu ji zadáte.
 	Drag rings to rotate. Shift snaps to 15°.	Otáčejte přetažením prstenců. Shift nastaví kroky po 15°.
 	Drag the light, or its rings. Shift snaps to 15°.	Přetáhněte světlo nebo jeho prstence. Shift nastaví kroky po 15°.
@@ -848,6 +883,10 @@ lighting	Light	Světlo
 	Export Keyboard Shortcuts…	Exportovat klávesové zkratky…
 	File Info Dialog	Dialogové okno Informace o souboru
 	Go to Artboard	Přejít na pracovní plochu
+	First Artboard	První pracovní plocha
+	Previous Artboard	Předchozí pracovní plocha
+	Next Artboard	Další pracovní plocha
+	Last Artboard	Poslední pracovní plocha
 	Graphic Style Options…	Možnosti grafického stylu…
 	Symbol Options	Možnosti symbolu
 	Symbol Options…	Možnosti symbolu…
@@ -866,6 +905,7 @@ lighting	Light	Světlo
 	Menu Dialog	Dialogové okno nabídky
 	Merge Graphic Styles…	Sloučit grafické styly…
 	New Color Group…	Nová skupina barev…
+	New Artboard Options…	Možnosti nové pracovní plochy…
 	New Layer Options…	Možnosti nové vrstvy…
 	New Swatch…	Nová položka vzorníku…
 	No saved views (View → New View…)	Žádná uložená zobrazení (Zobrazení → Nové zobrazení…)
@@ -1026,6 +1066,7 @@ lighting	Light	Světlo
 	Click or drag	Kliknutí nebo tažení
 	Click the first point	Kliknutí na první bod
 	Connect Selected End Points	Spojit vybrané koncové body
+	Connect	Spojit
 	Convert Selected Anchor Points to Corner	Převést vybrané kotevní body na rohové
 	Convert Selected Anchor Points to Smooth	Převést vybrané kotevní body na hladké
 	Convert:	Převést:
@@ -1184,6 +1225,7 @@ lighting	Light	Světlo
 	Reshape Tool	Nástroj Přetvarování
 	Rotate Tool	Nástroj Otočení
 	Rotate View Tool	Nástroj Otočení zobrazení
+	Trackpad Gesture to Rotate View	Otáčet zobrazení gestem na trackpadu
 	Rotate View	Otočení zobrazení
 	Rounded Rectangle Tool	Nástroj Zaoblený obdélník
 	Scale Tool	Nástroj Změna velikosti
@@ -1465,7 +1507,80 @@ lighting	Light	Světlo
 	Use Text for Previews	Náhledy na textu
 	{percent}% opacity	krytí {percent} %
 	History Options…	Možnosti historie…
+	Step Backward	Krok zpět
+	Step Forward	Krok vpřed
+	Set History Limit…	Nastavit limit historie…
 	Open a document to see its history.	Otevřete dokument, abyste viděli jeho historii.
+# History panel: the names of undo steps (`every_undo_label_is_translated`).
+	Apply Data Set	Použít sadu dat
+	Cancel Pattern Editing	Zrušit úpravy vzorku
+	Copy Appearance	Kopírovat vzhled
+	Copy Guide	Kopírovat vodítko
+	Copy in Perspective	Kopírovat v perspektivě
+	Create Slice from Selection	Vytvořit řez z výběru
+	Create Slices from Guides	Vytvořit řezy z vodítek
+	Delete All Slices	Odstranit všechny řezy
+	Delete Data Sets	Odstranit sady dat
+	Delete Graphic Styles	Odstranit grafické styly
+	Delete Guide	Odstranit vodítko
+	Delete Guides	Odstranit vodítka
+	Delete Slice	Odstranit řez
+	Delete Style	Odstranit styl
+	Delete Variables	Odstranit proměnné
+	Delete View	Odstranit zobrazení
+	Done Editing Pattern	Dokončit úpravy vzorku
+	Duplicate Rows	Duplikovat řádky
+	Edit Perspective Grid	Upravit perspektivní mřížku
+	Expand Blend	Rozložit prolnutí
+	Expand Envelope	Rozložit obálku
+	Expand Image Trace	Rozložit vektorizaci obrazu
+	Expand Live Paint	Rozložit živou malbu
+	Live Shape	Živý tvar
+	Make Blend	Vytvořit prolnutí
+	Make Dynamic	Nastavit jako dynamické
+	Make Intertwine	Vytvořit propletení
+	Make Live Paint	Vytvořit živou malbu
+	Make Pattern	Vytvořit vzorek
+	Make Slice	Vytvořit řez
+	Merge Live Paint	Sloučit živou malbu
+	Mesh Point Color	Barva bodu sítě
+	Move Envelope Point	Přesunout bod obálky
+	Move Plane and Copy Objects	Posunout rovinu a kopírovat objekty
+	Move Plane and Objects	Posunout rovinu a objekty
+	Move Slice	Přesunout řez
+	Move Type on a Path	Přesunout text na cestě
+	New Guide	Nové vodítko
+	Place from Library	Umístit z knihovny
+	Rearrange Artboards	Přeuspořádat pracovní plochy
+	Release Blend	Uvolnit prolnutí
+	Release Envelope	Uvolnit obálku
+	Release Intertwine	Uvolnit propletení
+	Release Live Paint	Uvolnit živou malbu
+	Release Repeat	Uvolnit opakování
+	Release Slice	Uvolnit řez
+	Release Threaded Text	Uvolnit zřetězený text
+	Rename Design	Přejmenovat návrh
+	Rename Style	Přejmenovat styl
+	Rename View	Přejmenovat zobrazení
+	Reorder Appearance	Změnit pořadí vzhledu
+	Reorder Artboards	Změnit pořadí pracovních ploch
+	Reshape Spine	Přetvarovat páteř
+	Resize Artboard	Změnit velikost pracovní plochy
+	Resize Slice	Změnit velikost řezu
+	Resize Type Area	Změnit velikost oblasti textu
+	Scale in Perspective	Změnit měřítko v perspektivě
+	Shape Builder Delete	Tvorba tvarů (odstranění)
+	Sort Swatches	Seřadit vzorník
+	Symbol Screener	Průhlednost symbolů
+	Symbol Scruncher	Zhuštění symbolů
+	Symbol Shifter	Posun symbolů
+	Symbol Sizer	Velikost symbolů
+	Symbol Spinner	Otáčení symbolů
+	Symbol Stainer	Obarvení symbolů
+	Symbol Styler	Stylování symbolů
+	Text Orientation	Orientace textu
+	Thread Text	Zřetězit text
+	Typing	Psaní
 	Abutting	Sousedící
 	Black and White	Černobílé
 	Corners	Rohy
@@ -1926,6 +2041,7 @@ lighting	Light	Světlo
 	Variation	Variace
 	Color Models	Barevné modely
 	Color Picker	Výběr barvy
+	Color wheel	Barevné kolo
 	Color Swatches	Položky vzorníku
 	Only Web Colors	Jen webové barvy
 	Original: click to restore	Původní: kliknutím obnovíte
@@ -2855,6 +2971,7 @@ theme	Appearance	Motiv
 	Convert Document Color Mode	Převést barevný režim dokumentu
 	Gamut Warning	Upozornění na gamut
 	Load Color Profile…	Načíst barevný profil…
+	Remove Color Profile…	Odebrat barevný profil…
 	Plates	Desky
 	Spot Color	Přímá barva
 	Add to Swatches	Přidat do vzorníku
@@ -3347,6 +3464,7 @@ theme	Appearance	Motiv
 	Save Print Preset	Uložit přednastavení tisku
 	Print Tiling Pages	Stránky dlaždic tisku
 	Document Raster Effects Settings	Nastavení rastrových efektů dokumentu
+	Use Document Raster Effects Resolution	Použít rozlišení z nastavení rastrových efektů dokumentu
 	Artwork Colors	Barvy kresby
 	Randomize Colors	Náhodné barvy
 	Recolor Artwork	Přebarvit kresbu
@@ -3480,6 +3598,8 @@ axis	Both	Obě
 	Star	Hvězda
 	Power Saving (integrated)	Úsporný režim (integrovaná)
 	Target	Cíl
+	X11 (XWayland) When a Pen Is Attached	X11 (XWayland) při připojeném peru
+	If a drawing tablet's pen doesn't draw, choose an X11 (XWayland) option.	Pokud pero grafického tabletu nekreslí, zvolte možnost X11 (XWayland).
 	X11 (XWayland)	X11 (XWayland)
 	Print as Bitmap	Tisknout jako bitmapu
 	Draft	Koncept
@@ -3633,6 +3753,9 @@ effect	Regular	Pravidelný
 	Opened with {} note(s): {}	Otevřeno, poznámky ({}): {}
 	Revert to the saved version of “{name}”?	Vrátit se k uložené verzi dokumentu „{name}“?
 	Replace “{name}”, the file this document was opened from?	Nahradit „{name}“, soubor, ze kterého byl tento dokument otevřen?
+	Opening it left out what VectorCraft can't read yet ({what}), so replacing it loses that for good. Save under another name to keep it.	Při otevírání bylo vynecháno, co VectorCraft zatím neumí přečíst ({what}), takže nahrazením se to nenávratně ztratí. Chcete-li to zachovat, uložte dokument pod jiným názvem.
+	“{name}” already exists. Replace it?	„{name}“ již existuje. Nahradit?
+	The name in the save panel was “{typed}”; VectorCraft added the file type's extension. Replacing the file overwrites its contents.	Název v panelu ukládání byl „{typed}“ a VectorCraft přidal příponu typu souboru. Nahrazením souboru se přepíše jeho obsah.
 	Saved {path}	Uloženo: {path}
 	Saved {path} with {} note(s): {first}	Uloženo: {path}, poznámky ({}): {first}
 	Saving	Ukládání
@@ -3925,6 +4048,7 @@ imageTrace	Outline	Obrys
 @msg	SVG parse error: {0}	chyba při analýze SVG: {0}
 @msg	Save for Web: the image is empty	Uložit pro web: obraz je prázdný
 @msg	Save writes {_1}, not {_2}: use document.export for other formats	Uložení zapisuje {_1}, ne {_2}: pro jiné formáty použijte document.export
+@msg	Save writes {_1}, not {_2}: use file.saveAsTemplate to write it	Uložení zapisuje {_1}, ne {_2}: k jeho zápisu použijte file.saveAsTemplate
 @msg	Saved recovery data for {title}	Data pro obnovení uložena pro {title}
 @msg	Saved to User Defined: {_1}	Uloženo do uživatelských knihoven: {_1}
 @msg	Saved {path}	Uloženo: {path}
@@ -3953,6 +4077,7 @@ imageTrace	Outline	Obrys
 @msg	`{id}` has no envelope dialog	`{id}` nemá dialogové okno obálky
 @msg	`{keep}` is not a side of this axis	`{keep}` není strana této osy
 @msg	`{key}` must be `auto` or a language code such as `en` or `zh-hant`	`{key}` musí být `auto` nebo kód jazyka, například `en` nebo `zh-hant`
+@msg	`{key}` must be a #rrggbb color	`{key}` musí být barva #rrggbb
 @msg	`{key}` must be a #rrggbb colour	`{key}` musí být barva #rrggbb
 @msg	`{key}` must be a number	`{key}` musí být číslo
 @msg	`{key}` must be a string	`{key}` musí být řetězec
@@ -3987,6 +4112,7 @@ imageTrace	Outline	Obrys
 @msg	a freeform gradient keeps at least one point	volný přechod si ponechává alespoň jeden bod
 @msg	a gradient needs at least two stops	přechod potřebuje alespoň dvě zarážky
 @msg	a graphic style named `{to}` already exists	grafický styl s názvem `{to}` už existuje
+@msg	a key object sits on that point	na tomto bodě leží klíčový objekt
 @msg	a page is missing	chybí stránka
 @msg	a page out of range	stránka mimo rozsah
 @msg	a page tree kid isn't a reference	potomek stromu stránek není odkaz
@@ -3994,6 +4120,7 @@ imageTrace	Outline	Obrys
 @msg	a page's placement is not finite	umístění stránky není konečné
 @msg	a preset named `{_1}` exists	přednastavení s názvem `{_1}` existuje
 @msg	a slice size must be a positive number of points	velikost řezu musí být kladný počet bodů
+@msg	a spine keeps at least two points	páteř si ponechává alespoň dva body
 @msg	a stream runs past the end	datový proud přesahuje konec souboru
 @msg	a stream's length is wrong	délka datového proudu je chybná
 @msg	a stream's length isn't a number	délka datového proudu není číslo
@@ -4055,11 +4182,13 @@ imageTrace	Outline	Obrys
 @msg	give horizontal or vertical	zadejte horizontal nebo vertical
 @msg	give the path `id` and the width point `index`	zadejte `id` cesty a `index` bodu šířky
 @msg	guides are locked	vodítka jsou zamčená
+@msg	handle must be in or out	handle musí být in nebo out
 @msg	image '{key}' has no pixels and was left out	obrázek '{key}' nemá žádné obrazové body a byl vynechán
 @msg	image data `{_1}` is missing	chybí obrazová data `{_1}`
 @msg	image would be too large; lower the resolution	obraz by byl příliš velký; snižte rozlišení
 @msg	index must be a number or first, previous, next or last	index musí být číslo nebo first, previous, next či last
 @msg	index must be a number or first, previous, next or last, not `{other}`	index musí být číslo nebo first, previous, next či last, ne `{other}`
+@msg	index must be ≥ 0	index nesmí být záporný
 @msg	installing from a path is not available on the web; pass the module as `dataBase64`	instalace z cesty není na webu k dispozici; předejte modul jako `dataBase64`
 @msg	internal error in `{cmd}`: {msg} (the document was left as it was before; please report this bug)	vnitřní chyba v `{cmd}`: {msg} (dokument zůstal ve stavu před příkazem; nahlaste prosím tuto chybu)
 @msg	internal error: {msg} (please report this bug)	vnitřní chyba: {msg} (nahlaste prosím tuto chybu)
@@ -4079,6 +4208,7 @@ imageTrace	Outline	Obrys
 @msg	missing `name`	chybí `name`
 @msg	missing `tool`	chybí `tool`
 @msg	missing index	chybí index
+@msg	missing number `{key}`	chybí číslo `{key}`
 @msg	multiple windows land with M11.5	více oken přijde s M11.5
 @msg	name the file	pojmenujte soubor
 @msg	no CSS to copy: select objects with CSS of their own	žádné CSS ke kopírování: vyberte objekty s vlastním CSS
@@ -4159,6 +4289,8 @@ imageTrace	Outline	Obrys
 @msg	no such recent font	takové nedávné písmo neexistuje
 @msg	no such saved selection	takový uložený výběr neexistuje
 @msg	no such segment	takový segment neexistuje
+@msg	no such spine point	takový bod páteře neexistuje
+@msg	no such spine segment	takový segment páteře neexistuje
 @msg	no such subpath	taková dílčí cesta neexistuje
 @msg	no such user library	taková uživatelská knihovna neexistuje
 @msg	no such view	takové zobrazení neexistuje
@@ -4174,6 +4306,8 @@ imageTrace	Outline	Obrys
 @msg	not a DXF drawing	nejde o výkres DXF
 @msg	not a VectorCraft file: {0}	nejde o soubor VectorCraft: {0}
 @msg	not a StitchFoundry shortcut set (missing `overrides`)	nejde o sadu klávesových zkratek StitchFoundry (chybí `overrides`)
+@msg	not a VectorCraft shortcut set (missing `overrides`)	nejde o sadu klávesových zkratek VectorCraft (chybí `overrides`)
+@msg	not a blend	nejde o prolnutí
 @msg	not a graphic style library (format `{_1}`)	nejde o knihovnu grafických stylů (formát `{_1}`)
 @msg	not a stored central record	nejde o uložený centrální záznam
 @msg	not a valid plug-in module: {0}	neplatný modul zásuvného modulu: {0}
@@ -4229,6 +4363,7 @@ imageTrace	Outline	Obrys
 @msg	select (or target) objects whose appearance isn't basic	vyberte (nebo zacilte) objekty, jejichž vzhled není základní
 @msg	select a Live Paint group	vyberte skupinu živé malby
 @msg	select a blend	vyberte prolnutí
+@msg	select a blend or give `id`	vyberte prolnutí, nebo zadejte `id`
 @msg	select a clip group	vyberte ořezovou skupinu
 @msg	select a gradient mesh	vyberte přechodovou síť
 @msg	select a linked image: an embedded one has no file	vyberte propojený obrázek: vložený nemá soubor
@@ -4262,6 +4397,7 @@ imageTrace	Outline	Obrys
 @msg	stop {i} needs `offset`	zarážka {i} potřebuje `offset`
 @msg	stop {i} needs a valid `color`	zarážka {i} potřebuje platnou `color`
 @msg	stop {i}: `{k}` must be a number	zarážka {i}: `{k}` musí být číslo
+@msg	t, dx and dy must be finite	t, dx a dy musí být konečná čísla
 @msg	the EMF header is damaged	hlavička EMF je poškozená
 @msg	the PDF has no pages	PDF nemá žádné stránky
 @msg	the PDF is no longer loaded	PDF už není načteno
@@ -4274,6 +4410,7 @@ imageTrace	Outline	Obrys
 @msg	the art is too light for any dots	kresba je pro tečky příliš světlá
 @msg	the artboard to fit must be a positive size up to {_1} pt	pracovní plocha k přizpůsobení musí mít kladnou velikost do {_1} pt
 @msg	the background worker stopped	úloha na pozadí se zastavila
+@msg	the blend has no spine	prolnutí nemá páteř
 @msg	the compressed file unpacks to more than {_1} MB	komprimovaný soubor se rozbalí na více než {_1} MB
 @msg	the document has never been saved	dokument nebyl nikdy uložen
 @msg	the document has no artboard	dokument nemá pracovní plochu
@@ -4314,6 +4451,7 @@ imageTrace	Outline	Obrys
 @msg	the selected stroke's profile is already listed as {_1}	profil vybraného tahu už je v seznamu jako {_1}
 @msg	the selection has no URL (or they differ)	výběr nemá URL (nebo se URL liší)
 @msg	the selection isn't in perspective	výběr není v perspektivě
+@msg	the spine has no segments	páteř nemá žádné segmenty
 @msg	the stroke has no weight	tah nemá tloušťku
 @msg	the thumbnail image is malformed	obraz miniatury je chybně utvořený
 @msg	the top object must be a path, compound path or text object to use as a clipping mask	horní objekt musí být cesta, složená cesta nebo textový objekt, aby jej šlo použít jako ořezovou masku
@@ -4349,9 +4487,11 @@ imageTrace	Outline	Obrys
 @msg	unknown tool or command `{key}`	neznámý nástroj nebo příkaz `{key}`
 @msg	unknown workspace (one of {_1})	neznámý pracovní prostor (jeden z {_1})
 @msg	unsupported: {0}	nepodporováno: {0}
+@msg	variables are locked	proměnné jsou zamčené
 @msg	version {0} files can't be compressed: only version {COMPRESSED_SINCE} and later open compressed files	soubory verze {0} nelze komprimovat: komprimované soubory otevírá až verze {COMPRESSED_SINCE} a novější
 @msg	width and height are at least 1 pixel	šířka i výška jsou alespoň 1 obrazový bod
 @msg	workspace name can't be empty	název pracovního prostoru nesmí být prázdný
+@msg	x and y must be finite	x a y musí být konečná čísla
 @msg	{C}: no effect at index {from}	{C}: na indexu {from} není žádný efekt
 @msg	{_1} failed: {e}	{_1} selhalo: {e}
 @msg	{_1} files can be opened but not written (see document.formats)	soubory {_1} lze otevřít, ale ne zapisovat (viz document.formats)
@@ -4920,7 +5060,6 @@ machine	Stop	Zastavení
 	Fade out	Slábnoucí
 	Fade in	Sílící
 	Blend into	Prolnout do
-	Make Blend	Vytvořit prolnutí
 	Blend Colors	Prolnout barvy
 
 # Embroidery (StitchFoundry): outlines and borders
@@ -6031,6 +6170,20 @@ machine	Stop	Zastavení
 	DWG (use DXF)	DWG (použijte DXF)
 	Artistic	Umělecké
 	Film Grain…	Filmové zrno…
+	Cutout…	Výřez…
+	Cutout	Výřez
+	Neon Glow…	Neonová záře…
+	Neon Glow	Neonová záře
+	Poster Edges…	Plakátové okraje…
+	Poster Edges	Plakátové okraje
+	Levels	Úrovně
+	Edge Simplicity	Jednoduchost okrajů
+	Edge Fidelity	Věrnost okrajů
+	Glow Size	Velikost záře
+	Glow Brightness	Jas záře
+	Edge Thickness	Tloušťka okrajů
+	Edge Intensity	Intenzita okrajů
+	Posterization	Posterizace
 	Highlight Area	Oblast světel
 file-filter	All readable files	Všechny čitelné soubory
 file-filter	All placeable files	Všechny soubory pro umístění
@@ -6122,6 +6275,11 @@ mark-style	Japanese	Japonské
 	Softness	Měkkost
 	Ambient Light	Okolní světlo
 	Light behind the object	Světlo za objektem
+# 3D light management.
+	Lights	Světla
+	Add Light	Přidat světlo
+	Delete Light	Odstranit světlo
+3d	Light	Světlo
 	Registration:	Registrace:
 	Display	Zobrazení
 	Dimension	Rozměr
@@ -6347,3 +6505,23 @@ mark-style	Japanese	Japonské
 @msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Málo kreditů StitchFoundry: kupte další v Účtu StitchFoundry.
 @msg	An account with that email already exists: sign in instead.	Účet s tímto e-mailem už existuje: raději se přihlaste.
 @msg	The StitchFoundry service can't do this yet: try again later.	Služba StitchFoundry to zatím neumí: zkuste to později.
+# Links and Attributes: files and URLs handed to other apps.
+@msg	Edit Original opens image and document files only; “{name}” is not one	Upravit originál otevírá pouze soubory obrázků a dokumentů; „{name}“ mezi ně nepatří
+@msg	only http, https and mailto URLs open in the browser, not “{url}”	v prohlížeči se otevírají pouze adresy URL http, https a mailto, ne „{url}“
+@msg	{id} opens another app: only the person at the keyboard can run it	{id} otevírá jinou aplikaci: spustit ho může pouze člověk u klávesnice
+@msg	“{name}” is not a file	„{name}“ není soubor
+	Enable Guides for 9-Slice Scaling	Povolit vodítka pro 9-slice škálování
+@msg	a mask has more than one art block	maska má více než jeden blok kresby
+@msg	mask art ends outside a mask dictionary	kresba masky končí mimo slovník masky
+@msg	cancelled; nothing was changed	zrušeno; nic nebylo změněno
+@msg	a linked image can't become a gradient mesh: embed it first	propojený obraz nelze převést na síť přechodu: nejprve jej vložte
+@msg	the image has no usable size or position	obraz nemá použitelnou velikost ani polohu
+@msg	the image's pixels can't be read	pixely obrazu nelze přečíst
+	Persistent	Trvalé
+	Library Panel Options	Možnosti panelu knihovny
+@msg	Persistent libraries not found: {files}	Trvalé knihovny nebyly nalezeny: {files}
+@msg	`{given}` isn't a library panel (see window.swatchLibrary)	`{given}` není panel knihovny (viz window.swatchLibrary)
+@msg	library panel `{given}` isn't open	panel knihovny `{given}` není otevřený
+@msg	too many library panels were opened in this session	v této relaci bylo otevřeno příliš mnoho panelů knihoven
+@msg	The image is {_1} × {_2} pixels, more than {LARGE_TRACE_SIDE} on a side: it is traced, but more slowly. A lower-fidelity preset or a smaller copy of the image traces faster.	Obraz má {_1} × {_2} pixelů, na jedné straně více než {LARGE_TRACE_SIDE}: vektorizuje se, ale pomaleji. Rychleji se vektorizuje s předvolbou nižší věrnosti nebo menší kopie obrazu.
+@msg	The image was traced at {_1} × {_2} pixels, scaled down from {_3} × {_4} ({_5} megapixels at most).	Obraz byl vektorizován v rozlišení {_1} × {_2} pixelů, zmenšený z {_3} × {_4} (nejvýše {_5} megapixelů).

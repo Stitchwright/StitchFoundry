@@ -286,7 +286,7 @@ pub(crate) fn make_layer(d: &mut Document, name: Option<&str>) -> Node {
 }
 
 /// A layer colour: a preset index (0–26), `#rrggbb` or a preset's name (any case).
-fn layer_color_param(v: &Value) -> std::result::Result<LayerColor, String> {
+pub(super) fn layer_color_param(v: &Value) -> std::result::Result<LayerColor, String> {
     match v {
         Value::Number(n) => match n.as_u64() {
             Some(i) if (i as usize) < LAYER_COLORS.len() => Ok(LayerColor::Preset(i as u8)),
@@ -810,7 +810,8 @@ fn artboard_new(s: &mut Session, p: &Value) -> Result<Value> {
     let r = rect_from(p, def);
     let idx = s.edit("New Artboard", |d, _| {
         let id = d.next_artboard_id();
-        let name = str_param(p, "name").map(str::to_string).unwrap_or_else(|| format!("Artboard {}", d.artboards.len() + 1));
+        let given = str_param(p, "name").map(str::trim).filter(|n| !n.is_empty());
+        let name = given.map_or_else(|| format!("Artboard {}", d.artboards.len() + 1), str::to_string);
         d.artboards.push(Artboard { id, name, rect: r, show_center_mark: false, show_cross_hairs: false });
         Ok(d.artboards.len() - 1)
     })?;
@@ -834,7 +835,7 @@ fn artboard_delete(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 fn artboard_set(s: &mut Session, p: &Value) -> Result<Value> {
-    let i = p.get("index").and_then(Value::as_u64).unwrap_or(0) as usize;
+    let i = super::panelcmds::artboard_index(&s.doc()?.doc, p, "artboard.setProps")?;
     let was = s.doc()?.doc.artboards.get(i).map(|a| a.rect).ok_or_else(|| EngineError::Other("no such artboard".into()))?;
     let now = rect_from(p, was);
     let resized = (now.width() - was.width()).abs() > 1e-6 || (now.height() - was.height()).abs() > 1e-6;
@@ -864,8 +865,9 @@ fn artboard_set(s: &mut Session, p: &Value) -> Result<Value> {
     s.edit("Artboard Options", |d, _| {
         let a = d.artboards.get_mut(i).ok_or_else(|| EngineError::Other("no such artboard".into()))?;
         a.rect = now;
-        if let Some(n) = str_param(p, "name") {
-            a.name = n.to_string();
+        if let Some(n) = str_param(p, "name").map(str::trim) {
+            // A blank name gives the artboard its default name, Artboard N for the Nth artboard.
+            a.name = if n.is_empty() { format!("Artboard {}", i + 1) } else { n.to_string() };
         }
         let id = a.id;
         if let Some(xf) = transform {
@@ -933,8 +935,8 @@ fn artboard_fit_art(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 fn artboard_fit_sel(s: &mut Session, p: &Value) -> Result<Value> {
-    let i = p.get("index").and_then(Value::as_u64).unwrap_or(0) as usize;
     let st = s.doc()?;
+    let i = if p.get("index").is_none() { 0 } else { super::panelcmds::artboard_index(&st.doc, p, "artboard.fitToSelection")? };
     let b = st.doc.bounds_of(&st.selection.objects, true).ok_or_else(|| EngineError::Other("no selection bounds".into()))?;
     s.execute("artboard.setProps", &json!({"index": i, "x": b.x0, "y": b.y0, "width": b.width(), "height": b.height()}))
 }

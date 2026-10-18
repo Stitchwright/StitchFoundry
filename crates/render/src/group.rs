@@ -274,6 +274,9 @@ pub(crate) fn draw_pixmap(ctx: &mut RenderContext, pm: Arc<Pixmap>, at: (f64, f6
     #[cfg(test)]
     PIXELS_DRAWN.with(|n| n.set(n.get() + u64::from(pm.width()) * u64::from(pm.height())));
     ctx.set_transform(Affine::translate(at));
+    // The pixmap maps 1:1 onto the rect: a paint transform left by an earlier fill (a pattern,
+    // radial or freeform gradient) would resample it (#2426).
+    ctx.reset_paint_transform();
     ctx.set_paint(vello_cpu::Image { image: vello_cpu::ImageSource::Pixmap(pm), sampler: peniko::ImageSampler::default() });
     ctx.fill_rect(&Rect::new(0.0, 0.0, w, h));
     ctx.set_transform(Affine::IDENTITY);

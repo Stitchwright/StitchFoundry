@@ -344,6 +344,7 @@
 	Change Case	Ändra skiftläge
 	Change Screen Mode (F)	Ändra skärmläge (F)
 	Change to Global Rulers	Byt till globala linjaler
+	Change to Artboard Rulers	Byt till ritytelinjaler
 	Change to Right-to-Left Layout	Byt till layout höger till vänster
 	Changed since the last Refresh.	Ändrad sedan senaste uppdateringen.
 	Changes allowed:	Tillåtna ändringar:
@@ -492,6 +493,7 @@
 	Color Model:	Färgmodell:
 	Color Models	Färgmodeller
 	Color Picker	Färgväljare
+	Color wheel	Färghjul
 	Color Picker…	Färgväljare…
 	Color Reduction:	Färgreducering:
 	Color Settings	Färginställningar
@@ -530,6 +532,7 @@
 	Condition identifier:	Villkorsidentifierare:
 	Conflict {n} of {count}	Konflikt {n} av {count}
 	Connect Selected End Points	Sammanfoga markerade slutpunkter
+	Connect	Sammanfoga
 	Consolidate All Windows	Samla alla fönster
 	Constrain Angle	Begränsa vinkel
 	Constrain Width and Height Proportions	Behåll proportioner för bredd och höjd
@@ -538,6 +541,7 @@
 	Contextual Task Bar	Kontextuellt aktivitetsfält
 	Pin Bar Position	Fäst fältets position
 	Reset Bar Position	Återställ fältets position
+	Resize	Ändra storlek
 	Contrast	Kontrast
 	Control	Kontroll
 	Convert	Konvertera
@@ -624,6 +628,7 @@
 	Created:	Skapad:
 	Crop	Beskär
 	Crop Image	Beskär bild
+	Edit Path	Redigera bana
 	Mask	Maskera
 	Crop Marks	Skärmärken
 	Crop To	Beskär till
@@ -769,6 +774,7 @@
 	Document open password	Lösenord för att öppna dokumentet
 	Document profile	Dokumentprofil
 	Document Raster Effects Settings	Inställningar för rastereffekter i dokument
+	Use Document Raster Effects Resolution	Använd upplösningen från inställningarna för rastereffekter i dokument
 	Document Raster Effects Settings Dialog	Dialogruta för inställningar för rastereffekter i dokument
 	Document Raster Effects Settings…	Inställningar för rastereffekter i dokument…
 	Document Setup	Dokumentinställningar
@@ -1129,6 +1135,7 @@
 	Font List	Teckensnittslista
 	Font Preview Size	Storlek på teckensnittsförhandsgranskning
 	Font Size	Teckenstorlek
+	Variable Font	Variabelt teckensnitt
 	Font:	Typsnitt:
 	Fonts	Typsnitt
 	Fonts in Document	Typsnitt i dokumentet
@@ -1158,6 +1165,14 @@
 	Gamut Warning	Färgomfångsvarning
 	gap	mellanrum
 	Gap Options…	Alternativ för mellanrum…
+	Gap Options	Alternativ för mellanrum
+	Gap Detection	Identifiering av mellanrum
+	Paint Stops At:	Målningen stannar vid:
+	Small Gaps	Små mellanrum
+	Medium Gaps	Medelstora mellanrum
+	Large Gaps	Stora mellanrum
+	Gap Preview Color:	Förhandsgranskningsfärg för mellanrum:
+	Close Gaps With Paths	Stäng mellanrum med banor
 	Gaussian Blur…	Gaussisk oskärpa…
 	General	Allmänt
 	General › Placement › X	Allmänt › Placering › X
@@ -1174,6 +1189,10 @@
 	glyph {id}	glyf {id}
 	Glyphs	Glyfer
 	Go to Artboard	Gå till rityta
+	First Artboard	Första ritytan
+	Previous Artboard	Föregående rityta
+	Next Artboard	Nästa rityta
+	Last Artboard	Sista ritytan
 	Go To Link	Gå till länk
 	GPL palettes keep solid colours only, as RGB.	GPL-paletter sparar bara enfärgade färger, som RGB.
 	GPU Performance	GPU-prestanda
@@ -1199,6 +1218,16 @@
 	Delete Design	Radera design
 	Paste Design	Klistra in design
 	Select Unused	Markera oanvända
+	Graph Column	Diagramkolumn
+	Column Type:	Kolumntyp:
+	Vertically Scaled	Vertikalt skalad
+	Uniformly Scaled	Likformigt skalad
+	Repeating	Upprepad
+	Sliding	Glidande
+	Each Design Represents:	Varje design motsvarar:
+	For Fractions:	För bråkdelar:
+	Chop Design	Kapa design
+	Scale Design	Skala design
 	Import Data…	Importera data…
 	Transpose	Transponera
 	Switch x/y	Växla x/y
@@ -1291,7 +1320,80 @@
 	Highlight Substituted Glyphs	Framhäv ersatta glyfer
 	History	Historik
 	History Options…	Historikalternativ…
+	Step Backward	Stega bakåt
+	Step Forward	Stega framåt
+	Set History Limit…	Ange historikgräns…
 	History States	Historiktillstånd
+# History panel: the names of undo steps (`every_undo_label_is_translated`).
+	Apply Data Set	Använd datauppsättning
+	Cancel Pattern Editing	Avbryt mönsterredigering
+	Copy Appearance	Kopiera utseende
+	Copy Guide	Kopiera stödlinje
+	Copy in Perspective	Kopiera i perspektiv
+	Create Slice from Selection	Skapa skiva från markering
+	Create Slices from Guides	Skapa skivor från stödlinjer
+	Delete All Slices	Radera alla skivor
+	Delete Data Sets	Radera datauppsättningar
+	Delete Graphic Styles	Radera grafikstilar
+	Delete Guide	Radera stödlinje
+	Delete Guides	Radera stödlinjer
+	Delete Slice	Radera skiva
+	Delete Style	Radera stil
+	Delete Variables	Radera variabler
+	Delete View	Radera vy
+	Done Editing Pattern	Avsluta mönsterredigering
+	Duplicate Rows	Duplicera rader
+	Edit Perspective Grid	Redigera perspektivrutnät
+	Expand Blend	Expandera blandning
+	Expand Envelope	Expandera kuvert
+	Expand Image Trace	Expandera bildkalkering
+	Expand Live Paint	Expandera direktmålning
+	Live Shape	Direktform
+	Make Blend	Skapa blandning
+	Make Dynamic	Gör dynamisk
+	Make Intertwine	Skapa sammanflätning
+	Make Live Paint	Skapa direktmålning
+	Make Pattern	Skapa mönster
+	Make Slice	Skapa skiva
+	Merge Live Paint	Sammanfoga direktmålning
+	Mesh Point Color	Nätpunktsfärg
+	Move Envelope Point	Flytta kuvertpunkt
+	Move Plane and Copy Objects	Flytta plan och kopiera objekt
+	Move Plane and Objects	Flytta plan och objekt
+	Move Slice	Flytta skiva
+	Move Type on a Path	Flytta text på bana
+	New Guide	Ny stödlinje
+	Place from Library	Placera från bibliotek
+	Rearrange Artboards	Ordna om ritytor
+	Release Blend	Släpp blandning
+	Release Envelope	Släpp kuvert
+	Release Intertwine	Släpp sammanflätning
+	Release Live Paint	Släpp direktmålning
+	Release Repeat	Släpp upprepning
+	Release Slice	Släpp skiva
+	Release Threaded Text	Släpp länkad text
+	Rename Design	Byt namn på design
+	Rename Style	Byt namn på stil
+	Rename View	Byt namn på vy
+	Reorder Appearance	Ändra ordning på utseende
+	Reorder Artboards	Ändra ordning på ritytor
+	Reshape Spine	Omforma ryggrad
+	Resize Artboard	Ändra storlek på rityta
+	Resize Slice	Ändra storlek på skiva
+	Resize Type Area	Ändra storlek på textområde
+	Scale in Perspective	Skala i perspektiv
+	Shape Builder Delete	Formbyggare (radera)
+	Sort Swatches	Sortera färgrutor
+	Symbol Screener	Symbolopacitet
+	Symbol Scruncher	Dra ihop symboler
+	Symbol Shifter	Flytta symboler
+	Symbol Sizer	Symbolstorlek
+	Symbol Spinner	Rotera symboler
+	Symbol Stainer	Färga symboler
+	Symbol Styler	Symbolstil
+	Text Orientation	Textorientering
+	Thread Text	Länka text
+	Typing	Skrivning
 	Hollow	Ihålig
 	Home	Start
 	Horizon Height:	Horisonthöjd:
@@ -1553,6 +1655,7 @@
 	Live Paint Selection Tool	Markeringsverktyg för direktmålning
 	Live Shape Properties	Egenskaper för direktform
 	Load Color Profile…	Läs in färgprofil…
+	Remove Color Profile…	Ta bort färgprofil…
 	Load Image into Clipboard	Läs in bild till urklipp
 	Load Metafile into Clipboard	Läs in metafil till urklipp
 	Load PDF into Clipboard	Läs in PDF till urklipp
@@ -1785,6 +1888,7 @@
 	New Graphic Style	Ny grafikstil
 	New Graphic Style (Alt-click to name it)	Ny grafikstil (Alt-klicka för att namnge den)
 	New Graphic Style…	Ny grafikstil…
+	New Artboard Options…	Alternativ för ny rityta…
 	New Layer Options…	Alternativ för nytt lager…
 	New Layer…	Nytt lager…
 	New Opacity Masks Are Clipping	Nya opacitetsmasker är klippande
@@ -2435,6 +2539,9 @@
 	Revert to the saved version of “{name}”?	Vill du återgå till den sparade versionen av ”{name}”?
 	Replace “{name}”, the file this document was opened from?	Vill du ersätta ”{name}”, filen som dokumentet öppnades från?
 	Opening it left out what StitchFoundry can't read yet ({what}), so replacing it loses that for good. Save under another name to keep it.	När filen öppnades utelämnades det som StitchFoundry inte kan läsa än ({what}), så om du ersätter den förloras det för gott. Spara under ett annat namn för att behålla det.
+	Opening it left out what VectorCraft can't read yet ({what}), so replacing it loses that for good. Save under another name to keep it.	När filen öppnades utelämnades det som VectorCraft inte kan läsa än ({what}), så om du ersätter den förloras det för gott. Spara under ett annat namn för att behålla det.
+	“{name}” already exists. Replace it?	”{name}” finns redan. Vill du ersätta den?
+	The name in the save panel was “{typed}”; VectorCraft added the file type's extension. Replacing the file overwrites its contents.	Namnet i sparpanelen var ”{typed}”, och VectorCraft lade till filtypens filändelse. Om du ersätter filen skrivs innehållet över.
 	Revolve…	Rotera runt axel…
 	RGB Color	RGB-färg
 	Right	Höger
@@ -2452,6 +2559,7 @@
 	Rotate 90° CW	Rotera 90° medurs
 	Rotate Tool	Rotationsverktyg
 	Rotate View Tool	Verktyget Rotera vy
+	Trackpad Gesture to Rotate View	Rotera vyn med en gest på styrplattan
 	Rotate…	Rotera…
 	Rotation	Rotation
 	Roughen…	Ojämn…
@@ -2918,6 +3026,16 @@
 	Superscript:	Upphöjd:
 	SVG Filters	SVG-filter
 	SVG Interactivity	SVG-interaktivitet
+	Event:	Händelse:
+	JavaScript:	JavaScript:
+	Add Event	Lägg till händelse
+	Remove Selected Entry	Ta bort markerad post
+	Clear Events	Rensa händelser
+	Link JavaScript Files…	Länka JavaScript-filer…
+	JavaScript Files	JavaScript-filer
+	File or URL:	Fil eller URL:
+	Add JavaScript File	Lägg till JavaScript-fil
+	Remove JavaScript File	Ta bort JavaScript-fil
 	SVG Options	SVG-alternativ
 	SVG Profile:	SVG-profil:
 	Swap Fill and Stroke	Byt plats på fyllning och kontur
@@ -3219,6 +3337,8 @@
 	Variables	Variabler
 	New Variable	Ny variabel
 	Delete Variable	Radera variabel
+	Lock Variables	Lås variabler
+	Unlock Variables	Lås upp variabler
 	List Variables	Lista variabler
 	Bind Variable	Bind variabel
 	Unbind Variable	Koppla bort variabel
@@ -3562,6 +3682,7 @@ axis	Both	Båda
 @msg	SVG parse error: {0}	SVG-tolkningsfel: {0}
 @msg	Save for Web: the image is empty	Spara för webb: bilden är tom
 @msg	Save writes {_1}, not {_2}: use document.export for other formats	Spara skriver {_1}, inte {_2}: använd document.export för andra format
+@msg	Save writes {_1}, not {_2}: use file.saveAsTemplate to write it	Spara skriver {_1}, inte {_2}: använd file.saveAsTemplate för att skriva det
 @msg	Saved recovery data for {title}	Sparade återställningsdata för {title}
 @msg	Saved to User Defined: {_1}	Sparat i Användardefinierat: {_1}
 @msg	Saved {path}	Sparade {path}
@@ -3591,6 +3712,7 @@ axis	Both	Båda
 @msg	`{id}` has no envelope dialog	`{id}` har ingen dialogruta för kuvert
 @msg	`{keep}` is not a side of this axis	`{keep}` är inte en sida av den här axeln
 @msg	`{key}` must be `auto` or a language code such as `en` or `zh-hant`	`{key}` måste vara `auto` eller en språkkod som `en` eller `zh-hant`
+@msg	`{key}` must be a #rrggbb color	`{key}` måste vara en färg i formatet #rrggbb
 @msg	`{key}` must be a #rrggbb colour	`{key}` måste vara en färg i formatet #rrggbb
 @msg	`{key}` must be a number	`{key}` måste vara ett tal
 @msg	`{key}` must be a string	`{key}` måste vara en sträng
@@ -3624,6 +3746,7 @@ axis	Both	Båda
 @msg	a freeform gradient keeps at least one point	en fri övertoning behåller minst en punkt
 @msg	a gradient needs at least two stops	en övertoning behöver minst två stopp
 @msg	a graphic style named `{to}` already exists	det finns redan en grafisk stil med namnet `{to}`
+@msg	a key object sits on that point	ett nyckelobjekt ligger på den punkten
 @msg	a page is missing	en sida saknas
 @msg	a page out of range	en sida utanför intervallet
 @msg	a page tree kid isn't a reference	ett barn i sidträdet är inte en referens
@@ -3631,6 +3754,7 @@ axis	Both	Båda
 @msg	a page's placement is not finite	en sidas placering är inte ändlig
 @msg	a preset named `{_1}` exists	det finns redan en förinställning med namnet `{_1}`
 @msg	a slice size must be a positive number of points	en skivstorlek måste vara ett positivt antal punkter
+@msg	a spine keeps at least two points	en ryggrad behåller minst två punkter
 @msg	a stream runs past the end	en ström fortsätter förbi slutet
 @msg	a stream's length is wrong	en ströms längd är fel
 @msg	a stream's length isn't a number	en ströms längd är inte ett tal
@@ -3689,11 +3813,13 @@ axis	Both	Båda
 @msg	give horizontal or vertical	ange horisontell eller vertikal
 @msg	give the path `id` and the width point `index`	ange banans `id` och breddpunktens `index`
 @msg	guides are locked	stödlinjerna är låsta
+@msg	handle must be in or out	handle måste vara in eller out
 @msg	image '{key}' has no pixels and was left out	bilden '{key}' har inga pixlar och utelämnades
 @msg	image data `{_1}` is missing	bilddata `{_1}` saknas
 @msg	image would be too large; lower the resolution	bilden skulle bli för stor; sänk upplösningen
 @msg	index must be a number or first, previous, next or last	index måste vara ett tal eller first, previous, next eller last
 @msg	index must be a number or first, previous, next or last, not `{other}`	index måste vara ett tal eller first, previous, next eller last, inte `{other}`
+@msg	index must be ≥ 0	index får inte vara negativt
 @msg	installing from a path is not available on the web; pass the module as `dataBase64`	installation från en sökväg är inte tillgänglig på webben; skicka modulen som `dataBase64`
 @msg	internal error in `{cmd}`: {msg} (the document was left as it was before; please report this bug)	internt fel i `{cmd}`: {msg} (dokumentet lämnades som det var innan; rapportera gärna felet)
 @msg	internal error: {msg} (please report this bug)	internt fel: {msg} (rapportera gärna felet)
@@ -3713,6 +3839,7 @@ axis	Both	Båda
 @msg	missing `name`	`name` saknas
 @msg	missing `tool`	`tool` saknas
 @msg	missing index	index saknas
+@msg	missing number `{key}`	talet `{key}` saknas
 @msg	multiple windows land with M11.5	flera fönster kommer med M11.5
 @msg	name the file	namnge filen
 @msg	no CSS to copy: select objects with CSS of their own	ingen CSS att kopiera: markera objekt som har egen CSS
@@ -3793,6 +3920,8 @@ axis	Both	Båda
 @msg	no such recent font	det senaste teckensnittet finns inte
 @msg	no such saved selection	den sparade markeringen finns inte
 @msg	no such segment	segmentet finns inte
+@msg	no such spine point	ryggradspunkten finns inte
+@msg	no such spine segment	ryggradssegmentet finns inte
 @msg	no such subpath	delbanan finns inte
 @msg	no such user library	användarbiblioteket finns inte
 @msg	no such view	vyn finns inte
@@ -3808,6 +3937,9 @@ axis	Both	Båda
 @msg	not a DXF drawing	inte en DXF-ritning
 @msg	not a StitchFoundry file: {0}	inte en StitchFoundry-fil: {0}
 @msg	not a StitchFoundry shortcut set (missing `overrides`)	inte en kortkommandouppsättning för StitchFoundry (`overrides` saknas)
+@msg	not a VectorCraft file: {0}	inte en VectorCraft-fil: {0}
+@msg	not a VectorCraft shortcut set (missing `overrides`)	inte en kortkommandouppsättning för VectorCraft (`overrides` saknas)
+@msg	not a blend	inte en blandning
 @msg	not a graphic style library (format `{_1}`)	inte ett bibliotek med grafiska stilar (format `{_1}`)
 @msg	not a shortcut set: the text doesn't start with a slash name and an opening brace	inte en kortkommandouppsättning: texten börjar inte med ett namn med snedstreck och en öppnande klammerparentes
 @msg	not a stored central record	inte en lagrad central post
@@ -3864,6 +3996,7 @@ axis	Both	Båda
 @msg	select (or target) objects whose appearance isn't basic	markera (eller ange som mål) objekt vars utseende inte är grundläggande
 @msg	select a Live Paint group	markera en Live Paint-grupp
 @msg	select a blend	markera en blandning
+@msg	select a blend or give `id`	markera en blandning eller ange dess `id`
 @msg	select a clip group	markera en urklippsgrupp
 @msg	select a gradient mesh	markera ett övertoningsnät
 @msg	select a linked image: an embedded one has no file	markera en länkad bild: en inbäddad bild har ingen fil
@@ -3896,6 +4029,7 @@ axis	Both	Båda
 @msg	stop {i} needs `offset`	stopp {i} behöver `offset`
 @msg	stop {i} needs a valid `color`	stopp {i} behöver en giltig `color`
 @msg	stop {i}: `{k}` must be a number	stopp {i}: `{k}` måste vara ett tal
+@msg	t, dx and dy must be finite	t, dx och dy måste vara ändliga
 @msg	the EMF header is damaged	EMF-huvudet är skadat
 @msg	the PDF has no pages	PDF-filen har inga sidor
 @msg	the PDF is no longer loaded	PDF-filen är inte längre inläst
@@ -3908,6 +4042,7 @@ axis	Both	Båda
 @msg	the art is too light for any dots	grafiken är för ljus för att ge några punkter
 @msg	the artboard to fit must be a positive size up to {_1} pt	ritytan som ska anpassas måste ha en positiv storlek på högst {_1} pt
 @msg	the background worker stopped	bakgrundsprocessen stoppades
+@msg	the blend has no spine	blandningen har ingen ryggrad
 @msg	the compressed file unpacks to more than {_1} MB	den komprimerade filen packas upp till mer än {_1} MB
 @msg	the document has never been saved	dokumentet har aldrig sparats
 @msg	the document has no artboard	dokumentet har ingen rityta
@@ -3948,6 +4083,7 @@ axis	Both	Båda
 @msg	the selected stroke's profile is already listed as {_1}	den markerade konturens profil finns redan som {_1}
 @msg	the selection has no URL (or they differ)	markeringen har ingen URL (eller så skiljer de sig åt)
 @msg	the selection isn't in perspective	markeringen är inte i perspektiv
+@msg	the spine has no segments	ryggraden har inga segment
 @msg	the stroke has no weight	konturen har ingen tjocklek
 @msg	the thumbnail image is malformed	miniatyrbilden är felaktigt utformad
 @msg	the top object must be a path, compound path or text object to use as a clipping mask	det översta objektet måste vara en bana, en sammansatt bana eller ett textobjekt för att användas som klippmask
@@ -3983,9 +4119,11 @@ axis	Both	Båda
 @msg	unknown tool or command `{key}`	okänt verktyg eller kommando `{key}`
 @msg	unknown workspace (one of {_1})	okänd arbetsyta (en av {_1})
 @msg	unsupported: {0}	stöds inte: {0}
+@msg	variables are locked	variablerna är låsta
 @msg	version {0} files can't be compressed: only version {COMPRESSED_SINCE} and later open compressed files	filer i version {0} kan inte komprimeras: endast version {COMPRESSED_SINCE} och senare kan öppna komprimerade filer
 @msg	width and height are at least 1 pixel	bredd och höjd är minst 1 pixel
 @msg	workspace name can't be empty	arbetsytans namn får inte vara tomt
+@msg	x and y must be finite	x och y måste vara ändliga
 @msg	{C}: no effect at index {from}	{C}: ingen effekt vid index {from}
 @msg	{_1} failed: {e}	{_1} misslyckades: {e}
 @msg	{_1} files can be opened but not written (see document.formats)	{_1}-filer kan öppnas men inte skrivas (se document.formats)
@@ -4274,6 +4412,7 @@ effect	Soft	Mjuk
 	Reset all	Återställ alla
 	Reset to default	Återställ till standard
 	Reset all Revolve settings to their defaults.	Återställ alla inställningar för Rotera runt axel till standardvärdena.
+	Step up or down	Ett steg upp eller ned
 	Drag values or labels. Double-click a value to type.	Dra i värden eller etiketter. Dubbelklicka på ett värde för att skriva.
 	Drag rings to rotate. Shift snaps to 15°.	Dra i ringarna för att rotera. Shift fäster i steg om 15°.
 	Drag the light, or its rings. Shift snaps to 15°.	Dra i ljuset eller dess ringar. Shift fäster i steg om 15°.
@@ -4317,11 +4456,27 @@ lighting	Light	Ljus
 @msg	missing panel layout	panellayout saknas
 @msg	unsupported native docking operation	inbyggd dockningsåtgärd som inte stöds
 	Linux Display Server	Linux-skärmserver
+	X11 (XWayland) When a Pen Is Attached	X11 (XWayland) när en penna är ansluten
+	If a drawing tablet's pen doesn't draw, choose an X11 (XWayland) option.	Om ritplattans penna inte ritar väljer du ett X11 (XWayland)-alternativ.
 	X11 (XWayland)	X11 (XWayland)
 	Ruler Origin	Linjalens origo
 	Reset Ruler Origin	Återställ linjalens origo
 	Artistic	Konstnärligt
 	Film Grain…	Filmkorn…
+	Cutout…	Urklipp…
+	Cutout	Urklipp
+	Neon Glow…	Neonsken…
+	Neon Glow	Neonsken
+	Poster Edges…	Affischkanter…
+	Poster Edges	Affischkanter
+	Levels	Nivåer
+	Edge Simplicity	Kantförenkling
+	Edge Fidelity	Kanttrohet
+	Glow Size	Skenets storlek
+	Glow Brightness	Skenets ljusstyrka
+	Edge Thickness	Kanttjocklek
+	Edge Intensity	Kantintensitet
+	Posterization	Posterisering
 	Highlight Area	Högdagerområde
 @msg	the compressed file unpacks to more than StitchFoundry reads ({_1} MB of document, {_2} MB per image)	den komprimerade filen packas upp till mer än StitchFoundry läser ({_1} MB dokument, {_2} MB per bild)
 @msg	the document is too large to save compressed ({0}): save it with Use Compression off	dokumentet är för stort för att sparas komprimerat ({0}): spara det med Använd komprimering avstängt
@@ -4820,6 +4975,11 @@ theme	Appearance	Utseende
 	Softness	Mjukhet
 	Ambient Light	Omgivande ljus
 	Light behind the object	Ljus bakom objektet
+# 3D light management.
+	Lights	Ljuskällor
+	Add Light	Lägg till ljus
+	Delete Light	Ta bort ljus
+3d	Light	Ljus
 	 cancels  |  Double-click the tool for options	 avbryter  |  Dubbelklicka på verktyget för alternativ
 	 out from a highlighted edge to place its dimension  |  	 utåt från en framhävd kant för att placera dess mått  |  
 	A legacy .ai file holds one artboard: each artboard you check is saved as a separate file.	En äldre .ai-fil rymmer en rityta: varje rityta du markerar sparas som en separat fil.
@@ -4954,7 +5114,6 @@ theme	Appearance	Utseende
 	Edge Only	Endast kant
 	Overlay Edge	Överlägg kant
 	Path Length	Banlängd
-@msg	not a VectorCraft file: {0}	inte en VectorCraft-fil: {0}
 	VectorCraft documents: one locked object, updated when the file changes.	VectorCraft-dokument: ett låst objekt som uppdateras när filen ändras.
 	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	När filen öppnades utelämnades det som StitchFoundry inte kan läsa än ({what}): om du ersätter den förloras det för gott. Spara under ett annat namn för att behålla det.
 	Report a Bug…	Rapportera ett fel…
@@ -5338,7 +5497,6 @@ machine	Stop	Stopp
 	Fade out	Tona ut
 	Fade in	Tona in
 	Blend into	Blanda in i
-	Make Blend	Skapa blandning
 	Blend Colors	Blanda färger
 	Add Outline	Lägg till kontur
 	Satin Outline	Satinkontur
@@ -6307,3 +6465,23 @@ machine	Stop	Stopp
 	{n} credits for {price}	{n} krediter för {price}
 	{n} credits	{n} krediter
 	{n} free checks left this month.	{n} gratiskontroller kvar den här månaden.
+# Links and Attributes: files and URLs handed to other apps.
+@msg	Edit Original opens image and document files only; “{name}” is not one	Redigera original öppnar bara bild- och dokumentfiler; ”{name}” är ingen sådan
+@msg	only http, https and mailto URLs open in the browser, not “{url}”	bara http-, https- och mailto-URL:er öppnas i webbläsaren, inte ”{url}”
+@msg	{id} opens another app: only the person at the keyboard can run it	{id} öppnar en annan app: bara personen vid tangentbordet kan köra kommandot
+@msg	“{name}” is not a file	”{name}” är inte en fil
+	Enable Guides for 9-Slice Scaling	Aktivera hjälplinjer för 9-slice-skalning
+@msg	a mask has more than one art block	en mask innehåller mer än ett grafikblock
+@msg	mask art ends outside a mask dictionary	maskens grafik slutar utanför en maskordlista
+@msg	cancelled; nothing was changed	avbrutet; inget ändrades
+@msg	a linked image can't become a gradient mesh: embed it first	en länkad bild kan inte bli ett övertoningsnät: bädda in den först
+@msg	the image has no usable size or position	bilden har ingen användbar storlek eller position
+@msg	the image's pixels can't be read	bildens pixlar kan inte läsas
+	Persistent	Beständig
+	Library Panel Options	Alternativ för bibliotekspanelen
+@msg	Persistent libraries not found: {files}	Beständiga bibliotek hittades inte: {files}
+@msg	`{given}` isn't a library panel (see window.swatchLibrary)	`{given}` är inte en bibliotekspanel (se window.swatchLibrary)
+@msg	library panel `{given}` isn't open	bibliotekspanelen `{given}` är inte öppen
+@msg	too many library panels were opened in this session	för många bibliotekspaneler har öppnats i den här sessionen
+@msg	The image is {_1} × {_2} pixels, more than {LARGE_TRACE_SIDE} on a side: it is traced, but more slowly. A lower-fidelity preset or a smaller copy of the image traces faster.	Bilden är {_1} × {_2} pixlar, mer än {LARGE_TRACE_SIDE} på en sida: den vektoriseras, men långsammare. En förinställning med lägre återgivning eller en mindre kopia av bilden går snabbare.
+@msg	The image was traced at {_1} × {_2} pixels, scaled down from {_3} × {_4} ({_5} megapixels at most).	Bilden vektoriserades vid {_1} × {_2} pixlar, nedskalad från {_3} × {_4} (högst {_5} megapixlar).

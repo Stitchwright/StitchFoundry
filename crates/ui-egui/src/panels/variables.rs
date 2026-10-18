@@ -136,6 +136,8 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
     let active = sets.iter().find(|s| s.active);
     let Picked { selected, has_selection, selection_bound, single_type, single_image, selection_graph } = picked(st);
     let highlighted = highlighted_row(st);
+    // Lock Variables: no variable is defined, deleted or renamed until they are unlocked.
+    let locked = st.doc.variables.locked;
 
     // The current data set across the top: its name, and the arrows that step through them.
     ui.horizontal(|ui| {
@@ -181,7 +183,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
             if r.clicked() {
                 click_row(app, &row.name, &row.bound);
             }
-            if r.double_clicked() {
+            if r.double_clicked() && !locked {
                 crate::dialogs::variables::open(app, "variable.rename", Some(&row.name));
             }
         });
@@ -204,30 +206,36 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         }
     }
 
-    // The bottom bar: make the selection dynamic, and define and delete what the lists show.
+    // The bottom bar: make the selection dynamic, define and delete what the lists show, and
+    // lock the variables.
     ui.separator();
     ui.horizontal(|ui| {
-        if widgets::icon_button_enabled(ui, "type", tl!("Make Text Dynamic"), false, single_type, 24.0).clicked() {
+        if widgets::icon_button_enabled(ui, "type", tl!("Make Text Dynamic"), false, single_type && !locked, 24.0).clicked() {
             app.run("variable.makeTextDynamic", json!({})).ok();
         }
-        if widgets::icon_button_enabled(ui, "eye", tl!("Make Visibility Dynamic"), false, has_selection, 24.0).clicked() {
+        if widgets::icon_button_enabled(ui, "eye", tl!("Make Visibility Dynamic"), false, has_selection && !locked, 24.0).clicked() {
             app.run("variable.makeVisibilityDynamic", json!({})).ok();
         }
-        if widgets::icon_button_enabled(ui, "image", tl!("Make Image Dynamic"), false, single_image, 24.0).clicked() {
+        if widgets::icon_button_enabled(ui, "image", tl!("Make Image Dynamic"), false, single_image && !locked, 24.0).clicked() {
             app.run("variable.makeImageDynamic", json!({})).ok();
         }
-        if widgets::icon_button_enabled(ui, "chart-column", tl!("Make Graph Dynamic"), false, selection_graph, 24.0).clicked() {
+        if widgets::icon_button_enabled(ui, "chart-column", tl!("Make Graph Dynamic"), false, selection_graph && !locked, 24.0).clicked() {
             app.run("variable.makeGraphDynamic", json!({})).ok();
         }
-        if widgets::icon_button(ui, "plus", tl!("New Variable…"), false, 24.0).clicked() {
+        if widgets::icon_button_enabled(ui, "plus", tl!("New Variable…"), false, !locked, 24.0).clicked() {
             crate::menus::invoke(app, "variable.define", json!({}));
         }
         if widgets::icon_button_enabled(ui, "link-2-off", tl!("Unbind Variable"), false, selection_bound, 24.0).clicked() {
             app.run("variable.unbind", json!({"ids": selected})).ok();
         }
         // The bin deletes the highlighted variable only, as the reference panel's does.
-        if widgets::icon_button_enabled(ui, "trash-2", tl!("Delete Variable"), false, highlighted.is_some(), 24.0).clicked() {
+        if widgets::icon_button_enabled(ui, "trash-2", tl!("Delete Variable"), false, highlighted.is_some() && !locked, 24.0).clicked() {
             delete_highlighted(app);
+        }
+        // The lock button is drawn pressed while the variables are locked.
+        let tip = if locked { tl!("Unlock Variables") } else { tl!("Lock Variables") };
+        if widgets::icon_button(ui, "lock", tip, locked, 24.0).clicked() {
+            app.run("variable.lock", json!({})).ok();
         }
     });
     ui.horizontal(|ui| {
@@ -254,32 +262,37 @@ pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
     let highlighted = highlighted_row(st);
     let highlighted_bound: Vec<u64> = highlighted.as_ref().map(|h| bound_objects(st, h)).unwrap_or_default();
     let Picked { selected, has_selection, selection_bound, single_type, single_image, selection_graph } = picked(st);
+    let locked = st.doc.variables.locked;
 
-    if widgets::menu_item(ui, tl!("New Variable…"), true, false) {
+    if widgets::menu_item(ui, tl!("New Variable…"), !locked, false) {
         crate::menus::invoke(app, "variable.define", json!({}));
     }
     // Variable Options renames the highlighted variable, else the first.
-    if widgets::menu_item(ui, tl!("Variable Options…"), !vars.is_empty(), false) {
+    if widgets::menu_item(ui, tl!("Variable Options…"), !vars.is_empty() && !locked, false) {
         let name = highlighted.clone().or_else(|| vars.first().cloned()).unwrap_or_default();
         crate::dialogs::variables::open(app, "variable.rename", Some(&name));
     }
-    if widgets::menu_item(ui, tl!("Make Text Dynamic"), single_type, false) {
+    if widgets::menu_item(ui, tl!("Make Text Dynamic"), single_type && !locked, false) {
         app.run("variable.makeTextDynamic", json!({})).ok();
     }
-    if widgets::menu_item(ui, tl!("Make Visibility Dynamic"), has_selection, false) {
+    if widgets::menu_item(ui, tl!("Make Visibility Dynamic"), has_selection && !locked, false) {
         app.run("variable.makeVisibilityDynamic", json!({})).ok();
     }
-    if widgets::menu_item(ui, tl!("Make Image Dynamic"), single_image, false) {
+    if widgets::menu_item(ui, tl!("Make Image Dynamic"), single_image && !locked, false) {
         app.run("variable.makeImageDynamic", json!({})).ok();
     }
-    if widgets::menu_item(ui, tl!("Make Graph Dynamic"), selection_graph, false) {
+    if widgets::menu_item(ui, tl!("Make Graph Dynamic"), selection_graph && !locked, false) {
         app.run("variable.makeGraphDynamic", json!({})).ok();
     }
     if widgets::menu_item(ui, tl!("Unbind Variable"), selection_bound, false) {
         app.run("variable.unbind", json!({"ids": selected})).ok();
     }
-    if widgets::menu_item(ui, tl!("Delete Variable"), highlighted.is_some(), false) {
+    if widgets::menu_item(ui, tl!("Delete Variable"), highlighted.is_some() && !locked, false) {
         delete_highlighted(app);
+    }
+    let lock = if locked { tl!("Unlock Variables") } else { tl!("Lock Variables") };
+    if widgets::menu_item(ui, lock, true, false) {
+        app.run("variable.lock", json!({})).ok();
     }
     ui.separator();
     if widgets::menu_item(ui, tl!("Capture Data Set"), true, false) {
@@ -319,9 +332,9 @@ pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
     }
 }
 
-/// Variables panel: Import Data Sets… — pick a CSV and run `dataset.import`.
+/// Variables panel: Import Data Sets… opens a file dialog for a comma- or tab-separated file and runs `dataset.import` on the chosen file.
 fn import_datasets(app: &mut VectorcraftApp) {
-    let pick = crate::FilePick { filters: vec![("CSV", &["csv", "txt"])], ..Default::default() };
+    let pick = crate::FilePick { filters: vec![("CSV", &["csv", "tsv", "txt"])], ..Default::default() };
     let Some(path) = crate::picks::open(app, &pick) else { return };
     if let Err(e) = app.run("dataset.import", json!({"path": path})) {
         app.status(e);
@@ -396,6 +409,20 @@ mod tests {
         ] {
             assert!(text.contains(item), "{item} missing from the panel menu:\n{text}");
         }
+    }
+
+    /// The panel menu offers Lock Variables, and Unlock Variables once they are locked.
+    #[test]
+    fn the_panel_menu_locks_and_unlocks_the_variables() {
+        let mut app = app_with_data();
+        let text = crate::tests_labels::painted_text(&mut app, menu);
+        assert!(text.contains("Lock Variables") && !text.contains("Unlock Variables"), "{text}");
+        app.run("variable.lock", json!({})).unwrap();
+        let text = crate::tests_labels::painted_text(&mut app, menu);
+        assert!(text.contains("Unlock Variables"), "{text}");
+        // The panel still draws while they are locked.
+        let text = crate::tests_labels::painted_text(&mut app, show);
+        assert!(text.contains("Name") && text.contains("Data Set 1"), "{text}");
     }
 
     /// What the panel acts on is the highlight, and only while it names a variable: a stale one

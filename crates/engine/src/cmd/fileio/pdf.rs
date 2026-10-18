@@ -169,6 +169,7 @@ pub(crate) fn merge(base: &mut Value, over: &Value) {
 pub(crate) fn pdf_error(cmd: &str, e: PdfError) -> EngineError {
     match e {
         PdfError::BadSetting(_) | PdfError::Unsupported(_) => bad(cmd, e.to_string()),
+        PdfError::Cancelled => EngineError::Cancelled,
         e => EngineError::Other(e.to_string()),
     }
 }
@@ -253,7 +254,19 @@ pub fn encode(cmd: &str, doc: &Document, p: &Value) -> Result<(Vec<u8>, Vec<Stri
     let (full, mut warnings) = crate::cmd::place::document::full_documents(doc);
     let (bytes, drawn_warnings) = encode_carrying(cmd, &full, p, || Ok(vectorcraft_format::save(doc, false)))?;
     warnings.extend(drawn_warnings);
+    warnings.extend(overflow_warning(cmd, &full, p)?);
     Ok((bytes, warnings))
+}
+
+/// The warning about the type that the pages of a PDF of `doc` with the options in `p` draw and
+/// whose text doesn't fit (see [`crate::cmd::fonts::export_overflow_warning`]): on the pages
+/// chosen, leaving out the layers that don't print unless the PDF writes them.
+fn overflow_warning(cmd: &str, doc: &Document, p: &Value) -> Result<Option<String>> {
+    let opts = options(cmd, doc, p)?;
+    let areas = vectorcraft_pdf::page_areas(doc, &opts).map_err(|e| pdf_error(cmd, e))?;
+    let set = &opts.settings;
+    let printed = if set.include_non_printing || set.create_layers { None } else { without_non_printing(&doc.layers) };
+    Ok(crate::cmd::fonts::export_overflow_warning(doc, printed.as_deref().unwrap_or(&doc.layers), Some(&areas)))
 }
 
 /// [`encode`] the pages of `doc`, carrying `native()` as the editing data (a `.ai` file: the
@@ -273,7 +286,11 @@ pub(super) fn encode_carrying(cmd: &str, doc: &Document, p: &Value, native: impl
         }
     }
     let set = &opts.settings;
+    if set.pdf13() {
+        vectorcraft_doc::cancel::progress(0, 0, "Flattening transparency");
+    }
     let flat = flatten_for(cmd, doc, set, p)?;
+    vectorcraft_doc::cancel::check()?;
     if flat.is_some() {
         let kind = if set.standard.flattens() { set.standard.label() } else { set.compatibility.label() };
         warnings.push(format!("transparency is flattened into opaque art and images ({kind} files have none): see the flattener preset"));

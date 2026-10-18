@@ -330,9 +330,8 @@ fn style(filters: &[Filter]) -> ArtStyle {
                 params: json!({"mode": mode(2), "opacity": param("opac").unwrap_or(0.75) * 100.0, "blur": 2.0 * param("blur").unwrap_or(5.0), "color": color}),
                 visible: true,
             }),
-            SHADOW if param("csrc").unwrap_or(0.0) == 0.0 => effects.push(Effect {
-                id: "stylize.dropShadow".into(),
-                params: json!({
+            SHADOW => {
+                let mut params = json!({
                     "mode": mode(1),
                     "opacity": param("opac").unwrap_or(0.75) * 100.0,
                     "blur": 2.0 * param("blur").unwrap_or(5.0),
@@ -341,11 +340,15 @@ fn style(filters: &[Filter]) -> ArtStyle {
                     "x": param("horz").unwrap_or(7.0),
                     "y": param("vert").unwrap_or(7.0),
                     "color": color,
-                }),
-                visible: true,
-            }),
-            // A shadow darkening the object's own colors is not read as Drop Shadow's Darkness.
-            SHADOW => plain = false,
+                });
+                // A `csrc` of 1 is Darkness, the object's own colors with black added; any value other than 0 is read as
+                // Darkness. `dark` is the percent of black (0 to 100, where `opac` is a fraction), and 100 when it is missing or not finite.
+                if param("csrc").unwrap_or(0.0) != 0.0 {
+                    params["shade"] = json!("darkness");
+                    params["darkness"] = json!(param("dark").filter(|v| v.is_finite()).map_or(100.0, |v| v.clamp(0.0, 100.0)));
+                }
+                effects.push(Effect { id: "stylize.dropShadow".into(), params, visible: true });
+            }
             _ => {}
         }
     }
@@ -391,6 +394,50 @@ mod tests {
         let styles = art_styles(data);
         let [shadow] = styles["Shade"].effects.as_slice() else { panic!("{:?}", styles["Shade"]) };
         assert_eq!((shadow.params["x"].as_f64(), shadow.params["y"].as_f64()), (Some(7.0), Some(7.0)));
+    }
+
+    /// The style `Shade`: a Drop Shadow whose dictionary holds `keys`.
+    fn shadow_style(keys: &str) -> ArtStyle {
+        let data = format!(
+            "/KnownStyle :\n(Shade) /Name ,\n/ActiveStyle :\n/CompoundFilter :\n(Chain Style Filter) 0 0 /Filter ,\n1 /Visible ,\n\
+            /BasicFilter :\n(Adobe Drop Shadow) 1 0 /Filter ,\n1 /Visible ,\n/Dictionary : /NotRecorded ,\n{keys}; /Dict ;\n /Part ,\n;\n"
+        );
+        art_styles(data.as_bytes()).remove("Shade").unwrap_or_default()
+    }
+
+    #[test]
+    fn a_drop_shadow_with_darkness_reads_its_darkness() {
+        // GUARDS: a `csrc` other than 0 made the style not plain, and the object came in as its drawn look.
+        let style = shadow_style("1 /Int (blnd) ,\n0.75 /Real (opac) ,\n5 /Real (blur) ,\n1 /Int (csrc) ,\n50 /Real (dark) ,\n");
+        assert!(style.plain, "{style:?}");
+        let [shadow] = style.effects.as_slice() else { panic!("{style:?}") };
+        let p = &shadow.params;
+        assert_eq!(
+            (shadow.id.as_str(), &p["shade"], &p["darkness"], &p["opacity"], &p["blur"]),
+            ("stylize.dropShadow", &json!("darkness"), &json!(50.0), &json!(75.0), &json!(10.0))
+        );
+    }
+
+    #[test]
+    fn a_drop_shadow_darkness_is_100_percent_when_missing_and_kept_within_0_to_100() {
+        for (dark, want) in [("", 100.0), ("(fifty) /Real (dark) ,\n", 100.0), ("250 /Real (dark) ,\n", 100.0), ("-5 /Real (dark) ,\n", 0.0)] {
+            let style = shadow_style(&format!("1 /Int (csrc) ,\n{dark}"));
+            assert!(style.plain, "{dark:?}: {style:?}");
+            let [shadow] = style.effects.as_slice() else { panic!("{dark:?}: {style:?}") };
+            assert_eq!((&shadow.params["shade"], &shadow.params["darkness"]), (&json!("darkness"), &json!(want)), "{dark:?}");
+        }
+    }
+
+    #[test]
+    fn a_drop_shadow_with_color_keeps_its_params() {
+        // GUARDS: a `csrc` of 0, or none, is Color; its shadow has neither `shade` nor `darkness`.
+        for csrc in ["", "0 /Int (csrc) ,\n50 /Real (dark) ,\n"] {
+            let style = shadow_style(&format!("2 /Int (blnd) ,\n0.5 /Real (opac) ,\n{csrc}"));
+            assert!(style.plain, "{csrc:?}: {style:?}");
+            let [shadow] = style.effects.as_slice() else { panic!("{csrc:?}: {style:?}") };
+            let want = json!({"mode": "Screen", "opacity": 50.0, "blur": 10.0, "x": 7.0, "y": 7.0, "color": vectorcraft_color::Color::BLACK});
+            assert_eq!(shadow.params, want, "{csrc:?}");
+        }
     }
 
     #[test]

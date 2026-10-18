@@ -241,7 +241,7 @@ impl Tool for MeshTool {
         match self.grab_at(cx, p) {
             Some(g) if mods.alt && g.handle.is_none() => Cursor::PenDelete,
             Some(_) => Cursor::Move,
-            None => Cursor::PenAdd,
+            None => Cursor::MeshAdd,
         }
     }
     fn options(&self) -> serde_json::Value {

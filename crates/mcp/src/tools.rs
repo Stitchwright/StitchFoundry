@@ -36,6 +36,20 @@ fn num(desc: &str) -> Value {
 fn string(desc: &str) -> Value {
     json!({"type": "string", "description": desc})
 }
+/// The arguments `doc_inspect` / `inspect_document` pass on to `document.inspect`.
+const INSPECT_KEYS: [&str; 6] = ["depth", "childLimit", "ids", "kind", "limit", "offset"];
+
+/// Their schema.
+fn inspect_props() -> Value {
+    json!({
+        "depth": {"type": "integer", "minimum": 0, "description": "Child levels of the layer tree to include (default all; 0 = top layers with counts)"},
+        "childLimit": {"type": "integer", "minimum": 0, "description": "Children shown per node (default all; a level that shows fewer reports childCount)"},
+        "ids": {"type": "array", "maxItems": 10000, "items": {"type": "integer", "minimum": 0}, "description": "List just these nodes (any level) as `nodes` instead of the whole layer tree; an unknown id is an error"},
+        "kind": {"type": "string", "description": "List every node of this panel label (Layer, Group, Path, Type, Image, ...; ignores case) as `nodes`, each with its ancestor `path`; searches the subtrees of `ids` when given"},
+        "limit": {"type": "integer", "minimum": 0, "description": "At most this many layers or nodes (the reply adds `total`)"},
+        "offset": {"type": "integer", "minimum": 0, "description": "Layers or nodes skipped first (default 0)"}
+    })
+}
 fn paint_schema(what: &str) -> Value {
     json!({
         "description": format!("{what}: \"#rrggbb\", \"none\", [r,g,b] (0..1), {{\"c\",\"m\",\"y\",\"k\"}}, {{\"gray\"}}, or a full paint.setFill params object ({{\"gradient\":…}} / {{\"swatch\":name}})"),
@@ -129,8 +143,8 @@ pub fn tool_definitions() -> Vec<Value> {
         tool(
             "doc_inspect",
             "Inspect document",
-            "Summary of the active document, including artboards, layer tree, selection and history.",
-            obj(json!({"depth":{"type":"integer", "minimum":0},"childLimit":{"type":"integer", "minimum":0}}), &[]),
+            "Summary of the active document, including artboards, layer tree, selection and history. On a large document scope it: depth 0 for the layer skeleton, ids for just those nodes, kind for every node of one kind, limit/offset to page.",
+            obj(inspect_props(), &[]),
             true,
         ),
         tool(
@@ -175,13 +189,7 @@ pub fn tool_definitions() -> Vec<Value> {
             "inspect_document",
             "Inspect document",
             "Summary of the active document: artboards, layer tree (ids, names, kinds, bounds, fill/stroke), selection, undo history, current tool and default paint. On a large document pass depth: 0 for the layer skeleton (truncated levels report childCount), then locate objects with run_command document.find and read them with document.node.",
-            obj(
-                json!({
-                    "depth": {"type": "integer", "minimum": 0, "description": "Child levels of the layer tree to include (default all; 0 = top layers with counts)"},
-                    "childLimit": {"type": "integer", "minimum": 0, "description": "Children shown per node (default all; a level that shows fewer reports childCount)"}
-                }),
-                &[],
-            ),
+            obj(inspect_props(), &[]),
             true,
         ),
         tool(
@@ -919,9 +927,9 @@ fn dispatch(b: &mut dyn Backend, name: &str, a: &Args) -> Result<ToolResult, Str
             j(b.call(method, json!({"command": cmd, "params": params}))?)
         }
         "doc_inspect" | "inspect_document" => {
-            // Only the slicing options reach the command, which validates them.
+            // Only the slicing and scope options reach the command, which validates them.
             let slice: Map<String, Value> =
-                a.iter().filter(|(k, _)| matches!(k.as_str(), "depth" | "childLimit")).map(|(k, v)| (k.clone(), v.clone())).collect();
+                a.iter().filter(|(k, _)| INSPECT_KEYS.contains(&k.as_str())).map(|(k, v)| (k.clone(), v.clone())).collect();
             j(b.call("document.inspect", Value::Object(slice))?)
         }
         "ui_inspect" | "inspect_ui" => {

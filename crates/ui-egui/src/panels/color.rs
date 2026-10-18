@@ -498,7 +498,7 @@ fn tint_rows(ui: &mut Ui, tint: &Tint, slider_w: f32, field_w: f32) -> Option<(f
     ui.horizontal(|ui| {
         ui.add_sized(vec2(12.0, 22.0), egui::Label::new(egui::RichText::new("T").size(12.5).color(t.text)));
         let track = |x: f32| to32(&tint.base.tinted(x));
-        let (nv, phase) = widgets::color_slider(ui, ("color-slider", "tint"), tint.tint, slider_w, &track);
+        let (nv, phase) = widgets::color_slider_named(ui, ("color-slider", "tint"), "T", tint.tint, slider_w, &track);
         let field = widgets::plain_field(ui, ("color-field", "tint"), (tint.tint * 100.0).round() as f64, "%", 0, field_w);
         match (nv, field) {
             (Some(v), _) => Some(((v * 100.0).round() / 100.0, phase)),
@@ -613,9 +613,9 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
                     let track = |x: f32| to32(&track_color(mode, &comps, i, x));
                     let grey = |_x: f32| t.input;
                     let (nv, phase) = if enabled {
-                        widgets::color_slider(ui, ("color-slider", i), mode.unit(i, v), slider_w, &track)
+                        widgets::color_slider_named(ui, ("color-slider", i), lbl, mode.unit(i, v), slider_w, &track)
                     } else {
-                        widgets::color_slider(ui, ("color-slider", i), 0.0, slider_w, &grey)
+                        widgets::color_slider_named(ui, ("color-slider", i), lbl, 0.0, slider_w, &grey)
                     };
                     if let Some(nv) = nv
                         && enabled

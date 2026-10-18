@@ -2,7 +2,7 @@
 //! on keyboard focus, a released focus click or double-click so typing replaces it; a drag
 //! keeps the pressed character as its selection anchor.
 
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 
 use egui::{Event, Key, Modifiers, PointerButton, Pos2, Rect, vec2};
 use vectorcraft_doc::Unit;
@@ -314,6 +314,93 @@ fn plain_fields_do_math_with_their_suffix() {
     assert_eq!(f.selection(), Some((0, "10°".chars().count())));
     f.frame(vec![Event::Text("45*2°".into())], &draw);
     assert_eq!(f.frame(vec![enter()], &draw), Some(90.0));
+}
+
+/// Shift+Enter applies what is typed into a field and keeps the field active, its new value all
+/// selected so typing replaces it; Enter then ends its editing. In a dialog, Shift+Enter ends the
+/// editing as Enter does.
+#[test]
+fn shift_enter_applies_the_value_and_keeps_the_field_active() {
+    let shift_enter = || key(Key::Enter, Modifiers::SHIFT);
+    let has_focus = |f: &Field| f.ctx.memory(|m| m.has_focus(f.id.get()));
+    // A unit field, a plain field with a suffix and a field that may be empty, each applying what
+    // it returns. → (text typed, value applied, text shown afterwards).
+    let px = Cell::new(100.0);
+    let num = |ui: &mut egui::Ui| widgets::num_field(ui, "f", Some(px.get()), Unit::Pixels, 80.0).inspect(|&v| px.set(v));
+    let deg = Cell::new(10.0);
+    let plain = |ui: &mut egui::Ui| widgets::plain_field(ui, "f", deg.get(), "°", 2, 80.0).inspect(|&v| deg.set(v));
+    let dash = Cell::new(Some(20.0));
+    let opt = |ui: &mut egui::Ui| widgets::opt_field(ui, "f", dash.get(), Unit::Points, 60.0).map(|v| dash.set(v)).and(dash.get());
+    type Draw<'a> = &'a dyn Fn(&mut egui::Ui) -> Option<f64>;
+    let fields: [(&str, Draw, &str, f64, &str); 3] =
+        [("num_field", &num, "150", 150.0, "150 px"), ("plain_field", &plain, "45", 45.0, "45°"), ("opt_field", &opt, "2+3", 5.0, "5")];
+    for (name, draw, typed, want, shows) in fields {
+        let mut f = Field::new();
+        f.frame(vec![], draw);
+        f.frame(f.click(1), draw);
+        f.frame(vec![], draw);
+        f.frame(vec![Event::Text(typed.into())], draw);
+        assert_eq!(f.frame(vec![shift_enter()], draw), Some(want), "{name}: Shift+Enter applies the value");
+        assert!(has_focus(&f), "{name}: the field keeps the focus");
+        assert_eq!(f.frame(vec![], draw), None, "{name}: applied once");
+        assert_eq!(f.selection(), Some((0, shows.chars().count())), "{name}: the value shown is selected");
+        assert_eq!(f.ctx.data(|d| d.get_temp::<String>(f.id.get())).as_deref(), Some(shows), "{name}");
+        // Typing replaces it, and Enter applies that and ends the editing.
+        f.frame(vec![Event::Text("2".into())], draw);
+        assert_eq!(f.frame(vec![enter()], draw), Some(2.0), "{name}: Enter after it");
+        assert!(!has_focus(&f), "{name}: Enter ends the editing");
+    }
+    // A text field and a hex field (its color shown in capitals) the same way; a field of several
+    // lines takes Shift+Enter as a line break.
+    let (text, hex, hex_id) = (Cell::new(None), Cell::new(None), Cell::new(egui::Id::NULL));
+    let color = RefCell::new(String::from("FF8000"));
+    let draw = |ui: &mut egui::Ui| {
+        text.set(widgets::text_field(ui, "f", Some("Name"), 120.0, 1).or(text.take()));
+        hex_id.set(ui.id().with("hex"));
+        let shown = color.borrow().clone();
+        let applied = widgets::hex_field(ui, "hex", &shown);
+        if let Some(h) = &applied {
+            color.replace(h.to_uppercase());
+        }
+        hex.set(applied.or(hex.take()));
+        None
+    };
+    let mut f = Field::new();
+    f.frame(vec![], &draw);
+    f.frame(vec![key(Key::Tab, Modifiers::NONE)], &draw);
+    f.frame(vec![key(Key::A, Modifiers::COMMAND)], &draw);
+    f.frame(vec![Event::Text("Logo".into()), shift_enter()], &draw);
+    assert_eq!(text.take().as_deref(), Some("Logo"));
+    assert!(has_focus(&f), "the text field keeps the focus");
+    f.frame(vec![key(Key::Tab, Modifiers::NONE)], &draw);
+    f.frame(vec![key(Key::A, Modifiers::COMMAND)], &draw);
+    f.frame(vec![Event::Text("00ff00".into()), shift_enter()], &draw);
+    assert_eq!((text.take(), hex.take().as_deref()), (None, Some("00ff00")));
+    assert!(f.ctx.memory(|m| m.has_focus(hex_id.get())), "the hex field keeps the focus");
+    f.frame(vec![], &draw);
+    assert_eq!(f.ctx.data(|d| d.get_temp::<String>(hex_id.get())).as_deref(), Some("00FF00"), "the hex field shows the color applied");
+    let selected = egui::TextEdit::load_state(&f.ctx, hex_id.get()).and_then(|st| st.cursor.char_range()).map(|r| r.as_sorted_char_range());
+    assert_eq!(selected.map(|r| (r.start.0, r.end.0)), Some((0, 6)), "the hex field's color is selected");
+    let lines = Cell::new(None);
+    let draw = |ui: &mut egui::Ui| {
+        lines.set(widgets::text_field(ui, "f", Some(""), 120.0, 3).or(lines.take()));
+        None
+    };
+    let mut f = Field::new();
+    f.frame(vec![], &draw);
+    f.frame(f.click(1), &draw);
+    f.frame(vec![Event::Text("a".into()), shift_enter(), Event::Text("b".into())], &draw);
+    assert!(has_focus(&f) && lines.take().is_none(), "a line break, nothing applied");
+    f.frame(vec![key(Key::Escape, Modifiers::NONE)], &draw);
+    // In a dialog, Shift+Enter applies the value and ends the editing.
+    let mut f = Field::new();
+    widgets::set_dialog_open(&f.ctx, true);
+    px.set(100.0);
+    f.frame(vec![], &num);
+    f.frame(f.click(1), &num);
+    f.frame(vec![Event::Text("150".into())], &num);
+    assert_eq!(f.frame(vec![shift_enter()], &num), Some(150.0));
+    assert!(!has_focus(&f), "a dialog's field ends its editing");
 }
 
 /// Preferences › Units › Numbers Without Units Are Points (#394): on (the default), a number typed

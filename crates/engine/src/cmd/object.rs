@@ -459,7 +459,7 @@ pub(crate) fn preview_copies(s: &mut Session, roots: &[NodeId], with_guides: boo
     if let Some(k) = &it.copies
         && Arc::ptr_eq(&k.from, &it.doc)
         && k.roots == roots
-        && (!k.selection.guides.is_empty() == has_guide_copies)
+        && (k.selection.guides.is_empty() != has_guide_copies)
     {
         return Ok(Some(k.clone()));
     }
@@ -1061,11 +1061,16 @@ fn isolate(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 fn exit_isolation(s: &mut Session, _: &Value) -> Result<Value> {
+    let guides_locked = s.menu.guides_locked;
     let st = s.doc_mut()?;
     if let Some(i) = st.isolation.take() {
         super::distortcmds::finish_edit_text(st, i);
         let target = st.doc.parent_of(i).filter(|p| st.doc.node(*p).is_some_and(|n| n.extras().shaper.is_some())).unwrap_or(i);
         st.selection.set([target]);
+        // A guide path isolated while Lock Guides is on isn't selected (#1534).
+        if guides_locked {
+            crate::deselect_guides(&st.doc, &mut st.selection);
+        }
     }
     st.revision += 1;
     ok()

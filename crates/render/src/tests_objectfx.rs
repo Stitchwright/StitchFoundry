@@ -697,3 +697,24 @@ fn a_strokes_own_glow_paints_around_that_stroke_only() {
     let worst = img.pixels.iter().zip(&mt.pixels).map(|(a, b)| a.abs_diff(*b)).max().unwrap();
     assert!(worst <= 4, "max channel difference {worst}");
 }
+
+#[test]
+fn a_path_with_its_own_transform_paints_each_copy_with_its_own_gradient() {
+    use vectorcraft_color::GradientGeom;
+    let stops = vec![GradientStop::new(0.0, Color::rgb(1.0, 0.0, 0.0)), GradientStop::new(1.0, Color::rgb(0.0, 0.0, 1.0))];
+    let ramp = GradientPaint::new(Gradient { kind: GradientKind::Linear, stops });
+    let geom = GradientGeom { start: Point::new(0.0, 50.0), end: Point::new(20.0, 50.0), aspect: 1.0, focal: None };
+    // Fitted to the box on each render, and placed on the object.
+    for paint in [ramp.clone(), GradientPaint { geom: Some(geom), ..ramp }] {
+        let square = shapes::rectangle(vectorcraft_geom::Rect::new(0.0, 40.0, 20.0, 60.0));
+        let mut n = Node::path(NodeId(0), square, Appearance::basic(Paint::Gradient(Box::new(paint)), Paint::None, 0.0));
+        n.appearance.effects = vec![fx("distort.transform", json!({"moveH": 40, "copies": 1}))];
+        let img = render(&doc_with(Document::new(100.0, 100.0), n));
+        let at = |x: usize| img.pixels.chunks(4).nth(50 * 100 + x).map(|p| (p[0], p[2])).unwrap_or_default();
+        // The left edge of each copy is red, its right edge blue.
+        for (left, right) in [(1, 18), (41, 58)] {
+            assert!(at(left).0 > 200 && at(left).1 < 60, "{:?} at {left}", at(left));
+            assert!(at(right).1 > 200 && at(right).0 < 60, "{:?} at {right}", at(right));
+        }
+    }
+}

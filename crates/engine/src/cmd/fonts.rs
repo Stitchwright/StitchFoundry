@@ -47,7 +47,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Font List",
             [],
             None,
-            "{family?} → {families: [names]} sorted: the bundled fonts, fonts added and the fonts installed on the system (none on the web), each the family's English (canonical) name for `text.setStyle` and documents (without the system's hidden families, whose names start with a dot; they still resolve by name). Preferences › Type › Show Font Names in English only changes the UI menu labels, not this list; with family: {family, styles: [names]} (upright styles by weight, then italics; an error when the family isn't available)",
+            "{family?, style?} → {families: [names]} sorted: the bundled fonts, fonts added and the fonts installed on the system (none on the web), each the family's English (canonical) name for `text.setStyle` and documents (without the system's hidden families, whose names start with a dot; they still resolve by name). Preferences › Type › Show Font Names in English only changes the UI menu labels, not this list; with family: {family, styles: [names] (upright styles by weight, then italics; an error when the family isn't available), axes: [{tag, name, min, default, max, value, hidden}] (a variable font's variation axes, the Character panel's Variable Font sliders, with `value` the setting of `style`, else of the first style; empty for a static font; `hidden`: the font asks for the axis not to be shown)}",
             always,
             font_list
         ),
@@ -134,6 +134,19 @@ pub(super) fn printed_type(d: &Document, layers: &[Arc<Node>], areas: &[Rect]) -
         walk.node(l, Some(areas));
     }
     (walk.fonts, walk.overflow)
+}
+
+/// The warning of an export that draws `layers` of `d` over `areas` (document space; `None`: the
+/// whole of them) about the area type and type on a path that it draws and whose text doesn't fit,
+/// found as [`printed_type`] finds them for Print: visible objects of the document that aren't on
+/// a template layer.
+pub(super) fn export_overflow_warning(d: &Document, layers: &[Arc<Node>], areas: Option<&[Rect]>) -> Option<String> {
+    let mut walk = Printed { d, own: true, fonts: BTreeSet::new(), overflow: BTreeSet::new(), symbols: BTreeSet::new(), patterns: BTreeSet::new() };
+    for l in layers {
+        walk.node(l, areas);
+    }
+    let overflow: Vec<NodeId> = walk.overflow.into_iter().collect();
+    super::typecmd::export_overflow_warning(&overflow)
 }
 
 /// The walk of [`printed_type`].
@@ -395,8 +408,9 @@ fn replace(s: &mut Session, p: &Value) -> Result<Value> {
                         .unwrap_or_else(|| r.style.font_style.clone());
                     r.style.font_family = tf.clone();
                     r.style.font_style = style;
-                    // Another font: none of the old one's versions.
+                    // Another font: none of the old one's versions or Variable Font settings.
                     r.style.font_version = None;
+                    r.style.font_axes.clear();
                     changed = true;
                     n += 1;
                 }
@@ -440,7 +454,23 @@ fn font_list(_: &mut Session, p: &Value) -> Result<Value> {
             }
             // The name as the font spells it.
             let name = db.family_list().iter().find(|f| f.eq_ignore_ascii_case(family)).cloned().unwrap_or_else(|| family.to_string());
-            Ok(json!({ "family": name, "styles": db.styles(family) }))
+            let styles = db.styles(family);
+            let style = str_param(p, "style").map(str::to_string).or_else(|| styles.first().cloned()).unwrap_or_else(|| "Regular".into());
+            let axes: Vec<Value> = db
+                .face(family, &style)
+                .map(|face| {
+                    let axes = face.axes();
+                    axes.iter()
+                        .map(|a| {
+                            json!({
+                                "tag": String::from_utf8_lossy(&a.tag), "name": a.name, "min": a.min, "default": a.default, "max": a.max,
+                                "value": face.axis_value(a.tag).unwrap_or(a.default), "hidden": a.hidden,
+                            })
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+            Ok(json!({ "family": name, "styles": styles, "axes": axes }))
         }
         None => Ok(json!({ "families": *db.menu_family_list() })),
     }
@@ -462,16 +492,14 @@ pub(crate) fn rescan(s: &mut Session, _: &Value) -> Result<Value> {
             }
         });
         if !texts.is_empty() {
-            let saved = !d.is_dirty();
-            let doc = std::sync::Arc::make_mut(&mut d.doc);
-            for id in texts {
-                if let Some(NodeKind::Text(t)) = doc.node_mut(id).map(|n| &mut n.kind) {
-                    refresh_bounds(t);
+            d.change_unsaved(|doc| {
+                let doc = std::sync::Arc::make_mut(doc);
+                for id in texts {
+                    if let Some(NodeKind::Text(t)) = doc.node_mut(id).map(|n| &mut n.kind) {
+                        refresh_bounds(t);
+                    }
                 }
-            }
-            if saved {
-                d.mark_saved();
-            }
+            });
         }
         d.revision += 1;
     }

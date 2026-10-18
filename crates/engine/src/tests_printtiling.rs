@@ -148,6 +148,26 @@ fn tiles_start_at_the_tile_origin_and_cover_the_art() {
 }
 
 #[test]
+fn an_origin_on_an_artboards_right_or_bottom_edge_is_measured_from_that_artboard() {
+    // Artboard 0 is (0, 0) to (300, 200). Artboard 1 is (300, 0) to (600, 200), and its left edge is artboard 0's right edge.
+    let mut s = session();
+    s.execute("artboard.new", &json!({"x": 300, "y": 0, "width": 300, "height": 200})).unwrap();
+    let mut placed = |x: f64, y: f64| {
+        let o = s.execute("print.tiling.set", &json!({"origin": [x, y]})).unwrap()["tileOrigin"].clone();
+        (o["x"].as_f64().unwrap(), o["y"].as_f64().unwrap())
+    };
+    assert_eq!(placed(600.0, 50.0), (300.0, 50.0), "artboard 1's right edge");
+    assert_eq!(placed(450.0, 200.0), (150.0, 200.0), "artboard 1's bottom edge");
+    assert_eq!(placed(600.0, 200.0), (300.0, 200.0), "artboard 1's bottom right corner");
+    assert_eq!(placed(150.0, 200.0), (150.0, 200.0), "artboard 0's bottom edge");
+    assert_eq!(placed(300.0, 50.0), (0.0, 50.0), "the shared edge: the artboard to its right");
+    let (x, _) = placed(600.0 + 1e-9, 50.0);
+    assert!((x - 300.0).abs() < 1e-6, "roundoff past the edge: {x}");
+    // Beyond every artboard the origin is measured from the first.
+    assert_eq!(placed(600.001, 50.0), (600.001, 50.0), "beyond the edge");
+}
+
+#[test]
 fn settings_saved_before_the_tile_origin_still_load() {
     let mut s = session();
     let mut old = serde_json::to_value(vectorcraft_pdf::PrintSettings::default()).unwrap();

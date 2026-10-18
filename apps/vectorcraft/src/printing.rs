@@ -43,11 +43,32 @@ mod system {
         let settings = craft_print::Job { printer: job.printer.map(str::to_string), title: job.title.into(), ..Default::default() };
         craft_print::submit(job.pdf, &settings).map(|note| if note.is_empty() { note } else { format!(" ({note})") }).map_err(|e| e.to_string())
     }
+    #[cfg(windows)]
+    pub(crate) fn setup_command(printer: Option<&str>, default_printer: Option<&str>) -> Command {
+        let target = printer.map(str::trim).filter(|p| !p.is_empty()).or_else(|| default_printer.map(str::trim).filter(|p| !p.is_empty()));
+        if let Some(name) = target {
+            let mut cmd = Command::new("rundll32.exe");
+            cmd.args(["printui.dll,PrintUIEntry", "/e", "/n", name]);
+            cmd
+        } else {
+            let mut cmd = Command::new("explorer");
+            cmd.arg("ms-settings:printers");
+            cmd
+        }
+    }
     pub fn setup(printer: Option<&str>) -> Result<(), String> {
         #[cfg(windows)]
         {
-            let _ = printer;
-            Command::new("explorer").arg("ms-settings:printers").spawn().map(|_| ()).map_err(|e| e.to_string())
+            let list = printers();
+            let default = list.iter().find(|p| p.default).or_else(|| list.first()).map(|p| p.name.as_str());
+            // Only an installed printer's own name reaches the command line: `printer` can come
+            // from a command or MCP, and PrintUIEntry reads options from its arguments.
+            let printer = printer.map(str::trim).filter(|p| list.iter().any(|q| q.name == *p));
+            let mut cmd = setup_command(printer, default);
+            match cmd.spawn() {
+                Ok(_) => Ok(()),
+                Err(_) => Command::new("explorer").arg("ms-settings:printers").spawn().map(|_| ()).map_err(|e| e.to_string()),
+            }
         }
         #[cfg(target_os = "macos")]
         {
@@ -66,5 +87,43 @@ mod system {
             let url = printer.map_or_else(|| "http://localhost:631/printers/".to_string(), |p| format!("http://localhost:631/printers/{p}"));
             Command::new("xdg-open").arg(url).spawn().map(|_| ()).map_err(|e| e.to_string())
         }
+    }
+}
+
+#[cfg(all(test, windows, not(any(feature = "windows7", target_vendor = "win7"))))]
+mod tests {
+    use super::system::setup_command;
+    use std::ffi::OsStr;
+
+    #[test]
+    fn setup_command_uses_printui_for_specified_printer() {
+        let cmd = setup_command(Some("Office Laser"), None);
+        assert_eq!(cmd.get_program(), "rundll32.exe");
+        let args: Vec<&OsStr> = cmd.get_args().collect();
+        assert_eq!(args, ["printui.dll,PrintUIEntry", "/e", "/n", "Office Laser"]);
+    }
+
+    #[test]
+    fn setup_command_falls_back_to_default_printer() {
+        let cmd = setup_command(None, Some("Default Proofer"));
+        assert_eq!(cmd.get_program(), "rundll32.exe");
+        let args: Vec<&OsStr> = cmd.get_args().collect();
+        assert_eq!(args, ["printui.dll,PrintUIEntry", "/e", "/n", "Default Proofer"]);
+    }
+
+    #[test]
+    fn setup_command_trims_whitespace_and_skips_empty() {
+        let cmd = setup_command(Some("  "), Some("Default Proofer"));
+        assert_eq!(cmd.get_program(), "rundll32.exe");
+        let args: Vec<&OsStr> = cmd.get_args().collect();
+        assert_eq!(args, ["printui.dll,PrintUIEntry", "/e", "/n", "Default Proofer"]);
+    }
+
+    #[test]
+    fn setup_command_falls_back_to_settings_when_no_printer() {
+        let cmd = setup_command(None, None);
+        assert_eq!(cmd.get_program(), "explorer");
+        let args: Vec<&OsStr> = cmd.get_args().collect();
+        assert_eq!(args, ["ms-settings:printers"]);
     }
 }

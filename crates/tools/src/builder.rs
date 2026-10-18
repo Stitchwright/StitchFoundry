@@ -705,7 +705,7 @@ impl Tool for LivePaintBucketTool {
     }
 
     fn cursor(&self, _cx: &ToolContext, _p: Point, _m: Mods) -> Cursor {
-        Cursor::Crosshair
+        Cursor::LivePaintBucket
     }
 }
 

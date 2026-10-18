@@ -240,6 +240,20 @@ fn linux_display_server_defaults_to_automatic_and_validates() {
     assert_eq!(s.prefs.linux_display_server, "automatic");
 }
 
+/// Linux Display Server's pen choice (#2028): set by value or by label, saved, and off by default.
+#[test]
+fn linux_display_server_has_a_choice_for_an_attached_pen() {
+    let mut s = Session::new();
+    s.execute("prefs.set", &json!({"key": "linuxDisplayServer", "value": "x11WithPen"})).unwrap();
+    assert_eq!(s.prefs.linux_display_server, "x11WithPen");
+    assert_eq!(s.prefs.to_json()["linuxDisplayServer"], "x11WithPen");
+    s.execute("prefs.set", &json!({"key": "linuxDisplayServer", "value": "automatic"})).unwrap();
+    s.execute("prefs.set", &json!({"key": "linuxDisplayServer", "value": "X11 (XWayland) When a Pen Is Attached"})).unwrap();
+    assert_eq!(s.prefs.linux_display_server, "x11WithPen");
+    s.execute("prefs.reset", &json!({"category": "Performance"})).unwrap();
+    assert_eq!(s.prefs.linux_display_server, "automatic");
+}
+
 /// Selection & Anchor Display › Tolerance, Object Selection by Path Only and Command Click to
 /// Select Objects Behind, and General › Double Click To Isolate, as the Selection tool sees them
 /// (#394).
@@ -391,13 +405,22 @@ fn use_precise_cursors_swaps_the_tools_own_pointers_for_a_crosshair() {
         ("pen", Cursor::Pen),
         ("addAnchor", Cursor::PenAdd),
         ("deleteAnchor", Cursor::PenDelete),
-        ("anchorPoint", Cursor::Pen),
-        ("curvature", Cursor::Pen),
-        ("mesh", Cursor::PenAdd),
+        ("anchorPoint", Cursor::AnchorPoint),
+        ("curvature", Cursor::Curvature),
+        ("mesh", Cursor::MeshAdd),
         ("eyedropper", Cursor::Eyedropper),
         ("slice", Cursor::Slice),
         ("blend", Cursor::Blend),
         ("shapeBuilder", Cursor::ShapeBuilder),
+        ("paintbrush", Cursor::Paintbrush),
+        ("blobBrush", Cursor::BlobBrush),
+        ("shaper", Cursor::Shaper),
+        ("pencil", Cursor::Pencil),
+        ("smooth", Cursor::Smooth),
+        ("pathEraser", Cursor::PathEraser),
+        ("join", Cursor::Join),
+        ("eraser", Cursor::Eraser),
+        ("knife", Cursor::Knife),
     ];
     for (tool, c) in own {
         assert_eq!(cursor(&mut s, tool), c, "{tool} off");
@@ -415,15 +438,6 @@ fn use_precise_cursors_swaps_the_tools_own_pointers_for_a_crosshair() {
         "polygon",
         "star",
         "flare",
-        "paintbrush",
-        "blobBrush",
-        "shaper",
-        "pencil",
-        "smooth",
-        "pathEraser",
-        "join",
-        "eraser",
-        "knife",
         "mirrorCut",
         "lineCut",
         "rectCut",
@@ -440,7 +454,7 @@ fn use_precise_cursors_swaps_the_tools_own_pointers_for_a_crosshair() {
         assert_eq!(cursor(&mut s, tool), Cursor::Crosshair, "{tool} on");
     }
     assert_eq!(cursor(&mut s, "type"), Cursor::Text);
-    assert_eq!(cursor(&mut s, "scissors"), Cursor::NotAllowed);
+    assert_eq!(cursor(&mut s, "scissors"), Cursor::ScissorsNotAllowed);
     s.execute("prefs.set", &json!({"key": "usePreciseCursors", "value": false})).unwrap();
     for (tool, c) in own {
         assert_eq!(cursor(&mut s, tool), c, "{tool} off again");
@@ -467,6 +481,8 @@ fn precise_cursors_replace_every_pen_state() {
         Cursor::BlendAnchor,
         Cursor::ShapeBuilder,
         Cursor::ShapeBuilderErase,
+        Cursor::AnchorPoint,
+        Cursor::Curvature,
     ] {
         assert_eq!(c.precise(), Cursor::Crosshair, "{c:?}");
     }
@@ -1194,6 +1210,55 @@ fn missing_glyph_protection_keeps_glyphs_a_new_font_lacks() {
     assert_eq!(fonts(&s), [to, to, to]);
 }
 
+/// A character that keeps its font through Missing Glyph Protection keeps that font's Variable
+/// Font settings too; the characters that take the new font lose them.
+#[test]
+fn missing_glyph_protection_keeps_the_variable_font_settings_of_the_font_kept() {
+    use vectorcraft_text::test_fonts::{TWO_AXIS_FAMILY as FROM, two_axis_font};
+    let (to, c) = ("JetBrains Mono", '\u{180}');
+    let db = vectorcraft_text::FontDb::global();
+    db.add_font(two_axis_font().unwrap());
+    if !db.face(FROM, "Regular").is_some_and(|f| f.covers(c)) || db.face(to, "Regular").is_some_and(|f| f.covers(c)) {
+        return; // An installed font of that name covers the character.
+    }
+    let mut s = new_doc();
+    let id = NodeId(s.execute("text.create", &json!({"x": 10, "y": 50, "text": "a\u{180}c", "font": FROM})).unwrap()["id"].as_u64().unwrap());
+    s.execute("select.set", &json!({"ids": [id.0]})).unwrap();
+    s.execute("text.setFormat", &json!({"fontAxes": {"wght": 650}})).unwrap();
+    let fonts = |s: &Session| [0, 1, 3].map(|b| style_at(s, id, b)).map(|st| (st.font_family, st.font_axes.get("wght").copied()));
+    let (kept, moved) = ((FROM.to_string(), Some(650.0)), (to.to_string(), None));
+    for change in [json!({"font": to}), json!({"id": id.0, "start": 0, "end": 4, "font": to})] {
+        let cmd = if change.get("id").is_some() { "text.setRangeStyle" } else { "text.setStyle" };
+        s.execute(cmd, &change).unwrap();
+        assert_eq!(fonts(&s), [moved.clone(), kept.clone(), moved.clone()], "{cmd}");
+        s.execute("edit.undo", &json!({})).unwrap();
+    }
+}
+
+/// A character that keeps its font through Missing Glyph Protection keeps the version of it the
+/// type names.
+#[test]
+fn missing_glyph_protection_keeps_the_version_of_the_font_kept() {
+    use vectorcraft_text::test_fonts::{TWIN_FAMILY as FROM, TWIN_VERSIONS, twin_font};
+    let (to, c) = ("JetBrains Mono", '\u{180}');
+    let db = vectorcraft_text::FontDb::global();
+    db.add_font(twin_font(false).unwrap());
+    let older = db.face_version(FROM, "Regular", Some(TWIN_VERSIONS[0]));
+    if !older.is_some_and(|f| f.version == TWIN_VERSIONS[0] && f.covers(c)) || db.face(to, "Regular").is_some_and(|f| f.covers(c)) {
+        return; // An installed font of that name covers the character.
+    }
+    let mut s = new_doc();
+    let id = NodeId(s.execute("text.create", &json!({"x": 10, "y": 50, "text": "a\u{180}c", "font": FROM})).unwrap()["id"].as_u64().unwrap());
+    if let Some(NodeKind::Text(t)) = std::sync::Arc::make_mut(&mut s.doc_mut().unwrap().doc).node_mut(id).map(|n| &mut n.kind) {
+        t.runs[0].style.font_version = Some(TWIN_VERSIONS[0].into());
+    }
+    s.execute("select.set", &json!({"ids": [id.0]})).unwrap();
+    s.execute("text.setStyle", &json!({"font": to})).unwrap();
+    let versions = [0, 1, 3].map(|b| (style_at(&s, id, b).font_family, style_at(&s, id, b).font_version));
+    let (kept, moved) = ((FROM.to_string(), Some(TWIN_VERSIONS[0].to_string())), (to.to_string(), None));
+    assert_eq!(versions, [moved.clone(), kept, moved]);
+}
+
 // ---------- #394, fourth batch ----------
 
 /// Type › Type Object Selection by Path Only (#394): on, a click among point type's glyphs no
@@ -1282,6 +1347,18 @@ fn show_font_names_in_english_preference_is_stored() {
     assert!(!s.prefs.font_names_in_english);
     set_pref(&mut s, "fontNamesInEnglish", json!(true));
     assert!(s.prefs.font_names_in_english);
+}
+
+/// Preferences › Type › Highlight Alternate Glyphs (#394): off by default so OpenType
+/// substitutions are not pink on every canvas until the user turns the preference on.
+#[test]
+fn highlight_alternate_glyphs_preference_is_off_by_default() {
+    let mut s = Session::new();
+    assert!(!s.prefs.highlight_alternate_glyphs, "off by default");
+    set_pref(&mut s, "highlightAlternateGlyphs", json!(true));
+    assert!(s.prefs.highlight_alternate_glyphs);
+    set_pref(&mut s, "highlightAlternateGlyphs", json!(false));
+    assert!(!s.prefs.highlight_alternate_glyphs);
 }
 
 /// Preferences › Hyphenation › Exceptions (#394): `prefs.set` pushes the list into the hyphenator

@@ -77,11 +77,11 @@ fn ruler_origin_drag_uses_the_rotated_zoomed_view_and_commits_only_on_release() 
     assert_eq!(&*app.session.doc().unwrap().doc, &*before, "preview does not edit the document");
     frame(&mut app, &ctx, vec![press(to, false)], canvas::show);
     let st = app.session.doc().unwrap();
-    assert!(st.doc.ruler_origin.distance(goal) < 1e-4, "{:?}", st.doc.ruler_origin);
+    assert!(st.doc.ruler_origin_for(0).distance(goal) < 1e-4, "{:?}", st.doc.ruler_origin_for(0));
     assert_eq!(st.history.undo.len(), undo + 1);
     assert_eq!(st.doc.art_bounds(), None, "the drawing tool never receives the corner drag");
     assert!(st.doc.guides.is_empty());
-    let origin = st.doc.ruler_origin;
+    let origin = st.doc.ruler_origin_for(0);
     app.run("edit.undo", json!({})).unwrap();
     assert_eq!(&*app.session.doc().unwrap().doc, &*before);
     app.run("edit.redo", json!({})).unwrap();
@@ -91,6 +91,7 @@ fn ruler_origin_drag_uses_the_rotated_zoomed_view_and_commits_only_on_release() 
 #[test]
 fn ruler_origin_double_click_resets_to_the_active_artboard() {
     let mut app = app();
+    app.run("view.globalRulers", json!({"global": true})).unwrap();
     app.run("artboard.new", json!({"x": 700, "y": -250, "width": 200, "height": 150})).unwrap();
     app.run("document.setRulerOrigin", json!({"x": 125, "y": 90})).unwrap();
     let ctx = context();
@@ -200,4 +201,86 @@ fn ruler_origin_artboard_fields_preserve_the_absolute_reference_point() {
             assert_eq!((ab.width(), ab.height()), (400.0, 300.0));
         }
     }
+}
+
+// View › Rulers › Change to Global / Artboard Rulers (Adobe's public help:
+// https://helpx.adobe.com/illustrator/desktop/measure-and-align/grids-and-guides/about-rulers.html):
+// artboard rulers, a new document's, count from the active artboard's top-left corner; global
+// rulers from one zero point for the whole document.
+
+/// A document with a second artboard at (700, -250) and a rectangle on it at (720, -230).
+fn two_boards() -> (VectorcraftApp, NodeId) {
+    let mut app = app();
+    app.run("artboard.new", json!({"x": 700, "y": -250, "width": 200, "height": 150})).unwrap();
+    let id = NodeId(app.run("shape.rectangle", json!({"x": 720, "y": -230, "width": 80, "height": 40})).unwrap()["id"].as_u64().unwrap());
+    (app, id)
+}
+
+#[test]
+fn artboard_rulers_position_fields_count_from_the_active_artboard() {
+    for draw in [panels::properties::show as fn(&mut VectorcraftApp, &mut Ui), panels::transform::show, chrome::control_bar] {
+        let (mut app, id) = two_boards();
+        let ctx = context();
+        frame(&mut app, &ctx, vec![], draw);
+        app.view_mut().unwrap().artboard = 1;
+        assert_eq!(app.ruler_origin(), Point::new(700.0, -250.0));
+        let texts = frame(&mut app, &ctx, vec![], draw);
+        // The reference point is the centre (760, -210): 60 and 40 from artboard 2's corner.
+        for v in [60.0, 40.0] {
+            assert!(texts.iter().any(|(t, _)| t == &Unit::Points.format(v)), "X and Y count from artboard 2: {texts:?}");
+        }
+        // Typing a position puts the object there on the active artboard's rulers.
+        let label = texts.iter().find(|(t, _)| t == "X:").unwrap().1;
+        let at = pos2(label.right() + 40.0, label.center().y);
+        frame(&mut app, &ctx, vec![Event::PointerMoved(at), press(at, true)], draw);
+        frame(&mut app, &ctx, vec![press(at, false)], draw);
+        frame(&mut app, &ctx, vec![key(Key::ArrowUp)], draw);
+        let bounds = app.session.doc().unwrap().doc.node(id).unwrap().geometric_bounds().unwrap();
+        assert_eq!((bounds.x0, bounds.y0), (721.0, -230.0));
+        // Global rulers: the same object reads from the document's zero point.
+        app.run("view.globalRulers", json!({"global": true})).unwrap();
+        assert_eq!(app.ruler_origin(), Point::ZERO);
+        frame(&mut app, &ctx, vec![], draw);
+        let texts = frame(&mut app, &ctx, vec![], draw);
+        assert!(texts.iter().any(|(t, _)| t == &Unit::Points.format(761.0)), "{texts:?}");
+        assert!(!texts.iter().any(|(t, _)| t == &Unit::Points.format(61.0)), "{texts:?}");
+    }
+}
+
+#[test]
+fn ruler_origin_drag_with_artboard_rulers_sets_the_active_artboards_origin() {
+    let (mut app, _) = two_boards();
+    app.select_tool("rectangle");
+    let ctx = context();
+    frame(&mut app, &ctx, vec![], canvas::show);
+    app.view_mut().unwrap().artboard = 1;
+    let v = app.view_mut().unwrap();
+    v.center = Point::new(800.0, -175.0);
+    frame(&mut app, &ctx, vec![], canvas::show);
+    let goal = Point::new(760.0, -200.0);
+    let to = canvas::Xf::new(app.canvas_rect.unwrap(), app.view().unwrap()).to_screen(goal);
+    start_drag(&mut app, &ctx, to);
+    frame(&mut app, &ctx, vec![press(to, false)], canvas::show);
+    let doc = app.session.doc().unwrap().doc.clone();
+    assert!(doc.ruler_origin_for(1).distance(goal) < 1e-4, "{:?}", doc.ruler_origin_for(1));
+    assert_eq!(doc.ruler_origin_for(0), Point::ZERO, "the first artboard keeps its own");
+    assert_eq!(doc.ruler_origin, Point::ZERO, "the global zero point is apart");
+    assert!(app.ruler_origin().distance(goal) < 1e-4);
+    app.view_mut().unwrap().artboard = 0;
+    assert_eq!(app.ruler_origin(), Point::ZERO);
+}
+
+#[test]
+fn change_to_global_rulers_menu_item_toggles_and_names_the_other_mode() {
+    let (mut app, _) = two_boards();
+    let item = crate::menus::menu_tree().iter().find(|(title, _)| *title == "View").map(|(_, items)| format!("{items:?}")).unwrap();
+    assert!(item.contains("view.globalRulers"), "View › Rulers lists it: {item}");
+    assert_eq!(crate::menus::dynamic_label(&app, "view.globalRulers", "Change to Global Rulers"), "Change to Global Rulers");
+    app.run("view.globalRulers", json!({})).unwrap();
+    assert_eq!(app.session.doc().unwrap().doc.rulers, vectorcraft_doc::RulerMode::Global);
+    assert_eq!(crate::menus::dynamic_label(&app, "view.globalRulers", "Change to Global Rulers"), "Change to Artboard Rulers");
+    app.run("view.globalRulers", json!({})).unwrap();
+    assert_eq!(app.session.doc().unwrap().doc.rulers, vectorcraft_doc::RulerMode::Artboard);
+    let spec = vectorcraft_engine::command_specs().iter().find(|c| c.id == "view.globalRulers").unwrap();
+    assert_eq!(spec.shortcut, Some("Cmd+Alt+R"));
 }

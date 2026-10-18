@@ -152,6 +152,17 @@ fn alt_converts(cx: &ToolContext, p: Point, m: Mods) -> bool {
             || crate::draw2::segment_in(cx, crate::draw2::shown_paths(cx), p, cx.pick_tol()).is_some())
 }
 
+/// The cursor where [`alt_converts`]: Alt lends the Anchor Point tool, so its caret over a handle
+/// end or an anchor, the Reshape Segment cursor over a segment.
+fn alt_cursor(cx: &ToolContext, p: Point) -> Cursor {
+    let point = cx.point_tol();
+    if hit_handle(cx, p, point).is_some() || crate::draw2::anchor_in(cx, crate::draw2::shown_paths(cx), p, point).is_some() {
+        Cursor::AnchorPoint
+    } else {
+        Cursor::ReshapeSegment
+    }
+}
+
 /// Preview the outgoing handle of anchor `ai` of subpath `si` at `h`, the incoming one left alone.
 fn set_out_handle(id: NodeId, si: usize, ai: usize, h: Point) -> Action {
     Action::Preview(
@@ -390,6 +401,10 @@ impl Tool for PenTool {
         o
     }
     fn cursor(&self, cx: &ToolContext, p: Point, m: Mods) -> Cursor {
+        // An Alt gesture under way keeps the Anchor Point tool's cursor.
+        if let Some(t) = &self.convert {
+            return t.cursor(cx, p, m);
+        }
         let tol = cx.tol(5.0).max(cx.point_tol());
         let active = self.active(cx);
         if let Some((id, first, last, _)) = active {
@@ -404,7 +419,7 @@ impl Tool for PenTool {
             }
         }
         if alt_converts(cx, p, m) {
-            return Cursor::PenConvert;
+            return alt_cursor(cx, p);
         }
         // These show whenever no path is being drawn, also after another path was selected while
         // the Pen was drawing.
@@ -1212,8 +1227,9 @@ mod tests {
         let alt = Mods { alt: true, ..Mods::default() };
         let t = PenTool::default();
         let cx0 = cx(&d, &s, &p);
-        assert_eq!(t.cursor(&cx0, Point::new(250.0, 101.0), alt), Cursor::PenConvert);
-        assert_eq!(t.cursor(&cx0, Point::new(200.0, 101.0), alt), Cursor::PenConvert);
+        // Alt lends the Anchor Point tool, and its caret with it.
+        assert_eq!(t.cursor(&cx0, Point::new(250.0, 101.0), alt), Cursor::AnchorPoint);
+        assert_eq!(t.cursor(&cx0, Point::new(200.0, 101.0), alt), Cursor::AnchorPoint);
         assert_eq!(t.cursor(&cx0, Point::new(250.0, 101.0), Mods::default()), Cursor::Pen);
         assert_eq!(t.cursor(&cx0, Point::new(150.0, 300.0), alt), Cursor::Pen);
         // A drag of the handle moves it alone, as one gesture.
@@ -1249,16 +1265,23 @@ mod tests {
         let cx = cx(&d, &s, &p);
         let alt = Mods { alt: true, ..Mods::default() };
         let mut t = PenTool { drawing: true, ..PenTool::default() };
-        assert_eq!(t.cursor(&cx, Point::new(150.0, 302.0), alt), Cursor::PenConvert);
+        assert_eq!(t.cursor(&cx, Point::new(150.0, 302.0), alt), Cursor::ReshapeSegment);
         assert_eq!(t.cursor(&cx, Point::new(150.0, 302.0), Mods::default()), Cursor::PenDrawing);
         assert_eq!(t.pointer(&cx, &PointerEvent::new(PointerKind::Down, 150.0, 302.0).with_mods(alt)), vec![]);
         let a = t.pointer(&cx, &PointerEvent::new(PointerKind::Drag, 150.0, 262.0).with_mods(alt));
+        assert_eq!(t.cursor(&cx, Point::new(150.0, 262.0), alt), Cursor::ReshapeSegment, "kept during the reshape");
         assert_eq!(a[0], Action::Begin("Reshape".into()));
         assert!(
-            matches!(&a[1], Action::Preview(c, v) if c == "path.reshapeSegment" && v["id"] == id.0 && v["segment"] == 0 && v["dy"] == -40.0),
+            matches!(&a[1], Action::Preview(c, v) if c == "path.reshapeSegment" && v["id"] == id.0 && v["segment"] == 0 && v["dy"] == -40.0 && v["perpendicular"] == false),
             "{a:?}"
         );
         assert_eq!(t.pointer(&cx, &PointerEvent::new(PointerKind::Up, 150.0, 262.0)), vec![Action::Commit]);
+        // Shift held too keeps the handles at right angles to the line between the anchors.
+        let alt_shift = Mods { shift: true, ..alt };
+        t.pointer(&cx, &PointerEvent::new(PointerKind::Down, 150.0, 302.0).with_mods(alt));
+        let a = t.pointer(&cx, &PointerEvent::new(PointerKind::Drag, 160.0, 262.0).with_mods(alt_shift));
+        assert!(matches!(&a[1], Action::Preview(c, v) if c == "path.reshapeSegment" && v["perpendicular"] == true), "{a:?}");
+        assert_eq!(t.pointer(&cx, &PointerEvent::new(PointerKind::Up, 160.0, 262.0)), vec![Action::Commit]);
         let a = t.pointer(&cx, &PointerEvent::new(PointerKind::Down, 250.0, 400.0).with_mods(alt));
         assert!(matches!(&a[..], [Action::Begin(_), Action::Preview(c, _)] if c == "path.appendAnchor"), "{a:?}");
     }

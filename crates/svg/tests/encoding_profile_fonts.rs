@@ -241,6 +241,49 @@ fn variable_font_instances_embed_as_themselves() {
     assert!(advances[1] > advances[0], "{advances:?}");
 }
 
+/// Variable Font settings are written as `font-variation-settings`, with the `wght` setting as the
+/// weight and the `wdth` setting as the width; the font embeds as a static font at the settings,
+/// and the settings read back. Faces that one weight, style and width describe and that share
+/// characters are warned about.
+#[test]
+fn variable_font_settings_are_written_embedded_and_read_back() {
+    use vectorcraft_text::test_fonts::{TWO_AXIS_FAMILY as FAMILY, two_axis_font};
+    let db = vectorcraft_text::FontDb::global();
+    db.add_font(two_axis_font().unwrap());
+    let set = [("wdth".to_string(), 90.0), ("wght".to_string(), 650.0)].into_iter().collect::<std::collections::BTreeMap<_, _>>();
+    let varied = CharStyle { font_axes: set.clone(), ..style(FAMILY, "Regular") };
+    let mut d = Document::new(300.0, 200.0);
+    add(&mut d, text(Point::new(20.0, 60.0), &[("ll", style(FAMILY, "Regular")), ("ll", varied.clone())]));
+    let o = export_full(&d, &ExportOptions { embed_fonts: true, ..Default::default() }, None);
+    assert!(o.svg.contains("font-variation-settings:&quot;wdth&quot; 90, &quot;wght&quot; 650"), "{}", o.svg);
+    assert!(o.svg.contains("font-weight=\"650\"") && o.svg.contains("font-stretch=\"90%\""), "{}", o.svg);
+    let fonts = embedded(&o.svg);
+    assert_eq!(fonts.iter().map(|f| f.1).collect::<Vec<_>>(), [400, 650], "{:?}", o.warnings);
+    assert!(o.svg.contains("font-style:normal;font-stretch:90%;src:"), "{}", o.svg);
+    assert!(o.warnings.is_empty(), "{:?}", o.warnings);
+    // The Condensed instance and Regular: one description, the same characters.
+    let mut same = Document::new(300.0, 200.0);
+    add(&mut same, text(Point::new(20.0, 60.0), &[("ll", style(FAMILY, "Regular")), ("ll", style(FAMILY, "Condensed"))]));
+    let warnings = export_full(&same, &ExportOptions { embed_fonts: true, ..Default::default() }, None).warnings;
+    assert!(warnings.iter().any(|w| w.contains(FAMILY) && w.contains("share characters")), "{warnings:?}");
+    let face = db.style_face(&varied).unwrap();
+    let f = skrifa::FontRef::new(&fonts[1].2).unwrap();
+    assert!(f.fvar().is_err() && f.gvar().is_err(), "a static font");
+    let adv = f.hmtx().unwrap().advance(f.cmap().unwrap().map_codepoint('l').unwrap()).unwrap();
+    assert_eq!(f64::from(adv), face.advance(face.glyph_for('l')).round());
+    let regular = db.face(FAMILY, "Regular").unwrap();
+    assert!(f64::from(adv) > regular.advance(regular.glyph_for('l')) + 5.0, "the instance's own glyphs");
+    // Read back: the settings, on the run that has them.
+    let back = import(&o.svg).unwrap();
+    let mut axes = vec![];
+    back.walk(|n| {
+        if let NodeKind::Text(t) = &n.kind {
+            axes.extend(t.runs.iter().map(|r| r.style.font_axes.clone()));
+        }
+    });
+    assert_eq!(axes, [Default::default(), set]);
+}
+
 /// The bundled Source Sans 3 Regular renamed `family` (13 characters, as long as the original
 /// name) with OS/2 `fsType` set to `fs_type`.
 fn licensed_font(family: &str, fs_type: u16) -> Vec<u8> {

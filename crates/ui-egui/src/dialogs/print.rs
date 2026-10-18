@@ -688,7 +688,7 @@ fn output(ui: &mut egui::Ui, d: &mut Dialog, pv: &Result<Value, String>) {
         for ink in inks {
             let name = ink["name"].as_str().unwrap_or_default();
             let on = ink["print"].as_bool().unwrap_or(true);
-            if widgets::check(ui, "", on, true) {
+            if widgets::check_box(ui, name, on, true) {
                 set_ink(d, name, "print", json!(!on));
             }
             let spot = if ink["spot"] == true { format!(" ({})", tl!("spot")) } else { String::new() };

@@ -232,6 +232,25 @@ fn weights_spacing_and_decoration() {
     assert_eq!(style('a').kerning, None);
 }
 
+/// `font-variation-settings` becomes the characters' Variable Font settings, inherited as CSS
+/// inherits it; `normal` and `initial` set none, and `unset` and a value CSS ignores leave the
+/// inherited settings.
+#[test]
+fn font_variation_settings_become_variable_font_settings() {
+    let d = open(
+        r#"<text y="20" style="font-variation-settings: 'wght' 650, &quot;wdth&quot; 87.5">a<tspan>b</tspan><tspan style="font-variation-settings: normal">c</tspan><tspan style="font-variation-settings: 'weight' 650">d</tspan><tspan style="font-variation-settings: 'wght' heavy">e</tspan><tspan style="font-variation-settings: initial">f</tspan><tspan style="font-variation-settings: unset">g</tspan></text>"#,
+    );
+    let t = only_text(&d);
+    let axes = |c: char| t.runs.iter().find(|r| r.text.contains(c)).unwrap().style.font_axes.clone().into_iter().collect::<Vec<_>>();
+    let set = vec![("wdth".to_string(), 87.5), ("wght".to_string(), 650.0)];
+    for c in ['a', 'b', 'd', 'e', 'g'] {
+        assert_eq!(axes(c), set, "{c}");
+    }
+    for c in ['c', 'f'] {
+        assert!(axes(c).is_empty(), "{c}: {:?}", axes(c));
+    }
+}
+
 #[test]
 fn css_selectors_reach_text() {
     let d = open(

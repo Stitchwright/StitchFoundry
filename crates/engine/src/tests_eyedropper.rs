@@ -173,6 +173,83 @@ fn clicking_an_image_samples_its_pixel() {
     assert_eq!(node(&s, dst).appearance.fill_paint().color(), Some(Color::rgb8(128, 128, 64)), "5 x 5 average of both pixels");
 }
 
+/// A CMYK document with one image of `px` (one row, 100 pt a pixel) at (300, 0).
+fn cmyk_doc_with_image(px: &[[u8; 4]]) -> Session {
+    let mut s = Session::new();
+    s.execute("file.new", &json!({"width": 800, "height": 600, "colorMode": "cmyk"})).unwrap();
+    let w = px.len() as u32;
+    let img = image::RgbaImage::from_raw(w, 1, px.concat()).unwrap();
+    let mut png = vec![];
+    img.write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).unwrap();
+    s.edit("Place", |d, _| {
+        d.images.insert("px".into(), ImageBlob::png(png));
+        let l = d.layers[0].id;
+        let id = d.alloc_id();
+        let xf = vectorcraft_geom::Affine::translate((300.0, 0.0)) * vectorcraft_geom::Affine::scale(100.0);
+        let im = ImageObject { key: "px".into(), width: w, height: 1, xf, link: None, placement: Default::default() };
+        d.insert(Some(l), 0, Node::new(id, NodeKind::Image(Box::new(im)))).map_err(|e| crate::EngineError::Other(e.to_string()))
+    })
+    .unwrap();
+    s
+}
+
+/// The CMYK color the color settings separate `rgb` into (with their intent).
+fn managed_cmyk(rgb: Color) -> Color {
+    let cms = vectorcraft_color::cms::active();
+    cms.convert(&rgb, vectorcraft_color::cms::Model::Cmyk, cms.settings().intent)
+}
+
+/// #2276: an RGB image's pixel sampled into a CMYK document separates through the color
+/// settings, as Document Color Mode converts it, not by the profile-free formula
+/// (83/170/223 came in as C63 M24 Y0 K13).
+#[test]
+fn an_rgb_image_sampled_in_a_cmyk_document_separates_through_the_color_settings() {
+    let mut s = cmyk_doc_with_image(&[[83, 170, 223, 255], [224, 238, 255, 255]]);
+    let dst = rect(&mut s, 10.0);
+    click(&mut s, 350.0, 50.0, Mods::default());
+    let got = node(&s, dst).appearance.fill_paint().color().unwrap();
+    assert_eq!(got, managed_cmyk(Color::rgb8(83, 170, 223)));
+    let Color::Cmyk { c, m, y, k } = got else { panic!("{got:?}") };
+    // Generic CMYK: about C59 M12 Y3 K0, with no black, where the formula gave K13.
+    assert!((0.5..0.75).contains(&c) && (0.05..0.2).contains(&m) && y < 0.05 && k < 0.02, "{c} {m} {y} {k}");
+    // A light blue shows close to the color it was picked from; the formula's C12 M7 showed duller.
+    click(&mut s, 450.0, 50.0, Mods::default());
+    let got = node(&s, dst).appearance.fill_paint().color().unwrap();
+    assert!(matches!(got, Color::Cmyk { .. }), "{got:?}");
+    let light = Color::rgb8(224, 238, 255);
+    let off = |c: Color| vectorcraft_color::cms::delta_e2000(c.to_lab(), light.to_lab());
+    let naive = light.in_model(vectorcraft_color::cms::Model::Cmyk);
+    assert!(off(got) < 2.0, "{} is ΔE {} from #e0eeff ({} at ΔE {} before)", got.to_hex(), off(got), naive.to_hex(), off(naive));
+}
+
+/// #2276: colors typed or sent in RGB to a CMYK document separate through the color settings:
+/// fills and strokes, gradient stops, new swatches and a sampled gradient stop.
+#[test]
+fn rgb_colors_given_to_a_cmyk_document_separate_through_the_color_settings() {
+    let mut s = Session::new();
+    s.execute("file.new", &json!({"width": 800, "height": 600, "colorMode": "cmyk"})).unwrap();
+    let a = rect(&mut s, 10.0);
+    let blue = Color::rgb8(83, 170, 223);
+    s.execute("paint.setFill", &json!({"color": "#53aadf"})).unwrap();
+    s.execute("paint.setStroke", &json!({"color": "#53AADF"})).unwrap();
+    let n = node(&s, a);
+    assert_eq!(n.appearance.fill_paint().color(), Some(managed_cmyk(blue)));
+    assert_eq!(n.appearance.stroke_paint().color(), Some(managed_cmyk(blue)));
+    let stops = json!([{"offset": 0, "color": "#ffffff"}, {"offset": 1, "color": "#53aadf"}]);
+    s.execute("paint.setFill", &json!({"gradient": {"stops": stops}})).unwrap();
+    let Paint::Gradient(g) = node(&s, a).appearance.fill_paint() else { panic!("a gradient") };
+    assert_eq!(g.gradient.stops[1].color, managed_cmyk(blue));
+    // The Gradient panel's eyedropper samples into the selected stop.
+    s.execute("paint.sampleColor", &json!({"color": "#53aadf", "stop": 0})).unwrap();
+    let Paint::Gradient(g) = node(&s, a).appearance.fill_paint() else { panic!("a gradient") };
+    assert_eq!(g.gradient.stops[0].color, managed_cmyk(blue));
+    let name = s.execute("swatch.new", &json!({"color": "#53aadf"})).unwrap()["name"].as_str().unwrap().to_string();
+    assert_eq!(s.doc().unwrap().doc.swatch(&name).and_then(|w| w.paint.color()), Some(managed_cmyk(blue)));
+    // keepModel still keeps RGB.
+    s.execute("paint.setFill", &json!({"color": "#53aadf", "keepModel": true})).unwrap();
+    assert_eq!(node(&s, a).appearance.fill_paint().color(), Some(blue));
+}
+
 #[test]
 fn the_options_are_a_preference() {
     let mut s = Session::new();

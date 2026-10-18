@@ -237,6 +237,35 @@ fn different_style_arabic_boundary_receives_joining_context() {
 }
 
 #[test]
+fn a_change_of_paint_in_a_mixed_direction_line_moves_no_glyph() {
+    let db = FontDb::global();
+    let text = "AVAV سلام AVAV";
+    if db.face_covering('س').is_none_or(|face| !face.covers('ل')) {
+        eprintln!("SKIPPED: a_change_of_paint_in_a_mixed_direction_line_moves_no_glyph; no font covers Arabic seen and lam");
+        return;
+    }
+    let plain = layout(db, &TextObject::point(Point::ZERO, text, CharStyle::default()));
+    assert!(plain.glyphs.iter().any(|g| g.rtl) && plain.glyphs.iter().any(|g| !g.rtl), "{plain:?}");
+    let seen = text.find('س').unwrap_or_default();
+    let mut restyled = TextObject::point(Point::ZERO, text, CharStyle::default());
+    for byte in [1, seen] {
+        let end = byte + text[byte..].chars().next().map_or(1, char::len_utf8);
+        edit::style_range(&mut restyled.runs, byte, end, |s| s.fill = Default::default());
+    }
+    assert_eq!(restyled.runs.len(), 5);
+    let restyled_layout = layout(db, &restyled);
+    assert_same_shaped_glyphs(&plain, &restyled_layout);
+    for glyph in &restyled_layout.glyphs {
+        let run_ends = restyled.runs.iter().scan(0, |end, r| {
+            *end += r.text.len();
+            Some(*end)
+        });
+        let expected = run_ends.take_while(|end| *end <= glyph.byte).count();
+        assert_eq!(glyph.run, expected, "glyph {glyph:?}");
+    }
+}
+
+#[test]
 fn shape_range_handles_empty_runs_and_selected_utf8_subranges() {
     let db = FontDb::global();
     let style = CharStyle::default();

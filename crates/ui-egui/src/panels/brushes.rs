@@ -1,6 +1,7 @@
 //! Brushes panel: the document's brush library with rendered stroke previews. Clicking a brush
 //! applies it to the selected paths (and makes it the Paintbrush's current brush); double-clicking
-//! one opens its Brush Options.
+//! one opens its Brush Options. Shift-click selects a range of brushes and Cmd/Ctrl-click adds or
+//! removes one, for Delete Brush and Duplicate Brush.
 
 use std::collections::HashMap;
 
@@ -64,15 +65,71 @@ fn selected_brush(app: &VectorcraftApp) -> Option<String> {
     first_selected(app).and_then(|n| n.appearance.stroke().and_then(|s| s.brush.clone()))
 }
 
+/// What the panel's last click was made with: the document, its selected objects and the current
+/// brush.
+type ClickKey = (u64, Vec<u64>, Option<String>);
+
+fn click_key(app: &VectorcraftApp, current: Option<&str>) -> Option<ClickKey> {
+    app.session.active().map(|st| (st.uid, st.selection.objects.iter().map(|id| id.0).collect(), current.map(str::to_string)))
+}
+
+/// Whether the panel's last click was made with the document, objects and current brush active
+/// now. Panel state `br-selected` holds the multi-selection and the key of that click.
+fn same_click(app: &VectorcraftApp, ctx: &egui::Context, current: Option<&str>) -> bool {
+    let (_, key): (Option<Vec<String>>, Option<ClickKey>) = pstate(ctx, "br-selected");
+    key.is_some() && key == click_key(app, current)
+}
+
+/// The brushes that Shift-clicks and Cmd/Ctrl-clicks selected, of those in `list`. It is `None`
+/// after a plain click, once none of its brushes is left, and once another document, other
+/// objects or another current brush is active, which also clears it and the key of the last
+/// click; `Some` of an empty list after Cmd/Ctrl-clicks deselected every brush.
+fn multi(app: &VectorcraftApp, ctx: &egui::Context, list: &[(String, String)], current: Option<&str>) -> Option<Vec<String>> {
+    if !same_click(app, ctx, current) {
+        set_pstate(ctx, "br-selected", (None::<Vec<String>>, None::<ClickKey>));
+        return None;
+    }
+    let (names, _): (Option<Vec<String>>, Option<ClickKey>) = pstate(ctx, "br-selected");
+    let names = names?;
+    if names.is_empty() {
+        return Some(names);
+    }
+    let kept: Vec<String> = names.into_iter().filter(|n| list.iter().any(|b| &b.0 == n)).collect();
+    (!kept.is_empty()).then_some(kept)
+}
+
+/// The brushes Delete Brush and Duplicate Brush act on: the multi-selection, else the selected
+/// path's brush, else the current one.
+fn targets(app: &VectorcraftApp, ctx: &egui::Context, list: &[(String, String)], current: Option<&str>) -> Vec<String> {
+    multi(app, ctx, list, current).unwrap_or_else(|| selected_brush(app).or(current.map(str::to_string)).into_iter().collect())
+}
+
+/// Runs `brush.delete` or `brush.duplicate` on `names`.
+fn run_on(app: &mut VectorcraftApp, id: &str, names: &[String]) {
+    let p = match names {
+        [name] => json!({ "name": name }),
+        _ => json!({ "names": names }),
+    };
+    app.run(id, p).ok();
+}
+
+/// The names in `list` in the order the panel shows them: by type in [`KINDS`] order, without the
+/// hidden types.
+fn shown<'a>(list: &'a [(String, String)], hidden: &[String]) -> Vec<&'a str> {
+    let kinds = KINDS.iter().filter(|(ty, _)| !hidden.iter().any(|h| h == ty));
+    kinds.flat_map(|(ty, _)| list.iter().filter(move |b| b.1 == *ty).map(|b| b.0.as_str())).collect()
+}
+
 pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     let (list, current) = brushes(app);
     let sel_brush = selected_brush(app);
+    let mut multi = multi(app, ui.ctx(), &list, current.as_deref());
     let list_view: bool = pstate(ui.ctx(), "br-list");
     let hidden: Vec<String> = pstate(ui.ctx(), "br-hidden");
     let defs: HashMap<String, Value> =
         list.iter().filter_map(|(n, _)| app.run("brush.get", json!({"name": n})).ok().map(|v| (n.clone(), v))).collect();
-    let mut clicked: Option<String> = None;
+    let mut clicked: Option<(String, egui::Modifiers)> = None;
     let mut options: Option<String> = None;
     let list_rect = widgets::list_box(ui, |ui| {
         ui.set_min_height(110.0);
@@ -93,7 +150,10 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
                 let (r, resp) = ui.allocate_exact_size(size, Sense::click_and_drag());
                 // Dragged onto a path, the brush is applied to it.
                 widgets::drag_source(ui, &resp, || PanelDrag::Brush { name: name.to_string(), def: defs.get(name).cloned().unwrap_or_default() });
-                let on = sel_brush.as_deref() == Some(name) || (sel_brush.is_none() && current.as_deref() == Some(name));
+                let on = match &multi {
+                    Some(multi) => multi.iter().any(|m| m == name),
+                    None => sel_brush.as_deref() == Some(name) || (sel_brush.is_none() && current.as_deref() == Some(name)),
+                };
                 if on {
                     ui.painter().rect_filled(r, 0.0, t.row_selected);
                 } else if resp.hovered() {
@@ -118,12 +178,13 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
                 }
                 resp.on_hover_text(name)
             };
-            // A click applies the brush; the second click of a double-click opens its options.
+            // A click applies or selects the brush; the second click of a double-click opens its
+            // options.
             let mut pick = |resp: egui::Response, name: &String| {
                 if resp.double_clicked() {
                     options = Some(name.clone());
                 } else if resp.clicked() {
-                    clicked = Some(name.clone());
+                    clicked = Some((name.clone(), resp.ctx.input(|i| i.modifiers)));
                 }
             };
             if list_view {
@@ -148,13 +209,36 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
     {
         app.status(e);
     }
-    if let Some(name) = clicked {
-        let has_sel = app.session.active().is_some_and(|d| !d.selection.is_empty());
-        if has_sel {
-            app.run("brush.apply", json!({"name": name})).ok();
-        } else {
-            app.run("brush.setCurrent", json!({"name": name})).ok();
+    let highlighted = sel_brush.clone().or(current.clone());
+    match clicked {
+        // Shift and Cmd/Ctrl only select, as in the Swatches panel: they start from the
+        // multi-selection, else from the highlighted brush.
+        Some((name, m)) if m.shift || m.command => {
+            let order = shown(&list, &hidden);
+            // A range starts from the last brush clicked without Shift while the same document,
+            // art and current brush are active, else from the highlighted brush.
+            let anchor: String = pstate(ui.ctx(), "br-anchor");
+            if !same_click(app, ui.ctx(), current.as_deref()) || !order.contains(&anchor.as_str()) {
+                set_pstate(ui.ctx(), "br-anchor", highlighted.clone().unwrap_or_default());
+            }
+            let from = multi.unwrap_or_else(|| highlighted.iter().cloned().collect());
+            let sel = super::swatches::click_selection(ui, "br-anchor", from, &order, &name, m);
+            set_pstate(ui.ctx(), "br-selected", (Some(sel.clone()), click_key(app, current.as_deref())));
+            multi = Some(sel);
         }
+        Some((name, _)) => {
+            set_pstate(ui.ctx(), "br-anchor", name.clone());
+            multi = None;
+            let has_sel = app.session.active().is_some_and(|d| !d.selection.is_empty());
+            if has_sel {
+                app.run("brush.apply", json!({"name": name})).ok();
+            } else {
+                app.run("brush.setCurrent", json!({"name": name})).ok();
+            }
+            let now = brushes(app).1;
+            set_pstate(ui.ctx(), "br-selected", (None::<Vec<String>>, click_key(app, now.as_deref())));
+        }
+        None => {}
     }
     if let Some(name) = options
         && let Err(e) = app.run("ui.brushOptions", json!({ "name": name }))
@@ -162,7 +246,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         app.status(e);
     }
     let has_brush = sel_brush.is_some();
-    let target = sel_brush.clone().or(current.clone());
+    let targets = multi.unwrap_or_else(|| highlighted.into_iter().collect());
     let has_sel = app.session.active().is_some_and(|d| !d.selection.is_empty());
     widgets::bottom_bar(ui, |ui| {
         widgets::icon_button_enabled(ui, "library", tl!("Brush Libraries (on the roadmap)"), false, false, 24.0);
@@ -176,18 +260,16 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         if widgets::icon_button_enabled(ui, "dc-new-item", tl!("New Art Brush from Selection"), false, has_sel, 24.0).clicked() {
             app.run("brush.new", json!({"type": "art"})).ok();
         }
-        if widgets::icon_button_enabled(ui, "trash-2", tl!("Delete Brush"), false, target.is_some(), 24.0).clicked()
-            && let Some(n) = &target
-        {
-            app.run("brush.delete", json!({"name": n})).ok();
+        if widgets::icon_button_enabled(ui, "trash-2", tl!("Delete Brush"), false, !targets.is_empty(), 24.0).clicked() {
+            run_on(app, "brush.delete", &targets);
         }
     });
 }
 
 pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
     let sel = selected_brush(app);
-    let (_, current) = brushes(app);
-    let target = sel.clone().or(current);
+    let (list, current) = brushes(app);
+    let targets = targets(app, ui.ctx(), &list, current.as_deref());
     let has_sel = app.session.active().is_some_and(|d| !d.selection.is_empty());
     for (label, ty) in [(tl!("New Calligraphic Brush"), "calligraphic"), (tl!("New Bristle Brush"), "bristle")] {
         if menu_item(ui, label, true, false) {
@@ -203,15 +285,11 @@ pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
             app.run("brush.new", json!({"type": ty})).ok();
         }
     }
-    if menu_item(ui, tl!("Duplicate Brush"), target.is_some(), false)
-        && let Some(n) = &target
-    {
-        app.run("brush.duplicate", json!({"name": n})).ok();
+    if menu_item(ui, tl!("Duplicate Brush"), !targets.is_empty(), false) {
+        run_on(app, "brush.duplicate", &targets);
     }
-    if menu_item(ui, tl!("Delete Brush"), target.is_some(), false)
-        && let Some(n) = &target
-    {
-        app.run("brush.delete", json!({"name": n})).ok();
+    if menu_item(ui, tl!("Delete Brush"), !targets.is_empty(), false) {
+        run_on(app, "brush.delete", &targets);
     }
     if menu_item(ui, tl!("Remove Brush Stroke"), sel.is_some(), false) {
         app.run("brush.remove", json!({})).ok();
@@ -219,7 +297,7 @@ pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
     if menu_item(ui, tl!("Expand Brush Strokes"), sel.is_some(), false) {
         app.run("object.expandBrush", json!({})).ok();
     }
-    // On the selected path's brush, else the current one, as the other items.
+    // On the selected path's brush, else the current one.
     if menu_item(ui, tl!("Brush Options…"), brush_options::available(app), false)
         && let Err(e) = app.run("ui.brushOptions", json!({}))
     {
@@ -267,6 +345,45 @@ mod tests {
         egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() }
     }
 
+    /// One frame of `draw` at `time` with `modifiers` held, its output kept.
+    fn frame_with(
+        ctx: &egui::Context,
+        app: &mut VectorcraftApp,
+        events: Vec<egui::Event>,
+        modifiers: egui::Modifiers,
+        time: f64,
+        draw: fn(&mut VectorcraftApp, &mut Ui),
+    ) -> egui::FullOutput {
+        let screen_rect = Some(Rect::from_min_size(Pos2::ZERO, vec2(236.0, 600.0)));
+        let events = std::iter::once(egui::Event::ModifiersChanged(modifiers)).chain(events).collect();
+        let raw = egui::RawInput { screen_rect, time: Some(time), events, ..Default::default() };
+        let mut out = ctx.run_ui(raw, |ui| draw(app, ui));
+        out.textures_delta.clear();
+        out
+    }
+
+    /// A click at `at` with `modifiers` held, in a frame of `draw` at `time`.
+    fn click(ctx: &egui::Context, app: &mut VectorcraftApp, at: Pos2, modifiers: egui::Modifiers, time: f64, draw: fn(&mut VectorcraftApp, &mut Ui)) {
+        let press = |pressed| egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers };
+        frame_with(ctx, app, vec![egui::Event::PointerMoved(at), press(true), press(false)], modifiers, time, draw);
+    }
+
+    /// The accessibility nodes of `out` that take a click, with their rectangles, top to bottom
+    /// and then left to right.
+    fn clickable(out: &egui::FullOutput) -> Vec<(Option<String>, Rect)> {
+        let nodes = &out.platform_output.accesskit_update.as_ref().expect("an accessibility tree").nodes;
+        let mut v: Vec<(Option<String>, Rect)> = nodes
+            .iter()
+            .filter(|(_, n)| n.supports_action(egui::accesskit::Action::Click))
+            .filter_map(|(_, n)| {
+                let b = n.bounds()?;
+                Some((n.label().map(|l| l.trim().to_string()), Rect::from_min_max(pos2(b.x0 as f32, b.y0 as f32), pos2(b.x1 as f32, b.y1 as f32))))
+            })
+            .collect();
+        v.sort_by(|a, b| a.1.min.y.total_cmp(&b.1.min.y).then(a.1.min.x.total_cmp(&b.1.min.x)));
+        v
+    }
+
     /// #852: double-clicking a brush opens its Brush Options; OK changes the brush (and strokes
     /// painted with it). A single click only applies the brush.
     #[test]
@@ -307,6 +424,159 @@ mod tests {
         let def = app.run("brush.get", json!({"name": "Pressure Round"})).unwrap();
         assert_eq!((def["modes"].clone(), def["variation"][2].clone()), (json!(["fixed", "fixed", "pressure"]), json!(2.0)));
         assert_eq!(brushes(&mut app).1.as_deref(), Some("Pressure Round"), "renamed, still current");
+    }
+
+    /// The rectangles `out` fills with the selected-row color.
+    fn lit(ctx: &egui::Context, out: &egui::FullOutput) -> Vec<Rect> {
+        let t = Tokens::get(ctx);
+        out.shapes
+            .iter()
+            .filter_map(|c| match &c.shape {
+                egui::Shape::Rect(r) if r.fill == t.row_selected => Some(r.rect),
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn brush_of(app: &VectorcraftApp, id: NodeId) -> Option<String> {
+        app.session.active().unwrap().doc.node(id).unwrap().appearance.stroke().and_then(|s| s.brush.clone())
+    }
+
+    fn names(app: &mut VectorcraftApp) -> Vec<String> {
+        brushes(app).0.into_iter().map(|b| b.0).collect()
+    }
+
+    /// Click the panel menu's item `label` (frames at `time`, `time + 0.5`).
+    fn menu_click(ctx: &egui::Context, app: &mut VectorcraftApp, label: &str, time: f64) {
+        let out = frame_with(ctx, app, vec![], egui::Modifiers::NONE, time, menu);
+        let at = clickable(&out).into_iter().find(|(l, _)| l.as_deref() == Some(label)).unwrap_or_else(|| panic!("no `{label}`")).1.center();
+        click(ctx, app, at, egui::Modifiers::NONE, time + 0.5, menu);
+    }
+
+    /// The first three brushes (the Calligraphic ones): a click on the first applies it to the
+    /// selected rectangle, and then a Shift-click on the third selects all three without applying
+    /// the third.
+    fn select_three(ctx: &egui::Context, app: &mut VectorcraftApp, rect: NodeId) -> (Vec<String>, Vec<Rect>) {
+        let out = frame_with(ctx, app, vec![], egui::Modifiers::NONE, 0.0, show);
+        let tiles: Vec<Rect> = clickable(&out).into_iter().map(|c| c.1).filter(|r| r.width() == 64.0).take(3).collect();
+        let (list, _) = brushes(app);
+        assert!(list[..3].iter().all(|b| b.1 == "calligraphic"), "{list:?}");
+        let three: Vec<String> = list[..3].iter().map(|b| b.0.clone()).collect();
+        click(ctx, app, tiles[0].center(), egui::Modifiers::NONE, 1.0, show);
+        assert_eq!(brush_of(app, rect).as_deref(), Some(three[0].as_str()));
+        click(ctx, app, tiles[2].center(), egui::Modifiers::SHIFT, 2.0, show);
+        assert_eq!(brush_of(app, rect).as_deref(), Some(three[0].as_str()), "a Shift-click only selects");
+        (three, tiles)
+    }
+
+    /// Shift-click selects a range of brushes and Cmd/Ctrl-click adds or removes one; the panel
+    /// highlights them, and Duplicate Brush and Delete Brush act on all of them in one undo step.
+    #[test]
+    fn shift_and_command_clicks_select_brushes_for_delete_and_duplicate() {
+        let mut app = VectorcraftApp::new(Session::new(), Default::default());
+        app.run("file.new", json!({"width": 200, "height": 100})).unwrap();
+        let rect = NodeId(app.run("shape.rectangle", json!({"x": 10, "y": 10, "width": 50, "height": 40})).unwrap()["id"].as_u64().unwrap());
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        let (three, tiles) = select_three(&ctx, &mut app, rect);
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 2.5, show);
+        let lit_tiles = |out: &egui::FullOutput| -> Vec<usize> { (0..3).filter(|i| lit(&ctx, out).contains(&tiles[*i])).collect() };
+        assert_eq!(lit_tiles(&out), [0, 1, 2]);
+        // Cmd/Ctrl-click takes the second out again.
+        click(&ctx, &mut app, tiles[1].center(), egui::Modifiers::COMMAND, 3.0, show);
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 3.5, show);
+        assert_eq!(lit_tiles(&out), [0, 2]);
+        let undo = |app: &VectorcraftApp| app.session.active().unwrap().history.undo.len();
+        let before = (names(&mut app), undo(&app));
+        menu_click(&ctx, &mut app, "Duplicate Brush", 4.0);
+        let copies = [format!("{} copy", three[0]), format!("{} copy", three[2])];
+        assert_eq!(names(&mut app)[before.0.len()..], copies);
+        assert_eq!(undo(&app), before.1 + 1);
+        // The bottom bar's last button, Delete Brush.
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 5.0, show);
+        let trash = clickable(&out).last().unwrap().1.center();
+        click(&ctx, &mut app, trash, egui::Modifiers::NONE, 6.0, show);
+        let left = names(&mut app);
+        assert!(!left.contains(&three[0]) && !left.contains(&three[2]) && left.contains(&three[1]), "{left:?}");
+        assert!(copies.iter().all(|c| left.contains(c)), "{left:?}");
+        assert_eq!(brush_of(&app, rect), None);
+        assert_eq!(undo(&app), before.1 + 2);
+    }
+
+    /// Selecting other art ends the multi-selection: selecting the first art again does not bring
+    /// it back, and with a path stroked with another brush selected, the panel highlights that
+    /// brush and Delete Brush deletes it alone.
+    #[test]
+    fn selecting_other_art_ends_the_brush_multi_selection() {
+        let mut app = VectorcraftApp::new(Session::new(), Default::default());
+        app.run("file.new", json!({"width": 200, "height": 100})).unwrap();
+        let rect = |app: &mut VectorcraftApp, x: f64| {
+            NodeId(app.run("shape.rectangle", json!({"x": x, "y": 10, "width": 40, "height": 40})).unwrap()["id"].as_u64().unwrap())
+        };
+        let a = rect(&mut app, 10.0);
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        let (three, tiles) = select_three(&ctx, &mut app, a);
+        let lit_tiles = |out: &egui::FullOutput| -> Vec<usize> { (0..3).filter(|i| lit(&ctx, out).contains(&tiles[*i])).collect() };
+        // A path without a brush, then the first one again: the current brush is highlighted.
+        rect(&mut app, 60.0);
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 3.0, show);
+        assert_eq!(lit_tiles(&out), [0]);
+        app.run("select.set", json!({"ids": [a.0]})).unwrap();
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 3.5, show);
+        assert_eq!(lit_tiles(&out), [0]);
+        // A path stroked with the second brush.
+        let c = rect(&mut app, 110.0);
+        app.run("brush.apply", json!({"name": three[1]})).unwrap();
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 4.0, show);
+        assert_eq!(lit_tiles(&out), [1]);
+        menu_click(&ctx, &mut app, "Delete Brush", 5.0);
+        let left = names(&mut app);
+        assert!(left.contains(&three[0]) && !left.contains(&three[1]) && left.contains(&three[2]), "{left:?}");
+        assert_eq!((brush_of(&app, a).as_deref(), brush_of(&app, c)), (Some(three[0].as_str()), None));
+    }
+
+    /// After other art is selected, a Shift-click selects the range from that art's brush, not from
+    /// the brush clicked before.
+    #[test]
+    fn a_shift_click_after_selecting_other_art_starts_from_its_brush() {
+        let mut app = VectorcraftApp::new(Session::new(), Default::default());
+        app.run("file.new", json!({"width": 200, "height": 100})).unwrap();
+        app.run("shape.rectangle", json!({"x": 10, "y": 10, "width": 50, "height": 40})).unwrap();
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 0.0, show);
+        let tiles: Vec<Rect> = clickable(&out).into_iter().map(|c| c.1).filter(|r| r.width() == 64.0).take(3).collect();
+        let (list, _) = brushes(&mut app);
+        click(&ctx, &mut app, tiles[0].center(), egui::Modifiers::NONE, 1.0, show);
+        app.run("shape.rectangle", json!({"x": 100, "y": 10, "width": 50, "height": 40})).unwrap();
+        app.run("brush.apply", json!({"name": list[2].0})).unwrap();
+        click(&ctx, &mut app, tiles[1].center(), egui::Modifiers::SHIFT, 2.0, show);
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 2.5, show);
+        assert_eq!(lit(&ctx, &out).iter().filter(|r| tiles.contains(r)).collect::<Vec<_>>(), [&tiles[1], &tiles[2]]);
+    }
+
+    /// Cmd/Ctrl-clicks can deselect every brush: none is highlighted, and Delete Brush and
+    /// Duplicate Brush are off.
+    #[test]
+    fn command_clicks_deselect_every_brush() {
+        let mut app = VectorcraftApp::new(Session::new(), Default::default());
+        app.run("file.new", json!({"width": 200, "height": 100})).unwrap();
+        let a = NodeId(app.run("shape.rectangle", json!({"x": 10, "y": 10, "width": 50, "height": 40})).unwrap()["id"].as_u64().unwrap());
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        let (_, tiles) = select_three(&ctx, &mut app, a);
+        for (i, tile) in tiles.iter().enumerate() {
+            click(&ctx, &mut app, tile.center(), egui::Modifiers::COMMAND, 3.0 + i as f64, show);
+        }
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 7.0, show);
+        assert!(!lit(&ctx, &out).iter().any(|r| tiles.contains(r)));
+        let out = frame_with(&ctx, &mut app, vec![], egui::Modifiers::NONE, 8.0, menu);
+        let nodes = &out.platform_output.accesskit_update.as_ref().expect("an accessibility tree").nodes;
+        for label in ["Duplicate Brush", "Delete Brush"] {
+            let item = nodes.iter().find(|(_, n)| n.label().map(str::trim) == Some(label)).unwrap_or_else(|| panic!("no `{label}`"));
+            assert!(item.1.is_disabled(), "{label}");
+        }
     }
 
     #[test]

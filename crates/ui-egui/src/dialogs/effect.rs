@@ -158,6 +158,10 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
             free_distort::fields(app, ui, d);
             values_changed(d)
         }
+        None if id == vectorcraft_effects::RASTERIZE => {
+            super::raster_effects::effect_fields(app, ui, d);
+            values_changed(d)
+        }
         None => {
             let doc = vectorcraft_effects::effect_info(&id).map(|e| e.params).unwrap_or_default();
             let unit = app.session.general_unit();
@@ -213,11 +217,11 @@ const GLASS: &str = "distort.glass";
 /// loaded, and Load Texture… with the loaded texture's size. Returns whether the values differ from
 /// those last previewed.
 fn glass_fields(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
-    use vectorcraft_effects::pixel::{GLASS_TEXTURES, GLASS_TEXTURES_LOADED, TEXTURE_IMAGE, texture};
+    use vectorcraft_effects::pixel::{TEXTURE_IMAGE, texture};
     // The stored texture is shown as its size, not as a text field.
     let stored = d.fields.remove(TEXTURE_IMAGE);
     let size = stored.as_ref().and_then(Value::as_str).and_then(texture).map(|t| t.size());
-    let menu: form::Choices = if size.is_some() { &GLASS_TEXTURES_LOADED } else { &GLASS_TEXTURES };
+    let menu = glass_textures(size.is_some());
     let doc = vectorcraft_effects::effect_info(GLASS).map(|e| e.params).unwrap_or_default();
     let unit = app.session.general_unit();
     let pick = |k: &str| if k == "texture" { Some(menu) } else { choices(GLASS, k) };
@@ -240,6 +244,12 @@ fn glass_fields(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> 
         app.status(e);
     }
     values_changed(d)
+}
+
+/// Glass's Texture menu, ending with Loaded Texture once a texture is `loaded`.
+fn glass_textures(loaded: bool) -> form::Choices {
+    use vectorcraft_effects::pixel::{GLASS_TEXTURES, GLASS_TEXTURES_LOADED};
+    if loaded { &GLASS_TEXTURES_LOADED } else { &GLASS_TEXTURES }
 }
 
 /// Glass's Load Texture…: an image file the user picks, read into `textureImage` as Glass stores
@@ -278,6 +288,26 @@ fn choices(effect: &str, key: &str) -> Option<form::Choices> {
         ("distort.roughen" | "distort.zigZag", "points") => Some(&[("Smooth", "smooth"), ("Corner", "corner")]),
         _ => None,
     }
+}
+
+/// The values that parameter `key` of applied effect `effect` picks from, as its dialog lists
+/// them, as (label, value): our own effects' labels in the UI language, a plug-in's choices as the
+/// plug-in names them. Glass's Texture menu ends with Loaded Texture when the effect's values
+/// `params` hold a loaded texture. `None` for a parameter that is not one of these lists.
+pub(crate) fn shown_choices(effect: &str, key: &str, params: &Map<String, Value>) -> Option<Vec<(String, String)>> {
+    if let Some(plugin) = vectorcraft_plugins::effect::installed(effect) {
+        return plugin.manifest().params.iter().find(|(k, _)| k == key).and_then(|(_, spec)| match spec {
+            vectorcraft_plugins::ParamSpec::Choice { options, .. } => Some(options.iter().map(|o| (o.clone(), o.clone())).collect()),
+            _ => None,
+        });
+    }
+    let options = if effect == GLASS && key == "texture" {
+        use vectorcraft_effects::pixel::{TEXTURE_IMAGE, texture};
+        glass_textures(params.get(TEXTURE_IMAGE).and_then(Value::as_str).and_then(texture).is_some())
+    } else {
+        choices(effect, key)?
+    };
+    Some(options.iter().map(|(label, value)| (form::choice_label(label).to_string(), value.to_string())).collect())
 }
 
 /// Where parameter `key` comes in the effect's parameter documentation `doc` (`{radius: …,
@@ -428,7 +458,7 @@ fn zig_zag_fields(ui: &mut egui::Ui, d: &mut Dialog, unit: vectorcraft_doc::Unit
     widgets::subheader(ui, tl!("Options"));
     // Size is a share of the object's size (Relative) or a distance (Absolute).
     widgets::label_row(ui, tl!("Size:"), LABEL_W, |ui| {
-        form::slider_rail(ui, d, "size", 0.0..=100.0, &track);
+        form::slider_rail_named(ui, d, "size", tl!("Size:"), 0.0..=100.0, &track);
         if !relative {
             form::length(ui, d, "size", unit, FIELD_W);
         } else if let Some(n) = widgets::range_field(ui, ("zz", "size"), d.f64("size", 10.0), 0.0..=100.0, "%", 0, FIELD_W) {
@@ -444,7 +474,7 @@ fn zig_zag_fields(ui: &mut egui::Ui, d: &mut Dialog, unit: vectorcraft_doc::Unit
         }
     });
     widgets::label_row(ui, tl!("Ridges per segment:"), LABEL_W, |ui| {
-        form::slider_rail(ui, d, "ridges", 0.0..=100.0, &track);
+        form::slider_rail_named(ui, d, "ridges", tl!("Ridges per segment:"), 0.0..=100.0, &track);
         if let Some(n) = widgets::range_field(ui, ("zz", "ridges"), d.f64("ridges", 4.0), 0.0..=100.0, "", 0, FIELD_W) {
             d.fields.insert("ridges".into(), json!(n));
         }
@@ -604,26 +634,14 @@ fn command(d: &Dialog) -> (&'static str, Value) {
 
 fn confirm(app: &mut VectorcraftApp, d: &Dialog) -> Result<Value, String> {
     let (cmd, p) = command(d);
-    if super::warp_effect::is_warp(&d.str("__effect")) {
-        let r = form::commit_preview(app, cmd, p.clone())?;
-        if cmd == "effect.apply" {
-            app.last_effect = Some((d.str("__effect"), p["params"].clone()));
-        }
-        return Ok(r);
-    }
-    let r = if app.session.in_interaction() {
-        // Live preview already applied: keep it (the interaction commits as one undo step).
-        let _ = app.session.preview(cmd, &p);
-        app.session.commit_interaction().map(|_| Value::Null).map_err(|e| e.to_string())
-    } else {
-        app.run(cmd, p.clone())
-    };
+    // A live preview commits as one undo step. When the command refuses the values (a Color the
+    // effect can't draw), the dialog stays open and the error is returned.
+    let r = form::commit_preview(app, cmd, p.clone())?;
     // Last Effect repeats applied effects, not edits.
     if cmd == "effect.apply" {
         app.last_effect = Some((d.str("__effect"), p["params"].clone()));
     }
-    app.ui.dialog = None;
-    r
+    Ok(r)
 }
 
 #[cfg(test)]

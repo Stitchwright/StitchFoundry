@@ -170,7 +170,16 @@ impl Tool for SymbolismTool {
         vec![Overlay::Path { path: circle, color: FEEDBACK, width: 1.0, dashed: false }]
     }
     fn cursor(&self, _cx: &ToolContext, _p: Point, _m: Mods) -> Cursor {
-        Cursor::Crosshair
+        match self.id {
+            "symbolShifter" => Cursor::SymbolShifter,
+            "symbolScruncher" => Cursor::SymbolScruncher,
+            "symbolSizer" => Cursor::SymbolSizer,
+            "symbolSpinner" => Cursor::SymbolSpinner,
+            "symbolStainer" => Cursor::SymbolStainer,
+            "symbolScreener" => Cursor::SymbolScreener,
+            "symbolStyler" => Cursor::SymbolStyler,
+            _ => Cursor::SymbolSprayer,
+        }
     }
     fn options(&self) -> Value {
         json!({"diameter": self.diameter, "intensity": self.intensity, "density": self.density, "symbol": self.symbol, "style": self.style})

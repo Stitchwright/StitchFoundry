@@ -342,6 +342,7 @@
 	Change Case	Промяна на регистъра
 	Change Screen Mode (F)	Промяна на режима на екрана (F)
 	Change to Global Rulers	Превключване към глобални линии
+	Change to Artboard Rulers	Превключване към линии на работната област
 	Change to Right-to-Left Layout	Превключване към подредба отдясно наляво
 	Changed since the last Refresh.	Променено след последното обновяване.
 	Changes allowed:	Позволени промени:
@@ -490,6 +491,7 @@
 	Color Model:	Цветен модел:
 	Color Models	Цветни модели
 	Color Picker	Палитра с цвят
+	Color wheel	Цветово колело
 	Color Picker…	Палитра с цвят…
 	Color Reduction:	Намаляване на цветовете:
 	Color Settings	Цветови настройки
@@ -528,6 +530,7 @@
 	Condition identifier:	Идентификатор на условие:
 	Conflict {n} of {count}	Конфликт {n} от {count}
 	Connect Selected End Points	Свързване на избраните крайни точки
+	Connect	Свързване
 	Consolidate All Windows	Обединяване на всички прозорци
 	Constrain Angle	Заключване на ъгъла
 	Constrain Width and Height Proportions	Запазване на пропорциите на ширина и височина
@@ -536,6 +539,7 @@
 	Contextual Task Bar	Контекстна лента със задачи
 	Pin Bar Position	Закачане на позицията на лентата
 	Reset Bar Position	Нулиране на позицията на лентата
+	Resize	Преоразмеряване
 	Contrast	Контраст
 	Control	Контрол
 	Convert	Конвертиране
@@ -622,6 +626,7 @@
 	Created:	Създадено:
 	Crop	Изрязване
 	Crop Image	Изрязване на изображение
+	Edit Path	Редактиране на контура
 	Mask	Маска
 	Crop Marks	Знаци за изрязване
 	Crop To	Изрязване до
@@ -767,6 +772,7 @@
 	Document open password	Парола за отваряне на документ
 	Document profile	Профил на документ
 	Document Raster Effects Settings	Настройки на ефектите за растеризиране в документа
+	Use Document Raster Effects Resolution	Използване на разделителната способност от настройките на ефектите за растеризиране в документа
 	Document Raster Effects Settings Dialog	Диалогов прозорец за настройки на ефектите за растеризиране в документа
 	Document Raster Effects Settings…	Настройки на ефектите за растеризиране в документа…
 	Document Setup	Настройка на документ
@@ -1127,6 +1133,7 @@
 	Font List	Списък с шрифтове
 	Font Preview Size	Размер за преглед на шрифта
 	Font Size	Размер на шрифта
+	Variable Font	Променлив шрифт
 	Font:	Шрифт:
 	Fonts	Шрифтове
 	Fonts in Document	Шрифтове в документа
@@ -1155,7 +1162,15 @@
 	Gamut Check	Проверка за цветова гама
 	Gamut Warning	Предупреждение за цветова гама
 	gap	междуредрие
-	Gap Options…	Опции за междуредрие…
+	Gap Options…	Опции за пролуки…
+	Gap Options	Опции за пролуки
+	Gap Detection	Откриване на пролуки
+	Paint Stops At:	Оцветяването спира при:
+	Small Gaps	Малки пролуки
+	Medium Gaps	Средни пролуки
+	Large Gaps	Големи пролуки
+	Gap Preview Color:	Цвят за преглед на пролуките:
+	Close Gaps With Paths	Затваряне на пролуките с пътища
 	Gaussian Blur…	Гаусово размазване…
 	General	Общи
 	General › Placement › X	Общи › Разположение › X
@@ -1172,6 +1187,10 @@
 	glyph {id}	глиф {id}
 	Glyphs	Глифи
 	Go to Artboard	Към работна област
+	First Artboard	Първа работна област
+	Previous Artboard	Предишна работна област
+	Next Artboard	Следваща работна област
+	Last Artboard	Последна работна област
 	Go To Link	Към връзката
 	GPL palettes keep solid colours only, as RGB.	Палитрите GPL запазват само плътни цветове като RGB.
 	GPU Performance	Производителност на графичния процесор
@@ -1197,6 +1216,16 @@
 	Delete Design	Изтриване на дизайн
 	Paste Design	Поставяне на дизайн
 	Select Unused	Избиране на неизползваните
+	Graph Column	Колона на диаграма
+	Column Type:	Тип колона:
+	Vertically Scaled	Мащабиране по вертикала
+	Uniformly Scaled	Пропорционално мащабиране
+	Repeating	Повтаряне
+	Sliding	Плъзгане
+	Each Design Represents:	Всеки дизайн представлява:
+	For Fractions:	За дробни части:
+	Chop Design	Отрязване на дизайна
+	Scale Design	Мащабиране на дизайна
 	Import Data…	Импортиране на данни…
 	Transpose	Транспониране
 	Switch x/y	Размяна на x/y
@@ -1289,7 +1318,80 @@
 	Highlight Substituted Glyphs	Маркиране на заменени глифи
 	History	История
 	History Options…	Опции за историята…
+	Step Backward	Стъпка назад
+	Step Forward	Стъпка напред
+	Set History Limit…	Задаване на ограничение на историята…
 	History States	Състояния на историята
+# History panel: the names of undo steps (`every_undo_label_is_translated`).
+	Apply Data Set	Прилагане на набор от данни
+	Cancel Pattern Editing	Отказ от редактирането на мостра
+	Copy Appearance	Копиране на външния вид
+	Copy Guide	Копиране на водач
+	Copy in Perspective	Копиране в перспектива
+	Create Slice from Selection	Създаване на отрязък от селекцията
+	Create Slices from Guides	Създаване на отрязъци от водачи
+	Delete All Slices	Изтриване на всички отрязъци
+	Delete Data Sets	Изтриване на набори от данни
+	Delete Graphic Styles	Изтриване на графични стилове
+	Delete Guide	Изтриване на водач
+	Delete Guides	Изтриване на водачи
+	Delete Slice	Изтриване на отрязък
+	Delete Style	Изтриване на стил
+	Delete Variables	Изтриване на променливи
+	Delete View	Изтриване на изглед
+	Done Editing Pattern	Край на редактирането на мостра
+	Duplicate Rows	Дублиране на редове
+	Edit Perspective Grid	Редактиране на перспективна мрежа
+	Expand Blend	Разширяване на преливането
+	Expand Envelope	Разширяване на обвивката
+	Expand Image Trace	Разширяване на трасирането на изображение
+	Expand Live Paint	Разширяване на динамичното оцветяване
+	Live Shape	Динамична фигура
+	Make Blend	Създаване на преливане
+	Make Dynamic	Превръщане в динамично
+	Make Intertwine	Създаване на преплитане
+	Make Live Paint	Създаване на динамично оцветяване
+	Make Pattern	Създаване на мостра
+	Make Slice	Създаване на отрязък
+	Merge Live Paint	Сливане на динамично оцветяване
+	Mesh Point Color	Цвят на точка от мрежата
+	Move Envelope Point	Преместване на точка от обвивката
+	Move Plane and Copy Objects	Преместване на равнината и копиране на обектите
+	Move Plane and Objects	Преместване на равнината и обектите
+	Move Slice	Преместване на отрязък
+	Move Type on a Path	Преместване на текст по пътя
+	New Guide	Нов водач
+	Place from Library	Вмъкване от библиотека
+	Rearrange Artboards	Пренареждане на работните области
+	Release Blend	Освобождаване на преливане
+	Release Envelope	Освобождаване на обвивка
+	Release Intertwine	Освобождаване на преплитане
+	Release Live Paint	Освобождаване на динамично оцветяване
+	Release Repeat	Освобождаване на повторение
+	Release Slice	Освобождаване на отрязък
+	Release Threaded Text	Освобождаване на свързан текст
+	Rename Design	Преименуване на дизайн
+	Rename Style	Преименуване на стил
+	Rename View	Преименуване на изглед
+	Reorder Appearance	Пренареждане на външния вид
+	Reorder Artboards	Промяна на реда на работните области
+	Reshape Spine	Промяна на формата на оста
+	Resize Artboard	Преоразмеряване на работна област
+	Resize Slice	Преоразмеряване на отрязък
+	Resize Type Area	Преоразмеряване на текстова област
+	Scale in Perspective	Мащабиране в перспектива
+	Shape Builder Delete	Създател на фигури (изтриване)
+	Sort Swatches	Сортиране на образци
+	Symbol Screener	Филтър на символи
+	Symbol Scruncher	Свиване на символи
+	Symbol Shifter	Преместване на символи
+	Symbol Sizer	Мащабиране на символи
+	Symbol Spinner	Завъртане на символи
+	Symbol Stainer	Оцветяване на символи
+	Symbol Styler	Стил на символи
+	Text Orientation	Ориентация на текста
+	Thread Text	Свързване на текст
+	Typing	Въвеждане на текст
 	Hollow	Кух
 	Home	Начало
 	Horizon Height:	Височина на хоризонта:
@@ -1553,6 +1655,7 @@
 	Live Paint Selection Tool	Инструмент за селекция на динамично оцветяване
 	Live Shape Properties	Свойства на динамична фигура
 	Load Color Profile…	Зареждане на файлов цвят…
+	Remove Color Profile…	Премахване на цветови профил…
 	Load Image into Clipboard	Зареждане на изображение в клипборда
 	Load Metafile into Clipboard	Зареждане на метафайл в клипборда
 	Load PDF into Clipboard	Зареждане на PDF в клипборда
@@ -1785,6 +1888,7 @@
 	New Graphic Style	Нов графичен стил
 	New Graphic Style (Alt-click to name it)	Нов графичен стил (кликнете с Alt, за да го наименувате)
 	New Graphic Style…	Нов графичен стил…
+	New Artboard Options…	Опции за нова работна област…
 	New Layer Options…	Опции за нов слой…
 	New Layer…	Нов слой…
 	New Opacity Masks Are Clipping	Новите маски за непрозрачност са изрязващи
@@ -2435,6 +2539,9 @@
 	Revert to the saved version of “{name}”?	Връщане към запазената версия на „{name}“?
 	Replace “{name}”, the file this document was opened from?	Замяна на „{name}“, файла, от който беше отворен този документ?
 	Opening it left out what StitchFoundry can't read yet ({what}), so replacing it loses that for good. Save under another name to keep it.	Отварянето му пропусна това, което StitchFoundry все още не може да прочете ({what}), така че замяната му го губи завинаги. Запазете под друго име, за да го запазите.
+	Opening it left out what VectorCraft can't read yet ({what}), so replacing it loses that for good. Save under another name to keep it.	Отварянето му пропусна това, което VectorCraft все още не може да прочете ({what}), така че замяната му го губи завинаги. Запазете под друго име, за да го запазите.
+	“{name}” already exists. Replace it?	„{name}“ вече съществува. Да бъде ли заменен?
+	The name in the save panel was “{typed}”; VectorCraft added the file type's extension. Replacing the file overwrites its contents.	Името в панела за запазване беше „{typed}“, а VectorCraft добави разширението на типа файл. Замяната на файла презаписва съдържанието му.
 	Revolve…	Завъртане…
 	RGB Color	RGB цвят
 	Right	Вдясно
@@ -2452,6 +2559,7 @@
 	Rotate 90° CW	Завъртане на 90° по часовниковата стрелка
 	Rotate Tool	Инструмент „Завъртане“
 	Rotate View Tool	Инструмент „Завъртане на изглед“
+	Trackpad Gesture to Rotate View	Завъртане на изгледа с жест на тракпада
 	Rotate…	Завъртане…
 	Rotation	Завъртане
 	Roughen…	Грапавост…
@@ -2918,6 +3026,16 @@
 	Superscript:	Горен индекс:
 	SVG Filters	SVG филтри
 	SVG Interactivity	SVG интерактивност
+	Event:	Събитие:
+	JavaScript:	JavaScript:
+	Add Event	Добавяне на събитие
+	Remove Selected Entry	Премахване на избрания запис
+	Clear Events	Изчистване на събитията
+	Link JavaScript Files…	Свързване на файлове JavaScript…
+	JavaScript Files	Файлове JavaScript
+	File or URL:	Файл или URL адрес:
+	Add JavaScript File	Добавяне на файл JavaScript
+	Remove JavaScript File	Премахване на файл JavaScript
 	SVG Options	SVG опции
 	SVG Profile:	SVG профил:
 	Swap Fill and Stroke	Размяна на запълването и щриха
@@ -3219,6 +3337,8 @@
 	Variables	Променливи
 	New Variable	Нова променлива
 	Delete Variable	Изтриване на променлива
+	Lock Variables	Заключване на променливите
+	Unlock Variables	Отключване на променливите
 	List Variables	Списък с променливи
 	Bind Variable	Свързване на променлива
 	Unbind Variable	Отвързване на променлива
@@ -3562,6 +3682,7 @@ axis	Both	И двете
 @msg	SVG parse error: {0}	Грешка при анализ на SVG: {0}
 @msg	Save for Web: the image is empty	Запис за уеб: изображението е празно
 @msg	Save writes {_1}, not {_2}: use document.export for other formats	Записът записва {_1}, а не {_2}: използвайте document.export за други формати
+@msg	Save writes {_1}, not {_2}: use file.saveAsTemplate to write it	Записът записва {_1}, а не {_2}: използвайте file.saveAsTemplate, за да го запишете
 @msg	Saved recovery data for {title}	Запазени данни за възстановяване за {title}
 @msg	Saved to User Defined: {_1}	Запазено в Потребителски: {_1}
 @msg	Saved {path}	Записано: {path}
@@ -3591,6 +3712,7 @@ axis	Both	И двете
 @msg	`{id}` has no envelope dialog	`{id}` няма диалогов прозорец за обвивка
 @msg	`{keep}` is not a side of this axis	`{keep}` не е страна на тази ос
 @msg	`{key}` must be `auto` or a language code such as `en` or `zh-hant`	`{key}` трябва да бъде `auto` или езиков код като `en` или `zh-hant`
+@msg	`{key}` must be a #rrggbb color	`{key}` трябва да бъде цвят във формат #rrggbb
 @msg	`{key}` must be a #rrggbb colour	`{key}` трябва да бъде цвят във формат #rrggbb
 @msg	`{key}` must be a number	`{key}` трябва да бъде число
 @msg	`{key}` must be a string	`{key}` трябва да бъде низ
@@ -3624,6 +3746,7 @@ axis	Both	И двете
 @msg	a freeform gradient keeps at least one point	свободно формулираният градиент запазва поне една точка
 @msg	a gradient needs at least two stops	градиентът се нуждае от поне две опорни точки
 @msg	a graphic style named `{to}` already exists	графичен стил с име `{to}` вече съществува
+@msg	a key object sits on that point	в тази точка има основен обект
 @msg	a page is missing	липсва страница
 @msg	a page out of range	страница извън диапазона
 @msg	a page tree kid isn't a reference	дете в дървото на страниците не е препратка
@@ -3631,6 +3754,7 @@ axis	Both	И двете
 @msg	a page's placement is not finite	разположението на страницата не е крайно
 @msg	a preset named `{_1}` exists	предварителна настройка с име `{_1}` съществува
 @msg	a slice size must be a positive number of points	размерът на парчето трябва да бъде положително число в точки
+@msg	a spine keeps at least two points	оста запазва поне две точки
 @msg	a stream runs past the end	потокът преминава отвъд края
 @msg	a stream's length is wrong	дължината на потока е грешна
 @msg	a stream's length isn't a number	дължината на потока не е число
@@ -3689,11 +3813,13 @@ axis	Both	И двете
 @msg	give horizontal or vertical	дайте хоризонтална или вертикална
 @msg	give the path `id` and the width point `index`	дайте пътя `id` и точката на ширина `index`
 @msg	guides are locked	водачите са заключени
+@msg	handle must be in or out	handle трябва да е in или out
 @msg	image '{key}' has no pixels and was left out	изображението '{key}' няма пиксели и беше пропуснато
 @msg	image data `{_1}` is missing	данните за изображение `{_1}` липсват
 @msg	image would be too large; lower the resolution	изображението ще бъде твърде голямо; намалете разделителната способност
 @msg	index must be a number or first, previous, next or last	индексът трябва да е число или first, previous, next или last
 @msg	index must be a number or first, previous, next or last, not `{other}`	индексът трябва да е число или first, previous, next или last, а не `{other}`
+@msg	index must be ≥ 0	индексът не може да е отрицателен
 @msg	installing from a path is not available on the web; pass the module as `dataBase64`	инсталирането от път не е налично в уеб; предайте модула като `dataBase64`
 @msg	internal error in `{cmd}`: {msg} (the document was left as it was before; please report this bug)	вътрешна грешка в `{cmd}`: {msg} (документът беше оставен в състоянието си отпреди; моля, докладвайте тази грешка)
 @msg	internal error: {msg} (please report this bug)	вътрешна грешка: {msg} (моля, докладвайте тази грешка)
@@ -3713,6 +3839,7 @@ axis	Both	И двете
 @msg	missing `name`	липсва `name`
 @msg	missing `tool`	липсва `tool`
 @msg	missing index	липсва индекс
+@msg	missing number `{key}`	липсва число `{key}`
 @msg	multiple windows land with M11.5	множество прозорци се зареждат с M11.5
 @msg	name the file	именувайте файла
 @msg	no CSS to copy: select objects with CSS of their own	няма CSS за копиране: изберете обекти със собствен CSS
@@ -3793,6 +3920,8 @@ axis	Both	И двете
 @msg	no such recent font	няма такъв скорошен шрифт
 @msg	no such saved selection	няма такава запазена селекция
 @msg	no such segment	няма такъв сегмент
+@msg	no such spine point	няма такава точка от оста
+@msg	no such spine segment	няма такъв сегмент от оста
 @msg	no such subpath	няма такъв подпът
 @msg	no such user library	няма такава потребителска библиотека
 @msg	no such view	няма такъв изглед
@@ -3808,6 +3937,9 @@ axis	Both	И двете
 @msg	not a DXF drawing	не е DXF чертеж
 @msg	not a StitchFoundry file: {0}	не е файл на StitchFoundry: {0}
 @msg	not a StitchFoundry shortcut set (missing `overrides`)	не е набор от клавишни комбинации на StitchFoundry (липсват `overrides`)
+@msg	not a VectorCraft file: {0}	не е файл на VectorCraft: {0}
+@msg	not a VectorCraft shortcut set (missing `overrides`)	не е набор от клавишни комбинации на VectorCraft (липсват `overrides`)
+@msg	not a blend	не е преливане
 @msg	not a graphic style library (format `{_1}`)	не е библиотека със стилове на графики (формат `{_1}`)
 @msg	not a shortcut set: the text doesn't start with a slash name and an opening brace	 не е набор от преки пътища: текстът не започва с име със слъш и отваряща скоба
 @msg	not a stored central record	не е съхранен централен запис
@@ -3864,6 +3996,7 @@ axis	Both	И двете
 @msg	select (or target) objects whose appearance isn't basic	изберете (или насочете към) обекти, чийто изглед не е основен
 @msg	select a Live Paint group	изберете група за интерактивно оцветяване (Live Paint)
 @msg	select a blend	изберете преход (blend)
+@msg	select a blend or give `id`	изберете преливане или задайте неговия `id`
 @msg	select a clip group	изберете група за изрязване
 @msg	select a gradient mesh	изберете мрежа на градиент (gradient mesh)
 @msg	select a linked image: an embedded one has no file	изберете свързано изображение: вграденото няма файл
@@ -3897,6 +4030,7 @@ axis	Both	И двете
 @msg	stop {i} needs `offset`	спирката {i} се нуждае от `offset`
 @msg	stop {i} needs a valid `color`	спирката {i} се нуждае от валиден `color`
 @msg	stop {i}: `{k}` must be a number	спирка {i}: `{k}` трябва да е число
+@msg	t, dx and dy must be finite	t, dx и dy трябва да са крайни числа
 @msg	the EMF header is damaged	EMF заглавната част е повредена
 @msg	the PDF has no pages	PDF файлът няма страници
 @msg	the PDF is no longer loaded	PDF файлът вече не е зареден
@@ -3909,6 +4043,7 @@ axis	Both	И двете
 @msg	the art is too light for any dots	графиката е твърде светла за каквито и да е точки
 @msg	the artboard to fit must be a positive size up to {_1} pt	работната област за напасване трябва да бъде с положителен размер до {_1} pt
 @msg	the background worker stopped	фоновият процес спря
+@msg	the blend has no spine	оста на преливането липсва
 @msg	the compressed file unpacks to more than {_1} MB	архивираният файл се разхирата до повече от {_1} MB
 @msg	the document has never been saved	документът никога не е бил запазван
 @msg	the document has no artboard	документът няма работна област
@@ -3949,6 +4084,7 @@ axis	Both	И двете
 @msg	the selected stroke's profile is already listed as {_1}	профилът на избрания щрих вече е посочен като {_1}
 @msg	the selection has no URL (or they differ)	селекцията няма URL адрес (или те се различават)
 @msg	the selection isn't in perspective	селекцията не е в перспектива
+@msg	the spine has no segments	оста няма сегменти
 @msg	the stroke has no weight	щрихът няма дебелина
 @msg	the thumbnail image is malformed	миниатюрното изображение е дефектно
 @msg	the top object must be a path, compound path or text object to use as a clipping mask	горният обект трябва да бъде път, съставен път или текстов обект, за да се използва като маска за изрязване
@@ -3984,9 +4120,11 @@ axis	Both	И двете
 @msg	unknown tool or command `{key}`	непознат инструмент или команда `{key}`
 @msg	unknown workspace (one of {_1})	непознато работно пространство (едно от {_1})
 @msg	unsupported: {0}	не се поддържа: {0}
+@msg	variables are locked	променливите са заключени
 @msg	version {0} files can't be compressed: only version {COMPRESSED_SINCE} and later open compressed files	файловете от версия {0} не могат да бъдат компресирани: само версия {COMPRESSED_SINCE} и по-нови отварят компресирани файлове
 @msg	width and height are at least 1 pixel	ширината и височината са най-малко 1 пиксел
 @msg	workspace name can't be empty	името на работното пространство не може да бъде празно
+@msg	x and y must be finite	x и y трябва да са крайни числа
 @msg	{C}: no effect at index {from}	{C}: няма ефект на индекс {from}
 @msg	{_1} failed: {e}	{_1} неуспешно: {e}
 @msg	{_1} files can be opened but not written (see document.formats)	{_1} файловете могат да се отварят, но не и да се записват (вижте document.formats)
@@ -4275,6 +4413,7 @@ effect	Soft	Меко
 	Reset all	Нулиране на всичко
 	Reset to default	Връщане към по подразбиране
 	Reset all Revolve settings to their defaults.	Нулиране на всички настройки за въртене към техните стойности по подразбиране.
+	Step up or down	Стъпка нагоре или надолу
 	Drag values or labels. Double-click a value to type.	Плъзнете стойности или етикети. Кликнете двукратно върху стойност за въвеждане.
 	Drag rings to rotate. Shift snaps to 15°.	Плъзнете пръстените за завъртане. Shift прилепва към 15°.
 	Drag the light, or its rings. Shift snaps to 15°.	Плъзнете светлината или нейните пръстени. Shift прилепва към 15°.
@@ -4318,11 +4457,27 @@ lighting	Light	Светлина
 @msg	missing panel layout	липсващо оформление на панели
 @msg	unsupported native docking operation	неподдържана вградена операция за скачване
 	Linux Display Server	Дисплейен сървър за Linux
+	X11 (XWayland) When a Pen Is Attached	X11 (XWayland) при свързана писалка
+	If a drawing tablet's pen doesn't draw, choose an X11 (XWayland) option.	Ако писалката на графичния таблет не рисува, изберете опция X11 (XWayland).
 	X11 (XWayland)	X11 (XWayland)
 	Ruler Origin	Начало на линийката
 	Reset Ruler Origin	Нулиране началото на линийката
 	Artistic	Художествени
 	Film Grain…	Филмова зърнистост…
+	Cutout…	Апликация…
+	Cutout	Апликация
+	Neon Glow…	Неоново сияние…
+	Neon Glow	Неоново сияние
+	Poster Edges…	Плакатни ръбове…
+	Poster Edges	Плакатни ръбове
+	Levels	Нива
+	Edge Simplicity	Простота на ръбовете
+	Edge Fidelity	Точност на ръбовете
+	Glow Size	Размер на сиянието
+	Glow Brightness	Яркост на сиянието
+	Edge Thickness	Дебелина на ръбовете
+	Edge Intensity	Интензивност на ръбовете
+	Posterization	Постеризация
 	Highlight Area	Зона на осветяване
 @msg	the compressed file unpacks to more than StitchFoundry reads ({_1} MB of document, {_2} MB per image)	компресираният файл се разпакетира до повече, отколкото StitchFoundry чете ({_1} МБ документ, {_2} МБ на изображение)
 @msg	the document is too large to save compressed ({0}): save it with Use Compression off	документът е твърде голям за запазване в компресиран вид ({0}): запазете го с изключена опция „Използване на компресия“
@@ -4822,6 +4977,11 @@ theme	Appearance	Външен вид
 	Softness	Мекота
 	Ambient Light	Околна светлина
 	Light behind the object	Светлина зад обекта
+# 3D light management.
+	Lights	Светлини
+	Add Light	Добавяне на светлина
+	Delete Light	Изтриване на светлина
+3d	Light	Светлина
 	Automation	Автоматизация
 	Essentials	Основни
 	Essentials Classic	Основни класически
@@ -4987,7 +5147,6 @@ theme	Appearance	Външен вид
 @msg	the Color Picker is not open	палитрата с цвят не е отворена
 @msg	the screen color sampler is already open	инструментът за вземане на цвят от екрана вече е отворен
 @msg	this system has no screen color sampler	тази система няма инструмент за вземане на цвят от екрана
-@msg	not a VectorCraft file: {0}	не е файл на VectorCraft: {0}
 	VectorCraft documents: one locked object, updated when the file changes.	Документи на VectorCraft: един заключен обект, който се обновява при промяна на файла.
 	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	Отварянето му пропусна това, което StitchFoundry все още не може да прочете ({what}): замяната му го губи завинаги. Запазете под друго име, за да го запазите.
 	Report a Bug…	Докладване на грешка…
@@ -5371,7 +5530,6 @@ machine	Stop	Спиране
 	Fade out	Избледняване
 	Fade in	Появяване
 	Blend into	Преливане в
-	Make Blend	Създаване на преливане
 	Blend Colors	Преливане на цветове
 	Add Outline	Добавяне на контур
 	Satin Outline	Сатенен контур
@@ -6333,3 +6491,11 @@ machine	Stop	Спиране
 	{n} credits for {price}	{n} кредита за {price}
 	{n} credits	{n} кредита
 	{n} free checks left this month.	Остават {n} безплатни проверки този месец.
+# Links and Attributes: files and URLs handed to other apps.
+@msg	Edit Original opens image and document files only; “{name}” is not one	„Редактиране на оригинал“ отваря само файлове с изображения и документи; „{name}“ не е такъв файл
+@msg	only http, https and mailto URLs open in the browser, not “{url}”	в браузъра се отварят само URL адреси с http, https и mailto, не „{url}“
+@msg	{id} opens another app: only the person at the keyboard can run it	{id} отваря друга програма: само човекът пред клавиатурата може да изпълни командата
+@msg	“{name}” is not a file	„{name}“ не е файл
+	Enable Guides for 9-Slice Scaling	Включване на водачи за 9-slice мащабиране
+	Persistent	Постоянна
+	Library Panel Options	Опции на панела с библиотека

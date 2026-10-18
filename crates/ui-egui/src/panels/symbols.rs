@@ -293,6 +293,18 @@ mod tests {
         crate::dialogs::confirm(&mut app).unwrap();
         assert_eq!(symbols(&mut app), ["New Symbol", "Mark"]);
         assert_eq!(app.run("symbol.list", json!({})).unwrap()["symbols"][1]["exportType"], "graphic");
+        // Enable Guides for 9-Slice Scaling stores the guides (percent in the dialog) and reopens as set.
+        assert!(app.run("symbol.list", json!({})).unwrap()["symbols"][1]["nineSlice"].is_null());
+        app.run("ui.symbolOptions", json!({"edit": true, "name": "Mark"})).unwrap();
+        let dialog = app.ui.dialog.as_mut().unwrap();
+        dialog.fields.insert("nineSlice".into(), json!(true));
+        dialog.fields.insert("sliceLeft".into(), json!(20.0));
+        crate::dialogs::confirm(&mut app).unwrap();
+        let nine = app.run("symbol.list", json!({})).unwrap()["symbols"][1]["nineSlice"].clone();
+        assert_eq!(nine[0], json!(0.2));
+        app.run("ui.symbolOptions", json!({"edit": true, "name": "Mark"})).unwrap();
+        assert!(app.ui.dialog.as_ref().unwrap().bool("nineSlice"));
+        assert_eq!(app.ui.dialog.as_ref().unwrap().f64("sliceLeft", 0.0), 20.0);
     }
 
     #[test]

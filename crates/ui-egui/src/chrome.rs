@@ -261,6 +261,7 @@ pub fn control_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
                 let first = sel.first().and_then(|id| st.doc.node(*id)).cloned();
                 let anchors = anchor_controls(app);
                 let label = match &first {
+                    _ if app.session.tool_id() == "artboard" => tl!("Artboard"),
                     Some(_) if sel.len() == 1 && anchors != AnchorControls::None => {
                         tl!("Anchor Point")
                     }
@@ -277,6 +278,11 @@ pub fn control_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
                     _ => tl!(crate::panels::appearance::object_label(app)),
                 };
                 ui.label(egui::RichText::new(label).font(theme::semibold(12.0)).color(t.text));
+                // With the Artboard tool in use, the bar shows the active artboard's controls in place
+                // of the object controls.
+                if crate::panels::artboards::control_bar(app, ui) {
+                    return;
+                }
                 if anchors != AnchorControls::None {
                     anchor_buttons(app, ui, anchors);
                 }
@@ -317,8 +323,9 @@ pub fn control_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
                     if ui.link(egui::RichText::new(tl!("Style:")).size(12.0).color(t.text).underline()).clicked() {
                         app.ui.open_panel = Some("graphicStyles".into());
                     }
-                    let resp = widgets::chip_button(ui, 22.0, true, |ui, r| crate::panels::graphic_styles::paint_linked(app, ui, r))
-                        .on_hover_text(tl!("Graphic Style"));
+                    let resp = widgets::chip_button_named(ui, 22.0, true, tl!("Graphic Style"), |ui, r| {
+                        crate::panels::graphic_styles::paint_linked(app, ui, r)
+                    });
                     egui::Popup::menu(&resp).show(|ui| crate::panels::graphic_styles::picker(app, ui));
                     // Recolor Artwork, when the selection has colours to recolour.
                     let colored = app.session.active().is_some_and(|st| crate::canvas::has_colors(&st.doc, &st.selection.objects));
@@ -681,16 +688,16 @@ pub fn status_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
                 let nab = app.session.active().map(|d| d.doc.artboards.len()).unwrap_or(0);
                 let cur = crate::panels::artboards::selected(app, nab);
                 let mut go = None;
-                for (icon, to) in [("chevrons-left", "first"), ("chevron-left", "previous")] {
-                    if widgets::icon_button_enabled(ui, icon, "", false, cur > 0, 18.0).clicked() {
+                for (icon, to, tip) in [("chevrons-left", "first", tl!("First Artboard")), ("chevron-left", "previous", tl!("Previous Artboard"))] {
+                    if widgets::icon_button_enabled(ui, icon, tip, false, cur > 0, 18.0).clicked() {
                         go = Some(json!(to));
                     }
                 }
                 if let Some(i) = artboard_list(app, ui, cur) {
                     go = Some(json!(i));
                 }
-                for (icon, to) in [("chevron-right", "next"), ("chevrons-right", "last")] {
-                    if widgets::icon_button_enabled(ui, icon, "", false, cur + 1 < nab, 18.0).clicked() {
+                for (icon, to, tip) in [("chevron-right", "next", tl!("Next Artboard")), ("chevrons-right", "last", tl!("Last Artboard"))] {
+                    if widgets::icon_button_enabled(ui, icon, tip, false, cur + 1 < nab, 18.0).clicked() {
                         go = Some(json!(to));
                     }
                 }
@@ -1130,6 +1137,20 @@ mod tests {
         // The command also takes an index, clamped to the last artboard.
         assert_eq!(app.run("view.goToArtboard", json!({"index": 9})), Ok(json!({"index": 2})));
         assert!(app.run("view.goToArtboard", json!({"index": "sideways"})).is_err());
+    }
+
+    /// Screen readers name the artboard navigator's four buttons, the ones that lead nowhere from
+    /// the first artboard disabled.
+    #[test]
+    fn screen_readers_name_the_artboard_navigators_buttons() {
+        use crate::widgets::accessibility_tests::{named, tree};
+        let mut app = crate::VectorcraftApp::new(Session::new(), Default::default());
+        app.run("file.new", json!({"width": 200, "height": 100, "artboards": 3})).unwrap();
+        let tree = tree(|ui| super::status_bar(&mut app, ui));
+        for (label, enabled) in [("First Artboard", false), ("Previous Artboard", false), ("Next Artboard", true), ("Last Artboard", true)] {
+            let n = named(&tree, label);
+            assert_eq!((n.role(), n.is_disabled()), (egui::accesskit::Role::Button, !enabled), "{label}");
+        }
     }
 
     /// One headless frame of the status bar, with room above it for the artboard list; returns the

@@ -83,6 +83,22 @@ fn type_with_raster_effects_redraws_when_its_font_becomes_available() {
     assert_eq!(after, Renderer::new().render(&d, 300, 150, Affine::IDENTITY, &opts).pixels, "as a new renderer draws it");
 }
 
+/// Type with Variable Font settings is drawn in a face of their own, which is not a substitute:
+/// Document Setup's highlight of substituted glyphs leaves it alone, and so does Highlight
+/// Alternate Glyphs.
+#[test]
+fn variable_font_settings_are_not_highlighted_as_substituted_glyphs() {
+    use vectorcraft_text::test_fonts::{TWO_AXIS_FAMILY, two_axis_font};
+    let _adding = adding_fonts();
+    vectorcraft_text::FontDb::global().add_font(two_axis_font().unwrap());
+    let font_axes = [("wght".to_string(), 650.0)].into_iter().collect();
+    let style = CharStyle { size: 40.0, font_family: TWO_AXIS_FAMILY.into(), font_axes, ..Default::default() };
+    let g = text_geom(&TextObject::point(Point::new(10.0, 60.0), "lIn", style));
+    assert!(!g.all.elements().is_empty());
+    assert!(g.substituted_glyphs.elements().is_empty() && g.substituted_fonts.elements().is_empty());
+    assert!(g.alternate_glyphs.elements().is_empty());
+}
+
 /// Type at 80% opacity, in Multiply and with a drop shadow redraws in a font that becomes
 /// available: the glyph geometry kept for it is laid out again.
 #[test]

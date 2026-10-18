@@ -263,6 +263,10 @@ pub fn handle(app: &mut VectorcraftApp, ctx: &egui::Context) {
         }
         return;
     }
+    if app.ui.screen_mode == 3 {
+        presentation_keys(app, ctx, escape_pair);
+        return;
+    }
     let typing = ctx.egui_wants_keyboard_input();
     // Escape closes Edit Toolbar's drawer first (egui drops a drag from it on Escape already).
     if app.ui.tools_drawer && !typing && ctx.input_mut(|i| i.consume_key(Modifiers::NONE, Key::Escape)) {
@@ -287,10 +291,7 @@ pub fn handle(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 ctx.input_mut(|i| i.consume_key(Modifiers::NONE, k));
             }
             if k == Key::Escape && !busy && !claimed {
-                // Escape leaves Presentation Mode first: it hides the menus and panels.
-                if app.ui.screen_mode == 3 {
-                    let _ = app.run("view.presentation", json!({}));
-                } else if app.session.active().is_some_and(|d| d.doc.pattern_edit.is_some()) {
+                if app.session.active().is_some_and(|d| d.doc.pattern_edit.is_some()) {
                     let _ = app.run("object.pattern.done", json!({}));
                 } else if app.session.active().is_some_and(|d| d.isolation.is_some()) {
                     let _ = app.run("object.exitIsolation", json!({}));
@@ -331,28 +332,6 @@ pub fn handle(app: &mut VectorcraftApp, ctx: &egui::Context) {
     // would count as typing.
     if ctx.input(|i| i.key_pressed(Key::Tab)) {
         ctx.memory_mut(|m| m.move_focus(egui::FocusDirection::None));
-    }
-    // In Presentation Mode, ← and → go to the previous and the next artboard. Every arrow key press
-    // is removed from the input here, so no arrow key moves the selection or is sent to the tool.
-    if app.ui.screen_mode == 3 {
-        let mut steps = vec![];
-        ctx.input_mut(|i| {
-            i.events.retain(|e| match e {
-                egui::Event::Key { key: Key::ArrowLeft, pressed: true, .. } => {
-                    steps.push(false);
-                    false
-                }
-                egui::Event::Key { key: Key::ArrowRight, pressed: true, .. } => {
-                    steps.push(true);
-                    false
-                }
-                egui::Event::Key { key: Key::ArrowUp | Key::ArrowDown, pressed: true, .. } => false,
-                _ => true,
-            })
-        });
-        for next in steps {
-            presentation_step(app, next);
-        }
     }
     // Type tool editing: text, IME composition and editing keys go to the tool.
     if app.session.tool_wants_text() {
@@ -541,7 +520,13 @@ pub fn handle(app: &mut VectorcraftApp, ctx: &egui::Context) {
         }
     }
     if let Some((id, p)) = fire {
-        crate::menus::invoke(app, id, p);
+        // With the Artboard tool, Select All's keys after a click on an Artboards panel row select
+        // every artboard instead of the art.
+        if id == "select.all" && crate::panels::artboards::selects_all(app, ctx) {
+            crate::panels::artboards::select_all(app);
+        } else {
+            crate::menus::invoke(app, id, p);
+        }
         return;
     }
     // Arrow nudges (Shift = ×10, Alt = copy).
@@ -635,6 +620,48 @@ fn escape_resets_rotation(app: &VectorcraftApp, ctx: &egui::Context, second: boo
         && (second || app.session.tool_id() == "rotateView")
         && !egui::Popup::is_any_open(ctx)
         && !crate::canvas::ruler_origin_dragging(ctx)
+}
+
+/// The keys in Presentation Mode, where nothing is edited: Escape leaves the mode, and ← and → go to
+/// the previous and the next artboard ([`presentation_step`]). Every other key press, the text it
+/// types and the clipboard keys are removed from the input, so no shortcut, tool or field acts on
+/// them. The macOS menu bar's key equivalents arrive as key presses too ([`crate::native_menu`]).
+fn presentation_keys(app: &mut VectorcraftApp, ctx: &egui::Context, escape_pair: Option<bool>) {
+    let (mut leave, mut steps) = (false, vec![]);
+    ctx.input_mut(|i| {
+        i.events.retain(|e| match e {
+            egui::Event::Key { key: Key::Escape, pressed: true, .. } => {
+                leave = true;
+                false
+            }
+            egui::Event::Key { key: Key::ArrowLeft, pressed: true, .. } => {
+                steps.push(false);
+                false
+            }
+            egui::Event::Key { key: Key::ArrowRight, pressed: true, .. } => {
+                steps.push(true);
+                false
+            }
+            egui::Event::Key { pressed: true, .. }
+            | egui::Event::Text(_)
+            | egui::Event::Ime(_)
+            | egui::Event::Copy
+            | egui::Event::Cut
+            | egui::Event::Paste(_) => false,
+            _ => true,
+        })
+    });
+    for next in steps {
+        presentation_step(app, next);
+    }
+    if leave {
+        let _ = app.run("view.presentation", json!({}));
+        // The Escape that left the mode can start a pair, as in `handle`.
+        if escape_pair.is_some() && !egui::Popup::is_any_open(ctx) {
+            let now = ctx.input(|i| i.time);
+            ctx.data_mut(|d| d.insert_temp(escape_pair_id(), now));
+        }
+    }
 }
 
 /// Go to the next artboard (`next`) or the previous one with `view.goToArtboard`, as the status bar
@@ -1148,6 +1175,67 @@ mod tests {
         app.select_tool("rectangle");
         frame(&mut app, vec![enter()]);
         assert_eq!(kind(&app), None, "another tool has its own Enter");
+    }
+
+    /// A drag with the Selection tool, then Enter: the Move dialog opens on the drag's offset, and
+    /// Enter is its OK. With Copy ticked once, each Enter, Enter after that makes another copy at
+    /// the same spacing.
+    #[test]
+    fn enter_after_a_drag_repeats_its_offset() {
+        use vectorcraft_tools::{PointerEvent, PointerKind};
+        let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), Default::default());
+        app.session.execute("file.new", &json!({"width": 800, "height": 300})).unwrap();
+        app.session.execute("shape.rectangle", &json!({"x": 10, "y": 10, "width": 20, "height": 20})).unwrap();
+        let ctx = egui::Context::default();
+        let enter = || egui::Event::Key { key: Key::Enter, physical_key: None, pressed: true, repeat: false, modifiers: Modifiers::NONE };
+        let frame = |app: &mut VectorcraftApp, events: Vec<egui::Event>| {
+            let screen_rect = Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1280.0, 800.0)));
+            let mut out = ctx.run_ui(egui::RawInput { events, screen_rect, ..Default::default() }, |ui| {
+                app.logic(ui.ctx());
+                app.ui(ui);
+            });
+            out.textures_delta.clear();
+        };
+        let lefts = |app: &VectorcraftApp| {
+            let kids = app.session.doc().unwrap().doc.layers[0].children().unwrap();
+            kids.iter().map(|n| n.geometric_bounds().unwrap().x0.round()).collect::<Vec<_>>()
+        };
+        app.select_tool("selection");
+        let view = app.view_info();
+        for (kind, x, y) in
+            [(PointerKind::Down, 20.0, 20.0), (PointerKind::Drag, 40.0, 20.0), (PointerKind::Drag, 60.0, 20.0), (PointerKind::Up, 60.0, 20.0)]
+        {
+            app.session.pointer(&PointerEvent::new(kind, x, y), view).unwrap();
+        }
+        let [moved] = lefts(&app)[..] else { panic!("one rectangle") };
+        let step = moved - 10.0;
+        assert!(step > 0.0);
+        // Keys reach the canvas from the second frame on.
+        frame(&mut app, vec![]);
+        frame(&mut app, vec![enter()]);
+        let d = app.ui.dialog.as_mut().expect("Enter opens Move");
+        assert_eq!((d.kind.as_str(), d.f64("dx", f64::NAN).round(), d.f64("dy", f64::NAN)), ("move", step, 0.0));
+        d.fields.insert("copy".into(), json!(true));
+        frame(&mut app, vec![enter()]);
+        for _ in 0..2 {
+            frame(&mut app, vec![enter()]);
+            frame(&mut app, vec![enter()]);
+        }
+        assert!(app.ui.dialog.is_none());
+        assert_eq!(lefts(&app), (0..4).map(|i| moved + step * f64::from(i)).collect::<Vec<_>>());
+        // With Preview on too, each Enter, Enter still makes one copy, and one undo step.
+        frame(&mut app, vec![enter()]);
+        app.ui.dialog.as_mut().expect("Move").fields.insert("preview".into(), json!(true));
+        frame(&mut app, vec![enter()]);
+        let steps = app.session.active().unwrap().history.undo.len();
+        for _ in 0..2 {
+            frame(&mut app, vec![enter()]);
+            assert!(app.ui.dialog.as_ref().is_some_and(|d| d.bool("preview") && d.bool("copy")) && app.session.in_interaction());
+            frame(&mut app, vec![enter()]);
+            assert!(app.ui.dialog.is_none() && !app.session.in_interaction());
+        }
+        assert_eq!(app.session.active().unwrap().history.undo.len(), steps + 2);
+        assert_eq!(lefts(&app), (0..7).map(|i| moved + step * f64::from(i)).collect::<Vec<_>>());
     }
 
     /// #1661: typed `[` and `]` reach the tool that takes them: the Blob Brush's and the Eraser's

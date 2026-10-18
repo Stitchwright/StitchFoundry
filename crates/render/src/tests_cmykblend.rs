@@ -261,3 +261,22 @@ fn rich_black_shows_black_ink_alone_as_rgb_black() {
     add(&mut d, n);
     assert_eq!(centre_with(&d, true), centre_with(&d, false), "an image shows as it is");
 }
+
+/// An overprinting stroke in the colour of the fill under it shows no darker band in Overprint
+/// Preview: the same ink printed over itself is that ink (#2415). Multiply would square the colour.
+#[test]
+fn overprint_of_the_same_colour_shows_no_darker_band() {
+    for (mode, c) in [(ColorMode::Rgb, Color::rgb(0.0, 0.55, 0.29)), (ColorMode::Cmyk, Color::cmyk(0.85, 0.0, 1.0, 0.0))] {
+        let mut d = Document::new_with_mode(40.0, 40.0, mode);
+        let mut n =
+            Node::path(d.alloc_id(), shapes::rectangle(Rect::new(10.0, 10.0, 30.0, 30.0)), Appearance::basic(Paint::solid(c), Paint::solid(c), 8.0));
+        for it in &mut n.appearance.items {
+            *it.overprint_mut() = true;
+        }
+        add(&mut d, n);
+        let opts = RenderOptions { background: Some([255, 255, 255, 255]), overprint_preview: true, ..Default::default() };
+        let r = Renderer::new().render_region_with(&d, d.artboards[0].rect, 1.0, &opts);
+        // (20, 20) is fill only; (12, 20) lies in the stroke's inner half, over the fill.
+        assert!(near(r.pixel(12, 20), r.pixel(20, 20), 2), "{mode:?}: {:?} vs {:?}", r.pixel(12, 20), r.pixel(20, 20));
+    }
+}

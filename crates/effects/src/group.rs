@@ -293,6 +293,15 @@ mod tests {
     use vectorcraft_doc::{CharStyle, Effect, NodeId, TextObject};
     use vectorcraft_geom::{Point, Rect, shapes};
 
+    /// Type tests need glyph outlines, which only the optional craft-fonts build input provides.
+    fn skip_without_craft_fonts() -> bool {
+        let skip = vectorcraft_text::CRAFT_FONTS.is_empty();
+        if skip {
+            eprintln!("skipped: built without craft-fonts (set CRAFT_FONTS_DIR to a craft-fonts checkout to run it)");
+        }
+        skip
+    }
+
     fn sq(id: u64, x: f64, color: Color) -> Arc<Node> {
         Arc::new(Node::path(
             NodeId(id),
@@ -350,6 +359,9 @@ mod tests {
 
     #[test]
     fn type_changes_the_result_of_every_pathfinder_effect() {
+        if skip_without_craft_fonts() {
+            return;
+        }
         let glyphs = crate::outline_text(&type_h()).unwrap();
         let b = glyphs.geometric_bounds().unwrap();
         assert!(b.x0 < 100.0 && b.x1 > 100.0 && b.y0 > 0.0 && b.y1 < 100.0, "{b:?}");
@@ -377,6 +389,9 @@ mod tests {
 
     #[test]
     fn pieces_of_type_keep_its_paint_opacity_and_blend_mode() {
+        if skip_without_craft_fonts() {
+            return;
+        }
         let mut t = type_h();
         (t.opacity, t.blend) = (0.5, BlendMode::Multiply);
         let look = |p: &Arc<Node>| (p.appearance.fill_paint(), p.opacity, p.blend);
@@ -418,6 +433,9 @@ mod tests {
 
     #[test]
     fn type_in_a_group_keeps_its_look_when_the_groups_geometry_effects_outline_it() {
+        if skip_without_craft_fonts() {
+            return;
+        }
         use vectorcraft_color::BlendMode;
         let art = type_in_group(|t| (t.opacity, t.blend) = (0.5, BlendMode::Multiply));
         assert!(art.id == NodeId(3) && !matches!(art.kind, NodeKind::Text(_)), "{art:?}");
@@ -447,6 +465,9 @@ mod tests {
 
     #[test]
     fn a_transform_on_a_group_moves_the_gradients_of_its_type_and_not_those_placed_on_its_paths() {
+        if skip_without_craft_fonts() {
+            return;
+        }
         use vectorcraft_color::{Gradient, GradientGeom, GradientKind, GradientPaint, GradientStop};
         let stops = vec![GradientStop::new(0.0, Color::rgb(1.0, 0.0, 0.0)), GradientStop::new(1.0, Color::rgb(0.0, 0.0, 1.0))];
         let ramp = GradientPaint::new(Gradient { kind: GradientKind::Linear, stops });
@@ -469,5 +490,33 @@ mod tests {
         let after = start(&members[1].children().unwrap()[0]);
         assert!((after - before - 30.0).abs() < 1e-6, "the type's gradient starts at {before}, then {after}");
         assert_eq!(start(&members[0]), 0.0, "the square's gradient stays where it was placed");
+    }
+
+    #[test]
+    fn a_transform_on_a_group_paints_each_copy_with_its_own_gradient() {
+        use vectorcraft_color::{Gradient, GradientGeom, GradientKind, GradientPaint, GradientStop};
+        let stops = vec![GradientStop::new(0.0, Color::rgb(1.0, 0.0, 0.0)), GradientStop::new(1.0, Color::rgb(0.0, 0.0, 1.0))];
+        let ramp = GradientPaint::new(Gradient { kind: GradientKind::Linear, stops });
+        let geom = GradientGeom { start: (0.0, 5.0).into(), end: (10.0, 5.0).into(), aspect: 1.0, focal: None };
+        let paints = [Paint::Gradient(Box::new(ramp.clone())), Paint::Gradient(Box::new(GradientPaint { geom: Some(geom), ..ramp }))];
+        for (k, paint) in paints.into_iter().enumerate() {
+            let square =
+                Arc::new(Node::path(NodeId(1), shapes::rectangle(Rect::new(0.0, 0.0, 10.0, 10.0)), Appearance::basic(paint, Paint::None, 0.0)));
+            let mut g = Node::group(NodeId(10), vec![square]);
+            let params = serde_json::json!({"moveH": 30, "copies": 2});
+            g.appearance.effects.push(Effect { id: "distort.transform".into(), params, visible: true });
+            let art = evaluate_container(&g).unwrap();
+            let copies = art.children().unwrap()[0].children().expect("the object and its copies are objects of their own");
+            assert_eq!(copies.len(), 3);
+            for (i, c) in copies.iter().enumerate() {
+                // Each copy's own box: an unplaced gradient fits it, a placed one moved with it.
+                assert!((c.geometric_bounds().unwrap().x0 - 30.0 * i as f64).abs() < 1e-6);
+                match c.appearance.fill_paint() {
+                    Paint::Gradient(g) if k == 0 => assert!(g.geom.is_none(), "copy {i} fits its own box"),
+                    Paint::Gradient(g) => assert!((g.geom.unwrap().start.x - 30.0 * i as f64).abs() < 1e-6, "copy {i}"),
+                    p => panic!("a gradient: {p:?}"),
+                }
+            }
+        }
     }
 }

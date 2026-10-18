@@ -225,7 +225,7 @@ fn approx_equal_documents_compare_equal() {
 fn bug_f64_bit_exact_roundtrip() {
     check_native_roundtrip_exact(&rich_doc()).unwrap();
     let mut d = Document::new(126.86291501015239, 214.69463130731182);
-    d.raster_effects_ppi = 0.1 + 0.2;
+    d.raster_effects_ppi = (0.1 + 0.2) * 1000.0;
     check_native_roundtrip_exact(&d).unwrap();
 }
 

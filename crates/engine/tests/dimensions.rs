@@ -389,3 +389,66 @@ fn unknown_dimension_options_are_refused_by_commands_but_a_newer_file_still_open
     let doc = vectorcraft_format::load(&serde_json::to_vec(&v).unwrap()).unwrap();
     assert!(doc.node(NodeId(id)).unwrap().extras().dimension.is_some());
 }
+
+/// With Shift down, the dashed line from the first picked point follows the 45-degree step the
+/// second click will pick (#2432), not the raw pointer.
+#[test]
+fn shift_shows_the_constrained_line_while_picking_the_second_point() {
+    use vectorcraft_engine::tools::Overlay;
+    let mut s = session();
+    s.select_tool("dimension", ViewInfo::default()).unwrap();
+    ev(&mut s, PointerKind::Down, 300.0, 300.0);
+    ev(&mut s, PointerKind::Up, 300.0, 300.0);
+    let end = |s: &mut Session, shift: bool| {
+        let e = PointerEvent::new(PointerKind::Move, 372.0, 310.0).with_mods(Mods { shift, ..Mods::default() });
+        s.pointer(&e, ViewInfo::default()).unwrap();
+        s.overlays(ViewInfo::default()).into_iter().find_map(|o| if let Overlay::Line { b, .. } = o { Some(b) } else { None }).unwrap()
+    };
+    assert_eq!(end(&mut s, false).y, 310.0);
+    assert!((end(&mut s, true).y - 300.0).abs() < 1e-9);
+}
+
+/// A click near a line, away from its anchors, snaps to the closest point of the line (#2432).
+#[test]
+fn clicking_near_a_line_snaps_the_measured_point_onto_it() {
+    let mut s = session();
+    edge(&mut s);
+    s.select_tool("dimension", ViewInfo::default()).unwrap();
+    for (x, y) in [(130.0, 103.0), (150.0, 97.0), (140.0, 130.0)] {
+        ev(&mut s, PointerKind::Down, x, y);
+        ev(&mut s, PointerKind::Up, x, y);
+    }
+    let id = s.doc().unwrap().selection.objects[0].0;
+    assert_eq!(text(&s, id), "20.00 pt");
+}
+
+/// Both picked points snap onto anchors a few pixels away, the rubber band and a ring show the
+/// snap before the click, and the dimension stays linked to the anchors (#2516).
+#[test]
+fn both_points_snap_onto_anchors_with_a_visible_indicator() {
+    use vectorcraft_engine::tools::Overlay;
+    let mut s = session();
+    let line = edge(&mut s);
+    s.select_tool("dimension", ViewInfo::default()).unwrap();
+    ev(&mut s, PointerKind::Move, 103.0, 102.0);
+    let ring = |s: &mut Session| {
+        s.overlays(ViewInfo::default())
+            .into_iter()
+            .any(|o| matches!(o, Overlay::Anchor { p, size, .. } if size > 8.0 && p.x == 100.0 && p.y == 100.0))
+    };
+    assert!(ring(&mut s), "ring on the anchor before the first click");
+    ev(&mut s, PointerKind::Down, 103.0, 102.0);
+    ev(&mut s, PointerKind::Up, 103.0, 102.0);
+    ev(&mut s, PointerKind::Move, 169.0, 98.0);
+    let end = s.overlays(ViewInfo::default()).into_iter().find_map(|o| if let Overlay::Line { b, .. } = o { Some(b) } else { None }).unwrap();
+    assert_eq!((end.x, end.y), (172.0, 100.0), "rubber band ends on the anchor");
+    ev(&mut s, PointerKind::Down, 169.0, 98.0);
+    ev(&mut s, PointerKind::Up, 169.0, 98.0);
+    ev(&mut s, PointerKind::Down, 136.0, 130.0);
+    ev(&mut s, PointerKind::Up, 136.0, 130.0);
+    let id = s.doc().unwrap().selection.objects[0].0;
+    assert_eq!(text(&s, id), "72.00 pt");
+    run(&mut s, "select.set", json!({"ids":[line]}));
+    run(&mut s, "object.scale", json!({"sx":200,"sy":100}));
+    assert_eq!(text(&s, id), "144.00 pt", "linked to both anchors");
+}

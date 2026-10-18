@@ -201,6 +201,37 @@ fn save_as_template_writes_an_ait_that_new_from_template_opens_untitled() {
     assert!(vectorcraft_pdf::editing(&b64(&r)).is_some_and(|e| e.intact));
 }
 
+/// Save as Template writes a file named with its template format's extension: another format's
+/// extension is replaced and a name without one gets it; Save and Save As name the command that
+/// writes a `.ait`.
+#[test]
+fn save_as_template_names_its_file_after_the_template_format() {
+    let mut s = rich();
+    for (name, format, saved) in [
+        ("card.png", None, "card.vctemplate"),
+        ("card.vectorcraft", None, "card.vctemplate"),
+        ("card.ait", Some("template"), "card.vctemplate"),
+        ("card.pdf", Some("ait"), "card.ait"),
+        ("card v1.2", None, "card v1.2.vctemplate"),
+    ] {
+        let (typed, want) = (tmp(&format!("named/{name}")), tmp(&format!("named/{saved}")));
+        let _ = std::fs::create_dir_all(std::path::Path::new(&typed).parent().unwrap());
+        let _ = std::fs::remove_file(&typed);
+        let _ = std::fs::remove_file(&want);
+        let r = s.execute("file.saveAsTemplate", &json!({"path": typed, "format": format})).unwrap();
+        assert_eq!(r["path"], want.as_str(), "{name}: {r}");
+        let bytes = std::fs::read(&want).unwrap_or_else(|e| panic!("{name}: {saved} not written: {e}"));
+        let ait = saved.ends_with(".ait");
+        assert_eq!(bytes.starts_with(b"%PDF"), ait, "{name}");
+        assert!(ait || vectorcraft_format::load(&bytes).is_ok_and(|d| d.template), "{name}: a native template");
+        assert!(!std::path::Path::new(&typed).exists(), "{name}: nothing written under the typed name");
+    }
+    for (cmd, p) in [("file.saveAs", json!({"format": "ait"})), ("document.save", json!({"path": tmp("card.ait")}))] {
+        let e = s.execute(cmd, &p).unwrap_err().to_string();
+        assert!(e.contains("file.saveAsTemplate") && !e.contains("document.export"), "{cmd}: {e}");
+    }
+}
+
 #[test]
 fn standards_and_screens_leave_the_editing_data_out() {
     let mut s = rich();

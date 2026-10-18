@@ -205,6 +205,29 @@ fn variable_font_instances_are_real_text_in_their_own_glyphs() {
     assert!(widths[1] > widths[0] * 1.2, "Bold is wider: {widths:?}");
 }
 
+/// Type with Variable Font settings is real text in a font embedded at those settings: it draws
+/// where its outlines would, between the named instances on either side.
+#[test]
+fn variable_font_settings_are_real_text_in_their_own_glyphs() {
+    use vectorcraft_text::test_fonts::{TWO_AXIS_FAMILY, VARIABLE_CHARS, two_axis_font};
+    FontDb::global().add_font(two_axis_font().unwrap());
+    let mut widths = vec![];
+    for (s, wght) in [("Regular", None), ("Regular", Some(650.0)), ("Bold", None)] {
+        let font_axes = wght.map(|w| [("wght".to_string(), w)].into_iter().collect()).unwrap_or_default();
+        let st = CharStyle { font_family: TWO_AXIS_FAMILY.into(), font_style: s.into(), font_axes, ..style(48.0) };
+        let d = doc(vec![TextObject::point(Point::new(20.0, 80.0), VARIABLE_CHARS, st)]);
+        let r = pdf(&d, false);
+        assert!(r.warnings.is_empty(), "{s} {wght:?}: {:?}", r.warnings);
+        assert_eq!(texts(&import_as(&r.bytes, TextAs::Text)), [VARIABLE_CHARS], "{s} {wght:?}: real text");
+        let (real, outlined) = (ink(&import_as(&r.bytes, TextAs::Outlines)), ink(&import_as(&pdf(&d, true).bytes, TextAs::Outlines)));
+        let off =
+            [real.x0 - outlined.x0, real.y0 - outlined.y0, real.x1 - outlined.x1, real.y1 - outlined.y1].iter().fold(0.0f64, |m, v| m.max(v.abs()));
+        assert!(off < 0.5, "{s} {wght:?}: {real:?} vs {outlined:?}");
+        widths.push(real.width());
+    }
+    assert!(widths[0] * 1.1 < widths[1] && widths[1] < widths[2], "{widths:?}");
+}
+
 #[test]
 fn gradients_on_real_text_stay_where_they_were() {
     let fill = Paint::Gradient(Box::new(GradientPaint::new(Gradient::default())));

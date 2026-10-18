@@ -110,6 +110,42 @@ fn density_buckets_go_into_sub_folders() {
     assert_eq!(names(&r), ["Artboard-2-..-x-..-y.svg", "Artboard-2-ok.png"]);
 }
 
+/// Windows does not allow `<`, `>`, `"`, `|`, `?`, `*` or control characters in a file name
+/// (<https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file>): Export for Screens
+/// writes them as `-` in a prefix and a suffix, on every platform.
+#[test]
+fn a_prefix_or_suffix_writes_the_characters_windows_does_not_allow_as_dashes() {
+    let mut s = session(1);
+    let r = export(&mut s, json!({"prefix": "a<b>c\"", "formats": [{"format": "svg", "suffix": "|d?e*f\u{1}\t"}]}));
+    assert_eq!(names(&r), ["a-b-c-Artboard-1-d-e-f--.svg"]);
+}
+
+/// A file or folder named after a Windows device (`CON`, `NUL`, `COM1`…, alone or before an
+/// extension) gets a `-` after the device name, and a folder loses a trailing period, on every
+/// platform.
+#[test]
+fn device_names_and_trailing_periods_follow_windows_naming_rules() {
+    let mut s = session(3);
+    for (index, name) in ["CON", "CON-", "lpt1"].iter().enumerate() {
+        s.execute("artboard.setProps", &json!({"index": index, "name": name})).unwrap();
+    }
+    let r = export(&mut s, json!({"formats": [{"format": "svg"}]}));
+    assert_eq!(names(&r), ["CON-.svg", "CON--2.svg", "lpt1-.svg"]);
+    let r =
+        export(&mut s, json!({"range": "1", "subfolders": true, "formats": [{"format": "svg", "folder": "aux"}, {"format": "pdf", "folder": "x."}]}));
+    assert_eq!(names(&r), ["aux-/CON-.svg", "x/CON-.pdf"]);
+    let r = export(&mut s, json!({"range": "3", "folders": "item", "formats": [{"format": "svg"}]}));
+    assert_eq!(names(&r), ["lpt1-/lpt1-.svg"]);
+    // A name pattern, with an extension after the device name, and the document's own name.
+    let r = export(&mut s, json!({"range": "1", "name": "<name>.tar", "formats": [{"format": "svg"}]}));
+    assert_eq!(names(&r), ["CON-.tar.svg"]);
+    s.execute("file.new", &json!({"width": 40, "height": 30, "name": "nul"})).unwrap();
+    let r = export(&mut s, json!({"fullDocument": true, "folders": "item", "formats": [{"format": "pdf"}]}));
+    assert_eq!(names(&r), ["nul-/nul-.pdf"]);
+    let r = s.execute("document.exportForScreens", &json!({"zip": true, "formats": [{"format": "svg"}]})).unwrap();
+    assert_eq!(r["name"], "nul-.zip");
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 #[test]
 fn sub_folders_are_made_in_the_export_folder() {
@@ -162,6 +198,45 @@ fn a_zip_is_written_into_the_folder() {
     let zip = std::fs::read(r["path"].as_str().unwrap()).unwrap();
     assert_eq!(super::zip::entries(&zip).unwrap().len(), 2);
     let _ = std::fs::remove_dir_all(dir);
+}
+
+/// The warnings in `r` that contain `text`.
+fn warned<'a>(r: &'a Value, text: &str) -> Vec<&'a str> {
+    r["warnings"].as_array().unwrap().iter().filter_map(Value::as_str).filter(|w| w.contains(text)).collect()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn every_reply_says_once_when_an_image_could_not_be_decoded() {
+    let mut s = session(1);
+    let rows = json!([{"format": "png"}, {"format": "jpg", "scale": "2x"}]);
+    assert_eq!(export(&mut s, json!({ "formats": rows }))["warnings"], json!([]));
+    // The renderer can't decode the placed image and draws nothing in its place.
+    crate::tests_menucmds::place_undecodable_png(&mut s);
+    let dir = std::env::temp_dir().join(format!("vc-screens-undecoded-{}", std::process::id()));
+    let folder = dir.to_string_lossy().replace(std::path::MAIN_SEPARATOR, "/");
+    for p in [
+        json!({ "formats": rows }),
+        json!({ "formats": rows, "zip": true }),
+        json!({ "formats": rows, "folder": folder }),
+        json!({ "formats": rows, "folder": folder, "zip": true }),
+        json!({ "formats": rows, "fullDocument": true }),
+    ] {
+        let r = export(&mut s, p.clone());
+        assert_eq!(warned(&r, "couldn't be decoded").len(), 1, "{p}: {}", r["warnings"]);
+    }
+    assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 3, "the files are still written");
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn type_in_a_missing_family_is_named_once_for_every_format() {
+    let mut s = session(2);
+    s.execute("text.create", &json!({"x": 5, "y": 20, "text": "Ab", "font": "Nonexistent Sans Probe"})).unwrap();
+    let r = export(&mut s, json!({"formats": [{"format": "png"}, {"format": "pdf"}, {"format": "eps"}]}));
+    let fallback = warned(&r, "fallback font");
+    assert_eq!(fallback.len(), 1, "{}", r["warnings"]);
+    assert!(fallback[0].contains("Nonexistent Sans Probe"), "{fallback:?}");
 }
 
 #[test]

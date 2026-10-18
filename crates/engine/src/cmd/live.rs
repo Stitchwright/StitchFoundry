@@ -14,7 +14,7 @@ use vectorcraft_doc::live::{
     PreserveShape, Spine,
 };
 use vectorcraft_doc::{Appearance, Document, Node, NodeId, NodeKind, Selection};
-use vectorcraft_geom::{Affine, PathData, Point, Vec2};
+use vectorcraft_geom::{Affine, Anchor, PathData, Point, Vec2};
 
 use super::edit::selected_roots;
 use super::expand::gradient_sampler;
@@ -97,11 +97,20 @@ pub fn specs() -> Vec<CommandSpec> {
             spine_move_anchor
         ),
         cmd!(
+            "object.blend.spine.convertAnchor",
+            "Convert Anchor Point",
+            [],
+            None,
+            "{id? (default: the selected blend), anchor: index, to: smooth|corner, x?, y?} convert a blend spine point: dragging a corner creates symmetric smooth handles, clicking a point with handles retracts both. Without x/y, smooth uses the neighbouring spine points",
+            has_doc,
+            spine_convert_anchor
+        ),
+        cmd!(
             "object.blend.spine.reshapeSegment",
             "Reshape Spine Segment",
             [],
             None,
-            "{id? (default: the selected blend), segment: index, t: 0..1, dx, dy} bend a segment of the blend's spine so its point at t moves by (dx, dy), as path.reshapeSegment bends a path's: a straight spine turns into a curve (#1111)",
+            "{id? (default: the selected blend), segment: index, t: 0..1, dx, dy, perpendicular?: bool} bend a segment of the blend's spine so its point at t moves by (dx, dy), as path.reshapeSegment bends a path's (perpendicular too): a straight spine turns into a curve (#1111)",
             has_doc,
             spine_reshape_segment
         ),
@@ -238,7 +247,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Create Gradient Mesh…",
             ["Object"],
             None,
-            "{ids?, rows?: n (4), cols?: n (4), appearance?: flat|center|edge, highlight?: % (100), at?: [x,y], columns?: as cols} convert filled paths into gradient meshes in their fill colour (a gradient fill: the colour it paints at each point), lightened per `appearance` (with `at`: 1×1 mesh plus lines through that point) → {ids, index?}",
+            "{ids?, rows?: n (4), cols?: n (4), appearance?: flat|center|edge, highlight?: % (100), at?: [x,y], columns?: as cols} convert filled paths into gradient meshes in their fill colour (a gradient fill: the colour it paints at each point), lightened per `appearance` (with `at`: 1×1 mesh plus lines through that point); an embedded image becomes a mesh over its rectangle (its transform kept) whose points take the average colour and opacity of the picture around them (a linked image is refused: embed it first) → {ids, index?}",
             has_selection,
             mesh_create
         ),
@@ -383,7 +392,7 @@ fn replace_with(d: &mut Document, id: NodeId, nodes: Vec<Node>) -> Result<Vec<No
 }
 
 /// Fresh ids for any id-0 (generated) node in `n`'s subtree; keeps real ids.
-fn fix_ids(d: &mut Document, n: &mut Node) {
+pub(super) fn fix_ids(d: &mut Document, n: &mut Node) {
     if n.id == NodeId(0) {
         n.id = d.alloc_id();
     }
@@ -402,16 +411,20 @@ const DEFAULT_DISTANCE: f64 = 10.0;
 
 fn spacing_param(p: &Value, cmd: &str, current: BlendSpacing) -> Result<BlendSpacing> {
     let num = |k: &str| p.get(k).and_then(Value::as_f64);
+    let steps = |k: &str, n: f64| whole(n, k, cmd).map(|n| BlendSpacing::Steps(n as u32));
     let mode = str_param(p, "spacing");
     let value = num("value");
     let sp = match mode {
         Some("smooth") | Some("smoothColor") => BlendSpacing::SmoothColor,
-        Some("steps") => BlendSpacing::Steps(value.or(num("steps")).unwrap_or(DEFAULT_STEPS as f64) as u32),
+        Some("steps") => match value {
+            Some(v) => steps("value", v)?,
+            None => steps("steps", num("steps").unwrap_or(DEFAULT_STEPS as f64))?,
+        },
         Some("distance") => BlendSpacing::Distance(value.or(num("distance")).unwrap_or(DEFAULT_DISTANCE)),
         Some(o) => return Err(bad(cmd, format!("unknown spacing `{o}` (smooth|steps|distance)"))),
         None => {
             if let Some(n) = num("steps") {
-                BlendSpacing::Steps(n as u32)
+                steps("steps", n)?
             } else if let Some(d) = num("distance") {
                 BlendSpacing::Distance(d)
             } else if bool_or(p, "smooth", false) {
@@ -649,6 +662,37 @@ fn spine_move_anchor(s: &mut Session, p: &Value) -> Result<Value> {
     ok()
 }
 
+fn spine_convert_anchor(s: &mut Session, p: &Value) -> Result<Value> {
+    const C: &str = "object.blend.spine.convertAnchor";
+    let index = index_param(p, "anchor", C)?;
+    let smooth = match str_param(p, "to") {
+        Some("smooth") => true,
+        Some("corner") => false,
+        _ => return Err(bad(C, "to must be smooth or corner")),
+    };
+    let target = match (p.get("x"), p.get("y")) {
+        (None, None) => None,
+        (Some(_), Some(_)) => Some(finite_point(p, C)?),
+        _ => return Err(bad(C, "x and y must be given together")),
+    };
+    edit_spine(s, p, C, "Convert Anchor Point", |sp, _, _| {
+        if smooth && target.is_none() {
+            if index >= sp.anchors.len() {
+                return Err(bad(C, "no such spine point"));
+            }
+            vectorcraft_tools::draw2::curvature_smooth(sp, index);
+            return Ok(());
+        }
+        let a = sp.anchors.get_mut(index).ok_or_else(|| bad(C, "no such spine point"))?;
+        match target {
+            Some(q) if smooth && q.distance(a.p) > 1e-9 => *a = Anchor::smooth(a.p, q),
+            _ => a.retract(),
+        }
+        Ok(())
+    })?;
+    ok()
+}
+
 fn spine_reshape_segment(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "object.blend.spine.reshapeSegment";
     let seg = index_param(p, "segment", C)?;
@@ -657,7 +701,11 @@ fn spine_reshape_segment(s: &mut Session, p: &Value) -> Result<Value> {
     if !(t.is_finite() && dv.x.is_finite() && dv.y.is_finite() && dv.hypot() < 1e9) {
         return Err(bad(C, "t, dx and dy must be finite"));
     }
-    edit_spine(s, p, C, "Reshape Spine", |sp, _, _| if sp.bend_segment(seg, t, dv) { Ok(()) } else { Err(bad(C, "no such spine segment")) })?;
+    let perpendicular = bool_or(p, "perpendicular", false);
+    edit_spine(s, p, C, "Reshape Spine", |sp, _, _| {
+        let bent = if perpendicular { sp.bend_segment_perpendicular(seg, t, dv) } else { sp.bend_segment(seg, t, dv) };
+        if bent { Ok(()) } else { Err(bad(C, "no such spine segment")) }
+    })?;
     ok()
 }
 
@@ -955,14 +1003,15 @@ fn envelope(id: NodeId, content: Vec<Arc<Node>>, kind: EnvelopeKind, (options, f
     Node::new(id, NodeKind::Envelope { content, kind: Box::new(kind), fidelity, editing: false, options, frame: Box::new(Affine::IDENTITY) })
 }
 
-/// `rows` and `cols` (or `columns`), 1..50 each, defaulting to `default`.
+/// `rows` and `cols` (or `columns`), whole numbers 1..50 each, defaulting to `default`.
 fn rows_cols(p: &Value, cmd: &str, default: (u32, u32)) -> Result<(u32, u32)> {
     let rows = f64_or(p, "rows", default.0 as f64);
-    let cols = f64_or(p, "cols", f64_or(p, "columns", default.1 as f64));
+    let cols_key = if p.get("cols").and_then(Value::as_f64).is_some() { "cols" } else { "columns" };
+    let cols = f64_or(p, cols_key, default.1 as f64);
     if !(1.0..=50.0).contains(&rows) || !(1.0..=50.0).contains(&cols) {
         return Err(bad(cmd, "rows and cols must be 1..50"));
     }
-    Ok((rows as u32, cols as u32))
+    Ok((whole(rows, "rows", cmd)? as u32, whole(cols, cols_key, cmd)? as u32))
 }
 
 fn env_make_warp(s: &mut Session, p: &Value) -> Result<Value> {
@@ -1299,7 +1348,7 @@ fn env_edit_contents(s: &mut Session, p: &Value) -> Result<Value> {
 fn env_set_mesh_point(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "object.envelope.setMeshPoint";
     let id = id_param(p, "id").ok_or_else(|| bad(C, "missing `id`"))?;
-    let index = f64_req(p, "index", C)? as usize;
+    let index = index_param(p, "index", C)?;
     let q = Point::new(f64_req(p, "x", C)?, f64_req(p, "y", C)?);
     let handle = handle_param(p, C)?;
     s.edit("Move Envelope Point", |d, _| {
@@ -1344,18 +1393,33 @@ fn mesh_create(s: &mut Session, p: &Value) -> Result<Value> {
     let (ids, index) = s.edit("Create Gradient Mesh", |d, sel| {
         let mut out = vec![];
         let mut index = None;
+        let mut refused = None;
         for id in &roots {
             let Some(n) = d.node(*id).cloned() else { continue };
-            let Some(path) = outline_of(&n) else { continue };
-            let m = match n.appearance.fill_paint() {
-                // The points take the colours the gradient paints there.
-                Paint::Gradient(g) => {
-                    path.bounds().and_then(|b| GradientMesh::for_path_with(&path, rows, cols, &*gradient_sampler(&g, b))).map(|mut m| {
+            let m = if let NodeKind::Image(im) = &n.kind {
+                // An embedded image: the points take the picture's colours there.
+                match image_mesh(d, im, rows, cols) {
+                    Ok(mut m) => {
                         m.highlight(app, highlight);
-                        m
-                    })
+                        Some(m)
+                    }
+                    Err(why) => {
+                        refused.get_or_insert(why);
+                        continue;
+                    }
                 }
-                p => GradientMesh::for_path(&path, rows, cols, p.color().unwrap_or(Color::WHITE), app, highlight),
+            } else {
+                let Some(path) = outline_of(&n) else { continue };
+                match n.appearance.fill_paint() {
+                    // The points take the colours the gradient paints there.
+                    Paint::Gradient(g) => {
+                        path.bounds().and_then(|b| GradientMesh::for_path_with(&path, rows, cols, &*gradient_sampler(&g, b))).map(|mut m| {
+                            m.highlight(app, highlight);
+                            m
+                        })
+                    }
+                    p => GradientMesh::for_path(&path, rows, cols, p.color().unwrap_or(Color::WHITE), app, highlight),
+                }
             };
             let Some(mut m) = m else { continue };
             if let Some(q) = at {
@@ -1371,7 +1435,7 @@ fn mesh_create(s: &mut Session, p: &Value) -> Result<Value> {
             out.push(*id);
         }
         if out.is_empty() {
-            return Err(bad(C, "select a path or compound path"));
+            return Err(bad(C, refused.unwrap_or("select a path, a compound path or an embedded image")));
         }
         sel.set(out.iter().copied());
         Ok((out, index))
@@ -1381,6 +1445,31 @@ fn mesh_create(s: &mut Session, p: &Value) -> Result<Value> {
         r["index"] = json!(i);
     }
     Ok(r)
+}
+
+/// Create Gradient Mesh on an embedded image: a `rows` × `cols` mesh over the picture's rectangle
+/// (placed with the image's transform), each point taking the average colour and opacity of the
+/// area around it. Linked images are refused: the documentation allows embedded ones only.
+fn image_mesh(d: &Document, im: &vectorcraft_doc::ImageObject, rows: u32, cols: u32) -> std::result::Result<GradientMesh, &'static str> {
+    if im.link.is_some() {
+        return Err("a linked image can't become a gradient mesh: embed it first");
+    }
+    let xf = im.xf.as_coeffs();
+    if im.width == 0 || im.height == 0 || !xf.iter().all(|k| k.is_finite()) {
+        return Err("the image has no usable size or position");
+    }
+    let samples = d.images.get(&im.key).and_then(|b| b.grid_samples(rows, cols)).ok_or("the image's pixels can't be read")?;
+    let (w, h) = (im.width as f64, im.height as f64);
+    let at = |u: f64, v: f64| im.xf * Point::new(u * w, v * h);
+    if ![at(0.0, 0.0), at(1.0, 0.0), at(0.0, 1.0), at(1.0, 1.0)].iter().all(|p| p.x.abs() < 1e15 && p.y.abs() < 1e15) {
+        return Err("the image has no usable size or position");
+    }
+    let cols_n = cols as usize + 1;
+    let steps = |n: u32| (0..=n).map(|i| i as f64 / n as f64).collect::<Vec<_>>();
+    Ok(GradientMesh::from_grid(&steps(cols), &steps(rows), &at, &|r, c, _| {
+        let [pr, pg, pb, pa] = samples.get(r * cols_n + c).copied().unwrap_or([0; 4]);
+        (Color::rgb8(pr, pg, pb), pa as f32 / 255.0)
+    }))
 }
 
 /// Run `f` on the gradient mesh `p.id` (one undo step `label`); with `envelopes`, a mesh
@@ -1422,7 +1511,12 @@ fn index_param(p: &Value, key: &str, cmd: &str) -> Result<usize> {
     if i < 0.0 {
         return Err(bad(cmd, "index must be ≥ 0"));
     }
-    Ok(i as usize)
+    Ok(whole(i, key, cmd)? as usize)
+}
+
+/// `x`, the value of `key`, when it is a whole number, and an error otherwise.
+fn whole(x: f64, key: &str, cmd: &str) -> Result<f64> {
+    if x.fract() == 0.0 { Ok(x) } else { Err(bad(cmd, format!("`{key}` must be a whole number"))) }
 }
 
 fn mesh_set_color(s: &mut Session, p: &Value) -> Result<Value> {

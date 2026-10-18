@@ -152,6 +152,7 @@
 	Expand…	Rozszerz…
 	Expand Appearance	Rozszerz wygląd
 	Crop Image	Kadruj obraz
+	Edit Path	Edytuj ścieżkę
 	Mask	Maska
 	Rasterize…	Rasteryzuj…
 	Create Gradient Mesh…	Utwórz siatkę gradientową…
@@ -219,6 +220,14 @@
 	Live Paint	Aktywne malowanie
 	Merge	Scal
 	Gap Options…	Opcje przerw…
+	Gap Options	Opcje przerw
+	Gap Detection	Wykrywanie przerw
+	Paint Stops At:	Farba zatrzymuje się na:
+	Small Gaps	Małe przerwy
+	Medium Gaps	Średnie przerwy
+	Large Gaps	Duże przerwy
+	Gap Preview Color:	Kolor podglądu przerw:
+	Close Gaps With Paths	Zamknij przerwy ścieżkami
 	Image Trace	Obrys obrazu
 	Text Wrap	Oblewanie tekstem
 	Text Wrap Options…	Opcje oblewania tekstem…
@@ -236,6 +245,16 @@
 	Design…	Wzór…
 	Graph Design	Wzór wykresu
 	Graph Marker	Znacznik wykresu
+	Graph Column	Kolumna wykresu
+	Column Type:	Typ kolumny:
+	Vertically Scaled	Skalowanie w pionie
+	Uniformly Scaled	Skalowanie jednolite
+	Repeating	Powtarzanie
+	Sliding	Przesuwanie
+	Each Design Represents:	Każdy wzór oznacza:
+	For Fractions:	Dla ułamków:
+	Chop Design	Przytnij wzór
+	Scale Design	Skaluj wzór
 	Column…	Kolumna…
 	Marker…	Znacznik…
 	Collect for Export	Zbierz do eksportu
@@ -336,6 +355,7 @@
 	Font Family & Style	Rodzina i styl czcionki
 	Font Family, Style & Size	Rodzina, styl i rozmiar czcionki
 	Font Size	Rozmiar czcionki
+	Variable Font	Czcionka zmienna
 	Text Fill Color	Kolor wypełnienia tekstu
 	Text Stroke Color	Kolor obrysu tekstu
 	All on Same Layers	Wszystko na tych samych warstwach
@@ -463,6 +483,7 @@
 	Show Rulers	Pokaż linijki
 	Hide Rulers	Ukryj linijki
 	Change to Global Rulers	Zmień na linijki globalne
+	Change to Artboard Rulers	Zmień na linijki obszaru kompozycji
 	Show Video Rulers	Pokaż linijki wideo
 	Hide Bounding Box	Ukryj obwiednię
 	Show Bounding Box	Pokaż obwiednię
@@ -527,6 +548,7 @@
 	Contextual Task Bar	Kontekstowy pasek zadań
 	Pin Bar Position	Przypnij położenie paska
 	Reset Bar Position	Resetuj położenie paska
+	Resize	Zmień rozmiar
 	Tools	Narzędzia
 	Toolbars	Paski narzędzi
 	Advanced	Zaawansowany
@@ -558,6 +580,16 @@
 	Separations Preview	Podgląd rozbarwień
 	Stroke	Obrys
 	SVG Interactivity	Interaktywność SVG
+	Event:	Zdarzenie:
+	JavaScript:	JavaScript:
+	Add Event	Dodaj zdarzenie
+	Remove Selected Entry	Usuń wybrany wpis
+	Clear Events	Wyczyść zdarzenia
+	Link JavaScript Files…	Połącz pliki JavaScript…
+	JavaScript Files	Pliki JavaScript
+	File or URL:	Plik lub URL:
+	Add JavaScript File	Dodaj plik JavaScript
+	Remove JavaScript File	Usuń plik JavaScript
 	Swatches	Próbki
 	Symbols	Symbole
 	Transparency	Przezroczystość
@@ -570,6 +602,8 @@
 	New Variable…	Nowa zmienna…
 	Unbind Variable	Odłącz zmienną
 	Delete Variable	Usuń zmienną
+	Lock Variables	Zablokuj zmienne
+	Unlock Variables	Odblokuj zmienne
 	New Data Set…	Nowy zestaw danych…
 	Edit Data Set…	Edytuj zestaw danych…
 	Delete Data Set	Usuń zestaw danych
@@ -744,6 +778,7 @@
 	Reset all	Resetuj wszystko
 	Reset to default	Przywróć domyślne
 	Reset all Revolve settings to their defaults.	Przywróć domyślne wartości wszystkich ustawień obrotu.
+	Step up or down	Zwiększ lub zmniejsz o krok
 	Drag values or labels. Double-click a value to type.	Przeciągaj wartości lub etykiety. Kliknij dwukrotnie wartość, aby ją wpisać.
 	Drag rings to rotate. Shift snaps to 15°.	Przeciągaj pierścienie, aby obracać. Shift przyciąga co 15°.
 	Drag the light, or its rings. Shift snaps to 15°.	Przeciągaj światło lub jego pierścienie. Shift przyciąga co 15°.
@@ -789,6 +824,10 @@ lighting	Light	Światło
 	Export Keyboard Shortcuts…	Eksportuj skróty klawiaturowe…
 	File Info Dialog	Okno informacji o pliku
 	Go to Artboard	Przejdź do obszaru kompozycji
+	First Artboard	Pierwszy obszar kompozycji
+	Previous Artboard	Poprzedni obszar kompozycji
+	Next Artboard	Następny obszar kompozycji
+	Last Artboard	Ostatni obszar kompozycji
 	Graphic Style Options…	Opcje stylu graficznego…
 	Symbol Options	Opcje symbolu
 	Symbol Options…	Opcje symbolu…
@@ -807,6 +846,7 @@ lighting	Light	Światło
 	Menu Dialog	Okno menu
 	Merge Graphic Styles…	Scal style graficzne…
 	New Color Group…	Nowa grupa kolorów…
+	New Artboard Options…	Opcje nowego obszaru kompozycji…
 	New Layer Options…	Opcje nowej warstwy…
 	New Swatch…	Nowa próbka…
 	No saved views (View → New View…)	Brak zapisanych widoków (Widok → Nowy widok…)
@@ -963,6 +1003,7 @@ lighting	Light	Światło
 	Click or drag	Kliknij lub przeciągnij
 	Click the first point	Kliknij pierwszy punkt
 	Connect Selected End Points	Połącz zaznaczone punkty końcowe
+	Connect	Połącz
 	Convert Selected Anchor Points to Corner	Konwertuj zaznaczone punkty kontrolne na narożne
 	Convert Selected Anchor Points to Smooth	Konwertuj zaznaczone punkty kontrolne na gładkie
 	Convert:	Konwertuj:
@@ -1110,6 +1151,7 @@ lighting	Light	Światło
 	Reshape Tool	Narzędzie Zmiana kształtu
 	Rotate Tool	Narzędzie Obrót
 	Rotate View Tool	Narzędzie Obrót widoku
+	Trackpad Gesture to Rotate View	Obracaj widok gestem na gładziku
 	Rounded Rectangle Tool	Narzędzie Zaokrąglony prostokąt
 	Scale Tool	Narzędzie Skalowanie
 	Scallop Tool	Narzędzie Ząbkowanie
@@ -1135,6 +1177,7 @@ lighting	Light	Światło
 	Symbol Stainer Tool	Narzędzie Barwienie symboli
 	Symbol Styler Tool	Narzędzie Stylizowanie symboli
 	Touch Type Tool	Narzędzie Tekst dotykowy
+	Touch Type	Tekst dotykowy
 	Twirl Tool	Narzędzie Wir
 	Type on a Path Tool	Narzędzie Tekst na ścieżce
 	Type Tool	Narzędzie Tekst
@@ -1382,7 +1425,86 @@ lighting	Light	Światło
 	Use Text for Previews	Użyj tekstu w podglądach
 	{percent}% opacity	Krycie {percent}%
 	History Options…	Opcje historii…
+	Step Backward	Krok wstecz
+	Step Forward	Krok naprzód
+	Set History Limit…	Ustaw limit historii…
 	Open a document to see its history.	Otwórz dokument, aby zobaczyć jego historię.
+# History panel: the names of undo steps (`every_undo_label_is_translated`).
+	Apply Data Set	Zastosuj zestaw danych
+	Area Type	Tekst akapitowy
+	Cancel Pattern Editing	Anuluj edycję wzorka
+	Copy Appearance	Kopiuj wygląd
+	Copy Guide	Kopiuj linię pomocniczą
+	Copy in Perspective	Kopiuj w perspektywie
+	Create Slice from Selection	Utwórz plasterek z zaznaczenia
+	Create Slices from Guides	Utwórz plasterki z linii pomocniczych
+	Delete All Slices	Usuń wszystkie plasterki
+	Delete Data Sets	Usuń zestawy danych
+	Delete Graphic Styles	Usuń style graficzne
+	Delete Guide	Usuń linię pomocniczą
+	Delete Guides	Usuń linie pomocnicze
+	Delete Slice	Usuń plasterek
+	Delete Style	Usuń styl
+	Delete Variables	Usuń zmienne
+	Delete View	Usuń widok
+	Done Editing Pattern	Zakończ edycję wzorka
+	Duplicate Rows	Powiel wiersze
+	Edit Perspective Grid	Edytuj siatkę perspektywy
+	Expand Blend	Rozszerz przejście
+	Expand Envelope	Rozszerz kopertę
+	Expand Image Trace	Rozszerz obrys obrazu
+	Expand Live Paint	Rozszerz aktywne malowanie
+	Image Trace (Make and Expand)	Obrys obrazu (utwórz i rozszerz)
+	Live Shape	Aktywny kształt
+	Make Blend	Utwórz przejście
+	Make Dynamic	Uczyń dynamicznym
+	Make Intertwine	Utwórz przeplatanie
+	Make Live Paint	Utwórz aktywne malowanie
+	Make Pattern	Utwórz wzorek
+	Make Slice	Utwórz plasterek
+	Make Text Wrap	Utwórz oblewanie tekstem
+	Merge Live Paint	Scal aktywne malowanie
+	Mesh Point Color	Kolor punktu siatki
+	Move Envelope Point	Przesuń punkt koperty
+	Move Plane and Copy Objects	Przesuń płaszczyznę i kopiuj obiekty
+	Move Plane and Objects	Przesuń płaszczyznę i obiekty
+	Move Slice	Przesuń plasterek
+	Move Type on a Path	Przesuń tekst na ścieżce
+	New Guide	Nowa linia pomocnicza
+	Pen	Pióro
+	Place from Library	Umieść z biblioteki
+	Rearrange Artboards	Przestaw obszary kompozycji
+	Release Blend	Uwolnij przejście
+	Release Envelope	Uwolnij kopertę
+	Release Image Trace	Uwolnij obrys obrazu
+	Release Intertwine	Uwolnij przeplatanie
+	Release Live Paint	Uwolnij aktywne malowanie
+	Release Repeat	Uwolnij powtórzenie
+	Release Slice	Uwolnij plasterek
+	Release Text Wrap	Uwolnij oblewanie tekstem
+	Release Threaded Text	Uwolnij tekst wątkowy
+	Rename Design	Zmień nazwę projektu
+	Rename Style	Zmień nazwę stylu
+	Rename View	Zmień nazwę widoku
+	Reorder Appearance	Zmień kolejność wyglądu
+	Reorder Artboards	Zmień kolejność obszarów kompozycji
+	Reshape Spine	Zmień kształt grzbietu
+	Resize Artboard	Zmień rozmiar obszaru kompozycji
+	Resize Slice	Zmień rozmiar plasterka
+	Resize Type Area	Zmień rozmiar obszaru tekstu
+	Scale in Perspective	Skaluj w perspektywie
+	Shape Builder Delete	Kreator kształtów (usuwanie)
+	Sort Swatches	Sortuj próbki
+	Symbol Screener	Przesłanianie symboli
+	Symbol Scruncher	Zagęszczanie symboli
+	Symbol Shifter	Przesuwanie symboli
+	Symbol Sizer	Skalowanie symboli
+	Symbol Spinner	Obracanie symboli
+	Symbol Stainer	Barwienie symboli
+	Symbol Styler	Stylizowanie symboli
+	Text Orientation	Orientacja tekstu
+	Thread Text	Połącz tekst w wątek
+	Typing	Pisanie
 	Abutting	Stykające się
 	Black and White	Czarno-biały
 	Corners	Narożniki
@@ -1839,6 +1961,7 @@ lighting	Light	Światło
 	Variation:	Odchylenie:
 	Color Models	Modele kolorów
 	Color Picker	Próbnik kolorów
+	Color wheel	Koło kolorów
 	Color Swatches	Próbki kolorów
 	Only Web Colors	Tylko kolory WWW
 	Original: click to restore	Oryginał: kliknij, aby przywrócić
@@ -2731,6 +2854,7 @@ theme	Appearance	Wygląd
 	Convert Document Color Mode	Konwertuj tryb koloru dokumentu
 	Gamut Warning	Ostrzeżenie gamutu
 	Load Color Profile…	Wczytaj profil kolorów…
+	Remove Color Profile…	Usuń profil kolorów…
 	Plates	Płyty
 	Spot Color	Kolor dodatkowy
 	Add to Swatches	Dodaj do próbek
@@ -3207,6 +3331,7 @@ theme	Appearance	Wygląd
 	Save Print Preset	Zapisz ustawienie drukowania
 	Print Tiling Pages	Strony kafelkowania wydruku
 	Document Raster Effects Settings	Ustawienia efektów rastrowych dokumentu
+	Use Document Raster Effects Resolution	Użyj rozdzielczości z ustawień efektów rastrowych dokumentu
 	Artwork Colors	Kolory kompozycji
 	Randomize Colors	Losuj kolory
 	Recolor Artwork	Zmień kolory kompozycji
@@ -3320,6 +3445,8 @@ axis	Both	Obie
 	Star	Gwiazda
 	Power Saving (integrated)	Oszczędzanie energii (zintegrowany)
 	Target	Cel
+	X11 (XWayland) When a Pen Is Attached	X11 (XWayland), gdy podłączone jest pióro
+	If a drawing tablet's pen doesn't draw, choose an X11 (XWayland) option.	Jeśli pióro tabletu graficznego nie rysuje, wybierz opcję X11 (XWayland).
 	X11 (XWayland)	X11 (XWayland)
 	Print as Bitmap	Drukuj jako bitmapę
 	Draft	Robocza
@@ -3473,6 +3600,9 @@ effect	Regular	Normalny
 	Revert to the saved version of “{name}”?	Przywrócić zapisaną wersję „{name}”?
 	Replace “{name}”, the file this document was opened from?	Zastąpić „{name}”, plik, z którego otwarto ten dokument?
 	Opening it left out what StitchFoundry can't read yet ({what}), so replacing it loses that for good. Save under another name to keep it.	Przy otwieraniu pominięto to, czego StitchFoundry jeszcze nie odczytuje ({what}), więc zastąpienie pliku utraci to bezpowrotnie. Zapisz pod inną nazwą, aby to zachować.
+	Opening it left out what VectorCraft can't read yet ({what}), so replacing it loses that for good. Save under another name to keep it.	Przy otwieraniu pominięto to, czego VectorCraft jeszcze nie odczytuje ({what}), więc zastąpienie pliku utraci to bezpowrotnie. Zapisz pod inną nazwą, aby to zachować.
+	“{name}” already exists. Replace it?	„{name}” już istnieje. Zastąpić?
+	The name in the save panel was “{typed}”; VectorCraft added the file type's extension. Replacing the file overwrites its contents.	Nazwa w oknie zapisu to „{typed}”, a VectorCraft dodał rozszerzenie typu pliku. Zastąpienie pliku nadpisze jego zawartość.
 	Saved {path}	Zapisano {path}
 	Saved {path} with {} note(s): {first}	Zapisano {path}, uwagi ({}): {first}
 	Saving	Zapisywanie
@@ -3748,6 +3878,7 @@ imageTrace	Outline	Kontur
 @msg	SVG parse error: {0}	Błąd analizy SVG: {0}
 @msg	Save for Web: the image is empty	Zapisz dla Internetu: obraz jest pusty
 @msg	Save writes {_1}, not {_2}: use document.export for other formats	Zapis tworzy {_1}, nie {_2}: dla innych formatów użyj document.export
+@msg	Save writes {_1}, not {_2}: use file.saveAsTemplate to write it	Zapis tworzy {_1}, nie {_2}: aby go zapisać, użyj file.saveAsTemplate
 @msg	Saved recovery data for {title}	Zapisano dane odzyskiwania dla {title}
 @msg	Saved to User Defined: {_1}	Zapisano w zdefiniowanych przez użytkownika: {_1}
 @msg	Saved {path}	Zapisano {path}
@@ -3776,6 +3907,7 @@ imageTrace	Outline	Kontur
 @msg	`{id}` has no envelope dialog	`{id}` nie ma okna dialogowego koperty
 @msg	`{keep}` is not a side of this axis	`{keep}` nie jest stroną tej osi
 @msg	`{key}` must be `auto` or a language code such as `en` or `zh-hant`	`{key}` musi mieć wartość `auto` lub kod języka, np. `en` albo `zh-hant`
+@msg	`{key}` must be a #rrggbb color	`{key}` musi być kolorem #rrggbb
 @msg	`{key}` must be a #rrggbb colour	`{key}` musi być kolorem #rrggbb
 @msg	`{key}` must be a number	`{key}` musi być liczbą
 @msg	`{key}` must be a string	`{key}` musi być ciągiem znaków
@@ -3810,6 +3942,7 @@ imageTrace	Outline	Kontur
 @msg	a freeform gradient keeps at least one point	gradient dowolny musi mieć co najmniej jeden punkt
 @msg	a gradient needs at least two stops	gradient potrzebuje co najmniej dwóch punktów koloru
 @msg	a graphic style named `{to}` already exists	styl graficzny o nazwie `{to}` już istnieje
+@msg	a key object sits on that point	w tym punkcie leży obiekt kluczowy
 @msg	a page is missing	brak strony
 @msg	a page out of range	strona spoza zakresu
 @msg	a page tree kid isn't a reference	element potomny drzewa stron nie jest odwołaniem
@@ -3817,6 +3950,7 @@ imageTrace	Outline	Kontur
 @msg	a page's placement is not finite	położenie strony nie jest skończone
 @msg	a preset named `{_1}` exists	ustawienie o nazwie `{_1}` już istnieje
 @msg	a slice size must be a positive number of points	rozmiar plasterka musi być dodatnią liczbą punktów
+@msg	a spine keeps at least two points	grzbiet musi mieć co najmniej dwa punkty
 @msg	a stream runs past the end	strumień wykracza poza koniec
 @msg	a stream's length is wrong	długość strumienia jest nieprawidłowa
 @msg	a stream's length isn't a number	długość strumienia nie jest liczbą
@@ -3878,11 +4012,13 @@ imageTrace	Outline	Kontur
 @msg	give horizontal or vertical	podaj horizontal lub vertical
 @msg	give the path `id` and the width point `index`	podaj `id` ścieżki i `index` punktu szerokości
 @msg	guides are locked	linie pomocnicze są zablokowane
+@msg	handle must be in or out	handle musi mieć wartość in lub out
 @msg	image '{key}' has no pixels and was left out	obraz '{key}' nie ma pikseli i został pominięty
 @msg	image data `{_1}` is missing	brak danych obrazu `{_1}`
 @msg	image would be too large; lower the resolution	obraz byłby zbyt duży; zmniejsz rozdzielczość
 @msg	index must be a number or first, previous, next or last	indeks musi być liczbą lub first, previous, next albo last
 @msg	index must be a number or first, previous, next or last, not `{other}`	indeks musi być liczbą lub first, previous, next albo last, nie `{other}`
+@msg	index must be ≥ 0	indeks nie może być ujemny
 @msg	installing from a path is not available on the web; pass the module as `dataBase64`	instalacja ze ścieżki nie jest dostępna w wersji webowej; przekaż moduł jako `dataBase64`
 @msg	internal error in `{cmd}`: {msg} (the document was left as it was before; please report this bug)	błąd wewnętrzny w `{cmd}`: {msg} (dokument pozostał bez zmian; zgłoś ten błąd)
 @msg	internal error: {msg} (please report this bug)	błąd wewnętrzny: {msg} (zgłoś ten błąd)
@@ -3902,6 +4038,7 @@ imageTrace	Outline	Kontur
 @msg	missing `name`	brak `name`
 @msg	missing `tool`	brak `tool`
 @msg	missing index	brak indeksu
+@msg	missing number `{key}`	brak liczby `{key}`
 @msg	multiple windows land with M11.5	wiele okien pojawi się w M11.5
 @msg	name the file	nadaj nazwę plikowi
 @msg	no CSS to copy: select objects with CSS of their own	brak CSS do skopiowania: zaznacz obiekty z własnym CSS
@@ -3982,6 +4119,8 @@ imageTrace	Outline	Kontur
 @msg	no such recent font	brak takiej ostatniej czcionki
 @msg	no such saved selection	brak takiego zapisanego zaznaczenia
 @msg	no such segment	brak takiego segmentu
+@msg	no such spine point	brak takiego punktu grzbietu
+@msg	no such spine segment	brak takiego segmentu grzbietu
 @msg	no such subpath	brak takiej ścieżki podrzędnej
 @msg	no such user library	brak takiej biblioteki użytkownika
 @msg	no such view	brak takiego widoku
@@ -3997,6 +4136,9 @@ imageTrace	Outline	Kontur
 @msg	not a DXF drawing	to nie jest rysunek DXF
 @msg	not a StitchFoundry file: {0}	to nie jest plik StitchFoundry: {0}
 @msg	not a StitchFoundry shortcut set (missing `overrides`)	to nie jest zestaw skrótów StitchFoundry (brak `overrides`)
+@msg	not a VectorCraft file: {0}	to nie jest plik VectorCraft: {0}
+@msg	not a VectorCraft shortcut set (missing `overrides`)	to nie jest zestaw skrótów VectorCraft (brak `overrides`)
+@msg	not a blend	to nie jest przejście
 @msg	not a shortcut set: the text doesn't start with a slash name and an opening brace	to nie jest zestaw skrótów: tekst nie zaczyna się od nazwy z ukośnikiem i otwierającego nawiasu klamrowego
 @msg	This shortcut file is in a form StitchFoundry can't read.	Ten plik skrótów ma postać, której StitchFoundry nie potrafi odczytać.
 @msg	not a graphic style library (format `{_1}`)	to nie jest biblioteka stylów graficznych (format `{_1}`)
@@ -4054,6 +4196,7 @@ imageTrace	Outline	Kontur
 @msg	select (or target) objects whose appearance isn't basic	zaznacz (lub wskaż) obiekty, których wygląd nie jest podstawowy
 @msg	select a Live Paint group	zaznacz grupę aktywnego malowania
 @msg	select a blend	zaznacz przejście
+@msg	select a blend or give `id`	zaznacz przejście lub podaj `id`
 @msg	select a clip group	zaznacz grupę przycinającą
 @msg	select a gradient mesh	zaznacz siatkę gradientową
 @msg	select a linked image: an embedded one has no file	zaznacz obraz połączony: osadzony nie ma pliku
@@ -4088,6 +4231,7 @@ imageTrace	Outline	Kontur
 @msg	stop {i} needs `offset`	punkt koloru {i} wymaga `offset`
 @msg	stop {i} needs a valid `color`	punkt koloru {i} wymaga prawidłowego `color`
 @msg	stop {i}: `{k}` must be a number	punkt koloru {i}: `{k}` musi być liczbą
+@msg	t, dx and dy must be finite	t, dx i dy muszą być skończone
 @msg	the EMF header is damaged	nagłówek EMF jest uszkodzony
 @msg	the PDF has no pages	PDF nie ma stron
 @msg	the PDF is no longer loaded	PDF nie jest już wczytany
@@ -4100,6 +4244,7 @@ imageTrace	Outline	Kontur
 @msg	the art is too light for any dots	kompozycja jest zbyt jasna, aby powstały kropki
 @msg	the artboard to fit must be a positive size up to {_1} pt	obszar kompozycji do dopasowania musi mieć dodatni rozmiar do {_1} pt
 @msg	the background worker stopped	proces w tle zatrzymał się
+@msg	the blend has no spine	przejście nie ma grzbietu
 @msg	the compressed file unpacks to more than {_1} MB	skompresowany plik po rozpakowaniu przekracza {_1} MB
 @msg	the document has never been saved	dokument nigdy nie został zapisany
 @msg	the document has no artboard	dokument nie ma obszaru kompozycji
@@ -4140,6 +4285,7 @@ imageTrace	Outline	Kontur
 @msg	the selected stroke's profile is already listed as {_1}	profil zaznaczonego obrysu jest już na liście jako {_1}
 @msg	the selection has no URL (or they differ)	zaznaczenie nie ma adresu URL (lub adresy się różnią)
 @msg	the selection isn't in perspective	zaznaczenie nie jest w perspektywie
+@msg	the spine has no segments	grzbiet nie ma segmentów
 @msg	the stroke has no weight	obrys nie ma grubości
 @msg	the thumbnail image is malformed	obraz miniatury jest nieprawidłowy
 @msg	the top object must be a path, compound path or text object to use as a clipping mask	aby użyć wierzchniego obiektu jako maski przycinającej, musi on być ścieżką, ścieżką złożoną lub obiektem tekstowym
@@ -4175,9 +4321,11 @@ imageTrace	Outline	Kontur
 @msg	unknown tool or command `{key}`	nieznane narzędzie lub polecenie `{key}`
 @msg	unknown workspace (one of {_1})	nieznany obszar roboczy (jeden z: {_1})
 @msg	unsupported: {0}	nieobsługiwane: {0}
+@msg	variables are locked	zmienne są zablokowane
 @msg	version {0} files can't be compressed: only version {COMPRESSED_SINCE} and later open compressed files	plików w wersji {0} nie można kompresować: skompresowane pliki otwierają tylko wersje {COMPRESSED_SINCE} i nowsze
 @msg	width and height are at least 1 pixel	szerokość i wysokość muszą wynosić co najmniej 1 piksel
 @msg	workspace name can't be empty	nazwa obszaru roboczego nie może być pusta
+@msg	x and y must be finite	x i y muszą być skończone
 @msg	{C}: no effect at index {from}	{C}: brak efektu o indeksie {from}
 @msg	{_1} failed: {e}	{_1} — niepowodzenie: {e}
 @msg	{_1} files can be opened but not written (see document.formats)	pliki {_1} można otwierać, ale nie zapisywać (patrz document.formats)
@@ -4628,6 +4776,20 @@ imageTrace	Outline	Kontur
 	DWG (use DXF)	DWG (użyj DXF)
 	Artistic	Artystyczne
 	Film Grain…	Ziarno filmu…
+	Cutout…	Wycinanka…
+	Cutout	Wycinanka
+	Neon Glow…	Neonowa poświata…
+	Neon Glow	Neonowa poświata
+	Poster Edges…	Krawędzie plakatu…
+	Poster Edges	Krawędzie plakatu
+	Levels	Poziomy
+	Edge Simplicity	Prostota krawędzi
+	Edge Fidelity	Wierność krawędzi
+	Glow Size	Rozmiar poświaty
+	Glow Brightness	Jasność poświaty
+	Edge Thickness	Grubość krawędzi
+	Edge Intensity	Intensywność krawędzi
+	Posterization	Posteryzacja
 	Highlight Area	Obszar świateł
 file-filter	All readable files	Wszystkie obsługiwane pliki
 file-filter	All placeable files	Wszystkie pliki do umieszczenia
@@ -4733,6 +4895,11 @@ mark-style	Japanese	Japońskie
 	Softness	Miękkość
 	Ambient Light	Światło otoczenia
 	Light behind the object	Światło za obiektem
+# 3D light management.
+	Lights	Światła
+	Add Light	Dodaj światło
+	Delete Light	Usuń światło
+3d	Light	Światło
 	Registration:	Punkt rejestracji:
 	Legacy (version 7)	Starsza (wersja 7)
 	Transparent Images:	Przezroczyste obrazy:
@@ -4839,7 +5006,6 @@ mark-style	Japanese	Japońskie
 
 # StitchFoundry: the embroidery strings (drafted with AI assistance from the English meaning;
 # not yet reviewed by a native speaker)
-@msg	not a VectorCraft file: {0}	to nie jest plik VectorCraft: {0}
 	VectorCraft documents: one locked object, updated when the file changes.	Dokumenty VectorCraft: jeden zablokowany obiekt, aktualizowany przy zmianie pliku.
 	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	Przy otwieraniu pominięto to, czego StitchFoundry jeszcze nie odczytuje ({what}): zastąpienie pliku utraci to bezpowrotnie. Zapisz pod inną nazwą, aby to zachować.
 	Report a Bug…	Zgłoś błąd…
@@ -5224,7 +5390,6 @@ machine	Stop	Zatrzymanie
 	Fade out	Zanikanie
 	Fade in	Narastanie
 	Blend into	Przejście w
-	Make Blend	Utwórz przejście
 	Blend Colors	Przejście kolorów
 	Add Outline	Dodaj kontur
 	Satin Outline	Kontur satynowy
@@ -6187,3 +6352,23 @@ machine	Stop	Zatrzymanie
 	{n} credits for {price}	{n} kredytów za {price}
 	{n} credits	Kredyty: {n}
 	{n} free checks left this month.	Zostało {n} darmowych sprawdzeń w tym miesiącu.
+# Links and Attributes: files and URLs handed to other apps.
+@msg	Edit Original opens image and document files only; “{name}” is not one	Edytuj oryginał otwiera tylko pliki obrazów i dokumentów; „{name}” do nich nie należy
+@msg	only http, https and mailto URLs open in the browser, not “{url}”	w przeglądarce otwierają się tylko adresy URL http, https i mailto, a nie „{url}”
+@msg	{id} opens another app: only the person at the keyboard can run it	{id} otwiera inną aplikację: uruchomić to polecenie może tylko osoba przy klawiaturze
+@msg	“{name}” is not a file	„{name}” nie jest plikiem
+	Enable Guides for 9-Slice Scaling	Włącz prowadnice skalowania 9-slice
+@msg	a mask has more than one art block	maska ma więcej niż jeden blok grafiki
+@msg	mask art ends outside a mask dictionary	grafika maski kończy się poza słownikiem maski
+@msg	cancelled; nothing was changed	anulowano; nic nie zostało zmienione
+@msg	a linked image can't become a gradient mesh: embed it first	połączony obraz nie może stać się siatką gradientu: najpierw go osadź
+@msg	the image has no usable size or position	obraz nie ma użytecznego rozmiaru ani położenia
+@msg	the image's pixels can't be read	nie można odczytać pikseli obrazu
+	Persistent	Trwały
+	Library Panel Options	Opcje panelu biblioteki
+@msg	Persistent libraries not found: {files}	Nie znaleziono trwałych bibliotek: {files}
+@msg	`{given}` isn't a library panel (see window.swatchLibrary)	`{given}` nie jest panelem biblioteki (zobacz window.swatchLibrary)
+@msg	library panel `{given}` isn't open	panel biblioteki `{given}` nie jest otwarty
+@msg	too many library panels were opened in this session	w tej sesji otwarto zbyt wiele paneli bibliotek
+@msg	The image is {_1} × {_2} pixels, more than {LARGE_TRACE_SIDE} on a side: it is traced, but more slowly. A lower-fidelity preset or a smaller copy of the image traces faster.	Obraz ma {_1} × {_2} pikseli, ponad {LARGE_TRACE_SIDE} na jednym boku: zostanie obrysowany, ale wolniej. Ustawienie wstępne o niższej wierności lub mniejsza kopia obrazu obrysuje się szybciej.
+@msg	The image was traced at {_1} × {_2} pixels, scaled down from {_3} × {_4} ({_5} megapixels at most).	Obraz obrysowano w rozdzielczości {_1} × {_2} pikseli, po zmniejszeniu z {_3} × {_4} (najwyżej {_5} megapikseli).

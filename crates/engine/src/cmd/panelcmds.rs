@@ -16,7 +16,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Duplicate Artboard",
             ["Window", "Artboards"],
             None,
-            "{index?: n (default: the Artboard tool's artboard), art?: bool (default: the Artboard tool's moveArt option), patterns?: bool (Transform Patterns: pattern fills and strokes transform with the art; default: prefs transformPatternTiles)} copy placed right of the last artboard, with copies of the art fully inside it when `art` (locked and hidden art only with prefs moveLockedWithArtboard) → {index, ids: the art's copies}",
+            "{index?: n | indices?: [n…] (default: the artboards the Artboard tool has selected), art?: bool (default: the Artboard tool's moveArt option), patterns?: bool (Transform Patterns: pattern fills and strokes transform with the art; default: prefs transformPatternTiles)} a copy of each artboard, the copies placed together right of the last artboard as they lay, with copies of the art fully inside each when `art` (locked and hidden art only with prefs moveLockedWithArtboard), in one undo step → {index: the first copy's index, indices: the copies' indices, ids: the art's copies}",
             has_doc,
             artboard_duplicate
         ),
@@ -25,7 +25,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Copy Artboard",
             [],
             None,
-            "{index?, art?} (defaults as artboard.duplicate) put the artboard, and the art fully inside it when `art`, on the clipboard: edit.paste adds a copy right of the last artboard, edit.pasteInPlace/InFront/InBack where it was, in this or another document (one undo step; edit.pasteOnAllArtboards pastes only the art); edit.copy runs this while the Artboard tool is chosen → {copied: objects}",
+            "{index? | indices?, art?} (defaults as artboard.duplicate) put the artboards, and the art fully inside each when `art`, on the clipboard: edit.paste adds a copy of each, together right of the last artboard as they lay, edit.pasteInPlace/InFront/InBack where they were, in this or another document (one undo step; edit.pasteOnAllArtboards pastes only the art); edit.copy runs this while the Artboard tool is chosen → {copied: objects}",
             has_doc,
             |s, p| artboard_copy(s, p, false)
         ),
@@ -34,7 +34,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Cut Artboard",
             [],
             None,
-            "{index?, art?} artboard.copy, then delete the artboard and that art in one undo step (not the only artboard); edit.cut runs this while the Artboard tool is chosen → {copied: objects}",
+            "{index? | indices?, art?} artboard.copy, then delete the artboards and that art in one undo step (one artboard is always left: the cut fails when it names every artboard); edit.cut runs this while the Artboard tool is chosen → {copied: objects}",
             has_doc,
             |s, p| artboard_copy(s, p, true)
         ),
@@ -43,7 +43,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Character / Paragraph",
             [],
             None,
-            "{ids?|id?, kerning?: 1/1000 em|\"auto\", baselineShift?: pt, hScale?: %, vScale?: %, rotation?: deg, underline?, strikethrough?, allCaps?, smallCaps?: bool, position?: \"normal\"|\"superscript\"|\"subscript\" (sizes from Document Setup), leftIndent?, rightIndent?, firstLineIndent?, spaceBefore?, spaceAfter?: pt (±1296), hyphenate?: bool, wordsLongerThan?: letters 1..25 (5), afterFirst?, beforeLast?: letters 1..15 (3), hyphenLimit?: lines 0..25 (0: no limit), hyphenationZone?: pt 0..1296 (0; Single-line Composer only), hyphenateCapitalized?: bool (true) (Paragraph panel menu › Hyphenation…: only words longer than wordsLongerThan break, keeping afterFirst letters before the hyphen and beforeLast after it; at most hyphenLimit lines in a row end with a hyphen; a line whose text already ends within hyphenationZone of its right edge breaks before the next word instead of hyphenating it; the counts are rounded, and every value is clamped to its range), mojikumi?: \"none\"|\"lineEndHalf\" (Japanese punctuation spacing), kinsoku?: \"none\"|\"hard\"|\"soft\" (Kinsoku Set: Soft lets 々, ー and small kana start a line), direction?: \"auto\"|\"leftToRight\"|\"rightToLeft\" (paragraph direction; auto: from each paragraph's first strong character), leadingModel?: \"romanBaseline\"|\"emBoxTop\" (leading measured baseline to baseline, or em box top to top), charAlign?: \"romanBaseline\"|\"emBoxTop\"|\"emBoxCenter\"|\"emBoxBottom\"|\"icfTop\"|\"icfBottom\" (where characters smaller than the largest on their line line up with it), proportionalMetrics?: bool (full-width glyphs on the font's proportional widths: `palt` in horizontal type, `vpal` in vertical type), digits?: \"default\"|\"arabic\"|\"hindi\"|\"farsi\" (Character panel menu › Digits: the numeral system every digit is drawn in, whatever was typed), burasagari?: \"none\"|\"standard\"|\"forced\" (Paragraph panel menu › Burasagari None/Regular/Force: an East Asian comma or full stop ending an area type line hangs outside it: when it doesn't fit, or always; new type: \"standard\"), composer?: \"singleLine\"|\"everyLine\" (line breaking, Every-line by default), start?: byte, end?: byte} (baselineShift is in document points and hScale includes the object transform; groups include their text descendants; with a range: the character attributes style that range and the paragraph attributes apply to the paragraphs it touches; without: all the text)",
+            "{ids?|id?, kerning?: 1/1000 em|\"auto\", baselineShift?: pt, hScale?: %, vScale?: %, rotation?: deg, underline?, strikethrough?, allCaps?, smallCaps?: bool, position?: \"normal\"|\"superscript\"|\"subscript\" (sizes from Document Setup), leftIndent?, rightIndent?, firstLineIndent?, spaceBefore?, spaceAfter?: pt (±1296), hyphenate?: bool, wordsLongerThan?: letters 1..25 (5), afterFirst?, beforeLast?: letters 1..15 (3), hyphenLimit?: lines 0..25 (0: no limit), hyphenationZone?: pt 0..1296 (0; Single-line Composer only), hyphenateCapitalized?: bool (true) (Paragraph panel menu › Hyphenation…: only words longer than wordsLongerThan break, keeping afterFirst letters before the hyphen and beforeLast after it; at most hyphenLimit lines in a row end with a hyphen; a line whose text already ends within hyphenationZone of its right edge breaks before the next word instead of hyphenating it; the counts are rounded, and every value is clamped to its range), mojikumi?: \"none\"|\"lineEndHalf\" (Japanese punctuation spacing), kinsoku?: \"none\"|\"hard\"|\"soft\" (Kinsoku Set: Soft lets 々, ー and small kana start a line), direction?: \"auto\"|\"leftToRight\"|\"rightToLeft\" (paragraph direction; auto: from each paragraph's first strong character), leadingModel?: \"romanBaseline\"|\"emBoxTop\" (leading measured baseline to baseline, or em box top to top), charAlign?: \"romanBaseline\"|\"emBoxTop\"|\"emBoxCenter\"|\"emBoxBottom\"|\"icfTop\"|\"icfBottom\" (where characters smaller than the largest on their line line up with it), proportionalMetrics?: bool (full-width glyphs on the font's proportional widths: `palt` in horizontal type, `vpal` in vertical type), digits?: \"default\"|\"arabic\"|\"hindi\"|\"farsi\" (Character panel menu › Digits: the numeral system every digit is drawn in, whatever was typed), fontAxes?: {\"wght\": 650, …} (Character panel › Variable Font, as text.setRangeStyle: each axis named set in its units and clamped to its range, null back to the style's own setting), burasagari?: \"none\"|\"standard\"|\"forced\" (Paragraph panel menu › Burasagari None/Regular/Force: an East Asian comma or full stop ending an area type line hangs outside it: when it doesn't fit, or always; new type: \"standard\"), romanHangingPunctuation?: bool (Paragraph panel menu › Roman Hanging Punctuation: quotation marks, hyphens, full stops and commas starting or ending a line hang outside the margin, asterisks, tildes, ellipses, dashes, colons and semicolons by half; off by default), composer?: \"singleLine\"|\"everyLine\" (line breaking, Every-line by default), start?: byte, end?: byte} (baselineShift is in document points and hScale includes the object transform; groups include their text descendants; with a range: the character attributes style that range and the paragraph attributes apply to the paragraphs it touches; without: all the text)",
             has_doc,
             set_format
         ),
@@ -54,7 +54,7 @@ pub fn specs() -> Vec<CommandSpec> {
 
 fn artboard_reorder(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "artboard.reorder";
-    let i = p.get("index").and_then(Value::as_u64).ok_or_else(|| bad(C, "missing index"))? as usize;
+    let i = artboard_index(&s.doc()?.doc, p, C)?;
     let to = p.get("to").and_then(Value::as_u64).ok_or_else(|| bad(C, "missing to"))? as usize;
     s.edit("Reorder Artboards", |d, _| {
         if i >= d.artboards.len() {
@@ -68,16 +68,37 @@ fn artboard_reorder(s: &mut Session, p: &Value) -> Result<Value> {
     ok()
 }
 
-/// The artboard (`index`) and whether its art comes along (`art`) for the artboard copy
-/// commands: by default the Artboard tool's artboard and its Move/Copy Artwork with Artboard option.
-fn board_and_art(s: &Session, p: &Value) -> (usize, bool) {
+/// The artboards (`index` or `indices`) and whether their art comes along (`art`) for the artboard
+/// copy commands: by default the artboards the Artboard tool has selected (its active one when none
+/// of them is in the document) and its Move/Copy Artwork with Artboard option.
+fn boards_and_art(s: &Session, p: &Value, cmd: &str) -> Result<(Vec<usize>, bool)> {
     let t = s.tool_options_of("artboard");
-    let i = p.get("index").and_then(Value::as_u64).or_else(|| t["active"].as_u64()).unwrap_or(0) as usize;
-    (i, bool_or(p, "art", t["moveArt"].as_bool().unwrap_or(true)))
+    let d = &s.doc()?.doc;
+    let indices = if p.get("index").is_some() || p.get("indices").is_some() {
+        artboard_indices(d, p, cmd)?
+    } else {
+        let mut picked: Vec<u64> = t["selected"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_u64)
+            .filter(|i| usize::try_from(*i).is_ok_and(|i| i < d.artboards.len()))
+            .collect();
+        if picked.is_empty() {
+            picked.push(t["active"].as_u64().unwrap_or(0));
+        }
+        artboard_indices(d, &json!({ "indices": picked }), cmd)?
+    };
+    Ok((indices, bool_or(p, "art", t["moveArt"].as_bool().unwrap_or(true))))
 }
 
-/// The art that goes with artboard `i` when `art`: the objects fully inside it (locked and hidden
-/// ones only with prefs moveLockedWithArtboard), in paint order.
+/// The one artboard `cmd` acts on: `index`, an artboard of `d`, with the errors of
+/// [`artboard_indices`] (`missing index`, `no such artboard`).
+pub(crate) fn artboard_index(d: &vectorcraft_doc::Document, p: &Value, cmd: &str) -> Result<usize> {
+    let i = p.get("index").ok_or_else(|| bad(cmd, "missing index"))?;
+    artboard_indices(d, &json!({ "index": i }), cmd)?.into_iter().next().ok_or_else(|| EngineError::Other("no such artboard".into()))
+}
+
 /// The artboards `cmd` acts on: `indices` (several), else `index` (one), each an artboard of `d`,
 /// in order and once each.
 pub(crate) fn artboard_indices(d: &vectorcraft_doc::Document, p: &Value, cmd: &str) -> Result<Vec<usize>> {
@@ -93,10 +114,24 @@ pub(crate) fn artboard_indices(d: &vectorcraft_doc::Document, p: &Value, cmd: &s
     Ok(indices)
 }
 
+/// The art that goes with artboard `i` when `art`: the objects fully inside it (locked and hidden
+/// ones only with prefs moveLockedWithArtboard), in paint order.
 pub(crate) fn artboard_art(s: &Session, i: usize, art: bool) -> Result<Vec<NodeId>> {
     let d = &s.doc()?.doc;
     let rect = d.artboards.get(i).map(|a| a.rect).ok_or_else(|| EngineError::Other("no such artboard".into()))?;
     Ok(if art { d.art_on_artboard(rect, s.prefs.move_locked_with_artboard) } else { vec![] })
+}
+
+/// Each of `indices` with the art that goes with it when `art` ([`artboard_art`]), an object
+/// counted once, with the first of them it is on (artboards can overlap).
+pub(crate) fn artboards_art(s: &Session, indices: &[usize], art: bool) -> Result<Vec<(usize, Vec<NodeId>)>> {
+    let mut seen = std::collections::HashSet::new();
+    let mut arts = vec![];
+    for &i in indices {
+        let art = artboard_art(s, i, art)?.into_iter().filter(|id| seen.insert(*id)).collect();
+        arts.push((i, art));
+    }
+    Ok(arts)
 }
 
 /// How far a copy of `rect` moves to sit right of the last artboard (Duplicate Artboards, Paste).
@@ -105,43 +140,61 @@ pub(crate) fn beside_artboards(d: &vectorcraft_doc::Document, rect: Rect) -> Vec
     Vec2::new(right + 20.0 - rect.x0, 0.0)
 }
 
+/// Duplicate Artboards: a copy of each artboard with its art, in one undo step. The copies keep
+/// their places relative to each other, together right of the last artboard.
 fn artboard_duplicate(s: &mut Session, p: &Value) -> Result<Value> {
-    let (i, art) = board_and_art(s, p);
-    let art = artboard_art(s, i, art)?;
-    let sc = Scaling { patterns: super::object::transform_patterns(s, p, &art)?, ..Scaling::default() };
+    let (indices, art) = boards_and_art(s, p, "artboard.duplicate")?;
+    let arts = artboards_art(s, &indices, art)?;
+    let all: Vec<NodeId> = arts.iter().flat_map(|(_, a)| a.iter().copied()).collect();
+    let sc = Scaling { patterns: super::object::transform_patterns(s, p, &all)?, ..Scaling::default() };
     let (index, ids) = s.edit("Duplicate Artboard", |d, _| {
-        let dv = d.artboards.get(i).map(|a| beside_artboards(d, a.rect)).unwrap_or_default();
-        copy_artboard(d, i, dv, &art, sc)
+        let dv = arts
+            .iter()
+            .filter_map(|(i, _)| d.artboards.get(*i))
+            .map(|a| a.rect)
+            .reduce(|a, b| a.union(b))
+            .map(|r| beside_artboards(d, r))
+            .unwrap_or_default();
+        let (mut index, mut ids) = (vec![], vec![]);
+        for (i, art) in &arts {
+            let (at, copies) = copy_artboard(d, *i, dv, art, sc)?;
+            index.push(at);
+            ids.extend(copies);
+        }
+        Ok((index, ids))
     })?;
-    Ok(json!({"index": index, "ids": ids.iter().map(|i| i.0).collect::<Vec<_>>()}))
+    Ok(json!({"index": index.first(), "indices": index, "ids": ids.iter().map(|i| i.0).collect::<Vec<_>>()}))
 }
 
-/// Artboard Copy / Cut: the artboard and its art onto the clipboard (pasting brings both); a cut
-/// then deletes them.
+/// Artboard Copy / Cut: the artboards and their art onto the clipboard (pasting brings them all);
+/// a cut then deletes them.
 pub(crate) fn artboard_copy(s: &mut Session, p: &Value, cut: bool) -> Result<Value> {
-    let (i, art) = board_and_art(s, p);
-    let art = artboard_art(s, i, art)?;
+    let (indices, art) = boards_and_art(s, p, if cut { "artboard.cut" } else { "artboard.copy" })?;
+    let arts = artboards_art(s, &indices, art)?;
     let st = s.doc()?;
-    if cut && st.doc.artboards.len() <= 1 {
+    if cut && st.doc.artboards.len() <= indices.len() {
         return Err(EngineError::Other("a document needs at least one artboard".into()));
     }
-    let board = st.doc.artboards.get(i).cloned().ok_or_else(|| EngineError::Other("no such artboard".into()))?;
-    let clip = Clipboard { source_artboard: Some(board.rect), artboard: Some(board), ..Clipboard::copy(st, &art) };
+    let art = st.doc.paint_order(arts.into_iter().flat_map(|(_, a)| a));
+    let boards: Vec<_> = indices.iter().filter_map(|i| st.doc.artboards.get(*i).cloned()).collect();
+    let clip = Clipboard { source_artboard: boards.first().map(|a| a.rect), artboards: boards, ..Clipboard::copy(st, &art) };
     let copied = clip.nodes.len();
     if cut {
         s.edit("Cut Artboard", |d, sel| {
-            if i >= d.artboards.len() {
+            if indices.iter().any(|i| *i >= d.artboards.len()) {
                 return Err(EngineError::Other("no such artboard".into()));
             }
-            // Its guides go with it.
-            let gone = d.artboards.remove(i).id;
-            d.retain_guides(sel, |_, g| g.artboard != Some(gone));
+            // The last first, so the others keep their places; their guides go with them.
+            for &i in indices.iter().rev() {
+                let gone = d.artboards.remove(i).id;
+                d.retain_guides(sel, |_, g| g.artboard != Some(gone));
+            }
             d.remove_many(&art)?;
             sel.prune(d);
             Ok(())
         })?;
         if s.tool_id() == "artboard" {
-            s.set_tool_option("active", &json!(i.saturating_sub(1)));
+            s.set_tool_option("active", &json!(indices.first().map_or(0, |i| i.saturating_sub(1))));
         }
     }
     s.clipboard = clip;
@@ -223,7 +276,9 @@ fn set_format(s: &mut Session, p: &Value) -> Result<Value> {
         "charAlign",
         "proportionalMetrics",
         "digits",
+        "fontAxes",
         "burasagari",
+        "romanHangingPunctuation",
         "composer",
     ];
     if !keys.iter().any(|k| p.get(*k).is_some()) {
@@ -240,6 +295,7 @@ fn set_format(s: &mut Session, p: &Value) -> Result<Value> {
     let (position, small_caps) = super::docsetup::script_params(p, &s.doc()?.doc.setup, C)?;
     let char_align = super::textedit::char_align_param(p, C)?;
     let digits = super::textedit::digits_param(p, C)?;
+    let font_axes = super::textedit::font_axes_param(p, C)?;
     let mojikumi = match p.get("mojikumi") {
         None => None,
         Some(v) => Some(match v.as_str() {
@@ -325,6 +381,9 @@ fn set_format(s: &mut Session, p: &Value) -> Result<Value> {
         if let Some(v) = flag("proportionalMetrics") {
             st.proportional_metrics = v;
         }
+        if let Some(v) = &font_axes {
+            super::textedit::change_font_axes(st, v);
+        }
     };
     s.edit("Character", |d, _| {
         for id in &ids {
@@ -385,6 +444,9 @@ fn set_format(s: &mut Session, p: &Value) -> Result<Value> {
                 }
                 if let Some(v) = burasagari {
                     para.burasagari = v;
+                }
+                if let Some(v) = flag("romanHangingPunctuation") {
+                    para.roman_hanging = v;
                 }
                 if let Some(v) = composer {
                     para.composer = v;

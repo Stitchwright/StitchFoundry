@@ -42,6 +42,41 @@ pub type Variation = ([u8; 4], f32);
 const MAX_AXES: usize = 64;
 const MAX_INSTANCES: usize = 512;
 
+/// One axis of a variable font's design space, as its `fvar` table lists it: the tag (`wght`), its
+/// name in the font's name table (`Weight`; the tag when it has none) and its range and default,
+/// in the axis's own units.
+#[derive(Clone, Debug, PartialEq)]
+pub struct VariationAxis {
+    pub tag: [u8; 4],
+    pub name: String,
+    pub min: f32,
+    pub default: f32,
+    pub max: f32,
+    /// The font asks for the axis not to be shown to users (the `fvar` hidden flag).
+    pub hidden: bool,
+}
+
+/// Faces of variable fonts instanced at axis settings their named instances don't have
+/// ([`FontDb::instance`]). Each setting of a face keeps its id for the life of the process, so a
+/// laid-out glyph's face can be found again ([`FontDb::face_by_id`]) after the built face was
+/// dropped to bound the memory the cache holds.
+#[derive(Default)]
+struct Instances {
+    /// The id of each face and setting.
+    ids: HashMap<InstanceKey, u32>,
+    /// What each id is: the face it was instanced from and its axis settings.
+    recipes: HashMap<u32, (u32, Vec<Variation>)>,
+    /// The instanced faces built, by id; dropped all at once when [`MAX_LIVE_INSTANCES`] are held.
+    live: HashMap<u32, Arc<FontFace>>,
+}
+
+/// A face instanced at axis settings: the id of the face, and the settings by tag, as bits.
+type InstanceKey = (u32, Vec<([u8; 4], u32)>);
+
+/// How many instanced faces [`Instances::live`] holds at most.
+pub(crate) const MAX_LIVE_INSTANCES: usize = 256;
+
+#[derive(Clone)]
 enum FontBytes {
     Static(&'static [u8]),
     Owned(Arc<Vec<u8>>),
@@ -143,6 +178,27 @@ impl FontFace {
     /// The face's file holds the whole variable font: exporters that embed it pass these on.
     pub fn variations(&self) -> &[Variation] {
         &self.variations
+    }
+    /// The variation axes of the face's font (its `fvar` table, at most 64); none for a static
+    /// face.
+    pub fn axes(&self) -> Vec<VariationAxis> {
+        let Some(f) = self.skrifa() else { return vec![] };
+        f.axes()
+            .iter()
+            .take(MAX_AXES)
+            .map(|a| {
+                let tag = a.tag().to_be_bytes();
+                let fallback = || String::from_utf8_lossy(&tag).trim().to_string();
+                let name = name(&f, &[a.name_id()]).unwrap_or_else(fallback);
+                VariationAxis { tag, name, min: a.min_value(), default: a.default_value(), max: a.max_value(), hidden: a.is_hidden() }
+            })
+            .collect()
+    }
+    /// The face's setting of axis `tag`: its named instance's ([`Self::variations`]), else the
+    /// axis default. `None` when the font has no such axis.
+    pub fn axis_value(&self, tag: [u8; 4]) -> Option<f32> {
+        let axis = self.axes().into_iter().find(|a| a.tag == tag)?;
+        Some(self.variations.iter().find(|(t, _)| *t == tag).map_or(axis.default, |(_, v)| *v))
     }
     /// Unique id of this face within the process.
     pub fn id(&self) -> u32 {
@@ -382,6 +438,8 @@ pub struct FontDb {
     /// What the last scan read, to tell when fonts were installed or removed since.
     #[cfg(not(target_arch = "wasm32"))]
     stamp: Mutex<Option<ScanStamp>>,
+    /// Faces instanced at the axis settings of type's Variable Font sliders ([`FontDb::instance`]).
+    instances: Mutex<Instances>,
 }
 
 /// Where a database's system font scan looks: folders (read with their subfolders) and font files.
@@ -521,11 +579,8 @@ fn pick_native_label(english: &str, pairs: &[(Option<String>, String)]) -> Optio
 
 /// The family's native-language name from the font (typographic, else legacy), when it has one.
 fn native_family_name(font: &skrifa::FontRef<'_>, english: &str) -> Option<String> {
-    let pairs = {
-        let t = localized(font, StringId::TYPOGRAPHIC_FAMILY_NAME);
-        if t.is_empty() { localized(font, StringId::FAMILY_NAME) } else { t }
-    };
-    pick_native_label(english, &pairs)
+    pick_native_label(english, &localized(font, StringId::TYPOGRAPHIC_FAMILY_NAME))
+        .or_else(|| pick_native_label(english, &localized(font, StringId::FAMILY_NAME)))
 }
 
 /// Every localized string of `id`.
@@ -837,11 +892,22 @@ pub(crate) fn face_styles(f: &skrifa::FontRef<'_>) -> Vec<FaceStyle> {
     let native_family = native_family_name(f, &family);
     let mut keys = FaceKeys::of(f, &family, &style);
     let traits = FontTraits::of(f, &keys);
-    let mut instances = named_instances(f, &family, &style, &mut keys, native_family.clone());
+    let (mut instances, renamed) = named_instances(f, &family, &style, &mut keys, native_family.clone());
     for i in &mut instances {
         i.traits = traits;
     }
-    let face = FaceStyle { family, native_family, style, keys, variations: vec![], weight: None, italic: false, traits };
+    // A variable font's default face renders at its `wght` default, whatever its name table and
+    // OS/2 table say (Noto Sans Hebrew: named `Light`, weight class 300, default instance Regular
+    // at 400): weigh it so, and name it by its default instance when that is another weight.
+    let weight = f
+        .axes()
+        .iter()
+        .find(|a| a.tag().to_be_bytes() == *b"wght")
+        .map(|a| a.default_value())
+        .filter(|w| w.is_finite())
+        .map(|w| w.clamp(1.0, 1000.0));
+    let style = renamed.unwrap_or(style);
+    let face = FaceStyle { family, native_family, style, keys, variations: vec![], weight, italic: false, traits };
     std::iter::once(face).chain(instances).collect()
 }
 
@@ -850,17 +916,40 @@ pub(crate) fn face_styles(f: &skrifa::FontRef<'_>) -> Vec<FaceStyle> {
 /// names already taken. The default instance's name, when it isn't the face's style name (a face
 /// `Regular` whose default instance is `Book`), names the face too (`keys`). Damaged tables give
 /// fewer instances or none; the counts read are capped.
-fn named_instances(f: &skrifa::FontRef<'_>, family: &str, style: &str, keys: &mut FaceKeys, native_family: Option<String>) -> Vec<FaceStyle> {
+fn named_instances(
+    f: &skrifa::FontRef<'_>,
+    family: &str,
+    style: &str,
+    keys: &mut FaceKeys,
+    native_family: Option<String>,
+) -> (Vec<FaceStyle>, Option<String>) {
     let axes = f.axes();
     if axes.is_empty() || axes.len() > MAX_AXES {
-        return vec![];
+        return (vec![], None);
     }
     let tags: Vec<Tag> = axes.iter().map(|a| a.tag()).collect();
     let defaults: Vec<f32> = axes.iter().map(|a| a.default_value()).collect();
+    let is_default = |coords: &[f32]| coords.len() == defaults.len() && coords.iter().zip(&defaults).all(|(c, d)| (c - d).abs() < 1e-3);
+    // The face renders as its default instance. When that instance is another weight than the
+    // name table says (`Light` face, Regular default instance), the instance names the face.
+    let renamed = tags.iter().any(|t| t.to_be_bytes() == *b"wght").then(|| {
+        f.named_instances()
+            .iter()
+            .take(MAX_INSTANCES)
+            .filter(|inst| is_default(&inst.user_coords().take(MAX_AXES).collect::<Vec<f32>>()))
+            .find_map(|inst| name(f, &[inst.subfamily_name_id()]))
+            .filter(|d| style_weight(d) != style_weight(style))
+    });
+    let renamed = renamed.flatten();
     // Instances without a PostScript name of their own are named `<prefix>-<style>` (Adobe
     // Technical Note #5902), as PDF and `.ai` files name them.
     let prefix = name(f, &[StringId::VARIATIONS_POSTSCRIPT_NAME_PREFIX]).unwrap_or_else(|| family.to_string());
-    let mut taken = vec![norm(style)];
+    if let Some(new) = &renamed {
+        let old = norm(style);
+        keys.styles.retain(|k| *k != old);
+        keys.styles.push(norm(new));
+    }
+    let mut taken = vec![norm(renamed.as_deref().unwrap_or(style))];
     let mut out = Vec::new();
     for inst in f.named_instances().iter().take(MAX_INSTANCES) {
         let coords: Vec<f32> = inst.user_coords().take(MAX_AXES).collect();
@@ -905,7 +994,7 @@ fn named_instances(f: &skrifa::FontRef<'_>, family: &str, style: &str, keys: &mu
             traits: FontTraits::default(),
         });
     }
-    out
+    (out, renamed)
 }
 
 /// Parse every face in `data` (a font file or collection) and the named instances of its variable
@@ -1381,6 +1470,25 @@ pub(crate) fn fonts_outside(registered: impl IntoIterator<Item = String>, font_d
     files
 }
 
+/// `face` at the axis settings `variations` (user units), as face `id`: its names, kind, italic
+/// and file, and its weight the `wght` setting when there is one.
+fn instanced(face: &FontFace, variations: Vec<Variation>, id: u32) -> Option<FontFace> {
+    let weight = variations.iter().find(|(t, _)| t == b"wght").map_or(face.weight, |(_, v)| *v);
+    let spec = FaceStyle {
+        family: face.family.clone(),
+        native_family: face.native_family.clone(),
+        style: face.style.clone(),
+        keys: face.keys.clone(),
+        variations,
+        weight: Some(weight),
+        italic: face.italic,
+        traits: face.traits,
+    };
+    let mut f = make_face(face.bytes.clone(), face.index, spec, face.path.clone())?;
+    f.id = id;
+    Some(f)
+}
+
 fn make_face(bytes: FontBytes, index: u32, spec: FaceStyle, path: Option<std::path::PathBuf>) -> Option<FontFace> {
     let data: &[u8] = match &bytes {
         FontBytes::Static(b) => b,
@@ -1486,6 +1594,13 @@ fn style_italic(style: &str) -> bool {
     s.contains("italic") || s.contains("oblique") || s == "it"
 }
 
+/// How far `face` is from the style asked for: its weight difference, and a penalty for the wrong
+/// slant. The penalty is less than the weight gap between Regular and Bold (and Bold and Black),
+/// so Bold Italic asked of a family with Bold and Italic faces only gets the Bold (#2491).
+fn style_distance(face: &FontFace, weight: f32, italic: bool) -> f32 {
+    (face.weight - weight).abs() + if face.italic != italic { 250.0 } else { 0.0 }
+}
+
 /// [`FontDb::menu_family_list`], with the [`FontDb::family_list`] it was built from.
 type MenuFamilies = (Arc<[String]>, Arc<[String]>);
 
@@ -1528,6 +1643,7 @@ impl FontDb {
             sys: Mutex::new(SysFallback { enabled: true, ..Default::default() }),
             #[cfg(not(target_arch = "wasm32"))]
             stamp: Mutex::new(None),
+            instances: Mutex::new(Instances::default()),
         }
     }
 
@@ -2018,9 +2134,86 @@ impl FontDb {
         self.read_catalog().get(&family.to_ascii_lowercase()).is_some_and(|c| c.faces.iter().any(|cf| norm(&cf.style) == ns))
     }
 
-    /// The loaded face with [`FontFace::id`] `id` (the face a laid-out glyph came from).
+    /// The loaded face with [`FontFace::id`] `id` (the face a laid-out glyph came from), an
+    /// instanced face ([`Self::instance`]) included.
     pub fn face_by_id(&self, id: u32) -> Option<Arc<FontFace>> {
-        self.read_faces().iter().find(|f| f.id == id).cloned()
+        let loaded = self.read_faces().iter().find(|f| f.id == id).cloned();
+        loaded.or_else(|| self.instance_by_id(id))
+    }
+
+    /// The face of character style `st`: [`Self::face_version`] of its font, instanced at its
+    /// Variable Font settings ([`Self::instance`]).
+    pub fn style_face(&self, st: &vectorcraft_doc::CharStyle) -> Option<Arc<FontFace>> {
+        let face = self.face_version(&st.font_family, &st.font_style, st.font_version.as_deref())?;
+        Some(self.instance(&face, &st.font_axes))
+    }
+
+    /// `face` with the axis settings `axes` (by tag, in the axes' own units) in place of its own,
+    /// each clamped to its axis's range: its outlines, metrics and advances taken there, and its
+    /// file embedded instanced there. Tags the font has no axis for are left out. `face` itself
+    /// when that changes no setting, and for a static face.
+    pub fn instance(&self, face: &Arc<FontFace>, axes: &std::collections::BTreeMap<String, f64>) -> Arc<FontFace> {
+        if axes.is_empty() {
+            return face.clone();
+        }
+        let font_axes = face.axes();
+        let mut variations = face.variations.clone();
+        for (tag, value) in axes {
+            let Some(axis) = font_axes.iter().find(|a| a.tag.as_slice() == tag.as_bytes()) else { continue };
+            if !value.is_finite() {
+                continue;
+            }
+            let v = (*value as f32).clamp(axis.min.min(axis.max), axis.max.max(axis.min));
+            match variations.iter_mut().find(|(t, _)| *t == axis.tag) {
+                Some(setting) => setting.1 = v,
+                None => variations.push((axis.tag, v)),
+            }
+        }
+        // Every axis at the setting it has in `face`: nothing to instance.
+        let at = |vs: &[Variation], a: &VariationAxis| vs.iter().find(|(t, _)| *t == a.tag).map_or(a.default, |(_, v)| *v);
+        if font_axes.iter().all(|a| at(&variations, a) == at(&face.variations, a)) {
+            return face.clone();
+        }
+        variations.sort_by_key(|(t, _)| *t);
+        let key = (face.id, variations.iter().map(|(t, v)| (*t, v.to_bits())).collect::<Vec<_>>());
+        let mut inst = self.instances.lock().unwrap_or_else(|e| e.into_inner());
+        let id = match inst.ids.get(&key) {
+            Some(id) => *id,
+            None => {
+                let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
+                inst.ids.insert(key, id);
+                inst.recipes.insert(id, (face.id, variations.clone()));
+                id
+            }
+        };
+        if let Some(f) = inst.live.get(&id) {
+            return f.clone();
+        }
+        let Some(built) = instanced(face, variations, id) else { return face.clone() };
+        let built = Arc::new(built);
+        if inst.live.len() >= MAX_LIVE_INSTANCES {
+            inst.live.clear();
+        }
+        inst.live.insert(id, built.clone());
+        built
+    }
+
+    /// The instanced face with id `id` ([`Self::instance`]), built again when it was dropped.
+    fn instance_by_id(&self, id: u32) -> Option<Arc<FontFace>> {
+        let (base, variations) = {
+            let inst = self.instances.lock().unwrap_or_else(|e| e.into_inner());
+            if let Some(f) = inst.live.get(&id) {
+                return Some(f.clone());
+            }
+            inst.recipes.get(&id).cloned()?
+        };
+        let base = self.read_faces().iter().find(|f| f.id == base).cloned()?;
+        let built = Arc::new(instanced(&base, variations, id)?);
+        let mut inst = self.instances.lock().unwrap_or_else(|e| e.into_inner());
+        if inst.live.len() >= MAX_LIVE_INSTANCES {
+            inst.live.clear();
+        }
+        Some(inst.live.entry(id).or_insert(built).clone())
     }
 
     /// The available family `name` names, ignoring case and anything but letters and digits, as
@@ -2055,37 +2248,36 @@ impl FontDb {
             return Some((*f).clone());
         }
         let (tw, ti) = (style_weight(style), style_italic(style));
-        cands
-            .iter()
-            .min_by(|a, b| {
-                let sa = (a.weight - tw).abs() + if a.italic != ti { 1000.0 } else { 0.0 };
-                let sb = (b.weight - tw).abs() + if b.italic != ti { 1000.0 } else { 0.0 };
-                sa.total_cmp(&sb)
-            })
-            .map(|f| (*f).clone())
+        cands.iter().min_by(|a, b| style_distance(a, tw, ti).total_cmp(&style_distance(b, tw, ti))).map(|f| (*f).clone())
     }
 
-    /// First face (fallback family first, then load order) that covers `c`; on native, system
-    /// fonts are loaded lazily the first time no loaded face covers a character.
+    /// [`fallback_for_style`](Self::fallback_for_style) for upright Regular text.
     pub(crate) fn fallback_for(&self, c: char, exclude: u32) -> Option<Arc<FontFace>> {
+        self.fallback_for_style(c, exclude, 400.0, false)
+    }
+
+    /// First family (fallback family first, then load order) with a face that covers `c`, in that
+    /// family's face nearest `weight` and `italic`; on native, system fonts are loaded lazily the
+    /// first time no loaded face covers a character (#2491).
+    pub(crate) fn fallback_for_style(&self, c: char, exclude: u32, weight: f32, italic: bool) -> Option<Arc<FontFace>> {
         // Thai (Lao, Khmer, Myanmar) takes a font made for it, when one is installed, rather than
         // whichever face covering it happened to load first (a display face, say).
         let prefer = script_families(c);
-        if let Some(f) = self.family_fallback(c, exclude, prefer) {
+        if let Some(f) = self.family_fallback(c, exclude, prefer, weight, italic) {
             return Some(f);
         }
         #[cfg(not(target_arch = "wasm32"))]
         if self.load_families(c, prefer)
-            && let Some(f) = self.family_fallback(c, exclude, prefer)
+            && let Some(f) = self.family_fallback(c, exclude, prefer, weight, italic)
         {
             return Some(f);
         }
-        if let Some(f) = self.loaded_fallback(c, exclude) {
+        if let Some(f) = self.loaded_fallback(c, exclude, weight, italic) {
             return Some(f);
         }
         #[cfg(not(target_arch = "wasm32"))]
         if self.system_fallback(c) {
-            return self.loaded_fallback(c, exclude);
+            return self.loaded_fallback(c, exclude, weight, italic);
         }
         None
     }
@@ -2097,14 +2289,14 @@ impl FontDb {
         self.fallback_for(c, 0)
     }
 
-    /// The loaded face of the first of `families` that covers `c` (upright, nearest Regular).
-    fn family_fallback(&self, c: char, exclude: u32, families: &[&str]) -> Option<Arc<FontFace>> {
+    /// The loaded face of the first of `families` that covers `c`, nearest `weight` and `italic`.
+    fn family_fallback(&self, c: char, exclude: u32, families: &[&str], weight: f32, italic: bool) -> Option<Arc<FontFace>> {
         let faces = self.read_faces();
         families.iter().find_map(|fam| {
             faces
                 .iter()
                 .filter(|f| f.id != exclude && f.family.eq_ignore_ascii_case(fam) && f.covers(c))
-                .min_by_key(|f| (f.italic, (f.weight - 400.0).abs() as i32))
+                .min_by(|a, b| style_distance(a, weight, italic).total_cmp(&style_distance(b, weight, italic)))
                 .cloned()
         })
     }
@@ -2116,14 +2308,27 @@ impl FontDb {
         if families.is_empty() || !self.sys.lock().unwrap_or_else(|e| e.into_inner()).enabled {
             return false;
         }
-        families.iter().any(|fam| !self.is_loaded(fam) && self.load_cataloged(fam) && self.family_fallback(c, 0, &[fam]).is_some())
+        families.iter().any(|fam| !self.is_loaded(fam) && self.load_cataloged(fam) && self.family_fallback(c, 0, &[fam], 400.0, false).is_some())
     }
 
-    fn loaded_fallback(&self, c: char, exclude: u32) -> Option<Arc<FontFace>> {
+    /// The first loaded family (the fallback family, then load order) with a face covering `c`,
+    /// and in it the face nearest `weight` and `italic`.
+    fn loaded_fallback(&self, c: char, exclude: u32, weight: f32, italic: bool) -> Option<Arc<FontFace>> {
         let faces = self.read_faces();
-        let mut order: Vec<&Arc<FontFace>> = faces.iter().filter(|f| f.id != exclude).collect();
-        order.sort_by_key(|f| (!f.family.eq_ignore_ascii_case(FALLBACK_FAMILY), f.italic, (f.weight - 400.0).abs() as i32));
-        order.into_iter().find(|f| f.covers(c)).cloned()
+        let mut families: Vec<&str> = Vec::new();
+        for f in faces.iter().filter(|f| f.id != exclude && f.covers(c)) {
+            if !families.iter().any(|fam| fam.eq_ignore_ascii_case(&f.family)) {
+                families.push(&f.family);
+            }
+        }
+        // Stable: the fallback family first, the others in load order.
+        families.sort_by_key(|fam| !fam.eq_ignore_ascii_case(FALLBACK_FAMILY));
+        let fam = families.first()?;
+        faces
+            .iter()
+            .filter(|f| f.id != exclude && f.family.eq_ignore_ascii_case(fam) && f.covers(c))
+            .min_by(|a, b| style_distance(a, weight, italic).total_cmp(&style_distance(b, weight, italic)))
+            .cloned()
     }
 
     /// Load a system font covering `c` (preferred fallback families first, then any cataloged

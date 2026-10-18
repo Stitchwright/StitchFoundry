@@ -298,14 +298,31 @@ fn new_color_model(s: &Session, p: &Value) -> Option<vectorcraft_color::cms::Mod
     (mode != vectorcraft_doc::ColorMode::Rgb && !bool_or(p, "keepModel", false)).then(|| mode.model())
 }
 
+/// `c` in `model` ([`new_color_model`]) when it is an RGB color, converted through the color
+/// settings (the working spaces and their intent) as Document Color Mode converts it. Other colors
+/// are returned as given.
+fn stored_color(model: Option<vectorcraft_color::cms::Model>, c: Color) -> Color {
+    match (c, model) {
+        (Color::Rgb { .. }, Some(m)) => {
+            let cms = vectorcraft_color::cms::active();
+            cms.convert(&c, m, cms.settings().intent)
+        }
+        _ => c,
+    }
+}
+
+/// A color given in `p` as the document stores it: an RGB color in a CMYK document (without
+/// `keepModel`) becomes CMYK through the color settings ([`stored_color`]).
+pub(crate) fn new_color(s: &Session, p: &Value, c: Color) -> Color {
+    stored_color(new_color_model(s, p), c)
+}
+
 /// Parse a paint from params (color / none / swatch / gradient). None = no paint keys given. A
-/// colour or gradient given in RGB takes the document's colour model ([`new_color_model`]).
+/// colour or gradient given in RGB takes the document's colour model ([`new_color_model`]),
+/// converted through the color settings.
 pub(crate) fn paint_from(s: &Session, p: &Value) -> Result<Option<Paint>> {
     let model = new_color_model(s, p);
-    let new_color = |c: Color| match (c, model) {
-        (Color::Rgb { .. }, Some(m)) => c.in_model(m),
-        _ => c,
-    };
+    let new_color = |c: Color| stored_color(model, c);
     if bool_or(p, "none", false) {
         return Ok(Some(Paint::None));
     }

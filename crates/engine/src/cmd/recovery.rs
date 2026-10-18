@@ -697,7 +697,7 @@ pub fn skip_reason(s: &Session, st: &DocState) -> Option<&'static str> {
     if !st.is_dirty() {
         return Some("no unsaved changes");
     }
-    if st.recovery.as_ref().is_some_and(|c| Arc::ptr_eq(&c.doc, &st.doc)) {
+    if st.recovery.as_ref().is_some_and(|c| st.same_content(&c.doc)) {
         return Some("unchanged since its last recovery copy");
     }
     if s.prefs.recovery_off_for_complex && object_count(&st.doc) > COMPLEX_OBJECTS {

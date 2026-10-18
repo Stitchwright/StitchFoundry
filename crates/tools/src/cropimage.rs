@@ -215,6 +215,7 @@ impl Tool for CropImageTool {
             None if r.contains(p) => Cursor::Move,
             None => Cursor::Arrow,
         }
+        .turned(cx.view_angle())
     }
 
     /// `rect`: the box as `[x, y, width, height]` once it's been dragged or set (until then it's
@@ -257,7 +258,7 @@ mod tests {
     use vectorcraft_geom::Affine;
 
     use super::*;
-    use crate::testutil::{cx, paint};
+    use crate::testutil::{cx, paint, turned_view};
 
     /// A 500 × 500 document (one artboard) with a 100 × 50 px image drawn at twice that size from
     /// `at`, selected.
@@ -321,6 +322,18 @@ mod tests {
         assert_eq!(acts.last(), Some(&Action::SwitchTool("selection".into())));
         assert!(t.options().get("rect").is_none(), "the next crop starts afresh");
         assert!(crop_rect(&t.key(&cx, ToolKey::Enter, Mods::default())).is_none(), "the whole image: nothing to cut");
+    }
+
+    /// In a view turned 90° the handles' cursors turn with the view.
+    #[test]
+    fn handle_cursors_turn_with_the_view() {
+        let (d, s) = doc_with_image((50.0, 60.0));
+        let p = paint();
+        let mut c = cx(&d, &s, &p);
+        c.screen = turned_view(90.0);
+        let t = CropImageTool::default();
+        assert_eq!(t.cursor(&c, Point::new(50.0, 60.0), Mods::default()), Cursor::ResizeNeSw, "top-left");
+        assert_eq!(t.cursor(&c, Point::new(150.0, 60.0), Mods::default()), Cursor::ResizeH, "top-middle");
     }
 
     #[test]

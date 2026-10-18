@@ -332,8 +332,9 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
     widgets::label_row(ui, tl!("Opacity:"), LABEL, |ui| {
         let v = d.f64("opacity", 50.0).clamp(0.0, 100.0);
         let track = |x: f32| egui::Color32::from_gray((60.0 + x * 160.0) as u8);
-        let mut new =
-            widgets::color_slider(ui, "persp-opacity", (v / 100.0) as f32, form::SLIDER_WIDTH, &track).0.map(|x| (f64::from(x) * 100.0).round());
+        let mut new = widgets::color_slider_named(ui, "persp-opacity", tl!("Opacity:"), (v / 100.0) as f32, form::SLIDER_WIDTH, &track)
+            .0
+            .map(|x| (f64::from(x) * 100.0).round());
         if let Some(x) = widgets::plain_field(ui, "persp-opacity-field", v, "%", 0, 52.0) {
             new = Some(x.round().clamp(0.0, 100.0));
         }

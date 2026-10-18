@@ -322,6 +322,7 @@
 	Change Case	變更大小寫
 	Change Screen Mode (F)	變更螢幕模式 (F)
 	Change to Global Rulers	變更為全域尺標
+	Change to Artboard Rulers	變更為工作區域尺標
 	Change to Right-to-Left Layout	變更為由右至左版面配置
 	Changed since the last Refresh.	自上次重新整理後已變更。
 	Changes allowed:	允許的變更：
@@ -472,6 +473,7 @@
 	Color Model:	色彩模型：
 	Color Models	色彩模型
 	Color Picker	顏色選擇器
+	Color wheel	色輪
 	Color Picker…	顏色選擇器…
 	Color Reduction:	色彩縮減：
 	Color Settings	色彩設定
@@ -510,6 +512,7 @@
 	Condition identifier:	條件識別碼：
 	Conflict {n} of {count}	衝突 {n}／{count}
 	Connect Selected End Points	連接所選端點
+	Connect	連接
 	Consolidate All Windows	合併所有視窗
 	Constrain Angle	強制角度
 	Constrain Width and Height Proportions	強制寬度與高度比例
@@ -518,6 +521,7 @@
 	Contextual Task Bar	快捷工作列
 	Pin Bar Position	釘選工作列位置
 	Reset Bar Position	重設工作列位置
+	Resize	調整大小
 	Contrast	對比
 	Control	控制
 	Convert	轉換
@@ -603,6 +607,7 @@
 	Created:	建立時間：
 	Crop	裁切
 	Crop Image	裁切影像
+	Edit Path	編輯路徑
 	Mask	遮色片
 	Crop Marks	裁切標記
 	Crop To	裁切至
@@ -749,6 +754,7 @@
 	Document open password	文件開啟密碼
 	Document profile	文件描述檔
 	Document Raster Effects Settings	文件點陣效果設定
+	Use Document Raster Effects Resolution	使用文件點陣效果設定的解析度
 	Document Raster Effects Settings Dialog	文件點陣效果設定對話框
 	Document Raster Effects Settings…	文件點陣效果設定…
 	Document Setup	文件設定
@@ -1100,6 +1106,16 @@
 	Flatten Transparency…	透明度平面化…
 	Flattener preset:	平面化預設集：
 	Flattener presets	平面化預設集
+file-filter	All readable files	所有可讀取的檔案
+file-filter	All placeable files	所有可置入的檔案
+file-filter	Swatch libraries	色票資料庫
+file-filter	Flattener presets	平面化預設集
+file-filter	PDF presets	PDF 預設集
+file-filter	Print presets	列印預設集
+file-filter	SVG Compressed	壓縮 SVG
+file-filter	PDF-compatible .ai	PDF 相容 .ai
+file-filter	VectorCraft Template	VectorCraft 範本
+file-filter	Templates	範本
 	Flattener Preview	平面化預視
 	Flip Across	跨軸翻轉
 	Flip Along	沿軸翻轉
@@ -1120,6 +1136,7 @@
 	Font List	字體清單
 	Font Preview Size	字體預覽大小
 	Font Size	字體大小
+	Variable Font	可變字體
 	Font:	字體：
 	Fonts	字體
 	Fonts in Document	文件中的字體
@@ -1149,6 +1166,14 @@
 	Gamut Warning	色域警告
 	gap	間隙
 	Gap Options…	間隙選項…
+	Gap Options	間隙選項
+	Gap Detection	間隙偵測
+	Paint Stops At:	上色停止於：
+	Small Gaps	小間隙
+	Medium Gaps	中等間隙
+	Large Gaps	大間隙
+	Gap Preview Color:	間隙預覽顏色：
+	Close Gaps With Paths	以路徑封閉間隙
 	Gaussian Blur…	高斯模糊…
 	General	一般
 	General › Placement › X	一般 › 位置 › X
@@ -1165,6 +1190,10 @@
 	glyph {id}	字符 {id}
 	Glyphs	字符
 	Go to Artboard	前往工作區域
+	First Artboard	第一個工作區域
+	Previous Artboard	上一個工作區域
+	Next Artboard	下一個工作區域
+	Last Artboard	最後一個工作區域
 	Go To Link	前往連結
 	GPL palettes keep solid colours only, as RGB.	GPL 調色盤僅保留純色，並以 RGB 儲存。
 	GPU Performance	GPU 效能
@@ -1190,6 +1219,16 @@
 	Delete Design	刪除設計
 	Paste Design	貼上設計
 	Select Unused	選取未使用項目
+	Graph Column	圖表長條
+	Column Type:	長條類型：
+	Vertically Scaled	垂直縮放
+	Uniformly Scaled	等比例縮放
+	Repeating	重複
+	Sliding	滑動
+	Each Design Represents:	每個設計代表：
+	For Fractions:	小數部分：
+	Chop Design	截斷設計
+	Scale Design	縮放設計
 	Import Data…	匯入資料…
 	Transpose	轉置
 	Switch x/y	切換 x/y
@@ -1284,7 +1323,94 @@
 	Highlight Substituted Glyphs	醒目提示被取代的字符
 	History	步驟記錄
 	History Options…	步驟記錄選項…
+	Step Backward	後退一步
+	Step Forward	前進一步
+	Set History Limit…	設定步驟記錄上限…
 	History States	步驟記錄狀態
+# History panel: the names of undo steps (`every_undo_label_is_translated`).
+	Apply Data Set	套用資料集
+	Area Type	區域文字
+	Bloat	膨脹
+	Cancel Pattern Editing	取消圖樣編輯
+	Copy Appearance	複製外觀
+	Copy Guide	複製參考線
+	Copy in Perspective	在透視中複製
+	Create Slice from Selection	從選取範圍建立切片
+	Create Slices from Guides	從參考線建立切片
+	Delete All Slices	刪除所有切片
+	Delete Data Sets	刪除資料集
+	Delete Graphic Styles	刪除繪圖樣式
+	Delete Guide	刪除參考線
+	Delete Guides	刪除參考線
+	Delete Slice	刪除切片
+	Delete Style	刪除樣式
+	Delete Variables	刪除變數
+	Delete View	刪除檢視
+	Done Editing Pattern	完成圖樣編輯
+	Duplicate Rows	製作列複本
+	Edit Perspective Grid	編輯透視格點
+	Expand Blend	展開漸變
+	Expand Envelope	展開封套
+	Expand Image Trace	展開影像描圖
+	Expand Live Paint	展開即時上色
+	Grid Repeat	格點重複
+	Image Trace (Make and Expand)	影像描圖 (製作並展開)
+	Live Shape	即時形狀
+	Make Blend	製作漸變
+	Make Dynamic	使其動態化
+	Make Intertwine	製作交織
+	Make Live Paint	製作即時上色
+	Make Pattern	製作圖樣
+	Make Slice	製作切片
+	Make Text Wrap	製作文字繞圖
+	Merge Live Paint	合併即時上色
+	Mesh Point Color	網格點顏色
+	Mirror Repeat	鏡射重複
+	Move Envelope Point	移動封套點
+	Move Plane and Copy Objects	移動平面並複製物件
+	Move Plane and Objects	移動平面和物件
+	Move Slice	移動切片
+	Move Type on a Path	移動路徑文字
+	New Guide	新增參考線
+	Pen	筆型
+	Place from Library	從資料庫置入
+	Pucker	縮攏
+	Radial Repeat	放射狀重複
+	Rearrange Artboards	重新排列工作區域
+	Release Blend	釋放漸變
+	Release Envelope	釋放封套
+	Release Image Trace	釋放影像描圖
+	Release Intertwine	釋放交織
+	Release Live Paint	釋放即時上色
+	Release Repeat	釋放重複
+	Release Slice	釋放切片
+	Release Text Wrap	釋放文字繞圖
+	Release Threaded Text	釋放串連文字
+	Rename Design	重新命名設計
+	Rename Style	重新命名樣式
+	Rename View	重新命名檢視
+	Reorder Appearance	重新排序外觀
+	Reorder Artboards	重新排序工作區域
+	Reshape Spine	改變脊線外框
+	Resize Artboard	調整工作區域大小
+	Resize Slice	調整切片大小
+	Resize Type Area	調整文字區域大小
+	Scale in Perspective	在透視中縮放
+	Scallop	扇形化
+	Shape Builder Delete	形狀建立 (刪除)
+	Sort Swatches	排序色票
+	Symbol Screener	符號濾色器
+	Symbol Scruncher	符號緊縮器
+	Symbol Shifter	符號移位器
+	Symbol Sizer	符號縮放器
+	Symbol Spinner	符號旋轉器
+	Symbol Stainer	符號染色器
+	Symbol Styler	符號樣式器
+	Text Orientation	文字方向
+	Thread Text	串連文字
+	Twirl	旋轉扭曲
+	Typing	輸入文字
+	Wrinkle	皺摺
 	Hollow	空心
 	Home	首頁
 	Horizon Height:	地平線高度：
@@ -1566,6 +1692,7 @@
 	Live Paint Selection Tool	即時上色選取工具
 	Live Shape Properties	即時形狀內容
 	Load Color Profile…	載入色彩描述檔…
+	Remove Color Profile…	移除色彩描述檔…
 	Load Image into Clipboard	將影像載入剪貼簿
 	Load Metafile into Clipboard	將中繼檔載入剪貼簿
 	Load PDF into Clipboard	將 PDF 載入剪貼簿
@@ -1799,6 +1926,7 @@
 	New Graphic Style	新增繪圖樣式
 	New Graphic Style (Alt-click to name it)	新增繪圖樣式 (Alt+點擊可命名)
 	New Graphic Style…	新增繪圖樣式…
+	New Artboard Options…	新工作區域選項…
 	New Layer Options…	新圖層選項…
 	New Layer…	新增圖層…
 	New Opacity Masks Are Clipping	新的不透明度遮色片為剪裁
@@ -2084,6 +2212,8 @@
 	Percent:	百分比：
 	Perceptual Scales	感知尺度
 	Performance	效能
+diagnostics	render	繪製
+diagnostics	ui	介面
 	Performance & Storage	效能與儲存空間
 	Permissions	權限
 	Permissions password:	權限密碼：
@@ -2188,6 +2318,8 @@
 	Print Tiling Tool	列印拼貼工具
 	Printer	印表機
 	Printer mark type:	印表機標記類型：
+	Roman	西式
+mark-style	Japanese	日式
 	Printer profile:	印表機描述檔：
 	Printer Setup…	印表機設定…
 	Printer:	印表機：
@@ -2452,6 +2584,9 @@
 	Revert	回復
 	Revert to the saved version of “{name}”?	要回復為「{name}」已儲存的版本嗎？
 	Replace “{name}”, the file this document was opened from?	要取代「{name}」（開啟此文件的來源檔案）嗎？
+	Opening it left out what VectorCraft can't read yet ({what}), so replacing it loses that for good. Save under another name to keep it.	開啟時略過了 VectorCraft 尚無法讀取的內容（{what}），取代該檔案會永久遺失這些內容。若要保留，請以其他名稱儲存。
+	“{name}” already exists. Replace it?	「{name}」已存在。要取代它嗎？
+	The name in the save panel was “{typed}”; VectorCraft added the file type's extension. Replacing the file overwrites its contents.	儲存面板中的名稱是「{typed}」，VectorCraft 隨後加上了檔案類型的副檔名。取代該檔案會覆寫其內容。
 	Revolve…	迴轉…
 	RGB Color	RGB 色彩
 	Right	右
@@ -2469,6 +2604,7 @@
 	Rotate 90° CW	順時針旋轉 90°
 	Rotate Tool	旋轉工具
 	Rotate View Tool	旋轉檢視工具
+	Trackpad Gesture to Rotate View	使用觸控式軌跡板手勢旋轉檢視
 	Rotate…	旋轉…
 	Rotation	旋轉
 	Roughen…	粗糙效果…
@@ -2523,11 +2659,13 @@
 	Save PDF Preset	儲存 PDF 預設集
 	Save Perspective Grid Preset	儲存透視格點預設集
 	Save Preset	儲存預設集
+	Preset {number}	預設集 {number}
 	Save Preset…	儲存預設集…
 	Save Print Preset	儲存列印預設集
 	Save Recovery Data	儲存救援資料
 	Save Save for Web Preset	儲存「儲存為網頁用」預設集
 	Save selected colors as swatches	將所選顏色儲存為色票
+	Save Selection	儲存選取範圍
 	Save Selection…	儲存選取範圍…
 	Update Selection	更新選取範圍
 	Save Swatch Library	儲存色票資料庫
@@ -2947,6 +3085,16 @@
 	Superscript:	上標：
 	SVG Filters	SVG 濾鏡
 	SVG Interactivity	SVG 互動性
+	Event:	事件：
+	JavaScript:	JavaScript：
+	Add Event	新增事件
+	Remove Selected Entry	移除選取的項目
+	Clear Events	清除事件
+	Link JavaScript Files…	連結 JavaScript 檔案…
+	JavaScript Files	JavaScript 檔案
+	File or URL:	檔案或 URL：
+	Add JavaScript File	新增 JavaScript 檔案
+	Remove JavaScript File	移除 JavaScript 檔案
 	SVG Options	SVG 選項
 	SVG Profile:	SVG 描述檔：
 	Swap Fill and Stroke	對調填色和筆畫
@@ -3099,6 +3247,7 @@
 	Top-to-Top Leading	上緣至上緣行距
 	Top:	上：
 	Total Width:	總寬度：
+	Touch Type	觸控文字
 	Touch Type Tool	觸控文字工具
 	Trace	描圖
 	Trace the image with the Default preset	使用「預設」預設集描圖影像
@@ -3255,6 +3404,8 @@
 	Variables	變數
 	New Variable	新增變數
 	Delete Variable	刪除變數
+	Lock Variables	鎖定變數
+	Unlock Variables	解除鎖定變數
 	List Variables	列出變數
 	Bind Variable	綁定變數
 	Unbind Variable	解除變數綁定
@@ -3369,6 +3520,7 @@
 	{effect} is already applied	已套用 {effect}
 	{format} Options	{format} 選項
 	{kind} Gradient	{kind}漸層
+gradient-kind	Radial	放射狀
 	{kind} Style Options…	{kind}樣式選項…
 	{kind}, {model}	{kind}，{model}
 	{name} (spot)	{name} (特別色)
@@ -3478,6 +3630,10 @@ imageTrace	Outline	輪廓
 	Table	表格
 	Name (A–Z)	名稱 (A–Z)
 	Merged PRs	已合併的 PR
+	PRs	PR
+	@{login}: {prs}, {commits}, +{added} / −{deleted} lines (Δ {delta}), +{binary_added} / −{binary_deleted} binary assets, {first} – {last}	@{login}：{prs}，{commits}，+{added} / −{deleted} 行 (Δ {delta})，+{binary_added} / −{binary_deleted} 個二進位資產，{first} – {last}
+@plural	{n} PR|{n} PRs	{n} 個 PR
+@plural	{n} commit|{n} commits	{n} 次提交
 	Commits	提交
 	Lines added	新增行數
 	Lines deleted	刪除行數
@@ -3691,6 +3847,7 @@ effect	Soft	柔和
 	Reset all	全部重設
 	Reset to default	重設為預設值
 	Reset all Revolve settings to their defaults.	將所有旋轉成形設定重設為預設值。
+	Step up or down	逐級增減
 	Drag values or labels. Double-click a value to type.	拖曳數值或標籤。按兩下數值即可輸入。
 	Drag rings to rotate. Shift snaps to 15°.	拖曳圓環旋轉。按住 Shift 以 15° 為間距調整。
 	Drag the light, or its rings. Shift snaps to 15°.	拖曳光源或圓環。按住 Shift 以 15° 為間距調整。
@@ -3731,6 +3888,8 @@ lighting	Light	光源
 	Horizontal Guide	水平參考線
 	Move Guide to Layer	將參考線移至圖層
 	Linux Display Server	Linux 顯示伺服器
+	X11 (XWayland) When a Pen Is Attached	連接觸控筆時使用 X11 (XWayland)
+	If a drawing tablet's pen doesn't draw, choose an X11 (XWayland) option.	如果繪圖板的筆無法繪圖，請選擇一個 X11 (XWayland) 選項。
 	X11 (XWayland)	X11 (XWayland)
 
 	About StitchFoundry	關於 StitchFoundry
@@ -3848,7 +4007,6 @@ lighting	Light	光源
 	Run style	平針樣式
 	Satin	緞紋
 	Satin Fill	緞紋填充
-	Scallop	扇貝
 	Select a path, shape or compound path to give it a stitch type.	選取路徑、形狀或複合路徑以指定針跡類型。
 	Set Inclination Lines	設定針跡方向線
 	Set Start and Stop	設定起點與終點
@@ -4138,7 +4296,6 @@ machine	Stop	停止
 	Fade out	漸隱
 	Fade in	漸顯
 	Blend into	漸變到
-	Make Blend	產生漸變
 	Blend Colors	顏色漸變
 
 # Embroidery (StitchFoundry): outlines and borders
@@ -4975,6 +5132,20 @@ machine	Stop	停止
 	Reset Ruler Origin	重設尺標原點
 	Artistic	藝術效果
 	Film Grain…	底片顆粒…
+	Cutout…	剪紙…
+	Cutout	剪紙
+	Neon Glow…	霓虹光…
+	Neon Glow	霓虹光
+	Poster Edges…	海報邊緣…
+	Poster Edges	海報邊緣
+	Levels	色階數
+	Edge Simplicity	邊緣簡化度
+	Edge Fidelity	邊緣逼真度
+	Glow Size	光暈大小
+	Glow Brightness	光暈亮度
+	Edge Thickness	邊緣厚度
+	Edge Intensity	邊緣強度
+	Posterization	海報化
 	Highlight Area	亮部範圍
 	Concentric Dividers:	同心分隔線：
 	Radial Dividers:	徑向分隔線：
@@ -5040,6 +5211,11 @@ machine	Stop	停止
 	Softness	柔和度
 	Ambient Light	環境光
 	Light behind the object	光源位於物件後方
+# 3D light management.
+	Lights	光源清單
+	Add Light	新增光源
+	Delete Light	刪除光源
+3d	Light	光源
 	Registration:	對齊點:
 	Create Dimension	建立尺寸標註
 	Dimension Tool	尺寸標註工具
@@ -5220,3 +5396,6 @@ machine	Stop	停止
 	{n} credits for {price}	{n} 點數，{price}
 	{n} credits	{n} 點數
 	{n} free checks left this month.	本月還剩 {n} 次免費檢查。
+	Enable Guides for 9-Slice Scaling	啟用 9-slice 縮放參考線
+	Persistent	持久
+	Library Panel Options	資料庫面板選項

@@ -8,7 +8,7 @@ use crate::state::Dialog;
 use crate::theme::Tokens;
 
 /// Width of a dialog's value fields ([`text`] and [`length`], frame included).
-const FIELD_W: f32 = 132.0;
+pub(super) const FIELD_W: f32 = 132.0;
 
 /// A labelled text field bound to `d.fields[key]` (one grid row).
 pub(super) fn field(ui: &mut egui::Ui, d: &mut Dialog, key: &str, label: &str) {
@@ -193,6 +193,12 @@ fn dropdown(ui: &mut egui::Ui, d: &mut Dialog, key: &str, width: f32, options: &
 /// hidden) in the kind's [`order`], the distances in `unit`, the [`choices`] as dropdowns and the
 /// [`skew_ends`] fields as sliders.
 pub(super) fn grid(ui: &mut egui::Ui, d: &mut Dialog, unit: Unit) {
+    grid_then(ui, d, unit, |_, _| {});
+}
+
+/// [`grid`], then the rows `more` draws in the same grid, so that their labels and fields line up
+/// with the generic ones.
+pub(super) fn grid_then(ui: &mut egui::Ui, d: &mut Dialog, unit: Unit, more: impl FnOnce(&mut egui::Ui, &mut Dialog)) {
     let rail = Tokens::get(ui.ctx()).input_border;
     let (lengths, first) = (lengths(&d.kind), order(&d.kind));
     let mut keys: Vec<String> = d
@@ -218,7 +224,7 @@ pub(super) fn grid(ui: &mut egui::Ui, d: &mut Dialog, unit: Unit) {
                 let max = vectorcraft_geom::shapes::GRID_SKEW_MAX;
                 row_label(ui, tl!("Skew:"));
                 ui.vertical(|ui| {
-                    ui.horizontal(|ui| slider_field(ui, d, &k, -max..=max, "%", &|_| rail));
+                    ui.horizontal(|ui| slider_field_named(ui, d, &k, tl!("Skew:"), -max..=max, "%", &|_| rail));
                     rail_ends(ui, ends);
                 });
                 ui.end_row();
@@ -237,6 +243,7 @@ pub(super) fn grid(ui: &mut egui::Ui, d: &mut Dialog, unit: Unit) {
                 ui.end_row();
             }
         }
+        more(ui, d);
     });
 }
 
@@ -284,12 +291,9 @@ pub(super) fn param_fields(
                 continue;
             }
             if let Some(options) = choices(&k) {
-                // In the "effect" context: some languages read the plain Soft, Horizontal and
-                // Vertical (Grain's types) as type settings.
-                let shown = |label: &'static str| crate::i18n::tr_ctx(crate::i18n::current(), "effect", label);
                 let cur = v.as_str().unwrap_or_default();
-                let label = options.iter().find(|(_, value)| *value == cur).map_or(cur, |(l, _)| shown(l));
-                let labels: Vec<&str> = options.iter().map(|(l, _)| shown(l)).collect();
+                let label = options.iter().find(|(_, value)| *value == cur).map_or(cur, |(l, _)| choice_label(l));
+                let labels: Vec<&str> = options.iter().map(|(l, _)| choice_label(l)).collect();
                 if let Some((_, value)) = crate::widgets::dropdown_names(ui, ("fx-choice", &k), label, &labels, 140.0).and_then(|i| options.get(i)) {
                     d.fields.insert(k, json!(value));
                     changed = true;
@@ -315,7 +319,7 @@ pub(super) fn param_fields(
                     });
                 }
                 Value::Bool(b) => {
-                    if crate::widgets::check(ui, "", b, true) {
+                    if crate::widgets::check_box(ui, &humanized(&k), b, true) {
                         d.fields.insert(k, json!(!b));
                         changed = true;
                     }
@@ -341,6 +345,12 @@ pub(super) fn param_fields(
         }
     });
     changed
+}
+
+/// The label of one of [`param_fields`]' choices in the UI language, in the "effect" context: some
+/// languages read the plain Soft, Horizontal and Vertical (Grain's types) as type settings.
+pub(super) fn choice_label(label: &'static str) -> &'static str {
+    crate::i18n::tr_ctx(crate::i18n::current(), "effect", label)
 }
 
 /// A number typed in a command's dialog as JSON: a whole number as an integer, as counts are read
@@ -384,7 +394,7 @@ pub(super) fn schema_fields(ui: &mut egui::Ui, d: &mut Dialog, specs: &[(String,
                 }
                 ParamSpec::Bool { .. } => {
                     let b = cur.as_bool().unwrap_or(false);
-                    crate::widgets::check(ui, "", b, true).then(|| json!(!b))
+                    crate::widgets::check_box(ui, &humanize(k), b, true).then(|| json!(!b))
                 }
                 ParamSpec::Choice { options, .. } => {
                     let labels: Vec<&str> = options.iter().map(String::as_str).collect();
@@ -404,7 +414,7 @@ pub(super) fn schema_fields(ui: &mut egui::Ui, d: &mut Dialog, specs: &[(String,
 }
 
 /// A field label from its camelCase key (`miterLimit` → "Miter Limit:").
-pub(super) fn humanize(k: &str) -> String {
+pub(crate) fn humanize(k: &str) -> String {
     let mut s = String::new();
     for (i, c) in k.chars().enumerate() {
         if i == 0 {
@@ -476,33 +486,43 @@ pub(super) fn slider_w(
     let t = Tokens::get(ui.ctx());
     ui.horizontal(|ui| {
         ui.add_sized([label_w, 22.0], egui::Label::new(egui::RichText::new(tl!(label)).color(t.text)));
-        slider_field(ui, d, key, range, suffix, track);
+        slider_field_named(ui, d, key, tl!(label), range, suffix, track);
     });
 }
 
-/// The rail and value field of [`slider`] without its label (for a row that draws its own).
-pub(super) fn slider_field(
+/// The rail and value field of [`slider`] without its label (for a row that draws its own); screen
+/// readers call the rail `name` (the row's label, already translated).
+pub(super) fn slider_field_named(
     ui: &mut egui::Ui,
     d: &mut Dialog,
     key: &str,
+    name: &str,
     range: std::ops::RangeInclusive<f64>,
     suffix: &str,
     track: &dyn Fn(f32) -> egui::Color32,
 ) {
     let (min, max) = (*range.start(), *range.end());
     let v = d.f64(key, 0.0).clamp(min, max);
-    slider_rail(ui, d, key, range, track);
+    slider_rail_named(ui, d, key, name, range, track);
     if let Some(n) = crate::widgets::plain_field(ui, ("dlg-field", key), v, suffix, 0, 52.0).map(|x| x.round().clamp(min, max)).filter(|n| *n != v) {
         d.fields.insert(key.into(), json!(n));
     }
 }
 
-/// The rail of [`slider_field`] alone: dragging it sets the number `d.fields[key]` to a whole
-/// number in `range` (a value past the range shows at its end until the rail moves).
-pub(super) fn slider_rail(ui: &mut egui::Ui, d: &mut Dialog, key: &str, range: std::ops::RangeInclusive<f64>, track: &dyn Fn(f32) -> egui::Color32) {
+/// The rail of [`slider_field_named`] alone: dragging it sets the number `d.fields[key]` to a
+/// whole number in `range` (a value past the range shows at its end until the rail moves); screen
+/// readers call it `name` (already translated).
+pub(super) fn slider_rail_named(
+    ui: &mut egui::Ui,
+    d: &mut Dialog,
+    key: &str,
+    name: &str,
+    range: std::ops::RangeInclusive<f64>,
+    track: &dyn Fn(f32) -> egui::Color32,
+) {
     let (min, max) = (*range.start(), *range.end());
     let v = d.f64(key, 0.0).clamp(min, max);
-    let (dragged, _) = crate::widgets::color_slider(ui, ("dlg-slider", key), ((v - min) / (max - min)) as f32, SLIDER_WIDTH, track);
+    let (dragged, _) = crate::widgets::color_slider_named(ui, ("dlg-slider", key), name, ((v - min) / (max - min)) as f32, SLIDER_WIDTH, track);
     if let Some(n) = dragged.map(|x| (min + x as f64 * (max - min)).round()).filter(|n| *n != v) {
         d.fields.insert(key.into(), json!(n));
     }
@@ -572,11 +592,20 @@ pub(super) fn preview_result(
 }
 
 /// OK of a dialog using [`preview`]: keep the previewed `cmd` as one undo step (or run it when no
-/// preview runs) and close. On an error the dialog stays open.
+/// preview runs) and close; the command's warning shows in the status bar either way. On an error
+/// the dialog stays open.
 pub(super) fn commit_preview(app: &mut crate::VectorcraftApp, cmd: &str, params: Value) -> Result<Value, String> {
     let r = if app.session.in_interaction() {
         match app.session.preview(cmd, &params) {
-            Ok(_) => app.session.commit_interaction().map(|_| Value::Null).map_err(|e| e.to_string()),
+            Ok(v) => {
+                let r = app.session.commit_interaction().map(|_| Value::Null).map_err(|e| e.to_string());
+                if r.is_ok()
+                    && let Some(w) = v.get("warning").and_then(Value::as_str)
+                {
+                    app.status(w.to_string());
+                }
+                r
+            }
             Err(e) => Err(e.to_string()),
         }
     } else {

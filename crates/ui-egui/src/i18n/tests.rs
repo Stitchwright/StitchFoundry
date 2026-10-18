@@ -8,7 +8,7 @@ fn tags_map_to_languages() {
     assert_eq!(lang_from_tag("en_US.UTF-8"), Some(Lang::EN));
     assert_eq!(lang_from_tag("C"), Some(Lang::EN));
     assert_eq!(lang_from_tag("POSIX"), Some(Lang::EN));
-    assert_eq!(lang_from_tag("nl_NL"), None);
+    assert_eq!(lang_from_tag("qaa-QM"), None, "the private-use tag names no language");
     // German: Germany, Austria, Switzerland and the rest share the one catalog.
     for tag in ["de", "de_DE.UTF-8", "de-AT", "de_CH", "de-LU", "de_DE.UTF-8@euro"] {
         assert_eq!(lang_from_tag(tag), Some(de()), "{tag}");
@@ -67,7 +67,7 @@ fn candidates_walk_from_specific_to_general() {
 #[test]
 fn os_language_lists_are_parsed() {
     assert_eq!(first_supported("(\n    \"zh-Hant-TW\",\n    \"en-US\"\n)\n"), Some(ZH()));
-    assert_eq!(first_supported("(\n    \"nl-NL\",\n    \"en-US\"\n)\n"), Some(Lang::EN));
+    assert_eq!(first_supported("(\n    \"qaa-QM\",\n    \"en-US\"\n)\n"), Some(Lang::EN), "the private-use tag falls through to the next entry");
     assert_eq!(first_supported("(\n    \"de-DE\",\n    \"en-US\"\n)\n"), Some(de()));
     assert_eq!(first_supported("(\n    \"fr-FR\",\n    \"en-US\"\n)\n"), Lang::from_code("fr"));
     assert_eq!(first_supported("("), None);
@@ -96,6 +96,15 @@ fn current_language_is_a_frame_setting() {
     assert_eq!(current(), ZH());
     assert_eq!(t("Layers"), "圖層");
     set_current(Lang::EN);
+    assert_eq!(current(), Lang::EN);
+    assert_eq!(t("Layers"), "Layers");
+}
+
+/// Unit tests run on parallel threads, and each one draws in its own language: a language set on
+/// another thread (by a test running beside this one) leaves this thread's text in English.
+#[test]
+fn a_language_set_by_another_test_leaves_this_one_in_english() {
+    std::thread::spawn(|| set_current(ZH())).join().unwrap();
     assert_eq!(current(), Lang::EN);
     assert_eq!(t("Layers"), "Layers");
 }
@@ -197,8 +206,7 @@ fn partial_catalogs_only_translate_strings_the_ui_shows() {
 }
 
 /// The engine learns the language the UI is drawn in each frame: new type takes the Japanese
-/// defaults while it is Japanese (#432). The frames stay in English: the drawing language is
-/// process-wide, and a Japanese frame would translate the tests running beside this one.
+/// defaults while it is Japanese (#432). The frames stay in English.
 #[test]
 fn the_engine_follows_the_interface_language() {
     let mut app = crate::VectorcraftApp::new(vectorcraft_engine::Session::new(), crate::Services::default());
@@ -432,6 +440,21 @@ fn every_tl_literal_is_translated() {
     }
 }
 
+/// Every undo step name the engine, the tools and the shell record ([`undo_labels`]), and every
+/// effect's name without its ellipsis, has a row in each language marked `complete_menus`: its plain
+/// row, or the row of the same name with an ellipsis (`panels::history::step_name`).
+#[test]
+fn every_undo_label_is_translated() {
+    let mut labels = undo_labels();
+    assert!(labels.len() > 300, "scan found only {} undo labels", labels.len());
+    labels.extend(vectorcraft_effects::effect_catalog().iter().map(|e| e.label.trim_end_matches('…').to_string()));
+    for l in LANGUAGES.iter().filter(|l| l.complete_menus) {
+        let lang = Lang::from_code(l.code).expect("registered");
+        let missing: Vec<_> = labels.iter().filter(|s| crate::panels::history::step_name(lang, s).is_none()).collect();
+        assert!(missing.is_empty(), "{}: {} untranslated undo labels: {missing:#?}", l.code, missing.len());
+    }
+}
+
 /// Every `tl!("…")` literal in this crate's sources (test modules aside).
 pub fn tl_literals() -> std::collections::BTreeSet<String> {
     let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
@@ -465,6 +488,308 @@ pub fn tl_literals() -> std::collections::BTreeSet<String> {
     literals
 }
 
+/// Crates whose undo steps the History panel lists.
+const UNDO_CRATES: &[&str] = &["engine", "tools", "ui-egui"];
+
+/// Calls whose first argument names an undo step.
+const UNDO_MARKERS: &[&str] = &[".edit(", "begin_interaction(", "Action::Begin(", "begin_named_undo_group(Some("];
+
+/// A function in a source file, as [`undo_labels`] reads it.
+struct SourceFn<'a> {
+    file: usize,
+    name: &'a str,
+    /// Declared `pub` (`pub(crate)`, `pub(super)`), so other files call it too.
+    public: bool,
+    /// Position of its `label` parameter among a call's arguments (`self` not counted).
+    label: Option<usize>,
+    body: &'a str,
+}
+
+/// Every undo step name in [`UNDO_CRATES`] (test modules aside) that the sources write as a
+/// literal: the first argument at each of [`UNDO_MARKERS`], the argument a function whose `label`
+/// parameter reaches one of them takes at each of its calls, and the value of each `let label = …`
+/// in a function that passes `label` on. A literal counts where it is the value (`"Move"`,
+/// `if copy { "Copy" } else { "Move" }`, a match arm's result). A call of a function named
+/// `…label` (`pf_label(op)`, `kind.label()`) gives the literals that function returns in the same
+/// file. A name built with `format!` or taken from data (an effect's, a plug-in's) is not read.
+pub fn undo_labels() -> std::collections::BTreeSet<String> {
+    let crates = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("..");
+    let mut out = std::collections::BTreeSet::new();
+    for krate in UNDO_CRATES {
+        let files = undo_sources(&crates.join(krate).join("src"));
+        let fns: Vec<SourceFn> = files.iter().enumerate().flat_map(|(i, t)| source_fns(i, t)).collect();
+        // Functions whose `label` parameter reaches a marker, directly or through one another.
+        let mut forwards = vec![false; fns.len()];
+        loop {
+            let before = forwards.clone();
+            for (i, f) in fns.iter().enumerate().filter(|(_, f)| f.label.is_some()) {
+                let passed = |g: &SourceFn| call_args(f.body, g).iter().any(|a| bare(a) == "label");
+                forwards[i] |= marker_args(f.body).iter().any(|a| bare(a) == "label") || fns.iter().zip(&before).any(|(g, &on)| on && passed(g));
+            }
+            if forwards == before {
+                break;
+            }
+        }
+        let forwarders: Vec<&SourceFn> = fns.iter().zip(&forwards).filter(|(_, on)| **on).map(|(f, _)| f).collect();
+        // Each expression that gives a step's name, with the file it is in.
+        let mut exprs: Vec<(usize, &str)> = vec![];
+        for (i, t) in files.iter().enumerate() {
+            exprs.extend(marker_args(t).into_iter().map(|a| (i, a)));
+            for g in forwarders.iter().filter(|g| g.public || g.file == i) {
+                exprs.extend(call_args(t, g).into_iter().map(|a| (i, a)));
+            }
+        }
+        for f in &fns {
+            let mut passed = marker_args(f.body);
+            passed.extend(forwarders.iter().flat_map(|g| call_args(f.body, g)));
+            if !passed.iter().any(|a| bare(a).starts_with("label")) {
+                continue;
+            }
+            for (at, m) in f.body.match_indices("let label =") {
+                let rest = &f.body[at + m.len()..];
+                exprs.push((f.file, rest[..top_level(rest).1].trim()));
+            }
+        }
+        for (file, e) in exprs {
+            label_literals(e, file, &fns, &mut out);
+        }
+    }
+    out
+}
+
+/// The sources of a crate's `src` directory, test modules and files and `//` comments aside.
+fn undo_sources(dir: &std::path::Path) -> Vec<String> {
+    let mut out = vec![];
+    let mut stack = vec![dir.to_path_buf()];
+    while let Some(d) = stack.pop() {
+        for entry in std::fs::read_dir(&d).into_iter().flatten().flatten() {
+            let path = entry.path();
+            let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+            if path.is_dir() {
+                if name != "tests" {
+                    stack.push(path);
+                }
+            } else if name.ends_with(".rs") && !name.starts_with("tests") && !name.ends_with("_tests.rs") {
+                let text = std::fs::read_to_string(&path).unwrap_or_default();
+                out.push(without_comments(without_test_module(&text)));
+            }
+        }
+    }
+    out
+}
+
+/// `text` with each `//` comment removed (a `//` inside a string literal stays).
+fn without_comments(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut i = 0;
+    while let Some(c) = text[i..].chars().next() {
+        if let Some(end) = (c == '"' || c == '\'').then(|| quoted_end(text, i)).flatten() {
+            out.push_str(&text[i..end]);
+            i = end;
+        } else if text[i..].starts_with("//") {
+            i = text[i..].find('\n').map_or(text.len(), |n| i + n);
+        } else {
+            out.push(c);
+            i += c.len_utf8();
+        }
+    }
+    out
+}
+
+/// Where the string or character literal starting at `text[at]` (a `"` or `'`) ends, raw strings
+/// (`r#"…"#`) included; `None` for a lifetime's `'`.
+fn quoted_end(text: &str, at: usize) -> Option<usize> {
+    let rest = &text[at + 1..];
+    if text[at..].starts_with('\'') {
+        let mut it = rest.char_indices();
+        let (_, c) = it.next()?;
+        if c == '\\' {
+            it.next()?;
+            return it.find(|(_, c)| *c == '\'').map(|(n, _)| at + 1 + n + 1);
+        }
+        return it.next().filter(|(_, c)| *c == '\'').map(|(n, _)| at + 1 + n + 1);
+    }
+    let hashes = text[..at].chars().rev().take_while(|c| *c == '#').count();
+    if text[..at - hashes].ends_with('r') {
+        let close = format!("\"{}", "#".repeat(hashes));
+        return rest.find(&close).map(|n| at + 1 + n + close.len());
+    }
+    let mut it = rest.char_indices();
+    while let Some((n, c)) = it.next() {
+        match c {
+            '\\' => {
+                it.next();
+            }
+            '"' => return Some(at + 1 + n + 1),
+            _ => {}
+        }
+    }
+    None
+}
+
+/// In `s` (the text after an opening bracket), the offset of each top-level `,`, and where the
+/// list ends: at the bracket that closes it, a top-level `;`, or the end of `s`.
+fn top_level(s: &str) -> (Vec<usize>, usize) {
+    let (mut commas, mut depth, mut i) = (vec![], 0usize, 0);
+    while let Some(c) = s[i..].chars().next() {
+        if let Some(end) = (c == '"' || c == '\'').then(|| quoted_end(s, i)).flatten() {
+            i = end;
+            continue;
+        }
+        match c {
+            '(' | '[' | '{' => depth += 1,
+            ')' | ']' | '}' if depth == 0 => return (commas, i),
+            ')' | ']' | '}' => depth -= 1,
+            ';' if depth == 0 => return (commas, i),
+            ',' if depth == 0 => commas.push(i),
+            _ => {}
+        }
+        i += c.len_utf8();
+    }
+    (commas, s.len())
+}
+
+/// The length of the block at the start of `s` (which starts with `{`), braces included.
+fn block_len(s: &str) -> usize {
+    let mut at = 1;
+    while at < s.len() {
+        let end = at + top_level(&s[at..]).1;
+        if !s[end..].starts_with(';') {
+            return (end + 1).min(s.len());
+        }
+        at = end + 1;
+    }
+    s.len()
+}
+
+/// The arguments of the call whose `(` comes just before `s`, trimmed.
+fn arguments(s: &str) -> Vec<&str> {
+    let (commas, end) = top_level(s);
+    let mut out = vec![];
+    let mut start = 0;
+    for at in commas.into_iter().chain([end]) {
+        out.push(s[start..at].trim());
+        start = at + 1;
+    }
+    out
+}
+
+/// The functions defined in a source file, with their bodies.
+fn source_fns(file: usize, text: &str) -> Vec<SourceFn<'_>> {
+    let mut out = vec![];
+    for (at, _) in text.match_indices("fn ") {
+        if text[..at].chars().next_back().is_some_and(|c| c.is_alphanumeric() || c == '_') {
+            continue;
+        }
+        let after = &text[at + 3..];
+        let name_len = after.find(|c: char| !(c.is_alphanumeric() || c == '_')).unwrap_or(after.len());
+        let (name, mut rest) = after.split_at(name_len);
+        if rest.starts_with('<') {
+            let mut depth = 0;
+            let close = rest
+                .char_indices()
+                .find(|&(n, c)| {
+                    depth += match c {
+                        '<' => 1,
+                        '>' if !rest[..n].ends_with('-') => -1,
+                        _ => 0,
+                    };
+                    depth == 0
+                })
+                .map(|(n, _)| n);
+            rest = close.map_or("", |n| &rest[n + 1..]);
+        }
+        let Some(params) = rest.strip_prefix('(') else { continue };
+        let names: Vec<&str> =
+            arguments(params).into_iter().map(|p| p.split(':').next().unwrap_or("").trim().trim_start_matches("mut ").trim()).collect();
+        let after_params = &params[top_level(params).1..];
+        let (Some(open), semi) = (after_params.find('{'), after_params.find(';')) else { continue };
+        if semi.is_some_and(|s| s < open) {
+            continue;
+        }
+        let body = &after_params[open..];
+        let body = &body[..block_len(body)];
+        let skip = usize::from(names.first().is_some_and(|n| n.ends_with("self")));
+        let line = &text[text[..at].rfind('\n').map_or(0, |n| n + 1)..at];
+        out.push(SourceFn { file, name, public: line.contains("pub"), label: names.iter().position(|n| *n == "label").map(|k| k - skip), body });
+    }
+    out
+}
+
+/// The first argument at each of [`UNDO_MARKERS`] in `text`.
+fn marker_args(text: &str) -> Vec<&str> {
+    UNDO_MARKERS.iter().flat_map(|m| text.match_indices(m).filter_map(move |(at, _)| arguments(&text[at + m.len()..]).first().copied())).collect()
+}
+
+/// The argument at `g`'s `label` position at each call of `g` in `text`.
+fn call_args<'a>(text: &'a str, g: &SourceFn) -> Vec<&'a str> {
+    let Some(k) = g.label else { return vec![] };
+    let call = format!("{}(", g.name);
+    text.match_indices(&call)
+        .filter(|(at, _)| !text[..*at].chars().next_back().is_some_and(|c| c.is_alphanumeric() || c == '_') && !text[..*at].ends_with("fn "))
+        .filter_map(|(at, _)| arguments(&text[at + call.len()..]).get(k).copied())
+        .collect()
+}
+
+/// An expression without a leading `&` and trailing conversions (`.into()`, `.to_string()`).
+fn bare(e: &str) -> &str {
+    let mut e = e.trim().trim_start_matches('&');
+    while let Some(s) = [".into()", ".to_string()", ".clone()", ".as_str()", ".to_owned()"].iter().find_map(|t| e.strip_suffix(t)) {
+        e = s.trim_end();
+    }
+    e
+}
+
+/// Add the step names expression `e` in source file `file` gives (see [`undo_labels`]).
+fn label_literals(e: &str, file: usize, fns: &[SourceFn], out: &mut std::collections::BTreeSet<String>) {
+    let mut e = bare(e);
+    if e.starts_with("format!(") {
+        return;
+    }
+    if let Some(body) = e.strip_prefix('|').and_then(|r| r.find('|').map(|n| &r[n + 1..])) {
+        e = body.trim();
+    }
+    let values = string_literals(e, |before, after| {
+        let before = before.trim_end();
+        let value = before.is_empty() || ["{", "=>", "else", "Some(", "unwrap_or("].iter().any(|t| before.ends_with(t));
+        value && !after.trim_start().starts_with("=>") && !after.trim_start().starts_with('|')
+    });
+    if !values.is_empty() {
+        out.extend(values);
+        return;
+    }
+    let Some(inner) = e.strip_suffix(')') else { return };
+    let Some(open) = inner.rfind('(').filter(|n| !inner[n + 1..].contains(')')) else { return };
+    let name_at = inner[..open].rfind(|c: char| !(c.is_alphanumeric() || c == '_')).map_or(0, |n| n + 1);
+    let name = &inner[name_at..open];
+    let method = inner[..name_at].ends_with('.');
+    if name.ends_with("label") && (name != "label" || method) {
+        for f in fns.iter().filter(|f| f.file == file && f.name == name) {
+            out.extend(string_literals(f.body, |_, after| !after.trim_start().starts_with("=>") && !after.trim_start().starts_with('|')));
+        }
+    }
+}
+
+/// The string literals in `e` that `keep` accepts, given the text before and after each.
+fn string_literals(e: &str, keep: impl Fn(&str, &str) -> bool) -> Vec<String> {
+    let mut out = vec![];
+    let mut i = 0;
+    while let Some(c) = e[i..].chars().next() {
+        if let Some(end) = (c == '"' || c == '\'').then(|| quoted_end(e, i)).flatten() {
+            if c == '"'
+                && let Some(lit) = string_literal(&e[i + 1..])
+                && keep(&e[..i], &e[end..])
+            {
+                out.push(lit);
+            }
+            i = end;
+        } else {
+            i += c.len_utf8();
+        }
+    }
+    out
+}
+
 /// `VECTORCRAFT_I18N_DUMP=<file> cargo test -p vectorcraft-ui-egui dump_source_strings` writes every
 /// English source string a complete catalog has to cover, one per line, for translators.
 #[test]
@@ -472,6 +797,7 @@ fn dump_source_strings() {
     let Ok(path) = std::env::var("VECTORCRAFT_I18N_DUMP") else { return };
     let mut all = crate::menus::menu_strings();
     all.extend(tl_literals());
+    all.extend(undo_labels());
     let text: String = all.iter().map(|s| format!("{}\n", s.replace('\\', "\\\\").replace('\n', "\\n").replace('\t', "\\t"))).collect();
     std::fs::write(path, text).expect("write dump");
 }
@@ -1235,6 +1561,73 @@ fn align_reflect_and_shear_param_errors_are_translated() {
     }
 }
 
+/// The parameter errors of the blend spine commands (Move Spine Point, Reshape Spine Segment, Add
+/// Spine Point and Delete Spine Point, which Direct Selection, the Pen and the Anchor Point tool
+/// send), whose text the scan above doesn't read, are translated whole in each language of
+/// [`COMPLETE_MESSAGES`] and in Bulgarian.
+#[test]
+fn blend_spine_param_errors_are_translated() {
+    use serde_json::json;
+    use vectorcraft_engine::{EngineError, Session};
+    let mut s = Session::new();
+    s.execute("file.new", &json!({})).unwrap();
+    let rectangle =
+        |s: &mut Session, x: u64, y: u64| s.execute("shape.rectangle", &json!({"x": x, "y": y, "width": 10, "height": 10})).unwrap()["id"].clone();
+    let blend = |s: &mut Session, y: u64| {
+        let keys = [0, 100].map(|x| rectangle(s, x, y));
+        s.execute("object.blend.make", &json!({"ids": keys, "steps": 1})).unwrap()["id"].clone()
+    };
+    // `replaced` gives a new blend a new spine. `ring`'s spine is a closed path of two points with
+    // both keys on the first, and `dot`'s spine is a single point.
+    let replaced = |s: &mut Session, y: u64, anchors: serde_json::Value, closed: bool| {
+        let b = blend(s, y);
+        let path = s.execute("path.create", &json!({"anchors": anchors, "closed": closed})).unwrap()["id"].clone();
+        s.execute("select.set", &json!({"ids": [b, path]})).unwrap();
+        s.execute("object.blend.replaceSpine", &json!({})).unwrap();
+        b
+    };
+    let ring = replaced(&mut s, 200, json!([{"x": 0, "y": 205}, {"x": 100, "y": 205}]), true);
+    let dot = replaced(&mut s, 400, json!([{"x": 0, "y": 405}]), false);
+    let other = rectangle(&mut s, 0, 600);
+    let b = blend(&mut s, 0);
+    s.execute("select.set", &json!({"ids": [b]})).unwrap();
+    let mut errors = Vec::new();
+    for (cmd, p, want) in [
+        ("object.blend.spine.moveAnchor", json!({}), "missing number `anchor`"),
+        ("object.blend.spine.moveAnchor", json!({"anchor": -1, "x": 0, "y": 0}), "index must be ≥ 0"),
+        ("object.blend.spine.moveAnchor", json!({"anchor": 0, "x": 1e12, "y": 0}), "x and y must be finite"),
+        ("object.blend.spine.moveAnchor", json!({"anchor": 0, "x": 0, "y": 0, "handle": "up"}), "handle must be in or out"),
+        ("object.blend.spine.moveAnchor", json!({"anchor": 5, "x": 0, "y": 0}), "no such spine point"),
+        ("object.blend.spine.moveAnchor", json!({"id": other, "anchor": 0, "x": 0, "y": 0}), "not a blend"),
+        ("object.blend.spine.reshapeSegment", json!({"segment": 0, "dx": 1e12}), "t, dx and dy must be finite"),
+        ("object.blend.spine.reshapeSegment", json!({"segment": 5, "dy": 10}), "no such spine segment"),
+        ("object.blend.spine.removeAnchor", json!({"anchor": 0}), "a key object sits on that point"),
+        ("object.blend.spine.removeAnchor", json!({"id": ring, "anchor": 1}), "a spine keeps at least two points"),
+        ("object.blend.spine.addAnchor", json!({"id": dot, "x": 0, "y": 0}), "the blend has no spine"),
+    ] {
+        let e = s.execute(cmd, &p).unwrap_err();
+        assert!(matches!(&e, EngineError::BadParams { msg, .. } if msg == want), "{cmd} {p}: {e}");
+        errors.push(e);
+    }
+    s.execute("select.none", &json!({})).unwrap();
+    let e = s.execute("object.blend.spine.moveAnchor", &json!({"anchor": 0, "x": 0, "y": 0})).unwrap_err();
+    assert!(matches!(&e, EngineError::BadParams { msg, .. } if msg == "select a blend or give `id`"), "{e}");
+    errors.push(e);
+    // No command leaves a blend with a pinned spine of one point, so this one is built here.
+    errors.push(EngineError::BadParams { cmd: "object.blend.spine.addAnchor".into(), msg: "the spine has no segments".into() });
+    let mut untranslated = Vec::new();
+    for e in &errors {
+        let EngineError::BadParams { msg, .. } = e else { panic!("{e}") };
+        for code in COMPLETE_MESSAGES.iter().chain(&["bg"]) {
+            let shown = message(Lang::from_code(code).unwrap(), &e.to_string());
+            if shown.contains(msg.as_str()) {
+                untranslated.push(format!("{code}: {shown}"));
+            }
+        }
+    }
+    assert!(untranslated.is_empty(), "untranslated spine errors:\n{}", untranslated.join("\n"));
+}
+
 /// The errors for a parameter key a command doesn't take (#1442), whose text the scan above
 /// doesn't read, are translated whole in each language of [`COMPLETE_MESSAGES`].
 #[test]
@@ -1247,6 +1640,20 @@ fn unknown_parameter_errors_are_translated() {
             let shown = message(Lang::from_code(code).unwrap(), &e.to_string());
             assert!(!shown.contains("unknown parameter") && shown.contains(cmd), "{code}: {shown} ({msg})");
         }
+    }
+}
+
+/// The error for an effect `color` the effect can't draw, whose text the scan above doesn't read,
+/// is translated whole in each language of [`COMPLETE_MESSAGES`] and in Bulgarian.
+#[test]
+fn effect_color_param_error_is_translated() {
+    use serde_json::json;
+    let p = json!({"effect": "stylize.dropShadow", "params": {"color": "not-a-color"}});
+    let e = vectorcraft_engine::check_params("effect.apply", &p).unwrap_err();
+    let vectorcraft_engine::EngineError::BadParams { msg, .. } = &e else { panic!("{e}") };
+    for code in COMPLETE_MESSAGES.iter().chain(&["bg"]) {
+        let shown = message(Lang::from_code(code).unwrap(), &e.to_string());
+        assert!(!shown.contains(msg.as_str()) && shown.contains("`color`") && shown.contains("effect.apply"), "{code}: {shown}");
     }
 }
 
@@ -1290,7 +1697,8 @@ fn select_key_param_error_is_translated() {
 
 /// Languages whose catalogs cover every status and error message.
 /// (StitchFoundry: the languages VectorCraft added in October 2026 (el, fi, hu, ko, pl, pt-br, sv, vi
-/// and bg) wait for translations of the embroidery messages.)
+/// and bg) and Simplified Chinese (zh-hans, complete upstream since) wait for translations of the
+/// embroidery messages.)
 const COMPLETE_MESSAGES: &[&str] = &["cs", "de", "es", "fr", "it", "ja", "ru", "uk"];
 
 /// Crates whose error and status messages reach the status bar.
@@ -1425,6 +1833,50 @@ fn czech_render_site_follow_up() {
         assert_eq!(trn(cs(), n, "{n} PR", "{n} PRs"), format!("{n} PR"));
     }
 }
+
+/// The labels in [`RENDER_SITE_ROWS`], which the UI looks up through a variable or a context that
+/// the literal scans above don't read, have a row in every complete catalog.
+#[test]
+fn complete_catalogs_translate_render_site_labels() {
+    for l in LANGUAGES.iter().filter(|l| l.complete_menus) {
+        let (entries, _) = parse_entries(l.source);
+        let rows: std::collections::HashSet<(&str, &str)> = entries.iter().map(|(ctx, src, _)| (ctx.as_str(), src.as_str())).collect();
+        let missing: Vec<_> = RENDER_SITE_ROWS.iter().filter(|row| !rows.contains(row)).collect();
+        assert!(missing.is_empty(), "{}: {} missing rows: {missing:#?}", l.code, missing.len());
+    }
+    // German's plain "Light" row is Hell (bright), and its plain "Regular" row stays in English.
+    assert_eq!(tr_ctx(de(), "lighting", "Light"), "Licht");
+    assert_eq!(tr_ctx(de(), "effect", "Regular"), "Regelmäßig");
+    assert_eq!(tr_ctx(Lang::from_code("ja").unwrap(), "mark-style", "Japanese"), "日本式");
+}
+
+/// (context, English source) of the labels [`complete_catalogs_translate_render_site_labels`]
+/// requires: the file dialogs' filter names, the status bar's timings, New Document's preset
+/// name, the contributor tooltips, the gradient kind in a swatch's description, the printer mark
+/// styles and the label of the 3D gizmo's light.
+const RENDER_SITE_ROWS: &[(&str, &str)] = &[
+    ("file-filter", "All readable files"),
+    ("file-filter", "All placeable files"),
+    ("file-filter", "Swatch libraries"),
+    ("file-filter", "Flattener presets"),
+    ("file-filter", "PDF presets"),
+    ("file-filter", "Print presets"),
+    ("file-filter", "SVG Compressed"),
+    ("file-filter", "PDF-compatible .ai"),
+    ("file-filter", "VectorCraft Template"),
+    ("file-filter", "Templates"),
+    ("diagnostics", "render"),
+    ("diagnostics", "ui"),
+    ("", "Preset {number}"),
+    ("", "PRs"),
+    ("", "@{login}: {prs}, {commits}, +{added} / −{deleted} lines (Δ {delta}), +{binary_added} / −{binary_deleted} binary assets, {first} – {last}"),
+    ("@plural", "{n} PR|{n} PRs"),
+    ("@plural", "{n} commit|{n} commits"),
+    ("gradient-kind", "Radial"),
+    ("mark-style", "Japanese"),
+    ("", "Roman"),
+    ("lighting", "Light"),
+];
 
 fn pl() -> Lang {
     Lang::from_code("pl").expect("pl registered")

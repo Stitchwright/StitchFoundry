@@ -776,6 +776,23 @@ fn invalid_dash_pattern_strokes_solid() {
     }
 }
 
+/// An image that can't be decoded is counted on the thread that tried to decode it: an export
+/// compares [`decode_failures`] before and after it draws, so another thread's failure meanwhile is
+/// not its own.
+#[test]
+fn decode_failures_counts_this_threads_images_only() {
+    let undecodable = || paint::decode_pixmap(b"\x89PNG\r\n\x1a\n").is_none();
+    let before = decode_failures();
+    let other = std::thread::spawn(move || {
+        let start = decode_failures();
+        undecodable() && decode_failures() == start + 1
+    });
+    assert!(other.join().unwrap(), "counted on the other thread");
+    assert_eq!(decode_failures(), before, "the other thread's failure");
+    assert!(undecodable());
+    assert_eq!(decode_failures(), before + 1, "this thread's failure");
+}
+
 /// An image drawn larger than its pixels samples smoothly, or with `smooth_images` off each screen
 /// pixel takes its nearest image pixel (Pixel Preview with File Handling › Display Bitmaps as
 /// Anti-aliased Images off, #394).
@@ -797,6 +814,73 @@ fn images_take_their_nearest_pixel_without_smoothing() {
     };
     assert!(greys(true) >= 4, "smooth: a ramp from black to white");
     assert_eq!(greys(false), 0, "nearest: black, then white");
+}
+
+/// A PNG that says it is `w` × `h` 1-bit gray pixels (its header and no rows).
+fn png_header(w: u32, h: u32) -> Vec<u8> {
+    let mut out = b"\x89PNG\r\n\x1a\n".to_vec();
+    let ihdr: Vec<u8> = [&b"IHDR"[..], &w.to_be_bytes(), &h.to_be_bytes(), &[1, 0, 0, 0, 0]].concat();
+    for chunk in [&ihdr[..], b"IDAT\x78\x9c", b"IEND"] {
+        out.extend((chunk.len() as u32 - 4).to_be_bytes());
+        out.extend(chunk);
+        let mut crc = flate2::Crc::new();
+        crc.update(chunk);
+        out.extend(crc.sum().to_be_bytes());
+    }
+    out
+}
+
+/// A little-endian TIFF that says it is `w` × `h` 8-bit gray pixels in one strip (its header and
+/// no pixels).
+fn tiff_header(w: u32, h: u32) -> Vec<u8> {
+    let mut out = b"II*\0".to_vec();
+    out.extend(8u32.to_le_bytes());
+    // (tag, type: 3 SHORT or 4 LONG, value), one value each.
+    let entries: [(u16, u16, u32); 9] =
+        [(256, 4, w), (257, 4, h), (258, 3, 8), (259, 3, 1), (262, 3, 1), (273, 4, 8), (277, 3, 1), (278, 4, h), (279, 4, 0)];
+    out.extend((entries.len() as u16).to_le_bytes());
+    for (tag, kind, value) in entries {
+        out.extend(tag.to_le_bytes());
+        out.extend(kind.to_le_bytes());
+        out.extend(1u32.to_le_bytes());
+        out.extend(value.to_le_bytes());
+    }
+    out.extend(0u32.to_le_bytes());
+    out
+}
+
+/// The decode allowance (2 GB) counts an image's pixels as RGBA, read from its header (#1717): a
+/// 1-bit gray image whose 8-bit gray pixels are within it but whose RGBA is over it is not decoded
+/// and draws nothing, counted for an export to report; one a column narrower goes on to decoding.
+#[test]
+fn an_image_too_large_as_rgba_is_not_decoded() {
+    let over = paint::decode_within_allowance(&png_header(23_171, 23_170));
+    assert!(matches!(over, Err(image::ImageError::Limits(_))), "{over:?}");
+    let failed = decode_failures();
+    assert!(paint::decode_pixmap(&png_header(23_171, 23_170)).is_none());
+    assert!(decode_failures() > failed);
+    // Within the allowance: decoded, and its missing rows can't be read.
+    let within = paint::decode_within_allowance(&png_header(23_170, 23_170));
+    assert!(matches!(within, Err(image::ImageError::Decoding(_))), "{within:?}");
+    // A header whose size as RGBA does not fit in 64 bits gets the same limit error.
+    let huge = paint::decode_within_allowance(&tiff_header(1 << 31, 1 << 31));
+    assert!(matches!(huge, Err(image::ImageError::Limits(_))), "{huge:?}");
+}
+
+/// A gray image within the allowance draws its gray levels.
+#[test]
+fn a_gray_image_draws_its_gray_levels() {
+    use vectorcraft_doc::{ImageBlob, ImageObject, NodeKind};
+    let img = image::GrayImage::from_fn(2, 1, |x, _| image::Luma([if x == 0 { 40 } else { 200 }]));
+    let mut png = vec![];
+    img.write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).unwrap();
+    let mut d = Document::new(40.0, 20.0);
+    d.images.insert("gray".into(), ImageBlob::new("image/png", png));
+    let id = d.alloc_id();
+    let im = ImageObject { key: "gray".into(), width: 2, height: 1, xf: Affine::scale(20.0), link: None, placement: Default::default() };
+    d.insert(Some(d.layers[0].id), 0, Node::new(id, NodeKind::Image(Box::new(im)))).unwrap();
+    let r = Renderer::new().render(&d, 40, 20, Affine::IDENTITY, &RenderOptions { smooth_images: false, ..Default::default() });
+    assert_eq!((r.pixel(5, 10), r.pixel(35, 10)), ([40, 40, 40, 255], [200, 200, 200, 255]));
 }
 
 /// Art Optimized exports are supersampled (#983): two red shapes meeting along a diagonal leave no

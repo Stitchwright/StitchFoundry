@@ -99,7 +99,7 @@ fn run_steps(s: &mut Session, label: &str, artboard: Option<u64>, cmds: &mut [Va
 /// ones close, closed or replaced ones (`stash`) come back, and each has its art, selection,
 /// history, file, format and saved state again (#1697: undoing the batch's interaction alone left
 /// a Save As step's new file and an Undo step's history in place). Files the steps wrote stay
-/// written.
+/// written. Lock Guides stays as the steps left it, and while it is on the guides are deselected.
 fn roll_back(s: &mut Session, start: Vec<DocState>, stash: &[DocState]) {
     let open = std::mem::take(&mut s.docs);
     s.docs = start;
@@ -107,5 +107,8 @@ fn roll_back(s: &mut Session, start: Vec<DocState>, stash: &[DocState]) {
         // Past the newest revision the document reached, so the restored one redraws.
         let newest = open.iter().chain(stash).filter(|d| d.uid == st.uid).map(|d| d.revision).max().unwrap_or(st.revision);
         st.revision = newest.saturating_add(1);
+        if s.menu.guides_locked {
+            crate::deselect_guides(&st.doc, &mut st.selection);
+        }
     }
 }

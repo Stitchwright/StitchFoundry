@@ -494,7 +494,7 @@ fn spacing(laid: &TextLayout, gaps: &[(usize, f64)], extra: f64, chars: usize, s
         tracking = if rest >= 1.0 { (extra - own.iter().map(|(_, need)| need).sum::<f64>()) / rest } else { 0.0 };
     }
     own.sort_by_key(|(b, _)| *b);
-    let em = |pts: f64| (pts / size * 1000.0).clamp(-1000.0, 1000.0).round();
+    let em = |pts: f64| (pts / size * 1000.0).clamp(-1000.0, 10000.0).round();
     (em(tracking), own.into_iter().map(|(b, need)| (b, em(need - tracking))).collect())
 }
 

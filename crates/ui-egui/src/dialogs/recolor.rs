@@ -537,6 +537,9 @@ fn move_color(rows: &mut [Value], i: usize, hsb: [f32; 3], linked: bool) {
     }
 }
 
+/// The rows when a drag on the Edit tab's wheel started.
+const DRAG: &str = "__drag";
+
 /// The Edit tab. Returns true when the rows changed.
 fn edit_tab(ui: &mut Ui, d: &mut Dialog, rows: &mut [Value]) -> bool {
     let t = Tokens::get(ui.ctx());
@@ -569,9 +572,25 @@ fn edit_tab(ui: &mut Ui, d: &mut Dialog, rows: &mut [Value]) -> bool {
     if let Some(k) = w.pressed {
         d.fields.insert("__sel".into(), json!([active[k]]));
     }
-    if let Some((k, hsb)) = w.moved {
-        move_color(rows, active[k], hsb, linked);
-        changed = true;
+    // A drag (of a marker or the brightness slider) moves the rows as they were when it started:
+    // a new colour read back from its model (CMYK through the colour profile) isn't exactly the
+    // colour written, so building on last frame's rows drifted the linked colours (#1733).
+    if let Some((k, set)) = w.moved {
+        let start = match d.fields.get(DRAG).and_then(Value::as_array) {
+            Some(s) if s.len() == rows.len() => s.clone(),
+            _ => rows.to_vec(),
+        };
+        // What the control didn't set comes from the start too, not from last frame's colour.
+        if let Some(old) = start.get(active[k]).and_then(to_color).map(|c| c.to_hsb()) {
+            let hsb = [0, 1, 2].map(|n| set[n].unwrap_or(old[n]));
+            rows.clone_from_slice(&start);
+            move_color(rows, active[k], hsb, linked);
+            changed = true;
+        }
+        d.fields.insert(DRAG.into(), Value::Array(start));
+    }
+    if !ui.input(|i| i.pointer.any_down()) {
+        d.fields.remove(DRAG);
     }
     ui.add_space(6.0);
     // The new colours: click one to make it the base colour.

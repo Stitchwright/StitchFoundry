@@ -5,6 +5,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+use hayro_ccitt::{DecodeSettings, Decoder, DecoderContext, EncodingMode};
 use vectorcraft_color::{Color, Paint};
 use vectorcraft_doc::cmyk::{Inks, jpeg_components};
 use vectorcraft_doc::{ImageBlob, ImageObject, Node, NodeId, NodeKind, OpacityMask};
@@ -164,6 +165,118 @@ fn dct(raw: &[u8]) -> Res<(Vec<u8>, usize, u8)> {
     if img.color().channel_count() == 1 { Ok((img.to_luma8().into_raw(), end, 1)) } else { Ok((img.to_rgb8().into_raw(), end, 3)) }
 }
 
+/// CCITT fax data (ITU-T T.4 Group 3, one- or two-dimensional, and T.6 Group 4) decoded to rows
+/// of 1-bit samples, each padded to a whole byte, and how many bytes of `raw` it took. With
+/// `EndOfBlock` the rows end at the end-of-block code (EOFB, or RTC in Group 3) regardless of
+/// `Rows`; without it they end after `Rows` rows, or at the end of the data when `Rows` is 0.
+/// Damaged data ends the rows: those decoded before it are kept, and damage in the first row is an
+/// `ioerror`. Rows that would take more than `MAX_DATA` bytes are refused.
+fn fax(raw: &[u8], settings: DecodeSettings) -> Res<(Vec<u8>, usize)> {
+    let row = (settings.columns as usize).div_ceil(8).max(1);
+    let most = u32::try_from(MAX_DATA / row).unwrap_or(u32::MAX);
+    if !settings.end_of_block && settings.rows > most {
+        return Err(PsError::Limit("decoded data is too large"));
+    }
+    // Without a row count that ends the data, a row past `most` shows that the data is too large.
+    let rows = if settings.end_of_block || settings.rows == 0 { most.saturating_add(1) } else { settings.rows };
+    // The decoder reads the RTC of Group 3 two-dimensional data as rows: it gets the data before it.
+    let rtc = match settings.encoding {
+        EncodingMode::Group3_2D { .. } if settings.end_of_block => rtc(raw),
+        _ => None,
+    };
+    let data = rtc.and_then(|(cut, _)| raw.get(..cut)).unwrap_or(raw);
+    let mut out = FaxRows::default();
+    let read = hayro_ccitt::decode(data, &mut out, &mut DecoderContext::new(DecodeSettings { rows, ..settings }));
+    if out.rows > most {
+        return Err(PsError::Limit("decoded data is too large"));
+    }
+    let used = match read {
+        Ok(used) => used,
+        Err(_) if out.rows > 0 => {
+            out.data.truncate(out.rows as usize * row);
+            // The whole rows decoded again, for how many bytes they took.
+            let used = hayro_ccitt::decode(data, &mut Dropped, &mut DecoderContext::new(DecodeSettings { rows: out.rows, ..settings }));
+            used.unwrap_or(data.len())
+        }
+        Err(_) => return io("CCITTFaxDecode"),
+    };
+    Ok((out.data, rtc.map_or(used, |(_, end)| end)))
+}
+
+/// The RTC that ends Group 3 two-dimensional data (six EOLs, each followed by a 1 tag bit, ITU-T
+/// T.4 §4.2.4): the byte that holds the 1 bit of its first EOL, and the byte after its last tag
+/// bit. The first EOL with a 1 tag bit that another EOL follows starts it.
+fn rtc(raw: &[u8]) -> Option<(usize, usize)> {
+    let bits = raw.len().saturating_mul(8);
+    let bit = |i: usize| raw.get(i / 8).is_some_and(|b| b & (0x80 >> (i % 8)) != 0);
+    let zeros = |i: usize| (i..bits).take_while(|j| !bit(*j)).count();
+    // An EOL (its fill bits first) and a 1 tag bit from `i`: the EOL's 1 bit and where they end.
+    let eol = |i: usize| {
+        let one = i + zeros(i);
+        (one - i >= 11 && bit(one) && bit(one + 1)).then_some((one, one + 2))
+    };
+    let mut i = 0;
+    while i < bits {
+        if let Some((one, next)) = eol(i)
+            && let Some((_, mut end)) = eol(next)
+        {
+            for _ in 2..6 {
+                match eol(end) {
+                    Some((_, e)) => end = e,
+                    None => break,
+                }
+            }
+            return Some((one / 8, end.div_ceil(8)));
+        }
+        i += zeros(i) + 1;
+    }
+    None
+}
+
+/// Rows of 1-bit samples from a CCITT decoder, each padded to a whole byte: 1 is white, or black
+/// with `BlackIs1`.
+#[derive(Default)]
+struct FaxRows {
+    data: Vec<u8>,
+    /// Samples in the row being decoded.
+    x: u32,
+    /// Whole rows decoded.
+    rows: u32,
+}
+
+impl Decoder for FaxRows {
+    fn push_pixel(&mut self, white: bool) {
+        if self.x.is_multiple_of(8) {
+            self.data.push(0);
+        }
+        if white && let Some(b) = self.data.last_mut() {
+            *b |= 0x80 >> (self.x % 8);
+        }
+        self.x = self.x.saturating_add(1);
+    }
+
+    fn push_pixel_chunk(&mut self, white: bool, chunk_count: u32) {
+        self.data.extend(std::iter::repeat_n(if white { 0xff } else { 0 }, chunk_count as usize));
+        self.x = self.x.saturating_add(chunk_count.saturating_mul(8));
+    }
+
+    fn next_line(&mut self) {
+        self.x = 0;
+        self.rows = self.rows.saturating_add(1);
+    }
+}
+
+/// A CCITT decoder that drops what it decodes.
+struct Dropped;
+
+impl Decoder for Dropped {
+    fn push_pixel(&mut self, _: bool) {}
+
+    fn push_pixel_chunk(&mut self, _: bool, _: u32) {}
+
+    fn next_line(&mut self) {}
+}
+
 /// A decoding filter and its parameters.
 #[derive(Clone, Debug)]
 pub(crate) struct Filter {
@@ -172,6 +285,8 @@ pub(crate) struct Filter {
     sub: (usize, Vec<u8>),
     /// `FlateDecode`'s and `LZWDecode`'s `Predictor`: what it undoes.
     predictor: Option<Predictor>,
+    /// `CCITTFaxDecode`'s parameters.
+    fax: Option<DecodeSettings>,
 }
 
 /// A `Predictor` (2: TIFF, 10–15: PNG) with its `Colors`, `BitsPerComponent` and `Columns`.
@@ -266,6 +381,39 @@ fn paeth(a: u8, b: u8, c: u8) -> u8 {
     }
 }
 
+/// `CCITTFaxDecode`'s parameters (PLRM 3rd ed., §3.13, `CCITTFaxDecode` parameters; ISO 32000-2,
+/// §7.4.6): `K` (below 0 Group 4, 0 Group 3 one-dimensional, above 0 Group 3 mixed), `Columns`,
+/// `Rows`, `EndOfBlock`, `EndOfLine`, `EncodedByteAlign` and `BlackIs1`, with their defaults where
+/// `d` leaves them out. `Columns` outside 1 to 65,535 and `Rows` below 0 are a `rangecheck`.
+fn fax_settings(d: Option<&DictRef>) -> Res<DecodeSettings> {
+    let get = |k: &str| d.and_then(|d| d.borrow().get(&Key::name(k)).cloned());
+    let num = |k: &str, default: f64| get(k).and_then(|o| o.as_num()).unwrap_or(default);
+    let flag = |k: &str, default: bool| match get(k) {
+        Some(Obj::Bool(b)) => b,
+        _ => default,
+    };
+    let (k, columns, rows) = (num("K", 0.0), num("Columns", 1728.0), num("Rows", 0.0));
+    if !k.is_finite() || !(1.0..=65_535.0).contains(&columns) || !(0.0..=f64::from(u32::MAX)).contains(&rows) {
+        return ps_err("rangecheck", "CCITTFaxDecode");
+    }
+    let encoding = if k < 0.0 {
+        EncodingMode::Group4
+    } else if k == 0.0 {
+        EncodingMode::Group3_1D
+    } else {
+        EncodingMode::Group3_2D { k: k.min(f64::from(u32::MAX)) as u32 }
+    };
+    Ok(DecodeSettings {
+        columns: columns as u32,
+        rows: rows as u32,
+        end_of_block: flag("EndOfBlock", true),
+        end_of_line: flag("EndOfLine", false),
+        rows_are_byte_aligned: flag("EncodedByteAlign", false),
+        encoding,
+        invert_black: flag("BlackIs1", false),
+    })
+}
+
 /// The bytes `f` decodes from `raw`, how many it read, and the channels of a decoded JPEG.
 fn decode(f: &Filter, raw: &[u8]) -> Res<(Vec<u8>, usize, Option<u8>)> {
     let (data, used) = match &*f.name {
@@ -292,6 +440,10 @@ fn decode(f: &Filter, raw: &[u8]) -> Res<(Vec<u8>, usize, Option<u8>)> {
             let (d, used, channels) = dct(raw)?;
             return Ok((d, used, Some(channels)));
         }
+        "CCITTFaxDecode" => match f.fax {
+            Some(settings) => fax(raw, settings)?,
+            None => return io("CCITTFaxDecode"),
+        },
         "SubFileDecode" => {
             let (count, eod) = &f.sub;
             if eod.is_empty() {
@@ -540,13 +692,15 @@ impl Interp<'_> {
         } else {
             (0, vec![])
         };
-        let mut predictor = None;
+        let (mut predictor, mut params) = (None, None);
         if let Some(Obj::Dict(d)) = self.stack.last().cloned() {
             self.pop()?;
             predictor = Predictor::of(&d)?;
+            params = Some(d);
         }
+        let fax = if &*name == "CCITTFaxDecode" { Some(fax_settings(params.as_ref())?) } else { None };
         let spec_name = name.clone();
-        let spec = Filter { name, sub, predictor };
+        let spec = Filter { name, sub, predictor, fax };
         let stream = match self.pop()? {
             Obj::File { stream: f, .. } => {
                 if let Stream::Buf { data, pos, .. } = &*f.borrow() {

@@ -447,6 +447,21 @@ fn a_compound_path_holding_its_drawn_look_paints_its_paths_apart() {
 }
 
 #[test]
+fn a_compound_path_of_a_plain_group_stays_one_compound_path() {
+    // GUARDS: #980. Files write `9 () XW` after every group, the one a compound path keeps its
+    // subpaths in too: read as a drawn look, the compound became a group of filled paths, its
+    // holes filled in. Here a ring (outer path, inner one reversed, one paint) and a path beside it.
+    let ring = format!("{RED}1 D\n{}f\n0 D\n{}f\n", rect_path(0.0, 0.0, 20.0, 20.0), "5 5 m\n15 5 L\n15 15 L\n5 15 L\n5 5 L\n");
+    let art_ = format!("0 Ae\nu\n0 Ae\n*u\n0 Ae\nu\n{ring}U\n9 () XW\n*U\n{}f\nU\n9 () XW\n", rect_path(8.0, 8.0, 12.0, 12.0));
+    let a = art(&read_ok(&layer(&art_)).doc);
+    let NodeKind::Group { children, .. } = &a[0].kind else { panic!("{a:#?}") };
+    let NodeKind::Compound { children: subpaths, .. } = &children[0].kind else { panic!("a compound path: {:#?}", children[0]) };
+    assert_eq!(subpaths.len(), 2, "{subpaths:#?}");
+    assert!(subpaths.iter().all(|p| matches!(p.kind, NodeKind::Path { .. })));
+    assert_eq!(fill(&children[0]).color(), Some(Color::rgb(1.0, 0.0, 0.0)));
+}
+
+#[test]
 fn gradients_through_a_skewed_matrix() {
     // GUARDS: a sheared `Xm` leaves the matrix's columns oblique. A linear ramp runs along the
     // normal to its isolines, not along its first column; a radial's ellipse is the one the unit
@@ -809,8 +824,7 @@ fn what_it_doesnt_read_is_an_error_where_it_shows() {
     assert!(e.contains("pattern fills"), "{e}");
     let e = read(stream(&layer("/SymbolInstance :\n(Dot) /SymbolRef ,\n;\n")).as_bytes()).unwrap_err();
     assert!(e.contains("symbols"), "{e}");
-    // An opacity mask (#2004): drawing the layer's art whole would show what the mask hides, so
-    // the mask is named and the file is read from its PDF part instead.
+    // A mask with no owner must still be reported (#2004).
     let mask = "%_/ArtDictionary :\n%_/XMLUID : (M) ; (AI10_ArtUID) ,\n%_/Mask :\n%_1 /Bool (Linked) ,\n%_0 /Bool (Disabled) ,\n%_X=\n\
                 %_0 0 0 1 k\n%_0 0 m\n%_5 0 L\n%_5 5 L\n%_0 5 L\n%_0 0 L\n%_f\n%_X+\n%_ (Art) ,\n%_1 /Bool (Clipping) ,\n%_0 /Bool (Inverted) ,\n%_; (AI9_Mask) ,\n%_;\n";
     let e = read(stream(&layer(mask)).as_bytes()).unwrap_err();
@@ -1177,6 +1191,26 @@ fn a_styled_object_inside_a_drawn_look_survives_it() {
     assert_eq!((shadow.id.as_str(), shadow.params["x"].as_f64(), shadow.params["y"].as_f64()), ("stylize.dropShadow", Some(3.0), Some(4.0)));
 }
 
+/// An object whose style's Drop Shadow has Darkness (`csrc` 1, `dark` 50) comes in as itself with
+/// that shadow, not as its drawn look.
+#[test]
+fn an_object_with_a_darkness_shadow_comes_in_as_itself() {
+    let styles = ART_STYLES.replace("3 /Real (horz) ,\n", "1 /Int (csrc) ,\n50 /Real (dark) ,\n3 /Real (horz) ,\n");
+    let hidden_rect = rect_path(0.0, 0.0, 10.0, 10.0).replace('\n', "\n%_");
+    let art_ = format!("0 Ae\nu\n{RED}{}f\nU\n%_{hidden_rect}f\n1 (Blue) XW\n", rect_path(0.0, 0.0, 10.0, 10.0));
+    let r = read_ok(&format!("{styles}{}", layer(&art_)));
+    assert!(!r.warnings.iter().any(|w| w.contains("drawn look")), "{:?}", r.warnings);
+    let a = art(&r.doc);
+    assert_eq!(a.len(), 1, "{a:#?}");
+    assert!(matches!(a[0].kind, NodeKind::Path { .. }), "the object, not its look: {a:#?}");
+    assert_eq!(fill(&a[0]).color(), Some(Color::rgb(0.0, 0.0, 1.0)));
+    let [shadow] = a[0].appearance.effects.as_slice() else { panic!("{:?}", a[0].appearance.effects) };
+    assert_eq!(
+        (shadow.id.as_str(), shadow.params["shade"].as_str(), shadow.params["darkness"].as_f64(), shadow.params["x"].as_f64()),
+        ("stylize.dropShadow", Some("darkness"), Some(50.0), Some(3.0))
+    );
+}
+
 /// A styled object read in place of its drawn look keeps the transparency written on the look (the
 /// object's own, after the look's group ends): here 60 % in Multiply.
 #[test]
@@ -1190,6 +1224,46 @@ fn a_styled_object_keeps_the_transparency_written_on_its_look() {
     assert_eq!(a.len(), 1, "{a:#?}");
     assert_eq!(fill(&a[0]).color(), Some(Color::rgb(0.0, 0.0, 1.0)));
     assert_eq!((a[0].opacity, a[0].blend), (0.6, BlendMode::Multiply));
+}
+
+/// An envelope is written on `%_` lines as a group holding the mesh that shapes it, with its
+/// distortion in the group's dictionary; the distorted art follows on plain lines. Only that art
+/// is drawn, as in the file's PDF part, not the envelope's mesh (#2405).
+#[test]
+fn an_envelope_mesh_is_not_read_as_art() {
+    let corner = |x: i32, y: i32, next: (i32, i32), prev: (i32, i32)| {
+        format!("%_[0.82 0.83 0.83 1 {x} {y} {} {} 1 {} {} 1] /N X#\n", next.0, next.1, prev.0, prev.1)
+    };
+    let mesh = format!(
+        "%_/Mesh X!\n%_(DeviceRGB) /CS X#\n%_[0 0] /P X#\n{}{}{}{}%_0 /E X#\n%_/End X!\n",
+        corner(0, 0, (0, 10), (10, 0)),
+        corner(0, 40, (10, 40), (0, 30)),
+        corner(40, 40, (40, 30), (30, 40)),
+        corner(40, 0, (30, 0), (40, 10)),
+    );
+    let envelope = |dictionary: &str| {
+        format!(
+            "%_0 Ae\n%_u\n{mesh}%_0 0 Xd\n%_6 () XW\n%_U\n%_/ArtDictionary :\n{dictionary}%_;\n%_\n%_0 0 Xd\n%_6 () XW\n{RED}{}f\n",
+            rect_path(0.0, 0.0, 40.0, 40.0)
+        )
+    };
+    let has_mesh = |n: &Node| -> bool {
+        fn walk(n: &Node) -> bool {
+            matches!(n.kind, NodeKind::Mesh(_)) || n.children().is_some_and(|c| c.iter().any(|k| walk(k)))
+        }
+        walk(n)
+    };
+
+    let warped = envelope("%_(Warp: Arch) /UnicodeString (DisplayString) ,\n%_0.27 /Real (DeformValue) ,\n%_1 /Int (AIDeformStyle) ,\n");
+    let doc = read_ok(&layer(&warped)).doc;
+    let a = art(&doc);
+    assert!(!a.iter().any(|n| has_mesh(n)), "{a:#?}");
+    assert_eq!(a.len(), 1, "{a:#?}");
+    assert_eq!(fill(&a[0]).color(), Some(Color::rgb(1.0, 0.0, 0.0)));
+
+    // A mesh in a group with no distortion is still art.
+    let doc = read_ok(&layer(&envelope(""))).doc;
+    assert!(art(&doc).iter().any(|n| has_mesh(n)), "{:#?}", art(&doc));
 }
 
 #[test]
@@ -1218,4 +1292,76 @@ fn a_gradient_mesh_reads_as_a_patch() {
     );
     let e = read(stream(&layer(&mesh("Separation"))).as_bytes()).unwrap_err();
     assert!(e.contains("gradient meshes"), "{e}");
+}
+
+/// Both mesh-corner layouts must keep colour, position and handles, rather than guessing
+/// opacity from a coordinate. Unsupported weights and truncated corners remain errors.
+#[test]
+fn mesh_corners_with_and_without_opacity() {
+    let geometry = ["10 20 10 25 1 15 20 1", "10 50 15 50 1 10 45 1", "40 50 40 45 1 35 50 1", "40 20 35 20 1 40 25 1"];
+    for (space, colour) in [("DeviceRGB", "0.2 0.4 0.6"), ("DeviceCMYK", "0.1 0.2 0.3 0.4"), ("DeviceGray", "0.5")] {
+        let mesh = |opacity: &str| {
+            let corners: String = geometry.iter().map(|g| format!("%_[{colour} {opacity}{g}] /N X#\n")).collect();
+            format!("/Mesh X!\n%_/{space} /CS X#\n{corners}%_/E X#\n/End X!\n")
+        };
+        let old = art(&read_ok(&layer(&mesh(""))).doc);
+        let new = art(&read_ok(&layer(&mesh("1 "))).doc);
+        assert_eq!(old[0].kind, new[0].kind);
+        let translucent = art(&read_ok(&layer(&mesh("0.25 "))).doc);
+        let NodeKind::Mesh(m) = &translucent[0].kind else { panic!("mesh") };
+        assert!(m.points.iter().all(|p| p.opacity == 0.25));
+        assert_eq!(m.points[0].p, Point::new(10.0, 80.0));
+        for broken in [mesh("").replace("10 25 1", "10 25 0.5"), mesh("").replace("15 20 1]", "15 20]")] {
+            assert!(read(stream(&layer(&broken)).as_bytes()).unwrap_err().contains("gradient meshes"));
+        }
+    }
+}
+
+#[test]
+fn vector_opacity_mask_keeps_its_art_and_does_not_paint_as_a_sibling() {
+    let owner = format!("{RED}{}f\n", rect_path(10.0, 20.0, 50.0, 60.0));
+    let mask = "%_/ArtDictionary :\n%_/Mask :\n%_1 /Bool (Linked) ,\n%_X=\n%_u\n%_1 g\n%_10 20 m\n%_10 60 L\n%_30 60 L\n%_30 20 L\n%_f\n%_U\n%_X+\n%_(Art) ,\n%_1 /Bool (Clipping) ,\n%_0 /Bool (Inverted) ,\n%_0 /Bool (Disabled) ,\n%_; (AI9_Mask) ,\n%_;\n";
+    let following = format!("{}f\n", rect_path(70.0, 20.0, 80.0, 30.0));
+    for (invert, disabled, linked) in [(false, false, true), (true, false, false), (false, true, true)] {
+        let mask = mask
+            .replace("0 /Bool (Inverted)", &format!("{} /Bool (Inverted)", u8::from(invert)))
+            .replace("0 /Bool (Disabled)", &format!("{} /Bool (Disabled)", u8::from(disabled)))
+            .replace("1 /Bool (Linked)", &format!("{} /Bool (Linked)", u8::from(linked)));
+        let r = read_ok(&layer(&format!("{owner}{mask}{following}")));
+        assert!(r.warnings.is_empty());
+        let a = art(&r.doc);
+        assert_eq!(a.len(), 2);
+        assert_eq!(fill(&a[1]).color(), Some(Color::rgb(1.0, 0.0, 0.0)), "mask colour must not leak");
+        let m = a[0].extras().mask.as_ref().unwrap();
+        assert_eq!((m.clip, m.invert, m.disabled, m.linked), (true, invert, disabled, linked));
+        let mask_path = &m.art.children().unwrap()[0].children().unwrap()[0];
+        assert!(matches!(mask_path.kind, NodeKind::Path { .. }));
+        assert_eq!(mask_path.geometric_bounds(), Some(Rect::new(10.0, 40.0, 30.0, 80.0)));
+        assert_ne!(mask_path.id, a[0].id);
+    }
+    for broken in [mask.replace("%_X+\n", ""), mask.replace("%_U\n", ""), mask.replace("%_f", "%_unknownMaskOperator")] {
+        assert!(read(stream(&layer(&format!("{owner}{broken}"))).as_bytes()).is_err());
+    }
+}
+
+/// `9 () XW` also follows legacy compound member groups. The final gradient paints
+/// every member; the initial black paint is a placeholder, not a separate black object.
+#[test]
+fn winding_declared_compound_members_keep_the_final_gradient() {
+    let defs = "%AI5_BeginGradient: (G)\n(G) 0 2 Bd\n0 0 0 0 1 0 0 2 50 0 Bs\n0 0 0 0 0 0 1 2 50 100 Bs\nBD\n%AI5_EndGradient\n";
+    let body = format!(
+        "*u\nu\n1 D\n0 g\n{}f\n0 D\n{}Bb\n1 (G) 0 0 0 100 1 0 0 1 0 0 Bg\nf\n0 BB\nU\n9 () XW\n*U\n",
+        rect_path(10.0, 10.0, 80.0, 80.0),
+        rect_path(30.0, 30.0, 50.0, 50.0)
+    );
+    let r = read_ok(&format!("{defs}{}", layer(&body)));
+    let a = art(&r.doc);
+    assert_eq!(a.len(), 1);
+    let NodeKind::Compound { children, .. } = &a[0].kind else { panic!("compound, not separately painted look") };
+    assert_eq!(children.len(), 2);
+    assert!(matches!(fill(&a[0]), Paint::Gradient(g) if g.gradient.stops.len() == 2));
+    assert!(children.iter().all(|n| matches!(n.kind, NodeKind::Path { .. })));
+    // Without winding declarations this is still an independently painted appearance group.
+    let r = read_ok(&format!("{defs}{}", layer(&body.replace("1 D\n", "").replace("0 D\n", ""))));
+    assert!(matches!(art(&r.doc)[0].kind, NodeKind::Group { .. }));
 }

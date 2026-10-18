@@ -811,6 +811,44 @@ fn draw2_commands_reject_bad_params() {
     }
 }
 
+#[test]
+fn path_commands_refuse_a_delta_or_point_of_1e9_pt_or_more() {
+    // `path.reshapeSegment` refuses a delta of 1e9 pt or longer, and `path.convertAnchor` and
+    // `path.freehand` refuse a point whose x or y is 1e9 pt or more in size, also for a path that is
+    // not selected: the document stays as it was, with no undo step. A delta just under that bound,
+    // at t 0.05 or 0.95, leaves every handle and the path's bounds finite.
+    let mut s = session();
+    let id = curve(&mut s);
+    s.execute("select.none", &json!({})).unwrap();
+    let finite = |s: &Session| {
+        paths(s).iter().all(|(_, pd)| {
+            let mut points = pd.subpaths.iter().flat_map(|sp| &sp.anchors).flat_map(|a| [a.p, a.h_in, a.h_out]);
+            points.all(|q| q.x.is_finite() && q.y.is_finite()) && pd.control_bounds().is_none_or(|b| b.width().is_finite() && b.height().is_finite())
+        })
+    };
+    let h = 1e308;
+    for (cmd, p) in [
+        ("path.reshapeSegment", json!({"id": id.0, "segment": 0, "t": 0.95, "dx": h, "dy": 0})),
+        ("path.reshapeSegment", json!({"id": id.0, "segment": 0, "t": 0.05, "dx": 0, "dy": -h})),
+        ("path.reshapeSegment", json!({"id": id.0, "segment": 0, "t": 0.95, "dx": 0, "dy": h, "perpendicular": true})),
+        ("path.reshapeSegment", json!({"id": id.0, "segment": 0, "t": 0.5, "dx": 1e9, "dy": 0})),
+        ("path.convertAnchor", json!({"id": id.0, "anchor": 0, "to": "smooth", "x": h, "y": -h})),
+        ("path.freehand", json!({"points": [[0, 0], [h, 0], [-h, h], [h, h]], "keepSelected": false})),
+        ("path.freehand", json!({"points": [[0, 0], [h, 0], [-h, h]], "keepSelected": false, "extend": {"id": id.0, "end": "end"}})),
+    ] {
+        let before = s.doc().unwrap().doc.clone();
+        let undo = s.doc().unwrap().history.undo.len();
+        assert!(s.execute(cmd, &p).is_err(), "{cmd} {p}");
+        assert!(s.doc().unwrap().doc == before && finite(&s), "{cmd} {p} changed the document");
+        assert_eq!(s.doc().unwrap().history.undo.len(), undo, "{cmd} left an undo step");
+    }
+    for (t, perpendicular) in [(0.05, false), (0.95, false), (0.05, true), (0.95, true)] {
+        let p = json!({"id": id.0, "segment": 0, "t": t, "dx": 0, "dy": 9.9e8, "perpendicular": perpendicular});
+        s.execute("path.reshapeSegment", &p).unwrap();
+        assert!(finite(&s), "{p}: {:?}", path(&s, id));
+    }
+}
+
 /// A curve from (100, 100) to (300, 100) whose first anchor has an out handle at (150, 100).
 fn curve(s: &mut Session) -> NodeId {
     let anchors = json!([{"x": 100, "y": 100, "out": [150, 100]}, {"x": 300, "y": 100, "in": [250, 100]}]);
@@ -1382,6 +1420,70 @@ fn reshaping_a_segment_keeps_smooth_anchors_smooth() {
     assert!(near(a.h_in, Point::new(160.0, 260.0)) && smooth(a), "{a:?}");
     assert!((a.h_out.distance(a.p) - 40.0).abs() < 1e-9, "its length kept");
     assert!(near(sp.anchors[0].h_out, Point::new(100.0, 260.0)) && !sp.anchors[0].has_in(), "the corner end: {:?}", sp.anchors[0]);
+}
+
+/// Both handles of segment `seg` stand at right angles to the line between its anchors, at one
+/// length: that length, positive on the right of the line as it runs from the first anchor (y
+/// down).
+fn perpendicular_handles(sp: &vectorcraft_geom::SubPath, seg: usize) -> f64 {
+    let n = sp.anchors.len();
+    let (a, b) = (sp.anchors[seg], sp.anchors[(seg + 1) % n]);
+    let chord = b.p - a.p;
+    let normal = kurbo::Vec2::new(-chord.y, chord.x) / chord.hypot();
+    let (ha, hb) = (a.h_out - a.p, b.h_in - b.p);
+    assert!(ha.dot(chord).abs() < 1e-6 && hb.dot(chord).abs() < 1e-6, "at right angles: {a:?} {b:?}");
+    assert!((ha.dot(normal) - hb.dot(normal)).abs() < 1e-6, "one length: {a:?} {b:?}");
+    ha.dot(normal)
+}
+
+#[test]
+fn shift_reshapes_a_segment_with_perpendicular_handles_of_one_length() {
+    // `perpendicular` (Shift): both handles of the segment stand at right angles to the line
+    // between its anchors at one length, on the side the point at t goes to, and that point lies
+    // as far from the line as the moved point does.
+    use kurbo::ParamCurve;
+    let mut s = session();
+    let reshape = |s: &mut Session, id: NodeId, seg: usize, t: f64, dx: f64, dy: f64| {
+        s.execute("path.reshapeSegment", &json!({"id": id.0, "segment": seg, "t": t, "dx": dx, "dy": dy, "perpendicular": true})).unwrap();
+    };
+    // A straight segment: the point at 0.5 goes 30 pt up and does not follow dx sideways.
+    let straight = json!([{"x": 100, "y": 300}, {"x": 200, "y": 300}, {"x": 300, "y": 300}]);
+    let id = NodeId(s.execute("path.create", &json!({"anchors": straight})).unwrap()["id"].as_u64().unwrap());
+    reshape(&mut s, id, 0, 0.5, 15.0, -30.0);
+    let sp = &path(&s, id).subpaths[0];
+    assert!((perpendicular_handles(sp, 0) + 40.0).abs() < 1e-6, "{sp:?}");
+    assert!(near(sp.segment(0).eval(0.5), Point::new(150.0, 270.0)), "{:?}", sp.segment(0));
+    assert!(!sp.anchors[1].has_out() && sp.segment_is_line(1), "the next segment stays straight");
+    // A curved segment: its handles turn upright, and its point at 0.25 goes 10 pt further up.
+    let curved = json!([{"x": 100, "y": 300, "out": [130, 280]}, {"x": 200, "y": 300, "in": [190, 250]}]);
+    let id = NodeId(s.execute("path.create", &json!({"anchors": curved})).unwrap()["id"].as_u64().unwrap());
+    let before = path(&s, id).subpaths[0].segment(0).eval(0.25);
+    reshape(&mut s, id, 0, 0.25, 0.0, -10.0);
+    let sp = &path(&s, id).subpaths[0];
+    assert!(perpendicular_handles(sp, 0) < 0.0, "above the line: {sp:?}");
+    assert!((sp.segment(0).eval(0.25).y - (before.y - 10.0)).abs() < 1e-6, "{:?}", sp.segment(0));
+    // Pulled past the line, the handles go to its other side.
+    reshape(&mut s, id, 0, 0.5, 0.0, 80.0);
+    assert!(perpendicular_handles(&path(&s, id).subpaths[0], 0) > 0.0, "below the line");
+}
+
+#[test]
+fn shift_reshapes_the_closing_segment_of_a_rotated_square_and_undoes() {
+    // A square turned 45°: the Pen with Alt and Shift held drags its last segment, the one that
+    // closes it, outward and to one side; one undo step puts it back.
+    let mut s = session();
+    let diamond = json!([{"x": 200, "y": 100}, {"x": 300, "y": 200}, {"x": 200, "y": 300}, {"x": 100, "y": 200}]);
+    let id = NodeId(s.execute("path.create", &json!({"anchors": diamond, "closed": true})).unwrap()["id"].as_u64().unwrap());
+    let original = path(&s, id);
+    s.select_tool("pen", view()).unwrap();
+    let alt_shift = Mods { alt: true, shift: true, ..Mods::default() };
+    assert_eq!(gesture(&mut s, &[(150.0, 150.0), (140.0, 145.0), (130.0, 140.0)], alt_shift), 1);
+    let sp = &path(&s, id).subpaths[0];
+    let l = perpendicular_handles(sp, 3);
+    assert!(l < 0.0 && sp.anchors[3].h_out.x < 100.0 && sp.anchors[0].h_in.y < 100.0, "outward: {sp:?}");
+    assert!(!sp.anchors[3].has_in() && !sp.anchors[0].has_out(), "the corners' other handles stay put: {sp:?}");
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!(path(&s, id), original);
 }
 
 #[test]

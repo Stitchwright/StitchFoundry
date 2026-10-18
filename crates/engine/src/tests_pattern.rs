@@ -267,6 +267,41 @@ fn save_a_copy_while_editing() {
     assert!(doc(&s).pattern("Dots copy").is_some());
 }
 
+/// Make, Save a Copy and Pattern Options trim the name they are given, as the Pattern Options
+/// panel does; the trimmed name is the one compared with the names there are, and a blank name
+/// gives the name the command gives when there is none.
+#[test]
+fn made_copied_and_renamed_patterns_trim_their_names() {
+    let mut s = session();
+    make_dots(&mut s);
+    let make = |s: &mut Session, name: &str| {
+        let r = rect(s, 0.0, 0.0, 10.0, 10.0);
+        s.execute("object.pattern.make", &json!({"ids": [r.0], "name": name, "edit": false})).unwrap()["name"].clone()
+    };
+    assert_eq!(make(&mut s, "  Grid \t"), "Grid");
+    assert_eq!(make(&mut s, " Dots"), "Dots 2");
+    assert_eq!(make(&mut s, ""), "New Pattern 1");
+    assert_eq!(make(&mut s, " \t "), "New Pattern 2");
+    s.execute("object.pattern.edit", &json!({"name": "Grid"})).unwrap();
+    assert_eq!(s.execute("object.pattern.saveCopy", &json!({"name": " Lines\t"})).unwrap()["name"], "Lines");
+    assert_eq!(s.execute("object.pattern.saveCopy", &json!({"name": "  "})).unwrap()["name"], "Grid copy");
+    s.execute("object.pattern.done", &json!({})).unwrap();
+    assert_eq!(s.execute("pattern.options", &json!({"name": "Dots 2", "newName": " Spots "})).unwrap()["name"], "Spots");
+    assert_eq!(s.execute("pattern.options", &json!({"name": "Spots", "newName": " "})).unwrap()["name"], "Spots");
+    let e = s.execute("pattern.options", &json!({"name": "Spots", "newName": " Lines"})).unwrap_err().to_string();
+    assert!(e.contains("a pattern named `Lines` exists"), "{e}");
+    // Save a Copy names the copy of a pattern whose saved name has white space around it, as a
+    // saved file can hold, from the trimmed name (" Old " gives "Old copy").
+    let d = Arc::make_mut(&mut s.doc_mut().unwrap().doc);
+    d.patterns.iter_mut().filter(|p| p.name == "Grid copy").for_each(|p| p.name = " Old ".into());
+    s.execute("object.pattern.edit", &json!({"name": " Old "})).unwrap();
+    assert_eq!(s.execute("object.pattern.saveCopy", &json!({})).unwrap()["name"], "Old copy");
+    s.execute("object.pattern.cancel", &json!({})).unwrap();
+    let names: Vec<&str> = doc(&s).patterns.iter().map(|p| p.name.as_str()).collect();
+    assert_eq!(names, ["Dots", "Grid", "Spots", "New Pattern 1", "New Pattern 2", "Lines", " Old ", "Old copy"]);
+    assert!(doc(&s).swatch("Spots").is_some() && doc(&s).swatch(" Spots ").is_none());
+}
+
 #[test]
 fn undo_make_pattern() {
     let mut s = session();
@@ -334,6 +369,35 @@ fn pdf_export_expands_pattern_fills() {
     let rep = vectorcraft_pdf::export_with_report(doc(&s), &Default::default()).unwrap();
     assert!(rep.warnings.iter().all(|w| !w.contains("pattern")), "{:?}", rep.warnings);
     assert!(rep.bytes.len() > 500);
+}
+
+#[test]
+fn every_raster_export_says_when_a_pattern_holds_an_image_that_could_not_be_decoded() {
+    // A PNG whose header reads (so it places at its size) but whose pixel data is cut short, made
+    // into a pattern and then cleared from the page: only the pattern's tile draws it.
+    let mut s = session();
+    let mut png = Vec::new();
+    image::RgbaImage::from_pixel(20, 20, image::Rgba([200, 30, 30, 255]))
+        .write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png)
+        .unwrap();
+    let idat = png.windows(4).position(|w| w == b"IDAT").unwrap();
+    png.truncate(idat + 8);
+    let placed = s.execute("file.place", &json!({"name": "cut.png", "dataBase64": vectorcraft_format::base64_encode(&png)})).unwrap();
+    let placed = NodeId(placed["ids"][0].as_u64().unwrap());
+    sel(&mut s, &[placed]);
+    s.execute("object.pattern.make", &json!({"name": "Cut", "width": 20, "height": 20})).unwrap();
+    s.execute("object.pattern.done", &json!({})).unwrap();
+    sel(&mut s, &[placed]);
+    s.execute("edit.clear", &json!({})).unwrap();
+    assert!(doc(&s).node(placed).is_none());
+    let big = rect(&mut s, 100.0, 100.0, 50.0, 50.0);
+    s.execute("paint.setFill", &json!({"ids": [big.0], "swatch": "Cut"})).unwrap();
+    // The first export draws the pattern's tile, and the later ones draw it from the tile kept.
+    for n in 0..3 {
+        let r = s.execute("document.export", &json!({"format": "png", "background": "transparent"})).unwrap();
+        let warnings = r["warnings"].as_array().cloned().unwrap_or_default();
+        assert!(warnings.iter().any(|w| w.as_str().is_some_and(|w| w.contains("couldn't be decoded"))), "export {n}: {r}");
+    }
 }
 
 // ---------- repeat ----------
@@ -586,4 +650,26 @@ fn picking_another_pattern_swatch_keeps_the_pattern_transform() {
     let Paint::Pattern { pattern, xf } = node(&s, big).appearance.fill_paint() else { panic!() };
     assert_eq!(pattern, "Dots");
     assert_eq!(xf.as_coeffs(), [2.0, 0.0, 0.0, 2.0, 15.0, 10.0]);
+}
+
+#[test]
+fn inner_glow_on_a_pattern_fill_stays_inside_the_object_on_the_threaded_renderer() {
+    // #2426: the glow's pixmap was drawn with the pattern's paint transform, so it landed
+    // scaled at the top left instead of along the object's edges.
+    let mut s = session();
+    make_dots(&mut s);
+    let bg = rect(&mut s, 0.0, 0.0, 400.0, 400.0);
+    s.execute("paint.setFill", &json!({"ids": [bg.0], "color": "#223344"})).unwrap();
+    let big = rect(&mut s, 100.0, 100.0, 150.0, 150.0);
+    s.execute("paint.setFill", &json!({"ids": [big.0], "swatch": "Dots"})).unwrap();
+    sel(&mut s, &[big]);
+    s.execute("effect.apply", &json!({"effect": "stylize.innerGlow", "params": {"blur": 10}})).unwrap();
+    let mut r = vectorcraft_render::Renderer::new();
+    r.threads = 2;
+    let view = Affine::scale(1.5) * Affine::translate((-20.0, -30.0));
+    let out = r.render(&s.doc().unwrap().doc, 400, 400, view, &Default::default());
+    let [red, ..] = out.pixel(110, 100);
+    assert!(red < 0x30, "glow outside the object: red {red}");
+    let [red, ..] = out.pixel(123, 200);
+    assert!(red > 0x40, "no glow along the edge: red {red}");
 }

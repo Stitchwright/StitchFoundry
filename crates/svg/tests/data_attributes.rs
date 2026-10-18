@@ -51,6 +51,22 @@ fn imported_decimal_whitespace_references_survive_export() {
         }
     }
 }
+#[test]
+fn an_unnamed_group_around_one_object_keeps_its_own_data() {
+    let with_data = |doc: &Document| {
+        let mut found = vec![];
+        doc.walk(|n| {
+            if let Some(a) = n.extras().attrs.as_deref().filter(|a| !a.data.is_empty()) {
+                found.push((n.children().is_some(), a.data.clone()));
+            }
+        });
+        found
+    };
+    let doc = import(&svg(r#"<g data-role="menu"><rect width="20" height="20" data-role="item"/></g>"#)).unwrap();
+    let want = [(true, vec![("role".to_string(), "menu".to_string())]), (false, vec![("role".to_string(), "item".to_string())])];
+    assert_eq!(with_data(&doc), want);
+    assert_eq!(with_data(&import(&export(&doc, &ExportOptions::default())).unwrap()), want);
+}
 fn encoded_text(out: &Output) -> String {
     let bytes = out.bytes();
     match out.encoding {

@@ -8,9 +8,16 @@ use serde_json::Value;
 
 const BIN: &str = env!("CARGO_BIN_EXE_stitchfoundry-cli");
 
+/// Returns the path of `name` in `vectorcraft-cli-fileio-<pid>` in the temp folder. The first call
+/// removes that folder and creates it again empty.
 fn tmp(name: &str) -> String {
-    let dir = std::env::temp_dir().join(format!("vectorcraft-cli-fileio-{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
+    static DIR: std::sync::OnceLock<std::path::PathBuf> = std::sync::OnceLock::new();
+    let dir = DIR.get_or_init(|| {
+        let dir = std::env::temp_dir().join(format!("vectorcraft-cli-fileio-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    });
     dir.join(name).to_string_lossy().to_string()
 }
 

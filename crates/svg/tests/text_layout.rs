@@ -158,6 +158,184 @@ fn justified_lines_place_each_word() {
     assert!(words >= 3, "{svg}");
 }
 
+/// The only type in `d`.
+fn the_text(d: &Document) -> TextObject {
+    d.layers[0].children().unwrap().iter().find_map(|n| if let NodeKind::Text(t) = &n.kind { Some((**t).clone()) } else { None }).unwrap()
+}
+
+/// A drawn character: its text, where its first glyph is drawn, and the glyph's horizontal scale
+/// (font units to user space).
+type Drawn = (String, Point, f64);
+
+/// Each character a usvg draws from `svg` (with the bundled font and the font files of `faces`)
+/// and how it draws the character's first glyph, in SVG user space and text order; spaces and
+/// tabs are left out.
+fn viewer_glyph_positions(svg: &str, faces: &[Arc<vectorcraft_text::FontFace>]) -> Vec<Drawn> {
+    let mut db = usvg::fontdb::Database::new();
+    db.load_font_data(std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/fonts/SourceSans3-Regular.ttf")).unwrap());
+    for f in faces {
+        db.load_font_data(f.file_data().to_vec());
+    }
+    let opt = usvg::Options { fontdb: Arc::new(db), ..Default::default() };
+    let tree = usvg::Tree::from_str(svg, &opt).unwrap();
+    fn walk(g: &usvg::Group, out: &mut Vec<Drawn>) {
+        for n in g.children() {
+            match n {
+                usvg::Node::Group(g) => walk(g, out),
+                usvg::Node::Text(t) => {
+                    for g in t.layouted().iter().flat_map(|span| &span.positioned_glyphs) {
+                        if g.text.trim().is_empty() {
+                            continue;
+                        }
+                        let m = t.abs_transform().pre_concat(g.transform());
+                        out.push((g.text.clone(), Point::new(m.tx as f64, m.ty as f64), m.sx as f64));
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    let mut out = vec![];
+    walk(tree.root(), &mut out);
+    out
+}
+
+/// Each character the canvas draws of the only type in `d` and how it draws the character's
+/// first glyph, in document space and text order (spaces and tabs left out), with the faces
+/// it draws them in.
+fn canvas_glyph_positions(d: &Document) -> (Vec<Drawn>, Vec<Arc<vectorcraft_text::FontFace>>) {
+    let t = the_text(d);
+    let db = vectorcraft_text::FontDb::global();
+    let lay = vectorcraft_text::layout(db, &t);
+    let plain = t.plain_text();
+    let mut out: Vec<Drawn> = vec![];
+    let mut faces: Vec<Arc<vectorcraft_text::FontFace>> = vec![];
+    let mut last = None;
+    for g in &lay.glyphs {
+        let text = if g.len == 0 { "-" } else { &plain[g.byte..g.byte + g.len] };
+        if text.trim().is_empty() || (g.len > 0 && last == Some(g.byte)) {
+            continue;
+        }
+        last = Some(g.byte);
+        if let Some(f) = db.face_by_id(g.font_id).filter(|f| !faces.iter().any(|o| o.id() == f.id())) {
+            faces.push(f);
+        }
+        let m = t.xf * g.xf;
+        out.push((text.to_string(), m * Point::ZERO, m.as_coeffs()[0]));
+    }
+    (out, faces)
+}
+
+/// Asserts that a viewer draws every character of `d`'s live SVG text where the canvas draws it,
+/// as wide as the canvas draws it.
+fn assert_drawn_in_place(d: &Document) {
+    let svg = export(d, &ExportOptions::default());
+    let (canvas, faces) = canvas_glyph_positions(d);
+    let viewer = viewer_glyph_positions(&svg, &faces);
+    let chars = |v: &[Drawn]| v.iter().map(|(s, _, _)| s.as_str()).collect::<String>();
+    assert_eq!(chars(&viewer), chars(&canvas), "{svg}");
+    for ((s, v, vs), (_, c, cs)) in viewer.iter().zip(&canvas) {
+        assert!((v.x - c.x).abs() < 0.05 && (v.y - c.y).abs() < 0.05, "{s}: the viewer draws it at {v:?}, the canvas at {c:?}: {svg}");
+        assert!((vs / cs - 1.0).abs() < 0.002, "{s}: the viewer scales it by {vs}, the canvas by {cs}: {svg}");
+    }
+}
+
+/// A Justify All line without word spaces spreads its letters; live text keeps the gaps, with
+/// tracking and manual kerning too.
+#[test]
+fn justify_all_lines_keep_their_letter_gaps() {
+    let tracked = CharStyle { tracking: 80.0, ..style(12.0) };
+    let kerned = CharStyle { kerning: Some(-40.0), ..style(12.0) };
+    for runs in [vec![run("abcdefgh", style(12.0))], vec![run("abc", style(12.0)), run("def", tracked), run("ghi", kerned)]] {
+        let d = area_doc(runs, 200.0, Justify::JustifyAll);
+        assert_drawn_in_place(&d);
+    }
+}
+
+/// Justified and Mojikumi lines whose characters a reader draws where the layout does are written
+/// as before: a segment per style run, and per word on a justified line.
+#[test]
+fn lines_without_moved_characters_are_written_as_before() {
+    let text = |d: &Document| {
+        let svg = export(d, &ExportOptions::default());
+        svg[svg.find("<text").unwrap()..svg.find("</text>").unwrap()].to_string()
+    };
+    let justified = area_doc(vec![run("aa bb cc dd ee ff", style(12.0))], 60.0, Justify::JustifyLeft);
+    let mut composed = area_doc(vec![run("Latin words only", style(12.0))], 200.0, Justify::Center);
+    let id = composed.layers[0].children().unwrap()[0].id;
+    if let Some(NodeKind::Text(t)) = composed.node_mut(id).map(|n| &mut n.kind) {
+        t.para.mojikumi = vectorcraft_doc::Mojikumi::LineEndHalf;
+    }
+    let open = |x: &str, anchor: &str| {
+        format!(
+            r##"<text transform="matrix(1 0 0 1 20 20)" x="{x}" y="12" xml:space="preserve" font-family="&apos;Source Sans 3&apos;" font-size="12" fill="#000000"{anchor}>"##
+        )
+    };
+    let words =
+        [("aa ", "0", "12"), ("bb ", "15.636", "12"), ("cc ", "32.448", "12"), ("dd", "46.68", "12"), ("ee ", "0", "26.4"), ("ff", "14.304", "26.4")];
+    let words: String = words.iter().map(|(w, x, y)| format!(r#"<tspan x="{x}" y="{y}">{w}</tspan>"#)).collect();
+    assert_eq!(text(&justified), format!("{}{words}", open("0", "")));
+    let centered = format!(r#"{}<tspan x="100" y="12">Latin words only</tspan>"#, open("100", r#" text-anchor="middle""#));
+    assert_eq!(text(&composed), centered);
+}
+
+/// Type scaled horizontally on a justified line is stretched to its own width, not to the
+/// justification space after it, nor to the font's kerning against the letter after it when
+/// the letters are spread (AV is a kerned pair).
+#[test]
+fn justified_lines_keep_scaled_type_at_its_width() {
+    let wide = CharStyle { h_scale: 150.0, ..style(12.0) };
+    for justify in [Justify::JustifyLeft, Justify::JustifyAll] {
+        assert_drawn_in_place(&area_doc(vec![run("aa bb cc dd ee ff gg hh ii jj kk ll", wide.clone())], 120.0, justify));
+        assert_drawn_in_place(&area_doc(vec![run("abcdefgh", wide.clone())], 200.0, justify));
+    }
+    assert_drawn_in_place(&area_doc(vec![run("AVAVAVAV", wide)], 200.0, Justify::JustifyAll));
+}
+
+/// On lines that aren't spread, the spacing a reader applies itself (tracking, manual kerning,
+/// horizontal scale, baseline shift) puts each character where the canvas draws it.
+#[test]
+fn ragged_lines_keep_their_character_spacing() {
+    let tracked = CharStyle { tracking: 80.0, ..style(12.0) };
+    let kerned = CharStyle { kerning: Some(-40.0), ..style(12.0) };
+    let wide = CharStyle { h_scale: 150.0, ..style(12.0) };
+    let shifted = CharStyle { baseline_shift: 3.0, ..style(12.0) };
+    for justify in [Justify::Left, Justify::Center, Justify::Right, Justify::JustifyLeft] {
+        let mut runs =
+            vec![run("plain ", style(12.0)), run("tracked ", tracked.clone()), run("kerned ", kerned.clone()), run("up ", shifted.clone())];
+        // usvg anchors a centered or right-aligned line by its width before `textLength` stretches it.
+        if matches!(justify, Justify::Left | Justify::JustifyLeft) {
+            runs.push(run("wide ", wide.clone()));
+        }
+        runs.push(run("end", style(12.0)));
+        assert_drawn_in_place(&area_doc(runs, 280.0, justify));
+    }
+}
+
+/// Justified Japanese lines spread between their characters (#344); live text keeps the gaps.
+#[test]
+fn justified_japanese_lines_keep_the_gaps_between_their_characters() {
+    let text = "日本語の文章は文字と文字の間で両端を揃えます。この段落は三行になります。";
+    for justify in [Justify::JustifyLeft, Justify::JustifyAll] {
+        assert_drawn_in_place(&area_doc(vec![run(text, style(12.0))], 100.0, justify));
+    }
+}
+
+/// Japanese composition (Mojikumi) closes up consecutive punctuation and adds a quarter em between
+/// Japanese and Latin letters; live text keeps that spacing, on anchored lines too.
+#[test]
+fn japanese_composition_keeps_its_spacing() {
+    let text = "「かっこ」、「かな」。漢字とLatinの間。";
+    for justify in [Justify::Left, Justify::Center, Justify::Right] {
+        let mut d = area_doc(vec![run(text, style(12.0))], 280.0, justify);
+        let id = d.layers[0].children().unwrap()[0].id;
+        if let Some(NodeKind::Text(t)) = d.node_mut(id).map(|n| &mut n.kind) {
+            t.para.mojikumi = vectorcraft_doc::Mojikumi::LineEndHalf;
+        }
+        assert_drawn_in_place(&d);
+    }
+}
+
 /// Glyph outlines of every text a usvg (with the bundled font) lays out from `svg`, in SVG
 /// user space.
 fn viewer_outlines(svg: &str) -> Vec<BezPath> {

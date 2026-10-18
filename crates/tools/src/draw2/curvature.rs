@@ -621,7 +621,7 @@ impl Tool for CurvatureTool {
                 Some(0) if !self.closed && self.pts.len() >= 3 => Cursor::PenClose,
                 Some(_) if m.alt => Cursor::PenConvert,
                 Some(_) => Cursor::Move,
-                None => Cursor::Pen,
+                None => Cursor::Curvature,
             };
         }
         let tol = point_tol(cx);
@@ -642,7 +642,7 @@ impl Tool for CurvatureTool {
         if end.is_none() && segment_in(cx, editable_paths(cx), p, tol).is_some() {
             return Cursor::PenAdd;
         }
-        Cursor::Pen
+        Cursor::Curvature
     }
 }
 
@@ -652,6 +652,16 @@ mod tests {
     use crate::testutil::*;
     use vectorcraft_doc::{Appearance, Document, Node, Selection};
     use vectorcraft_geom::{ParamCurve, PathData};
+
+    /// The Curvature tool has its own cursor, not the Pen's start-a-path one.
+    #[test]
+    fn curvature_tool_shows_its_cursor() {
+        let (d, _) = doc_with_rect();
+        let s = Selection::default();
+        let p = paint();
+        let cx = cx(&d, &s, &p);
+        assert_eq!(CurvatureTool::default().cursor(&cx, Point::new(10.0, 10.0), Mods::default()), Cursor::Curvature);
+    }
 
     #[test]
     fn first_click_creates_then_notify_tracks_path() {

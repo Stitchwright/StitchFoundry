@@ -66,6 +66,55 @@ fn a_spine_point_added_and_moved_bends_the_blend() {
     assert!(center(&steps(&s, g)[1]).distance(Point::new(55.0, 5.0)) < 1e-6);
 }
 
+/// #2544: an Anchor Point drag on a blend spine must create two symmetric
+/// handles, not bend the adjacent segment and leave one handle behind.
+#[test]
+fn spine_anchor_conversion_preserves_keys_and_undo() {
+    let mut s = session();
+    let (a, b, g) = blend(&mut s);
+    s.execute("object.blend.spine.addAnchor", &json!({"id": g.0, "x": 55, "y": 5})).unwrap();
+    let keys_before = spec(&s, g).key_anchors;
+    let point_before = spec(&s, g).spine.unwrap().subpaths[0].anchors[1].p;
+    assert!(point_before.distance(Point::new(55.0, 5.0)) < 1e-9);
+    s.execute("object.blend.spine.convertAnchor", &json!({"id": g.0, "anchor": 1, "to": "smooth", "x": 55, "y": 35})).unwrap();
+    let sp = spec(&s, g);
+    assert_eq!(sp.key_anchors, keys_before);
+    let middle = sp.spine.as_ref().unwrap().subpaths[0].anchors[1];
+    assert_eq!(middle.kind, vectorcraft_geom::AnchorKind::Smooth);
+    assert_eq!(middle.p, point_before);
+    assert_eq!(middle.h_in, point_before - (Point::new(55.0, 35.0) - point_before));
+    assert_eq!(middle.h_out, Point::new(55.0, 35.0));
+    assert_eq!(center(&node(&s, a)), Point::new(5.0, 5.0));
+    assert_eq!(center(&node(&s, b)), Point::new(105.0, 5.0));
+
+    s.execute("edit.undo", &json!({})).unwrap();
+    let before = spec(&s, g);
+    assert_eq!(before.spine.unwrap().subpaths[0].anchors[1].h_out, point_before);
+    s.execute("edit.redo", &json!({})).unwrap();
+    assert_eq!(spec(&s, g).spine.unwrap().subpaths[0].anchors[1], middle);
+
+    s.execute("object.blend.spine.convertAnchor", &json!({"id": g.0, "anchor": 1, "to": "corner"})).unwrap();
+    let corner = spec(&s, g).spine.unwrap().subpaths[0].anchors[1];
+    assert!(!corner.has_in() && !corner.has_out());
+    assert_eq!(corner.kind, vectorcraft_geom::AnchorKind::Corner);
+}
+
+#[test]
+fn spine_conversion_rejects_invalid_arguments_without_mutation() {
+    let mut s = session();
+    let (_, _, g) = blend(&mut s);
+    let before = spec(&s, g);
+    for params in [
+        json!({"id": g.0, "anchor": 5, "to": "smooth", "x": 20, "y": 20}),
+        json!({"id": g.0, "anchor": 0, "to": "unknown"}),
+        json!({"id": g.0, "anchor": 0, "to": "smooth", "x": 10}),
+        json!({"id": g.0, "anchor": 0, "to": "smooth", "x": f64::MAX, "y": 1}),
+    ] {
+        assert!(s.execute("object.blend.spine.convertAnchor", &params).is_err(), "{params}");
+        assert_eq!(spec(&s, g), before);
+    }
+}
+
 #[test]
 fn moving_a_key_point_moves_the_key_and_the_other_way_round() {
     let mut s = session();
@@ -97,6 +146,28 @@ fn only_points_without_a_key_can_be_deleted() {
     s.execute("object.blend.spine.removeAnchor", &json!({"id": g.0, "anchor": 1})).unwrap();
     let sp = spec(&s, g);
     assert_eq!((sp.spine.unwrap().subpaths[0].anchors.len(), sp.key_anchors), (2, vec![0, 1]));
+}
+
+/// An `anchor` or `segment` that is not a whole number is an error that leaves the blend as it
+/// was; a whole number written as 1.0 still names its point.
+#[test]
+fn spine_commands_refuse_an_index_that_is_not_a_whole_number() {
+    let mut s = session();
+    let (_, _, g) = blend(&mut s);
+    s.execute("object.blend.spine.addAnchor", &json!({"id": g.0, "x": 55, "y": 5})).unwrap();
+    let before = node(&s, g);
+    for (cmd, key, p) in [
+        ("object.blend.spine.moveAnchor", "anchor", json!({"id": g.0, "anchor": 1.5, "x": 55, "y": 60})),
+        ("object.blend.spine.moveAnchor", "anchor", json!({"id": g.0, "anchor": 0.5, "handle": "out", "x": 5, "y": 300})),
+        ("object.blend.spine.reshapeSegment", "segment", json!({"id": g.0, "segment": 0.5, "dy": 40})),
+        ("object.blend.spine.removeAnchor", "anchor", json!({"id": g.0, "anchor": 1.5})),
+    ] {
+        let r = s.execute(cmd, &p);
+        assert!(matches!(&r, Err(EngineError::BadParams { msg, .. }) if *msg == format!("`{key}` must be a whole number")), "{cmd} {p}: {r:?}");
+        assert_eq!(node(&s, g), before, "{cmd} {p}");
+    }
+    s.execute("object.blend.spine.moveAnchor", &json!({"id": g.0, "anchor": 1.0, "x": 55, "y": 60})).unwrap();
+    assert_eq!(spec(&s, g).spine.unwrap().subpaths[0].anchors[1].p, Point::new(55.0, 60.0));
 }
 
 #[test]
@@ -203,4 +274,19 @@ fn a_straight_spine_segment_bends_into_a_curve() {
     for bad in [json!({"segment": 1, "dy": 10}), json!({"segment": 0, "dx": f64::MAX, "dy": f64::MAX}), json!({"segment": -1})] {
         assert!(s.execute("object.blend.spine.reshapeSegment", &bad).is_err(), "{bad}");
     }
+}
+
+/// With `perpendicular` (Shift) the spine segment's handles stand at right angles to it, at one
+/// length: its middle goes straight down, wherever the drag goes sideways.
+#[test]
+fn a_spine_segment_bends_with_perpendicular_handles() {
+    let mut s = session();
+    let (_, _, g) = blend(&mut s);
+    s.execute("object.blend.spine.reshapeSegment", &json!({"segment": 0, "t": 0.5, "dx": 10, "dy": 40, "perpendicular": true})).unwrap();
+    let sp = spec(&s, g).spine.unwrap().subpaths[0].clone();
+    let (a, b) = (sp.anchors[0], sp.anchors[1]);
+    let (ha, hb) = (a.h_out - a.p, b.h_in - b.p);
+    assert!(ha.x.abs() < 1e-9 && hb.x.abs() < 1e-9 && (ha.y - hb.y).abs() < 1e-9, "{sp:?}");
+    use vectorcraft_geom::kurbo::ParamCurve;
+    assert!(sp.segment(0).eval(0.5).distance(Point::new(55.0, 45.0)) < 1e-9, "{sp:?}");
 }

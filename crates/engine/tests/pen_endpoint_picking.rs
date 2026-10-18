@@ -102,7 +102,7 @@ fn alt_at_another_endpoint_reports_conversion_and_preserves_objects_through_undo
     assert_eq!(node(&s, b), &before_b);
     assert_eq!(s.doc().unwrap().history.undo.len(), before_undo + 1);
     // Check the captured cursor last: a mismatch must not hide the actual conversion/history controls.
-    assert_eq!(advertised, Cursor::PenConvert, "Alt cursor must describe the conversion actually performed, not Join");
+    assert_eq!(advertised, Cursor::AnchorPoint, "Alt cursor must describe the conversion actually performed, not Join");
 }
 
 #[test]

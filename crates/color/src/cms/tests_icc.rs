@@ -22,7 +22,8 @@ fn cmyk_profiles_convert_like_the_cms() {
         assert_eq!(parse(&bytes).color_space, moxcms::DataColorSpace::Cmyk);
         let p = IccProfile::from_bytes(None, &bytes).unwrap();
         assert_eq!((p.name.as_str(), p.kind), (name, ProfileKind::Cmyk));
-        let cms = Cms::new(&ColorSettings { cmyk: name.into(), ..Default::default() }).unwrap();
+        // The encoded profile converts without black-point compensation, so compare without it.
+        let cms = Cms::new(&ColorSettings { cmyk: name.into(), bpc: false, ..Default::default() }).unwrap();
         for cmyk in [[0.0; 4], [1.0, 0.0, 0.0, 0.0], [0.2, 0.7, 0.1, 0.3], [0.0, 0.0, 0.0, 1.0], [0.5, 0.5, 0.5, 0.0]] {
             let want = cms.cmyk_to_srgb(cmyk, false);
             let got = p.to_srgb(&cmyk, Intent::RelativeColorimetric).unwrap();

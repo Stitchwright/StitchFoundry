@@ -37,6 +37,7 @@ pub mod shaperwidget;
 pub mod slice;
 pub mod symbolism;
 pub mod text;
+pub mod touchtype;
 pub mod typewidget;
 pub mod xform;
 
@@ -231,6 +232,9 @@ pub struct ToolContext<'a> {
     /// Embroidery: the own stitches (document points, sewing order) of each selected
     /// stitched object, while the Stitch Edit tool is active.
     pub embroidery_stitches: &'a [(NodeId, Vec<(Point, sf_core::Cmd)>)],
+    /// The rulers' zero point with the view's active artboard (see
+    /// [`Document::ruler_origin_for`]): where ruler ticks and measured positions count from.
+    pub ruler_origin: Point,
     /// Which open document `doc` is (its process-unique id) and its revision, which moves with
     /// every change of the document or the selection: what a tool keeps between pointer events
     /// for the document as it is (the snap targets of hovering) is keyed on it.
@@ -359,6 +363,12 @@ impl ToolContext<'_> {
     pub fn tol(&self, px: f64) -> f64 {
         px / self.zoom.max(1e-9)
     }
+    /// How far the view is turned (Rotate View), in degrees clockwise on screen; 0 without a
+    /// window.
+    pub fn view_angle(&self) -> f64 {
+        // `right` is one screen pixel to the right, in document units.
+        self.screen.map(|s| (-s.right.y).atan2(s.right.x).to_degrees()).filter(|a| a.is_finite()).unwrap_or(0.0)
+    }
     /// How near (document units) a smart guide target pulls: Smart Guides → Snapping Tolerance.
     pub fn snap_tol(&self) -> f64 {
         self.tol(self.snapping_tolerance)
@@ -434,12 +444,30 @@ pub enum Cursor {
     #[default]
     Arrow,
     ArrowHollow,
+    /// Direct Selection over an anchor of a path that isn't selected: the white arrow with a
+    /// hollow square.
+    DirectAnchor,
+    /// Direct Selection over an anchor of a selected path: the white arrow with a filled square.
+    DirectAnchorSelected,
+    /// Over a segment a drag reshapes (Direct Selection, the Anchor Point tool, the Pen with Alt):
+    /// an arrowhead with a small curve between two anchor marks.
+    ReshapeSegment,
+    /// The Group Selection tool, and Direct Selection with Alt held: the white arrow with a plus.
+    GroupSelection,
+    /// Alt-dragging a copy with the Selection or Direct Selection tool: a double arrowhead.
+    SelectionCopy,
     Move,
     Crosshair,
     ResizeH,
     ResizeV,
     ResizeNwSe,
     ResizeNeSw,
+    /// Free Transform with Cmd/Ctrl over the top or bottom side, where a drag shears the object
+    /// sideways: two arrows side by side, pointing opposite ways along that side.
+    ShearH,
+    /// Free Transform with Cmd/Ctrl over the left or right side, where a drag shears the object up
+    /// or down: the ShearH arrows turned upright.
+    ShearV,
     Rotate,
     /// The rotate cursor beside a bounding box, bowed toward the pointer's side of the box: off
     /// its centre in direction `0..8` (0 straight up, then clockwise in 45° steps). Its arc wraps
@@ -456,10 +484,14 @@ pub enum Cursor {
     PenDelete,
     PenClose,
     PenContinue,
+    /// The Anchor Point tool, and the Pen with Alt held (which lends its gestures): a caret, its tip
+    /// on the anchor it converts.
+    AnchorPoint,
+    /// The Curvature tool: the pen nib with a curve badge.
+    Curvature,
     /// While drawing, over an end of another open path (a click joins the two).
     PenJoin,
-    /// Over the last anchor of the path being drawn (a click retracts its outgoing handle), or with
-    /// Alt held over a selected path's handle or anchor (the Anchor Point tool's gesture).
+    /// Over the last anchor of the path being drawn: a click retracts its outgoing handle.
     PenConvert,
     Text,
     Hand,
@@ -493,10 +525,67 @@ pub enum Cursor {
     /// Over the type widget of selected type (a double-click converts point type to area type and
     /// back): the arrow with a type badge.
     TypeWidget,
+    /// The Selection tool loaded with the text of an area type's out port (a click threads it
+    /// into a path or a new frame, a drag draws the new frame).
+    LoadedText,
     /// The Shape Builder: a crosshair with a plus (merge mode)...
     ShapeBuilder,
     /// ...or, with Alt held, a minus (erase mode).
     ShapeBuilderErase,
+    /// The Lasso tool.
+    Lasso,
+    /// The Magic Wand tool.
+    MagicWand,
+    /// The Pencil tool.
+    Pencil,
+    /// The Paintbrush tool.
+    Paintbrush,
+    /// The Blob Brush tool.
+    BlobBrush,
+    /// The Eraser tool.
+    Eraser,
+    /// The Smooth tool.
+    Smooth,
+    /// The Path Eraser tool.
+    PathEraser,
+    /// The Join tool.
+    Join,
+    /// The Knife tool.
+    Knife,
+    /// The Shaper tool.
+    Shaper,
+    /// The Live Paint Bucket.
+    LivePaintBucket,
+    /// The Measure tool.
+    Measure,
+    /// The Print Tiling tool.
+    PrintTiling,
+    /// The Symbol Sprayer tool.
+    SymbolSprayer,
+    /// The Symbol Shifter tool.
+    SymbolShifter,
+    /// The Symbol Scruncher tool.
+    SymbolScruncher,
+    /// The Symbol Sizer tool.
+    SymbolSizer,
+    /// The Symbol Spinner tool.
+    SymbolSpinner,
+    /// The Symbol Stainer tool.
+    SymbolStainer,
+    /// The Symbol Screener tool.
+    SymbolScreener,
+    /// The Symbol Styler tool.
+    SymbolStyler,
+    /// The vertical type tools: a turned I-beam.
+    TypeVertical,
+    /// The Scissors over a path segment (a click splits the path there)...
+    Scissors,
+    /// ...or away from every segment (a click does nothing).
+    ScissorsNotAllowed,
+    /// The Mesh tool off a mesh point: a click adds one.
+    MeshAdd,
+    /// Puppet Warp over the selection's mesh where a pin can go: a click adds one.
+    PuppetPin,
 }
 
 impl Cursor {
@@ -512,8 +601,33 @@ impl Cursor {
         Cursor::RotateToward(octant.rem_euclid(8) as u8)
     }
 
+    /// [`Cursor::rotate_about`] in a view turned `view` degrees clockwise
+    /// ([`ToolContext::view_angle`]): the pointer's side of `center` as it shows on screen. The
+    /// pointer's direction turns with the view before it rounds to the nearest 45°.
+    pub fn rotate_about_in_view(center: Point, p: Point, view: f64) -> Self {
+        let (sn, cs) = if view.is_finite() { view.to_radians().sin_cos() } else { (0.0, 1.0) };
+        let d = p - center;
+        // y points down the page, so this turns `d` clockwise on the page.
+        Cursor::rotate_about(center, center + Vec2::new(d.x * cs - d.y * sn, d.x * sn + d.y * cs))
+    }
+
+    /// The cursor as it shows in a view turned `deg` degrees clockwise (Rotate View): the resize
+    /// cursors and [`Cursor::RotateToward`] turn with the view to the nearest 45°, and every other
+    /// cursor stays as it is.
+    pub fn turned(self, deg: f64) -> Self {
+        const RESIZE: [Cursor; 4] = [Cursor::ResizeH, Cursor::ResizeNeSw, Cursor::ResizeV, Cursor::ResizeNwSe];
+        let k = if deg.is_finite() { (deg / 45.0).round() as i64 } else { 0 };
+        match self {
+            Cursor::RotateToward(o) => Cursor::RotateToward((i64::from(o) + k).rem_euclid(8) as u8),
+            c => match RESIZE.iter().position(|r| *r == c) {
+                Some(i) => RESIZE.get((i as i64 - k).rem_euclid(4) as usize).copied().unwrap_or(c),
+                None => c,
+            },
+        }
+    }
+
     /// General › Use Precise Cursors: the drawing tools' pointers (the Pen's in every state, the
-    /// Eyedropper's, the Slice and Blend tools') become a plain crosshair at the hotspot.
+    /// Anchor Point and Curvature tools', the Eyedropper's, the Slice and Blend tools') become a plain crosshair at the hotspot.
     pub fn precise(self) -> Self {
         match self {
             Cursor::Pen
@@ -524,14 +638,77 @@ impl Cursor {
             | Cursor::PenContinue
             | Cursor::PenJoin
             | Cursor::PenConvert
+            | Cursor::AnchorPoint
+            | Cursor::Curvature
             | Cursor::Eyedropper
             | Cursor::Slice
             | Cursor::Blend
             | Cursor::BlendObject
             | Cursor::BlendAnchor
             | Cursor::ShapeBuilder
-            | Cursor::ShapeBuilderErase => Cursor::Crosshair,
+            | Cursor::ShapeBuilderErase
+            | Cursor::Lasso
+            | Cursor::MagicWand
+            | Cursor::Pencil
+            | Cursor::Paintbrush
+            | Cursor::BlobBrush
+            | Cursor::Eraser
+            | Cursor::Smooth
+            | Cursor::PathEraser
+            | Cursor::Join
+            | Cursor::Knife
+            | Cursor::Shaper
+            | Cursor::LivePaintBucket
+            | Cursor::Measure
+            | Cursor::PrintTiling
+            | Cursor::SymbolSprayer
+            | Cursor::SymbolShifter
+            | Cursor::SymbolScruncher
+            | Cursor::SymbolSizer
+            | Cursor::SymbolSpinner
+            | Cursor::SymbolStainer
+            | Cursor::SymbolScreener
+            | Cursor::SymbolStyler
+            | Cursor::Scissors
+            | Cursor::MeshAdd
+            | Cursor::PuppetPin => Cursor::Crosshair,
             c => c,
+        }
+    }
+
+    /// The cursor this one borrows until it's drawn: the generic crosshair for the
+    /// tools, the I-beam for vertical type and loaded text, the Pen's add cursor for the Mesh tool and Puppet
+    /// Warp, not-allowed for the Scissors away from a path. `None` for a cursor with a look of
+    /// its own.
+    pub fn stand_in(self) -> Option<Self> {
+        match self {
+            Cursor::Lasso
+            | Cursor::MagicWand
+            | Cursor::Pencil
+            | Cursor::Paintbrush
+            | Cursor::BlobBrush
+            | Cursor::Eraser
+            | Cursor::Smooth
+            | Cursor::PathEraser
+            | Cursor::Join
+            | Cursor::Knife
+            | Cursor::Shaper
+            | Cursor::LivePaintBucket
+            | Cursor::Measure
+            | Cursor::PrintTiling
+            | Cursor::SymbolSprayer
+            | Cursor::SymbolShifter
+            | Cursor::SymbolScruncher
+            | Cursor::SymbolSizer
+            | Cursor::SymbolSpinner
+            | Cursor::SymbolStainer
+            | Cursor::SymbolScreener
+            | Cursor::SymbolStyler
+            | Cursor::Scissors => Some(Cursor::Crosshair),
+            Cursor::TypeVertical | Cursor::LoadedText => Some(Cursor::Text),
+            Cursor::MeshAdd | Cursor::PuppetPin => Some(Cursor::PenAdd),
+            Cursor::ScissorsNotAllowed => Some(Cursor::NotAllowed),
+            _ => None,
         }
     }
 }
@@ -637,6 +814,7 @@ pub fn create(id: &str) -> Box<dyn Tool> {
             .or_else(|| cut::create(other))
             .or_else(|| embroidery::create(other))
             .or_else(|| intertwine::create(other))
+            .or_else(|| touchtype::create(other))
             .unwrap_or_else(|| Box::new(NoopTool(tool_info(other).map(|t| t.id).unwrap_or("selection")))),
     }
 }
@@ -701,11 +879,19 @@ pub(crate) mod testutil {
         PaintDefaults::default()
     }
 
+    /// An 800 × 600 window on a view at 100% turned `deg` degrees clockwise (Rotate View): at 90°
+    /// one pixel right on screen is one point up the page.
+    pub fn turned_view(deg: f64) -> Option<ScreenFrame> {
+        let (sn, cs) = deg.to_radians().sin_cos();
+        Some(ScreenFrame { origin: Point::ORIGIN, right: Vec2::new(cs, -sn), down: Vec2::new(sn, cs), size: (800.0, 600.0) })
+    }
+
     pub fn cx<'a>(d: &'a Document, s: &'a Selection, p: &'a PaintDefaults) -> ToolContext<'a> {
         ToolContext {
             doc: d,
             embroidery_beads: &[],
             embroidery_stitches: &[],
+            ruler_origin: d.ruler_origin_for(0),
             revision: (0, 0),
             selection: s,
             zoom: 1.0,
@@ -757,5 +943,73 @@ pub(crate) mod testutil {
             screen: None,
             plane_widget: Some(Default::default()),
         }
+    }
+}
+
+#[cfg(test)]
+mod cursor_tests {
+    use super::testutil::{cx, doc_with_rect, paint};
+    use super::*;
+
+    fn cursor_at(id: &str, d: &Document, p: Point) -> Cursor {
+        let (s, paint) = (Selection::default(), paint());
+        create(id).cursor(&cx(d, &s, &paint), p, Mods::default())
+    }
+
+    /// Each of these tools has a cursor of its own (borrowing the crosshair until it's drawn), and
+    /// Use Precise Cursors turns it into the crosshair.
+    #[test]
+    fn drawing_tools_show_their_own_cursor() {
+        let (d, _) = doc_with_rect();
+        let away = Point::new(400.0, 400.0);
+        for (id, c) in [
+            ("lasso", Cursor::Lasso),
+            ("magicWand", Cursor::MagicWand),
+            ("pencil", Cursor::Pencil),
+            ("paintbrush", Cursor::Paintbrush),
+            ("blobBrush", Cursor::BlobBrush),
+            ("eraser", Cursor::Eraser),
+            ("smooth", Cursor::Smooth),
+            ("pathEraser", Cursor::PathEraser),
+            ("join", Cursor::Join),
+            ("knife", Cursor::Knife),
+            ("shaper", Cursor::Shaper),
+            ("livePaintBucket", Cursor::LivePaintBucket),
+            ("measure", Cursor::Measure),
+            ("printTiling", Cursor::PrintTiling),
+            ("symbolSprayer", Cursor::SymbolSprayer),
+            ("symbolShifter", Cursor::SymbolShifter),
+            ("symbolScruncher", Cursor::SymbolScruncher),
+            ("symbolSizer", Cursor::SymbolSizer),
+            ("symbolSpinner", Cursor::SymbolSpinner),
+            ("symbolStainer", Cursor::SymbolStainer),
+            ("symbolScreener", Cursor::SymbolScreener),
+            ("symbolStyler", Cursor::SymbolStyler),
+            ("mesh", Cursor::MeshAdd),
+        ] {
+            assert_eq!(cursor_at(id, &d, away), c, "{id}");
+            assert_eq!(c.precise(), Cursor::Crosshair, "{id}");
+            assert_eq!(c.stand_in(), Some(if id == "mesh" { Cursor::PenAdd } else { Cursor::Crosshair }), "{id}");
+        }
+    }
+
+    #[test]
+    fn the_vertical_type_tools_show_the_turned_i_beam() {
+        let (d, _) = doc_with_rect();
+        let away = Point::new(400.0, 400.0);
+        for id in ["verticalType", "verticalAreaType", "verticalTypeOnPath"] {
+            assert_eq!(cursor_at(id, &d, away), Cursor::TypeVertical, "{id}");
+        }
+        assert_eq!(cursor_at("type", &d, away), Cursor::Text);
+        assert_eq!(Cursor::TypeVertical.stand_in(), Some(Cursor::Text));
+    }
+
+    #[test]
+    fn the_scissors_say_whether_a_click_cuts() {
+        let (d, _) = doc_with_rect();
+        assert_eq!(cursor_at("scissors", &d, Point::new(100.0, 150.0)), Cursor::Scissors, "over a segment");
+        assert_eq!(cursor_at("scissors", &d, Point::new(400.0, 400.0)), Cursor::ScissorsNotAllowed, "away from paths");
+        assert_eq!(Cursor::ScissorsNotAllowed.stand_in(), Some(Cursor::NotAllowed));
+        assert_eq!(Cursor::ScissorsNotAllowed.precise(), Cursor::ScissorsNotAllowed, "nothing to aim at");
     }
 }

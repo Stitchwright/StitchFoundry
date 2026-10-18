@@ -103,7 +103,7 @@ fn limit_menu(app: &mut VectorcraftApp, ui: &mut Ui) {
         }
     }
     ui.separator();
-    chosen = library_panel::library_items(ui, &colour_libraries(app), Some(&cur)).or(chosen);
+    chosen = library_panel::library_items(ui, &colour_libraries(app), &|id| id == cur).or(chosen);
     if let Some(key) = chosen {
         set_limit(app, &json!({ "library": key })).ok();
         clear_selection(ui.ctx());
@@ -216,7 +216,9 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
             None => tl!("Limit colors to swatch library").into(),
         };
         // The tip is translated around the library's name, not looked up whole.
-        let lr = widgets::icon_button(ui, "library", "", limit.is_some(), 24.0).on_hover_text(tip);
+        let lr = widgets::icon_button(ui, "library", "", limit.is_some(), 24.0);
+        lr.widget_info(|| widgets::icon_button_info(ui.is_enabled(), limit.is_some(), &tip));
+        let lr = lr.on_hover_text(tip);
         egui::Popup::menu(&lr).show(|ui| limit_menu(app, ui));
         ui.add_space((ui.available_width() - 3.0 * 28.0).max(0.0));
         // Recolor Artwork with the harmony colours as the new colours: the selected art's, or
@@ -276,6 +278,20 @@ mod tests {
             menu(app, ui);
         });
         out.textures_delta.clear();
+    }
+
+    /// Screen readers name the library button by its tool tip, pressed while a library limits the
+    /// colors.
+    #[test]
+    fn screen_readers_name_the_limit_button() {
+        use crate::widgets::accessibility_tests::{role_and_state, tree};
+        use egui::accesskit::{Role, Toggled};
+        let mut app = app();
+        let shown = tree(|ui| show(&mut app, ui));
+        assert_eq!(role_and_state(&shown, "Limit colors to swatch library"), (Role::Button, None));
+        app.run("ui.colorGuideLimit", json!({"library": "Earth Tones"})).unwrap();
+        let shown = tree(|ui| show(&mut app, ui));
+        assert_eq!(role_and_state(&shown, "Limit colors to swatch library: Earth Tones"), (Role::Button, Some(Toggled::True)));
     }
 
     #[test]

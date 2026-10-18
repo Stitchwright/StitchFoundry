@@ -226,3 +226,38 @@ fn live_objects_draw_through_new_color_settings() {
         assert!(warm == fresh, "{what}: drawn as a new renderer draws it");
     }
 }
+
+/// #2276: with a working RGB space other than sRGB, the Eyedropper takes an image's sRGB pixel
+/// into the working space, so the sampled fill shows as the pixel it was picked from.
+#[test]
+fn the_eyedropper_takes_an_image_pixel_into_the_working_rgb_space() {
+    use vectorcraft_color::Color;
+    use vectorcraft_doc::{ImageBlob, ImageObject, Node, NodeKind};
+    use vectorcraft_engine::ViewInfo;
+    use vectorcraft_tools::{PointerEvent, PointerKind};
+    let _g = settings();
+    let old = cms::active_settings();
+    let mut s = session();
+    let img = image::RgbaImage::from_raw(1, 1, vec![83, 170, 223, 255]).unwrap();
+    let mut png = vec![];
+    img.write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).unwrap();
+    s.edit("Place", |d, _| {
+        d.images.insert("px".into(), ImageBlob::png(png));
+        let l = d.layers[0].id;
+        let id = d.alloc_id();
+        let xf = Affine::translate((300.0, 0.0)) * Affine::scale(100.0);
+        let im = ImageObject { key: "px".into(), width: 1, height: 1, xf, link: None, placement: Default::default() };
+        d.insert(Some(l), 0, Node::new(id, NodeKind::Image(Box::new(im)))).map_err(|e| vectorcraft_engine::EngineError::Other(e.to_string()))
+    })
+    .unwrap();
+    let dst = rect(&mut s, 10.0, 10.0, 50.0, 50.0);
+    s.execute("edit.colorSettings", &json!({"rgb": cms::WIDE_GAMUT_RGB})).unwrap();
+    s.select_tool("eyedropper", ViewInfo::default()).unwrap();
+    s.pointer(&PointerEvent::new(PointerKind::Down, 350.0, 50.0), ViewInfo::default()).unwrap();
+    let got = s.doc().unwrap().doc.node(dst).unwrap().appearance.fill_paint().color();
+    let shown = got.map(|c| c.to_rgba8(1.0));
+    cms::set_active(&old).unwrap();
+    assert!(matches!(got, Some(Color::Rgb { .. })), "{got:?}");
+    let [r, g, b, _] = shown.unwrap_or_default();
+    assert!(r.abs_diff(83) <= 1 && g.abs_diff(170) <= 1 && b.abs_diff(223) <= 1, "{shown:?} for 83/170/223");
+}

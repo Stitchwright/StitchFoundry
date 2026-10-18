@@ -44,6 +44,58 @@ fn effect_params_no_longer_taken_still_replay_and_open() {
     assert_eq!(stored(&back)["blurr"], json!(3));
 }
 
+/// An effect's `color` that the effect can't read (a string `Color::from_hex` doesn't read, an
+/// `[r, g, b]` without three numbers, an object that isn't a color, `null`) is refused by
+/// `effect.apply`, `appearance.addEffect` and `effect.setParams` themselves, not only by the check,
+/// and the document and its undo history stay as they were. The forms the effect reads pass. A
+/// document saved with an unreadable color still opens with it.
+#[test]
+fn an_effect_color_it_cannot_draw_is_refused() {
+    let mut s = Session::new();
+    s.execute("file.new", &json!({})).unwrap();
+    let id = s.execute("shape.rectangle", &json!({"x": 10, "y": 10, "width": 50, "height": 40})).unwrap()["id"].as_u64().unwrap();
+    s.execute("effect.apply", &json!({"effect": "stylize.dropShadow", "params": {"color": "#ff0000"}})).unwrap();
+    let state = |s: &Session| {
+        let st = s.active().unwrap();
+        (st.doc.clone(), st.history.undo.len())
+    };
+    let before = state(&s);
+    let why = "`color` must be a #rrggbb color";
+    for bad in [json!("not-a-color"), json!("#ff00"), json!([1, 0]), json!(["#ff0000", 0, 0]), json!({"gray": 50}), json!(null)] {
+        for (cmd, params) in [
+            ("effect.setParams", json!({"index": 0, "params": {"color": bad}})),
+            ("effect.apply", json!({"effect": "stylize.outerGlow", "params": {"color": bad}})),
+            ("appearance.addEffect", json!({"effect": "adjust.shiftToColor", "params": {"color": bad}})),
+        ] {
+            let e = s.execute(cmd, &params).unwrap_err().to_string();
+            assert!(e.contains(why), "{cmd} {params}: {e}");
+            let checked = s.check_params(cmd, &params).unwrap_err().to_string();
+            assert!(checked.contains(why), "{cmd} {params}: {checked}");
+            assert!(state(&s) == before, "{cmd} {params} changed the document or its undo history");
+        }
+    }
+    let stored = |s: &Session| s.active().unwrap().doc.layers[0].children().unwrap()[0].appearance.effects[0].params["color"].clone();
+    for good in [
+        json!("#00ff00"),
+        json!("#0f0"),
+        json!("00ff00"),
+        json!("#00ff00ff"),
+        json!("green"),
+        json!([0, 1, 0]),
+        json!({"model": "rgb", "r": 0.0, "g": 1.0, "b": 0.0}),
+        json!({"model": "cmyk", "c": 1.0, "m": 0.0, "y": 1.0, "k": 0.0}),
+    ] {
+        let params = json!({"index": 0, "params": {"color": good}});
+        s.check_params("effect.setParams", &params).unwrap_or_else(|e| panic!("{good}: {e}"));
+        s.execute("effect.setParams", &params).unwrap_or_else(|e| panic!("{good}: {e}"));
+        assert_eq!(stored(&s), good);
+    }
+    let mut doc = (*s.active().unwrap().doc).clone();
+    doc.node_mut(vectorcraft_doc::NodeId(id)).unwrap().appearance.effects[0].params["color"] = json!("not-a-color");
+    let back = vectorcraft_format::load(&vectorcraft_format::save(&doc, false)).unwrap();
+    assert_eq!(back.layers[0].children().unwrap()[0].appearance.effects[0].params["color"], json!("not-a-color"));
+}
+
 /// What a command adds to its own journal entry passes the check, so a recorded journal can be
 /// sent back through the control channel or MCP.
 #[test]

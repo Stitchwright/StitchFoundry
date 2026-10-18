@@ -585,6 +585,25 @@ fn in_place_pastes_of_art_off_the_artboards_stay_where_it_was() {
     }
 }
 
+/// Art centered on an artboard's right or bottom edge is copied from that artboard: Paste in Place
+/// puts it on the active artboard where it was on that one.
+#[test]
+fn in_place_pastes_of_art_on_an_artboard_edge_go_onto_the_artboard_named() {
+    let mut s = Session::new();
+    s.execute("file.new", &json!({"width": 200, "height": 100, "artboards": 2})).unwrap();
+    let boards: Vec<Rect> = doc(&s).artboards.iter().map(|a| a.rect).collect();
+    let b = boards[1];
+    // A line along the right edge of artboard 2, then one along its bottom edge.
+    for (x1, y1, x2, y2) in [(b.x1, b.y0 + 10.0, b.x1, b.y0 + 40.0), (b.x0 + 10.0, b.y1, b.x0 + 40.0, b.y1)] {
+        let line = id_of(&s.execute("shape.line", &json!({"x1": x1, "y1": y1, "x2": x2, "y2": y2})).unwrap());
+        copy(&mut s, &[line]);
+        assert_eq!(s.clipboard.source_artboard, Some(b));
+        let ids = ids_of(&s.execute("edit.pasteInPlace", &json!({"artboard": 0})).unwrap());
+        let moved = doc(&s).bounds_of(&ids, false).unwrap().origin() - doc(&s).bounds_of(&[line], false).unwrap().origin();
+        assert_eq!(moved, boards[0].origin() - b.origin());
+    }
+}
+
 #[test]
 fn paste_remembers_layers_restores_the_source_layers() {
     let mut s = session();

@@ -5,7 +5,7 @@
 use std::borrow::Cow;
 use std::collections::BTreeSet;
 
-use vectorcraft_geom::corners::{Corner, cut_corners, path_corners};
+use vectorcraft_geom::corners::{Corner, cut_corners, fitted_radii, path_corners};
 use vectorcraft_geom::shapes::{self, CornerKind};
 use vectorcraft_geom::{Affine, PathData, Rect};
 
@@ -23,6 +23,8 @@ pub struct LiveCorners<'a> {
     /// The corners that can be cut, in anchor order ([`path_corners`] of `base`).
     pub corners: Vec<Corner>,
     radii: Vec<f64>,
+    /// The radius each of `corners` is drawn with ([`fitted_radii`]).
+    drawn: Vec<f64>,
     kinds: Vec<CornerKind>,
     /// For each anchor of the path as drawn (per subpath), the anchor of `base` it comes from.
     sources: Vec<Vec<usize>>,
@@ -54,7 +56,9 @@ impl<'a> LiveCorners<'a> {
                 })
                 .collect()
         };
-        Some(Self { corners: path_corners(&base), base, xf, radii, kinds, sources })
+        let corners = path_corners(&base);
+        let drawn = fitted_radii(&corners, &radii);
+        Some(Self { corners, base, xf, radii, drawn, kinds, sources })
     }
 
     /// The Live Corners of a path object.
@@ -73,6 +77,11 @@ impl<'a> LiveCorners<'a> {
         self.radii.get(index).copied().unwrap_or(0.0)
     }
 
+    /// The radius corner `index` is drawn with, in document units: its own, no larger than its
+    /// neighbours leave room for (0 for an anchor that is no corner).
+    pub fn drawn_radius(&self, index: usize) -> f64 {
+        self.corners.binary_search_by_key(&index, |c| c.index).ok().and_then(|i| self.drawn.get(i)).copied().unwrap_or(0.0)
+    }
     /// The kind corner `index` is cut with.
     pub fn kind(&self, index: usize) -> CornerKind {
         self.kinds.get(index).copied().unwrap_or_default()
