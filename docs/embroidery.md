@@ -666,8 +666,8 @@ Guides** turns the lines, the labels and spacing guides on or off and picks thei
 ## Make a Design
 
 **Make a Design, Step by Step** on the Home screen (also **File › Make a Design…**, the
-Embroidery menu and the first button in simple mode) walks through a whole design in six steps,
-with Back to change an answer:
+Embroidery menu and the first button in simple mode) walks through a whole design in seven
+steps, with Back to change an answer:
 
 1. **What would you like to make?** A name or some words, a shape, an appliqué, a picture, an
    in-the-hoop project or quilting for a tile (below), or a sample to try.
@@ -680,10 +680,15 @@ with Back to change an answer:
    pictures with a few flat colours work best). **Make It** builds the design
    (`embroidery.makeDesign {what, hoop?, text?, height?, shape?, path?, colors?, sample?}`); a
    mistake (no words typed, a picture that can't be read) shows on the step.
-4. **Your thread colours**, in sewing order: click one to match a thread you have
+4. **What fabric will you sew it on?** Woven, piqué (polo shirt), jersey (T-shirt), fleece or
+   sweatshirt, towel, denim or canvas, leather or vinyl, a structured cap, or silk: the stitches'
+   density, compensation and underlay are set for it (`embroidery.applyFabric`). A stretchy
+   T-shirt needs much more holding than a towel. **Another fabric, or not sure** leaves the
+   design as it is.
+5. **Your thread colours**, in sewing order: click one to match a thread you have
    (`embroidery.recolor`).
-5. **Watch it sew**: the sewing time, a warning if it is bigger than the hoop, and **Watch It Sew**.
-6. **Save it**: **Save for My Machine** writes the machine's file to its USB stick; **Save
+6. **Watch it sew**: the sewing time, a warning if it is bigger than the hoop, and **Watch It Sew**.
+7. **Save it**: **Save for My Machine** writes the machine's file to its USB stick; **Save
    Design…** keeps a copy to change later.
 
 `ui.makeDesign` opens the guide.
@@ -1197,11 +1202,14 @@ millimetres or inches, and which folder or USB stick designs go to. From then on
 - **File › Save for My Machine** writes the design in that format to the chosen folder in one step
   (`embroidery.send`), asking for a folder first when none is chosen or the USB stick isn't
   plugged in. In the web app, which has no folders, it downloads the file instead: copy it to the
-  USB stick.
+  USB stick. When nobody has said which fabric the design goes on, it asks first (**Which
+  fabric?**, the same choices as Make a Design) and sets the stitches up for it; **not sure**
+  saves it as it is and isn't asked again for that design.
 
 Commands: `embroidery.myMachine` (the machine, its format, hoops and folder, one's own hoops
 (`own`), and the list to choose from), `embroidery.myMachine.set {machine: name|null}`, `ui.myMachine`, `ui.saveForMyMachine
-{folder?}`.
+{folder?, fabric?}` (with no fabric, a design that has none answers `{askFabric: true}` and the
+question opens).
 
 ## Send queue
 
@@ -1254,6 +1262,14 @@ Type objects are stitched straight from their glyph outlines, so there are no em
 to install, and editing the text, font or size restitches it. Small lettering becomes turning
 satin columns, with counters and stroke joins cut so each piece turns cleanly. Lettering too thick
 for satin becomes tatami.
+
+Each letter's pieces are sewn as one path: the next piece is always one that touches what is
+left of the letter, and the thread runs on hidden under the pieces still to come, so a letter is
+trimmed only when the needle leaves it. A stroke that has to end where it began runs a line of
+stitches up its middle first and comes back over it. Satin is never narrower than 0.8 mm, so the
+pointed tips of serifs aren't lost to stitches shorter than the machine sews. (The first real
+sew-out, block letters on a T-shirt, had 275 trims; the same design now has about 100, nearly all
+of them between letters.)
 
 ## Auto-Digitize
 

@@ -1,6 +1,7 @@
 //! My Machine (E4): choose the embroidery machine once — its hoops, its file format, inches or
 //! millimetres and the folder or USB stick designs go to — and Save for My Machine writes the
-//! design there in one step (`embroidery.myMachine`, `embroidery.send`).
+//! design there in one step (`embroidery.myMachine`, `embroidery.send`), asking first which fabric
+//! it goes on when nobody has said (`embroidery.applyFabric`).
 
 use serde_json::{Value, json};
 
@@ -19,6 +20,11 @@ pub struct MyMachineState {
     pub hoop_oval: bool,
     /// Why the last hoop couldn't be added.
     pub hoop_error: Option<String>,
+    /// Which fabric?, asked before saving: open, and the save's params to go on with.
+    pub fabric_open: bool,
+    pub fabric_then: Value,
+    /// The designs (by title) the fabric question was answered "not sure" for this session.
+    pub fabric_asked: Vec<String>,
 }
 
 /// A size typed in the units shown (`inches` or millimetres), in millimetres.
@@ -114,6 +120,18 @@ pub fn save(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
         app.ui.my_machine.open = true;
         return Ok(json!({ "open": true }));
     }
+    // the stitches suit the fabric: asked once, when the design has none
+    let title = app.session.active().map(|d| d.doc.title.clone()).unwrap_or_default();
+    if let Some(name) = p.get("fabric").and_then(Value::as_str) {
+        app.session.execute("embroidery.applyFabric", &json!({ "name": name })).map_err(|e| e.to_string())?;
+    } else {
+        let fabric = app.session.execute("embroidery.info", &json!({})).ok().and_then(|i| i["fabric"].as_str().map(str::to_string));
+        if fabric.unwrap_or_default().is_empty() && !app.ui.my_machine.fabric_asked.contains(&title) {
+            let st = &mut app.ui.my_machine;
+            (st.fabric_open, st.fabric_then) = (true, p.clone());
+            return Ok(json!({ "askFabric": true }));
+        }
+    }
     // the web app has no folders: the machine file downloads, to copy onto the USB stick
     if crate::io::is_web(app) && p.get("folder").is_none() {
         return download(app);
@@ -147,8 +165,51 @@ fn download(app: &mut VectorcraftApp) -> Result<Value, String> {
     Ok(json!({ "downloaded": name, "format": r["format"], "bytes": bytes.len() }))
 }
 
+/// Which fabric?, before Save for My Machine goes on: a fabric chosen is applied, "not sure"
+/// leaves the design as it is; either way the save goes on.
+fn fabric_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    if !app.ui.my_machine.fabric_open {
+        return;
+    }
+    let mut open = true;
+    let mut chosen = None;
+    egui::Window::new(tl!("Which fabric?"))
+        .open(&mut open)
+        .collapsible(false)
+        .resizable(false)
+        .default_pos(ctx.content_rect().center() - egui::vec2(260.0, 240.0))
+        .show(ctx, |ui| {
+            let t = Tokens::get(ui.ctx());
+            ui.set_width(520.0);
+            ui.spacing_mut().item_spacing.y = 8.0;
+            chosen = crate::guide::fabric_choice(app, ui, &t, None);
+        });
+    if !open || ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
+        app.ui.my_machine.fabric_open = false;
+        return;
+    }
+    let Some(choice) = chosen else { return };
+    let st = &mut app.ui.my_machine;
+    st.fabric_open = false;
+    let mut then = std::mem::take(&mut st.fabric_then);
+    if !then.is_object() {
+        then = json!({});
+    }
+    match choice {
+        Some(name) => then["fabric"] = json!(name),
+        None => {
+            let title = app.session.active().map(|d| d.doc.title.clone()).unwrap_or_default();
+            app.ui.my_machine.fabric_asked.push(title);
+        }
+    }
+    if let Err(e) = app.run("ui.saveForMyMachine", then) {
+        app.status(e);
+    }
+}
+
 /// The window, while open.
 pub(super) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    fabric_window(app, ctx);
     if !app.ui.my_machine.open {
         return;
     }

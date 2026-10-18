@@ -1,7 +1,8 @@
 //! Make a Design (E3): a step-by-step guide for someone new to embroidery. What to make (words,
 //! a shape, an appliqué piece, a picture or a sample), which hoop, the words or shape or picture,
-//! then the thread colours, watching it sew and saving it for the machine. Each step runs
-//! ordinary commands (`embroidery.makeDesign`, `embroidery.recolor`, `ui.saveForMyMachine`).
+//! the fabric it goes on, then the thread colours, watching it sew and saving it for the machine.
+//! Each step runs ordinary commands (`embroidery.makeDesign`, `embroidery.applyFabric`,
+//! `embroidery.recolor`, `ui.saveForMyMachine`).
 
 use egui::{RichText, Ui, vec2};
 use serde_json::{Value, json};
@@ -19,13 +20,14 @@ pub enum Step {
     What,
     Hoop,
     Details,
+    Fabric,
     Colours,
     Watch,
     Save,
 }
 
 impl Step {
-    const ALL: [Step; 6] = [Step::What, Step::Hoop, Step::Details, Step::Colours, Step::Watch, Step::Save];
+    const ALL: [Step; 7] = [Step::What, Step::Hoop, Step::Details, Step::Fabric, Step::Colours, Step::Watch, Step::Save];
 
     fn index(self) -> usize {
         Self::ALL.iter().position(|s| *s == self).unwrap_or(0)
@@ -40,6 +42,8 @@ pub struct GuideState {
     /// words, shape, applique, picture or sample.
     pub what: Option<&'static str>,
     pub hoop: Option<String>,
+    /// The fabric chosen (`embroidery.applyFabric`).
+    pub fabric: Option<String>,
     pub text: String,
     /// How tall the words are (mm).
     pub height: f64,
@@ -79,6 +83,7 @@ impl Default for GuideState {
             step: Step::What,
             what: None,
             hoop: None,
+            fabric: None,
             text: String::new(),
             height: 25.0,
             shape: None,
@@ -120,7 +125,9 @@ fn card(ui: &mut Ui, t: &Tokens, title: &str, line: &str, on: bool) -> egui::Res
         .show(ui, |ui| {
             ui.set_width(ui.available_width());
             ui.label(RichText::new(title).font(theme::semibold(16.0)).color(t.text));
-            ui.label(RichText::new(line).size(13.0).color(t.text_dim));
+            if !line.is_empty() {
+                ui.label(RichText::new(line).size(13.0).color(t.text_dim));
+            }
         });
     let r = ui.interact(inner.response.rect, ui.id().with(("guide-card", title)), egui::Sense::click());
     r.on_hover_cursor(egui::CursorIcon::PointingHand)
@@ -148,11 +155,12 @@ pub fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
             // checkboxes and buttons with a visible edge
             ui.visuals_mut().widgets.inactive.bg_fill = t.input;
             ui.visuals_mut().widgets.inactive.bg_stroke = egui::Stroke::new(1.0, t.input_border);
-            ui.label(RichText::new(format!("{} {} / 6", tl!("Step"), step.index() + 1)).size(12.0).color(t.text_dim));
+            ui.label(RichText::new(format!("{} {} / {}", tl!("Step"), step.index() + 1, Step::ALL.len())).size(12.0).color(t.text_dim));
             match step {
                 Step::What => what(app, ui, &t),
                 Step::Hoop => hoop(app, ui, &t),
                 Step::Details => details(app, ui, &t),
+                Step::Fabric => fabric(app, ui, &t),
                 Step::Colours => colours(app, ui, &t),
                 Step::Watch => watch(app, ui, &t),
                 Step::Save => save(app, ui, &t),
@@ -177,7 +185,8 @@ fn nav(app: &mut VectorcraftApp, ui: &mut Ui) {
         Step::Hoop => Some(Step::What),
         Step::Details if matches!(g.what, Some("sample" | "ith" | "quilt")) => Some(Step::What),
         Step::Details => Some(Step::Hoop),
-        Step::Colours => Some(Step::Details),
+        Step::Fabric => Some(Step::Details),
+        Step::Colours => Some(Step::Fabric),
         Step::Watch => Some(Step::Colours),
         Step::Save => Some(Step::Watch),
     };
@@ -511,20 +520,79 @@ fn project_name(name: &str) -> &str {
     }
 }
 
-/// Makes the design and moves on to its colours.
+/// Makes the design and moves on to the fabric it goes on.
 pub(crate) fn make_it(app: &mut VectorcraftApp, q: Value) {
     match app.run("embroidery.makeDesign", q) {
         Ok(_) => {
             app.run("select.none", json!({})).ok();
             app.run("view.fitArtboard", json!({})).ok();
             app.guide.error = None;
-            app.guide.step = Step::Colours;
+            app.guide.step = Step::Fabric;
         }
         Err(e) => app.guide.error = Some(e),
     }
 }
 
-/// Step 4: the thread colours, each one changeable.
+/// A built-in fabric's name in the UI language (one made for the design keeps its own).
+pub(crate) fn fabric_name(name: &str) -> &str {
+    match name {
+        "Woven (twill, poplin)" => tl!("Woven (twill, poplin)"),
+        "Pique knit (polo shirt)" => tl!("Pique knit (polo shirt)"),
+        "Jersey knit (T-shirt)" => tl!("Jersey knit (T-shirt)"),
+        "Fleece / sweatshirt" => tl!("Fleece / sweatshirt"),
+        "Towel / terry" => tl!("Towel / terry"),
+        "Denim / canvas" => tl!("Denim / canvas"),
+        "Leather / vinyl" => tl!("Leather / vinyl"),
+        "Structured cap" => tl!("Structured cap"),
+        "Silk / lightweight" => tl!("Silk / lightweight"),
+        other => other,
+    }
+}
+
+/// The fabrics to choose from, two to a row, then "not sure": `Some(Some(name))` for a fabric
+/// clicked, `Some(None)` for not sure. Shared by the guide and Save for My Machine.
+pub(crate) fn fabric_choice(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, current: Option<&str>) -> Option<Option<String>> {
+    ui.label(RichText::new(tl!("What fabric will you sew it on?")).font(theme::semibold(18.0)).color(t.text));
+    ui.label(
+        RichText::new(tl!("The stitches are made to suit it: a stretchy T-shirt needs more holding than a towel or denim."))
+            .size(13.0)
+            .color(t.text_dim),
+    );
+    let info = app.session.execute("embroidery.info", &json!({})).unwrap_or_default();
+    let names: Vec<String> =
+        info["fabrics"].as_array().map(|a| a.iter().filter_map(|f| f.as_str().map(str::to_string)).collect()).unwrap_or_default();
+    let mut out = None;
+    for pair in names.chunks(2) {
+        ui.columns(2, |cols| {
+            for (col, name) in cols.iter_mut().zip(pair) {
+                if card(col, t, fabric_name(name), "", current == Some(name.as_str())).clicked() {
+                    out = Some(Some(name.clone()));
+                }
+            }
+        });
+    }
+    if card(ui, t, tl!("Another fabric, or not sure: leave it as it is"), "", false).clicked() {
+        out = Some(None);
+    }
+    out
+}
+
+/// Step 4: the fabric, which sets the stitches up for it.
+fn fabric(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
+    let current = app.guide.fabric.clone();
+    match fabric_choice(app, ui, t, current.as_deref()) {
+        Some(Some(name)) => match app.run("embroidery.applyFabric", json!({ "name": name })) {
+            Ok(_) => {
+                (app.guide.fabric, app.guide.error, app.guide.step) = (Some(name), None, Step::Colours);
+            }
+            Err(e) => app.guide.error = Some(e),
+        },
+        Some(None) => (app.guide.error, app.guide.step) = (None, Step::Colours),
+        None => {}
+    }
+}
+
+/// Step 5: the thread colours, each one changeable.
 fn colours(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
     ui.label(RichText::new(tl!("Your thread colours")).font(theme::semibold(18.0)).color(t.text));
     ui.label(RichText::new(tl!("These are sewn in this order. Click a colour to match a thread you have.")).size(13.0).color(t.text_dim));
@@ -547,7 +615,7 @@ fn colours(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
     }
 }
 
-/// Step 5: watch it sew.
+/// Step 6: watch it sew.
 fn watch(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
     ui.label(RichText::new(tl!("Watch it sew")).font(theme::semibold(18.0)).color(t.text));
     ui.label(RichText::new(tl!("See the needle go stitch by stitch, in the order your machine will sew it.")).size(13.0).color(t.text_dim));
@@ -564,7 +632,7 @@ fn watch(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
     }
 }
 
-/// Step 6: save it for the machine, and as a design to change later.
+/// Step 7: save it for the machine, and as a design to change later.
 fn save(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
     ui.label(RichText::new(tl!("Save it")).font(theme::semibold(18.0)).color(t.text));
     // an in-the-hoop project's pieces, life size to cut round

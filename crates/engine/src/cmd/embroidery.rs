@@ -2284,6 +2284,8 @@ fn apply_fabric(s: &mut Session, p: &Value) -> Result<Value> {
         }
         let cfg = d.embroidery.get_or_insert_with(Box::default);
         cfg.fabric = fabric.name.to_string();
+        // the fabric's own fill stitch length isn't flagged as short
+        cfg.checks.short_fill = sf_core::attr::CheckLimits::default().short_fill.min(fabric.fill_stitch_length);
         // worn and washed or not: what Check Design counts as a long stitch
         if let Some(g) = fabric.garment {
             cfg.checks.garment = g;

@@ -237,8 +237,14 @@ fn my_machine_shapes_home_and_saves_in_its_format() {
     app.run("embroidery.set", json!({"type": "fill"})).unwrap();
     let dir = std::env::temp_dir().join(format!("sf-my-machine-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
+    // OP-06: no fabric said yet: Which fabric? comes first, then the save goes on with it
     let r = app.run("ui.saveForMyMachine", json!({"folder": dir.to_string_lossy()})).unwrap();
+    assert_eq!(r["askFabric"], true, "{r}");
+    assert!(app.ui.my_machine.fabric_open);
+    assert_eq!(app.ui.my_machine.fabric_then["folder"], dir.to_string_lossy().as_ref());
+    let r = app.run("ui.saveForMyMachine", json!({"folder": dir.to_string_lossy(), "fabric": "Jersey knit (T-shirt)"})).unwrap();
     assert_eq!(r["format"], "vp3");
+    assert_eq!(app.run("embroidery.info", json!({})).unwrap()["fabric"], "Jersey knit (T-shirt)");
     let path = r["path"].as_str().unwrap();
     assert!(path.ends_with(".vp3") && std::fs::metadata(path).unwrap().len() > 100, "{r}");
     std::fs::remove_dir_all(&dir).ok();
@@ -279,7 +285,7 @@ fn make_a_design_guide_walks_from_words_to_saving() {
     assert_eq!(app.run("ui.makeDesign", json!({})).unwrap()["open"], true);
     let has = |v: &[String], want: &str| assert!(v.iter().any(|t| t == want), "{want} in {v:?}");
     let s = guide_strings(&mut app);
-    for want in ["Step 1 / 6", "What would you like to make?", "A name or some words", "An appliqué", "A sample to try"] {
+    for want in ["Step 1 / 7", "What would you like to make?", "A name or some words", "An appliqué", "A sample to try"] {
         has(&s, want);
     }
     has(&s, "An in-the-hoop project");
@@ -289,7 +295,7 @@ fn make_a_design_guide_walks_from_words_to_saving() {
     has(&s, "Which project?");
     has(&s, "Little pillow front, 8″ square");
     crate::guide::make_it(&mut app, json!({"what": "ith", "project": "mug-rug", "text": "Hi"}));
-    assert_eq!(app.guide.step, Step::Colours, "{:?}", app.guide.error);
+    assert_eq!(app.guide.step, Step::Fabric, "{:?}", app.guide.error);
     // quilting for a tile: the size and pattern, then a block made
     (app.guide.what, app.guide.step) = (Some("quilt"), Step::Details);
     let s = guide_strings(&mut app);
@@ -300,7 +306,7 @@ fn make_a_design_guide_walks_from_words_to_saving() {
     has(&s, "Pebbles");
     has(&s, "Stipple");
     crate::guide::make_it(&mut app, json!({"what": "quilt", "width": 4, "height": 4, "pattern": "waves"}));
-    assert_eq!(app.guide.step, Step::Colours, "{:?}", app.guide.error);
+    assert_eq!(app.guide.step, Step::Fabric, "{:?}", app.guide.error);
     (app.guide.what, app.guide.step) = (Some("words"), Step::Hoop);
     let s = guide_strings(&mut app);
     has(&s, "Which hoop will you use?");
@@ -315,7 +321,15 @@ fn make_a_design_guide_walks_from_words_to_saving() {
     assert_eq!(app.guide.step, Step::Details);
     assert!(app.guide.error.is_some());
     crate::guide::make_it(&mut app, json!({"what": "words", "text": "Mia", "height": 25, "hoop": hoop}));
-    assert_eq!(app.guide.step, Step::Colours, "{:?}", app.guide.error);
+    // OP-06: the fabric next, every fabric to choose from and "not sure"
+    assert_eq!(app.guide.step, Step::Fabric, "{:?}", app.guide.error);
+    let s = guide_strings(&mut app);
+    has(&s, "Step 4 / 7");
+    has(&s, "What fabric will you sew it on?");
+    has(&s, "Jersey knit (T-shirt)");
+    has(&s, "Towel / terry");
+    has(&s, "Another fabric, or not sure: leave it as it is");
+    app.guide.step = Step::Colours;
     let s = guide_strings(&mut app);
     has(&s, "Your thread colours");
     has(&s, "1.");

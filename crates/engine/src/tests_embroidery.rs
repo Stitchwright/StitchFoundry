@@ -5725,3 +5725,20 @@ fn a_satin_gets_its_lines_in_one_step() {
     s.execute("embroidery.set", &json!({"type": "satin"})).unwrap();
     assert!(s.doc().unwrap().doc.node(NodeId(line)).unwrap().embroidery.as_ref().unwrap().guides.is_empty());
 }
+
+/// OP-06: a fabric's own fill stitch length (3.5 mm on a T-shirt) isn't flagged as too short.
+#[test]
+fn a_fabrics_fill_length_isnt_flagged_as_short() {
+    let mut s = session();
+    rect(&mut s, 100.0, 100.0, 200.0, 120.0);
+    s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+    let short = |s: &mut Session| {
+        let c = s.execute("embroidery.check", &json!({})).unwrap();
+        c["findings"].as_array().unwrap().iter().filter(|f| f["kind"] == "shortFill").count()
+    };
+    s.execute("embroidery.applyFabric", &json!({"name": "Jersey knit (T-shirt)"})).unwrap();
+    assert_eq!(short(&mut s), 0);
+    // shorter than the fabric's own length still is
+    s.execute("embroidery.setParams", &json!({"params": {"stitchLength": 2.5}})).unwrap();
+    assert_eq!(short(&mut s), 1);
+}
