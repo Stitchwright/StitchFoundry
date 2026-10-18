@@ -14,6 +14,7 @@ use serde_json::{Value, json};
 use vectorcraft_embroidery::MM_PER_PT;
 use vectorcraft_embroidery::sf_core::ai::ArtError;
 use vectorcraft_embroidery::sf_core::ai::ask::{self, Reply, ToolCall, ToolResult};
+use vectorcraft_embroidery::sf_core::ai::sewout;
 use vectorcraft_engine::CommandSpec;
 
 use super::prompt;
@@ -36,9 +37,19 @@ pub enum Entry {
     Note(String),
 }
 
+/// What a conversation is: questions, or a sew-out check and the questions after it (Check My
+/// Sew-out: [`super::sewout`], its own instructions).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Mode {
+    #[default]
+    Ask,
+    SewOut,
+}
+
 /// Ask About Embroidery between frames. Not saved: a conversation ends with the app.
 pub struct AskState {
     pub open: bool,
+    pub mode: Mode,
     /// The question being typed.
     pub input: String,
     /// The conversation as shown.
@@ -66,6 +77,7 @@ impl Default for AskState {
     fn default() -> Self {
         Self {
             open: false,
+            mode: Mode::Ask,
             input: String::new(),
             entries: Vec::new(),
             messages: Vec::new(),
@@ -408,9 +420,34 @@ pub fn send(app: &mut VectorcraftApp) -> Result<(), String> {
     request(app)
 }
 
+/// Start a sew-out check (Check My Sew-out): a new conversation in [`Mode::SewOut`] whose first
+/// question is `message` ([`sewout::first_message`]), shown as `shown`.
+pub fn begin_check(app: &mut VectorcraftApp, message: Value, shown: String) -> Result<(), String> {
+    if app.embroidery.ask.asking() {
+        return Err("already asking: wait for the answer".into());
+    }
+    clear(app);
+    let st = &mut app.embroidery.ask;
+    st.open = true;
+    st.mode = Mode::SewOut;
+    if let Err(e) = vectorcraft_embroidery::sf_core::ai::clean_key(&app.embroidery.prompt.key) {
+        st.show_key = true;
+        let m = e.to_string();
+        st.error = Some(m.clone());
+        return Err(m);
+    }
+    let keep = st.remember.then(|| app.embroidery.prompt.key.trim().to_string());
+    st.current = Some(Current { question: String::new(), start: 0, rounds: 0, keep });
+    st.messages.push(message);
+    st.entries.push(Entry::Question(shown));
+    st.error = None;
+    request(app)
+}
+
 /// Send the conversation as it stands; the reply comes in through [`poll`].
 fn request(app: &mut VectorcraftApp) -> Result<(), String> {
-    let http = match ask::request(&app.embroidery.prompt.key, &app.embroidery.ask.messages) {
+    let send = if app.embroidery.ask.mode == Mode::SewOut { sewout::request } else { ask::request };
+    let http = match send(&app.embroidery.prompt.key, &app.embroidery.ask.messages) {
         Ok(h) => h,
         Err(e) => return give_up(app, e.to_string()),
     };
@@ -565,6 +602,7 @@ pub fn clear(app: &mut VectorcraftApp) {
     let st = &mut app.embroidery.ask;
     st.entries.clear();
     st.messages.clear();
+    st.mode = Mode::Ask;
     st.current = None;
     st.pending = None;
     st.approval = None;
@@ -583,7 +621,9 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let mut ask_now = false;
     let mut new_conversation = false;
     let mut decision = None;
-    egui::Window::new(tl!("Ask About Embroidery"))
+    let title = if app.embroidery.ask.mode == Mode::SewOut { tl!("Check My Sew-out") } else { tl!("Ask About Embroidery") };
+    egui::Window::new(title)
+        .id(egui::Id::new("ask-about-embroidery"))
         .open(&mut open)
         .collapsible(false)
         .resizable(true)

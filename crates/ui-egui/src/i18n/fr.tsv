@@ -6285,3 +6285,34 @@ theme	Appearance	Apparence
 	Leather / vinyl	Cuir / vinyle
 	Structured cap	Casquette structurée
 	Silk / lightweight	Soie / tissu léger
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Vérifier ma broderie…
+	Check My Sew-out	Vérifier ma broderie
+	About the sewing	À propos de la broderie
+	Add Photos…	Ajouter des photos…
+	Anything else? For example: a gap above the bumper	Autre chose ? Par exemple : un espace au-dessus du pare-chocs
+	As the design has it	Comme dans le motif
+	Choose the photos in the browser's window…	Choisissez les photos dans la fenêtre du navigateur…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude examine les photos avec votre propre clé API Anthropic, facturée sur votre compte Anthropic. Il peut se tromper : essayez une correction sur une chute du même tissu d’abord.
+	Include the design that was sewn (open now), so it can be fixed	Joindre le motif brodé (ouvert maintenant), pour qu’il puisse être corrigé
+	My sew-out ({n} photos)	Ma broderie ({n} photos)
+	Needle	Aiguille
+	Not sure	Pas sûr
+	Photos of your finished sew-out	Photos de votre broderie terminée
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	L’endroit, l’envers et des gros plans de tout ce qui semble mal. Une règle ou une pièce sur la photo montre la taille.
+	Stabilizer	Entoilage
+	The top thread broke	Le fil du dessus a cassé
+	The bobbin ran out	La canette s’est vidée
+	The bobbin thread didn't cut, or caught	Le fil de canette n’a pas été coupé ou s’est accroché
+	The hoop was knocked or the fabric slipped	Le cadre a été heurté ou le tissu a glissé
+	The needle broke	L’aiguille a cassé
+	The machine stopped with a message	La machine s’est arrêtée avec un message
+	While it sewed:	Pendant la broderie :
+	e.g. 75/11 ballpoint	p. ex. 75/11 pointe bille
+@msg	Add a photo of the sew-out first.	Ajoutez d’abord une photo de la broderie.
+@msg	Check My Sew-out needs the desktop app for now	Vérifier ma broderie nécessite pour l’instant l’application de bureau
+@msg	This photo is too large: send a smaller copy.	Cette photo est trop grande : envoyez une copie plus petite.
+@msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Cette photo ne peut pas être lue : enregistrez-la ou envoyez-la en JPEG (sur iPhone : Réglages › Appareil photo › Formats › Le plus compatible).
+@msg	At most 6 photos: remove one first.	6 photos au maximum : retirez-en une d’abord.
+@msg	no files here	pas de fichiers ici

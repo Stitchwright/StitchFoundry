@@ -6260,3 +6260,28 @@ machine	Stop	Pysäytys
 	Leather / vinyl	Nahka / keinonahka
 	Structured cap	Jäykkä lippis
 	Silk / lightweight	Silkki / ohut kangas
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Tarkista kirjontani…
+	Check My Sew-out	Tarkista kirjontani
+	About the sewing	Kirjonnasta
+	Add Photos…	Lisää kuvia…
+	Anything else? For example: a gap above the bumper	Jotain muuta? Esimerkiksi: rako puskurin yläpuolella
+	As the design has it	Kuten mallissa
+	Choose the photos in the browser's window…	Valitse kuvat selaimen ikkunassa…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude katsoo kuvat omalla Anthropic API -avaimellasi, ja maksu menee Anthropic-tilillesi. Se voi erehtyä: kokeile korjausta ensin saman kankaan palaan.
+	Include the design that was sewn (open now), so it can be fixed	Liitä kirjottu malli (nyt auki), jotta sen voi korjata
+	My sew-out ({n} photos)	Kirjontani ({n} kuvaa)
+	Needle	Neula
+	Not sure	En ole varma
+	Photos of your finished sew-out	Kuvat valmiista kirjonnastasi
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Oikea puoli, nurja puoli ja lähikuvat kaikesta, mikä näyttää väärältä. Viivain tai kolikko kuvassa näyttää koon.
+	Stabilizer	Tukikangas
+	The top thread broke	Ylälanka katkesi
+	The bobbin ran out	Puolalanka loppui
+	The bobbin thread didn't cut, or caught	Alalanka ei katkennut tai tarttui
+	The hoop was knocked or the fabric slipped	Kehykseen osui tai kangas liukui
+	The needle broke	Neula katkesi
+	The machine stopped with a message	Kone pysähtyi ilmoitukseen
+	While it sewed:	Kirjonnan aikana:
+	e.g. 75/11 ballpoint	esim. 75/11 pallokärki

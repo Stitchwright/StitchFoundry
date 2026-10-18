@@ -6226,3 +6226,34 @@ mark-style	Japanese	Japonesas
 	Leather / vinyl	Cuero / vinilo
 	Structured cap	Gorra estructurada
 	Silk / lightweight	Seda / tela ligera
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Revisar mi bordado…
+	Check My Sew-out	Revisar mi bordado
+	About the sewing	Sobre el bordado
+	Add Photos…	Añadir fotos…
+	Anything else? For example: a gap above the bumper	¿Algo más? Por ejemplo: un hueco encima del parachoques
+	As the design has it	Como lo tiene el diseño
+	Choose the photos in the browser's window…	Elija las fotos en la ventana del navegador…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude mira las fotos con su propia clave de API de Anthropic, cobrada en su cuenta de Anthropic. Puede equivocarse: pruebe un arreglo primero en un retal de la misma tela.
+	Include the design that was sewn (open now), so it can be fixed	Incluir el diseño que se bordó (abierto ahora), para poder arreglarlo
+	My sew-out ({n} photos)	Mi bordado ({n} fotos)
+	Needle	Aguja
+	Not sure	No estoy seguro
+	Photos of your finished sew-out	Fotos de su bordado terminado
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	El derecho, el revés y primeros planos de todo lo que se vea mal. Una regla o una moneda en la foto muestra el tamaño.
+	Stabilizer	Estabilizador
+	The top thread broke	Se rompió el hilo superior
+	The bobbin ran out	Se acabó la bobina
+	The bobbin thread didn't cut, or caught	El hilo de la bobina no se cortó o se enganchó
+	The hoop was knocked or the fabric slipped	Se golpeó el bastidor o se movió la tela
+	The needle broke	Se rompió la aguja
+	The machine stopped with a message	La máquina se paró con un mensaje
+	While it sewed:	Mientras bordaba:
+	e.g. 75/11 ballpoint	p. ej. 75/11 punta bola
+@msg	Add a photo of the sew-out first.	Añada primero una foto del bordado.
+@msg	Check My Sew-out needs the desktop app for now	Revisar mi bordado necesita por ahora la aplicación de escritorio
+@msg	This photo is too large: send a smaller copy.	Esta foto es demasiado grande: envíe una copia más pequeña.
+@msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Esta foto no se puede leer: guárdela o envíela como JPEG (en un iPhone: Ajustes › Cámara › Formatos › Más compatible).
+@msg	At most 6 photos: remove one first.	Como máximo 6 fotos: quite una primero.
+@msg	no files here	aquí no hay archivos

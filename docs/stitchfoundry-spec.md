@@ -891,7 +891,11 @@ Decided by the owner on 2026-10-11: StitchFoundry is free and open source, and s
      customers.
   5. **Check My Sew-out** (SO-01, decided by the owner on 2026-10-18): photos of a finished
      sew-out are diagnosed and the design fixed, as was done by hand for the first sew-out
-     (phase 0). Requirements:
+     (phase 0). Built with your own key (Embroidery › Check My Sew-out…, desktop and web): the
+     photos, the expected look drawn from the stitches, the design summary and the answers go
+     as the first question of an Ask conversation with its own instructions; the fixes run as
+     Ask's do. The cloud's free monthly checks, opt-in sharing and "did the fix work?" come
+     next. Requirements:
      - **In:** photos (front, back, close-ups; a ruler or coin for scale), the design that was
        sewn when it is open, and a few taps for what a photo can't show: machine, fabric,
        stabilizer, anything that happened while sewing (thread broke, bobbin ran out, hoop

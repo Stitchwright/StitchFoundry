@@ -5916,3 +5916,34 @@ machine	Stop	停止
 	Leather / vinyl	革 / ビニール
 	Structured cap	芯入りキャップ
 	Silk / lightweight	シルク / 薄手の生地
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	刺しゅうの仕上がりをチェック…
+	Check My Sew-out	刺しゅうの仕上がりをチェック
+	About the sewing	刺しゅうについて
+	Add Photos…	写真を追加…
+	Anything else? For example: a gap above the bumper	ほかに何か？ 例：バンパーの上にすき間がある
+	As the design has it	デザインのとおり
+	Choose the photos in the browser's window…	ブラウザーのウィンドウで写真を選んでください…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude はお使いの Anthropic API キーで写真を見ます。料金はお使いの Anthropic アカウントに請求されます。間違えることもあるので、まず同じ生地の端切れで直し方を試してください。
+	Include the design that was sewn (open now), so it can be fixed	刺しゅうしたデザイン（いま開いているもの）を含め、直せるようにする
+	My sew-out ({n} photos)	私の刺しゅう（写真 {n} 枚）
+	Needle	針
+	Not sure	わからない
+	Photos of your finished sew-out	仕上がった刺しゅうの写真
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	表、裏、そしておかしく見えるところの拡大写真。定規や硬貨を一緒に写すと大きさがわかります。
+	Stabilizer	刺しゅう芯
+	The top thread broke	上糸が切れた
+	The bobbin ran out	下糸がなくなった
+	The bobbin thread didn't cut, or caught	下糸が切れなかった、または引っかかった
+	The hoop was knocked or the fabric slipped	枠がぶつかった、または生地がずれた
+	The needle broke	針が折れた
+	The machine stopped with a message	ミシンがメッセージを出して止まった
+	While it sewed:	刺しゅう中に：
+	e.g. 75/11 ballpoint	例：75/11 ボールポイント
+@msg	Add a photo of the sew-out first.	まず刺しゅうの写真を追加してください。
+@msg	Check My Sew-out needs the desktop app for now	「刺しゅうの仕上がりをチェック」は今のところデスクトップアプリが必要です
+@msg	This photo is too large: send a smaller copy.	この写真は大きすぎます。小さいコピーを送ってください。
+@msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	この写真は読み込めません。JPEG で保存するか送ってください（iPhone では 設定 › カメラ › フォーマット › 互換性優先）。
+@msg	At most 6 photos: remove one first.	写真は 6 枚までです。先に 1 枚削除してください。
+@msg	no files here	ここにはファイルがありません

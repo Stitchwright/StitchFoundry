@@ -5835,3 +5835,34 @@ machine	Stop	Stopp
 	Leather / vinyl	Leder / Kunstleder
 	Structured cap	Feste Kappe
 	Silk / lightweight	Seide / leichter Stoff
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Stickergebnis prüfen…
+	Check My Sew-out	Stickergebnis prüfen
+	About the sewing	Zum Sticken
+	Add Photos…	Fotos hinzufügen…
+	Anything else? For example: a gap above the bumper	Sonst noch etwas? Zum Beispiel: eine Lücke über der Stoßstange
+	As the design has it	Wie im Stickmuster
+	Choose the photos in the browser's window…	Wählen Sie die Fotos im Fenster des Browsers…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude sieht sich die Fotos mit Ihrem eigenen Anthropic-API-Schlüssel an, abgerechnet über Ihr Anthropic-Konto. Es kann sich irren: Probieren Sie eine Korrektur zuerst auf einem Rest desselben Stoffs.
+	Include the design that was sewn (open now), so it can be fixed	Das gestickte Stickmuster (jetzt geöffnet) mitsenden, damit es korrigiert werden kann
+	My sew-out ({n} photos)	Mein Stickergebnis ({n} Fotos)
+	Needle	Nadel
+	Not sure	Nicht sicher
+	Photos of your finished sew-out	Fotos Ihres fertigen Stickergebnisses
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Die Vorderseite, die Rückseite und Nahaufnahmen von allem, was nicht stimmt. Ein Lineal oder eine Münze im Foto zeigt die Größe.
+	Stabilizer	Stickvlies
+	The top thread broke	Der Oberfaden ist gerissen
+	The bobbin ran out	Der Unterfaden ging aus
+	The bobbin thread didn't cut, or caught	Der Unterfaden wurde nicht abgeschnitten oder hat sich verfangen
+	The hoop was knocked or the fabric slipped	Der Rahmen wurde angestoßen oder der Stoff ist verrutscht
+	The needle broke	Die Nadel ist abgebrochen
+	The machine stopped with a message	Die Maschine hat mit einer Meldung angehalten
+	While it sewed:	Beim Sticken:
+	e.g. 75/11 ballpoint	z. B. 75/11 Kugelspitze
+@msg	Add a photo of the sew-out first.	Fügen Sie zuerst ein Foto des Stickergebnisses hinzu.
+@msg	Check My Sew-out needs the desktop app for now	„Stickergebnis prüfen“ erfordert vorerst die Desktop-App
+@msg	This photo is too large: send a smaller copy.	Dieses Foto ist zu groß: Senden Sie eine kleinere Kopie.
+@msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Dieses Foto kann nicht gelesen werden: Speichern oder senden Sie es als JPEG (auf dem iPhone: Einstellungen › Kamera › Formate › Maximale Kompatibilität).
+@msg	At most 6 photos: remove one first.	Höchstens 6 Fotos: Entfernen Sie zuerst eines.
+@msg	no files here	hier gibt es keine Dateien

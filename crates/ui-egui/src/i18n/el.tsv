@@ -6248,3 +6248,28 @@ machine	Stop	Στάση
 	Leather / vinyl	Δέρμα / βινύλιο
 	Structured cap	Σκληρό καπέλο
 	Silk / lightweight	Μετάξι / ελαφρύ ύφασμα
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Έλεγχος του κεντήματός μου…
+	Check My Sew-out	Έλεγχος του κεντήματός μου
+	About the sewing	Σχετικά με το κέντημα
+	Add Photos…	Προσθήκη φωτογραφιών…
+	Anything else? For example: a gap above the bumper	Κάτι άλλο; Για παράδειγμα: ένα κενό πάνω από τον προφυλακτήρα
+	As the design has it	Όπως στο σχέδιο
+	Choose the photos in the browser's window…	Επιλέξτε τις φωτογραφίες στο παράθυρο του προγράμματος περιήγησης…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Το Claude βλέπει τις φωτογραφίες με το δικό σας κλειδί API της Anthropic, με χρέωση στον λογαριασμό σας στην Anthropic. Μπορεί να κάνει λάθος: δοκιμάστε πρώτα μια διόρθωση σε ένα κομμάτι από το ίδιο ύφασμα.
+	Include the design that was sewn (open now), so it can be fixed	Να συμπεριληφθεί το σχέδιο που κεντήθηκε (ανοιχτό τώρα), ώστε να μπορεί να διορθωθεί
+	My sew-out ({n} photos)	Το κέντημά μου ({n} φωτογραφίες)
+	Needle	Βελόνα
+	Not sure	Δεν είμαι σίγουρος
+	Photos of your finished sew-out	Φωτογραφίες του τελειωμένου κεντήματός σας
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Η μπροστινή όψη, η πίσω όψη και κοντινά πλάνα από ό,τι φαίνεται λάθος. Ένας χάρακας ή ένα νόμισμα στη φωτογραφία δείχνει το μέγεθος.
+	Stabilizer	Τελά
+	The top thread broke	Έσπασε η πάνω κλωστή
+	The bobbin ran out	Τελείωσε η μασούρα
+	The bobbin thread didn't cut, or caught	Η κάτω κλωστή δεν κόπηκε ή πιάστηκε
+	The hoop was knocked or the fabric slipped	Χτυπήθηκε το τελάρο ή γλίστρησε το ύφασμα
+	The needle broke	Έσπασε η βελόνα
+	The machine stopped with a message	Η μηχανή σταμάτησε με μήνυμα
+	While it sewed:	Ενώ κεντούσε:
+	e.g. 75/11 ballpoint	π.χ. 75/11 στρογγυλή μύτη

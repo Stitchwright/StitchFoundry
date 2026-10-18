@@ -6132,3 +6132,28 @@ machine	Stop	Zatrzymanie
 	Leather / vinyl	Skóra / winyl
 	Structured cap	Usztywniona czapka
 	Silk / lightweight	Jedwab / lekka tkanina
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Sprawdź mój haft…
+	Check My Sew-out	Sprawdź mój haft
+	About the sewing	O haftowaniu
+	Add Photos…	Dodaj zdjęcia…
+	Anything else? For example: a gap above the bumper	Coś jeszcze? Na przykład: szpara nad zderzakiem
+	As the design has it	Jak w projekcie
+	Choose the photos in the browser's window…	Wybierz zdjęcia w oknie przeglądarki…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude ogląda zdjęcia z Twoim własnym kluczem API Anthropic, rozliczanym na Twoim koncie Anthropic. Może się mylić: poprawkę wypróbuj najpierw na skrawku tej samej tkaniny.
+	Include the design that was sewn (open now), so it can be fixed	Dołącz wyhaftowany projekt (teraz otwarty), aby można go było poprawić
+	My sew-out ({n} photos)	Mój haft (zdjęcia: {n})
+	Needle	Igła
+	Not sure	Nie wiem
+	Photos of your finished sew-out	Zdjęcia gotowego haftu
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Prawa strona, lewa strona i zbliżenia wszystkiego, co wygląda źle. Linijka lub moneta na zdjęciu pokazuje rozmiar.
+	Stabilizer	Flizelina
+	The top thread broke	Zerwała się górna nić
+	The bobbin ran out	Skończyła się szpulka
+	The bobbin thread didn't cut, or caught	Dolna nić nie została obcięta lub się zaczepiła
+	The hoop was knocked or the fabric slipped	Tamborek został potrącony lub tkanina się przesunęła
+	The needle broke	Złamała się igła
+	The machine stopped with a message	Maszyna zatrzymała się z komunikatem
+	While it sewed:	Podczas haftowania:
+	e.g. 75/11 ballpoint	np. 75/11 z kulistym ostrzem

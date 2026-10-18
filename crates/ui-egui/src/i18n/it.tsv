@@ -5876,3 +5876,34 @@ machine	Stop	Arresto
 	Leather / vinyl	Pelle / vinile
 	Structured cap	Cappellino rigido
 	Silk / lightweight	Seta / tessuto leggero
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Controlla il mio ricamo…
+	Check My Sew-out	Controlla il mio ricamo
+	About the sewing	Sul ricamo
+	Add Photos…	Aggiungi foto…
+	Anything else? For example: a gap above the bumper	Altro? Per esempio: uno spazio sopra il paraurti
+	As the design has it	Come nel disegno
+	Choose the photos in the browser's window…	Scegli le foto nella finestra del browser…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude guarda le foto con la tua chiave API Anthropic, addebitata sul tuo account Anthropic. Può sbagliare: prova una correzione prima su un ritaglio dello stesso tessuto.
+	Include the design that was sewn (open now), so it can be fixed	Includi il disegno ricamato (aperto ora), così si può correggere
+	My sew-out ({n} photos)	Il mio ricamo ({n} foto)
+	Needle	Ago
+	Not sure	Non so
+	Photos of your finished sew-out	Foto del tuo ricamo finito
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Il dritto, il rovescio e i primi piani di ciò che non va. Un righello o una moneta nella foto mostra la grandezza.
+	Stabilizer	Stabilizzatore
+	The top thread broke	Il filo superiore si è rotto
+	The bobbin ran out	La spolina è finita
+	The bobbin thread didn't cut, or caught	Il filo della spolina non è stato tagliato o si è impigliato
+	The hoop was knocked or the fabric slipped	Il telaio è stato urtato o il tessuto è scivolato
+	The needle broke	L’ago si è rotto
+	The machine stopped with a message	La macchina si è fermata con un messaggio
+	While it sewed:	Durante il ricamo:
+	e.g. 75/11 ballpoint	es. 75/11 punta a sfera
+@msg	Add a photo of the sew-out first.	Aggiungi prima una foto del ricamo.
+@msg	Check My Sew-out needs the desktop app for now	Controlla il mio ricamo per ora richiede l’app desktop
+@msg	This photo is too large: send a smaller copy.	Questa foto è troppo grande: invia una copia più piccola.
+@msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Questa foto non si può leggere: salvala o inviala come JPEG (su iPhone: Impostazioni › Fotocamera › Formati › Più compatibile).
+@msg	At most 6 photos: remove one first.	Al massimo 6 foto: togline una prima.
+@msg	no files here	qui non ci sono file

@@ -6273,3 +6273,34 @@ mark-style	Japanese	Japonské
 	Leather / vinyl	Kůže / koženka
 	Structured cap	Pevná kšiltovka
 	Silk / lightweight	Hedvábí / lehká látka
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Zkontrolovat výšivku…
+	Check My Sew-out	Zkontrolovat výšivku
+	About the sewing	O vyšívání
+	Add Photos…	Přidat fotky…
+	Anything else? For example: a gap above the bumper	Ještě něco? Například: mezera nad nárazníkem
+	As the design has it	Jak je ve vzoru
+	Choose the photos in the browser's window…	Vyberte fotky v okně prohlížeče…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude se na fotky podívá s vaším vlastním klíčem API Anthropic, účtovaným na váš účet Anthropic. Může se mýlit: opravu nejdřív vyzkoušejte na zbytku stejné látky.
+	Include the design that was sewn (open now), so it can be fixed	Přiložit vyšitý vzor (teď otevřený), aby se dal opravit
+	My sew-out ({n} photos)	Moje výšivka ({n} fotek)
+	Needle	Jehla
+	Not sure	Nevím
+	Photos of your finished sew-out	Fotky vaší hotové výšivky
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Líc, rub a detaily všeho, co vypadá špatně. Pravítko nebo mince na fotce ukáže velikost.
+	Stabilizer	Stabilizátor
+	The top thread broke	Přetrhla se vrchní nit
+	The bobbin ran out	Došla cívka
+	The bobbin thread didn't cut, or caught	Spodní nit se neodstřihla nebo se zachytila
+	The hoop was knocked or the fabric slipped	Do rámečku se narazilo nebo se látka posunula
+	The needle broke	Zlomila se jehla
+	The machine stopped with a message	Stroj se zastavil se zprávou
+	While it sewed:	Během vyšívání:
+	e.g. 75/11 ballpoint	např. 75/11 s kulatým hrotem
+@msg	Add a photo of the sew-out first.	Nejdřív přidejte fotku výšivky.
+@msg	Check My Sew-out needs the desktop app for now	Zkontrolovat výšivku zatím vyžaduje desktopovou aplikaci
+@msg	This photo is too large: send a smaller copy.	Tato fotka je příliš velká: pošlete menší kopii.
+@msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Tuto fotku nelze přečíst: uložte nebo pošlete ji jako JPEG (na iPhonu: Nastavení › Fotoaparát › Formáty › Nejkompatibilnější).
+@msg	At most 6 photos: remove one first.	Nejvýš 6 fotek: nejdřív jednu odeberte.
+@msg	no files here	tady nejsou žádné soubory

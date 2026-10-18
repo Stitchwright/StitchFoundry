@@ -5856,3 +5856,28 @@ machine	Stop	Dừng máy
 	Leather / vinyl	Da / da nhân tạo
 	Structured cap	Mũ lưỡi trai cứng
 	Silk / lightweight	Lụa / vải mỏng
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Kiểm tra bản thêu của tôi…
+	Check My Sew-out	Kiểm tra bản thêu của tôi
+	About the sewing	Về việc thêu
+	Add Photos…	Thêm ảnh…
+	Anything else? For example: a gap above the bumper	Còn gì khác? Ví dụ: có khe hở phía trên cản xe
+	As the design has it	Như trong mẫu thêu
+	Choose the photos in the browser's window…	Hãy chọn ảnh trong cửa sổ trình duyệt…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude xem ảnh bằng khóa API Anthropic của bạn, tính phí vào tài khoản Anthropic của bạn. Nó có thể sai: hãy thử cách sửa trên mảnh vải vụn cùng loại trước.
+	Include the design that was sewn (open now), so it can be fixed	Gửi kèm mẫu đã thêu (đang mở) để có thể sửa
+	My sew-out ({n} photos)	Bản thêu của tôi ({n} ảnh)
+	Needle	Kim
+	Not sure	Không chắc
+	Photos of your finished sew-out	Ảnh bản thêu đã hoàn thành
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Mặt phải, mặt trái và ảnh cận cảnh chỗ trông không ổn. Đặt thước hoặc đồng xu trong ảnh để thấy kích thước.
+	Stabilizer	Lót thêu
+	The top thread broke	Chỉ trên bị đứt
+	The bobbin ran out	Hết chỉ suốt
+	The bobbin thread didn't cut, or caught	Chỉ suốt không được cắt hoặc bị vướng
+	The hoop was knocked or the fabric slipped	Khung bị va hoặc vải bị xê dịch
+	The needle broke	Kim bị gãy
+	The machine stopped with a message	Máy dừng và báo thông báo
+	While it sewed:	Trong khi thêu:
+	e.g. 75/11 ballpoint	vd. 75/11 đầu tròn

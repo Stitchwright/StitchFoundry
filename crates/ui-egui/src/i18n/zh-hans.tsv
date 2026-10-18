@@ -5373,3 +5373,34 @@ machine	Stop	停止
 	Leather / vinyl	皮革 / 人造革
 	Structured cap	硬挺帽子
 	Silk / lightweight	丝绸 / 轻薄面料
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	检查我的绣品…
+	Check My Sew-out	检查我的绣品
+	About the sewing	关于刺绣
+	Add Photos…	添加照片…
+	Anything else? For example: a gap above the bumper	还有别的吗？例如：保险杠上方有缝隙
+	As the design has it	按设计中的设置
+	Choose the photos in the browser's window…	请在浏览器窗口中选择照片…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude 使用您自己的 Anthropic API 密钥查看照片，费用计入您的 Anthropic 账户。它可能出错：请先在同样面料的碎布上试一下修改。
+	Include the design that was sewn (open now), so it can be fixed	附上绣过的设计（现在打开的），以便修改
+	My sew-out ({n} photos)	我的绣品（{n} 张照片）
+	Needle	针
+	Not sure	不确定
+	Photos of your finished sew-out	您完成的绣品照片
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	正面、背面，以及看起来有问题之处的特写。照片里放一把尺子或一枚硬币可以显示大小。
+	Stabilizer	衬布
+	The top thread broke	面线断了
+	The bobbin ran out	底线用完了
+	The bobbin thread didn't cut, or caught	底线没有剪断或被缠住
+	The hoop was knocked or the fabric slipped	绣框被碰到或面料滑动了
+	The needle broke	针断了
+	The machine stopped with a message	机器显示信息后停了
+	While it sewed:	刺绣时：
+	e.g. 75/11 ballpoint	例如 75/11 圆头针
+@msg	Add a photo of the sew-out first.	请先添加一张绣品照片。
+@msg	Check My Sew-out needs the desktop app for now	“检查我的绣品”目前需要桌面版应用
+@msg	This photo is too large: send a smaller copy.	这张照片太大：请发送较小的副本。
+@msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	无法读取这张照片：请另存或以 JPEG 发送（iPhone：设置 › 相机 › 格式 › 兼容性最佳）。
+@msg	At most 6 photos: remove one first.	最多 6 张照片：请先移除一张。
+@msg	no files here	这里没有文件

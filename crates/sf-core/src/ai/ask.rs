@@ -32,7 +32,7 @@ pub const FIND: &str = "find_commands";
 pub const RUN: &str = "run_command";
 
 /// How StitchFoundry is laid out, so answers can name the right menu items.
-const APP_GUIDE: &str = "\
+pub(crate) const APP_GUIDE: &str = "\
 StitchFoundry is a desktop and web app for machine embroidery digitizing, built on a vector \
 drawing app. Where things are:
 - Embroidery menu: Make a Design… (a step-by-step guide from words, a picture, a shape, appliqué \
@@ -155,13 +155,19 @@ pub fn tool_results(results: &[ToolResult]) -> Value {
 /// The HTTP request for the conversation `messages` (the API's messages, oldest first, ending
 /// with a question or tool results), with API key `key`.
 pub fn request(key: &str, messages: &[Value]) -> Result<HttpRequest, ArtError> {
+    request_with(key, system_prompt(), messages)
+}
+
+/// The request for a conversation with instructions `system` and the same tools (Check My
+/// Sew-out's too: [`super::sewout`]).
+pub(crate) fn request_with(key: &str, system: String, messages: &[Value]) -> Result<HttpRequest, ArtError> {
     let key = clean_key(key)?;
     let body = json!({
         "model": MODEL,
         "max_tokens": MAX_TOKENS,
         "fallbacks": "default",
         "output_config": { "effort": "medium" },
-        "system": system_prompt(),
+        "system": system,
         "tools": tools(),
         "messages": messages,
     });

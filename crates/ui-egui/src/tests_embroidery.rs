@@ -950,4 +950,69 @@ mod ask_about_embroidery {
         assert!(!crate::menus::enabled(&web, "ui.askAboutEmbroidery"));
         assert!(web.run("ui.askAboutEmbroidery", json!({})).is_err());
     }
+
+    fn jpeg(w: u32, h: u32) -> Vec<u8> {
+        let img = image::RgbImage::from_fn(w, h, |x, _| image::Rgb([(x % 255) as u8, 40, 40]));
+        let mut out = Vec::new();
+        image::codecs::jpeg::JpegEncoder::new_with_quality(&mut out, 80).encode_image(&img).unwrap();
+        out
+    }
+
+    /// SO-01: photos of a sew-out are made the size Claude looks at; a check sends them with how
+    /// the design should look, its summary and the answers, under the check's own instructions, and
+    /// the answer (and the questions after it) are an Ask conversation in its sew-out mode.
+    #[test]
+    fn a_sew_out_check_sends_the_photos_and_the_design_and_answers_in_the_ask_window() {
+        use crate::embroidery::sewout;
+        let (image, size, thumb) = sewout::prepare(&jpeg(3200, 2000)).unwrap();
+        assert_eq!(image.media_type, "image/jpeg");
+        assert_eq!(size, (1568, 980), "made no larger than Claude looks at");
+        assert!(thumb.size[0] <= 96 && thumb.size[1] <= 96);
+        assert_eq!(sewout::prepare(&jpeg(400, 300)).unwrap().1, (400, 300), "never enlarged");
+        assert!(sewout::prepare(b"ftypheic not a photo").unwrap_err().contains("JPEG"));
+
+        let (mut app, sent, _) = app(vec![
+            answer("The front sewed well. The gap above the bumper is the knit pulling in: overlap the shapes 1 mm."),
+            answer("Cut-away, always, on a T-shirt."),
+        ]);
+        assert!(crate::menus::enabled(&app, "ui.checkSewout"));
+        rectangle(&mut app);
+        app.run("embroidery.applyFabric", json!({"name": "Jersey knit (T-shirt)"})).unwrap();
+        assert_eq!(app.run("ui.checkSewout", json!({})).unwrap(), json!({"open": true, "photos": 0, "error": null}));
+        assert!(sewout::check(&mut app).is_err(), "no photo yet");
+        assert_eq!(app.embroidery.sewout.error.as_deref(), Some("Add a photo of the sew-out first."));
+        sewout::add_photo(&mut app, "front.jpg", &jpeg(800, 600));
+        sewout::add_photo(&mut app, "notes.txt", b"hello");
+        assert_eq!(app.embroidery.sewout.photos.len(), 1);
+        assert!(app.embroidery.sewout.error.as_deref().unwrap().starts_with("This photo can't be read"));
+        app.embroidery.sewout.happened = vec![false, false, true, false, false, false];
+        app.embroidery.sewout.notes = "a gap above the bumper".into();
+        sewout::check(&mut app).unwrap();
+        assert!(!app.embroidery.sewout.open && app.embroidery.ask.open);
+        assert_eq!(app.embroidery.ask.mode, ask::Mode::SewOut);
+        wait(&mut app);
+        let b = body(&sent, 0);
+        assert!(b["system"].as_str().unwrap().contains("sew-out"));
+        let c = b["messages"][0]["content"].as_array().unwrap();
+        let images: Vec<&str> = c.iter().filter(|x| x["type"] == "image").map(|x| x["source"]["media_type"].as_str().unwrap()).collect();
+        assert_eq!(images.len(), 2, "the photo, then how the design should look");
+        let text: String = c.iter().filter_map(|x| x["text"].as_str()).collect::<Vec<_>>().join("\n");
+        assert!(text.contains("Fabric: Jersey knit (T-shirt)") && text.contains("bobbin thread didn't cut"), "{text}");
+        assert!(text.contains("My notes: a gap above the bumper") && text.contains("The design that was sewn"), "{text}");
+        let st = &app.embroidery.ask;
+        assert_eq!(st.entries[0], Entry::Question("My sew-out (1 photos)".into()));
+        assert!(matches!(&st.entries[1], Entry::Answer(a) if a.contains("overlap the shapes")));
+        assert!(window_text(&mut app).iter().any(|t| t == "Check My Sew-out"), "the window says what it is");
+        // a question after it keeps the check's instructions and the photos
+        app.embroidery.ask.input = "Which stabilizer?".into();
+        ask::send(&mut app).unwrap();
+        wait(&mut app);
+        let b = body(&sent, 1);
+        assert!(b["system"].as_str().unwrap().contains("sew-out"));
+        assert_eq!(b["messages"].as_array().unwrap().len(), 3);
+        assert_eq!(b["messages"][0]["content"][1]["type"], "image");
+        // a new conversation is a plain Ask again
+        ask::clear(&mut app);
+        assert_eq!(app.embroidery.ask.mode, ask::Mode::Ask);
+    }
 }

@@ -6250,3 +6250,28 @@ machine	Stop	Megállás
 	Leather / vinyl	Bőr / műbőr
 	Structured cap	Merev sapka
 	Silk / lightweight	Selyem / könnyű anyag
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Hímzésem ellenőrzése…
+	Check My Sew-out	Hímzésem ellenőrzése
+	About the sewing	A hímzésről
+	Add Photos…	Fotók hozzáadása…
+	Anything else? For example: a gap above the bumper	Valami más? Például: rés a lökhárító fölött
+	As the design has it	Ahogy a mintában van
+	Choose the photos in the browser's window…	Válassza ki a fotókat a böngésző ablakában…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude a saját Anthropic API-kulcsával nézi meg a fotókat, az Anthropic-fiókja terhére. Tévedhet: a javítást előbb ugyanannak az anyagnak egy maradékán próbálja ki.
+	Include the design that was sewn (open now), so it can be fixed	A kihímzett minta (most nyitva) csatolása, hogy javítani lehessen
+	My sew-out ({n} photos)	A hímzésem ({n} fotó)
+	Needle	Tű
+	Not sure	Nem tudom
+	Photos of your finished sew-out	A kész hímzés fotói
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	A szín, a fonák és közeli képek mindenről, ami rossznak tűnik. Egy vonalzó vagy érme a fotón mutatja a méretet.
+	Stabilizer	Merevítő
+	The top thread broke	Elszakadt a felső szál
+	The bobbin ran out	Kifogyott az orsó
+	The bobbin thread didn't cut, or caught	Az alsó szál nem vágódott el, vagy beakadt
+	The hoop was knocked or the fabric slipped	Meglökték a rámát, vagy elcsúszott az anyag
+	The needle broke	Eltört a tű
+	The machine stopped with a message	A gép üzenettel megállt
+	While it sewed:	Hímzés közben:
+	e.g. 75/11 ballpoint	pl. 75/11 gömbölyített hegyű

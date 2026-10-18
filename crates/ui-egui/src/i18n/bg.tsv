@@ -6278,3 +6278,28 @@ machine	Stop	Спиране
 	Leather / vinyl	Кожа / винил
 	Structured cap	Твърда шапка
 	Silk / lightweight	Коприна / лек плат
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Проверка на бродерията…
+	Check My Sew-out	Проверка на бродерията
+	About the sewing	За бродирането
+	Add Photos…	Добавяне на снимки…
+	Anything else? For example: a gap above the bumper	Нещо друго? Например: празнина над бронята
+	As the design has it	Както е в дизайна
+	Choose the photos in the browser's window…	Изберете снимките в прозореца на браузъра…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude разглежда снимките с вашия собствен API ключ на Anthropic, таксуван към вашия акаунт в Anthropic. Може да греши: първо пробвайте поправка върху парче от същия плат.
+	Include the design that was sewn (open now), so it can be fixed	Включване на бродирания дизайн (отворен сега), за да може да бъде поправен
+	My sew-out ({n} photos)	Моята бродерия ({n} снимки)
+	Needle	Игла
+	Not sure	Не знам
+	Photos of your finished sew-out	Снимки на готовата ви бродерия
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Лицето, опакото и близки кадри на всичко, което изглежда нередно. Линийка или монета на снимката показва размера.
+	Stabilizer	Стабилизатор
+	The top thread broke	Горният конец се скъса
+	The bobbin ran out	Шпулата свърши
+	The bobbin thread didn't cut, or caught	Долният конец не се отряза или се закачи
+	The hoop was knocked or the fabric slipped	Гергефът беше ударен или платът се измести
+	The needle broke	Иглата се счупи
+	The machine stopped with a message	Машината спря със съобщение
+	While it sewed:	По време на бродирането:
+	e.g. 75/11 ballpoint	напр. 75/11 със сферичен връх

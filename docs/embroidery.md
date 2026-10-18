@@ -24,6 +24,7 @@ the control channel, the CLI and the MCP server.
 - [Design from Prompt](#design-from-prompt)
 - [Redraw Image with Claude](#redraw-image-with-claude)
 - [Ask About Embroidery](#ask-about-embroidery)
+- [Check My Sew-out](#check-my-sew-out)
 - [Design settings: hoop, fabric, threads](#design-settings-hoop-fabric-threads)
 - [Stitch Sequence and the stitch player](#stitch-sequence-and-the-stitch-player)
 - [Machine files](#machine-files)
@@ -1414,6 +1415,36 @@ It uses the same Anthropic API key as Design from Prompt, billed to your Anthrop
 row shows while there is none (or after **Change key**). Answers can be wrong: try a test sew
 before an important piece. It works in the desktop and the web app, as Design from Prompt does,
 and agents can open it with a question (`ui.askAboutEmbroidery {question}`).
+
+## Check My Sew-out
+
+Sewn it and something doesn't look right? Choose **Embroidery › Check My Sew-out…** (also in the
+Help menu and simple mode), add photos of the finished piece and press **Check My Sew-out**:
+
+- **Photos**: the front, the back, and close-ups of anything that looks wrong, up to six. A ruler
+  or a coin in the photo shows the size. Phone photos are turned upright and made smaller before
+  they go; iPhone HEIC photos can't be read: send them as JPEG (Settings › Camera › Formats ›
+  Most Compatible).
+- **About the sewing**: the fabric (as the design has it, or another), the stabilizer, the
+  needle, and what happened while it sewed (the top thread broke, the bobbin ran out or didn't
+  cut, the hoop was knocked, the needle broke, the machine stopped), plus anything else in your
+  own words. Your machine comes from My Machine.
+- **Include the design that was sewn**: with the design open, a picture of how it should look,
+  drawn from its own stitches, and the same summary Ask About Embroidery sends go along, so the
+  design can be fixed, not only explained.
+
+Claude compares the photos with how the design should look and answers in the Ask About Embroidery
+window: what sewed well, then each problem, where it is, its likely cause and the fix, split into
+what the design can fix (overlap where shapes meet, compensation, density, underlay, the fabric
+setting, stitch direction, trims) and what the machine or the sewer can (tension, needle, bobbin,
+threading, stabilizer, hooping). It reads the back too: top thread showing there or nests point
+to tension and threading, not the design. It offers to make the design fixes, and makes each one
+only after you **Allow** it, as Ask About Embroidery does; ask follow-up questions in the same
+window. Try a fix on a scrap of the same fabric before the real piece.
+
+It uses your own Anthropic API key, as Design from Prompt and Ask do (`ui.checkSewout`). The
+photos and the design go to Anthropic for the check and aren't kept by StitchFoundry. StitchFoundry
+credits, with free checks each month, come with the cloud service.
 
 ## Design settings: hoop, fabric, threads
 

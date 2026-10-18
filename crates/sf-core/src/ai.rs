@@ -13,6 +13,7 @@
 use serde_json::{Value, json};
 
 pub mod ask;
+pub mod sewout;
 
 /// The Messages API endpoint.
 pub const API_URL: &str = "https://api.anthropic.com/v1/messages";
@@ -127,6 +128,9 @@ pub enum ArtError {
     /// The reply holds no answer, or ran out of room before one.
     #[error("The reply had no answer: try again, or ask something narrower.")]
     NoAnswer,
+    /// Check My Sew-out was asked with no photo.
+    #[error("Add a photo of the sew-out first.")]
+    NoPhoto,
     /// The request never got an answer (from the app's client).
     #[error("Couldn't reach the AI service: {0}")]
     Network(String),

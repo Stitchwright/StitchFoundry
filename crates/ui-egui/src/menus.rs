@@ -115,6 +115,7 @@ fn embroidery_menu() -> Vec<Item> {
         c("Save for My Machine", "ui.saveForMyMachine"),
         c("My Machine…", "ui.myMachine"),
         c("Ask About Embroidery…", "ui.askAboutEmbroidery"),
+        c("Check My Sew-out…", "ui.checkSewout"),
         Sep,
         sub(
             "Create",
@@ -776,6 +777,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "Ask About Embroidery…",
         "",
         "{question?: text (asked at once)} open Ask About Embroidery: questions about machine embroidery or StitchFoundry answered by Claude with your own Anthropic API key (the conversation and a summary of the design open now go along; desktop only) → {open, asking}",
+    ),
+    (
+        "ui.checkSewout",
+        "Check My Sew-out…",
+        "",
+        "{photos?: [path] (added)} open Check My Sew-out: photos of a finished sew-out, the design that was sewn and a few answers about the sewing, looked at by Claude with your own Anthropic API key, which says what went wrong and offers to fix the design (in the Ask About Embroidery window) → {open, photos, error}",
     ),
     (
         "ui.addWords",
@@ -1927,6 +1934,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.compareDesigns" => crate::dialogs::compare::open(app, p),
         "ui.addWords" => Ok(crate::simple::open_words(app)),
         "ui.askAboutEmbroidery" => crate::embroidery::ask::open(app, p),
+        "ui.checkSewout" => crate::embroidery::sewout::open(app, p),
         "ui.makeDesign" => crate::guide::open(app),
         "ui.saveForMyMachine" => crate::dialogs::my_machine::save(app, p),
         "help.commandPalette" => {
@@ -2730,7 +2738,7 @@ pub fn enabled(app: &VectorcraftApp, id: &str) -> bool {
         "ui.embroideryWidget" | "ui.embroideryCheck" | "ui.saveForMyMachine" | "ui.addWords" => app.session.active().is_some(),
         "ui.designFromPrompt" => app.session.active().is_some() && crate::embroidery::prompt::available(app),
         "ui.fontLibrary" => crate::dialogs::font_library::available(app),
-        "ui.askAboutEmbroidery" => crate::embroidery::prompt::available(app),
+        "ui.askAboutEmbroidery" | "ui.checkSewout" => crate::embroidery::prompt::available(app),
         "ui.redrawImage" => crate::embroidery::prompt::available(app) && crate::embroidery::prompt::selected_image(app).is_some(),
         "file.export.embroidery" => app.session.embroidery_plan().is_some_and(|p| !p.is_empty()),
         "ui.saveEmbroideryFont" => app.session.active().is_some_and(|st| st.doc.embroidery.as_deref().is_some_and(|e| e.font.is_some())),
@@ -3474,6 +3482,7 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                 c("StitchFoundry Help…", "help.show"),
                 cp("Tips", "help.show", json!({ "tips": true })),
                 c("Ask About Embroidery…", "ui.askAboutEmbroidery"),
+                c("Check My Sew-out…", "ui.checkSewout"),
                 Sep,
                 c("About StitchFoundry", "help.about"),
             ],

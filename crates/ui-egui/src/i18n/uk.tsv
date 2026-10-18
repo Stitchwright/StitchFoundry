@@ -5856,3 +5856,34 @@ machine	Stop	Зупинка
 	Leather / vinyl	Шкіра / вініл
 	Structured cap	Жорстка кепка
 	Silk / lightweight	Шовк / легка тканина
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Перевірити вишивку…
+	Check My Sew-out	Перевірити вишивку
+	About the sewing	Про вишивання
+	Add Photos…	Додати фото…
+	Anything else? For example: a gap above the bumper	Ще щось? Наприклад: проміжок над бампером
+	As the design has it	Як у дизайні
+	Choose the photos in the browser's window…	Виберіть фото у вікні браузера…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude дивиться фото з вашим власним ключем API Anthropic, оплата з вашого облікового запису Anthropic. Він може помилятися: спершу спробуйте виправлення на клаптику тієї ж тканини.
+	Include the design that was sewn (open now), so it can be fixed	Додати вишитий дизайн (відкритий зараз), щоб його можна було виправити
+	My sew-out ({n} photos)	Моя вишивка (фото: {n})
+	Needle	Голка
+	Not sure	Не знаю
+	Photos of your finished sew-out	Фото вашої готової вишивки
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Лицьовий бік, виворіт і великі плани всього, що виглядає не так. Лінійка або монета на фото показує розмір.
+	Stabilizer	Стабілізатор
+	The top thread broke	Порвалася верхня нитка
+	The bobbin ran out	Скінчилася шпулька
+	The bobbin thread didn't cut, or caught	Нижня нитка не обрізалася або зачепилася
+	The hoop was knocked or the fabric slipped	П'яльця зачепили або тканина зсунулася
+	The needle broke	Зламалася голка
+	The machine stopped with a message	Машина зупинилася з повідомленням
+	While it sewed:	Під час вишивання:
+	e.g. 75/11 ballpoint	напр. 75/11 з кульковим вістрям
+@msg	Add a photo of the sew-out first.	Спершу додайте фото вишивки.
+@msg	Check My Sew-out needs the desktop app for now	«Перевірити вишивку» поки потребує настільного застосунку
+@msg	This photo is too large: send a smaller copy.	Це фото завелике: надішліть меншу копію.
+@msg	This photo can't be read: save or send it as a JPEG (on an iPhone: Settings › Camera › Formats › Most Compatible).	Це фото не читається: збережіть або надішліть його як JPEG (на iPhone: Параметри › Камера › Формати › Найсумісніший).
+@msg	At most 6 photos: remove one first.	Не більше 6 фото: спершу приберіть одне.
+@msg	no files here	тут немає файлів

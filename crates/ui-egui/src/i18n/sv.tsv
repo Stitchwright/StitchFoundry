@@ -6252,3 +6252,28 @@ machine	Stop	Stopp
 	Leather / vinyl	Läder / vinyl
 	Structured cap	Styv keps
 	Silk / lightweight	Siden / tunt tyg
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	Kontrollera mitt broderi…
+	Check My Sew-out	Kontrollera mitt broderi
+	About the sewing	Om broderandet
+	Add Photos…	Lägg till foton…
+	Anything else? For example: a gap above the bumper	Något annat? Till exempel: en glipa ovanför stötfångaren
+	As the design has it	Som i mönstret
+	Choose the photos in the browser's window…	Välj fotona i webbläsarens fönster…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude tittar på fotona med din egen API-nyckel från Anthropic, som debiteras ditt Anthropic-konto. Den kan ha fel: prova en rättelse på en bit av samma tyg först.
+	Include the design that was sewn (open now), so it can be fixed	Skicka med det broderade mönstret (öppet nu), så att det kan rättas
+	My sew-out ({n} photos)	Mitt broderi ({n} foton)
+	Needle	Nål
+	Not sure	Vet inte
+	Photos of your finished sew-out	Foton av ditt färdiga broderi
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Rätsidan, avigsidan och närbilder av allt som ser fel ut. En linjal eller ett mynt i bilden visar storleken.
+	Stabilizer	Mellanlägg
+	The top thread broke	Övertråden gick av
+	The bobbin ran out	Spolen tog slut
+	The bobbin thread didn't cut, or caught	Undertråden klipptes inte av eller fastnade
+	The hoop was knocked or the fabric slipped	Bågen stöttes till eller tyget gled
+	The needle broke	Nålen gick av
+	The machine stopped with a message	Maskinen stannade med ett meddelande
+	While it sewed:	Medan den broderade:
+	e.g. 75/11 ballpoint	t.ex. 75/11 kulspets

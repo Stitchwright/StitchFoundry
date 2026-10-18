@@ -5165,3 +5165,28 @@ machine	Stop	停止
 	Leather / vinyl	皮革 / 人造皮
 	Structured cap	硬挺帽子
 	Silk / lightweight	絲綢 / 輕薄布料
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	檢查我的繡品…
+	Check My Sew-out	檢查我的繡品
+	About the sewing	關於刺繡
+	Add Photos…	新增照片…
+	Anything else? For example: a gap above the bumper	還有別的嗎？例如：保險桿上方有縫隙
+	As the design has it	依設計中的設定
+	Choose the photos in the browser's window…	請在瀏覽器視窗中選擇照片…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude 使用您自己的 Anthropic API 金鑰查看照片，費用計入您的 Anthropic 帳戶。它可能出錯：請先在同樣布料的碎布上試試修改。
+	Include the design that was sewn (open now), so it can be fixed	附上繡過的設計（目前開啟的），以便修改
+	My sew-out ({n} photos)	我的繡品（{n} 張照片）
+	Needle	針
+	Not sure	不確定
+	Photos of your finished sew-out	您完成的繡品照片
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	正面、背面，以及看起來有問題之處的特寫。照片裡放一把尺或一枚硬幣可以顯示大小。
+	Stabilizer	襯布
+	The top thread broke	面線斷了
+	The bobbin ran out	底線用完了
+	The bobbin thread didn't cut, or caught	底線沒有剪斷或被纏住
+	The hoop was knocked or the fabric slipped	繡框被碰到或布料滑動了
+	The needle broke	針斷了
+	The machine stopped with a message	機器顯示訊息後停了
+	While it sewed:	刺繡時：
+	e.g. 75/11 ballpoint	例如 75/11 圓頭針

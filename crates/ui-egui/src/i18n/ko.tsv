@@ -5857,3 +5857,28 @@ machine	Stop	정지
 	Leather / vinyl	가죽 / 비닐
 	Structured cap	형태가 잡힌 모자
 	Silk / lightweight	실크 / 얇은 원단
+
+# Embroidery (StitchFoundry): Check My Sew-out
+	Check My Sew-out…	내 자수 결과 확인…
+	Check My Sew-out	내 자수 결과 확인
+	About the sewing	자수에 대해
+	Add Photos…	사진 추가…
+	Anything else? For example: a gap above the bumper	더 있나요? 예: 범퍼 위에 틈이 있음
+	As the design has it	디자인 설정대로
+	Choose the photos in the browser's window…	브라우저 창에서 사진을 고르세요…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude가 사용자의 Anthropic API 키로 사진을 봅니다. 요금은 사용자의 Anthropic 계정에 청구됩니다. 틀릴 수 있으니 같은 원단 자투리에 먼저 고쳐 보세요.
+	Include the design that was sewn (open now), so it can be fixed	자수한 디자인(지금 열려 있음)을 함께 보내 고칠 수 있게 하기
+	My sew-out ({n} photos)	내 자수 결과(사진 {n}장)
+	Needle	바늘
+	Not sure	잘 모름
+	Photos of your finished sew-out	완성된 자수 사진
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	앞면, 뒷면, 그리고 이상해 보이는 곳의 근접 사진. 사진에 자나 동전을 함께 찍으면 크기를 알 수 있습니다.
+	Stabilizer	심지
+	The top thread broke	윗실이 끊어졌음
+	The bobbin ran out	밑실이 다 떨어졌음
+	The bobbin thread didn't cut, or caught	밑실이 잘리지 않았거나 걸렸음
+	The hoop was knocked or the fabric slipped	수틀이 부딪혔거나 원단이 밀렸음
+	The needle broke	바늘이 부러졌음
+	The machine stopped with a message	재봉틀이 메시지를 띄우고 멈췄음
+	While it sewed:	자수하는 동안:
+	e.g. 75/11 ballpoint	예: 75/11 볼포인트

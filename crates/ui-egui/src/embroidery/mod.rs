@@ -8,6 +8,7 @@ pub mod panel;
 pub mod profile_curve;
 pub mod prompt;
 pub mod sequence;
+pub mod sewout;
 pub mod stitch_list;
 pub mod styles;
 pub mod widget;
@@ -147,6 +148,8 @@ pub struct EmbroideryUi {
     pub prompt: prompt::PromptState,
     /// Ask About Embroidery: the conversation and the question on its way (NEW-07).
     pub ask: ask::AskState,
+    /// Check My Sew-out: the photos and answers (SO-01).
+    pub sewout: sewout::SewOutState,
     /// Get Embroidery Fonts' window (NEW-20).
     pub font_library: crate::dialogs::font_library::FontLibraryState,
     /// Compare Designs' window (CMP-01).
@@ -370,6 +373,7 @@ impl Default for EmbroideryUi {
             send_status: String::new(),
             prompt: prompt::PromptState::default(),
             ask: Default::default(),
+            sewout: Default::default(),
             font_library: Default::default(),
             compare: Default::default(),
         }
