@@ -889,6 +889,36 @@ Decided by the owner on 2026-10-11: StitchFoundry is free and open source, and s
      editing: Claude runs commands, each change after the user allows it.
   4. **Product mockups** (NEW-18): the design shown on a shirt, cap or bag, for selling to
      customers.
+  5. **Check My Sew-out** (SO-01, decided by the owner on 2026-10-18): photos of a finished
+     sew-out are diagnosed and the design fixed, as was done by hand for the first sew-out
+     (phase 0). Requirements:
+     - **In:** photos (front, back, close-ups; a ruler or coin for scale), the design that was
+       sewn when it is open, and a few taps for what a photo can't show: machine, fabric,
+       stabilizer, anything that happened while sewing (thread broke, bobbin ran out, hoop
+       knocked). Photos alone still get tension, stabilizer and fabric advice.
+     - **The app adds:** the expected look rendered from its own stitches, each object's stitch
+       type, density, compensation, overlaps, order and trims, the fabric, hoop and threads, and
+       Check Design's findings.
+     - **Out:** what is wrong and why, in plain words, split into what the design can fix and
+       what the machine or sewer can (tension, needle, stabilizer); the design fixes proposed as
+       engine commands, each run only after the user allows it (as Ask About Embroidery).
+     - **Price:** 3 free checks a month for every account, then 10 credits a check (about cost);
+       the fix itself is free; with one's own key, unlimited at Anthropic's price. The service
+       counts a check as one only when it is one (photos plus the design, with the service's own
+       instructions), so the free checks can't pay for other AI requests.
+     - **Learning:** only with an explicit "share to improve StitchFoundry" choice, the service
+       keeps the photos, the design details, what was found and what was fixed, and later asks
+       "did the fix work?" for a photo of the next sew-out. People read the collection for
+       patterns and change the software for everyone (as the 1 mm overlap for touching shapes
+       came from the first sew-out); nothing changes itself. Shared photos are private to the
+       person and the project, deleted on request, never published or committed; one shown as
+       an example only with its owner's say and licence (and an `ASSETS.md` row).
+  **Pricing (owner, 2026-10-18; set in the service's configuration):** a credit is 1 cent (as
+  ArtCraft's); the markup on the AI's cost is 3× (a niche, professional tool: a design from the
+  AI still costs about a dollar against $20–30 for a digitizer); packs from $10 (card fees on
+  smaller ones are too large a share): $10 for 1,000, $25 for 2,750, $50 for 6,000; 100 credits
+  on sign-up. Monthly plans (as ArtCraft's) may follow once packs sell. Hosting moves to Railway
+  with a Postgres database (CLOUD-03).
   Uploads need terms of service: users confirm they may use the art, and prompts for others'
   characters or logos are refused (Design from Prompt already asks Claude to decline them; with
   your own key, Redraw Image only reminds users, as the owner decided on 2026-10-11). Server secrets (API keys, billing settings) live in
