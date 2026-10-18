@@ -378,7 +378,7 @@ fn malformed_docx_fails_cleanly() {
     let e = place(&mut s, "a.docx", &store(&[("readme.txt", b"x")])).unwrap_err();
     assert!(e.contains("no main document part"), "{e}");
     let e = place(&mut s, "a.zip", &store(&[("readme.txt", b"x")])).unwrap_err();
-    assert!(e.contains("not a format VectorCraft reads"), "a ZIP archive of something else isn't read as a Word document: {e}");
+    assert!(e.contains("not a format StitchFoundry reads"), "a ZIP archive of something else isn't read as a Word document: {e}");
     let sheet = r#"<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"/>"#;
     let e = place(&mut s, "a.docx", &store(&[("word/document.xml", sheet.as_bytes())])).unwrap_err();
     assert!(e.contains("not a WordprocessingML document"), "{e}");

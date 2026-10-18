@@ -983,14 +983,16 @@ impl DirectSelectionTool {
 /// The paths whose anchors a marquee picks, as the Selection tool's marquee reaches objects:
 /// inside the isolated group when there is one, else on the layers that can be edited (not
 /// hidden, locked or template; the pattern being edited alone), through groups, sublayers and
-/// compound paths, but not into an envelope, which draws its contents somewhere else.
+/// compound paths, but not into an envelope, which draws its contents somewhere else, nor into a
+/// Shaper Group's original shapes (its first child) unless they are the isolated object
+/// (Construction mode), as clicks leave them out.
 fn marquee_paths(doc: &vectorcraft_doc::Document, scope: Option<NodeId>) -> Vec<&Node> {
     fn visit<'a>(n: &'a Node, out: &mut Vec<&'a Node>) {
         match &n.kind {
             NodeKind::Path { .. } => out.push(n),
             NodeKind::Envelope { editing: false, .. } => {}
             _ if n.is_layer() && (!n.visible || n.locked || n.is_template()) => {}
-            _ => n.children().into_iter().flatten().for_each(|c| visit(c, out)),
+            _ => n.children().into_iter().flatten().skip(usize::from(n.extras().shaper.is_some())).for_each(|c| visit(c, out)),
         }
     }
     let mut out = vec![];
