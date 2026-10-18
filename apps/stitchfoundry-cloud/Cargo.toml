@@ -1,0 +1,29 @@
+[package]
+name = "stitchfoundry-cloud"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+description = "StitchFoundry's cloud service: accounts, AI credits bought through Stripe, and the AI requests made with them"
+
+[[bin]]
+name = "stitchfoundry-cloud"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+# HTTPS to Anthropic and Stripe, checked against the system's certificates.
+ureq = { version = "3.4", default-features = false, features = ["rustls", "platform-verifier"] }
+# The HTTP server the app talks to (behind a TLS proxy such as Caddy or a cloud load balancer).
+tiny_http = "0.12"
+# Passwords (Argon2id), session tokens (SHA-256 of random bytes), Stripe's webhook signatures (HMAC-SHA256).
+argon2 = { version = "0.5", default-features = false, features = ["alloc", "password-hash"] }
+sha2 = { version = "0.10", default-features = false }
+hmac = "0.12"
+getrandom = "0.3"

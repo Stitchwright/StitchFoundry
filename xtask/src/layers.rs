@@ -67,6 +67,8 @@ pub const TABLE: &[(&str, Class)] = &[
     ("embroidery", Class::Layer(2)),
     ("sf-formats", Class::Layer(1)),
     ("scriptcheck", Class::Standalone),
+    // StitchFoundry's cloud service (a server binary, never in the app or the web build).
+    ("stitchfoundry-cloud", Class::Exempt),
 ];
 
 /// Explicit orderings *within* a layer (earlier may be used by later).
