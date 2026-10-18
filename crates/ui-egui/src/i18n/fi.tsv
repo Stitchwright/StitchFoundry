@@ -6500,3 +6500,4 @@ machine	Stop	Pysäytys
 	Erase Backstitch	Pyyhi takapisto
 	Erase Cross Stitches	Pyyhi ristipistot
 	Move Stitches	Siirrä pistoja
+	Overlap where shapes touch	Limitys, missä muodot koskettavat

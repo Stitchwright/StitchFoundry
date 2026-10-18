@@ -1494,6 +1494,12 @@ time and thread used, and whether the design fits the hoop. Its settings:
   below it shows the chosen fabric's values; **Save as New Fabric** makes a copy you can change
   (the design keeps its own fabrics, and changes apply to the design at once), and **Delete
   Fabric** removes one.
+- **Overlap where shapes touch** (in Machine settings; 0.5 mm): a fill sewn before a shape it
+  touches reaches that far in under it, so the fabric doesn't show between them when the stitches
+  pull it in, as it did above a truck's bumper on the first sew-out, on a T-shirt. With the pull
+  compensation the stitches add, that makes about 1 mm, as digitizers leave it. Only where the
+  later shape covers it (it stays hidden), not into a shape lying over it already, nor between a
+  letter's own strokes; 0 sews shapes as drawn (`embroidery.settings {overlapTouching}`).
 - **Machine**: the machine the design is for. The standard profiles are named by the file format
   their machines read (DST, EXP and U01 for commercial machines; PES, JEF, VP3 and XXX for home
   machines); profiles of your own (say, *Diamond deLuxe*, writing VP3) follow them. A machine sets

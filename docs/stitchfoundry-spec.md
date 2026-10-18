@@ -387,6 +387,7 @@ not started · **Out** out of scope (reason given). **Phase** points to [§8](#8
 | SQ-06 | Split long stitches | Done | Auto split | – |
 | SQ-07 | Preserve long stitches (keep long satin as is) | Done | Preserve long stitches: frame moves in steps, one needle drop | 1 |
 | SQ-08 | Fractional / accordion spacing control | Done | Gradient end spacing (SP-10) and spacing profiles: even, accordion, fade out and in, or any points (SP-09) | – |
+| SQ-10 | Overlap where shapes touch (underlap) | Done | From the first sew-out (fabric showed between a truck's body and its bumper on a T-shirt): a fill sewn before a shape it touches reaches `overlapTouching` mm (0.5) in under it, where the later shape covers it; not into a shape over it already, nor between a node's own pieces. With pull compensation about 1 mm in all; 0.7 mm and more piled up layers where three shapes meet | 0 |
 | SQ-09 | Design checks (density hot spots, tiny objects, long jumps, gaps) | Done | `embroidery.check`: dense spots (thread layers over 2 × 2 mm), long stitches, tiny objects, small lettering, no stitches, hoop; Check Design in the panel | 1 |
 | CN-01 | Automatic connectors (jump vs trim by length) | Done | | – |
 | CN-02 | Manual tie-offs and trims | Done | Trim after; per-object tie-in/tie-off on/off; design tie style (single, double, triangle) and tie length | 1 |

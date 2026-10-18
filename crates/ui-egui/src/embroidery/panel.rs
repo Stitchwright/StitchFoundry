@@ -3297,6 +3297,7 @@ fn machine_rows(app: &mut VectorcraftApp, ui: &mut Ui, info: &Value) {
             (tl!("Longest jump"), "maxJump", "mxj"),
             (tl!("Shortest stitch"), "minStitch", "mns"),
             (tl!("Trim jumps longer than"), "trimThreshold", "trt"),
+            (tl!("Overlap where shapes touch"), "overlapTouching", "ovt"),
             (tl!("Tie length"), "tieLength", "til"),
         ];
         for (label, key, id) in lengths {

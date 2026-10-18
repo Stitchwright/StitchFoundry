@@ -533,6 +533,8 @@ impl Planner {
             fresh.insert(key, NodeEntry { node: n.clone(), objects });
         }
         self.nodes = fresh;
+        // shapes that touch overlap a little (before the cuts, which take back what they cover)
+        underlap(&mut design.objects, &node_ids, design.settings.overlap_touching);
         cut_underlying(&mut design.objects, &mut node_ids, cuts);
         cover_partial_applique(&mut design.objects);
         order_branches(&mut design.objects, &mut node_ids);
@@ -746,6 +748,62 @@ fn order_branches(objects: &mut [EmbObject], nodes: &mut [NodeId]) {
     }
 }
 
+/// Fills sewn before a shape they touch grow `overlap` mm in under it (from the first sew-out: a
+/// sliver of fabric showed between a truck's body and its bumper, the knit pulled in where they
+/// only met edge to edge). Only where the later shape covers the growth, so it stays hidden; not
+/// into a shape lying over it already, nor into the same node's own pieces (a letter's strokes),
+/// nor for appliqué, whose lines are placed.
+fn underlap(objects: &mut [EmbObject], nodes: &[NodeId], overlap: f64) {
+    if !(overlap.is_finite() && overlap > 0.0) {
+        return;
+    }
+    let overlap = overlap.min(3.0);
+    let areas: Vec<Option<(Vec<Polygon>, BBox)>> = objects
+        .iter()
+        .map(|o| {
+            let covers =
+                o.visible && matches!(o.kind, ObjectKind::Fill(_) | ObjectKind::Satin(_) | ObjectKind::Lettering(_) | ObjectKind::Applique(_));
+            covers
+                .then(|| (object_polygons(o).into_iter().filter(|p| p.outer.len() >= 3).collect::<Vec<_>>(), o.bbox()))
+                .filter(|(p, b)| !p.is_empty() && !b.is_empty())
+        })
+        .collect();
+    for i in 0..objects.len() {
+        let Some(ObjectKind::Fill(f)) = objects.get(i).map(|o| &o.kind) else { continue };
+        if !objects[i].visible {
+            continue;
+        }
+        let Some(Some((mine, bb))) = areas.get(i) else { continue };
+        let reach = bb.expanded(overlap + PIECE_TOUCH);
+        // what is sewn after it, touching it, of another node; not what lies over it already
+        // (a bar across a branch's squares, a shape tucked under by hand)
+        let deep = poly::offset(mine, -0.25);
+        let later: Vec<Polygon> = (i + 1..objects.len())
+            .filter(|&j| nodes.get(j) != nodes.get(i))
+            .filter_map(|j| areas.get(j).and_then(Option::as_ref))
+            .filter(|(_, b)| b.intersects(&reach))
+            .filter(|(p, _)| poly::intersection(&deep, p).iter().map(Polygon::area).sum::<f64>() < 0.01)
+            .flat_map(|(p, _)| p.iter().cloned())
+            .collect();
+        if later.is_empty() {
+            continue;
+        }
+        let grown = poly::offset(mine, overlap);
+        let under = poly::intersection(&grown, &poly::union(&later));
+        let added: f64 = under.iter().map(Polygon::area).sum::<f64>();
+        if added < 0.05 {
+            continue;
+        }
+        let region = poly::union2(mine, &under);
+        // a shape that became several pieces keeps its own (it touched others only at points)
+        let [one] = region.as_slice() else { continue };
+        let f = f.clone();
+        if let Some(o) = objects.get_mut(i) {
+            o.kind = ObjectKind::Fill(sf_core::model::FillObject { shape: Shape::from_polygon(one), ..f });
+        }
+    }
+}
+
 /// Fill pieces smaller than this (mm²) left over by a cut are dropped.
 const MIN_PIECE: f64 = 1.0;
 
@@ -888,6 +946,34 @@ mod tests {
         assert!(objects.len() >= 4, "the E is cut into its strokes: {}", objects.len());
         assert!(objects.iter().all(|o| o.branch.is_some() && o.branch == objects[0].branch));
         assert_eq!(trims(&d), trims(&bar), "no more trims than a single bar");
+    }
+
+    /// From the first sew-out: a body and the bumper sewn after it met edge to edge and fabric
+    /// showed between them. The body now reaches in under the bumper (0.5 mm, and 1 mm when set so);
+    /// the bumper, sewn on top, stays as drawn; with no overlap set, both stay as drawn.
+    #[test]
+    fn a_fill_reaches_in_under_a_shape_sewn_after_it_that_it_touches() {
+        let mut d = Document::new(612.0, 792.0);
+        let layer = d.layers[0].id;
+        for (rect, color) in
+            [(Rect::new(0.0, 0.0, 100.0, 60.0), Color::rgb8(180, 0, 27)), (Rect::new(0.0, 60.0, 100.0, 80.0), Color::rgb8(196, 201, 206))]
+        {
+            let id = d.alloc_id();
+            let mut n = Node::path(id, shapes::rectangle(rect), Appearance::basic(Paint::solid(color), Paint::None, 0.0));
+            n.embroidery = Some(Box::new(Embroidery::fill()));
+            d.insert(Some(layer), usize::MAX, n).unwrap();
+        }
+        let bottom = |d: &Document, i: usize| {
+            let plan = Planner::new().plan(d);
+            plan.design.objects[i].bbox().max.y
+        };
+        let edge = 60.0 * MM_PER_PT;
+        assert!((bottom(&d, 0) - (edge + 0.5)).abs() < 0.05, "the body reaches under the bumper: {}", bottom(&d, 0));
+        assert!((bottom(&d, 1) - 80.0 * MM_PER_PT).abs() < 0.05, "the bumper stays as drawn");
+        d.embroidery.get_or_insert_with(Box::default).settings.overlap_touching = 1.0;
+        assert!((bottom(&d, 0) - (edge + 1.0)).abs() < 0.05, "{}", bottom(&d, 0));
+        d.embroidery.get_or_insert_with(Box::default).settings.overlap_touching = 0.0;
+        assert!((bottom(&d, 0) - edge).abs() < 0.05, "no overlap: as drawn");
     }
 
     #[test]

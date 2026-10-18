@@ -6210,3 +6210,4 @@ machine	Stop	停止
 	Erase Backstitch	返し縫いを消去
 	Erase Cross Stitches	クロスステッチを消去
 	Move Stitches	ステッチを移動
+	Overlap where shapes touch	形が接する部分の重なり

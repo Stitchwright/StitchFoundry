@@ -160,6 +160,9 @@ pub struct DesignSettings {
     /// Between two objects of one thread, carry the thread under the object about to be sewn
     /// (running stitches it covers) where it can reach it that way, instead of trimming.
     pub hide_travel: bool,
+    /// How far (mm) a fill reaches in under a shape sewn after it that it touches, so no fabric
+    /// shows between them when the stitches pull the fabric in (0: as drawn).
+    pub overlap_touching: f64,
     /// Sew small locking stitches at the start of each object.
     pub tie_in: bool,
     /// Sew small locking stitches before each trim / colour change.
@@ -347,11 +350,18 @@ impl DesignPoint {
     }
 }
 
+/// The overlap where shapes touch (mm). With the pull compensation the stitches add, about 1 mm
+/// in all, as digitizers leave it; more piles up layers where three shapes meet (measured on the
+/// first sew-out's design: 0.5 mm closed the gap and added no dense spots, 0.7 mm and 1 mm added
+/// nine to twelve).
+pub const OVERLAP_TOUCHING: f64 = 0.5;
+
 impl Default for DesignSettings {
     fn default() -> Self {
         DesignSettings {
             trim_threshold: 2.0,
             hide_travel: true,
+            overlap_touching: OVERLAP_TOUCHING,
             tie_in: true,
             tie_off: true,
             tie_length: 0.8,
