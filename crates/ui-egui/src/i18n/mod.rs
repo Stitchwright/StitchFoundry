@@ -216,7 +216,7 @@ pub static LANGUAGES: [LangInfo; 24] = [
         name: "Português (Brasil)",
         source: include_str!("pt-br.tsv"),
         plural: plural_one_other,
-        complete_menus: false,
+        complete_menus: true,
         catalog: OnceLock::new(),
     },
     // Traditional Chinese in the vocabulary used in Taiwan: the whole interface and the status and

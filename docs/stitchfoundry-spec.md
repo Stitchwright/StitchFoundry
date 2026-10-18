@@ -229,7 +229,8 @@ Working and tested (see [`embroidery.md`](embroidery.md) for behaviour):
   stitch player, Stitch Sequence panel (grouped by thread, reorder, sort by colour).
 - Embroidery menu, toolbar section, Embroidery panel; translations in 11 languages (19 with
   Bulgarian, Greek, Finnish, Hungarian, Korean, Polish, Swedish and Vietnamese, 2026-10-17, drafted
-  with AI assistance and awaiting native review; Brazilian Portuguese has its menus only);
+  with AI assistance and awaiting native review; Dutch, Danish and Indonesian, 2026-10-18; Brazilian
+  Portuguese and Georgian, 2026-10-19, the same way: 23 in all);
   pathfinder keeps stitch settings (holes via Minus Front).
 - Tests: `sf-core` 62, `sf-formats` 43, engine embroidery 10, tools 2, plus the workspace's
   5,173 overall.

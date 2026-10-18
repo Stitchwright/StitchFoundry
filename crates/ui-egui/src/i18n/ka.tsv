@@ -5121,3 +5121,1295 @@ imageTrace	Outline	კონტური
 # Select by Color (select.color)
 	Select by Color	მონიშვნა ფერის მიხედვით
 @msg	thumbnail: no page {n} (the file has 1)	thumbnail: გვერდი {n} არ არსებობს (ფაილს 1 გვერდი აქვს)
+
+# StitchFoundry (embroidery)
+	#	#
+	3D Puff	3D Puff
+	3D effect	3D ეფექტი
+	3D puff	3D puff
+	A USB stick, the machine's folder or a network share the machine reads	USB ფლეშკა, მანქანის საქაღალდე ან ქსელური საქაღალდე, რომელსაც მანქანა კითხულობს
+	A block	ბლოკი
+	A border of the selected line	მონიშნული ხაზის ბორდიური
+	A border strip	ბორდიურის ზოლი
+	A check costs {n} credits; free checks come back next month.	ერთი შემოწმება {n} კრედიტი ღირს; უფასო შემოწმებები მომავალ თვეს დაბრუნდება.
+	A copy of this fabric to change	ამ ქსოვილის ასლი შესაცვლელად
+	A corner	კუთხე
+	A fabric shape: the machine stops for you to lay the fabric, then sews it down	ქსოვილის ფიგურა: მანქანა გაჩერდება, რომ ქსოვილი დადოთ, შემდეგ კი მიაკერებს მას
+	A finished design to sew and learn from	მზა დიზაინი ქარგვისა და სწავლისთვის
+	A font folder in Ink/Stitch's format: font.json and its glyphs	შრიფტის საქაღალდე Ink/Stitch-ის ფორმატში: font.json და მისი გლიფები
+	A heart, a star, a flower and more	გული, ვარსკვლავი, ყვავილი და სხვა
+	A heart, a star, a flower and more, ready to sew	გული, ვარსკვლავი, ყვავილი და სხვა, ქარგვისთვის მზა
+	A little pillow front, a mug rug, a coaster or an ornament	პატარა ბალიშის პირი, ფინჯნის ხალიჩა, ქვესადგამი ან სამკაული
+	A machine profile of your own with these settings	საკუთარი მანქანის პროფილი ამ პარამეტრებით
+	A moss fill with chain borders sewn before and after it, in a group in the shape's place	ხავსის შევსება ჯაჭვური ბორდიურებით მის წინ და მის შემდეგ, ჯგუფად ფიგურის ადგილას
+	A name or a few words, ready to sew	სახელი ან რამდენიმე სიტყვა, ქარგვისთვის მზა
+	A name or some words	სახელი ან რამდენიმე სიტყვა
+	A new design the size of this hoop's sewing field	ახალი დიზაინი ამ ჩარჩოს საქარგავი არის ზომით
+	A photo of the garment behind the design, life size, on a locked template layer that is never stitched	ნაკეთობის ფოტო დიზაინის უკან, ნატურალური ზომით, ჩაკეტილ შაბლონის შრეზე, რომელიც არასოდეს იქარგება
+	A photo or a drawing turned into stitches	ფოტო ან ნახატი, ნაკერებად გარდაქმნილი
+	A photo or drawing to turn into stitches	ფოტო ან ნახატი ნაკერებად გარდასაქმნელად
+	A picture	სურათი
+	A sample to try	საცდელი ნიმუში
+	A shape	ფიგურა
+	A shape cut from fabric and sewn down	ქსოვილიდან ამოჭრილი და მიკერებული ფიგურა
+	A sheet of the designs found, to print or save as PDF	ნაპოვნი დიზაინების ფურცელი დასაბეჭდად ან PDF-ად შესანახად
+	A smoothed copy of the image in these colours, its specks cleaned, to digitize or click to stitch	გამოსახულების გაგლუვებული ასლი ამ ფერებში, ლაქებისგან გაწმენდილი, დიჯიტალიზაციისთვის ან დაწკაპუნებით ქარგვისთვის
+	A thread chart of your own from a CSV file (code, name and colour a thread) or a GIMP palette (.gpl)	საკუთარი ძაფების ცხრილი CSV ფაილიდან (თითო ძაფის კოდი, სახელი და ფერი) ან GIMP-ის პალიტრიდან (.gpl)
+	About StitchFoundry	StitchFoundry-ის შესახებ
+	About the library	ბიბლიოთეკის შესახებ
+	About the sewing	ქარგვის შესახებ
+	Accordion	აკორდეონი
+	Account	ანგარიში
+	Add Appliqué	აპლიკაციის დამატება
+	Add Appliqué…	აპლიკაციის დამატება…
+	Add Buttonholes	ღილის ჭრილების დამატება
+	Add Glyphs	გლიფების დამატება
+	Add Inclination Line	დახრის ხაზის დამატება
+	Add Laydown	საფენის დამატება
+	Add Machine Folder…	მანქანის საქაღალდის დამატება…
+	Add My Hoop	ჩემი ჩარჩოს დამატება
+	Add Outline	კონტურის დამატება
+	Add Photos…	ფოტოების დამატება…
+	Add Words	სიტყვების დამატება
+	Add Words…	სიტყვების დამატება…
+	Add a Picture…	სურათის დამატება…
+	Add a Shape	ფიგურის დამატება
+	Add a Shape…	ფიგურის დამატება…
+	Add a ribbon band across it	განივი ლენტის დამატება
+	Add a ribbon loop to hang it	ლენტის მარყუჟის დამატება ჩამოსაკიდად
+	Add the folder your machine reads: a USB stick, its folder or a network share.	დაამატეთ საქაღალდე, რომელსაც თქვენი მანქანა კითხულობს: USB ფლეშკა, მისი საქაღალდე ან ქსელური საქაღალდე.
+	Add to Design	დიზაინში დამატება
+	Add to Send Queue	გაგზავნის რიგში დამატება
+	Adjust Letter	ასოს მორგება
+	After each letter	ყოველი ასოს შემდეგ
+	After each line	ყოველი სტრიქონის შემდეგ
+	After each word	ყოველი სიტყვის შემდეგ
+	After the selection	მონიშნულის შემდეგ
+	Again	ხელახლა
+	All Tools, Ungrouped	ყველა ხელსაწყო, დაუჯგუფებლად
+	Allow	ნების დართვა
+	Along the baseline	საბაზისო ხაზის გასწვრივ
+	Along the line	ხაზის გასწვრივ
+	Along the selected line	მონიშნული ხაზის გასწვრივ
+	An appliqué	აპლიკაცია
+	An in-the-hoop project	ჩარჩოში შესრულებული პროექტი
+	Another fabric, or not sure: leave it as it is	სხვა ქსოვილი, ან არ ვიცი: დარჩეს როგორც არის
+	Another machine (DST)	სხვა მანქანა (DST)
+	Answers come from Claude with your own Anthropic API key, billed to your Anthropic account. They can be wrong: try a test sew before an important piece.	პასუხებს Claude იძლევა თქვენი საკუთარი Anthropic API გასაღებით, ღირებულება თქვენს Anthropic ანგარიშს ერიცხება. პასუხი შეიძლება მცდარი იყოს: მნიშვნელოვანი ნაკეთობის წინ საცდელად დაქარგეთ.
+	Anthropic API key:	Anthropic API გასაღები:
+	Anything else? For example: a gap above the bumper	კიდევ რამე? მაგალითად: ღრიჭო ბამპერის ზემოთ
+	Applies the next time StitchFoundry starts.	ძალაში შევა StitchFoundry-ის შემდეგი გაშვებისას.
+	Appliqué	აპლიკაცია
+	Appliqué letters	აპლიკაციის ასოები
+	Appliqué star	აპლიკაციის ვარსკვლავი
+	Apply Embroidery Style	ქარგვის სტილის გამოყენება
+	Apply Fabric	ქსოვილის გამოყენება
+	Apply Motif	მოტივის გამოყენება
+	Approval	დამტკიცება
+	Arc Down	რკალი ქვემოთ
+	Arc Up	რკალი ზემოთ
+	Arch	თაღი
+	Arches	თაღები
+	Argyle	არგაილი
+	Arrows	ისრები
+	Artwork	ნახატი
+	As large as fits	რაც შეიძლება დიდი
+	As the design has it	როგორც დიზაინშია
+	As the font has them	როგორც შრიფტშია
+	As typed	როგორც აკრეფილია
+	Ask	კითხვა
+	Ask About Embroidery	კითხვა ქარგვის შესახებ
+	Ask About Embroidery…	კითხვა ქარგვის შესახებ…
+	Ask anything about machine embroidery or StitchFoundry: which stabilizer to use, why thread breaks, how to make letters sew cleaner, where a feature is. Claude can also change your design when you ask, after you allow it.	იკითხეთ ნებისმიერი რამ მანქანური ქარგვის ან StitchFoundry-ის შესახებ: რომელი სტაბილიზატორი გამოიყენოთ, რატომ წყდება ძაფი, როგორ დაიქარგოს ასოები უფრო სუფთად, სად არის ესა თუ ის ფუნქცია. თქვენი თხოვნით Claude-ს დიზაინის შეცვლაც შეუძლია, თქვენი ნებართვის შემდეგ.
+	Assign to Glyph	გლიფისთვის მინიჭება
+	At each point	ყოველ წერტილში
+	Auto Direction	ავტომატური მიმართულება
+	Auto Sequence	ავტომატური თანმიმდევრობა
+	Auto Stitch Direction	ნაკერების ავტომატური მიმართულება
+	Auto spacing	ავტომატური ინტერვალი
+	Auto split	ავტომატური დაყოფა
+	Auto-Digitize Image	გამოსახულების ავტომატური დიჯიტალიზაცია
+	Automatic Knife	ავტომატური დანა
+	Automatic underlay	ავტომატური ქვესაფენი
+	Average stitch (mm)	საშუალო ნაკერი (მმ)
+	Back to the Design	დიზაინთან დაბრუნება
+	Back to the start	თავში დაბრუნება
+	Background Quilting	ფონური ქვილთინგი
+	Background quilting the size of a quilting tile, block by block	ფონური ქვილთინგი ქვილთინგის ფილის ზომით, ბლოკ-ბლოკ
+	Backstitch	უკან ნემსა
+	Backstitch Lines	უკან ნემსას ხაზები
+	Backstitch lines	უკან ნემსას ხაზები
+	Bank card	საბანკო ბარათი
+	Barudan DSB (.dsb)…	Barudan DSB (.dsb)…
+	Barudan U01 (.u01)…	Barudan U01 (.u01)…
+	Basket weave	კალათის წნული
+	Basting first	ჯერ მიკერება
+	Basting margin	მიკერების არშია
+	Basting round	მიკერება გარშემო
+	Batch Convert	პაკეტური გარდაქმნა
+	Batch Output	პაკეტური გამოტანა
+	Bead length	მძივის სიგრძე
+	Beads	მძივები
+	Bean Outline	სამმაგი კონტური
+	Bean Ring	სამმაგი რგოლი
+	Bean Run	სამმაგი ნაკერი
+	Before the selection	მონიშნულის წინ
+	Bigger	უფრო დიდი
+	Blanket	საბნის ნაკერი
+	Blend Colors	ფერების შერევა
+	Blend from Gradient	გადასვლა გრადიენტიდან
+	Blend into	გადასვლა
+	Blend layers	გადასვლის შრეები
+	Bobbin thread (m)	ქვედა ძაფი (მ)
+	Border	ბორდიური
+	Border depth	ბორდიურის სიღრმე
+	Border length	ბორდიურის სიგრძე
+	Border or Corner…	ბორდიური ან კუთხე…
+	Boring	ნახვრეტი
+	Bottom left	ქვემოთ მარცხნივ
+	Bottom right	ქვემოთ მარჯვნივ
+	Branch	განშტოება
+	Break Apart	დაშლა
+	Break Link to Embroidery Style	ქარგვის სტილთან კავშირის გაწყვეტა
+	Bricks	აგური
+	Brother PEC (.pec)…	Brother PEC (.pec)…
+	Brother PES (.pes)…	Brother PES (.pes)…
+	Brother or Baby Lock	Brother ან Baby Lock
+	Brother or Baby Lock multi-needle	Brother ან Baby Lock მრავალნემსიანი
+	Brush (squares)	ფუნჯი (კვადრატები)
+	Brush Stroke	ფუნჯის მონასმი
+	Bubbles	ბუშტები
+	Butterfly	პეპელა
+	Buttonholes	ღილის ჭრილები
+	Buy credits	კრედიტების ყიდვა
+	Buy…	ყიდვა…
+	Calibrate Life Size	ნატურალური ზომის კალიბრება
+	Calibrate Life Size…	ნატურალური ზომის კალიბრება…
+	Calligraphy	კალიგრაფია
+	Cancelled	გაუქმდა
+	Capital letters are this tall. 20 to 30 mm suits a towel; 10 to 15 mm a shirt.	მთავრული ასოები ამ სიმაღლისაა. პირსახოცს 20–30 მმ უხდება, პერანგს 10–15 მმ.
+	Capitals	მთავრულები
+	Capitals' height	მთავრულის სიმაღლე
+	Capped	წაკვეთილი
+	Carve Split Lines	გამყოფი ხაზების ამოტვიფრვა
+	Carve Stamp	შტამპის ამოტვიფრვა
+	Carving Stamps	ამოსატვიფრი შტამპები
+	Cell size	უჯრის ზომა
+	Centre	ცენტრი
+	Centre line	შუა ხაზი
+	Centre out	ცენტრიდან გარეთ
+	Centre run	ნაკერი ცენტრზე
+	Centred	ცენტრში
+	Chain	ჯაჭვი
+	Change It Anyway	მაინც შეცვლა
+	Change key	გასაღების შეცვლა
+	Change the Size?	შეიცვალოს ზომა?
+	Changed:	შეიცვალა:
+	Check	უჯრა
+	Check Again	ხელახლა შემოწმება
+	Check Continuous Line	უწყვეტი ხაზის შემოწმება
+	Check Design	დიზაინის შემოწმება
+	Check Design in the Embroidery menu finds dense layers, long stitches and text too small to sew.	„დიზაინის შემოწმება“ ქარგვის მენიუში პოულობს მჭიდრო შრეებს, გრძელ ნაკერებს და ქარგვისთვის ზედმეტად პატარა ტექსტს.
+	Check My Sew-out	ჩემი ნაქარგის შემოწმება
+	Check My Sew-out…	ჩემი ნაქარგის შემოწმება…
+	Check settings	შემოწმების პარამეტრები
+	Chenille	შენილი
+	Chenille Stitch	შენილის ნაკერი
+	Chenille Stops	შენილის გაჩერებები
+	Chenille stops	შენილის გაჩერებები
+	Chevrons	შევრონები
+	Choose Folder…	საქაღალდის არჩევა…
+	Choose My Machine	ჩემი მანქანის არჩევა
+	Choose Smallest Hoop	ყველაზე პატარა ჩარჩოს არჩევა
+	Choose a Picture…	სურათის არჩევა…
+	Choose a hoop in the Embroidery panel to see the sewing field round the design.	აირჩიეთ ჩარჩო ქარგვის პანელში, რომ დიზაინის გარშემო საქარგავი არე დაინახოთ.
+	Choose a machine file or the design open now	აირჩიეთ მანქანის ფაილი ან ახლა გახსნილი დიზაინი
+	Choose a picture	აირჩიეთ სურათი
+	Choose a shape	აირჩიეთ ფიგურა
+	Choose both designs to compare them	შესადარებლად აირჩიეთ ორივე დიზაინი
+	Choose how each part is stitched: satin, fill, run and more.	აირჩიეთ, როგორ დაიქარგება თითოეული ნაწილი: ატლასის ნაკერი, შევსება, სწორი ნაკერი და სხვა.
+	Choose the photos in the browser's window…	აირჩიეთ ფოტოები ბრაუზერის ფანჯარაში…
+	Chord length	ქორდის სიგრძე
+	Circles	წრეები
+	Claude draws the artwork with your own Anthropic API key, billed to your Anthropic account; StitchFoundry then digitizes it. Check the stitches before you sew.	ნახატს Claude ხატავს თქვენი საკუთარი Anthropic API გასაღებით, ღირებულება თქვენს Anthropic ანგარიშს ერიცხება; შემდეგ StitchFoundry მას დიჯიტალიზაციას უკეთებს. ქარგვამდე შეამოწმეთ ნაკერები.
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude ფოტოებს თქვენი საკუთარი Anthropic API გასაღებით ათვალიერებს, ღირებულება თქვენს Anthropic ანგარიშს ერიცხება. შეიძლება შეცდეს: გამოსწორება ჯერ იმავე ქსოვილის ნაჭერზე სცადეთ.
+	Claude redraws the image as clean flat-colour art, then StitchFoundry digitizes it	Claude გამოსახულებას სუფთა, ერთფეროვანი შევსებების ნახატად გადახატავს, შემდეგ StitchFoundry მას დიჯიტალიზაციას უკეთებს
+	Claude redraws the image as flat-colour art with your own Anthropic API key, billed to your Anthropic account; StitchFoundry then digitizes it. Check the stitches before you sew.	Claude გამოსახულებას ერთფეროვანი შევსებების ნახატად გადახატავს თქვენი საკუთარი Anthropic API გასაღებით, ღირებულება თქვენს Anthropic ანგარიშს ერიცხება; შემდეგ StitchFoundry მას დიჯიტალიზაციას უკეთებს. ქარგვამდე შეამოწმეთ ნაკერები.
+	Claude wants to change your design:	Claude-ს სურს თქვენი დიზაინის შეცვლა:
+	Clear Default	ნაგულისხმევის გასუფთავება
+	Clear Export History	ექსპორტის ისტორიის გასუფთავება
+	Clear Flow Lines	დინების ხაზების გასუფთავება
+	Clear Inclination Lines	დახრის ხაზების გასუფთავება
+	Clear Lines	ხაზების გასუფთავება
+	Clear Machine Function	მანქანის ფუნქციის გასუფთავება
+	Clear Sent	გაგზავნილების გასუფთავება
+	Clear Split Lines	გამყოფი ხაზების გასუფთავება
+	Clear everything in this design and begin again?	გასუფთავდეს ყველაფერი ამ დიზაინში და დაიწყოს თავიდან?
+	Clear the design and begin again	დიზაინის გასუფთავება და თავიდან დაწყება
+	Clear vinyl on top (wipe-clean)	გამჭვირვალე ვინილი ზემოდან (ადვილად იწმინდება)
+	Click a motif to place it, digitized, in the middle of the page.	დააწკაპუნეთ მოტივზე, რომ დიჯიტალიზებული სახით გვერდის შუაში განათავსოთ.
+	Click a part of the design to change how it sews.	დააწკაპუნეთ დიზაინის ნაწილზე, რომ შეცვალოთ, როგორ იქარგება.
+	Click a part of the design to choose it, drag it to move it	დააწკაპუნეთ დიზაინის ნაწილზე მის ასარჩევად, გადაათრიეთ გადასაადგილებლად
+	Click a region of a placed image to stitch it; raise Tolerance to take in more of its shades.	დასაქარგად დააწკაპუნეთ განთავსებული გამოსახულების უბანზე; მეტი ელფერის მოსაცავად გაზარდეთ დაშვება.
+	Click a region of an image to stitch it	დასაქარგად დააწკაპუნეთ გამოსახულების უბანზე
+	Click a square to fill every touching square like it; hold Alt to clear them	დააწკაპუნეთ უჯრაზე, რომ ყველა მოსაზღვრე მსგავსი უჯრა შეივსოს; გასასუფთავებლად დააჭირეთ Alt-ს
+	Click on one side of the column, then the other, in turn; Enter or Escape ends it.	დააწკაპუნეთ რიგრიგობით სვეტის ერთ მხარეს, შემდეგ მეორეზე; Enter ან Escape ამთავრებს.
+	Click or drag on a cross-stitch grid to fill its squares; hold Alt to erase	დააწკაპუნეთ ან გადაათრიეთ ჯვარედინი ნაკერის ბადეზე უჯრების შესავსებად; წასაშლელად დააჭირეთ Alt-ს
+	Click to Stitch	დაწკაპუნებით ქარგვა
+	Click to select and show it	დააწკაპუნეთ მოსანიშნად და საჩვენებლად
+	Click-to-Stitch Tool	დაწკაპუნებით ქარგვის ხელსაწყო
+	Clipart	კლიპარტი
+	Closest	უახლოესი
+	Clover	სამყურა
+	Coaster, 3¾″ square	ქვესადგამი, 3¾″ კვადრატი
+	Coil	ხვია
+	Color change	ფერის შეცვლა
+	Colors and Order	ფერები და თანმიმდევრობა
+	Colorway	ფერთა ვარიანტი
+	Colorway Thread	ფერთა ვარიანტის ძაფი
+	Colorways	ფერთა ვარიანტები
+	Colour	ფერი
+	Colour Preview	ფერების წინასწარი ნახვა
+	Colour changes	ფერის ცვლილებები
+	Colour the design by how deep the thread lies: blue one layer, red as dense as Check Design flags	დიზაინის შეფერვა ძაფის ფენების სისქის მიხედვით: ლურჯი – ერთი ფენა, წითელი – ისეთი მჭიდრო, როგორსაც „დიზაინის შემოწმება“ მონიშნავს
+	Colours	ფერები
+	Column A/B	სვეტი A/B
+	Column A/B Tool	სვეტი A/B ხელსაწყო
+	Combine Appliqué	აპლიკაციის გაერთიანება
+	Commercial multi-needle (DST)	სამრეწველო მრავალნემსიანი (DST)
+	Compare Designs	დიზაინების შედარება
+	Compare Designs…	დიზაინების შედარება…
+	Compound Chenille…	შედგენილი შენილი…
+	Connectors	გადასასვლელები
+	Constant	მუდმივი
+	Continuous Fill	უწყვეტი შევსება
+	Continuous Fill…	უწყვეტი შევსება…
+	Contour Fill	კონტურული შევსება
+	Contour Split Lines	კონტურული გამყოფი ხაზები
+	Convert All	ყველას გარდაქმნა
+	Convert Artwork to Embroidery	ნახატის ნაქარგად გარდაქმნა
+	Convert Stitches to Objects	ნაკერების ობიექტებად გარდაქმნა
+	Convert to	გარდაქმნა
+	Convert to Satin Column	ატლასის სვეტად გარდაქმნა
+	Converted:	გარდაიქმნა:
+	Cord	ზონარი
+	Cord width	ზონრის სიგანე
+	Corner leg (0: no corner)	კუთხის გვერდი (0: კუთხის გარეშე)
+	Cost Estimate	ღირებულების შეფასება
+	Cost a piece	ერთი ცალის ღირებულება
+	Cost settings	ღირებულების პარამეტრები
+	Couldn't be read	ვერ წაიკითხა
+	Couldn't change:	ვერ შეიცვალა:
+	Count	რაოდენობა
+	Count Decorations	დეკორაციების დათვლა
+	Cover stitch	გადამფარავი ნაკერი
+	Cover width	გადაფარვის სიგანე
+	Create Account	ანგარიშის შექმნა
+	Crib (36 × 52″)	ბავშვის საწოლი (36 × 52″)
+	Cross Fill	ჯვრული შევსება
+	Cross Stitch	ჯვარედინი ნაკერი
+	Cross Stitch Tool	ჯვარედინი ნაკერის ხელსაწყო
+	Cross Stitch from Image…	ჯვარედინი ნაკერი გამოსახულებიდან…
+	Cross style	ჯვრის სტილი
+	Cross-Stitch Pattern Info	ჯვარედინი ნაკერის სქემის ინფორმაცია
+	Cross-Stitch Pattern Settings	ჯვარედინი ნაკერის სქემის პარამეტრები
+	Crosses	ჯვრები
+	Crown	გვირგვინი
+	Currency	ვალუტა
+	Current Properties	მიმდინარე თვისებები
+	Custom Hoops	საკუთარი ჩარჩოები
+	Customer	კლიენტი
+	Cut File	საჭრელი ფაილი
+	Cut-away	მოსაჭრელი
+	Cutwork	ამოჭრილი ნაქარგი
+	DXF Lines (.dxf)…	DXF ხაზები (.dxf)…
+	Dad cap	რბილი კეპი
+	Decoration Sizes	დეკორაციების ზომები
+	Delete Colorway	ფერთა ვარიანტის წაშლა
+	Delete Custom Hoop	საკუთარი ჩარჩოს წაშლა
+	Delete Design Template	დიზაინის შაბლონის წაშლა
+	Delete Embroidery Style	ქარგვის სტილის წაშლა
+	Delete Fabric	ქსოვილის წაშლა
+	Delete Hoop	ჩარჩოს წაშლა
+	Delete Inclination Line	დახრის ხაზის წაშლა
+	Delete Job Order	შეკვეთის წაშლა
+	Delete Machine	მანქანის წაშლა
+	Delete Machine Profile	მანქანის პროფილის წაშლა
+	Delete Monogram Template	მონოგრამის შაბლონის წაშლა
+	Delete Motif	მოტივის წაშლა
+	Delete My Shared Sew-out Checks	ჩემი გაზიარებული ნაქარგის შემოწმებების წაშლა
+	Delete Output Profile	გამოტანის პროფილის წაშლა
+	Delete Template	შაბლონის წაშლა
+	Delete Thread Chart	ძაფების ცხრილის წაშლა
+	Denim	დენიმი
+	Denim / canvas	დენიმი / ბრეზენტი
+	Dense from (layers)	მჭიდროობის ზღვარი (ფენა)
+	Densities (mm)	სიმჭიდროვეები (მმ)
+	Density	სიმჭიდროვე
+	Density Map	სიმჭიდროვის რუკა
+	Density map	სიმჭიდროვის რუკა
+	Describe a design and Claude draws artwork for it, then StitchFoundry digitizes it	აღწერეთ დიზაინი და Claude მისთვის ნახატს დახატავს, შემდეგ StitchFoundry მას დიჯიტალიზაციას გაუკეთებს
+	Describe the design:	აღწერეთ დიზაინი:
+	Design	დიზაინი
+	Design Catalogue	დიზაინების კატალოგი
+	Design Information	დიზაინის ინფორმაცია
+	Design Library	დიზაინების ბიბლიოთეკა
+	Design Templates	დიზაინის შაბლონები
+	Design from Prompt	დიზაინი აღწერით
+	Design from Prompt…	დიზაინი აღწერით…
+	Design notes	დიზაინის შენიშვნები
+	Design setting	დიზაინის პარამეტრი
+	Designs	დიზაინები
+	Diamonds	რომბები
+	Differences of 10% or more are highlighted. The real test is sewing both.	10% ან მეტი სხვაობა გამოკვეთილია. ნამდვილი შემოწმება ორივეს დაქარგვაა.
+	Different on each side	თითო მხარეს განსხვავებული
+	Digitizer	დიჯიტაიზერი
+	Digitizing Widget	დიჯიტალიზაციის ვიჯეტი
+	Dimmed	მკრთალი
+	Direction	მიმართულება
+	Direction: automatic	მიმართულება: ავტომატური
+	Direction: fixed angle	მიმართულება: ფიქსირებული კუთხე
+	Direction: one inclination line	მიმართულება: დახრის ერთი ხაზი
+	Direction: turning along	მიმართულება: გასწვრივ მოტრიალე
+	Don't Allow	არ დაირთოს ნება
+	Double	ორმაგი
+	Double cross	ორმაგი ჯვარი
+	Double zigzag	ორმაგი ზიგზაგი
+	Download Again	ხელახლა ჩამოტვირთვა
+	Download All	ყველას ჩამოტვირთვა
+	Download fonts from an embroidery font library, ready for lettering	შრიფტების ჩამოტვირთვა ქარგვის შრიფტების ბიბლიოთეკიდან, წარწერებისთვის მზა
+	Downloaded for your machine:	ჩამოიტვირთა თქვენი მანქანისთვის:
+	Downloaded:	ჩამოიტვირთა:
+	Downloading	ჩამოტვირთვა
+	Drag across the shape to add a line; drag a bead to move it	ხაზის დასამატებლად გადაათრიეთ ფიგურის გადაღმა; გადასაადგილებლად გადაათრიეთ მძივი
+	Drag from corner to corner of the squares to draw a backstitch line; Alt-click a line to take it away	უკან ნემსას ხაზის დასახაზად გადაათრიეთ უჯრების კუთხიდან კუთხემდე; ხაზის მოსაცილებლად დააწკაპუნეთ მასზე Alt-ით
+	Drag picked needle points to move them, Alt-click a stitch to add one, Delete removes them.	გადაათრიეთ არჩეული ნემსის ჩხვლეტის წერტილები მათ გადასაადგილებლად, Alt-დაწკაპუნება ნაკერზე ამატებს ერთს, Delete შლის მათ.
+	Draw an inclination line across a shape to set its stitch angle; two or more lines make the stitches turn.	ნაკერის კუთხის დასაყენებლად გაავლეთ დახრის ხაზი ფიგურაზე; ორი ან მეტი ხაზი ნაკერებს მოატრიალებს.
+	Draw shapes, place a picture or type text.	დახატეთ ფიგურები, განათავსეთ სურათი ან აკრიფეთ ტექსტი.
+	Drawing the design…	დიზაინი იხატება…
+	Drop the hand edits and stitch the shape again	ხელით შესწორებების გაუქმება და ფიგურის ხელახლა დაქარგვა
+	Due (YYYY-MM-DD)	ვადა (YYYY-MM-DD)
+	Duplicate Embroidery Style	ქარგვის სტილის დუბლირება
+	E-stitch	E-ნაკერი
+	Each anchor point is a needle penetration.	ყოველი საყრდენი წერტილი ნემსის ჩხვლეტაა.
+	Each design found written again in this format beside it	ყოველი ნაპოვნი დიზაინი ხელახლა ჩაწერილი ამ ფორმატში მის გვერდით
+	Each font comes with its own licence, in its folder.	ყოველ შრიფტს თავისი ლიცენზია აქვს, მის საქაღალდეში.
+	Each letter a patch of fabric: placement line, tack-down and cover	ყოველი ასო – ქსოვილის ნაჭერი: განთავსების ხაზი, მიმაგრება და გადაფარვა
+	Each name with its size, stitches and sewing time, and the totals	ყოველი სახელი თავისი ზომით, ნაკერებითა და ქარგვის დროით, და ჯამები
+	Echo	ექო
+	Echo Quilting	ექო ქვილთინგი
+	Edge run	ნაკერი კიდეზე
+	Edge run and zigzag	ნაკერი კიდეზე და ზიგზაგი
+	Edge run under fills	ნაკერი კიდეზე შევსებების ქვეშ
+	Edge run underlay	კიდის ქვესაფენი
+	Edge width	კიდის სიგანე
+	Edge-to-Edge Rows	რიგები კიდიდან კიდემდე
+	Edge-to-Edge Rows…	რიგები კიდიდან კიდემდე…
+	Edge-to-edge rows of the selected line	მონიშნული ხაზის რიგები კიდიდან კიდემდე
+	Edit Embroidery Font	ქარგვის შრიფტის რედაქტირება
+	Edit Font	შრიფტის რედაქტირება
+	Edit Lettering	წარწერის რედაქტირება
+	Edit Lines	ხაზების რედაქტირება
+	Edit Stitches	ნაკერების რედაქტირება
+	Edit › Undo takes each change back.	რედაქტირება › დაბრუნება ყოველ ცვლილებას აუქმებს.
+	Email	ელფოსტა
+	Embroidery	ქარგვა
+	Embroidery Brush Tool	ქარგვის ფუნჯის ხელსაწყო
+	Embroidery Business	ქარგვის ბიზნესი
+	Embroidery Clipart	ქარგვის კლიპარტი
+	Embroidery Fonts	ქარგვის შრიფტები
+	Embroidery Lettering	ნაქარგი წარწერები
+	Embroidery Motifs	ქარგვის მოტივები
+	Embroidery Settings	ქარგვის პარამეტრები
+	Embroidery Styles	ქარგვის სტილები
+	End	დასასრული
+	End at	დასრულება
+	Erase	წაშლა
+	Estimate cost	ღირებულების შეფასება
+	Every digitizing tool, rulers and the control bar	ყველა დიჯიტალიზაციის ხელსაწყო, სახაზავები და მართვის ზოლი
+	Every font not downloaded yet, one after another	ყველა ჯერ ჩამოუტვირთავი შრიფტი, ერთმანეთის მიყოლებით
+	Every name in one design, in rows and columns, for a large hoop or patches	ყველა სახელი ერთ დიზაინში, რიგებად და სვეტებად, დიდი ჩარჩოსთვის ან ემბლემებისთვის
+	Every new design starts with these properties	ყველა ახალი დიზაინი ამ თვისებებით იწყება
+	Every thread changed by the scheme and matched to the design's chart; undo puts them back	სქემით შეცვლილი და დიზაინის ცხრილს მისადაგებული ყველა ძაფი; დაბრუნება მათ აღადგენს
+	Everything	ყველაფერი
+	Everything, with job orders and batch output	ყველაფერი, შეკვეთებითა და პაკეტური გამოტანით
+	Experience	გამოცდილება
+	Export Again	ხელახლა ექსპორტირება
+	Export Chart…	ცხრილის ექსპორტი…
+	Export History	ექსპორტის ისტორია
+	Export Machine File	მანქანის ფაილის ექსპორტი
+	Export Machine File…	მანქანის ფაილის ექსპორტი…
+	Export One File per Name…	თითო სახელზე ერთი ფაილის ექსპორტი…
+	Export Quilting Lines	ქვილთინგის ხაზების ექსპორტი
+	Export Quilting Lines…	ქვილთინგის ხაზების ექსპორტი…
+	Export Stitch Image	ნაკერების გამოსახულების ექსპორტი
+	Export Stitch Image…	ნაკერების გამოსახულების ექსპორტი…
+	Export Team Names	გუნდის სახელების ექსპორტი
+	Export Thread Chart	ძაფების ცხრილის ექსპორტი
+	Export it again, as it was asked, from this document	ხელახლა ექსპორტი, როგორც მოითხოვეს, ამ დოკუმენტიდან
+	Export the file for your machine.	მოახდინეთ ფაილის ექსპორტი თქვენი მანქანისთვის.
+	Export with Embroidery › Export Machine File and pick your machine's format.	ექსპორტი: ქარგვა › მანქანის ფაილის ექსპორტი, შემდეგ აირჩიეთ თქვენი მანქანის ფორმატი.
+	Exports	ექსპორტები
+	Fabric	ქსოვილი
+	Fabric color	ქსოვილის ფერი
+	Fabric colour	ქსოვილის ფერი
+	Fabric pattern	ქსოვილის ნახატი
+	Fabric settings	ქსოვილის პარამეტრები
+	Fade in	გამოჩენა
+	Fade out	გაქრობა
+	Feathers	ბუმბულები
+	Felt	ფეტრი
+	Fill Along Lines	შევსება ხაზების გასწვრივ
+	Fill Cross Stitches	ჯვარედინი ნაკერებით შევსება
+	Fill Holes	ხვრელების შევსება
+	Fill a patch	უბნის შევსება
+	Fill density	შევსების სიმჭიდროვე
+	Fill stitch length	შევსების ნაკერის სიგრძე
+	Fill stitches {n} mm long can ripple after washing	{n} მმ სიგრძის შევსების ნაკერები რეცხვის შემდეგ შეიძლება დაიტალღოს
+	Fill style	შევსების სტილი
+	Fill the shape	ფიგურის შევსება
+	Fill underlay	შევსების ქვესაფენი
+	Fill without holes	შევსება ხვრელების გარეშე
+	Filled	შევსებული
+	Filled Ring	შევსებული რგოლი
+	Finished in the hoop: batting, backing and a satin edge	ჩარჩოში დასრულებული: სინთეპონი, ზურგი და ატლასის კიდე
+	First design	პირველი დიზაინი
+	Fits the hoop	ჩარჩოში ეტევა
+	Fixing	დამაგრება
+	Fleece / sweatshirt	ფლისი / სვიტშოტი
+	Flip every other	ყოველი მეორის გადაბრუნება
+	Flip to the other side	მეორე მხარეს გადატანა
+	Flower	ყვავილი
+	Flowers	ყვავილები
+	Foil	ფოლგა
+	Font Creator	შრიფტის შემქმნელი
+	Font Info	შრიფტის ინფორმაცია
+	Font Properties	შრიფტის თვისებები
+	Fonts are kept in	შრიფტების ადგილმდებარეობა
+	Fonts downloaded:	ჩამოტვირთული შრიფტები:
+	For towels, bags, pillows and gifts	პირსახოცების, ჩანთების, ბალიშებისა და საჩუქრებისთვის
+	Forget Embroidery Font	ქარგვის შრიფტის დავიწყება
+	Forget Folder	საქაღალდის დავიწყება
+	Forget Font	შრიფტის დავიწყება
+	Forget Motif	მოტივის დავიწყება
+	Free sew-out checks left this month: {n}	ამ თვეს დარჩენილი უფასო შემოწმებები: {n}
+	Freeze Stitches	ნაკერების გაყინვა
+	Full cross	სრული ჯვარი
+	Function	ფუნქცია
+	G-code (.gcode)…	G-კოდი (.gcode)…
+	Gap	ღრიჭო
+	Gap between repeats	ღრიჭო გამეორებებს შორის
+	Garment Background	ნაკეთობის ფონი
+	Garment Photo…	ნაკეთობის ფოტო…
+	Generate	გენერირება
+	Get Embroidery Fonts	ქარგვის შრიფტების მიღება
+	Get Embroidery Fonts…	ქარგვის შრიფტების მიღება…
+	Get a key	გასაღების მიღება
+	Give every stitched object the chart's closest thread	ყოველ დასაქარგ ობიექტს ცხრილის უახლოესი ძაფის მინიჭება
+	Give objects a stitch type in the Embroidery panel.	ქარგვის პანელში ობიექტებს ნაკერის ტიპი მიანიჭეთ.
+	Give the hoop a name	დაარქვით ჩარჩოს სახელი
+	Globe in	სფერო შიგნით
+	Globe out	სფერო გარეთ
+	Glyphs to add	დასამატებელი გლიფები
+	Graded	გრადაციით
+	Gradient to	გრადიენტი ფერამდე
+	Greek key	მეანდრი
+	HP-GL Plot (.plt)…	HP-GL პლოტი (.plt)…
+	Half cross	ნახევარი ჯვარი
+	Hand stitch	ხელის ნაკერი
+	Happy TAP (.tap)…	Happy TAP (.tap)…
+	Heart	გული
+	Heart patch	გულის ემბლემა
+	Hearts	გულები
+	Height (mm)	სიმაღლე (მმ)
+	Help Topic	დახმარების თემა
+	Help Topics	დახმარების თემები
+	Help for Tool	ხელსაწყოს დახმარება
+	Herringbone	ნაძვისებრი
+	Hexagons	ექვსკუთხედები
+	Hidden (not sewn)	დამალული (არ იქარგება)
+	Hide Digitizing Widget	დიჯიტალიზაციის ვიჯეტის დამალვა
+	Hide StitchFoundry	StitchFoundry-ის დამალვა
+	Hold a ruler, or a bank card, against the screen and change the size until the marks match. Actual Size then shows designs life size.	მიადეთ ეკრანს სახაზავი ან საბანკო ბარათი და ცვალეთ ზომა, სანამ დანაყოფები არ დაემთხვევა. შემდეგ „რეალური ზომა“ დიზაინებს ნატურალური ზომით აჩვენებს.
+	Honeycomb	ფიჭა
+	Hoodie	ჰუდი
+	Hoop	ჩარჩო
+	Hoop name	ჩარჩოს სახელი
+	Hoop not listed? Add its sewing field here.	თქვენი ჩარჩო სიაში არ არის? დაამატეთ მისი საქარგავი არე აქ.
+	Hoops	ჩარჩოები
+	How do you work?	როგორ მუშაობთ?
+	How tall	სიმაღლე
+	Husqvarna Viking (other models)	Husqvarna Viking (სხვა მოდელები)
+	I digitize designs	დიზაინებს დიჯიტალიზაციას ვუკეთებ
+	I run an embroidery business	ქარგვის ბიზნესი მაქვს
+	Image Colours	გამოსახულების ფერები
+	Import Chart…	ცხრილის იმპორტი…
+	Import Names…	სახელების იმპორტი…
+	Import Thread Chart	ძაფების ცხრილის იმპორტი
+	In StitchFoundry	StitchFoundry-ში
+	In a line	ერთ ხაზზე
+	In production	წარმოებაში
+	In the hoop	ჩარჩოში
+	In the middle (you can leave this empty)	შუაში (შეგიძლიათ ცარიელი დატოვოთ)
+	In-the-Hoop Cutting Templates	ჩარჩოში შესრულებული პროექტების გამოჭრის შაბლონები
+	In-the-Hoop Projects	ჩარჩოში შესრულებული პროექტები
+	Inclination Tool	დახრის ხელსაწყო
+	Inclination lines	დახრის ხაზები
+	Include my design	ჩემი დიზაინის დართვა
+	Include the design that was sewn (open now), so it can be fixed	დაქარგული დიზაინის (ახლა გახსნილის) დართვა, რომ მისი გასწორება შეიძლებოდეს
+	Initials	ინიციალები
+	Insert Clipart	კლიპარტის ჩასმა
+	Insert Machine Function	მანქანის ფუნქციის ჩასმა
+	Inverted	ინვერსიული
+	Jag depth	კბილების სიღრმე
+	Jagged edges	დაკბილული კიდეები
+	Janome JEF (.jef)…	Janome JEF (.jef)…
+	Janome or Elna	Janome ან Elna
+	Jersey knit (T-shirt)	ჯერსი ტრიკოტაჟი (მაისური)
+	Job Orders	შეკვეთები
+	Job Output	შეკვეთის გამოტანა
+	Job Worksheet	შეკვეთის სამუშაო ფურცელი
+	Join into One Line	ერთ ხაზად შეერთება
+	Jump	ნახტომი
+	Jumps	ნახტომები
+	Just the outline	მხოლოდ კონტური
+	Keep Design Safe	დიზაინის დაცვა
+	Keep It	დატოვება
+	Keep Motif	მოტივის შენახვა
+	Keep the Size	ზომის შენარჩუნება
+	Keep the motif in My Motifs, for any design	მოტივის შენახვა „ჩემს მოტივებში“ ნებისმიერი დიზაინისთვის
+	Keep the same pattern and spacing for every block of a quilt, so the blocks flow into each other.	ქვილთის ყველა ბლოკისთვის ერთი და იგივე ნახატი და ინტერვალი შეინარჩუნეთ, რომ ბლოკები ერთმანეთში გადადიოდეს.
+	Keep these settings in the machine's profile, for new designs	ამ პარამეტრების შენახვა მანქანის პროფილში ახალი დიზაინებისთვის
+	Keep this design's page, art, hoop, fabric and settings to start new designs from	ამ დიზაინის გვერდის, ნახატის, ჩარჩოს, ქსოვილისა და პარამეტრების შენახვა ახალი დიზაინების დასაწყებად
+	Kern	კერნინგი
+	Kern Glyph Pair	გლიფების წყვილის კერნინგი
+	Kerning (mm closer)	კერნინგი (მმ-ით ახლოს)
+	Keyhole	სათვალურით
+	Keyhole Buttonhole	ღილის ჭრილი სათვალურით
+	King (108 × 108″)	King (108 × 108″)
+	Kiosk Lettering	წარწერა კიოსკში
+	Larger than the hoop	ჩარჩოზე დიდი
+	Largest	უდიდესი
+	Lattice	ცხაური
+	Lay Out Team Names	გუნდის სახელების განლაგება
+	Lay Out Together	ერთად განლაგება
+	Learn how	როგორ
+	Leather / vinyl	ტყავი / ვინილი
+	Leave Kiosk	კიოსკიდან გასვლა
+	Leave it empty for StitchFoundry's own service.	StitchFoundry-ის საკუთარი სერვისისთვის ცარიელი დატოვეთ.
+	Leaves	ფოთლები
+	Leaving the kiosk will take this PIN	კიოსკიდან გასვლას ეს PIN დასჭირდება
+	Left to right	მარცხნიდან მარჯვნივ
+	Lengths (mm)	სიგრძეები (მმ)
+	Let sewing start and stop at the closest points again	ქარგვის დაწყება და დასრულება ისევ უახლოეს წერტილებში
+	Letter case	ასოთა რეგისტრი
+	Lettering Kiosk	წარწერების კიოსკი
+	Lettering only {n} mm tall is hard to sew clearly	სულ {n} მმ სიმაღლის წარწერის მკაფიოდ დაქარგვა ძნელია
+	Letters sewn	ასოების ქარგვა
+	Line spacing	სტრიქონთაშორისი ინტერვალი
+	Lines apart	ხაზებს შორის მანძილი
+	Listing the fonts…	შრიფტების სია იტვირთება…
+	Little pillow front, 8″ square	პატარა ბალიშის პირი, 8″ კვადრატი
+	Little pillow front, 9½ × 5½″	პატარა ბალიშის პირი, 9½ × 5½″
+	Load Embroidery Font	ქარგვის შრიფტის ჩატვირთვა
+	Load Embroidery Font…	ქარგვის შრიფტის ჩატვირთვა…
+	Load an embroidery font (Embroidery Lettering) to make monograms.	მონოგრამების შესაქმნელად ჩატვირთეთ ქარგვის შრიფტი (ნაქარგი წარწერები).
+	Load an embroidery font to set text with it.	ჩატვირთეთ ქარგვის შრიფტი, რომ მისით ტექსტი აკრიფოთ.
+	Load this lettering's font to change it:	შესაცვლელად ჩატვირთეთ ამ წარწერის შრიფტი:
+	Lockstitch	ჩამკეტი ნაკერი
+	Long stitches catch from 7 mm on clothing, 12.1 mm on other items	გრძელი ნაკერები ედება 7 მმ-დან ტანსაცმელზე, 12.1 მმ-დან სხვა ნივთებზე
+	Long stitches from	გრძელი ნაკერის ზღვარი
+	Longarm Quilting	ლონგარმ ქვილთინგი
+	Longest jump	ყველაზე გრძელი ნახტომი
+	Longest stitch	ყველაზე გრძელი ნაკერი
+	Longest stitch (mm)	ყველაზე გრძელი ნაკერი (მმ)
+	Look for dense spots, long stitches, tiny objects and small lettering	მჭიდრო ადგილების, გრძელი ნაკერების, პაწაწინა ობიექტებისა და პატარა წარწერების ძებნა
+	Loop	მარყუჟი
+	Loops	მარყუჟები
+	Machine	მანქანა
+	Machine Embroidery File	ქარგვის მანქანის ფაილი
+	Machine Folders	მანქანის საქაღალდეები
+	Machine Profiles	მანქანის პროფილები
+	Machine embroidery digitizing — fast, open, scriptable.	მანქანური ქარგვის დიჯიტალიზაცია — სწრაფი, ღია, სკრიპტირებადი.
+	Machine files, worksheet PDF and design, named alike	მანქანის ფაილები, PDF სამუშაო ფურცელი და დიზაინი, ერთნაირი სახელით
+	Machine folder	მანქანის საქაღალდე
+	Machine formats (none ticked: the machine's)	მანქანის ფორმატები (თუ არცერთია მონიშნული: მანქანისა)
+	Machine heads	მანქანის თავაკები
+	Machine settings	მანქანის პარამეტრები
+	Machine time an hour	მანქანის ერთი საათის ღირებულება
+	Make Border	ბორდიურის შექმნა
+	Make Current	მიმდინარედ ქცევა
+	Make Design	დიზაინის შექმნა
+	Make Every Size…	ყველა ზომის შექმნა…
+	Make In-the-Hoop Project	ჩარჩოში შესასრულებელი პროექტის შექმნა
+	Make It	შექმნა
+	Make Motif	მოტივის შექმნა
+	Make Properties Current	თვისებების მიმდინარედ ქცევა
+	Make Rows	რიგების შექმნა
+	Make a Design	დიზაინის შექმნა
+	Make a Design, Step by Step	დიზაინის შექმნა, ნაბიჯ-ნაბიჯ
+	Make a Design…	დიზაინის შექმნა…
+	Make an embroidery font: a document with an artboard for each glyph to digitize.	შექმენით ქარგვის შრიფტი: დოკუმენტი სამუშაო დაფით ყოველი დიჯიტალიზაციისთვის განკუთვნილი გლიფისთვის.
+	Makes no stitches	ნაკერებს არ ქმნის
+	Manual Stitches	ხელით ნაკერები
+	Mark where a button goes	ღილის ადგილის მონიშვნა
+	Match Threads to Chart	ძაფების ცხრილთან მისადაგება
+	Meander	მეანდრი
+	Meander Fill	მეანდრული შევსება
+	Measure in	საზომი ერთეული
+	Melco EXP (.exp)…	Melco EXP (.exp)…
+	Merge Colours	ფერების გაერთიანება
+	Merge Embroidery Font	ქარგვის შრიფტის შერწყმა
+	Merge glyphs from	გლიფების შერწყმა წყაროდან
+	Monogram	მონოგრამა
+	Monogram Templates	მონოგრამის შაბლონები
+	Moon	მთვარე
+	Moons	მთვარეები
+	More tips	მეტი რჩევა
+	Moss	ხავსი
+	Moss pattern	ხავსის ნახატი
+	Most stitches	მეტი ნაკერი
+	Motif	მოტივი
+	Motif Border	მოტივების ბორდიური
+	Motif Fill	მოტივებით შევსება
+	Motif Tool	მოტივის ხელსაწყო
+	Motif length (× width)	მოტივის სიგრძე (× სიგანე)
+	Motif size	მოტივის ზომა
+	Motifs	მოტივები
+	Move Inclination Line	დახრის ხაზის გადაადგილება
+	Move along	წანაცვლება გასწვრივ
+	Move down	წანაცვლება ქვემოთ
+	Mug rug, 6½ × 4½″	ფინჯნის ხალიჩა, 6½ × 4½″
+	Multi-Hooping	მრავალჯერადი ჩარჩოში ჩასმა
+	My Machine	ჩემი მანქანა
+	My Machine…	ჩემი მანქანა…
+	My Motifs	ჩემი მოტივები
+	My hoop	ჩემი ჩარჩო
+	My machine:	ჩემი მანქანა:
+	My own hoops	ჩემი საკუთარი ჩარჩოები
+	My sew-out ({n} photos)	ჩემი ნაქარგი (ფოტო: {n})
+	Names	სახელები
+	Names Worksheet	სახელების სამუშაო ფურცელი
+	Narrow satin under	ვიწრო ატლასის ზღვარი
+	Needle	ნემსი
+	Needle height	ნემსის სიმაღლე
+	Needle points	ნემსის ჩხვლეტის წერტილები
+	Nest the rows	რიგების ერთმანეთში ჩადგმა
+	Nested diamonds	ჩადგმული რომბები
+	New Colorway	ახალი ფერთა ვარიანტი
+	New Conversation	ახალი საუბარი
+	New Cross-Stitch Pattern…	ჯვარედინი ნაკერის ახალი სქემა…
+	New Design for Hoop	ახალი დიზაინი ჩარჩოსთვის
+	New Embroidery Font	ქარგვის ახალი შრიფტი
+	New Embroidery Font from Type	ქარგვის ახალი შრიფტი ჩვეულებრივი შრიფტიდან
+	New Embroidery Style	ქარგვის ახალი სტილი
+	New Font from Type	ახალი შრიფტი ჩვეულებრივი შრიფტიდან
+	New Job Order	ახალი შეკვეთა
+	New Job for This Design	ახალი შეკვეთა ამ დიზაინისთვის
+	New Object Properties	ახალი ობიექტების თვისებები
+	New designs take the built-in properties again	ახალი დიზაინები ისევ ჩაშენებულ თვისებებს იღებს
+	New from Design Template	ახალი დიზაინის შაბლონიდან
+	New objects of this stitch type take these properties	ამ ტიპის ნაკერის ახალი ობიექტები ამ თვისებებს იღებს
+	New strokes	ახალი მონასმები
+	New to Embroidery	ქარგვაში ახალბედა
+	New to digitizing? Read the basics	დიჯიტალიზაციაში ახალი ხართ? წაიკითხეთ საფუძვლები
+	New to embroidery	ქარგვაში ახალბედა
+	Newest	უახლესი
+	Next Name	შემდეგი სახელი
+	No Stitches	ნაკერების გარეშე
+	No embroidery font is loaded: ask the shop to load one.	ქარგვის შრიფტი არ არის ჩატვირთული: სთხოვეთ მაღაზიას, ჩატვირთოს.
+	No folder chosen	საქაღალდე არ არის არჩეული
+	No folder chosen yet	საქაღალდე ჯერ არ არის არჩეული
+	No hoop	ჩარჩოს გარეშე
+	No problems found.	პრობლემები ვერ მოიძებნა.
+	No shape	ფიგურის გარეშე
+	No stitches yet.	ნაკერები ჯერ არ არის.
+	No styles yet. Select a stitched object and create one to reuse its stitch properties.	სტილები ჯერ არ არის. მონიშნეთ დასაქარგი ობიექტი და შექმენით სტილი, რომ მისი ნაკერის თვისებები ხელახლა გამოიყენოთ.
+	No-show mesh	უხილავი ბადე
+	Not changed:	არ შეცვლილა:
+	Not digitized yet: show its artboard	ჯერ არ არის დიჯიტალიზებული: მისი სამუშაო დაფის ჩვენება
+	Not set	არ არის დაყენებული
+	Not sewn	არ იქარგება
+	Not sure	არ ვიცი
+	Nothing exported yet in this session.	ამ სესიაში ჯერ არაფერია ექსპორტირებული.
+	Nothing found	ვერაფერი მოიძებნა
+	Nothing stitched yet	ჯერ არაფერია დაქარგული
+	Nothing to sew yet. Add words, a shape or a picture with the buttons on the left.	დასაქარგი ჯერ არაფერია. დაამატეთ სიტყვები, ფიგურა ან სურათი მარცხნივ მდებარე ღილაკებით.
+	Object Stitches	ობიექტის ნაკერები
+	Object color	ობიექტის ფერი
+	Objects you give a stitch type take these properties.	ობიექტები, რომლებსაც ნაკერის ტიპს ანიჭებთ, ამ თვისებებს იღებს.
+	Octagon	რვაკუთხედი
+	Omit last stitch	ბოლო ნაკერის გამოტოვება
+	One colour	ერთი ფერი
+	One continuous line, ready for a longarm	ერთი უწყვეტი ხაზი, ლონგარმისთვის მზა
+	One file for each usual tile size, in a folder or on the USB stick	თითო ფაილი ფილის თითოეული ჩვეული ზომისთვის, საქაღალდეში ან USB ფლეშკაზე
+	One letter: moved, scaled or turned, kept when the lettering is set again	ერთი ასო: გადაადგილებული, მასშტაბირებული ან შემობრუნებული, ინახება წარწერის ხელახლა აწყობისას
+	One name a line	თითო სახელი თითო სტრიქონზე
+	One over the Other	ერთი მეორეზე
+	Only redraw artwork you own or have permission to use.	გადახატეთ მხოლოდ ის ნახატი, რომელიც თქვენ გეკუთვნით ან რომლის გამოყენების ნებართვაც გაქვთ.
+	Open File…	ფაილის გახსნა…
+	Open Sample Design	ნიმუშის დიზაინის გახსნა
+	Open a document to see its stitch sequence.	გახსენით დოკუმენტი, რომ მისი ქარგვის თანმიმდევრობა ნახოთ.
+	Open a document to see its stitches.	გახსენით დოკუმენტი, რომ მისი ნაკერები ნახოთ.
+	Open or create a document to digitize embroidery.	ნაქარგის დიჯიტალიზაციისთვის გახსენით ან შექმენით დოკუმენტი.
+	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	გახსნისას გამოტოვდა ის, რისი წაკითხვაც StitchFoundry-ს ჯერ არ შეუძლია ({what}): ფაილის ჩანაცვლება მას სამუდამოდ დაკარგავს. შესანარჩუნებლად შეინახეთ სხვა სახელით.
+	Ornament	სამკაული
+	Outline Around	კონტური გარშემო
+	Output Profiles	გამოტანის პროფილები
+	Outside the sizes the font was made for: its stitches may come out too dense or too long	შრიფტისთვის განკუთვნილი ზომების მიღმა: ნაკერები შეიძლება ზედმეტად მჭიდრო ან ზედმეტად გრძელი გამოვიდეს
+	Oval Border	ოვალური ბორდიური
+	Overlap	გადაფარვა
+	Overlap where shapes touch	გადაფარვა ფიგურების შეხების ადგილას
+	Own colour block	საკუთარი ფერის ბლოკი
+	PIN	PIN
+	Packing	შეფუთვა
+	Paid with StitchFoundry credits ({n} left).	გადახდილია StitchFoundry-ის კრედიტებით (დარჩა {n}).
+	Paid with StitchFoundry credits.	გადახდილია StitchFoundry-ის კრედიტებით.
+	Paint	შეღებვა
+	Paint Cross Stitches	ჯვარედინი ნაკერების ხატვა
+	Pair	წყვილი
+	Paired with	წყვილად
+	Paisley	პეისლი
+	Partial cover	ნაწილობრივი გადაფარვა
+	Passes	გავლები
+	Path spacing	ხაზებს შორის ინტერვალი
+	Pattern colour	ნახატის ფერი
+	Pattern colours	სქემის ფერები
+	Pause	პაუზა
+	Paw	თათი
+	Paw Print	თათის ნაკვალევი
+	Pay for the AI features with my StitchFoundry credits	AI ფუნქციების გადახდა ჩემი StitchFoundry-ის კრედიტებით
+	Pay with StitchFoundry credits instead	ამის ნაცვლად StitchFoundry-ის კრედიტებით გადახდა
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	გადახდა ხდება Stripe-ის დაცულ გვერდზე, თქვენს ბრაუზერში; თქვენი ბარათი StitchFoundry-მდე არასოდეს აღწევს.
+	Pebbles	კენჭები
+	Per 1000 stitches	1000 ნაკერზე
+	Pfaff PCS (.pcs)…	Pfaff PCS (.pcs)…
+	Pfaff VP3 (.vp3)…	Pfaff VP3 (.vp3)…
+	Photo Stitch	ფოტოქარგვა
+	Photos of your finished sew-out	თქვენი დასრულებული ნაქარგის ფოტოები
+	Pick a brush, width, density and shape from a dial, then draw on the canvas	აირჩიეთ წრიულ პანელზე ფუნჯი, სიგანე, სიმჭიდროვე და ფიგურა, შემდეგ ხატეთ ტილოზე
+	Pick the hoop you will put the fabric in. The design is made to fit it.	აირჩიეთ ჩარჩო, რომელშიც ქსოვილს ჩასვამთ. დიზაინი მის ზომაზე შეიქმნება.
+	Pick, move, add and delete single stitches	ცალკეული ნაკერების არჩევა, გადაადგილება, დამატება და წაშლა
+	Pinstripes	წვრილი ზოლები
+	Pique knit (polo shirt)	პიკე ტრიკოტაჟი (პოლო)
+	Place Along Selected Line	მონიშნული ხაზის გასწვრივ განთავსება
+	Place Artwork as Embroidery	ნახატის ნაქარგად განთავსება
+	Place Lettering	წარწერის განთავსება
+	Place Monogram	მონოგრამის განთავსება
+	Place Motif	მოტივის განთავსება
+	Place Ring	რგოლის განთავსება
+	Place editable inclination lines (or pick the angle) automatically	რედაქტირებადი დახრის ხაზების (ან კუთხის) ავტომატური განთავსება
+	Placement line and stop	განთავსების ხაზი და გაჩერება
+	Placement template	განთავსების შაბლონი
+	Plain	უბრალო
+	Play the stitches	ნაკერების დაკვრა
+	Plug in the USB stick you take to your machine, then choose it here.	შეაერთეთ USB ფლეშკა, რომელიც მანქანასთან მიგაქვთ, შემდეგ აირჩიეთ აქ.
+	Polo shirt	პოლო მაისური
+	Prepare Appliqué	აპლიკაციის მომზადება
+	Prepare Image	გამოსახულების მომზადება
+	Preserve long stitches	გრძელი ნაკერების შენარჩუნება
+	Print Catalogue	კატალოგის დაბეჭდვა
+	Print Chart…	სქემის დაბეჭდვა…
+	Print Cross-Stitch Chart	ჯვარედინი ნაკერის სქემის დაბეჭდვა
+	Print Cross-Stitch Chart…	ჯვარედინი ნაკერის სქემის დაბეჭდვა…
+	Print Stitch View	ნაკერების ხედის დაბეჭდვა
+	Print and Export	დაბეჭდვა და ექსპორტი
+	Print the Cutting Templates…	გამოჭრის შაბლონების დაბეჭდვა…
+	Print the Steps…	ნაბიჯების დაბეჭდვა…
+	Printed on worksheets	იბეჭდება სამუშაო ფურცლებზე
+	Product	ნაკეთობა
+	Product Visualizer	ნაკეთობაზე ვიზუალიზაცია
+	Production	წარმოება
+	Profile	პროფილი
+	Profile name	პროფილის სახელი
+	Properties for New Objects	თვისებები ახალი ობიექტებისთვის
+	Pull comp., side 1	შეკუმშვის კომპ., მხარე 1
+	Pull comp., side 2	შეკუმშვის კომპ., მხარე 2
+	Pull compensation	შეკუმშვის კომპენსაცია
+	Push compensation	გაწევის კომპენსაცია
+	Put back what Undo took back	იმის აღდგენა, რაც დაბრუნებამ გააუქმა
+	Put the machine's profile back to how it ships, and use it	მანქანის პროფილის ქარხნულ მდგომარეობაში დაბრუნება და მისი გამოყენება
+	Pyramids	პირამიდები
+	Quatrefoils	ოთხფურცლები
+	Queen (90 × 108″)	Queen (90 × 108″)
+	Queue the design for this folder: it is written now if the folder is there, else as soon as it is	დიზაინის რიგში ჩაყენება ამ საქაღალდისთვის: ჩაიწერება ახლავე, თუ საქაღალდე ხელმისაწვდომია, თორემ მისი გამოჩენისთანავე
+	Quilt Block	ქვილთის ბლოკი
+	Quilt Block Patterns	ქვილთის ბლოკის ნახატები
+	Quilt Block Set	ქვილთის ბლოკების ნაკრები
+	Quilt blocks saved:	შენახული ქვილთის ბლოკები:
+	Quilt height	ქვილთის სიმაღლე
+	Quilt width	ქვილთის სიგანე
+	Quilting for a tile	ქვილთინგი ფილისთვის
+	Quit StitchFoundry	StitchFoundry-იდან გასვლა
+	Radial Fill	რადიალური შევსება
+	Randomness	შემთხვევითობა
+	Read Team Names	გუნდის სახელების წაკითხვა
+	Read the size in the tile's window. The block is quilted edge to edge, the size of the tile.	ზომა ფილის სარკმელში ნახეთ. ბლოკი კიდიდან კიდემდე იქვილთება, ფილის ზომით.
+	Reading your credits…	თქვენი კრედიტები იკითხება…
+	Recolour	გადაღებვა
+	Recolour Threads	ძაფების გადაღებვა
+	Rectangle Border	მართკუთხა ბორდიური
+	Redefine Embroidery Style	ქარგვის სტილის ხელახლა განსაზღვრა
+	Redraw Image with Claude	გამოსახულების გადახატვა Claude-ით
+	Redraw Image with Claude…	გამოსახულების გადახატვა Claude-ით…
+	Redraw with Claude…	გადახატვა Claude-ით…
+	Redwork	რედვორკი
+	Regenerate Stitches	ნაკერების ხელახლა გენერირება
+	Remember the key on this computer	გასაღების დამახსოვრება ამ კომპიუტერზე
+	Remove Blend	გადასვლის მოცილება
+	Remove Holes	ხვრელების მოცილება
+	Remove background	ფონის მოცილება
+	Remove from Send Queue	გაგზავნის რიგიდან მოცილება
+	Remove the motif from the design; what sews it keeps it.	მოტივის მოცილება დიზაინიდან; ის, რაც მას ქარგავს, შეინარჩუნებს მას.
+	Remove underlying stitching	ქვედა ნაკერების მოცილება
+	Rename Colorway	ფერთა ვარიანტის სახელის შეცვლა
+	Rename Embroidery Style	ქარგვის სტილის სახელის შეცვლა
+	Rename Embroidery Style…	ქარგვის სტილის სახელის შეცვლა…
+	Repeats across	გამეორებები განივად
+	Repeats down	გამეორებები ვერტიკალურად
+	Replace Cross-Stitch Colour	ჯვარედინი ნაკერის ფერის ჩანაცვლება
+	Report a Bug…	შეცდომის შეტყობინება…
+	Reset Current Properties	მიმდინარე თვისებების ჩამოყრა
+	Reset Letter	ასოს ჩამოყრა
+	Reset Machine	მანქანის ჩამოყრა
+	Reset Start and Stop	დასაწყისისა და დასასრულის ჩამოყრა
+	Reverse Stitch Direction	ნაკერების მიმართულების შებრუნება
+	Rhinestones	სტრაზები
+	Rhinestones aren't sewn: export their template to cut and set them	სტრაზები არ იქარგება: მოახდინეთ მათი შაბლონის ექსპორტი ამოსაჭრელად და დასამაგრებლად
+	Right to left	მარჯვნიდან მარცხნივ
+	Rings (0: all)	რგოლები (0: ყველა)
+	Ripples	ტალღები
+	Rotate Hoop	ჩარჩოს შემობრუნება
+	Round ornament, 3½″	მრგვალი სამკაული, 3½″
+	Round the edge	კიდის გარშემო
+	Rounded Border	მომრგვალებული ბორდიური
+	Rounded Buttonhole	მომრგვალებული ღილის ჭრილი
+	Row offset	რიგის წანაცვლება
+	Row spacing	რიგებს შორის ინტერვალი
+	Row spacing (0: the line's height)	რიგებს შორის ინტერვალი (0: ხაზის სიმაღლე)
+	Rows across the shape: up is denser. Drag a point; double-click to add one; right-click one to take it out.	რიგები ფიგურის განივად: ზემოთ უფრო მჭიდროა. გადაათრიეთ წერტილი; ორმაგი დაწკაპუნება ამატებს, მარჯვენა დაწკაპუნება შლის.
+	Rows follow lines:	რიგები მიჰყვება ხაზებს:
+	Run	სწორი ნაკერი
+	Run style	სწორი ნაკერის სტილი
+	SVG Lines (.svg)…	SVG ხაზები (.svg)…
+	Sample Designs	ნიმუშის დიზაინები
+	Satin	ატლასი
+	Satin Fill	ატლასის შევსება
+	Satin Outline	ატლასის კონტური
+	Satin Ring	ატლასის რგოლი
+	Satin density	ატლასის სიმჭიდროვე
+	Satin only {n} mm wide sinks into the fabric	სულ {n} მმ სიგანის ატლასი ქსოვილში ჩაიძირება
+	Satin sewn over foam: dense, no underlay, its ends capped. Sew it in a colour of its own, to lay the foam at the stop	ატლასი ქაფზე: მჭიდრო, ქვესაფენის გარეშე, ბოლოები დახურული. დაქარგეთ საკუთარ ფერად, რომ გაჩერებისას ქაფი დადოთ
+	Satin suits shapes up to about 7 mm wide; wider areas sew better as tatami fill.	ატლასი დაახლოებით 7 მმ-მდე სიგანის ფიგურებს უხდება; უფრო ფართო უბნები უკეთ ტატამის შევსებით იქარგება.
+	Satin underlay	ატლასის ქვესაფენი
+	Save Custom Hoop	საკუთარი ჩარჩოს შენახვა
+	Save Design keeps a copy you can open and change later.	„დიზაინის შენახვა“ ინახავს ასლს, რომლის გახსნა და შეცვლა მოგვიანებით შეგიძლიათ.
+	Save Design…	დიზაინის შენახვა…
+	Save Embroidery Font	ქარგვის შრიფტის შენახვა
+	Save Embroidery Font…	ქარგვის შრიფტის შენახვა…
+	Save Fabric	ქსოვილის შენახვა
+	Save Hoop	ჩარჩოს შენახვა
+	Save Machine File…	მანქანის ფაილის შენახვა…
+	Save Machine Profile	მანქანის პროფილის შენახვა
+	Save Monogram Template	მონოგრამის შაბლონის შენახვა
+	Save Output Profile	გამოტანის პროფილის შენახვა
+	Save Profile	პროფილის შენახვა
+	Save Thread Chart	ძაფების ცხრილის შენახვა
+	Save as Default	ნაგულისხმევად შენახვა
+	Save as Design Template	დიზაინის შაბლონად შენახვა
+	Save as New Fabric	ახალ ქსოვილად შენახვა
+	Save as New Machine	ახალ მანქანად შენახვა
+	Save designs to	დიზაინების შენახვის ადგილი
+	Save for My Machine	ჩემი მანქანისთვის შენახვა
+	Save for My Machine downloads the design: copy it to the USB stick you take to your machine.	„ჩემი მანქანისთვის შენახვა“ დიზაინს ჩამოტვირთავს: დააკოპირეთ ის USB ფლეშკაზე, რომელიც მანქანასთან მიგაქვთ.
+	Save for My Machine downloads the file your machine sews: copy it to its USB stick.	„ჩემი მანქანისთვის შენახვა“ ჩამოტვირთავს ფაილს, რომელსაც თქვენი მანქანა ქარგავს: დააკოპირეთ ის მის USB ფლეშკაზე.
+	Save for My Machine writes the file your machine sews, to its USB stick.	„ჩემი მანქანისთვის შენახვა“ ფაილს, რომელსაც თქვენი მანქანა ქარგავს, მის USB ფლეშკაზე ჩაწერს.
+	Save it	შეინახეთ
+	Save to Machine	მანქანაში შენახვა
+	Saved for you automatically in My Designs:	ავტომატურად შეინახა „ჩემს დიზაინებში“:
+	Saved for your machine:	შენახულია თქვენი მანქანისთვის:
+	Scales	ქერცლი
+	Scallops	ფესტონები
+	Scatter Copies	ასლების გაბნევა
+	Screen Points per Inch at Life Size	ეკრანის წერტილები დუიმზე ნატურალური ზომისას
+	Screen points per inch	ეკრანის წერტილები დუიმზე
+	Sculpture run	სკულპტურული ნაკერი
+	Search help	დახმარებაში ძებნა
+	Second	მეორე
+	Second design	მეორე დიზაინი
+	Seconds per color change	წამი ფერის შეცვლაზე
+	Seconds per trim	წამი ძაფის მოჭრაზე
+	See the design sew on screen, stitch by stitch	ნახეთ, როგორ იქარგება დიზაინი ეკრანზე, ნაკერ-ნაკერ
+	See the needle go stitch by stitch, in the order your machine will sew it.	უყურეთ ნემსს ნაკერ-ნაკერ, იმ თანმიმდევრობით, როგორც თქვენი მანქანა დაქარგავს.
+	Select a path, shape or compound path to give it a stitch type.	მონიშნეთ ტრაექტორია, ფიგურა ან შედგენილი ტრაექტორია, რომ ნაკერის ტიპი მიანიჭოთ.
+	Select art and choose Embroidery › Convert Artwork to Embroidery to digitize it in one step.	მონიშნეთ ნახატი და აირჩიეთ ქარგვა › ნახატის ნაქარგად გარდაქმნა, რომ ერთი ნაბიჯით დიჯიტალიზაცია გაუკეთოთ.
+	Select lettering set in an embroidery font: a machine file is written for each name, the lettering set to it.	მონიშნეთ ქარგვის შრიფტით აწყობილი წარწერა: ყოველი სახელისთვის ჩაიწერება მანქანის ფაილი, სადაც წარწერა ამ სახელითაა აწყობილი.
+	Selection to glyph	მონიშნულიდან გლიფში
+	Send	გაგზავნა
+	Send Queue	გაგზავნის რიგი
+	Send Waiting Designs	მოლოდინში მყოფი დიზაინების გაგზავნა
+	Send When Ready	გაგზავნა მზადყოფნისას
+	Send queue	გაგზავნის რიგი
+	Send to Machine	მანქანაზე გაგზავნა
+	Sent:	გაიგზავნა:
+	Sequins	ჩითები
+	Server	სერვერი
+	Set Flow Lines	დინების ხაზების დაყენება
+	Set Inclination Lines	დახრის ხაზების დაყენება
+	Set My Machine	ჩემი მანქანის დაყენება
+	Set Split Lines	გამყოფი ხაზების დაყენება
+	Set Start and Stop	დასაწყისისა და დასასრულის დაყენება
+	Set Thread	ძაფის დაყენება
+	Set-up an order	შეკვეთის მომზადება
+	Sew Puff Last	puff-ის ბოლოს დაქარგვა
+	Sew as	დაქარგვა როგორც
+	Sew earlier	უფრო ადრე დაქარგვა
+	Sew first	პირველად დაქარგვა
+	Sew it as	დაქარგვა როგორც
+	Sew last	ბოლოს დაქარგვა
+	Sew later	მოგვიანებით დაქარგვა
+	Sew order	ქარგვის თანმიმდევრობა
+	Sew the gradient's colours blended the way it runs	გრადიენტის ფერების დაქარგვა მისი მიმართულებით შერეულად
+	Sew the objects separately again	ობიექტების ისევ ცალ-ცალკე დაქარგვა
+	Sew the photo over itself as zigzag lines, one meandering run, or its colours	ფოტოს დაქარგვა თავის თავზე ზიგზაგის ხაზებით, ერთი კლაკნილი ნაკერით ან მისი ფერებით
+	Sew the pieces together	ნაწილების ერთმანეთზე მიკერება
+	Sew the shape as appliqué	ფიგურის აპლიკაციად დაქარგვა
+	Sewing time	ქარგვის დრო
+	Sewn as one line that ends where it starts; the way between lines is retraced along them.	იქარგება ერთი ხაზით, რომელიც იქ მთავრდება, სადაც იწყება; ხაზებს შორის გზა მათ გასწვრივ მეორდება.
+	Sewn in a 5×7 hoop, borders and back sewn on after	იქარგება 5×7 ჩარჩოში, კიდეები და ზურგი შემდეგ ეკერება
+	Sewn last	ბოლოს იქარგება
+	Sewn on clothing	ტანსაცმელზე ნაქარგი
+	Sews well at	კარგად იქარგება ზომაზე
+	Sews well from	კარგად იქარგება ზომიდან
+	Sews well up to	კარგად იქარგება ზომამდე
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	ამ შემოწმების გაზიარება StitchFoundry-ის გასაუმჯობესებლად (პირადი რჩება; ნებისმიერ დროს შეგიძლიათ წაშალოთ StitchFoundry-ის ანგარიშში)
+	Shell	ნიჟარა
+	Shield	ფარი
+	Short fill stitches under	მოკლე შევსების ნაკერის ზღვარი
+	Short stitches on curves	მოკლე ნაკერები მრუდებზე
+	Short stitches under	მოკლე ნაკერის ზღვარი
+	Shortest stitch	ყველაზე მოკლე ნაკერი
+	Show Repeats	გამეორებების ჩვენება
+	Show every stitch	ყველა ნაკერის ჩვენება
+	Show everything	ყველაფრის ჩვენება
+	Show on Product	ნაკეთობაზე ჩვენება
+	Show stitches	ნაკერების ჩვენება
+	Show this glyph	ამ გლიფის ჩვენება
+	Showing the basics.	ნაჩვენებია საფუძვლები.
+	Shown with the design, not sewn	ნაჩვენებია დიზაინთან ერთად, არ იქარგება
+	Side 1	მხარე 1
+	Side 2	მხარე 2
+	Side by Side	გვერდიგვერდ
+	Sign In	შესვლა
+	Sign Out	გასვლა
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	შედით ან შექმენით ანგარიში, რომ AI ფუნქციები საკუთარი Anthropic API გასაღების ნაცვლად StitchFoundry-ის კრედიტებით გადაიხადოთ. ახალი ანგარიში უფასო კრედიტებით იწყება.
+	Signed in as {email}	შესული ხართ როგორც {email}
+	Silk / lightweight	აბრეშუმი / მსუბუქი ქსოვილი
+	Simple pictures with a few flat colours and clear edges work best: a cartoon, a logo, clipart.	საუკეთესოდ მარტივი სურათები გამოდგება რამდენიმე ერთფეროვანი ფერითა და მკაფიო კიდეებით: მულტფილმის ნახატი, ლოგო, კლიპარტი.
+	Singer XXX (.xxx)…	Singer XXX (.xxx)…
+	Single	ერთმაგი
+	Single stitch length	ერთმაგი ნაკერის სიგრძე
+	Single stitches	ერთმაგი ნაკერები
+	Size (longest side):	ზომა (გრძელი მხარე):
+	Slants	დახრილი ხაზები
+	Small lettering under	პატარა წარწერის ზღვარი
+	Small letters	პატარა ასოები
+	Small text	პატარა ტექსტი
+	Smaller	უფრო პატარა
+	Smallest That Fits	ყველაზე პატარა, რომელიც ეტევა
+	Smooth edge (satin)	გლუვი კიდე (ატლასი)
+	Snapback	სნეპბექი
+	Snowflake	ფიფქი
+	Snowflakes	ფიფქები
+	Sort by Thread Color	ძაფის ფერით სორტირება
+	Space width	ჰარის სიგანე
+	Spacing profile	ინტერვალის პროფილი
+	Special Machines	სპეციალური მანქანები
+	Spiral Fill	სპირალური შევსება
+	Spirals	სპირალები
+	Split Here	აქ გაყოფა
+	Split Lines	გამყოფი ხაზები
+	Split Object	ობიექტის გაყოფა
+	Split lines:	გამყოფი ხაზები:
+	Split the object in two at the picked stitch	ობიექტის ორად გაყოფა არჩეულ ნაკერზე
+	Square corners	მართი კუთხეები
+	Square loop	კვადრატული მარყუჟი
+	Squares spiral	კვადრატების სპირალი
+	Stabiliser	სტაბილიზატორი
+	Stabilizer	სტაბილიზატორი
+	Stars	ვარსკვლავები
+	Start	დასაწყისი
+	Start Over	თავიდან დაწყება
+	Start Over…	თავიდან დაწყება…
+	Start a design for your hoop	დაიწყეთ დიზაინი თქვენი ჩარჩოსთვის
+	Start a design from the Home screen.	დაიწყეთ დიზაინი მთავარ ეკრანზე.
+	Start and End on the Edges	დაწყება და დასრულება კიდეებზე
+	Start and stop	დასაწყისი და დასასრული
+	Start at	დაწყება
+	Start from StitchFoundry Defaults	StitchFoundry-ის ნაგულისხმევიდან დაწყება
+	Stem Stitch	ღეროვანი ნაკერი
+	Stem stitch	ღეროვანი ნაკერი
+	Step by step: words, a shape, appliqué, a picture or a sample	ნაბიჯ-ნაბიჯ: სიტყვები, ფიგურა, აპლიკაცია, სურათი ან ნიმუში
+	Steps	ნაბიჯები
+	Still to digitize	დასადიჯიტალიზებელი დარჩა
+	Stipple	წერტილოვანი მეანდრი
+	Stitch	ნაკერი
+	Stitch Direction	ნაკერის მიმართულება
+	Stitch Edit Tool	ნაკერების რედაქტირების ხელსაწყო
+	Stitch Image PNG (.png)…	ნაკერების გამოსახულება PNG (.png)…
+	Stitch Lines	ნაკერის ხაზები
+	Stitch List	ნაკერების სია
+	Stitch List CSV (.csv)…	ნაკერების სია CSV (.csv)…
+	Stitch List JSON (.json)…	ნაკერების სია JSON (.json)…
+	Stitch Parameters	ნაკერის პარამეტრები
+	Stitch Plan	ნაკერების გეგმა
+	Stitch Sequence	ქარგვის თანმიმდევრობა
+	Stitch Type	ნაკერის ტიპი
+	Stitch as	დაქარგვა როგორც
+	Stitch in the Ditch	ნაკერი ნაკერში
+	Stitch length	ნაკერის სიგრძე
+	Stitch type	ნაკერის ტიპი
+	StitchFoundry Account	StitchFoundry-ის ანგარიში
+	StitchFoundry Account…	StitchFoundry-ის ანგარიში…
+	StitchFoundry Help	StitchFoundry-ის დახმარება
+	StitchFoundry Help…	StitchFoundry-ის დახმარება…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-ის ანგარიშები ჯერ არ გახსნილა. მანამდე AI ფუნქციები თქვენი საკუთარი Anthropic API გასაღებით მუშაობს.
+	StitchFoundry copies the fonts to {folder}.	StitchFoundry შრიფტებს აკოპირებს აქ: {folder}.
+	StitchFoundry didn't quit normally last time. These documents had unsaved changes:	წინა ჯერზე StitchFoundry ნორმალურად არ დახურულა. ამ დოკუმენტებში შეუნახავი ცვლილებები იყო:
+	StitchFoundry on GitHub	StitchFoundry GitHub-ზე
+	StitchFoundry read this script without running it.	StitchFoundry-მ ეს სკრიპტი გაშვების გარეშე წაიკითხა.
+	Stitches	ნაკერები
+	Stitches edited by hand: the shape no longer changes them.	ნაკერები ხელითაა შესწორებული: ფიგურა მათ აღარ ცვლის.
+	Stitches over 7 mm	7 მმ-ზე გრძელი ნაკერები
+	Stitches per minute	ნაკერი წუთში
+	Stitches under 1 mm	1 მმ-ზე მოკლე ნაკერები
+	Stitches up to {n} mm long can snag	{n} მმ-მდე სიგრძის ნაკერებს შეიძლება რამე წამოედოს
+	Stop after	გაჩერება შემდეგ
+	Stop before	გაჩერება წინ
+	Stop to trim fabric	გაჩერება ქსოვილის მოსაჭრელად
+	Stops	გაჩერებები
+	Straight	სწორი
+	Straight Buttonhole	სწორი ღილის ჭრილი
+	String stitch	სიმისებრი ნაკერი
+	Stripes	ზოლები
+	Structured cap	მყარი კეპი
+	Sun	მზე
+	Sun and moon	მზე და მთვარე
+	Sunbursts	სხივები
+	Swap Satin Sides	ატლასის მხარეების გაცვლა
+	Swirl	ხვეული
+	Swirls	ხვეულები
+	T-shirt	მაისური
+	Tack-down	მიმაგრება
+	Tajima DST (.dst)…	Tajima DST (.dst)…
+	Take back the last change	ბოლო ცვლილების გაუქმება
+	Tapered	წაწვეტებული
+	Tartan Fill	შოტლანდიური უჯრით შევსება
+	Tatami Fill	ტატამის შევსება
+	Tatami stitches	ტატამის ნაკერები
+	Tatami underlay	ტატამის ქვესაფენი
+	Team Names	გუნდის სახელები
+	Team Names Worksheet	გუნდის სახელების სამუშაო ფურცელი
+	Team name files written	ჩაწერილი გუნდის სახელების ფაილები
+	Tear-away	მოსახევი
+	Tell us your machine to see its hoops and save in its format.	მიუთითეთ თქვენი მანქანა, რომ მისი ჩარჩოები ნახოთ და მის ფორმატში შეინახოთ.
+	Tell us your machine to see its hoops.	მიუთითეთ თქვენი მანქანა, რომ მისი ჩარჩოები ნახოთ.
+	Template name	შაბლონის სახელი
+	Test Sew-Out	საცდელი ნაქარგი
+	Test Sew-Outs	საცდელი ნაქარგები
+	Test text	საცდელი ტექსტი
+	Text size	ტექსტის ზომა
+	Texture angle	ტექსტურის კუთხე
+	Texture size	ტექსტურის ზომა
+	The basic tools and everyday sections, nothing more	ძირითადი ხელსაწყოები და ყოველდღიური განყოფილებები, მეტი არაფერი
+	The bobbin ran out	მაკოს ძაფი გათავდა
+	The bobbin thread didn't cut, or caught	ქვედა ძაფი არ მოიჭრა ან გაიჭედა
+	The chosen part	არჩეული ნაწილი
+	The chosen parts	არჩეული ნაწილები
+	The design	დიზაინი
+	The design file too	დიზაინის ფაილიც
+	The design is bigger than the hoop: make it smaller before you sew.	დიზაინი ჩარჩოზე დიდია: ქარგვამდე შეამცირეთ.
+	The design is larger than the hoop	დიზაინი ჩარჩოზე დიდია
+	The design's own	დიზაინის საკუთარი
+	The dial in the lower-left corner sets the brush, width, density, length and shape.	ქვედა მარცხენა კუთხეში მდებარე დისკი აყენებს ფუნჯს, სიგანეს, სიმჭიდროვეს, სიგრძესა და ფიგურას.
+	The first column of a CSV table, or a text file of one name a line	CSV ცხრილის პირველი სვეტი ან ტექსტური ფაილი, თითო სახელი თითო სტრიქონზე
+	The first design in blue, the second in red, at the same scale and centred on each other	პირველი დიზაინი ლურჯად, მეორე წითლად, ერთსა და იმავე მასშტაბში და ერთმანეთზე ცენტრირებული
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	წინა მხარე, უკანა მხარე და ახლო ხედები ყველაფრისა, რაც არასწორად გამოიყურება. ფოტოზე სახაზავი ან მონეტა ზომას აჩვენებს.
+	The hoop	ჩარჩო
+	The hoop was knocked or the fabric slipped	ჩარჩოს რაღაც მოხვდა ან ქსოვილი გასრიალდა
+	The machine also stops where you lay or trim fabric.	მანქანა ასევე ჩერდება იქ, სადაც ქსოვილს დებთ ან ჭრით.
+	The machine sews where the fabric goes and stops; you lay the fabric on, it tacks it down and stops again for you to trim; then it sews the edge.	მანქანა ქარგავს იქ, სადაც ქსოვილი უნდა დაიდოს, და ჩერდება; თქვენ ქსოვილს დებთ, ის მას მიამაგრებს და ისევ ჩერდება, რომ ზედმეტი მოჭრათ; შემდეგ კიდეს ქარგავს.
+	The machine stopped with a message	მანქანა შეტყობინებით გაჩერდა
+	The needle broke	ნემსი გატყდა
+	The pattern as a counted chart to stitch from: a symbol a square, numbered every 10, and a key of the threads	ნახატი დასათვლელი სქემის სახით: თითო უჯრაში სიმბოლო, ყოველ 10-ზე დანომრილი, და ძაფების გასაღები
+	The selected art becomes the glyph, moved onto its artboard	მონიშნული ნახატი გლიფად იქცევა და მის სამუშაო დაფაზე გადაინაცვლებს
+	The smallest hoop that holds the design, turned if that fits better	ყველაზე პატარა ჩარჩო, რომელიც დიზაინს იტევს, შემობრუნებული, თუ ასე უკეთ ეტევა
+	The stitches are made to suit it: a stretchy T-shirt needs more holding than a towel or denim.	ნაკერები მასზეა მორგებული: ელასტიურ მაისურს უფრო მეტი დამაგრება სჭირდება, ვიდრე პირსახოცს ან დენიმს.
+	The text along the selected line or shape, from its start	ტექსტი მონიშნული ხაზის ან ფიგურის გასწვრივ, მისი დასაწყისიდან
+	The top thread broke	ზედა ძაფი გაწყდა
+	These are sewn in this order. Click a colour to match a thread you have.	ესენი ამ თანმიმდევრობით იქარგება. დააწკაპუნეთ ფერზე, რომ თქვენს ხელთ არსებულ ძაფს მიუსადაგოთ.
+	These objects are sewn as one path (a branch).	ეს ობიექტები ერთი ტრაექტორიით იქარგება (განშტოება).
+	Thinking…	ვფიქრობ…
+	This Design	ეს დიზაინი
+	This design	ეს დიზაინი
+	This design stops for fabric you cut to size. Made bigger or smaller, the pieces may no longer fit.	ეს დიზაინი ჩერდება ზომაზე მოჭრილი ქსოვილისთვის. თუ გაადიდებთ ან შეამცირებთ, ნაწილები შეიძლება აღარ მოერგოს.
+	This is the sew-out after the fix from my last check	ეს ნაქარგი ჩემი ბოლო შემოწმების შესწორების შემდეგაა
+	Thread	ძაფი
+	Thread Charts	ძაფების ცხრილები
+	Thread Color	ძაფის ფერი
+	Thread chart	ძაფების ცხრილი
+	Thread colors	ძაფის ფერები
+	Thread colour	ძაფის ფერი
+	Thread colours	ძაფის ფერები
+	Thread per 1000 m	ძაფი 1000 მ-ზე
+	Threads of the same or a near colour made one, and their colour blocks joined; undo puts them back	ერთი ან ახლო ფერის ძაფები ერთ ძაფად იქცა და მათი ფერის ბლოკები გაერთიანდა; დაბრუნება მათ აღადგენს
+	Three	სამი
+	Throw (50 × 65″)	პლედი (50 × 65″)
+	Tie in	ჩაკერება დასაწყისში
+	Tie length	ჩაკერების სიგრძე
+	Tie off	ჩაკერება ბოლოს
+	Tie style	ჩაკერების სტილი
+	Tiny object: may not sew cleanly	პაწაწინა ობიექტი: შეიძლება სუფთად არ დაიქარგოს
+	Tiny objects under	პაწაწინა ობიექტის ზღვარი
+	Tip:	რჩევა:
+	Tips	რჩევები
+	To follow a line of your own, draw it first, select it, then Add Words.	საკუთარი ხაზის გასწვრივ წარწერისთვის ჯერ დახატეთ ხაზი, მონიშნეთ, შემდეგ აირჩიეთ „სიტყვების დამატება“.
+	Toolbar: All Tools, Ungrouped	ხელსაწყოთა ზოლი: ყველა ხელსაწყო, დაუჯგუფებლად
+	Top left	ზემოთ მარცხნივ
+	Top right	ზემოთ მარჯვნივ
+	Top thread (m)	ზედა ძაფი (მ)
+	Topping	ზედა სტაბილიზატორი
+	Tote bag	ტილოს ჩანთა
+	Towel	პირსახოცი
+	Towel / terry	პირსახოცი / ხაოიანი ქსოვილი
+	Trapunto (travel along the outline)	ტრაპუნტო (გადასვლა კონტურის გასწვრივ)
+	Travel by	გადასვლის გზა
+	Trefoils	სამფურცლები
+	Trim after	ძაფის მოჭრა შემდეგ
+	Trim jumps longer than	მოიჭრას ნახტომები, რომლებიც გრძელია ვიდრე
+	Trims	ძაფის მოჭრები
+	Triple	სამმაგი
+	Triple run	სამმაგი სწორი ნაკერი
+	Triple stitch length	სამმაგი ნაკერის სიგრძე
+	Triple stitches	სამმაგი ნაკერები
+	Trucker cap	ტრაკერის კეპი
+	TrueView	TrueView
+	Try Again	ხელახლა ცდა
+	Try a sample	სცადეთ ნიმუში
+	Try in a New Document	ახალ დოკუმენტში ცდა
+	Turn	შემობრუნება
+	Turn Into Stitches	ნაკერებად გარდაქმნა
+	Turn it into stitches in your thread colours.	გარდაქმენით ის ნაკერებად თქვენი ძაფების ფერებში.
+	Turn the hue	ელფერის შემობრუნება
+	Turn the image into stitches: narrow parts become satin, the rest tatami fill.	გამოსახულების ნაკერებად გარდაქმნა: ვიწრო ნაწილები ატლასად იქცევა, დანარჩენი – ტატამის შევსებად.
+	Twin (70 × 90″)	ერთსაწოლიანი (70 × 90″)
+	Type a name and make the design	აკრიფეთ სახელი და შექმენით დიზაინი
+	Type family	შრიფტის ოჯახი
+	Type the hoop's width and height as numbers	აკრიფეთ ჩარჩოს სიგანე და სიმაღლე რიცხვებით
+	Type your question, then press Enter	აკრიფეთ თქვენი კითხვა, შემდეგ დააჭირეთ Enter-ს
+	Type your text, then choose an embroidery font in the Lettering panel so it sews cleanly.	აკრიფეთ ტექსტი, შემდეგ წარწერების პანელში აირჩიეთ ქარგვის შრიფტი, რომ სუფთად დაიქარგოს.
+	Under 6 mm	6 მმ-ზე ნაკლები
+	Underlay spacing	ქვესაფენის ინტერვალი
+	Unload the font and stop loading its folder	შრიფტის გამოტვირთვა და მისი საქაღალდის ჩატვირთვის შეწყვეტა
+	Update Job Order	შეკვეთის განახლება
+	Update Lettering	წარწერის განახლება
+	Upright cross	სწორი ჯვარი
+	Use Colorway	ფერთა ვარიანტის გამოყენება
+	Use Line as Direction	ხაზის მიმართულებად გამოყენება
+	Use This Size	ამ ზომის გამოყენება
+	Valley	ხეობა
+	Version {version} — open-source machine embroidery digitizing in pure Rust.	ვერსია {version} — მანქანური ქარგვის ღია კოდის დიჯიტალიზაცია სუფთა Rust-ზე.
+	Very dense: about {n} layers of thread here	ძალიან მჭიდრო: აქ ძაფის დაახლოებით {n} ფენაა
+	Waiting for the folder	საქაღალდის მოლოდინი
+	Wash-away	წყალში ხსნადი
+	Watch It Sew	ქარგვის ყურება
+	Watch it sew	ქარგვის ყურება
+	Watch it sew with the stitch player and check it.	უყურეთ ქარგვას ნაკერების პლეერში და შეამოწმეთ.
+	Watch the design sew with the stitch player in Stitch Sequence before you send it.	გაგზავნამდე უყურეთ დიზაინის ქარგვას ნაკერების პლეერში, „ქარგვის თანმიმდევრობაში“.
+	Wave	ტალღა
+	Waves	ტალღები
+	Welcome to StitchFoundry	მოგესალმებით StitchFoundry-ში
+	What fabric will you sew it on?	რა ქსოვილზე დაქარგავთ?
+	What should it say?	რა უნდა ეწეროს?
+	What size is the tile?	რა ზომისაა ფილა?
+	What to change (optional):	რა შეიცვალოს (არასავალდებულო):
+	What would you like to make?	რისი გაკეთება გსურთ?
+	Where it falls	სადაც მოხვდება
+	Where needed	სადაც საჭიროა
+	Which embroidery machine do you have?	რომელი ქარგვის მანქანა გაქვთ?
+	Which fabric?	რომელი ქსოვილი?
+	Which hoop will you use?	რომელ ჩარჩოს გამოიყენებთ?
+	Which project?	რომელი პროექტი?
+	Which sample?	რომელი ნიმუში?
+	Which shape of fabric?	ქსოვილის რომელი ფიგურა?
+	Which shape?	რომელი ფიგურა?
+	While it sewed:	ქარგვისას:
+	Wicker	წნული
+	Widget values	ვიჯეტის მნიშვნელობები
+	Width (mm)	სიგანე (მმ)
+	Width at end	სიგანე ბოლოში
+	Width profile	სიგანის პროფილი
+	Widths (mm)	სიგანეები (მმ)
+	With the Thread Colour	ძაფის ფერით
+	Words	სიტყვები
+	Words (you can leave this empty)	სიტყვები (შეგიძლიათ ცარიელი დატოვოთ)
+	Worksheet	სამუშაო ფურცელი
+	Worksheet Setup	სამუშაო ფურცლის პარამეტრები
+	Woven (twill, poplin)	ქსოვილი (ტვილი, პოპლინი)
+	Write Again	ხელახლა ჩაწერა
+	Write the design for your machine to its USB stick or folder	დიზაინის ჩაწერა თქვენი მანქანისთვის მის USB ფლეშკაზე ან საქაღალდეში
+	Write to Folder…	საქაღალდეში ჩაწერა…
+	X (mm)	X (მმ)
+	Y (mm)	Y (მმ)
+	You can still get it back with Undo.	მისი დაბრუნება ჯერ კიდევ შეგიძლიათ „დაბრუნებით“.
+	Your design	თქვენი დიზაინი
+	Your first design	თქვენი პირველი დიზაინი
+	Your thread colours	თქვენი ძაფების ფერები
+	Zigzag	ზიგზაგი
+	background, not sewn	ფონი, არ იქარგება
+	colours	ფერი
+	commercial machines	სამრეწველო მანქანები
+	couldn't be read:	ვერ წაიკითხა:
+	e.g. 75/11 ballpoint	მაგ. 75/11 ბურთულიანი
+	failed	ვერ შესრულდა
+	failed:	ვერ შესრულდა:
+	files written	ჩაწერილი ფაილი
+	fonts	შრიფტი
+	fonts downloaded, ready for lettering	ჩამოტვირთული შრიფტი, წარწერებისთვის მზა
+	home machines	საოჯახო მანქანები
+	in	დუიმი
+	inclination lines	დახრის ხაზი
+	is ready for lettering	წარწერებისთვის მზადაა
+	joins needed: Join into One Line makes them	საჭირო შეერთება: „ერთ ხაზად შეერთება“ მათ შექმნის
+	longest	ყველაზე გრძელი
+	same	იგივე
+	sent	გაიგზავნა
+	stitches	ნაკერი
+	thread changes	ძაფის ცვლილება
+	threads sewn	დაქარგული ძაფი
+	waiting	მოლოდინში
+	{n} credits	{n} კრედიტი
+	{n} credits for {price}	{n} კრედიტი {price}-ად
+	{n} free checks left this month.	ამ თვეს დარჩენილი უფასო შემოწმებები: {n}.
+	{n} very short stitches can break the thread	{n} ძალიან მოკლე ნაკერმა შეიძლება ძაფი გაწყვიტოს
+	{n}-count Aida	Aida ტილო, {n} უჯრა
+# Embroidery (StitchFoundry): picture services
+	Picture made by	სურათის შემქმნელი
+	Claude (draws the shapes itself)	Claude (ფიგურებს თავად ხატავს)
+	{name} API key:	{name} API გასაღები:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	სურათის ღირებულება ამ სერვისში თქვენს ანგარიშს ერიცხება. შემდეგ Claude მას თქვენი ძაფების ფერებში ბრტყელ ფიგურებად გადახატავს, რომ ძაფის ცოტა ცვლილებით დაიქარგოს.
+	Making the picture…	სურათი იქმნება…
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	ავტომატური დიჯიტალიზაცია
+	Backstitch Line	უკან ნემსას ხაზი
+	Close Appliqué Outlines	აპლიკაციის კონტურების შეკვრა
+	Erase Backstitch	უკან ნემსას წაშლა
+	Erase Cross Stitches	ჯვარედინი ნაკერების წაშლა
+	Move Stitches	ნაკერების გადაადგილება
+	Place Artwork	ნახატის განთავსება
+@plural	{n} more export waiting|{n} more exports waiting	ექსპორტი მოლოდინში: კიდევ {n}
+@msg	Export cancelled	ექსპორტი გაუქმდა
+# Paragraph panel menu › Justification…
+# Select by Color (select.color)
+file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
+	Length	სიგრძე

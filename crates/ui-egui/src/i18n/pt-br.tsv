@@ -6038,3 +6038,404 @@ mark-style	Japanese	Japonesas
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	as variáveis e os conjuntos de dados do arquivo não foram lidos (variáveis: {variables}, conjuntos de dados: {data_sets}): o painel Variáveis não os lista
 # Select by Color (select.color)
 	Select by Color	Selecionar por Cor
+
+# StitchFoundry (embroidery)
+	#	#
+	A border of the selected line	Uma borda da linha selecionada
+	A check costs {n} credits; free checks come back next month.	Uma revisão custa {n} créditos; as revisões grátis voltam no mês que vem.
+	A copy of this fabric to change	Uma cópia deste tecido para alterar
+	A machine profile of your own with these settings	Um perfil de máquina próprio com estes ajustes
+	A moss fill with chain borders sewn before and after it, in a group in the shape's place	Um preenchimento musgo com bordas em corrente bordadas antes e depois dele, em um grupo no lugar da forma
+	About the library	Sobre a biblioteca
+	About the sewing	Sobre o bordado
+	Account	Conta
+	Add Inclination Line	Adicionar linha de inclinação
+	Add My Hoop	Adicionar meu bastidor
+	Add Photos…	Adicionar fotos…
+	After the selection	Depois da seleção
+	Allow	Permitir
+	Along the selected line	Ao longo da linha selecionada
+	Another fabric, or not sure: leave it as it is	Outro tecido, ou não tenho certeza: deixar como está
+	Answers come from Claude with your own Anthropic API key, billed to your Anthropic account. They can be wrong: try a test sew before an important piece.	As respostas vêm do Claude com a sua própria chave de API da Anthropic, cobrada na sua conta Anthropic. Elas podem estar erradas: faça um bordado de teste antes de uma peça importante.
+	Anything else? For example: a gap above the bumper	Mais alguma coisa? Por exemplo: uma folga acima do para-choque
+	Apply Embroidery Style	Aplicar estilo de bordado
+	Apply Fabric	Aplicar tecido
+	Arc Down	Arco para baixo
+	Arc Up	Arco para cima
+	Artwork	Arte
+	As the design has it	Como está no desenho
+	Ask	Perguntar
+	Ask About Embroidery	Perguntar sobre bordado
+	Ask anything about machine embroidery or StitchFoundry: which stabilizer to use, why thread breaks, how to make letters sew cleaner, where a feature is. Claude can also change your design when you ask, after you allow it.	Pergunte o que quiser sobre bordado à máquina ou sobre o StitchFoundry: qual entretela usar, por que a linha arrebenta, como deixar as letras mais nítidas, onde fica um recurso. O Claude também pode alterar o seu desenho quando você pedir, depois que você permitir.
+	Auto Stitch Direction	Direção automática dos pontos
+	Auto spacing	Espaçamento automático
+	Auto split	Divisão automática
+	Automatic underlay	Base automática
+	Average stitch (mm)	Ponto médio (mm)
+	Back to the start	Voltar ao início
+	Backstitch lines	Linhas de ponto atrás
+	Before the selection	Antes da seleção
+	Bobbin thread (m)	Linha da bobina (m)
+	Border depth	Profundidade da borda
+	Border length	Comprimento da borda
+	Break Link to Embroidery Style	Desvincular do estilo de bordado
+	Brother or Baby Lock multi-needle	Brother ou Baby Lock multiagulhas
+	Brush (squares)	Pincel (quadrados)
+	Brush Stroke	Pincelada
+	Buy credits	Comprar créditos
+	Buy…	Comprar…
+	Calligraphy	Caligrafia
+	Capped	Limitado
+	Cell size	Tamanho da célula
+	Change key	Alterar chave
+	Changed:	Alterado:
+	Check Again	Verificar de novo
+	Check My Sew-out	Revisar meu bordado
+	Check settings	Ajustes da revisão
+	Chenille stops	Paradas de chenille
+	Choose a machine file or the design open now	Escolha um arquivo de máquina ou o desenho aberto agora
+	Choose both designs to compare them	Escolha os dois desenhos para compará-los
+	Choose the photos in the browser's window…	Escolha as fotos na janela do navegador…
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	O Claude analisa as fotos com a sua própria chave de API da Anthropic, cobrada na sua conta Anthropic. Ele pode errar: teste a correção primeiro em um retalho do mesmo tecido.
+	Claude wants to change your design:	O Claude quer alterar o seu desenho:
+	Clear Lines	Limpar linhas
+	Click a square to fill every touching square like it; hold Alt to clear them	Clique em um quadrado para preencher todos os quadrados iguais que encostam nele; segure Alt para limpá-los
+	Click or drag on a cross-stitch grid to fill its squares; hold Alt to erase	Clique ou arraste em uma grade de ponto cruz para preencher os quadrados; segure Alt para apagar
+	Click to select and show it	Clique para selecionar e mostrar
+	Color change	Troca de cor
+	Colour changes	Trocas de cor
+	Colour the design by how deep the thread lies: blue one layer, red as dense as Check Design flags	Colorir o desenho pela espessura da linha acumulada: azul uma camada, vermelho tão denso quanto o que Verificar desenho aponta
+	Column A/B	Coluna A/B
+	Commercial multi-needle (DST)	Multiagulhas industrial (DST)
+	Connectors	Conectores
+	Constant	Constante
+	Corner leg (0: no corner)	Perna do canto (0: sem canto)
+	Couldn't change:	Não foi possível alterar:
+	Cover stitch	Ponto de cobertura
+	Cover width	Largura da cobertura
+	Create Account	Criar conta
+	Current Properties	Propriedades atuais
+	Delete Embroidery Style	Excluir estilo de bordado
+	Delete Fabric	Excluir tecido
+	Delete Inclination Line	Excluir linha de inclinação
+	Delete Machine	Excluir máquina
+	Delete Machine Profile	Excluir perfil de máquina
+	Delete My Shared Sew-out Checks	Excluir minhas revisões compartilhadas
+	Denim / canvas	Jeans / lona
+	Dense from (layers)	Denso a partir de (camadas)
+	Densities (mm)	Densidades (mm)
+	Density	Densidade
+	Density map	Mapa de densidade
+	Design	Desenho
+	Design Information	Informações do desenho
+	Design setting	Ajuste do desenho
+	Differences of 10% or more are highlighted. The real test is sewing both.	Diferenças de 10% ou mais ficam destacadas. O teste de verdade é bordar os dois.
+	Different on each side	Diferente em cada lado
+	Dimmed	Esmaecido
+	Direction: automatic	Direção: automática
+	Direction: fixed angle	Direção: ângulo fixo
+	Direction: one inclination line	Direção: uma linha de inclinação
+	Direction: turning along	Direção: girando ao longo
+	Don't Allow	Não permitir
+	Double zigzag	Zigue-zague duplo
+	Download Again	Baixar de novo
+	Download All	Baixar todas
+	Download fonts from an embroidery font library, ready for lettering	Baixar fontes de uma biblioteca de fontes de bordado, prontas para letreiros
+	Downloading	Baixando
+	Drag across the shape to add a line; drag a bead to move it	Arraste sobre a forma para adicionar uma linha; arraste uma ponta para movê-la
+	Drag from corner to corner of the squares to draw a backstitch line; Alt-click a line to take it away	Arraste de canto a canto dos quadrados para desenhar uma linha de ponto atrás; clique com Alt em uma linha para removê-la
+	Drop the hand edits and stitch the shape again	Descartar as edições manuais e bordar a forma de novo
+	Duplicate Embroidery Style	Duplicar estilo de bordado
+	Each anchor point is a needle penetration.	Cada ponto de ancoragem é uma entrada da agulha.
+	Each font comes with its own licence, in its folder.	Cada fonte vem com a própria licença, na pasta dela.
+	Edge run underlay	Base de ponto corrido na borda
+	Edge-to-edge rows of the selected line	Fileiras de ponta a ponta da linha selecionada
+	Edit Lines	Editar linhas
+	Edit Stitches	Editar pontos
+	Edit › Undo takes each change back.	Editar › Desfazer reverte cada alteração.
+	Email	E-mail
+	Embroidery Brush Tool	Ferramenta Pincel de bordado
+	Embroidery Settings	Ajustes de bordado
+	End	Fim
+	Erase	Apagar
+	Every font not downloaded yet, one after another	Todas as fontes ainda não baixadas, uma após a outra
+	Export Machine File…	Exportar arquivo de máquina…
+	Fabric	Tecido
+	Fabric color	Cor do tecido
+	Fabric settings	Ajustes do tecido
+	Fill a patch	Preencher uma área
+	Fill density	Densidade do preenchimento
+	Fill stitch length	Comprimento do ponto de preenchimento
+	Fill style	Estilo de preenchimento
+	Fill underlay	Base do preenchimento
+	First design	Primeiro desenho
+	Fits the hoop	Cabe no bastidor
+	Fleece / sweatshirt	Fleece / moletom
+	Flip to the other side	Virar para o outro lado
+	Fonts are kept in	As fontes ficam em
+	Fonts downloaded:	Fontes baixadas:
+	Free sew-out checks left this month: {n}	Revisões grátis restantes neste mês: {n}
+	Function	Função
+	Get Embroidery Fonts	Obter fontes de bordado
+	Give every stitched object the chart's closest thread	Dar a cada objeto bordado a linha mais próxima da cartela
+	Give objects a stitch type in the Embroidery panel.	Defina um tipo de ponto para os objetos no painel Bordado.
+	Give the hoop a name	Dê um nome ao bastidor
+	Gradient to	Degradê até
+	Height (mm)	Altura (mm)
+	Hidden (not sewn)	Ocultos (não bordados)
+	Hide Digitizing Widget	Ocultar widget de digitalização
+	Hoop	Bastidor
+	Hoop not listed? Add its sewing field here.	O seu bastidor não está na lista? Adicione a área de bordado dele aqui.
+	In-the-Hoop Cutting Templates	Moldes de corte para ITH (no bastidor)
+	In-the-Hoop Projects	Projetos ITH (no bastidor)
+	Inclination lines	Linhas de inclinação
+	Include my design	Incluir meu desenho
+	Include the design that was sewn (open now), so it can be fixed	Incluir o desenho que foi bordado (aberto agora), para que possa ser corrigido
+	Jersey knit (T-shirt)	Malha jersey (camiseta)
+	Jump	Salto
+	Jumps	Saltos
+	Keep Design Safe	Proteger o desenho
+	Keep these settings in the machine's profile, for new designs	Guardar estes ajustes no perfil da máquina, para novos desenhos
+	Larger than the hoop	Maior que o bastidor
+	Leather / vinyl	Couro / vinil
+	Leave it empty for StitchFoundry's own service.	Deixe vazio para usar o serviço do próprio StitchFoundry.
+	Lengths (mm)	Comprimentos (mm)
+	Let sewing start and stop at the closest points again	Voltar a iniciar e terminar o bordado nos pontos mais próximos
+	Lettering only {n} mm tall is hard to sew clearly	Letras com só {n} mm de altura são difíceis de bordar com nitidez
+	Listing the fonts…	Listando as fontes…
+	Long stitches from	Pontos longos a partir de
+	Longest jump	Salto mais longo
+	Longest stitch	Ponto mais longo
+	Longest stitch (mm)	Ponto mais longo (mm)
+	Look for dense spots, long stitches, tiny objects and small lettering	Procurar áreas densas, pontos longos, objetos minúsculos e letras pequenas
+	Machine	Máquina
+	Machine Profiles	Perfis de máquina
+	Machine settings	Ajustes da máquina
+	Make Border	Criar borda
+	Make Current	Tornar atuais
+	Make In-the-Hoop Project	Criar projeto ITH (no bastidor)
+	Make Rows	Criar fileiras
+	Makes no stitches	Não gera pontos
+	Moss pattern	Padrão musgo
+	Motif	Motivo
+	Move Inclination Line	Mover linha de inclinação
+	My hoop	Meu bastidor
+	My own hoops	Meus bastidores
+	My sew-out ({n} photos)	Meu bordado ({n} fotos)
+	Needle	Agulha
+	Needle height	Altura da agulha
+	Needle points	Pontos de agulha
+	Nest the rows	Encaixar as fileiras
+	New Conversation	Nova conversa
+	New Embroidery Style	Novo estilo de bordado
+	New Object Properties	Propriedades de novos objetos
+	New objects of this stitch type take these properties	Novos objetos deste tipo de ponto recebem estas propriedades
+	New strokes	Novos traços
+	No hoop	Sem bastidor
+	No problems found.	Nenhum problema encontrado.
+	No stitches yet.	Ainda não há pontos.
+	No styles yet. Select a stitched object and create one to reuse its stitch properties.	Ainda não há estilos. Selecione um objeto bordado e crie um para reutilizar as propriedades dos pontos dele.
+	Not changed:	Não alterado:
+	Not set	Não definido
+	Not sure	Não tenho certeza
+	Nothing stitched yet	Nada bordado ainda
+	Object color	Cor do objeto
+	Objects you give a stitch type take these properties.	Os objetos aos quais você der um tipo de ponto recebem estas propriedades.
+	Omit last stitch	Omitir o último ponto
+	One continuous line, ready for a longarm	Uma linha contínua, pronta para uma máquina longarm
+	One over the Other	Um sobre o outro
+	Open File…	Abrir arquivo…
+	Open a document to see its stitch sequence.	Abra um documento para ver a sequência de bordado dele.
+	Open a document to see its stitches.	Abra um documento para ver os pontos dele.
+	Open or create a document to digitize embroidery.	Abra ou crie um documento para digitalizar bordados.
+	Overlap	Sobreposição
+	Overlap where shapes touch	Sobrepor onde as formas se encostam
+	Paid with StitchFoundry credits ({n} left).	Pago com créditos do StitchFoundry (restam {n}).
+	Paid with StitchFoundry credits.	Pago com créditos do StitchFoundry.
+	Passes	Passadas
+	Path spacing	Espaçamento do caminho
+	Pattern colours	Cores do padrão
+	Pause	Pausa
+	Pay for the AI features with my StitchFoundry credits	Pagar os recursos de IA com meus créditos do StitchFoundry
+	Pay with StitchFoundry credits instead	Pagar com créditos do StitchFoundry
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	O pagamento é feito na página segura da Stripe, no seu navegador; o seu cartão nunca chega ao StitchFoundry.
+	Photos of your finished sew-out	Fotos do seu bordado pronto
+	Pick a brush, width, density and shape from a dial, then draw on the canvas	Escolha pincel, largura, densidade e forma em um seletor giratório e desenhe na tela
+	Pick, move, add and delete single stitches	Selecionar, mover, adicionar e excluir pontos individuais
+	Pique knit (polo shirt)	Malha piquet (camisa polo)
+	Place editable inclination lines (or pick the angle) automatically	Colocar linhas de inclinação editáveis (ou escolher o ângulo) automaticamente
+	Placement line and stop	Linha de posicionamento e parada
+	Play the stitches	Reproduzir os pontos
+	Preserve long stitches	Preservar pontos longos
+	Print Chart…	Imprimir gráfico…
+	Properties for New Objects	Propriedades para novos objetos
+	Pull comp., side 1	Comp. de puxada, lado 1
+	Pull comp., side 2	Comp. de puxada, lado 2
+	Pull compensation	Compensação de puxada
+	Put the machine's profile back to how it ships, and use it	Restaurar o perfil de fábrica da máquina e usá-lo
+	Quilt Block	Bloco de quilt
+	Quilt Block Patterns	Padrões de bloco de quilt
+	Quilt Block Set	Conjunto de blocos de quilt
+	Quilt height	Altura da colcha
+	Quilt width	Largura da colcha
+	Randomness	Aleatoriedade
+	Reading your credits…	Lendo seus créditos…
+	Redefine Embroidery Style	Redefinir estilo de bordado
+	Remove background	Remover fundo
+	Remove underlying stitching	Remover pontos sobrepostos por baixo
+	Rename Embroidery Style	Renomear estilo de bordado
+	Rename Embroidery Style…	Renomear estilo de bordado…
+	Reset Current Properties	Redefinir propriedades atuais
+	Reset Machine	Redefinir máquina
+	Reset Start and Stop	Redefinir início e fim
+	Row offset	Deslocamento das fileiras
+	Row spacing (0: the line's height)	Espaçamento das fileiras (0: altura da linha)
+	Run style	Estilo do ponto corrido
+	Satin density	Densidade do ponto cheio
+	Save Fabric	Salvar tecido
+	Save Machine Profile	Salvar perfil de máquina
+	Save as New Fabric	Salvar como novo tecido
+	Save as New Machine	Salvar como nova máquina
+	Save to Machine	Salvar na máquina
+	Second	Segundo
+	Second design	Segundo desenho
+	Seconds per color change	Segundos por troca de cor
+	Seconds per trim	Segundos por corte de linha
+	Select a path, shape or compound path to give it a stitch type.	Selecione um caminho, uma forma ou um caminho composto para dar a ele um tipo de ponto.
+	Server	Servidor
+	Set Inclination Lines	Definir linhas de inclinação
+	Set My Machine	Definir minha máquina
+	Set Start and Stop	Definir início e fim
+	Set Thread	Definir linha
+	Sew earlier	Bordar antes
+	Sew first	Bordar primeiro
+	Sew last	Bordar por último
+	Sew later	Bordar depois
+	Sew the objects separately again	Voltar a bordar os objetos separadamente
+	Sewn last	Bordado por último
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Compartilhar esta revisão para ajudar a melhorar o StitchFoundry (fica privada; exclua quando quiser em Conta StitchFoundry)
+	Short stitches on curves	Pontos curtos nas curvas
+	Shortest stitch	Ponto mais curto
+	Show every stitch	Mostrar todos os pontos
+	Show stitches	Mostrar pontos
+	Side by Side	Lado a lado
+	Sign In	Entrar
+	Sign Out	Sair
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Entre, ou crie uma conta, para pagar os recursos de IA com créditos do StitchFoundry em vez da sua própria chave de API da Anthropic. Uma conta nova já começa com créditos grátis.
+	Signed in as {email}	Conectado como {email}
+	Silk / lightweight	Seda / tecido leve
+	Small lettering under	Letras pequenas abaixo de
+	Split Here	Dividir aqui
+	Split Object	Dividir objeto
+	Split the object in two at the picked stitch	Dividir o objeto em dois no ponto escolhido
+	Square corners	Cantos retos
+	Stabilizer	Entretela
+	Start	Início
+	Start and stop	Início e fim
+	Stem stitch	Ponto haste
+	Stitch	Ponto
+	Stitch Lines	Linhas de pontos
+	Stitch Parameters	Parâmetros dos pontos
+	Stitch Plan	Plano de bordado
+	Stitch length	Comprimento do ponto
+	Stitch type	Tipo de ponto
+	StitchFoundry Account	Conta StitchFoundry
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	As contas do StitchFoundry ainda não estão abertas. Até lá, os recursos de IA funcionam com a sua própria chave de API da Anthropic.
+	Stitches edited by hand: the shape no longer changes them.	Pontos editados à mão: a forma não os altera mais.
+	Stitches over 7 mm	Pontos acima de 7 mm
+	Stitches per minute	Pontos por minuto
+	Stitches under 1 mm	Pontos abaixo de 1 mm
+	Stitches up to {n} mm long can snag	Pontos de até {n} mm de comprimento podem enganchar
+	Stop after	Parar depois
+	Stop to trim fabric	Parar para recortar o tecido
+	Stops	Paradas
+	Structured cap	Boné estruturado
+	Tack-down	Fixação
+	Tapered	Afunilado
+	Tatami stitches	Pontos tatami
+	Tatami underlay	Base tatami
+	Test Sew-Out	Bordado de teste
+	Test Sew-Outs	Bordados de teste
+	The bobbin ran out	A linha da bobina acabou
+	The bobbin thread didn't cut, or caught	A linha da bobina não cortou ou enroscou
+	The design is larger than the hoop	O desenho é maior que o bastidor
+	The first design in blue, the second in red, at the same scale and centred on each other	O primeiro desenho em azul, o segundo em vermelho, na mesma escala e centralizados um sobre o outro
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	A frente, o avesso e closes de tudo o que parecer errado. Uma régua ou uma moeda na foto mostra o tamanho.
+	The hoop was knocked or the fabric slipped	O bastidor levou uma batida ou o tecido escorregou
+	The machine stopped with a message	A máquina parou com uma mensagem
+	The needle broke	A agulha quebrou
+	The pattern as a counted chart to stitch from: a symbol a square, numbered every 10, and a key of the threads	O padrão como gráfico contado para bordar: um símbolo por quadrado, numerado a cada 10, e uma legenda das linhas
+	The stitches are made to suit it: a stretchy T-shirt needs more holding than a towel or denim.	Os pontos são feitos sob medida para ele: uma camiseta de malha precisa de mais firmeza que uma toalha ou um jeans.
+	The top thread broke	A linha de cima arrebentou
+	These objects are sewn as one path (a branch).	Estes objetos são bordados como um só caminho (uma ramificação).
+	Thinking…	Pensando…
+	This Design	Este desenho
+	This design	Este desenho
+	This is the sew-out after the fix from my last check	Este é o bordado feito depois da correção da minha última revisão
+	Thread chart	Cartela de linhas
+	Thread colors	Cores de linha
+	Tie in	Arremate inicial
+	Tie length	Comprimento do arremate
+	Tie off	Arremate final
+	Tie style	Estilo do arremate
+	Tiny object: may not sew cleanly	Objeto minúsculo: pode não bordar bem
+	Tiny objects under	Objetos minúsculos abaixo de
+	To follow a line of your own, draw it first, select it, then Add Words.	Para seguir uma linha sua, desenhe-a primeiro, selecione-a e depois use Adicionar palavras.
+	Top thread (m)	Linha de cima (m)
+	Topping	Entretela de cobertura
+	Towel / terry	Toalha / felpudo
+	Travel by	Deslocar por
+	Trim after	Cortar a linha depois
+	Trim jumps longer than	Cortar saltos maiores que
+	Triple	Triplo
+	TrueView	TrueView
+	Try Again	Tentar novamente
+	Turn the image into stitches: narrow parts become satin, the rest tatami fill.	Transformar a imagem em pontos: as partes estreitas viram ponto cheio e o resto, preenchimento tatami.
+	Type the hoop's width and height as numbers	Digite a largura e a altura do bastidor como números
+	Type your question, then press Enter	Digite a sua pergunta e pressione Enter
+	Underlay spacing	Espaçamento da base
+	Very dense: about {n} layers of thread here	Muito denso: cerca de {n} camadas de linha aqui
+	What fabric will you sew it on?	Em qual tecido você vai bordar?
+	Which fabric?	Qual tecido?
+	While it sewed:	Durante o bordado:
+	Widget values	Valores do widget
+	Width (mm)	Largura (mm)
+	Width profile	Perfil de largura
+	Widths (mm)	Larguras (mm)
+	With the Thread Colour	Com a cor da linha
+	Woven (twill, poplin)	Tecido plano (sarja, tricoline)
+	X (mm)	X (mm)
+	Y (mm)	Y (mm)
+	commercial machines	máquinas industriais
+	e.g. 75/11 ballpoint	ex.: 75/11 ponta bola
+	failed:	falharam:
+	fonts	fontes
+	fonts downloaded, ready for lettering	fontes baixadas, prontas para letreiros
+	home machines	máquinas domésticas
+	in	pol
+	inclination lines	linhas de inclinação
+	is ready for lettering	está pronta para letreiros
+	joins needed: Join into One Line makes them	junções necessárias: Unir em uma linha as cria
+	longest	o mais longo
+	same	igual
+	{n} credits	{n} créditos
+	{n} credits for {price}	{n} créditos por {price}
+	{n} free checks left this month.	Restam {n} revisões grátis neste mês.
+	{n}-count Aida	Etamine Aida {n} pontos
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Imagem feita por
+	Claude (draws the shapes itself)	Claude (desenha as formas ele mesmo)
+	{name} API key:	Chave de API do {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	A imagem é cobrada na sua conta desse serviço. Depois o Claude a redesenha como formas chapadas nas cores das suas linhas, para que borde com poucas trocas de linha.
+	Making the picture…	Criando a imagem…
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	Digitalizar automaticamente
+	Backstitch Line	Linha de ponto atrás
+	Close Appliqué Outlines	Fechar contornos do aplique
+	Erase Backstitch	Apagar ponto atrás
+	Erase Cross Stitches	Apagar pontos cruz
+	Move Stitches	Mover pontos
+	Place Artwork	Colocar arte
+# Paragraph panel menu › Justification…
+# Select by Color (select.color)
+	Length	Comprimento

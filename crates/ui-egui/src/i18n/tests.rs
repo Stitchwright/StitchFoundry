@@ -866,9 +866,9 @@ fn cs() -> Lang {
 /// Languages whose catalogs leave [`MENU_KEEP_AS_IS`] in English.
 const KEEPS_MENU_NAMES: [&str; 17] = ["cs", "de", "el", "es", "fr", "hu", "it", "ja", "ka", "ko", "pl", "pt-br", "ru", "sv", "uk", "vi", "fi"];
 /// StitchFoundry: the languages VectorCraft completed that wait for the embroidery strings here
-/// (Brazilian Portuguese and Georgian have their menu labels only). Their catalogs are VectorCraft's
-/// complete ones, so they hold strings this app doesn't show.
-const COMPLETE_UPSTREAM: [&str; 2] = ["ka", "pt-br"];
+/// (none now). Their catalogs are VectorCraft's complete ones, so they hold strings this app
+/// doesn't show.
+const COMPLETE_UPSTREAM: [&str; 0] = [];
 
 /// Menu labels the menu-complete catalogs (Czech, German, Spanish, Italian, Japanese, Brazilian Portuguese) show as they are: the product name, a format name, the built-in workspace
 /// names and the perspective grid presets (names, shown untranslated wherever else they appear).
@@ -1228,8 +1228,8 @@ fn pt_br() -> Lang {
 #[test]
 fn brazilian_portuguese_reads_as_portuguese() {
     assert_eq!(pt_br().name(), "Português (Brasil)");
-    // StitchFoundry: partial until the embroidery strings are translated.
-    assert!(!pt_br().complete_menus());
+    // StitchFoundry: the embroidery strings too.
+    assert!(pt_br().complete_menus());
     assert_eq!(Lang::from_pref("pt-br"), pt_br());
     assert_eq!(Lang::from_pref("pt-BR"), pt_br());
     for tag in ["pt-br", "pt_BR.UTF-8", "pt-BR", "pt_BR"] {
