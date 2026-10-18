@@ -5285,7 +5285,7 @@ effect	Points	Σημεία
 @msg	{_1} export failed: {e}	Η εξαγωγή {_1} απέτυχε: {e}
 	Stitch Lines	Γραμμές βελονιών
 	Tatami	Τατάμι
-	By Stitchwright, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Από τη Stitchwright, με βάση το VectorCraft της ομάδας ArtCraft. MIT OR Apache-2.0. Γραμματοσειρές: Source Sans 3, Inter, JetBrains Mono (OFL). Εικονίδια: Lucide (ISC) + VectorCraft.
+	By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Από τη SiteSentrix, με βάση το VectorCraft της ομάδας ArtCraft. MIT OR Apache-2.0. Γραμματοσειρές: Source Sans 3, Inter, JetBrains Mono (OFL). Εικονίδια: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source machine embroidery digitizing in pure Rust.	Έκδοση {version} — ψηφιοποίηση μηχανικού κεντήματος ανοιχτού κώδικα, γραμμένη αποκλειστικά σε Rust.
 	Machine embroidery digitizing — fast, open, scriptable.	Ψηφιοποίηση μηχανικού κεντήματος — γρήγορη, ανοιχτή, προγραμματιζόμενη.
 	Split Here	Διαχωρισμός εδώ

@@ -842,6 +842,11 @@ appliqué, satin-heavy badge, large fill) as `.vectorcraft` files in `crates/eng
    **StitchFoundry**, published by **Stitchwright** (the GitHub organization `Stitchwright`;
    decided 2026-10-15: the sewing and cutting software has its own organization, and SiteSentrix,
    which published it until then, keeps its other products).
+   Changed 2026-10-19: the business is **SiteSentrix** again (Bruce Wattendorf, doing business as
+   SiteSentrix), since a knitting-pattern app is already sold as "Stitchwright"; the About window,
+   installers, copyright and notices say SiteSentrix, and the GitHub links follow when the
+   repositories move to the SiteSentrix organization. The app id `com.stitchwright.stitchfoundry`
+   stays, so settings and installs carry over.
    ("StitchForge", the working name, is taken in this niche: stitchforge.com is a pre-launch AI
    image-to-embroidery service.) Planned siblings: **StitchBench** and **StitchShop** (running an
    embroidery business: quotes by stitch count, orders and approvals, mockups, production

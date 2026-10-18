@@ -4932,7 +4932,7 @@ effect	Points	포인트
 @msg	{_1} export failed: {e}	{_1} 내보내기 실패: {e}
 	Stitch Lines	스티치 선
 	Tatami	타타미
-	By Stitchwright, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Stitchwright 제작, ArtCraft 팀의 VectorCraft 기반. MIT OR Apache-2.0. 글꼴: Source Sans 3, Inter, JetBrains Mono (OFL). 아이콘: Lucide (ISC) + VectorCraft.
+	By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	SiteSentrix 제작, ArtCraft 팀의 VectorCraft 기반. MIT OR Apache-2.0. 글꼴: Source Sans 3, Inter, JetBrains Mono (OFL). 아이콘: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source machine embroidery digitizing in pure Rust.	버전 {version} — 순수 Rust로 만든 오픈 소스 기계 자수 디지타이징.
 	Machine embroidery digitizing — fast, open, scriptable.	기계 자수 디지타이징 — 빠르고, 열려 있고, 스크립트로 제어 가능.
 	Split Here	여기서 분할

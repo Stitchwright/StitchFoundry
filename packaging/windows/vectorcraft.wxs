@@ -18,13 +18,13 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package
       Name="StitchFoundry"
-      Manufacturer="Stitchwright"
+      Manufacturer="SiteSentrix"
       Version="$(var.Version)"
       UpgradeCode="5563931B-846B-45EA-986F-1FA99C041C47"
       Scope="perMachine"
       Compressed="yes"
       Language="1033">
-    <SummaryInformation Description="StitchFoundry machine embroidery digitizer" Manufacturer="Stitchwright" />
+    <SummaryInformation Description="StitchFoundry machine embroidery digitizer" Manufacturer="SiteSentrix" />
     <!-- Same-version upgrades let successive pre-releases of one X.Y.Z replace each other
          (MSI versions are numeric, so 1.2.3-rc.1 and 1.2.3-rc.2 are both 1.2.3). -->
     <MajorUpgrade AllowSameVersionUpgrades="yes"

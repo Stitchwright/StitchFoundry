@@ -5000,7 +5000,7 @@ lighting	Light	光源
 	Tatami	榻榻米
 
 # Embroidery (StitchFoundry), phase 1
-	By Stitchwright, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	由 Stitchwright 制作，基于 ArtCraft 团队的 VectorCraft。MIT OR Apache-2.0。字体：Source Sans 3、Inter、JetBrains Mono (OFL)。图标：Lucide (ISC) + VectorCraft。
+	By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	由 SiteSentrix 制作，基于 ArtCraft 团队的 VectorCraft。MIT OR Apache-2.0。字体：Source Sans 3、Inter、JetBrains Mono (OFL)。图标：Lucide (ISC) + VectorCraft。
 	Version {version} — open-source machine embroidery digitizing in pure Rust.	版本 {version} — 以纯 Rust 打造的开放原始码电脑刺绣制版软件。
 	Machine embroidery digitizing — fast, open, scriptable.	电脑刺绣制版　—　快速、开放、可脚本化。
 	Split Here	在此分割

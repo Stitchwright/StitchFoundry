@@ -1,7 +1,7 @@
 StitchFoundry app icon (stitchfoundry.svg, stitchfoundry-small.svg and every file derived from them in this
 directory: stitchfoundry-1024.png, stitchfoundry-macos-512.png, stitchfoundry.icns, stitchfoundry.ico, hicolor/).
 
-Original artwork made for StitchFoundry by Stitchwright (no third-party material). Licensed like the
+Original artwork made for StitchFoundry by SiteSentrix (no third-party material). Licensed like the
 rest of StitchFoundry, under either of
 
   * Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)

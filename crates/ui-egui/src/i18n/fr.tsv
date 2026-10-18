@@ -4717,7 +4717,7 @@ lighting	Light	Lumière
 	Tatami	Tatami
 
 # Embroidery (StitchFoundry), phase 1
-	By Stitchwright, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Par Stitchwright, d’après VectorCraft de l’équipe ArtCraft. MIT OR Apache-2.0. Polices : Source Sans 3, Inter, JetBrains Mono (OFL). Icônes : Lucide (ISC) + VectorCraft.
+	By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Par SiteSentrix, d’après VectorCraft de l’équipe ArtCraft. MIT OR Apache-2.0. Polices : Source Sans 3, Inter, JetBrains Mono (OFL). Icônes : Lucide (ISC) + VectorCraft.
 	Version {version} — open-source machine embroidery digitizing in pure Rust.	Version {version} — numérisation de broderie machine open source en pur Rust.
 	Machine embroidery digitizing — fast, open, scriptable.	Numérisation de broderie machine — rapide, ouverte, scriptable.
 	Split Here	Diviser ici

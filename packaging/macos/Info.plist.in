@@ -43,7 +43,7 @@
   <key>NSRequiresAquaSystemAppearance</key>
   <false/>
   <key>NSHumanReadableCopyright</key>
-  <string>Copyright © Stitchwright and the VectorCraft authors. MIT OR Apache-2.0.</string>
+  <string>Copyright © Bruce Wattendorf (SiteSentrix) and the VectorCraft authors. MIT OR Apache-2.0.</string>
 
   <!-- Every format File › Open reads (OPEN_EXTS in crates/engine/src/cmd/fileio/mod.rs; a test in
        apps/vectorcraft checks this list), so Finder offers StitchFoundry for them (Open With,

@@ -13,7 +13,7 @@ release: 1
 section: graphics
 priority: optional
 maintainer: ${VECTORCRAFT_MAINTAINER}
-vendor: Stitchwright
+vendor: SiteSentrix
 homepage: https://github.com/Stitchwright/StitchFoundry
 license: MIT OR Apache-2.0
 description: |-

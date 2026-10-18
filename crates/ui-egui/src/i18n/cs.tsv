@@ -4861,7 +4861,7 @@ machine	Stop	Zastavení
 @msg	{_1} export failed: {e}	Export do formátu {_1} selhal: {e}
 	Stitch Lines	Čáry stehů
 	Tatami	Tatami
-	By Stitchwright, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Od Stitchwright, na základě aplikace VectorCraft od týmu ArtCraft. MIT OR Apache-2.0. Písma: Source Sans 3, Inter, JetBrains Mono (OFL). Ikony: Lucide (ISC) + VectorCraft.
+	By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Od SiteSentrix, na základě aplikace VectorCraft od týmu ArtCraft. MIT OR Apache-2.0. Písma: Source Sans 3, Inter, JetBrains Mono (OFL). Ikony: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source machine embroidery digitizing in pure Rust.	Verze {version} — open-source digitalizace strojových výšivek v čistém Rustu.
 	Machine embroidery digitizing — fast, open, scriptable.	Digitalizace strojových výšivek — rychlá, otevřená, skriptovatelná.
 	Split Here	Rozdělit zde

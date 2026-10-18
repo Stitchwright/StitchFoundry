@@ -15,8 +15,8 @@ fn main() -> Result<(), String> {
     res.set_icon("../../assets/app-icon/stitchfoundry.ico")
         .set("ProductName", "StitchFoundry")
         .set("FileDescription", "StitchFoundry machine embroidery digitizer")
-        .set("CompanyName", "Stitchwright")
-        .set("LegalCopyright", "Copyright (c) Stitchwright and the VectorCraft authors. MIT OR Apache-2.0.")
+        .set("CompanyName", "SiteSentrix")
+        .set("LegalCopyright", "Copyright (c) Bruce Wattendorf (SiteSentrix) and the VectorCraft authors. MIT OR Apache-2.0.")
         .set("OriginalFilename", "stitchfoundry.exe")
         .set("InternalName", "stitchfoundry");
     if let Err(e) = res.compile() {

@@ -64,7 +64,7 @@ fn about_tab(app: &mut VectorcraftApp, ui: &mut egui::Ui) {
     ui.add_space(12.0);
     ui.label(
         egui::RichText::new(tl!(
-            "By Stitchwright, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft." // brand-ok: the plain-text credit VectorCraft's brand licence allows
+            "By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft." // brand-ok: the plain-text credit VectorCraft's brand licence allows
         ))
         .size(11.0),
     );

@@ -5297,7 +5297,7 @@ mark-style	Japanese	Japanilainen
 @msg	{_1} export failed: {e}	{_1}-vienti epäonnistui: {e}
 	Stitch Lines	Pistoviivat
 	Tatami	Tatami
-	By Stitchwright, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Tekijä Stitchwright, perustuu ArtCraft-tiimin VectorCraftiin. MIT OR Apache-2.0. Fontit: Source Sans 3, Inter, JetBrains Mono (OFL). Kuvakkeet: Lucide (ISC) + VectorCraft.
+	By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Tekijä SiteSentrix, perustuu ArtCraft-tiimin VectorCraftiin. MIT OR Apache-2.0. Fontit: Source Sans 3, Inter, JetBrains Mono (OFL). Kuvakkeet: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source machine embroidery digitizing in pure Rust.	Versio {version} — avoimen lähdekoodin konekirjonnan digitointi puhtaalla Rustilla.
 	Machine embroidery digitizing — fast, open, scriptable.	Konekirjonnan digitointi — nopea, avoin, skriptattava.
 	Split Here	Jaa tästä

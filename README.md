@@ -5,7 +5,7 @@
 <h1 align="center">StitchFoundry</h1>
 
 <p align="center">
-  <b>Open-source machine-embroidery digitizing, by Stitchwright.</b>
+  <b>Open-source machine-embroidery digitizing, by SiteSentrix.</b>
 </p>
 
 <p align="center">
@@ -144,7 +144,7 @@ have Claude work on an issue by labelling it `claude-fix`; Claude opens a pull r
 
 StitchFoundry is dual-licensed under [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE), at your option.
 
-Copyright (c) 2026 Stitchwright and the StitchFoundry contributors.<br>
+Copyright (c) 2026 Bruce Wattendorf (SiteSentrix) and the StitchFoundry contributors.<br>
 Copyright (c) 2026 ArtCraft Team and the VectorCraft contributors.
 
 Required notices are in [NOTICE](NOTICE). Bundled fonts, icons, images and other assets keep their
