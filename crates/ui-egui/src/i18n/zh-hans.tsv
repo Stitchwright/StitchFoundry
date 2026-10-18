@@ -1091,7 +1091,7 @@ file-filter	PDF presets	PDF 预设
 file-filter	Print presets	打印预设
 file-filter	SVG Compressed	压缩 SVG
 file-filter	PDF-compatible .ai	PDF 兼容 .ai
-file-filter	VectorCraft Template	VectorCraft 模板
+file-filter	StitchFoundry Template	StitchFoundry 模板
 file-filter	Templates	模板
 	Flattener Preview	拼合预览
 	Flip Across	跨轴翻转
@@ -6352,3 +6352,10 @@ machine	Stop	停止
 @msg	only http, https and mailto URLs open in the browser, not “{url}”	浏览器中只会打开 http、https 和 mailto 的 URL，不会打开 “{url}”
 @msg	{id} opens another app: only the person at the keyboard can run it	{id} 会打开其他应用程序：只有使用键盘的人才能运行它
 @msg	“{name}” is not a file	“{name}” 不是文件
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	自动数字化
+	Backstitch Line	回针线
+	Close Appliqué Outlines	闭合贴布轮廓
+	Erase Backstitch	擦除回针
+	Erase Cross Stitches	擦除十字绣
+	Move Stitches	移动针迹

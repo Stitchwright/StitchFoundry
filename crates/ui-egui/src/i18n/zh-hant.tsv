@@ -1114,7 +1114,7 @@ file-filter	PDF presets	PDF 預設集
 file-filter	Print presets	列印預設集
 file-filter	SVG Compressed	壓縮 SVG
 file-filter	PDF-compatible .ai	PDF 相容 .ai
-file-filter	VectorCraft Template	VectorCraft 範本
+file-filter	StitchFoundry Template	StitchFoundry 範本
 file-filter	Templates	範本
 	Flattener Preview	平面化預視
 	Flip Across	跨軸翻轉
@@ -5399,3 +5399,10 @@ machine	Stop	停止
 	Enable Guides for 9-Slice Scaling	啟用 9-slice 縮放參考線
 	Persistent	持久
 	Library Panel Options	資料庫面板選項
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	自動數位化
+	Backstitch Line	回針線
+	Close Appliqué Outlines	封閉貼布輪廓
+	Erase Backstitch	擦除回針
+	Erase Cross Stitches	擦除十字繡
+	Move Stitches	移動針跡

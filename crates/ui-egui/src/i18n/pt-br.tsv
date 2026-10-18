@@ -15,7 +15,6 @@
 # pincel, amostra, prancheta ...), following common desktop-software conventions (commands
 # in the infinitive, menus as nouns); no proprietary localisation resource, string table or product
 # UI was consulted or copied; add entries the same way. Product and technology names (VectorCraft,
-# ArtCraft, SVG, OpenType, CMYK, Lab ...) stay in Latin letters; the trailing "…" of dialog
 # commands is kept.
 #
 # Coverage: the whole interface (every menu string and every `tl!` literal, `complete_menus`,

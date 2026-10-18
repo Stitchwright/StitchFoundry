@@ -644,8 +644,6 @@
 	Save Swatch Library…	Gem bibliotek med farveprøver…
 	Symbol Libraries	Symbolbiblioteker
 	Help	Hjælp
-	ArtCraft Website	ArtCrafts websted
-	VectorCraft on getartcraft.com	VectorCraft på getartcraft.com
 	VectorCraft on GitHub	VectorCraft på GitHub
 	Search Commands…	Søg i kommandoer…
 	VectorCraft Help…	Hjælp til VectorCraft…
@@ -1805,8 +1803,6 @@ lighting	Light	Lys
 	Select All Bound Objects	Markér alle bundne objekter
 	Multiple objects	Flere objekter
 	Graphics: {adapter}	Grafik: {adapter}
-	Part of ArtCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Del af ArtCraft. MIT OR Apache-2.0. Skrifttyper: Source Sans 3, Inter, JetBrains Mono (OFL). Ikoner: Lucide (ISC) + VectorCraft.
-	Part of ArtCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono, Noto Sans SC (OFL). Icons: Lucide (ISC) + VectorCraft.	Del af ArtCraft. MIT OR Apache-2.0. Skrifttyper: Source Sans 3, Inter, JetBrains Mono, Noto Sans SC (OFL). Ikoner: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source vector illustration in pure Rust.	Version {version} — open source-vektorillustration i ren Rust.
 	Align to Page	Justér til side
 	Smooth Color	Jævn farve
@@ -3486,10 +3482,8 @@ effect	Regular	Regular
 	Recent Files	Seneste filer
 	Vector illustration — fast, open, scriptable.	Vektorillustration — hurtig, åben, scriptbar.
 	Welcome to VectorCraft	Velkommen til VectorCraft
-	ArtCraft website	ArtCraft-websted
 	Discord	Discord
 	Join our Discord	Deltag i vores Discord
-	Join the ArtCraft community on Discord (discord.gg/artcraft)	Deltag i ArtCraft-fællesskabet på Discord (discord.gg/artcraft)
 	Source code on GitHub	Kildekode på GitHub
 	All Tools	Alle værktøjer
 	Draw	Tegn
@@ -4675,7 +4669,7 @@ file-filter	PDF presets	PDF-forudindstillinger
 file-filter	Print presets	Printforudindstillinger
 file-filter	SVG Compressed	Komprimeret SVG
 file-filter	PDF-compatible .ai	PDF-kompatibel .ai
-file-filter	VectorCraft Template	VectorCraft-skabelon
+file-filter	StitchFoundry Template	StitchFoundry-skabelon
 file-filter	Templates	Skabeloner
 diagnostics	render	Gengivelse
 diagnostics	ui	Brugerflade

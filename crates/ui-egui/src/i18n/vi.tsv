@@ -1319,7 +1319,7 @@ file-filter	PDF presets	Thiết lập sẵn PDF
 file-filter	Print presets	Thiết lập sẵn in
 file-filter	SVG Compressed	SVG nén
 file-filter	PDF-compatible .ai	.ai tương thích PDF
-file-filter	VectorCraft Template	Mẫu VectorCraft
+file-filter	StitchFoundry Template	Mẫu StitchFoundry
 file-filter	Templates	Mẫu
 	Flattener Preview	Xem trước làm phẳng
 	Flip	Lật
@@ -6128,3 +6128,10 @@ machine	Stop	Dừng máy
 @msg	too many library panels were opened in this session	đã mở quá nhiều bảng thư viện trong phiên này
 @msg	The image is {_1} × {_2} pixels, more than {LARGE_TRACE_SIDE} on a side: it is traced, but more slowly. A lower-fidelity preset or a smaller copy of the image traces faster.	Ảnh có kích thước {_1} × {_2} điểm ảnh, hơn {LARGE_TRACE_SIDE} ở một cạnh: ảnh vẫn được dò, nhưng chậm hơn. Một thiết lập sẵn có độ trung thực thấp hơn hoặc một bản sao nhỏ hơn của ảnh sẽ dò nhanh hơn.
 @msg	The image was traced at {_1} × {_2} pixels, scaled down from {_3} × {_4} ({_5} megapixels at most).	Ảnh đã được dò ở {_1} × {_2} điểm ảnh, thu nhỏ từ {_3} × {_4} (tối đa {_5} megapixel).
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	Số hóa tự động
+	Backstitch Line	Đường mũi đột
+	Close Appliqué Outlines	Khép đường viền đắp vải
+	Erase Backstitch	Xóa mũi đột
+	Erase Cross Stitches	Xóa mũi thêu chữ thập
+	Move Stitches	Di chuyển mũi thêu

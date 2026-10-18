@@ -644,8 +644,6 @@
 	Save Swatch Library…	Simpan pustaka sampel warna…
 	Symbol Libraries	Pustaka simbol
 	Help	Bantuan
-	ArtCraft Website	Situs web ArtCraft
-	VectorCraft on getartcraft.com	VectorCraft di getartcraft.com
 	VectorCraft on GitHub	VectorCraft di GitHub
 	Search Commands…	Cari perintah…
 	VectorCraft Help…	Bantuan VectorCraft…
@@ -1805,8 +1803,6 @@ lighting	Light	Cahaya
 	Select All Bound Objects	Pilih semua objek terikat
 	Multiple objects	Beberapa objek
 	Graphics: {adapter}	Grafis: {adapter}
-	Part of ArtCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Bagian dari ArtCraft. MIT OR Apache-2.0. Font: Source Sans 3, Inter, JetBrains Mono (OFL). Ikon: Lucide (ISC) + VectorCraft.
-	Part of ArtCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono, Noto Sans SC (OFL). Icons: Lucide (ISC) + VectorCraft.	Bagian dari ArtCraft. MIT OR Apache-2.0. Font: Source Sans 3, Inter, JetBrains Mono, Noto Sans SC (OFL). Ikon: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source vector illustration in pure Rust.	Versi {version} — ilustrasi vektor sumber terbuka dalam Rust murni.
 	Align to Page	Ratakan ke halaman
 	Smooth Color	Warna mulus
@@ -3486,10 +3482,8 @@ effect	Regular	Reguler
 	Recent Files	File terkini
 	Vector illustration — fast, open, scriptable.	Ilustrasi vektor — cepat, terbuka, mendukung skrip.
 	Welcome to VectorCraft	Selamat datang di VectorCraft
-	ArtCraft website	Situs web ArtCraft
 	Discord	Discord
 	Join our Discord	Gabung ke Discord kami
-	Join the ArtCraft community on Discord (discord.gg/artcraft)	Bergabunglah dengan komunitas ArtCraft di Discord (discord.gg/artcraft)
 	Source code on GitHub	Kode sumber di GitHub
 	All Tools	Semua alat
 	Draw	Menggambar
@@ -4675,7 +4669,7 @@ file-filter	PDF presets	Preset PDF
 file-filter	Print presets	Preset cetak
 file-filter	SVG Compressed	SVG terkompresi
 file-filter	PDF-compatible .ai	.ai kompatibel PDF
-file-filter	VectorCraft Template	Templat VectorCraft
+file-filter	StitchFoundry Template	Templat StitchFoundry
 file-filter	Templates	Templat
 diagnostics	render	Render
 diagnostics	ui	UI

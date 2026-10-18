@@ -1137,7 +1137,7 @@ file-filter	PDF presets	Набори PDF
 file-filter	Print presets	Набори друку
 file-filter	SVG Compressed	Стиснутий SVG
 file-filter	PDF-compatible .ai	.ai, сумісний з PDF
-file-filter	VectorCraft Template	Шаблон VectorCraft
+file-filter	StitchFoundry Template	Шаблон StitchFoundry
 file-filter	Templates	Шаблони
 	Flattener Preview	Попередній перегляд зведення
 	Flip Across	Відобразити поперек
@@ -6143,3 +6143,10 @@ machine	Stop	Зупинка
 @msg	too many library panels were opened in this session	у цьому сеансі відкрито забагато панелей бібліотек
 @msg	The image is {_1} × {_2} pixels, more than {LARGE_TRACE_SIDE} on a side: it is traced, but more slowly. A lower-fidelity preset or a smaller copy of the image traces faster.	Зображення {_1} × {_2} пікселів, понад {LARGE_TRACE_SIDE} з одного боку: трасування виконується, але повільніше. Стиль із нижчою точністю або менша копія зображення трасуються швидше.
 @msg	The image was traced at {_1} × {_2} pixels, scaled down from {_3} × {_4} ({_5} megapixels at most).	Зображення трасовано в розмірі {_1} × {_2} пікселів, зменшене з {_3} × {_4} (щонайбільше {_5} мегапікселів).
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	Автооцифрування
+	Backstitch Line	Лінія стібка назад
+	Close Appliqué Outlines	Замкнути контури аплікації
+	Erase Backstitch	Стерти стібок назад
+	Erase Cross Stitches	Стерти хрестики
+	Move Stitches	Перемістити стібки

@@ -118,7 +118,8 @@ fn top(app: &VectorcraftApp) -> Vec<(NodeId, bool)> {
 fn window_blend_opens_the_panel() {
     let mut app = app();
     let entries = crate::menus::menu_entries(&app);
-    let item = entries.iter().find(|e| e.path == ["Window"] && e.label == "Blend").expect("Window › Blend");
+    // (StitchFoundry's Window menu groups its panels: Blend is with the paint panels)
+    let item = entries.iter().find(|e| e.path == ["Window", "Paint"] && e.label == "Blend").expect("Window › Paint › Blend");
     assert_eq!(item.command.as_deref(), Some("window.panel"));
     assert_eq!(item.params, json!({"panel": ID, "toggle": true}));
     crate::menus::invoke(&mut app, "window.panel", item.params.clone());

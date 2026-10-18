@@ -13,15 +13,17 @@ pub fn steps_to(current: usize, target: usize) -> i64 {
     target as i64 - current as i64
 }
 
-/// A step's name in `lang`: its plain row, else the row of the same name with an ellipsis (a menu
-/// item's, such as an effect's) without the ellipsis; `None` when the catalog has neither.
+/// A step's name in `lang`: the row of the same name with an ellipsis (a menu item's, such as an
+/// effect's) without the ellipsis, else its plain row; `None` when the catalog has neither.
 pub fn step_name(lang: crate::i18n::Lang, label: &str) -> Option<String> {
     use crate::i18n::{has, tr};
-    if has(lang, label) {
-        return Some(tr(lang, label).to_string());
-    }
+    // the menu command's own row first: a plain row of the same words can name something else
+    // (StitchFoundry's Feather motif, not the Feather effect)
     let dotted = format!("{label}…");
-    has(lang, &dotted).then(|| tr(lang, &dotted).trim_end_matches('…').to_string())
+    if has(lang, &dotted) {
+        return Some(tr(lang, &dotted).trim_end_matches('…').to_string());
+    }
+    has(lang, label).then(|| tr(lang, label).to_string())
 }
 
 /// A step's name as the panel lists it: in the UI language, else as recorded. Edit › Undo and Redo

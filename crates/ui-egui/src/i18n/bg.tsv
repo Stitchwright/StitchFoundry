@@ -6499,3 +6499,10 @@ machine	Stop	Спиране
 	Enable Guides for 9-Slice Scaling	Включване на водачи за 9-slice мащабиране
 	Persistent	Постоянна
 	Library Panel Options	Опции на панела с библиотека
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	Автоматично дигитализиране
+	Backstitch Line	Линия с бод назад
+	Close Appliqué Outlines	Затваряне на контурите на апликацията
+	Erase Backstitch	Изтриване на бод назад
+	Erase Cross Stitches	Изтриване на кръстати бодове
+	Move Stitches	Преместване на бодове

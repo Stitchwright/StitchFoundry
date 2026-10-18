@@ -658,8 +658,6 @@
 	Save Swatch Library…	Staalenbibliotheek opslaan…
 	Symbol Libraries	Symboolbibliotheken
 	Help	Help
-	ArtCraft Website	ArtCraft-website
-	VectorCraft on getartcraft.com	VectorCraft op getartcraft.com
 	VectorCraft on GitHub	VectorCraft op GitHub
 	Search Commands…	Opdrachten zoeken…
 	VectorCraft Help…	VectorCraft-help…
@@ -1819,8 +1817,6 @@ lighting	Light	Licht
 	Select All Bound Objects	Alle gekoppelde objecten selecteren
 	Multiple objects	Meerdere objecten
 	Graphics: {adapter}	Grafisch: {adapter}
-	Part of ArtCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Onderdeel van ArtCraft. MIT OR Apache-2.0. Lettertypen: Source Sans 3, Inter, JetBrains Mono (OFL). Pictogrammen: Lucide (ISC) + VectorCraft.
-	Part of ArtCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono, Noto Sans SC (OFL). Icons: Lucide (ISC) + VectorCraft.	Onderdeel van ArtCraft. MIT OR Apache-2.0. Lettertypen: Source Sans 3, Inter, JetBrains Mono, Noto Sans SC (OFL). Pictogrammen: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source vector illustration in pure Rust.	Versie {version} — open-source vectorillustratie in pure Rust.
 	Align to Page	Uitlijnen op pagina
 	Smooth Color	Vloeiende kleur
@@ -3500,10 +3496,8 @@ effect	Regular	Regelmatig
 	Recent Files	Recente bestanden
 	Vector illustration — fast, open, scriptable.	Vectorillustratie — snel, open, scriptbaar.
 	Welcome to VectorCraft	Welkom bij VectorCraft
-	ArtCraft website	Website van ArtCraft
 	Discord	Discord
 	Join our Discord	Word lid van onze Discord
-	Join the ArtCraft community on Discord (discord.gg/artcraft)	Word lid van de ArtCraft-community op Discord (discord.gg/artcraft)
 	Source code on GitHub	Broncode op GitHub
 	All Tools	Alle gereedschappen
 	Draw	Tekenen
@@ -4689,7 +4683,7 @@ file-filter	PDF presets	PDF-voorinstellingen
 file-filter	Print presets	Afdrukvoorinstellingen
 file-filter	SVG Compressed	Gecomprimeerde SVG
 file-filter	PDF-compatible .ai	PDF-compatibel .ai
-file-filter	VectorCraft Template	VectorCraft-sjabloon
+file-filter	StitchFoundry Template	StitchFoundry-sjabloon
 file-filter	Templates	Sjablonen
 diagnostics	render	render
 diagnostics	ui	ui

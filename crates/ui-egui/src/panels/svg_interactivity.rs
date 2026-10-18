@@ -160,7 +160,9 @@ mod tests {
             .iter()
             .find(|e| e.command.as_deref() == Some("window.panel") && e.params.get("panel").and_then(Value::as_str) == Some(ID))
             .expect("the SVG Interactivity panel is listed");
-        assert_eq!((panel.path.clone(), panel.label.as_str(), panel.enabled), (vec!["Window".to_string()], "SVG Interactivity", true));
+        // (StitchFoundry's Window menu groups its panels)
+        let path = vec!["Window".to_string(), "Print and Export".to_string()];
+        assert_eq!((panel.path.clone(), panel.label.as_str(), panel.enabled), (path, "SVG Interactivity", true));
     }
 
     // (Only names and scripts are checked: they are shown as they are, while tests running

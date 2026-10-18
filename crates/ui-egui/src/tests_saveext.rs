@@ -146,18 +146,18 @@ fn on_disk(tag: &str, typed: &str) -> (VectorcraftApp, std::path::PathBuf) {
     (app, dir)
 }
 
-/// `card` typed in the save panel becomes `card.vectorcraft`, a file the panel did not ask about:
+/// `card` typed in the save panel becomes `card.stitchfoundry`, a file the panel did not ask about:
 /// Save asks before replacing it, Cancel leaves it as it was, and OK replaces it.
 #[test]
 fn a_name_given_its_extension_asks_before_replacing_a_file_there() {
     let (mut app, dir) = on_disk("ask", "card");
-    let card = dir.join("card.vectorcraft");
+    let card = dir.join("card.stitchfoundry");
     let path = card.to_string_lossy().into_owned();
     std::fs::write(&card, b"the old card").unwrap();
     assert!(app.run("file.save", json!({})).is_err(), "nothing is saved while it asks");
-    let d = app.ui.dialog.clone().expect("Save asks before replacing card.vectorcraft");
+    let d = app.ui.dialog.clone().expect("Save asks before replacing card.stitchfoundry");
     assert_eq!((d.kind.as_str(), d.str("path")), (dialogs::confirm::REPLACE, path.clone()));
-    assert!(d.str("message").contains("card.vectorcraft") && d.str("detail").contains("card"), "{d:?}");
+    assert!(d.str("message").contains("card.stitchfoundry") && d.str("detail").contains("card"), "{d:?}");
     dialogs::cancel(&mut app);
     assert!(app.ui.dialog.is_none());
     assert_eq!(std::fs::read(&card).unwrap(), b"the old card", "Cancel leaves the file as it was");
@@ -175,7 +175,7 @@ fn a_name_given_its_extension_asks_before_replacing_a_file_there() {
 #[test]
 fn the_enter_that_closed_the_save_panel_does_not_replace_the_file() {
     let (mut app, dir) = on_disk("enter", "card");
-    let card = dir.join("card.vectorcraft");
+    let card = dir.join("card.stitchfoundry");
     std::fs::write(&card, b"the old card").unwrap();
     assert!(app.run("file.save", json!({})).is_err());
     let ctx = egui::Context::default();
@@ -202,13 +202,13 @@ fn a_name_given_its_extension_writes_at_once_when_no_file_is_there() {
     let (mut app, dir) = on_disk("fresh", "fresh");
     app.run("file.save", json!({})).unwrap();
     assert!(app.ui.dialog.is_none());
-    assert!(dir.join("fresh.vectorcraft").exists());
+    assert!(dir.join("fresh.stitchfoundry").exists());
     let _ = std::fs::remove_dir_all(&dir);
-    let (mut app, dir) = on_disk("typed", "card.vectorcraft");
-    std::fs::write(dir.join("card.vectorcraft"), b"the old card").unwrap();
+    let (mut app, dir) = on_disk("typed", "card.stitchfoundry");
+    std::fs::write(dir.join("card.stitchfoundry"), b"the old card").unwrap();
     app.run("file.save", json!({})).unwrap();
     assert!(app.ui.dialog.is_none());
-    assert_ne!(std::fs::read(dir.join("card.vectorcraft")).unwrap(), b"the old card");
+    assert_ne!(std::fs::read(dir.join("card.stitchfoundry")).unwrap(), b"the old card");
     let _ = std::fs::remove_dir_all(&dir);
 }
 

@@ -811,7 +811,7 @@ const KEEPS_MENU_NAMES: [&str; 16] = ["cs", "de", "el", "es", "fr", "hu", "it", 
 /// StitchFoundry: the languages VectorCraft completed that wait for the embroidery strings here
 /// (Brazilian Portuguese has its menu labels only). Its catalog is VectorCraft's complete one, so
 /// it holds strings this app doesn't show.
-const COMPLETE_UPSTREAM: [&str; 1] = ["pt-br"];
+const COMPLETE_UPSTREAM: [&str; 4] = ["pt-br", "nl", "da", "id"];
 
 /// Menu labels the menu-complete catalogs (Czech, German, Spanish, Italian, Japanese, Brazilian Portuguese) show as they are: the product name, a format name, the built-in workspace
 /// names and the perspective grid presets (names, shown untranslated wherever else they appear).
@@ -1863,7 +1863,7 @@ const RENDER_SITE_ROWS: &[(&str, &str)] = &[
     ("file-filter", "Print presets"),
     ("file-filter", "SVG Compressed"),
     ("file-filter", "PDF-compatible .ai"),
-    ("file-filter", "VectorCraft Template"),
+    ("file-filter", "StitchFoundry Template"),
     ("file-filter", "Templates"),
     ("diagnostics", "render"),
     ("diagnostics", "ui"),

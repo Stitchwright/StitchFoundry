@@ -3290,7 +3290,7 @@ file-filter	PDF presets	PDF プリセット
 file-filter	Print presets	プリントプリセット
 file-filter	SVG Compressed	SVG 圧縮
 file-filter	PDF-compatible .ai	PDF 互換の .ai
-file-filter	VectorCraft Template	VectorCraft テンプレート
+file-filter	StitchFoundry Template	StitchFoundry テンプレート
 file-filter	Templates	テンプレート
 	Focal Fill	焦点の塗り
 	Focal Stroke	焦点の線
@@ -6203,3 +6203,10 @@ machine	Stop	停止
 @msg	too many library panels were opened in this session	このセッションで開いたライブラリパネルが多すぎます
 @msg	The image is {_1} × {_2} pixels, more than {LARGE_TRACE_SIDE} on a side: it is traced, but more slowly. A lower-fidelity preset or a smaller copy of the image traces faster.	画像は {_1} × {_2} ピクセルで、一辺が {LARGE_TRACE_SIDE} を超えています。トレースはできますが、時間がかかります。忠実度の低いプリセットや画像の小さいコピーを使うと速くなります。
 @msg	The image was traced at {_1} × {_2} pixels, scaled down from {_3} × {_4} ({_5} megapixels at most).	画像は {_3} × {_4} から縮小した {_1} × {_2} ピクセルでトレースされました (最大 {_5} メガピクセル)。
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	自動デジタイズ
+	Backstitch Line	返し縫いの線
+	Close Appliqué Outlines	アップリケの輪郭を閉じる
+	Erase Backstitch	返し縫いを消去
+	Erase Cross Stitches	クロスステッチを消去
+	Move Stitches	ステッチを移動
