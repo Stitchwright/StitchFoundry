@@ -147,13 +147,13 @@ fn saved_from(app: &mut VectorcraftApp, shown: &crate::tests_picks::Shown, writt
 fn the_file_type_picked_in_the_save_dialog_decides_the_format() {
     for (answer, expected) in [
         (&["/art/poster", "ai"][..], "/art/poster.ai"),
-        (&["/art/Untitled-1.vectorcraft", "ai"], "/art/Untitled-1.ai"),
+        (&["/art/Untitled-1.stitchfoundry", "ai"], "/art/Untitled-1.ai"),
         (&["/art/poster.SVG", "ai"], "/art/poster.SVG"),
         (&["/art/poster.foo", "ai"], "/art/poster.foo.ai"),
         (&["/art/poster.ai", "vectorcraft"], "/art/poster.ai"),
         (&["/art/poster", "svg"], "/art/poster.svg"),
         // A dialog that doesn't say, as on Windows and macOS: the default format's extension.
-        (&["/art/poster"], "/art/poster.vectorcraft"),
+        (&["/art/poster"], "/art/poster.stitchfoundry"),
     ] {
         let (mut app, shown, written) = portal_app();
         assert_eq!(saved_from(&mut app, &shown, &written, "file.save", answer), expected, "{answer:?}");
@@ -177,9 +177,9 @@ fn a_document_in_another_format_saves_as_the_type_picked() {
     let (mut app, shown, written) = portal_app();
     app.run("file.saveAs", json!({"path": "/art/a.ai", "options": {}})).unwrap();
     assert_eq!(*written.borrow(), ["/art/a.ai"]);
-    assert_eq!(saved_from(&mut app, &shown, &written, "file.saveAs", &["/art/poster", "vectorcraft"]), "/art/poster.vectorcraft");
+    assert_eq!(saved_from(&mut app, &shown, &written, "file.saveAs", &["/art/poster", "vectorcraft"]), "/art/poster.stitchfoundry");
     dialogs::cancel(&mut app);
-    assert_eq!(saved_from(&mut app, &shown, &written, "file.saveAs", &["/art/a.ai", "vectorcraft"]), "/art/a.vectorcraft");
+    assert_eq!(saved_from(&mut app, &shown, &written, "file.saveAs", &["/art/a.ai", "vectorcraft"]), "/art/a.stitchfoundry");
     dialogs::cancel(&mut app);
     assert_eq!(saved_from(&mut app, &shown, &written, "file.saveCopy", &["/art/copy", "svg"]), "/art/copy.svg");
     dialogs::cancel(&mut app);
