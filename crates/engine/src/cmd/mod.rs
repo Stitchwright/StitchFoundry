@@ -236,6 +236,10 @@ pub fn can_undo(s: &Session) -> std::result::Result<(), String> {
 pub fn can_redo(s: &Session) -> std::result::Result<(), String> {
     s.active().filter(|d| !d.history.redo.is_empty()).map(|_| ()).ok_or_else(|| "nothing to redo".into())
 }
+/// The active document has a step to undo or to redo (Clear History).
+pub fn can_clear_history(s: &Session) -> std::result::Result<(), String> {
+    s.active().filter(|d| !d.history.undo.is_empty() || !d.history.redo.is_empty()).map(|_| ()).ok_or_else(|| "no history to clear".into())
+}
 pub fn has_clipboard(s: &Session) -> std::result::Result<(), String> {
     has_doc(s)?;
     if s.clipboard.is_empty() { Err("clipboard is empty".into()) } else { Ok(()) }

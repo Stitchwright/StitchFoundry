@@ -1181,7 +1181,10 @@ fn new_type_starts_with_placeholder_text() {
     gesture(&mut s, v, &[(Down, 100.0, 150.0), (Drag, 300.0, 300.0), (Up, 300.0, 300.0)]);
     assert!(text(&s).len() > placeholder.len());
     set_pref(&mut s, "placeholderText", json!(false));
-    gesture(&mut s, v, &[(Down, 50.0, 350.0), (Up, 50.0, 350.0)]);
+    // The first click ends editing the area type (#2871); the second places point type.
+    for _ in 0..2 {
+        gesture(&mut s, v, &[(Down, 50.0, 350.0), (Up, 50.0, 350.0)]);
+    }
     assert_eq!(text(&s), "");
 }
 

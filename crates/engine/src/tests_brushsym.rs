@@ -655,6 +655,20 @@ fn symbolism_adjustments() {
     assert!(s.execute("symbol.adjust", &json!({"tool": "nope", "points": at})).is_err());
 }
 
+/// In a CMYK document the Symbol Stainer's RGB `color` separates through the color settings, as
+/// `paint.setFill` stores it.
+#[test]
+fn symbol_stainer_rgb_color_in_a_cmyk_document_separates_through_the_color_settings() {
+    use vectorcraft_color::{Color, Paint, cms};
+    let mut s = Session::new();
+    s.execute("file.new", &json!({"width": 400, "height": 300, "colorMode": "cmyk"})).unwrap();
+    let (inst, _, b) = make_symbol(&mut s);
+    let c = b.center();
+    s.execute("symbol.adjust", &json!({"tool": "stain", "points": [[c.x, c.y]], "color": "#ff0000", "intensity": 10})).unwrap();
+    let red = cms::active().convert(&Color::rgb(1.0, 0.0, 0.0), cms::Model::Cmyk, cms::active().settings().intent);
+    assert_eq!(node(&s, inst).appearance.fill().map(|f| f.paint.clone()), Some(Paint::solid(red)));
+}
+
 #[test]
 fn symbol_sprayer_tool_gesture_is_one_undo_step() {
     let mut s = session();

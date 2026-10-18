@@ -26,10 +26,23 @@ pub fn step_name(lang: crate::i18n::Lang, label: &str) -> Option<String> {
     has(lang, label).then(|| tr(lang, label).to_string())
 }
 
+/// A step's name in `lang`. A name made from a template (`Apply {name}`,
+/// [`vectorcraft_engine::HistoryEntry::named`]) takes the template's plain row with the name in its
+/// placeholder. A name VectorCraft gives is shown in `lang`, and any other name is shown as the
+/// document holds it. It returns `None` when the catalog has no row for the template. Any other step
+/// takes [`step_name`] of its label.
+pub fn entry_name(lang: crate::i18n::Lang, h: &vectorcraft_engine::HistoryEntry) -> Option<String> {
+    use crate::i18n::{fmt, has, label_or_name, tr};
+    match h.named() {
+        Some(n) => has(lang, n.template).then(|| fmt(tr(lang, n.template), &[("name", label_or_name(lang, &n.name, n.built_in))])),
+        None => step_name(lang, &h.label),
+    }
+}
+
 /// A step's name as the panel lists it: in the UI language, else as recorded. Edit › Undo and Redo
 /// name the step the same way.
-pub(crate) fn shown(label: &str) -> String {
-    step_name(crate::i18n::current(), label).unwrap_or_else(|| label.to_string())
+pub(crate) fn shown(h: &vectorcraft_engine::HistoryEntry) -> String {
+    entry_name(crate::i18n::current(), h).unwrap_or_else(|| h.label.clone())
 }
 
 pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
@@ -39,9 +52,9 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         return;
     };
     let mut rows: Vec<(String, bool)> = vec![(tl!("Open").to_string(), false)];
-    rows.extend(st.history.undo.iter().map(|h| (shown(&h.label), false)));
+    rows.extend(st.history.undo.iter().map(|h| (shown(h), false)));
     let current = rows.len() - 1;
-    rows.extend(st.history.redo.iter().rev().map(|h| (shown(&h.label), true)));
+    rows.extend(st.history.redo.iter().rev().map(|h| (shown(h), true)));
     let mut steps: Option<i64> = None;
     crate::widgets::list_box(ui, |ui| {
         ui.spacing_mut().item_spacing.y = 0.0;
@@ -85,6 +98,9 @@ pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
         }
     }
     ui.separator();
+    if menu_item(ui, tl!("Clear History"), crate::menus::enabled(app, "edit.clearHistory"), false) {
+        crate::menus::invoke(app, "edit.clearHistory", json!({}));
+    }
     if menu_item(ui, tl!("Set History Limit…"), true, false) {
         crate::menus::invoke(app, "edit.preferences", json!({ "category": "Performance" }));
     }
@@ -100,6 +116,61 @@ mod tests {
         assert_eq!(steps_to(5, 2), -3);
         assert_eq!(steps_to(2, 4), 2);
         assert_eq!(steps_to(3, 3), 0);
+    }
+
+    /// The step names the panel paints, top to bottom. Without an image loader, each row's icon
+    /// paints a `⚠` instead, which is left out.
+    fn listed(app: &mut VectorcraftApp) -> Vec<String> {
+        let ctx = egui::Context::default();
+        let mut out = ctx.run_ui(egui::RawInput::default(), |ui| show(app, ui));
+        out.textures_delta.clear();
+        out.shapes
+            .iter()
+            .filter_map(|c| match &c.shape {
+                egui::Shape::Text(t) if t.galley.text() != "⚠" => Some(t.galley.text().to_string()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// A step named after a style lists the template's translation with the style's name in it as
+    /// the document holds it, also when the name looks like a template, like a step with a row of
+    /// its own (`Apply Brush`) or like another template's name; the Normal style's name is
+    /// translated as the Character Styles panel shows it. Undone steps keep their names.
+    #[test]
+    fn steps_named_after_a_style_list_the_template_around_the_name() {
+        let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), Default::default());
+        let mut run = |id: &str, p: serde_json::Value| app.session.execute(id, &p).unwrap_or_else(|e| panic!("{id} {p}: {e}"));
+        run("file.new", json!({"width": 200, "height": 150}));
+        let rect = run("shape.rectangle", json!({"x": 10, "y": 10, "width": 20, "height": 20}))["id"].clone();
+        run("graphicStyle.new", json!({"name": "S", "id": rect}));
+        run("graphicStyle.redefine", json!({"name": "S", "id": rect}));
+        let text = run("text.create", json!({"x": 10, "y": 100, "text": "Hello"}))["id"].clone();
+        for name in ["Body", "{name}", "Apply", "Brush", "Graphic Style “X”"] {
+            run("charStyle.new", json!({"name": name}));
+        }
+        for name in ["Body", "{name}", "Apply", "Brush", "[Normal Character Style]"] {
+            run("charStyle.apply", json!({"name": name, "id": text}));
+        }
+        run("charStyle.setAttrs", json!({"name": "Graphic Style “X”", "attrs": {"size": 30.0}}));
+        let ja = crate::i18n::Lang::from_code("ja").expect("ja registered");
+        crate::i18n::set_current(ja);
+        let rows = listed(&mut app);
+        let want = [
+            "グラフィックスタイル「S」を再定義",
+            "スタイル「Body」を適用",
+            "スタイル「{name}」を適用",
+            "スタイル「Apply」を適用",
+            "スタイル「Brush」を適用",
+            "スタイル「[標準文字スタイル]」を適用",
+            "スタイル「Graphic Style “X”」を再定義",
+        ];
+        assert!(rows.contains(&want[0].to_string()), "{rows:#?}");
+        assert_eq!(rows[rows.len() - 6..], want[1..], "{rows:#?}");
+        app.session.execute("edit.undo", &json!({})).unwrap();
+        assert_eq!(listed(&mut app).last().map(String::as_str), Some(want[6]), "an undone step");
+        crate::i18n::set_current(crate::i18n::Lang::EN);
+        assert_eq!(listed(&mut app)[rows.len() - 6..rows.len() - 4], ["Apply Body", "Apply {name}"]);
     }
 
     /// A step named after an effect whose catalog row has only the menu label with its ellipsis
@@ -185,6 +256,46 @@ mod tests {
         assert_eq!(disabled(&mut app), (true, false), "one step to redo");
         click(&mut app, "Step Backward");
         assert_eq!(depth(&app), (0, 1));
+    }
+
+    /// Returns whether the panel menu's item labeled `label` is disabled.
+    fn disabled(app: &mut VectorcraftApp, label: &str) -> bool {
+        let tree = crate::widgets::accessibility_tests::tree(|ui| menu(app, ui));
+        tree.iter().find(|n| n.label().map(str::trim) == Some(label)).unwrap_or_else(|| panic!("no `{label}`")).is_disabled()
+    }
+
+    /// The panel menu's Clear History removes the steps to undo and to redo, and the document stays
+    /// as it is. Step Backward and Step Forward are then disabled.
+    #[test]
+    fn the_panel_menu_clears_the_history() {
+        let mut app = app_with_two_rectangles();
+        click(&mut app, "Step Backward");
+        assert_eq!(depth(&app), (1, 1));
+        let doc = app.session.active().unwrap().doc.clone();
+        click(&mut app, "Clear History");
+        assert_eq!(depth(&app), (0, 0));
+        assert!(std::sync::Arc::ptr_eq(&app.session.active().unwrap().doc, &doc), "the document stays as it is");
+        assert_eq!((disabled(&mut app, "Step Backward"), disabled(&mut app, "Step Forward")), (true, true));
+    }
+
+    /// Clear History is disabled with no document and with no step to undo or redo, and a click on it
+    /// then changes nothing.
+    #[test]
+    fn clear_history_is_disabled_with_no_step_to_clear() {
+        let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), Default::default());
+        assert!(disabled(&mut app, "Clear History"), "no document");
+        app.session.execute("file.new", &json!({"width": 200, "height": 150})).unwrap();
+        assert!(disabled(&mut app, "Clear History"), "a new document");
+        app.session.execute("shape.rectangle", &json!({"x": 10, "y": 10, "width": 20, "height": 20})).unwrap();
+        assert!(!disabled(&mut app, "Clear History"), "one step to undo");
+        click(&mut app, "Step Backward");
+        assert!(!disabled(&mut app, "Clear History"), "one step to redo");
+        click(&mut app, "Clear History");
+        assert_eq!(depth(&app), (0, 0));
+        assert!(disabled(&mut app, "Clear History"), "the history cleared");
+        let revision = app.session.active().unwrap().revision;
+        click(&mut app, "Clear History");
+        assert_eq!(app.session.active().unwrap().revision, revision, "a click on the disabled item changes nothing");
     }
 
     /// Set History Limit… opens Preferences at Performance, the page with History States.

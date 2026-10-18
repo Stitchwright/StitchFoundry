@@ -1719,6 +1719,7 @@ file-filter	Templates	Sablonok
 	History Options…	Előzmények beállításai…
 	Step Backward	Lépés vissza
 	Step Forward	Lépés előre
+	Clear History	Előzmények törlése
 	Set History Limit…	Előzménykorlát beállítása…
 	History States	Előzmények lépésszáma
 # History panel: the names of undo steps (`every_undo_label_is_translated`).
@@ -2972,6 +2973,8 @@ mark-style	Japanese	Japán
 	Redefine Character Style	Karakterstílus újradefiniálása
 	Redefine Graphic Style	Grafikai stílus újradefiniálása
 	Redefine Graphic Style “{name}”	Grafikai stílus újradefiniálása: „{name}”
+	Apply {name}	Stílus alkalmazása: „{name}”
+	Redefine {name}	Stílus újradefiniálása: „{name}”
 	Redefine Paragraph Style	Bekezdésstílus újradefiniálása
 	Redefine Symbol	Szimbólum újradefiniálása
 	Redefine {kind} Style	Stílus újradefiniálása: {kind}
@@ -4312,6 +4315,8 @@ imageTrace	Outline	Körvonal
 @msg	`{key}` must be a #rrggbb color	`{key}`: #rrggbb szín kell
 @msg	`{key}` must be a #rrggbb colour	`{key}`: #rrggbb szín kell
 @msg	`{key}` must be a number	`{key}`: szám kell
+@msg	`{key}` must be a number, not {v}	`{key}`: szám kell, ez nem az: {v}
+@msg	{key} must be Unix seconds (an integer) or null	{key}: Unix-idő kell másodpercben (egész szám) vagy null
 @msg	`{key}` must be a string	`{key}`: szöveg kell
 @msg	`{key}` must be a whole number	`{key}`: egész szám kell
 @msg	`{key}` must be a whole number between {min} and {max} (got {x})	`{key}`: {min} és {max} közötti egész szám kell (kapott érték: {x})
@@ -4358,6 +4363,7 @@ imageTrace	Outline	Körvonal
 @msg	a PostScript error ({name} in `{op}`: {at}), in {procs}	PostScript-hiba ({name}, itt: `{op}`: {at}), eljárás: {procs}
 @msg	a PostScript error ({name})	PostScript-hiba ({name})
 @msg	a preset named `{_1}` exists	már van ilyen nevű előbeállítás: `{_1}`
+@msg	a swatch or color group named `{n}` exists	már van ilyen nevű színminta vagy színcsoport: `{n}`
 @msg	a slice size must be a positive number of points	a szelet mérete pozitív pontérték kell legyen
 @msg	a spine keeps at least two points	a gerincen legalább két pont marad
 @msg	a stream runs past the end	egy adatfolyam túlnyúlik a végén
@@ -4529,6 +4535,11 @@ imageTrace	Outline	Körvonal
 @msg	its editing data doesn't say where its artboard is	a szerkesztési adataiból nem derül ki, hol van a rajztáblája
 @msg	its editing data has no layers	a szerkesztési adataiban nincsenek rétegek
 @msg	its editing data is damaged	a szerkesztési adatai sérültek
+@msg	its editing data is for a {w} × {h} pt page, not the file's {pw} × {ph} pt page	a szerkesztési adatai egy {w} × {h} pt méretű oldalhoz tartoznak, nem a fájl {pw} × {ph} pt méretű oldalához
+@msg	its editing data is for a {w} × {h} pt page, the file's {pw} × {ph} pt page at {scale}	a szerkesztési adatai egy {w} × {h} pt méretű oldalhoz tartoznak, ami a fájl {pw} × {ph} pt méretű oldala {scale} méretarányban
+@msg	its zlib compression is damaged	a zlib-tömörítésük sérült
+@msg	its Zstandard compression is damaged	a Zstandard-tömörítésük sérült
+@msg	it decompresses to more than {_1} MB	kicsomagolva nagyobbak, mint {_1} MB
 @msg	its editing data is for a different page	a szerkesztési adatai egy másik oldalhoz tartoznak
 @msg	its layers use {_1}, which aren't read yet	a rétegei olyat használnak, ami még nem olvasható: {_1}
 @msg	its objects are nested too deeply	az objektumai túl mélyen egymásba ágyazottak
@@ -4552,6 +4563,7 @@ imageTrace	Outline	Körvonal
 @msg	missing `tool`	hiányzik: `tool`
 @msg	missing index	hiányzik az index
 @msg	missing number `{key}`	hiányzik a szám: `{key}`
+@msg	missing integer `{key}`	hiányzik az egész szám: `{key}`
 @msg	missing panel layout	hiányzik a panelelrendezés
 @msg	move requires a destination panel	az áthelyezéshez célpanel kell
 @msg	move requires an existing destination panel	az áthelyezéshez létező célpanel kell
@@ -4679,9 +4691,13 @@ imageTrace	Outline	Körvonal
 @msg	nothing to redo	nincs mit újra végrehajtani
 @msg	nothing to save: the document has no visible art	nincs mit menteni: a dokumentumban nincs látható grafika
 @msg	nothing to undo	nincs mit visszavonni
+@msg	no history to clear	nincs törölhető előzmény
 @msg	nothing to warp	nincs mit torzítani
 @msg	nothing to wrap	nincs mit körbefuttatni
 @msg	object ids are non-negative integers, not {v}	az objektumazonosító nemnegatív egész szám, ez nem az: {v}
+@msg	{key} must be an array of non-negative integer object ids	{key}: objektumazonosítók tömbje kell, mindegyik nemnegatív egész szám
+@msg	invalid object id {value}: expected a non-negative integer	érvénytelen objektumazonosító: {value} (nemnegatív egész szám kell)
+@msg	no such object id {value}	nincs ilyen objektumazonosító: {value}
 @msg	object {0} cannot have children	ennek az objektumnak nem lehetnek gyermekei: {0}
 @msg	object {id} is not a path	az objektum nem útvonal: {id}
 @msg	object {id} is not a selected top-level object	az objektum nem kijelölt legfelső szintű objektum: {id}
@@ -4697,6 +4713,7 @@ imageTrace	Outline	Körvonal
 @msg	Packaged {n} file(s){note}	Becsomagolt fájlok: {n}{note}
 @msg	page size {w} × {h}	oldalméret: {w} × {h}
 @msg	page {0} does not exist (the PDF has {1})	nincs ilyen oldal: {0} (a PDF oldalszáma: {1})
+@msg	thumbnail: no page {n} (the file has 1)	thumbnail: nincs ilyen oldal: {n} (a fájl oldalszáma: 1)
 @msg	panel group is empty	a panelcsoport üres
 @msg	panel must name a registered panel	a panel egy regisztrált panelt kell megnevezzen
 @msg	paste unavailable	a beillesztés nem érhető el
@@ -4741,6 +4758,7 @@ imageTrace	Outline	Körvonal
 @msg	Save for Web: the image is empty	Mentés webre: a kép üres
 @msg	Save writes {_1}, not {_2}: use document.export for other formats	a Mentés ezt írja: {_1}, ezt nem: {_2}; más formátumhoz használd a document.export parancsot
 @msg	Save writes {_1}, not {_2}: use file.saveAsTemplate to write it	a Mentés ezt írja: {_1}, ezt nem: {_2}; ennek írásához használd a file.saveAsTemplate parancsot
+@msg	aiVersion 7 writes legacy .ai files; a .ait template is always PDF-compatible	az aiVersion 7 régi .ai fájlokat ír; egy .ait sablon mindig PDF-kompatibilis
 @msg	saved panel layout is invalid; reset the workspace first	a mentett panelelrendezés érvénytelen; előbb állítsd vissza a munkaterületet
 @msg	Saved recovery data for {title}	Helyreállítási adatok mentve: {title}
 @msg	Saved to User Defined: {_1}	Mentve a felhasználóiak közé: {_1}
@@ -4938,6 +4956,7 @@ imageTrace	Outline	Körvonal
 @msg	{_1} failed: {e}	sikertelen: {_1}: {e}
 @msg	{_1} files	{_1} fájlok
 @msg	{_1} files can be opened but not written (see document.formats)	ezek a fájlok megnyithatók, de nem írhatók: {_1} (lásd: document.formats)
+@msg	{_1} files are written by file.saveAsTemplate	ezeket a fájlokat a file.saveAsTemplate írja: {_1}
 @msg	{_1} font families available	Elérhető betűcsaládok: {_1}
 @msg	{_1} has no {_2} style	ennek nincs ilyen stílusa: {_1} ({_2})
 @msg	{_1} is a live effect (Effect › Plug-ins)	élő effektus: {_1} (Effektus › Bővítmények)
@@ -6520,3 +6539,22 @@ machine	Stop	Megállás
 	{name} API key:	{name} API-kulcs:
 	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	A képet az adott szolgáltatásnál lévő fiókja fizeti. Utána Claude lapos alakzatokként újrarajzolja a cérnaszíneiben, így kevés cérnacserével hímezhető.
 	Making the picture…	A kép készül…
+	Artboard {n} of {total}	Rajztábla: {n} / {total}
+	Encoding and writing the file…	A fájl kódolása és írása…
+@plural	{n} more export waiting|{n} more exports waiting	Még {n} exportálás várakozik
+	Continue in Background	Folytatás a háttérben
+	Cancel Export	Exportálás megszakítása
+@msg	Export cancelled	Az exportálás megszakítva
+# Paragraph panel menu › Justification…
+	Desired	Kívánt
+	Word Spacing:	Szóköz:
+	Letter Spacing:	Betűköz:
+	Glyph Scaling:	Karakterméretezés:
+	Auto Leading:	Automatikus sorköz:
+	Single Word Justification:	Egyetlen szó igazítása:
+	Full Justify	Teljes sorkizárás
+	Minimum must not exceed Desired, nor Desired Maximum.	A minimum nem haladhatja meg a kívánt értéket, sem a kívánt érték a maximumot.
+	Justification	Sorkizárás
+@msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	a fájl változói és adatkészletei nem lettek beolvasva (változók: {variables}, adatkészletek: {data_sets}): a Változók panel nem listázza őket
+# Select by Color (select.color)
+	Select by Color	Kijelölés szín szerint

@@ -146,6 +146,63 @@ fn device_names_and_trailing_periods_follow_windows_naming_rules() {
     assert_eq!(r["name"], "nul-.zip");
 }
 
+/// `first_file` names the file the export writes first, for the same params: the item's file name,
+/// a prefix and a suffix with characters Windows does not allow, a range, a Windows device name,
+/// every kind of folder, presets, size suffixes, a name pattern with its counter and date, an
+/// export preset, a ZIP, Full Document, Include Bleed, assets, layers and the selection; and it
+/// refuses what the export refuses.
+#[test]
+fn the_first_file_is_the_file_the_export_writes_first() {
+    let mut s = session(3);
+    s.execute("artboard.setProps", &json!({"index": 1, "name": "CON"})).unwrap();
+    let layer = s.doc().unwrap().doc.layers[0].id.0;
+    let square = s.doc().unwrap().doc.layers[0].children().unwrap()[0].id.0;
+    let asset = s.execute("assets.add", &json!({"ids": [square], "name": "Logo?"})).unwrap()["assets"][0].as_u64().unwrap();
+    s.execute("shape.ellipse", &json!({"x": 2, "y": 2, "width": 10, "height": 10})).unwrap();
+    s.execute("select.all", &json!({})).unwrap();
+    let written = |r: &Value| r["files"][0].as_str().or_else(|| r["files"][0]["name"].as_str()).unwrap_or_default().to_string();
+    let cases = [
+        json!({}),
+        json!({"prefix": "a?b/", "formats": [{"format": "png", "suffix": "<x>"}]}),
+        json!({"range": "2-3", "folders": "item"}),
+        json!({"range": "2", "folders": "itemFormat", "formats": [{"format": "svg", "scale": "2x", "suffix": "@2x"}]}),
+        json!({"preset": "mobile"}),
+        json!({"preset": "density"}),
+        json!({"subfolders": true, "formats": [{"format": "png", "scale": "144ppi", "folder": "a b"}]}),
+        json!({"folders": "format", "formats": [{"format": "jpg", "quality": 50}]}),
+        json!({
+            "name": "<filename>-<name>-<scale>-<index>-###-YYYYMMDD",
+            "counterStart": 7,
+            "counterPer": "file",
+            "date": "2026-10-17",
+            "formats": [{"format": "png", "scale": "2x"}]
+        }),
+        json!({"name": "<suffix>", "formats": [{"format": "png", "suffix": ""}]}),
+        json!({"exportPreset": "Logo Package"}),
+        json!({"zip": true, "formats": [{"format": "svg"}, {"format": "png"}]}),
+        json!({"fullDocument": true, "folders": "item", "formats": [{"format": "pdf"}]}),
+        json!({"fullDocument": true, "formats": [{"format": "png"}]}),
+        json!({"includeBleed": true}),
+        json!({"assets": [asset], "formats": [{"format": "svg"}]}),
+        json!({"layers": [layer], "folders": "item"}),
+        json!({"selection": "one"}),
+        json!({"selection": "each", "name": "<name>"}),
+    ];
+    for p in cases {
+        let first = super::screens::first_file(&s, &p).unwrap();
+        assert_eq!(first, written(&export(&mut s, p.clone())), "{p}");
+    }
+    for p in [json!({"layers": [layer], "assets": [asset]}), json!({"selection": "all"}), json!({"counterPer": "row"})] {
+        assert!(super::screens::first_file(&s, &p).is_err() && s.execute("document.exportForScreens", &p).is_err(), "{p}");
+    }
+    // A document named after a Windows device.
+    s.execute("file.new", &json!({"width": 40, "height": 30, "name": "nul"})).unwrap();
+    for p in [json!({"fullDocument": true, "folders": "item", "formats": [{"format": "pdf"}]}), json!({"name": "<filename>"})] {
+        let first = super::screens::first_file(&s, &p).unwrap();
+        assert_eq!(first, written(&export(&mut s, p.clone())), "{p}");
+    }
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 #[test]
 fn sub_folders_are_made_in_the_export_folder() {

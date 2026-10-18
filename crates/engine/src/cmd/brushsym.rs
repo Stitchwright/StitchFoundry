@@ -210,7 +210,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Symbolism Tool",
             [],
             None,
-            "{tool: shift|scrunch|size|spin|stain|screen|style, points: [[x,y]…], radius?: 40, intensity?: 1..10 (5), alt?: bool, color?, style?: name} adjust instances near the points (selection, else all) → {count}",
+            "{tool: shift|scrunch|size|spin|stain|screen|style, points: [[x,y]…], radius?: 40, intensity?: 1..10 (5), alt?: bool, color?, keepModel?: bool (as paint.setFill), style?: name} adjust instances near the points (selection, else all) → {count}",
             has_doc,
             symbol_adjust
         ),
@@ -1110,7 +1110,7 @@ fn symbol_adjust(s: &mut Session, p: &Value) -> Result<Value> {
     let alt = bool_or(p, "alt", false);
     let st = s.doc()?;
     let color = match p.get("color").and_then(color_value) {
-        Some(c) => c,
+        Some(c) => super::paint::new_color(s, p, c),
         None => s.paint.fill.color().unwrap_or(Color::BLACK),
     };
     let style_paint = match str_param(p, "style") {

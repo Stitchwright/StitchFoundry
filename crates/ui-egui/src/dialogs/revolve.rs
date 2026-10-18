@@ -82,10 +82,12 @@ fn controls(app: &VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) {
         ui.spacing_mut().item_spacing.x = 6.0;
         label(ui, tl!("Axis side"));
         let edge = d.str("edge");
-        let current = if edge == "right" { tl!("Right") } else { tl!("Left") };
+        let sides = super::effect::own_choices(REVOLVE, "edge", false).unwrap_or_default();
+        let current = sides.iter().find(|(_, v)| *v == edge).or(sides.first()).map_or("", |(l, _)| *l);
+        let labels: Vec<&str> = sides.iter().map(|(l, _)| *l).collect();
         let width = VALUE_W + rail_width(ui) + 6.0;
-        if let Some(k) = widgets::dropdown(ui, "revolve-edge", current, &[tl!("Left"), tl!("Right")], width) {
-            d.fields.insert("edge".into(), json!(if k == 0 { "left" } else { "right" }));
+        if let Some((_, v)) = widgets::dropdown(ui, "revolve-edge", current, &labels, width).and_then(|k| sides.get(k)) {
+            d.fields.insert("edge".into(), json!(v));
         }
         if reset_dot(ui, "edge", edge != "left", tl!("Left")) {
             d.fields.insert("edge".into(), json!("left"));
@@ -189,14 +191,8 @@ fn extrude_controls(ui: &mut egui::Ui, d: &mut Dialog, unit: Unit) {
     choice(ui, d, "cap", c3("Cap"), &[(json!(true), c3("Solid")), (json!(false), c3("Hollow"))]);
     ui.add_space(10.0);
     heading(ui, c3("Bevel"));
-    let shapes = [
-        (json!("none"), tl!("None")),
-        (json!("classic"), tl!("Classic")),
-        (json!("rounded"), c3("Rounded")),
-        (json!("cove"), tl!("Cove")),
-        (json!("step"), tl!("Step")),
-        (json!("ogee"), tl!("Ogee")),
-    ];
+    let shapes: Vec<(Value, &str)> =
+        super::effect::own_choices(EXTRUDE, "bevel", false).unwrap_or_default().into_iter().map(|(label, value)| (json!(value), label)).collect();
     choice(ui, d, "bevel", tl!("Bevel Shape"), &shapes);
     ui.add_enabled_ui(d.str("bevel") != "none", |ui| {
         number(ui, d, "bevelWidth", tl!("Width"), (0.0, 1000.0), "", 1, Some(unit));
@@ -472,6 +468,7 @@ fn number(ui: &mut egui::Ui, d: &mut Dialog, key: &str, name: &str, range: (f64,
     let typed = unit.map(|u| widgets::typed_unit(ui.ctx(), u));
     let mut value = from(d.f64(key, default)).clamp(from(range.0), from(range.1));
     let suffix = unit.map_or_else(|| suffix.to_string(), |u| format!(" {}", u.suffix()));
+    let speed = if decimals == 0 { 1.0 } else { 0.25 };
     let mut next = None;
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 6.0;
@@ -485,7 +482,7 @@ fn number(ui: &mut egui::Ui, d: &mut Dialog, key: &str, name: &str, range: (f64,
                     [VALUE_W, 24.0],
                     egui::DragValue::new(&mut value)
                         .range(from(range.0)..=from(range.1))
-                        .speed(if decimals == 0 { 1.0 } else { 0.25 })
+                        .speed(speed)
                         .max_decimals(decimals)
                         .suffix(&suffix)
                         .update_while_editing(false)
@@ -513,10 +510,16 @@ fn number(ui: &mut egui::Ui, d: &mut Dialog, key: &str, name: &str, range: (f64,
         };
         let rail_min = from(range.0);
         let rail = rail_width(ui) + VALUE_W;
-        let slider = widgets::color_slider_named(
+        // The text the DragValue shows: at least the places its speed gives (one for 0.25 at 1x to
+        // 3x scaling, as egui computes them), at most `decimals`.
+        let places = ((f64::from(ui.input(|i| i.aim_radius())) / speed).log10().ceil().clamp(0.0, 15.0) as usize).min(decimals);
+        let number = ui.style().number_formatter.format(value, places..=decimals);
+        let shown = widgets::SliderValue::text(number.parse().unwrap_or(value), rail_min..=rail_max, format!("{number}{suffix}"));
+        let slider = widgets::color_slider_valued(
             ui,
             ("revolve-slider", key),
             name,
+            Some(shown),
             ((value - rail_min) / (rail_max - rail_min)).clamp(0.0, 1.0) as f32,
             rail,
             &|_| t.input_border,

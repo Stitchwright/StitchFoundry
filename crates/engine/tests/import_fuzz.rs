@@ -843,8 +843,8 @@ fn the_file_info_sample_reaches_the_reader() {
 proptest! {
     #![proptest_config(config())]
 
-    /// File Info read on open: mutated XMP packets and junk information dictionaries, opened as a
-    /// PDF and as a `.ai`.
+    /// File Info read on open: mutated XMP packets, some with elements nested deeply, and junk
+    /// information dictionaries, opened as a PDF and as a `.ai`.
     #[test]
     fn pdf_file_info_never_panics(
         cut in 0usize..2_000,
@@ -856,8 +856,11 @@ proptest! {
             "/Subject <FEFF00> /Author <FEFFD800> /Keywords <EFBBBF> /Title (\\377\\376)",
             "/CreationDate (D:00000101000000Z) /ModDate (D:99991231235959+23'59')",
         ]),
+        nest in prop::sample::select(vec![0usize, 0, 0, 251, 100_000]),
     ) {
-        let pdf = file_info_pdf(info, &mutate_text(RICH_XMP, cut, &edits));
+        // `nest` elements nested in one another around the packet.
+        let xmp = format!("{}{}{}", "<a>".repeat(nest), mutate_text(RICH_XMP, cut, &edits), "</a>".repeat(nest));
+        let pdf = file_info_pdf(info, &xmp);
         let b64 = vectorcraft_format::base64_encode(&pdf);
         let r = catch_quiet(|| {
             let _ = vectorcraft_pdf::file_info(&pdf, None);
@@ -1445,6 +1448,57 @@ proptest! {
     }
 }
 
+/// Targa files, which start with no signature: run-length encoded 24 bits (as the `image` crate
+/// writes them), a 16-bit export with a one-bit alpha, and by hand a 16-bit run-length encoded file
+/// stored right to left and top down, a run-length encoded color-mapped one with 16-bit entries,
+/// and a 32-bit one with an extension area.
+fn targa_samples() -> Vec<(&'static str, Vec<u8>)> {
+    let mut rle = vec![];
+    image::RgbImage::from_pixel(5, 3, image::Rgb([200, 40, 10])).write_to(&mut std::io::Cursor::new(&mut rle), image::ImageFormat::Tga).unwrap();
+    let mut s = rich_session();
+    let r = s.execute("document.export", &json!({"format": "tga", "depth": 16, "ppi": 2})).unwrap();
+    let export = vectorcraft_format::base64_decode(r["dataBase64"].as_str().unwrap()).unwrap();
+    let mut alpha = vec![0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 16, 0x31, 0x02, 0x00, 0xfc, 0x1f, 0x80, 0x00, 0x00];
+    alpha.extend([0x82, 0xe0, 0x83]);
+    let mut mapped = vec![0, 1, 9, 5, 0, 2, 0, 16, 0, 0, 0, 0, 3, 0, 2, 0, 8, 0x21, 0x00, 0x00, 0x00, 0xfc];
+    mapped.extend([0x80, 6, 0x00, 5, 0x83, 6]);
+    let mut extended = vec![0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 32, 0x28, 50, 50, 50, 128];
+    let mut area = vec![0; 495];
+    area[..2].copy_from_slice(&495u16.to_le_bytes());
+    area[494] = 4;
+    extended.extend(area);
+    extended.extend(22u32.to_le_bytes());
+    extended.extend([0; 4]);
+    extended.extend(b"TRUEVISION-XFILE.\0");
+    vec![("a.tga", rle), ("b.tga", export), ("c.tga", alpha), ("d.vda", mapped), ("e.vst", extended)]
+}
+
+proptest! {
+    #![proptest_config(config())]
+
+    /// Mutated Targa files (headers, run-length packets, color maps, the extension area and the
+    /// footer) never crash placing them.
+    #[test]
+    fn mutated_targa_files_place_without_panics(which in 0usize..5, cut in 0usize..600, edits in prop::collection::vec((0usize..560, any::<u8>()), 0..12)) {
+        let (name, mut bytes) = targa_samples().swap_remove(which);
+        for (at, b) in edits {
+            if let Some(x) = bytes.get_mut(at) {
+                *x = b;
+            }
+        }
+        bytes.truncate(cut.max(8));
+        let r = catch_quiet(|| {
+            let mut s = vectorcraft_engine::Session::new();
+            s.execute("file.new", &json!({"width": 100, "height": 100})).unwrap();
+            let p = json!({"name": name, "dataBase64": vectorcraft_format::base64_encode(&bytes), "thumbnail": 8});
+            let _ = no_panic(s.execute("file.place.info", &p));
+            let _ = no_panic(s.execute("file.place", &p));
+            let _ = no_panic(s.execute("clipboard.importImage", &json!({"dataBase64": vectorcraft_format::base64_encode(&bytes)})));
+        });
+        prop_assert!(r.is_ok(), "{name}: panicked: {:?}", r.err());
+    }
+}
+
 // ---------- SVG saved with hidden layers and editing data ----------
 
 /// The rich document with a hidden layer, saved as SVG with its editing data.
@@ -1758,6 +1812,27 @@ proptest! {
         let text = mutate_text(&ccitt_images_eps(), cut, &edits);
         survive("mutated EPS CCITT images", || vectorcraft_eps::import(text.as_bytes()).ok().map(|r| r.document))?;
     }
+
+    /// TIFF-predicted Flate data (Predictor 2) at every depth the filter accepts, with any bytes, 1 to 5
+    /// colors and 1 to 39 columns, read by images of up to 23 × 7 pixels at 1, 2, 4, 8, 12 or 16 bits:
+    /// read as an image, or as an error.
+    #[test]
+    fn eps_tiff_predicted_images_never_panic(
+        data in prop::collection::vec(any::<u8>(), 0..300),
+        bpc in prop::sample::select(vec![1u8, 2, 4, 8, 16]),
+        colors in 1u8..6,
+        columns in 1u16..40,
+        image_bpc in prop::sample::select(vec![1u8, 2, 4, 8, 12, 16]),
+        (width, height) in (1u8..24, 1u8..8),
+    ) {
+        let hex: String = deflated(&data).iter().map(|b| format!("{b:02x}")).collect();
+        let text = format!(
+            "%!PS-Adobe-3.0 EPSF-3.0\n%%BoundingBox: 0 0 100 100\n%%EndComments\n40 30 scale {width} {height} {image_bpc} [{width} 0 0 -{height} 0 {height}] \
+             currentfile /ASCIIHexDecode filter << /Predictor 2 /Colors {colors} /BitsPerComponent {bpc} /Columns {columns} >> /FlateDecode filter image\n\
+             {hex}>\nshowpage\n%%EOF\n"
+        );
+        survive("TIFF-predicted EPS images", || vectorcraft_eps::import(text.as_bytes()).ok().map(|r| r.document))?;
+    }
 }
 
 /// An EPS with two 8 × 3 CCITT fax images that the PostScript interpreter reads, coded by hand from
@@ -1868,7 +1943,8 @@ fn arb_ps_token() -> impl Strategy<Value = String> {
             "status", "token", "bytesavailable", "resetfile", "pdfmark", "execform", "nulldevice", "strokepath", "pathforall",
             "currenthsbcolor", "currentcolorrendering", "gcheck", "rootfont", "setcachedevice2", "writestring", "(%stdout) (w) file",
             "//x", "{ //dup }", "/ReusableStreamDecode", "currentfile /ASCII85Decode filter /ReusableStreamDecode filter",
-            "<< /Predictor 12 /Columns 2 /Colors 1 >> /FlateDecode", "<< /FormType 1 /BBox [0 0 9 9] /PaintProc { pop 0 0 5 5 rectfill } >>",
+            "<< /Predictor 12 /Columns 2 /Colors 1 >> /FlateDecode", "<< /Predictor 2 /Colors 3 /BitsPerComponent 4 /Columns 3 >> /LZWDecode",
+            "<< /Predictor 2 /BitsPerComponent 16 /Columns 5 >> /FlateDecode", "<< /FormType 1 /BBox [0 0 9 9] /PaintProc { pop 0 0 5 5 rectfill } >>",
             // Tiling patterns, uncoloured ones and patterns drawing patterns.
             "<< /PatternType 1 /PaintType 1 /XStep 5 /YStep 5 /BBox [0 0 5 5] /PaintProc { pop 0 0 3 3 rectfill } >> matrix makepattern",
             "<< /PatternType 1 /PaintType 2 /XStep 5 /YStep 5 /BBox [0 0 5 5] /PaintProc { pop dup setpattern 0 0 3 3 rectfill } >>",
@@ -2446,6 +2522,19 @@ proptest! {
             }
         }
         survive("mutated .ai editing data", || Some(vectorcraft_eps::layered_ai(&private, Document::new(100.0, 100.0), vec![], false, false, 1.0).0))?;
+    }
+
+    /// A `.ai` whose variable library is damaged or hostile: the library is counted for the warning
+    /// whether the layers are read or not (an inserted `Z` can make an operator the reader doesn't
+    /// handle, and then the layers aren't read).
+    #[test]
+    fn ai_variable_library_never_panics(cut in 0usize..12_000, edits in prop::collection::vec((0usize..12_000, prop::sample::select(vec!['0', '9', ' ', '\n', '(', ')', '/', ':', ';', ',', '%', '_', 'Z'])), 0..12)) {
+        use vectorcraft_testkit::ai;
+        let library = ai::variable_library(&["Name", "Number"], &["One", "Two"]);
+        let data = ai::editing_data(100.0, 100.0, &format!("{library}{}", ai::layer("L", "0 g\n10 10 m\n20 20 L\nS\n")));
+        let text = mutate_text(&data, cut, &edits);
+        let private = [b"%AI24_ZStandard_Data".as_slice(), &zstd(&text)].concat();
+        survive("mutated .ai variable library", || Some(vectorcraft_eps::layered_ai(&private, Document::new(100.0, 100.0), vec![], false, false, 1.0).0))?;
     }
 }
 

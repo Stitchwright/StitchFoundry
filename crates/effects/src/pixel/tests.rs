@@ -41,6 +41,26 @@ fn fx(id: &str, p: serde_json::Value) -> PixelFx {
     }
 }
 
+#[test]
+fn dilate_plane_grows_by_its_radius_and_blends_a_fraction() {
+    // GUARDS: an Outer Glow grows its silhouette by a quarter raster pixel before the blur; a step in
+    // that growth as the raster scales would show as the glow's width jumping with the zoom.
+    let mut dot = vec![0.0f32; 7 * 7];
+    dot[3 * 7 + 3] = 255.0;
+    let mut grown = dot.clone();
+    dilate_plane(&mut grown, 7, 7, 1.0);
+    assert_eq!(grown[2 * 7 + 2], 255.0);
+    assert_eq!(grown[7 + 3], 0.0);
+    let mut half = dot.clone();
+    dilate_plane(&mut half, 7, 7, 1.5);
+    assert_eq!(half[3 * 7 + 4], 255.0);
+    assert_eq!(half[3 * 7 + 5], 127.5);
+    assert_eq!(half[3 * 7 + 6], 0.0);
+    let mut same = dot.clone();
+    dilate_plane(&mut same, 7, 7, 0.0);
+    assert_eq!(same, dot);
+}
+
 fn grey(v: u8) -> [u8; 4] {
     [v, v, v, 255]
 }

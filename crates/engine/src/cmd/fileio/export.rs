@@ -172,7 +172,7 @@ fn selection(s: &mut Session, cmd: &str) -> Result<(Document, vectorcraft_geom::
 
 /// The selected objects (their top-most selected ancestors) that are artwork: those on template
 /// layers are guides and are left out.
-pub(crate) fn selected_artwork(s: &mut Session) -> Result<Vec<NodeId>> {
+pub(crate) fn selected_artwork(s: &Session) -> Result<Vec<NodeId>> {
     let ids = edit::selected_roots(s)?;
     let st = s.doc()?;
     let is_template = |id| st.doc.node(id).is_some_and(|l| matches!(l.kind, NodeKind::Layer { template: true, .. }));

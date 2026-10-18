@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use serde_json::json;
-use usvg::filter::{ColorInterpolation, ColorMatrixKind, CompositeOperator, Filter, Input, Kind, TransferFunction};
+use usvg::filter::{ColorInterpolation, ColorMatrixKind, CompositeOperator, Filter, Input, Kind, MorphologyOperator, TransferFunction};
 use usvg::roxmltree;
 use vectorcraft_color::Color;
 use vectorcraft_doc::Effect;
@@ -177,8 +177,9 @@ fn color(c: usvg::Color) -> Color {
     Color::rgb8(c.red, c.green, c.blue)
 }
 
-/// Evaluate one filter's primitives; `None` when one does something the effects can't.
-fn eval(f: &Filter) -> Option<V> {
+/// Evaluate one filter's primitives, `k` the scale from the filter's user space to the document;
+/// `None` when one does something the effects can't.
+fn eval(f: &Filter, k: f64) -> Option<V> {
     let mut results: HashMap<&str, V> = HashMap::new();
     let mut last = V::Graphic;
     for p in f.primitives() {
@@ -238,6 +239,18 @@ fn eval(f: &Filter) -> Option<V> {
                     _ => return None,
                 }
             }
+            // Our Outer Glow's silhouette grown by a quarter raster pixel (`export`): a dilation of a
+            // plain silhouette by up to that much at 72 ppi is that step.
+            Kind::Morphology(m)
+                if m.operator() == MorphologyOperator::Dilate
+                    && m.radius_x().get() == m.radius_y().get()
+                    && f64::from(m.radius_x().get()) * k <= 0.25 + 1e-6 =>
+            {
+                match input(m.input())? {
+                    V::Alpha(s) if s.plain() => V::Alpha(s),
+                    _ => return None,
+                }
+            }
             Kind::DropShadow(d) if matches!(input(d.input())?, V::Graphic) => {
                 let shape =
                     Shape { sd: sd(d.std_dev_x().get(), d.std_dev_y().get()), dx: d.dx() as f64, dy: d.dy() as f64, moved: true, inverted: false };
@@ -264,7 +277,7 @@ pub(super) fn effects(filters: &[Arc<Filter>], ts: Affine, blends: &HashMap<Stri
         let blur = |sd: f64| num(2.0 * sd * k);
         let mode = blends.get(f.id()).map_or("normal", String::as_str);
         let paint = |c: Color, o: f32| (c.to_hex(), num(o as f64 * 100.0));
-        let (id, params) = match eval(f)? {
+        let (id, params) = match eval(f, k)? {
             V::Graphic => continue,
             V::Blurred(sd, _) => ("blur.gaussian", json!({ "radius": blur(sd) })),
             V::Feathered(sd) => ("stylize.feather", json!({ "radius": blur(sd) })),

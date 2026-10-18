@@ -506,6 +506,98 @@ impl Default for HyphenationOptions {
     }
 }
 
+/// How a justified line holding a single word is set ([`JustificationOptions::single_word`]).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum SingleWordJustify {
+    /// Spread across the line, between its letters.
+    #[default]
+    FullJustify,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
+}
+
+/// A paragraph's justification options (Paragraph panel menu › Justification…), in percent.
+///
+/// Each spacing has a Minimum, a Desired and a Maximum value (`[min, desired, max]`). Desired
+/// applies to every line of the paragraph, justified or not: word spaces are that share of the
+/// font's word space, each letter is followed by that share of a word space, and glyphs are that
+/// wide. Justified lines may vary them between Minimum and Maximum to fill the measure. Saved only
+/// when they differ from the defaults: word spacing 80/100/133, letter spacing 0/0/0, glyph
+/// scaling 100/100/100, Auto Leading 120 and Full Justify.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct JustificationOptions {
+    /// Word Spacing, percent of the font's word space (0..1000).
+    pub word_spacing: [f64; 3],
+    /// Letter Spacing, percent of the font's word space added after each letter (-100..500).
+    pub letter_spacing: [f64; 3],
+    /// Glyph Scaling, percent of the glyphs' width (50..200).
+    pub glyph_scaling: [f64; 3],
+    /// Auto Leading: the leading of characters whose leading is Auto, in percent of their size
+    /// (0..500).
+    pub auto_leading: f64,
+    /// Single Word Justification: how a justified line holding one word is set.
+    pub single_word: SingleWordJustify,
+}
+
+impl JustificationOptions {
+    /// Word Spacing's range (percent).
+    pub const WORD_SPACING: (f64, f64) = (0.0, 1000.0);
+    /// Letter Spacing's range (percent).
+    pub const LETTER_SPACING: (f64, f64) = (-100.0, 500.0);
+    /// Glyph Scaling's range (percent).
+    pub const GLYPH_SCALING: (f64, f64) = (50.0, 200.0);
+    /// Auto Leading's range (percent).
+    pub const AUTO_LEADING: (f64, f64) = (0.0, 500.0);
+
+    /// Are Desired word spacing, letter spacing and glyph scaling the defaults (nothing to change
+    /// in a line's natural widths)?
+    pub fn desired_is_default(&self) -> bool {
+        let d = Self::default();
+        self.word_spacing[1] == d.word_spacing[1] && self.letter_spacing[1] == d.letter_spacing[1] && self.glyph_scaling[1] == d.glyph_scaling[1]
+    }
+
+    /// Keeps options read from a file to what `text.setFormat` can set: a value that is not a
+    /// finite number becomes its default, every value is clamped to its range, and a Minimum,
+    /// Desired and Maximum out of order go back to their defaults together.
+    pub fn keep_in_range(&mut self) {
+        let d = Self::default();
+        for (v, dv, (lo, hi)) in [
+            (&mut self.word_spacing, d.word_spacing, Self::WORD_SPACING),
+            (&mut self.letter_spacing, d.letter_spacing, Self::LETTER_SPACING),
+            (&mut self.glyph_scaling, d.glyph_scaling, Self::GLYPH_SCALING),
+        ] {
+            for (x, dx) in v.iter_mut().zip(dv) {
+                *x = if x.is_finite() { x.clamp(lo, hi) } else { dx };
+            }
+            if !(v[0] <= v[1] && v[1] <= v[2]) {
+                *v = dv;
+            }
+        }
+        let (lo, hi) = Self::AUTO_LEADING;
+        self.auto_leading = if self.auto_leading.is_finite() { self.auto_leading.clamp(lo, hi) } else { d.auto_leading };
+    }
+
+    /// A paragraph's leading for characters of `size` whose leading is Auto.
+    pub fn auto_leading_for(&self, size: f64) -> f64 {
+        size * self.auto_leading / 100.0
+    }
+}
+
+impl Default for JustificationOptions {
+    fn default() -> Self {
+        Self {
+            word_spacing: [80.0, 100.0, 133.0],
+            letter_spacing: [0.0, 0.0, 0.0],
+            glyph_scaling: [100.0, 100.0, 100.0],
+            auto_leading: 120.0,
+            single_word: SingleWordJustify::FullJustify,
+        }
+    }
+}
+
 /// Paragraph attributes (the Paragraph panel).
 ///
 /// Saved through [`ParaStyleFile`], which keeps files with text openable by builds from before
@@ -522,6 +614,9 @@ pub struct ParaStyle {
     pub hyphenate: bool,
     /// The limits automatic hyphenation keeps to (Paragraph panel menu › Hyphenation…).
     pub hyphenation: HyphenationOptions,
+    /// Word and letter spacing, glyph scaling, Auto Leading and Single Word Justification
+    /// (Paragraph panel menu › Justification…).
+    pub justification: JustificationOptions,
     /// Line breaking: Single-line or Every-line Composer.
     pub composer: Composer,
     /// Tab stops (Tabs panel), sorted by position.
@@ -591,6 +686,8 @@ struct ParaStyleFile {
     hyphenate: bool,
     #[serde(default, skip_serializing_if = "crate::skip::is_default")]
     hyphenation: HyphenationOptions,
+    #[serde(default, skip_serializing_if = "crate::skip::is_default")]
+    justification: JustificationOptions,
     #[serde(default, skip_serializing_if = "Composer::is_default")]
     composer: Composer,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -627,6 +724,7 @@ impl From<ParaStyle> for ParaStyleFile {
             space_after,
             hyphenate,
             hyphenation,
+            justification,
             composer,
             tabs,
             style_name,
@@ -648,6 +746,7 @@ impl From<ParaStyle> for ParaStyleFile {
             space_after,
             hyphenate,
             hyphenation,
+            justification,
             composer,
             tabs,
             style_name,
@@ -664,6 +763,8 @@ impl From<ParaStyle> for ParaStyleFile {
 impl From<ParaStyleFile> for ParaStyle {
     fn from(f: ParaStyleFile) -> Self {
         let justify = if f.justify_auto { Justify::Auto } else { f.justify };
+        let mut justification = f.justification;
+        justification.keep_in_range();
         let ParaStyleFile {
             left_indent,
             right_indent,
@@ -692,6 +793,7 @@ impl From<ParaStyleFile> for ParaStyle {
             space_after,
             hyphenate,
             hyphenation,
+            justification,
             composer,
             tabs,
             style_name,
@@ -1583,6 +1685,37 @@ mod tests {
         let old = serde_json::to_value(&st).unwrap();
         assert_eq!(serde_json::from_value::<CharStyle>(old).unwrap().digits, Digits::Default);
         assert_eq!(serde_json::from_value::<CharStyle>(serde_json::to_value(&farsi).unwrap()).unwrap(), farsi);
+    }
+
+    /// A file can't feed layout justification values `text.setFormat` would refuse: each is
+    /// clamped to its range, one that isn't finite takes its default, and a Minimum, Desired and
+    /// Maximum out of order go back to their defaults.
+    #[test]
+    fn justification_options_read_from_a_file_stay_in_range() {
+        let d = JustificationOptions::default();
+        let read: ParaStyle = serde_json::from_value(serde_json::json!({
+            "justification": {
+                "word_spacing": [-5.0, 1e300, 1e308], "letter_spacing": [10.0, 5.0, 20.0],
+                "glyph_scaling": [1.0, 100.0, 9e9], "auto_leading": -1e12
+            }
+        }))
+        .unwrap();
+        let j = read.justification;
+        assert_eq!(j.word_spacing, [0.0, 1000.0, 1000.0]);
+        assert_eq!(j.letter_spacing, d.letter_spacing, "out of order");
+        assert_eq!(j.glyph_scaling, [50.0, 100.0, 200.0]);
+        assert_eq!(j.auto_leading, 0.0);
+        let mut j = JustificationOptions {
+            word_spacing: [f64::NAN, 100.0, f64::INFINITY],
+            letter_spacing: [-1.0, 0.0, f64::NEG_INFINITY],
+            auto_leading: f64::NAN,
+            ..d.clone()
+        };
+        j.keep_in_range();
+        assert_eq!((j.word_spacing, j.letter_spacing, j.auto_leading), (d.word_spacing, [-1.0, 0.0, 0.0], d.auto_leading));
+        let mut same = d.clone();
+        same.keep_in_range();
+        assert_eq!(same, d);
     }
 
     #[test]

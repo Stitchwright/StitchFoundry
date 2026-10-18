@@ -84,7 +84,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Character",
             [],
             None,
-            "{ids?|id?, font?, style?, size?: pt, leading?: pt|\"auto\", tracking?: 1/1000 em, justify?: \"auto\" (the start of each paragraph's direction)|\"left\"|\"center\"|\"right\"|\"justifyAll\", fill?: colour, features?: [\"dlig\", \"-liga\", …] OpenType, start?: byte, end?: byte} (size/leading are document points after object scaling; with a range: the character attributes style that range and justify the paragraphs it touches; without: all the text) → {ids, overflow?: [id…] (area type and type on a path whose text no longer fits; left out when all fits)}",
+            "{ids?|id?, font?, style?, size?: pt, leading?: pt|\"auto\", tracking?: 1/1000 em, justify?: \"auto\" (the start of each paragraph's direction)|\"left\"|\"center\"|\"right\"|\"justifyAll\", fill?: colour, keepModel?: bool (as paint.setFill), features?: [\"dlig\", \"-liga\", …] OpenType, start?: byte, end?: byte} (size/leading are document points after object scaling; with a range: the character attributes style that range and justify the paragraphs it touches; without: all the text) → {ids, overflow?: [id…] (area type and type on a path whose text no longer fits; left out when all fits)}",
             has_doc,
             set_style
         ),
@@ -547,7 +547,7 @@ fn set_style(s: &mut Session, p: &Value) -> Result<Value> {
     let fill = match p.get("fill") {
         None | Some(Value::Null) => None,
         Some(Value::String(n)) if n.eq_ignore_ascii_case("none") => Some(vectorcraft_color::Paint::None),
-        Some(v) => Some(vectorcraft_color::Paint::solid(color_value(v).ok_or_else(|| bad(C, "bad fill colour"))?)),
+        Some(v) => Some(vectorcraft_color::Paint::solid(super::paint::new_color(s, p, color_value(v).ok_or_else(|| bad(C, "bad fill colour"))?))),
     };
     let features = super::textedit::features_param(p, C)?;
     if font.is_none()
@@ -1096,6 +1096,61 @@ mod area_tests {
         s.execute("paraStyle.new", &json!({"name": "Hung", "attrs": {"roman_hanging": true}})).unwrap();
         s.execute("paraStyle.apply", &json!({"name": "Hung", "id": id})).unwrap();
         assert!(text(&s).para_at(1).roman_hanging);
+    }
+
+    /// Paragraph panel menu › Justification…: `text.setFormat` sets each paragraph's word and
+    /// letter spacing, glyph scaling, Auto Leading and Single Word Justification, clamped to their
+    /// ranges, in one undo step; Minimum ≤ Desired ≤ Maximum must hold or nothing changes. They
+    /// are saved only when not the defaults, and paragraph styles carry them.
+    #[test]
+    fn justification_options_are_set_per_paragraph_and_saved_only_when_not_default() {
+        use vectorcraft_doc::{JustificationOptions, SingleWordJustify};
+        let mut s = Session::new();
+        s.execute("file.new", &json!({"width": 400, "height": 400})).unwrap();
+        let id = s.execute("text.create", &json!({"x": 10, "y": 10, "text": "One\nTwo", "area": {"width": 200, "height": 100}})).unwrap()["id"]
+            .as_u64()
+            .unwrap();
+        let paras = |s: &Session| match &s.doc().unwrap().doc.node(NodeId(id)).unwrap().kind {
+            NodeKind::Text(t) => (t.para_at(0).clone(), t.para_at(1).clone()),
+            _ => panic!("text"),
+        };
+        assert_eq!(paras(&s).0.justification, JustificationOptions::default());
+        assert!(serde_json::to_value(paras(&s).0).unwrap().get("justification").is_none());
+        s.execute("select.set", &json!({"ids": [id]})).unwrap();
+        s.execute(
+            "text.setFormat",
+            &json!({
+                "wordSpacing": [60, 90, 2000], "letterSpacing": {"max": 10}, "glyphScaling": [95, 100, 105],
+                "autoLeading": 150, "singleWordJustification": "alignCenter", "start": 5, "end": 5
+            }),
+        )
+        .unwrap();
+        let want = JustificationOptions {
+            word_spacing: [60.0, 90.0, 1000.0],
+            letter_spacing: [0.0, 0.0, 10.0],
+            glyph_scaling: [95.0, 100.0, 105.0],
+            auto_leading: 150.0,
+            single_word: SingleWordJustify::AlignCenter,
+        };
+        let (first, second) = paras(&s);
+        assert_eq!((first.justification, &second.justification), (JustificationOptions::default(), &want), "only the paragraph the caret is in");
+        assert_eq!(serde_json::to_value(&second).unwrap()["justification"]["single_word"], "alignCenter");
+        let back: vectorcraft_doc::ParaStyle = serde_json::from_value(serde_json::to_value(&second).unwrap()).unwrap();
+        assert_eq!(back.justification, want);
+        // Out of order: nothing changes, and the error names the setting.
+        let e = s.execute("text.setFormat", &json!({"wordSpacing": {"desired": 85}, "letterSpacing": {"min": 5}})).unwrap_err().to_string();
+        assert!(e.contains("letterSpacing"), "{e}");
+        assert_eq!(paras(&s).1.justification, want);
+        assert!(s.execute("text.setFormat", &json!({"glyphScaling": [100, 100]})).is_err());
+        assert!(s.execute("text.setFormat", &json!({"singleWordJustification": "spread"})).is_err());
+        s.execute("edit.undo", &json!({})).unwrap();
+        assert_eq!(paras(&s).1.justification, JustificationOptions::default());
+        // A paragraph style carries them; an older file's paragraph reads the defaults.
+        s.execute("paraStyle.new", &json!({"name": "Airy", "attrs": {"justification": {"auto_leading": 200.0}}})).unwrap();
+        s.execute("paraStyle.apply", &json!({"name": "Airy", "id": id})).unwrap();
+        assert_eq!(paras(&s).0.justification, JustificationOptions { auto_leading: 200.0, ..JustificationOptions::default() });
+        let old: vectorcraft_doc::ParaStyle = serde_json::from_value(json!({"justify": "Left", "hyphenate": true})).unwrap();
+        assert_eq!(old.justification, JustificationOptions::default());
     }
 
     /// #432: while the interface is in Japanese, new type (text.create, text.createInPath) starts

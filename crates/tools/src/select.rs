@@ -76,6 +76,8 @@ enum State {
     Corner(CornerDrag),
     /// Dragging a live ellipse's pie widget.
     Pie(PieDrag),
+    /// Move or rotate a live mirror axis.
+    Mirror(crate::mirror::MirrorDrag),
     /// Dragging a bracket of type on a path.
     Bracket(BracketDrag),
     /// Loaded with the text of area type `from` by a click on its out port; `press`: where the
@@ -182,6 +184,69 @@ impl MoveSnap {
         }
         (d, guides)
     }
+
+    /// [`Self::snap`] for a move Shift keeps to its line (the line through `start` along `d`):
+    /// every snap slides the move along that line. With Snap to Grid or Snap to Pixel, the move
+    /// slides along the line by the shorter of the two distances that put it on a gridline or a
+    /// whole pixel on either axis (the one axis of a level or upright line). The bounds line up
+    /// with the other art ([`Targets::snap_rects_along`]) and the grabbed point lands where the line
+    /// passes an anchor or crosses a ruler guide ([`Targets::snap_point_along`]). A move of zero
+    /// length does not snap.
+    pub(crate) fn snap_along(&self, cx: &ToolContext, start: Point, mut d: Vec2, copy: bool) -> (Vec2, Vec<Overlay>) {
+        let len = d.hypot();
+        if !len.is_finite() || len <= 1e-9 {
+            return (d, vec![]);
+        }
+        let u = d / len;
+        // The way along the line that takes away the offset `pull` on one axis: on the axis the
+        // line runs along, the shorter way of the two.
+        let along = |pull: Vec2| {
+            [(pull.x, u.x), (pull.y, u.y)]
+                .into_iter()
+                .filter(|(_, c)| c.abs() > 1e-9)
+                .map(|(p, c)| p / c)
+                .min_by(|a, b| a.abs().total_cmp(&b.abs()))
+                .unwrap_or(0.0)
+        };
+        let (targets, points) = if copy { (&self.copy_targets, &self.copy_points) } else { (&self.targets, &self.points) };
+        let mut guides = vec![];
+        if cx.snap_to_grid
+            && let Some(b) = self.bounds
+        {
+            d += u * along(grid_pull(b + d, cx.grid_step()));
+        }
+        if let Some(t) = points {
+            let (q, ov) = t.snap_point_along(start + d, u, cx.tol(cx.snap_tolerance));
+            d = q - start;
+            guides = ov;
+        }
+        if let (Some(t), Some(b)) = (targets, self.bounds) {
+            if t.has_point_near(start + d, cx.snap_tol()) {
+                let (q, ov) = t.snap_point_along(start + d, u, cx.snap_tol());
+                d = q - start;
+                guides = ov;
+            } else {
+                let (adj, ov) = t.snap_rects_along(&[b + d], u, cx.snap_tol());
+                d += adj;
+                guides = ov;
+            }
+        }
+        if let Some(t) = &self.rulers {
+            let (q, ov) = t.snap_point_along(start + d, u, cx.tol(cx.snap_tolerance));
+            if q != start + d {
+                d = q - start;
+                guides = ov;
+            }
+        }
+        if cx.snap_to_pixel
+            && let Some(b) = self.bounds
+        {
+            let at = Point::new(b.x0, b.y0) + d;
+            d += u * along(Vec2::new(at.x.round() - at.x, at.y.round() - at.y));
+            guides.clear();
+        }
+        (d, guides)
+    }
 }
 
 /// The shift that lands `r` on the grid (a gridline every `step`), on each axis by whichever of its
@@ -233,6 +298,12 @@ fn box_hit(cx: &ToolContext, b: &OrientedBox, p: Point) -> Option<BoxHit> {
         return Some(BoxHit::Handle(h));
     }
     in_rotate_zone(b.rect, lp, tol, cx.tol(18.0)).map(|_| BoxHit::Rotate)
+}
+
+/// Whether the current selection's bounding-box handle is under `p`, using the same geometry as
+/// the Selection tool's press handling.
+pub(crate) fn bbox_handle_at(cx: &ToolContext, p: Point) -> bool {
+    cx.show_bbox && selection_box(cx).is_some_and(|b| matches!(box_hit(cx, &b, p), Some(BoxHit::Handle(_))))
 }
 
 /// How near (screen points) the pointer must come to an object's centre or anchor for Smart Guides
@@ -331,6 +402,12 @@ impl Tool for SelectionTool {
             *enclosed = !*enclosed;
             return vec![];
         }
+        if key == ToolKey::Escape
+            && matches!(self.state, State::Mirror(_))
+            && let State::Mirror(d) = std::mem::take(&mut self.state)
+        {
+            return d.cancel();
+        }
         if key == ToolKey::Escape && matches!(self.state, State::Loaded { .. }) {
             self.state = State::Idle;
             return vec![];
@@ -341,7 +418,7 @@ impl Tool for SelectionTool {
     fn claims_key(&self, _cx: &ToolContext, key: ToolKey) -> bool {
         match self.state {
             State::Marquee { .. } => key == ToolKey::Letter('e'),
-            State::Loaded { .. } => key == ToolKey::Escape,
+            State::Loaded { .. } | State::Mirror(_) => key == ToolKey::Escape,
             _ => false,
         }
     }
@@ -351,6 +428,7 @@ impl Tool for SelectionTool {
             State::Moving { began: true, .. } | State::Scaling { .. } | State::Rotating { .. } => true,
             State::Corner(c) => c.adjusting(),
             State::Pie(d) => d.adjusting(),
+            State::Mirror(d) => d.adjusting(),
             _ => false,
         }
     }
@@ -360,6 +438,30 @@ impl Tool for SelectionTool {
             && let Some(out) = self.loaded(cx, ev, from, press)
         {
             return out;
+        }
+        // Mirror controls take precedence over art, bounding handles and ruler guides.
+        if let State::Mirror(mut d) = self.state.clone() {
+            match ev.kind {
+                PointerKind::Drag | PointerKind::Up => {
+                    let mut out = d.drag(cx, ev.pos, ev.mods);
+                    if ev.kind == PointerKind::Up {
+                        out.extend(d.finish());
+                        self.state = State::Idle;
+                    } else {
+                        self.state = State::Mirror(d);
+                    }
+                    return out;
+                }
+                _ => return vec![],
+            }
+        }
+        if matches!(self.state, State::Idle)
+            && ev.kind == PointerKind::Down
+            && let Some(d) = crate::mirror::MirrorDrag::hit(cx, ev.pos, ev.mods)
+        {
+            self.state = State::Mirror(d);
+            self.hover = None;
+            return vec![];
         }
         if let Some(out) = self.guide.pointer(cx, ev) {
             return out;
@@ -507,7 +609,7 @@ impl Tool for SelectionTool {
                 let mut d = move_delta(start, p, m.shift);
                 let unsnapped = d;
                 if let Some(snap) = &self.moving {
-                    (d, self.guides) = snap.snap(cx, start, d, m.alt);
+                    (d, self.guides) = if m.shift { snap.snap_along(cx, start, d, m.alt) } else { snap.snap(cx, start, d, m.alt) };
                 }
                 // Shift has already constrained `d`: any change is a snap.
                 self.snapped = (d - unsnapped).hypot() > 1e-9;
@@ -634,6 +736,17 @@ impl Tool for SelectionTool {
     }
 
     fn cursor(&self, cx: &ToolContext, p: Point, m: Mods) -> Cursor {
+        if let State::Mirror(d) = &self.state {
+            return d.cursor(cx, p);
+        }
+        if matches!(self.state, State::Idle)
+            && !m.cmd
+            && !m.ctrl
+            && !m.alt
+            && let Some(cursor) = crate::mirror::cursor(cx, p)
+        {
+            return cursor;
+        }
         match self.state {
             State::Rotating { center, .. } => return Cursor::rotate_about_in_view(center, p, cx.view_angle()),
             State::Scaling { handle, bx, .. } => return handle_cursor(handle, bx.angle - cx.view_angle()),
@@ -1113,6 +1226,164 @@ mod tests {
         // Moved by (7, 0): the right edge is on a gridline (207) and the top goes up to one (99).
         let (x, y) = moved((157.0, 150.0));
         assert!((x - 7.0).abs() < 1e-9 && (y + 1.0).abs() < 1e-9, "{x} {y}");
+    }
+
+    /// The selection Shift-dragged from (150, 150) to `to`: the move it previews, and its guide
+    /// lines.
+    fn shift_moved(cx: &ToolContext, to: (f64, f64)) -> (Vec2, Vec<(Point, Point)>) {
+        let shift = |kind, x, y| ev(kind, x, y).with_mods(Mods { shift: true, ..Mods::default() });
+        let mut t = SelectionTool::default();
+        t.pointer(cx, &shift(PointerKind::Down, 150.0, 150.0));
+        let a = t.pointer(cx, &shift(PointerKind::Drag, to.0, to.1));
+        let Some(Action::Preview(_, v)) = a.get(1) else { panic!("{a:?}") };
+        let lines = t.overlays(cx).into_iter().filter_map(|o| if let Overlay::Line { a, b, .. } = o { Some((a, b)) } else { None }).collect();
+        (Vec2::new(v["matrix"][4].as_f64().unwrap(), v["matrix"][5].as_f64().unwrap()), lines)
+    }
+
+    /// `d` is `want` within 1e-9 on each axis.
+    fn moved_by(d: Vec2, want: (f64, f64)) -> bool {
+        (d.x - want.0).abs() < 1e-9 && (d.y - want.1).abs() < 1e-9
+    }
+
+    /// A Shift-constrained move snapped to the grid stays on its line: a level or upright one lands
+    /// on the grid along its own axis only, and a diagonal one slides along the diagonal until an
+    /// edge or the center is on a gridline on the axis that needs the shorter way there.
+    #[test]
+    fn a_shift_move_snapped_to_the_grid_stays_on_its_line() {
+        let (d, id) = doc_with_rect();
+        let mut s = Selection::default();
+        s.add(id);
+        let p = paint();
+        let cx = ToolContext { snap_to_grid: true, ..cx(&d, &s, &p) };
+        // Level by 13.04: the center (163.04) lands on the gridline 162, and the top stays at 100,
+        // between the gridlines 99 and 108.
+        let (m, _) = shift_moved(&cx, (163.0, 151.0));
+        assert!(moved_by(m, (12.0, 0.0)), "{m:?}");
+        let (m, _) = shift_moved(&cx, (151.0, 163.0));
+        assert!(moved_by(m, (0.0, 12.0)), "{m:?}");
+        // Up and to the right by 13 on each axis: the center (163, 137) is 1 from the gridline 162
+        // and 2 from 135, so the move goes back along the diagonal by 1 on each axis.
+        let (m, _) = shift_moved(&cx, (163.0, 137.0));
+        assert!(moved_by(m, (12.0, -12.0)), "{m:?}");
+    }
+
+    /// A Shift-constrained move with Snap to Pixel on puts the top-left on a whole pixel on the
+    /// axis its line runs along, and on a diagonal on the axis that needs the shorter way there.
+    #[test]
+    fn a_shift_move_snapped_to_pixels_stays_on_its_line() {
+        let mut d = vectorcraft_doc::Document::new(500.0, 500.0);
+        let l = d.layers[0].id;
+        let id = d.alloc_id();
+        let square = vectorcraft_geom::shapes::rectangle(Rect::new(100.3, 100.4, 200.3, 200.4));
+        d.insert(Some(l), 0, vectorcraft_doc::Node::path(id, square, vectorcraft_doc::Appearance::default_art())).unwrap();
+        let mut s = Selection::default();
+        s.add(id);
+        let p = paint();
+        let cx = ToolContext { snap_to_pixel: true, ..cx(&d, &s, &p) };
+        // Pressed at (150, 150), the square is grabbed by its center (150.3, 150.4).
+        let (m, _) = shift_moved(&cx, (163.0, 151.0));
+        assert!(moved_by(m, (12.7, 0.0)), "{m:?}");
+        let (m, _) = shift_moved(&cx, (151.0, 163.0));
+        assert!(moved_by(m, (0.0, 12.6)), "{m:?}");
+        // By 13.16 on each axis, the top-left (113.46, 113.56) is 0.44 from a whole pixel on y and
+        // 0.46 on x.
+        let (m, _) = shift_moved(&cx, (163.0, 164.0));
+        assert!(moved_by(m, (13.6, 13.6)), "{m:?}");
+    }
+
+    /// A Shift-constrained move that Smart Guides line up with another object stays on its line:
+    /// a level or upright one lines up along its own axis only, with the guide of that axis, and
+    /// a diagonal one slides along the diagonal to the target that needs the shorter way.
+    #[test]
+    fn a_shift_move_lined_up_by_smart_guides_stays_on_its_line() {
+        let with = |r: Rect| {
+            let (mut d, id) = doc_with_rect();
+            let l = d.layers[0].id;
+            let other = d.alloc_id();
+            d.insert(
+                Some(l),
+                1,
+                vectorcraft_doc::Node::path(other, vectorcraft_geom::shapes::rectangle(r), vectorcraft_doc::Appearance::default_art()),
+            )
+            .unwrap();
+            (d, id)
+        };
+        let p = paint();
+        // Level by 100.02: the right edge lines up with the other square's left (300). That
+        // square's top (203), 3 below the selection's bottom and within reach, does not pull it
+        // down.
+        let (d, id) = with(Rect::new(300.0, 203.0, 350.0, 253.0));
+        let mut s = Selection::default();
+        s.add(id);
+        let (m, lines) = shift_moved(&cx(&d, &s, &p), (250.0, 152.0));
+        assert!(moved_by(m, (100.0, 0.0)), "{m:?}");
+        assert!(!lines.is_empty() && lines.iter().all(|(a, b)| a.x == b.x), "only upright guides: {lines:?}");
+        let (d, id) = with(Rect::new(203.0, 300.0, 253.0, 350.0));
+        let mut s = Selection::default();
+        s.add(id);
+        let (m, lines) = shift_moved(&cx(&d, &s, &p), (152.0, 250.0));
+        assert!(moved_by(m, (0.0, 100.0)), "{m:?}");
+        assert!(!lines.is_empty() && lines.iter().all(|(a, b)| a.y == b.y), "only level guides: {lines:?}");
+        // By 110.5 on each axis: the right edge (310.5) is 0.5 from the other square's left and the
+        // bottom 3 from its top, so the move goes on by 0.5 on each axis.
+        let (d, id) = with(Rect::new(311.0, 313.5, 361.0, 363.5));
+        let mut s = Selection::default();
+        s.add(id);
+        let (m, lines) = shift_moved(&cx(&d, &s, &p), (260.5, 260.5));
+        assert!(moved_by(m, (111.0, 111.0)), "{m:?}");
+        assert!(matches!(lines[..], [(a, b)] if a.x == 311.0 && b.x == 311.0), "{lines:?}");
+    }
+
+    /// A level Shift-constrained move that Spacing Guides space evenly keeps its line: the gap to
+    /// the next square becomes 60, the gap between the other two, and their tops (102), 2 below
+    /// the selection's, do not pull it down.
+    #[test]
+    fn a_shift_move_spaced_by_smart_guides_stays_on_its_line() {
+        let (mut d, id) = doc_with_rect();
+        let l = d.layers[0].id;
+        for x in [330.0, 440.0] {
+            let other = d.alloc_id();
+            let sq = vectorcraft_geom::shapes::rectangle(Rect::new(x, 102.0, x + 50.0, 202.0));
+            d.insert(Some(l), 1, vectorcraft_doc::Node::path(other, sq, vectorcraft_doc::Appearance::default_art())).unwrap();
+        }
+        let mut s = Selection::default();
+        s.add(id);
+        let p = paint();
+        let (m, lines) = shift_moved(&cx(&d, &s, &p), (221.0, 151.0));
+        assert!(moved_by(m, (70.0, 0.0)), "{m:?}");
+        assert!(!lines.is_empty(), "the equal gaps are marked");
+    }
+
+    /// A Shift-constrained move that snaps by its grabbed point stays on its line: with Smart
+    /// Guides off and Snap to Point on, it stops where the line passes nearest an anchor, or
+    /// where it crosses a ruler guide; with Smart Guides on, Snap to Point still slides it along
+    /// the line onto a ruler guide.
+    #[test]
+    fn a_shift_move_snapped_by_its_grabbed_point_stays_on_its_line() {
+        let (mut d, id) = doc_with_rect();
+        let l = d.layers[0].id;
+        let other = d.alloc_id();
+        let sq = vectorcraft_geom::shapes::rectangle(Rect::new(300.0, 151.5, 350.0, 201.5));
+        d.insert(Some(l), 1, vectorcraft_doc::Node::path(other, sq, vectorcraft_doc::Appearance::default_art())).unwrap();
+        d.guides = vec![vectorcraft_doc::Guide::new(true, 420.5)];
+        let mut s = Selection::default();
+        s.add(id);
+        let p = paint();
+        let off = ToolContext { smart_guides: false, ..cx(&d, &s, &p) };
+        // The grabbed point (299, 150) is 1.8 from the anchor (300, 151.5): it stops at (300, 150),
+        // the point of the line nearest the anchor.
+        let (m, _) = shift_moved(&off, (299.0, 151.0));
+        assert!(moved_by(m, (150.0, 0.0)), "{m:?}");
+        // On the diagonal, 1 short of the ruler guide at 420.5: it goes on to it on both axes.
+        let (m, _) = shift_moved(&off, (419.5, 419.5));
+        assert!(moved_by(m, (270.5, 270.5)), "{m:?}");
+        // Smart Guides on, the selection alone with a ruler guide 1.5 below the grabbed point.
+        let (mut d, id) = doc_with_rect();
+        d.guides = vec![vectorcraft_doc::Guide::new(false, 330.5)];
+        let mut s = Selection::default();
+        s.add(id);
+        let (m, _) = shift_moved(&cx(&d, &s, &p), (329.0, 329.0));
+        assert!(moved_by(m, (180.5, 180.5)), "{m:?}");
     }
 
     #[test]

@@ -586,13 +586,16 @@ pub fn marquee(doc: &Document, r: Rect, scope: Option<NodeId>, leaves: bool) -> 
         out
     }
     /// Does the marquee `r` touch `n`? It skips the children of a Shaper Group that clicks skip
-    /// ([`shaper_hides`]).
+    /// ([`shaper_hides`]). An Intertwine group is touched by its members, and a repeat is touched
+    /// by the copies it draws, as clicks hit them. Objects of every other kind except paths,
+    /// compound paths, layers and groups are touched by their box.
     fn touches(n: &Node, s: &SymbolBoxes, r: Rect, scope: Option<NodeId>) -> bool {
         match &n.kind {
             NodeKind::Path { path, .. } => vectorcraft_geom::hit::intersects_rect(path, r),
-            NodeKind::Layer { children, .. } | NodeKind::Group { children, .. } => marquee_in(n, r)
+            NodeKind::Layer { children, .. } | NodeKind::Group { children, .. } | NodeKind::Intertwine { children } => marquee_in(n, r)
                 .is_some_and(|r| children.iter().enumerate().any(|(i, c)| c.visible && !shaper_hides(n, i, scope) && touches(c, s, r, scope))),
             NodeKind::Compound { children, .. } => children.iter().any(|c| c.visible && touches(c, s, r, scope)),
+            NodeKind::Repeat(spec) => spec.expand().iter().any(|copy| touches(copy, s, r, scope)),
             // A box with no width or no height (an instance of a symbol that draws a straight
             // line) is touched where the marquee crosses it.
             _ => n.geometric_bounds_with(s).is_some_and(|b| {
@@ -603,7 +606,7 @@ pub fn marquee(doc: &Document, r: Rect, scope: Option<NodeId>, leaves: bool) -> 
     }
     fn collect_leaves(n: &Node, s: &SymbolBoxes, r: Rect, scope: Option<NodeId>, out: &mut Vec<NodeId>) {
         match &n.kind {
-            NodeKind::Layer { children, .. } | NodeKind::Group { children, .. } => {
+            NodeKind::Layer { children, .. } | NodeKind::Group { children, .. } | NodeKind::Intertwine { children } => {
                 let Some(r) = marquee_in(n, r) else { return };
                 for (i, c) in children.iter().enumerate() {
                     if c.visible && !c.locked && !shaper_hides(n, i, scope) {
@@ -893,6 +896,92 @@ mod tests {
         assert_eq!(marquee(&d, shown, Some(g), false), vec![face_id]);
         // Construction mode: the original shapes are the objects.
         assert_eq!(marquee(&d, erased, Some(sources_id), false), vec![b_id]);
+    }
+
+    /// A marquee touches an Intertwine group by its members, as it touches a plain group (#1103) and
+    /// as clicks do: in the gap between two members, or inside one member's fill, it selects nothing.
+    /// Across a member's edge it selects the group, and with the leaves that Direct and Group
+    /// Selection take, or in isolation mode, it selects the member.
+    #[test]
+    fn a_marquee_meets_an_intertwine_group_by_its_members() {
+        let mut d = Document::new(300.0, 200.0);
+        let l = d.layers[0].id;
+        // Two squares, 0..100 and 150..250, with a gap between them inside the group's box.
+        let square = |x: f64| shapes::rectangle(Rect::new(x, 0.0, x + 100.0, 100.0));
+        let mut a = Node::path(d.alloc_id(), square(0.0), Appearance::default_art());
+        a.extras_mut().intertwine = Some(Box::new(shapes::rectangle(Rect::new(50.0, 0.0, 100.0, 100.0))));
+        let b = Node::path(d.alloc_id(), square(150.0), Appearance::default_art());
+        let (a_id, g) = (a.id, d.alloc_id());
+        d.insert(Some(l), 0, Node::new(g, NodeKind::Intertwine { children: vec![Arc::new(a), Arc::new(b)] })).unwrap();
+        let gap = Rect::new(110.0, 40.0, 140.0, 60.0);
+        assert!(hit_test(&d, gap.center(), HitOptions::default()).is_none(), "a click in the gap misses");
+        assert!(marquee(&d, gap, None, false).is_empty());
+        assert!(marquee(&d, gap, None, true).is_empty());
+        assert!(marquee(&d, gap, Some(g), false).is_empty());
+        assert!(marquee(&d, Rect::new(20.0, 20.0, 40.0, 40.0), None, false).is_empty(), "inside a member's fill");
+        // This marquee crosses the first square's left edge.
+        let edge = Rect::new(-10.0, 40.0, 10.0, 60.0);
+        assert_eq!(marquee(&d, edge, None, false), vec![g]);
+        assert_eq!(marquee(&d, edge, None, true), vec![a_id]);
+        assert_eq!(marquee(&d, edge, Some(g), false), vec![a_id]);
+    }
+
+    /// A marquee touches a repeat by the copies it draws, as clicks do: between two copies of a
+    /// grid repeat it selects nothing, and across a copy's edge it takes the repeat.
+    #[test]
+    fn a_marquee_meets_a_repeat_by_its_copies() {
+        let mut d = Document::new(300.0, 200.0);
+        let l = d.layers[0].id;
+        let source = Node::path(d.alloc_id(), shapes::rectangle(Rect::new(0.0, 0.0, 20.0, 20.0)), Appearance::default_art());
+        // Copies at 0..20, 40..60 and 80..100.
+        let kind = crate::pattern::RepeatKind::Grid {
+            h_spacing: 20.0,
+            v_spacing: 20.0,
+            rows: 1,
+            cols: 3,
+            grid_type: crate::pattern::TileType::Grid,
+            flip_rows: false,
+            flip_cols: false,
+        };
+        let r = d.alloc_id();
+        d.insert(Some(l), 0, Node::new(r, NodeKind::Repeat(crate::pattern::RepeatSpec { kind, source: vec![Arc::new(source)] }))).unwrap();
+        let gap = Rect::new(25.0, 5.0, 35.0, 15.0);
+        assert!(hit_test(&d, gap.center(), HitOptions::default()).is_none(), "a click between copies misses");
+        assert!(marquee(&d, gap, None, false).is_empty());
+        assert!(marquee(&d, gap, None, true).is_empty());
+        assert_eq!(marquee(&d, Rect::new(35.0, 5.0, 45.0, 15.0), None, false), vec![r], "across the second copy's left edge");
+        assert_eq!(marquee(&d, Rect::new(35.0, 5.0, 45.0, 15.0), None, true), vec![r]);
+    }
+
+    /// A blend and an envelope are clicked anywhere in their box, and a marquee touches them there
+    /// too: inside the box, away from every key object's and the content's outline, it takes them.
+    #[test]
+    fn a_marquee_meets_blends_and_envelopes_by_their_box() {
+        let mut d = Document::new(300.0, 300.0);
+        let l = d.layers[0].id;
+        let square = |id, x: f64, y: f64| Arc::new(Node::path(id, shapes::rectangle(Rect::new(x, y, x + 20.0, y + 20.0)), Appearance::default_art()));
+        let blend = d.alloc_id();
+        let keys = vec![square(d.alloc_id(), 0.0, 0.0), square(d.alloc_id(), 100.0, 0.0)];
+        d.insert(Some(l), 0, Node::new(blend, NodeKind::Blend { children: keys, spec: Default::default() })).unwrap();
+        let envelope = d.alloc_id();
+        let content = vec![Arc::new(Node::path(d.alloc_id(), shapes::rectangle(Rect::new(0.0, 150.0, 100.0, 250.0)), Appearance::default_art()))];
+        let e = Node::new(
+            envelope,
+            NodeKind::Envelope {
+                content,
+                kind: Box::new(crate::live::EnvelopeKind::Warp { style: "arc".to_string(), bend: 0.0, h: 0.0, v: 0.0, horizontal: true }),
+                fidelity: 100.0,
+                editing: false,
+                options: Default::default(),
+                frame: Box::new(vectorcraft_geom::Affine::IDENTITY),
+            },
+        );
+        d.insert(Some(l), 1, e).unwrap();
+        for (r, id) in [(Rect::new(50.0, 5.0, 60.0, 15.0), blend), (Rect::new(40.0, 190.0, 60.0, 210.0), envelope)] {
+            assert_eq!(hit_test(&d, r.center(), HitOptions::default()).map(|h| h.leaf), Some(id));
+            assert_eq!(marquee(&d, r, None, false), vec![id]);
+            assert_eq!(marquee(&d, r, None, true), vec![id]);
+        }
     }
 
     /// Art in a sublayer is an object of its own: a click or a marquee takes it, not the

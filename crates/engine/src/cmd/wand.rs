@@ -87,10 +87,11 @@ fn set(s: &mut Session, p: &Value) -> Result<Value> {
     Ok(json!(s.menu.wand))
 }
 
-/// The fill an object shows: type's comes from its characters (the first run speaks for all).
+/// The fill an object shows: type's comes from its characters (the first run speaks for all; type
+/// without any, the default character fill, as `document.inspect` reports it).
 pub(crate) fn fill_of(n: &Node) -> Paint {
     match &n.kind {
-        NodeKind::Text(t) => t.runs.first().map(|r| r.style.fill.clone()).unwrap_or_default(),
+        NodeKind::Text(t) => t.runs.first().map(|r| r.style.fill.clone()).unwrap_or_else(|| vectorcraft_doc::CharStyle::default().fill),
         _ => n.appearance.fill_paint(),
     }
 }

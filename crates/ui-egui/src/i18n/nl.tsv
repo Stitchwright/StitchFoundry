@@ -1261,6 +1261,8 @@ lighting	Light	Licht
 	Opacity: {value}	Dekking: {value}
 	Rectangle: Sunshine	Rechthoek: Sunshine
 	Redefine Graphic Style “{name}”	Grafische stijl „{name}” opnieuw definiëren
+	Apply {name}	Stijl „{name}” toepassen
+	Redefine {name}	Stijl „{name}” opnieuw definiëren
 	Show Thumbnail	Miniatuur tonen
 	Artboard Options: edit with the Artboard tool	Opties voor tekengebied: bewerken met het Tekengebied-gereedschap
 	Delete Artboards	Tekengebieden verwijderen
@@ -1449,6 +1451,7 @@ lighting	Light	Licht
 	History Options…	Historieopties…
 	Step Backward	Stap terug
 	Step Forward	Stap vooruit
+	Clear History	Historie wissen
 	Set History Limit…	Historielimiet instellen…
 	Open a document to see its history.	Open een document om de historie te zien.
 	Abutting	Aaneengesloten
@@ -3763,7 +3766,8 @@ imageTrace	Outline	Contour
 @msg	its editing data doesn't say where its artboard is	zijn bewerkingsgegevens zeggen niet waar zijn tekengebied is
 @msg	its editing data has no layers	zijn bewerkingsgegevens hebben geen lagen
 @msg	its editing data is damaged	zijn bewerkingsgegevens zijn beschadigd
-@msg	its editing data is for a different page	zijn bewerkingsgegevens zijn voor een andere pagina
+@msg	its editing data is for a {w} × {h} pt page, not the file's {pw} × {ph} pt page	zijn bewerkingsgegevens zijn voor een pagina van {w} × {h} pt, niet voor de pagina van het bestand van {pw} × {ph} pt
+@msg	its editing data is for a {w} × {h} pt page, the file's {pw} × {ph} pt page at {scale}	zijn bewerkingsgegevens zijn voor een pagina van {w} × {h} pt, de pagina van het bestand van {pw} × {ph} pt op schaal {scale}
 @msg	its layers use {_1}, which aren't read yet	zijn lagen gebruiken {_1}, die nog niet worden gelezen
 @msg	its page has text, and its layers have no text objects to put it in	zijn pagina heeft tekst, en zijn lagen hebben geen tekstobjecten om die in onder te brengen
 @msg	its type is to come in as outlines, which only its page has	zijn tekst komt als contouren binnen, die alleen zijn pagina heeft
@@ -3859,6 +3863,8 @@ imageTrace	Outline	Contour
 @msg	`{key}` must be `auto` or a language code such as `en` or `zh-hant`	`{key}` moet `auto` zijn of een taalcode zoals `en` of `zh-hant`
 @msg	`{key}` must be a #rrggbb colour	`{key}` moet een #rrggbb-kleur zijn
 @msg	`{key}` must be a number	`{key}` moet een getal zijn
+@msg	`{key}` must be a number, not {v}	`{key}` moet een getal zijn, niet {v}
+@msg	{key} must be Unix seconds (an integer) or null	{key} moet Unix-tijd in seconden (een geheel getal) of null zijn
 @msg	`{key}` must be a string	`{key}` moet een string zijn
 @msg	`{key}` must be a whole number	`{key}` moet een geheel getal zijn
 @msg	`{key}` must be a whole number between {min} and {max} (got {x})	`{key}` moet een geheel getal tussen {min} en {max} zijn (kreeg {x})
@@ -3896,6 +3902,7 @@ imageTrace	Outline	Contour
 @msg	a page tree node has no kids	een knooppunt van de paginaboom heeft geen kinderen
 @msg	a page's placement is not finite	de plaatsing van een pagina is niet eindig
 @msg	a preset named `{_1}` exists	er bestaat een voorinstelling met de naam `{_1}`
+@msg	a swatch or color group named `{n}` exists	er bestaat een kleurstaal of kleurgroep met de naam `{n}`
 @msg	a slice size must be a positive number of points	een slicegrootte moet een positief aantal punten zijn
 @msg	a stream runs past the end	een stream loopt voorbij het einde
 @msg	a stream's length is wrong	de lengte van een stream is onjuist
@@ -4087,6 +4094,7 @@ imageTrace	Outline	Contour
 @msg	nothing to redo	niets om opnieuw uit te voeren
 @msg	nothing to save: the document has no visible art	niets om op te slaan: het document heeft geen zichtbare illustratie
 @msg	nothing to undo	niets om ongedaan te maken
+@msg	no history to clear	geen historie om te wissen
 @msg	nothing to warp	niets om te buigen
 @msg	nothing to wrap	niets om te laten omlopen
 @msg	object {0} cannot have children	object {0} kan geen onderliggende objecten hebben
@@ -4251,6 +4259,7 @@ imageTrace	Outline	Contour
 @msg	{C}: no effect at index {from}	{C}: geen effect bij index {from}
 @msg	{_1} failed: {e}	{_1} mislukt: {e}
 @msg	{_1} files can be opened but not written (see document.formats)	{_1}-bestanden kunnen worden geopend maar niet worden geschreven (zie document.formats)
+@msg	{_1} files are written by file.saveAsTemplate	{_1}-bestanden worden geschreven door file.saveAsTemplate
 @msg	{_1} font families available	{_1} lettertypefamilies beschikbaar
 @msg	{_1} is a live effect (Effect › Plug-ins)	{_1} is een live-effect (Effect › Plug-ins)
 @msg	{_1} is already used by {_2}	{_1} wordt al gebruikt door {_2}
@@ -4357,6 +4366,9 @@ imageTrace	Outline	Contour
 @msg	`{text}`: step {i}'s result has no such value (write $$ for a literal $)	`{text}`: het resultaat van stap {i} heeft geen dergelijke waarde (schrijf $$ voor een letterlijke $)
 @msg	`{text}`: there is no step {i} before this one (steps count from 0; write $$ for a literal $)	`{text}`: er is geen stap {i} vóór deze stap (stappen tellen vanaf 0; schrijf $$ voor een letterlijke $)
 @msg	object ids are non-negative integers, not {v}	object-id's zijn niet-negatieve gehele getallen, niet {v}
+@msg	{key} must be an array of non-negative integer object ids	{key} moet een array van object-id's zijn die niet-negatieve gehele getallen zijn
+@msg	invalid object id {value}: expected a non-negative integer	ongeldige object-id {value}: een niet-negatief geheel getal verwacht
+@msg	no such object id {value}	er is geen object met id {value}
 @msg	automation filesystem access is not granted: read authority is absent: {path}	toegang tot het bestandssysteem voor automatisering is niet verleend: de leesbevoegdheid ontbreekt: {path}
 @msg	automation filesystem access is not granted: write authority is absent: {path}	toegang tot het bestandssysteem voor automatisering is niet verleend: de schrijfbevoegdheid ontbreekt: {path}
 @msg	automation path rejected: outside the read root {root}: {path}	automatiseringspad afgewezen: buiten de leesroot {root}: {path}
@@ -5185,6 +5197,7 @@ swatch	Bright Violet	Felviolet
 @msg	index must be ≥ 0	index moet ≥ 0 zijn
 @msg	mask art ends outside a mask dictionary	maskerillustratie eindigt buiten een maskerwoordenboek
 @msg	missing number `{key}`	getal `{key}` ontbreekt
+@msg	missing integer `{key}`	geheel getal `{key}` ontbreekt
 @msg	no such spine point	dat aspunt bestaat niet
 @msg	no such spine segment	dat assegment bestaat niet
 @msg	not a blend	geen vermenging
@@ -6491,3 +6504,21 @@ swatch	Bright Violet	Felviolet
 	Erase Cross Stitches	Kruissteken wissen
 	Move Stitches	Steken verplaatsen
 	Place Artwork	Illustratie plaatsen
+	Artboard {n} of {total}	Tekengebied {n} van {total}
+	Encoding and writing the file…	Bestand coderen en schrijven…
+@plural	{n} more export waiting|{n} more exports waiting	Nog {n} export in de wachtrij|Nog {n} exports in de wachtrij
+	Continue in Background	Doorgaan op achtergrond
+	Cancel Export	Export annuleren
+@msg	Export cancelled	Export geannuleerd
+# Paragraph panel menu › Justification…
+	Desired	Gewenst
+	Word Spacing:	Woordafstand:
+	Letter Spacing:	Letterafstand:
+	Glyph Scaling:	Glyphschaal:
+	Auto Leading:	Automatische regelafstand:
+	Single Word Justification:	Uitvullen van één woord:
+	Full Justify	Volledig uitvullen
+	Minimum must not exceed Desired, nor Desired Maximum.	Minimum mag niet groter zijn dan Gewenst, en Gewenst niet groter dan Maximum.
+	Justification	Uitvullen
+# Select by Color (select.color)
+	Select by Color	Selecteren op kleur

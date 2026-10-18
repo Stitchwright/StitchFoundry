@@ -1139,6 +1139,97 @@ fn zig_zag_has_sliders_and_radio_buttons() {
     assert!(!lines.contains(&"Ridges:"), "{lines:?}");
 }
 
+/// Screen readers get the number and text of the field beside each dialog slider, in the field's
+/// unit, with the rail's range (extended to a number past the rail's end): Transform Each's Scale
+/// and Move, Zig Zag's Size and Ridges, a form slider (Vector Halftone's Frequency), the Pencil's
+/// Fidelity, the Color Picker's channel slider, the Perspective Grid's Opacity, Revolve's angle and
+/// Offset, Extrude & Bevel's Rotation X and Y, Swatch Options' components and the flattener's Raster/Vector Balance.
+#[test]
+fn dialog_sliders_report_the_numbers_their_fields_show() {
+    use crate::widgets::accessibility_tests::{slider_value, tree};
+    use egui::accesskit::Role::Slider;
+    fn set(app: &mut VectorcraftApp, k: &str, v: serde_json::Value) {
+        app.ui.dialog.as_mut().expect("a dialog is open").fields.insert(k.into(), v);
+    }
+    let v = |n: f64, (lo, hi): (f64, f64), text: &str| (Some(n), Some(lo), Some(hi), Some(text.to_string()));
+    let mut app = app();
+    app.run("shape.rectangle", json!({"x": 10, "y": 10, "width": 50, "height": 50})).unwrap();
+    crate::menus::invoke(&mut app, "object.transformEach", json!({}));
+    set(&mut app, "scaleH", json!(250));
+    set(&mut app, "moveH", json!(-36));
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    let horizontal: Vec<_> = shown
+        .iter()
+        .filter(|n| n.role() == Slider && n.label() == Some("Horizontal:"))
+        .map(|n| (n.numeric_value(), n.min_numeric_value(), n.max_numeric_value(), n.value().map(str::to_string)))
+        .collect();
+    assert_eq!(
+        horizontal,
+        [(Some(250.0), Some(0.0), Some(250.0), Some("250%".into())), (Some(-36.0), Some(-1000.0), Some(1000.0), Some("-36 pt".into()))]
+    );
+    app.ui.dialog = None;
+    app.run("effect.dialog", json!({"effect": "distort.zigZag"})).unwrap();
+    set(&mut app, "relative", json!(true));
+    set(&mut app, "size", json!(30));
+    set(&mut app, "ridges", json!(6));
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    assert_eq!(slider_value(&shown, "Size:"), v(30.0, (0.0, 100.0), "30%"));
+    assert_eq!(slider_value(&shown, "Ridges per segment:"), (Some(6.0), Some(0.0), Some(100.0), None));
+    set(&mut app, "relative", json!(false));
+    set(&mut app, "size", json!(12));
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    assert_eq!(slider_value(&shown, "Size:"), v(12.0, (0.0, 100.0), "12 pt"), "Absolute: a distance");
+    open(&mut app, halftone::KIND, halftone::fields());
+    set(&mut app, "frequency", json!(60));
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    assert_eq!(slider_value(&shown, "Frequency"), v(60.0, (1.0, 150.0), "60 lpi"));
+    app.ui.dialog = None;
+    app.run("tool.options", json!({"tool": "pencil"})).unwrap();
+    set(&mut app, "fidelity", json!(2.5));
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    assert_eq!(slider_value(&shown, "Fidelity:"), v(2.5, (0.5, 20.0), "2.5pt"));
+    app.ui.dialog = None;
+    app.run("paint.setFill", json!({"color": "#ff8000"})).unwrap();
+    app.run("ui.colorPicker", json!({})).unwrap();
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    assert_eq!(slider_value(&shown, "H"), v(30.0, (0.0, 360.0), "30°"));
+    set(&mut app, "channel", json!("green"));
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    assert_eq!(slider_value(&shown, "G"), v(128.0, (0.0, 255.0), "128"));
+    app.ui.dialog = None;
+    app.run("ui.perspectiveGridDialog", json!({})).unwrap();
+    set(&mut app, "opacity", json!(40));
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    assert_eq!(slider_value(&shown, "Opacity:"), v(40.0, (0.0, 100.0), "40%"));
+    app.ui.dialog = None;
+    app.run("path.create", json!({"d": "M150 40 L180 60 L180 140 L150 160"})).unwrap();
+    app.run("effect.dialog", json!({"effect": vectorcraft_effects::REVOLVE, "item": null})).unwrap();
+    set(&mut app, "angle", json!(270));
+    set(&mut app, "offset", json!(600));
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    // The 3D dialogs' fields are DragValues, which keep a trailing zero at one place.
+    assert_eq!(slider_value(&shown, "Revolve angle"), v(270.0, (0.0, 360.0), "270.0°"));
+    assert_eq!(slider_value(&shown, "Offset"), v(600.0, (0.0, 600.0), "600.0 pt"), "past the rail's 500 pt");
+    app.ui.dialog = None;
+    app.run("effect.dialog", json!({"effect": vectorcraft_effects::EXTRUDE, "item": null})).unwrap();
+    set(&mut app, "__tab", json!("rotation"));
+    set(&mut app, "rotationX", json!(30));
+    set(&mut app, "rotationY", json!(12.25));
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    assert_eq!(slider_value(&shown, "Rotation X"), v(30.0, (-180.0, 180.0), "30.0°"), "at most 2 places");
+    assert_eq!(slider_value(&shown, "Rotation Y"), v(12.25, (-180.0, 180.0), "12.25°"));
+    app.ui.dialog = None;
+    app.run("swatch.new", json!({"name": "Ink", "color": {"c": 0, "m": 80, "y": 60, "k": 0}, "spot": true})).unwrap();
+    app.run("ui.swatchOptions", json!({"name": "Ink"})).unwrap();
+    let shown = tree(|ui| show(&mut app, ui.ctx()));
+    assert_eq!(slider_value(&shown, "M"), v(80.0, (0.0, 100.0), "80%"));
+    let mut o = vectorcraft_engine::cmd::FlattenOptions { balance: 30.0, ..Default::default() };
+    let shown = tree(|ui| {
+        flatten::options_editor(ui, "flatten-test", &mut o, true);
+    });
+    assert_eq!(slider_value(&shown, "Raster/Vector Balance:"), v(30.0, (0.0, 100.0), "30"));
+}
+
 /// Frames of the dialog layer on one context (so a drag and the keyboard focus last from frame to
 /// frame), with the screen-reader tree turned on.
 struct Frames {

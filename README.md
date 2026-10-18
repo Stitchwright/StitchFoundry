@@ -157,7 +157,7 @@ The GitHub repositories StitchFoundry takes code, data or fonts from:
 
 | Repository | What StitchFoundry uses | How |
 |---|---|---|
-| [storytold/vectorcraft](https://github.com/storytold/vectorcraft) | the whole vector editor StitchFoundry is built on | merged in from time to time (last: version 0.11.0, upstream `8770d2a9`, 2026-10-16); MIT OR Apache-2.0 |
+| [storytold/vectorcraft](https://github.com/storytold/vectorcraft) | the whole vector editor StitchFoundry is built on | merged in from time to time (last: version 0.13.1, upstream `aa9c70a7`, 2026-10-19); MIT OR Apache-2.0 |
 | [storytold/craft-libs](https://github.com/storytold/craft-libs) | the PDF reader (patched [hayro](https://github.com/LaurenzV/hayro) crates) | fetched at a pinned revision when building; MIT OR Apache-2.0 |
 | [storytold/craft-fonts](https://github.com/storytold/craft-fonts) | the Japanese fonts | optional build input (release builds), never copied here; OFL |
 | [adobe-fonts/source-sans](https://github.com/adobe-fonts/source-sans), [rsms/inter](https://github.com/rsms/inter), [JetBrains/JetBrainsMono](https://github.com/JetBrains/JetBrainsMono) | the interface fonts | copies in `assets/fonts` (from VectorCraft); OFL, listed in [ASSETS.md](ASSETS.md) |

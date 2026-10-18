@@ -880,9 +880,30 @@ split paths return an error without changing the workspace.
 - [x] Release connection slots on worker exit, including timeout and failed worker creation.
 - [x] Preserve correlated replies and persistent connections within the transport budgets.
 
+## In the browser: `window.vectorcraft`
+
+The web build has no TCP server (a page can't listen on a socket), so it offers the same methods to the
+page itself, as promises on `window.vectorcraft` (`apps/vectorcraft-web/src/api.rs`). An agent driving VectorCraft in a
+browser tab, or a host app showing it in an `<iframe>`, uses the commands it would send to the desktop
+app:
+
+| Call | |
+|---|---|
+| `vectorcraft.request(method, params)` | any control method of this document → its `result` |
+| `vectorcraft.execute(command, params)` | `engine.execute` |
+| `vectorcraft.commands()` / `vectorcraft.inspect()` | `engine.commands` / the inspect method |
+| `vectorcraft.screenshot(params)` | `ui.screenshot` (no `path`: the PNG comes back inline) |
+| `vectorcraft.openFile(name, bytes)` | opens the bytes the way a dropped file opens (returns `true` once queued) |
+| `vectorcraft.captureDownloads(on)` | while on, a save or export is kept in the page instead of downloaded |
+| `vectorcraft.files()` / `vectorcraft.readFile(name)` | the kept files (`{path, size}`) / one of them as a `Uint8Array` |
+
+Errors reject with an `Error` carrying the method's message. Requests run on the UI's next frame, so a
+hidden tab (whose frames the browser pauses) answers when it is shown again.
+
 ## Revision history
 
 | Date | Change | Summary |
 |---|---|---|
 | 2026-10-13 | minor | Documented count, pending-event and per-frame request budgets (#1709). |
 | 2026-10-13 | minor | Documented transport deadlines and connection-slot recovery (#1726). |
+| 2026-10-18 | minor | Documented `window.vectorcraft`, the web build's control channel. |

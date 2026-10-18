@@ -256,7 +256,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Set Mesh Point Color",
             [],
             None,
-            "{id, index, color, opacity?: 0..1} colour of one mesh point",
+            "{id, index, color, keepModel?: bool (as paint.setFill), opacity?: 0..1} colour of one mesh point",
             has_doc,
             mesh_set_color
         ),
@@ -274,7 +274,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Add Mesh Line",
             [],
             None,
-            "{id, x, y, color?} add a row and a column through (x, y) to a gradient mesh (new point in `color`) or a mesh envelope → {index}",
+            "{id, x, y, color?, keepModel?: bool (as paint.setFill)} add a row and a column through (x, y) to a gradient mesh (new point in `color`) or a mesh envelope → {index}",
             has_doc,
             mesh_add_line
         ),
@@ -410,6 +410,7 @@ const DEFAULT_STEPS: u32 = 5;
 const DEFAULT_DISTANCE: f64 = 10.0;
 
 fn spacing_param(p: &Value, cmd: &str, current: BlendSpacing) -> Result<BlendSpacing> {
+    check_numbers(p, &["value", "steps", "distance"], cmd)?;
     let num = |k: &str| p.get(k).and_then(Value::as_f64);
     let steps = |k: &str, n: f64| whole(n, k, cmd).map(|n| BlendSpacing::Steps(n as u32));
     let mode = str_param(p, "spacing");
@@ -971,7 +972,11 @@ fn blend_reverse_stack(s: &mut Session, _: &Value) -> Result<Value> {
 
 // ---------- Envelope ----------
 
+/// The number keys of a warp: `bend`, and the two distortions by their short and long names.
+const WARP_NUMBERS: &[&str] = &["bend", "h", "v", "horizontalDistortion", "verticalDistortion"];
+
 fn warp_kind(p: &Value, cmd: &str, cur: Option<&EnvelopeKind>) -> Result<EnvelopeKind> {
+    check_numbers(p, WARP_NUMBERS, cmd)?;
     let (mut style, mut bend, mut h, mut v, mut horizontal) = ("arc".to_string(), 50.0, 0.0, 0.0, true);
     if let Some(EnvelopeKind::Warp { style: s0, bend: b0, h: h0, v: v0, horizontal: z0 }) = cur {
         (style, bend, h, v, horizontal) = (s0.clone(), *b0, *h0, *v0, *z0);
@@ -1005,6 +1010,7 @@ fn envelope(id: NodeId, content: Vec<Arc<Node>>, kind: EnvelopeKind, (options, f
 
 /// `rows` and `cols` (or `columns`), whole numbers 1..50 each, defaulting to `default`.
 fn rows_cols(p: &Value, cmd: &str, default: (u32, u32)) -> Result<(u32, u32)> {
+    check_numbers(p, &["rows", "cols", "columns"], cmd)?;
     let rows = f64_or(p, "rows", default.0 as f64);
     let cols_key = if p.get("cols").and_then(Value::as_f64).is_some() { "cols" } else { "columns" };
     let cols = f64_or(p, cols_key, default.1 as f64);
@@ -1241,6 +1247,8 @@ fn env_release(s: &mut Session, _: &Value) -> Result<Value> {
 
 fn env_options(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "object.envelope.options";
+    check_numbers(p, &["fidelity"], C)?;
+    check_numbers(p, WARP_NUMBERS, C)?;
     let fid = p.get("fidelity").and_then(Value::as_f64);
     if fid.is_some_and(|f| !(0.0..=100.0).contains(&f)) {
         return Err(bad(C, "fidelity must be 0..100"));
@@ -1386,14 +1394,19 @@ fn mesh_create(s: &mut Session, p: &Value) -> Result<Value> {
         Some(a) => MeshAppearance::parse(a).ok_or_else(|| bad(C, "appearance must be flat|center|edge"))?,
         None => MeshAppearance::Flat,
     };
+    check_numbers(p, &["highlight"], C)?;
     let highlight = f64_or(p, "highlight", 100.0).clamp(0.0, 100.0);
-    let at = point_param(p, "at");
+    let at = match p.get("at") {
+        None | Some(Value::Null) => None,
+        Some(v) => Some(finite_numbers(v).map(|[x, y]| Point::new(x, y)).ok_or_else(|| bad(C, "`at` must be [x, y]"))?),
+    };
     let (rows, cols) = if at.is_some() { (1, 1) } else { (rows, cols) };
     let roots = roots_param(s, p)?;
     let (ids, index) = s.edit("Create Gradient Mesh", |d, sel| {
         let mut out = vec![];
         let mut index = None;
         let mut refused = None;
+        let model = d.color_mode.model();
         for id in &roots {
             let Some(n) = d.node(*id).cloned() else { continue };
             let m = if let NodeKind::Image(im) = &n.kind {
@@ -1413,7 +1426,7 @@ fn mesh_create(s: &mut Session, p: &Value) -> Result<Value> {
                 match n.appearance.fill_paint() {
                     // The points take the colours the gradient paints there.
                     Paint::Gradient(g) => {
-                        path.bounds().and_then(|b| GradientMesh::for_path_with(&path, rows, cols, &*gradient_sampler(&g, b))).map(|mut m| {
+                        path.bounds().and_then(|b| GradientMesh::for_path_with(&path, rows, cols, &*gradient_sampler(&g, b, model))).map(|mut m| {
                             m.highlight(app, highlight);
                             m
                         })
@@ -1521,8 +1534,9 @@ fn whole(x: f64, key: &str, cmd: &str) -> Result<f64> {
 
 fn mesh_set_color(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "object.mesh.setPointColor";
+    check_numbers(p, &["opacity"], C)?;
     let index = index_param(p, "index", C)?;
-    let color = p.get("color").and_then(color_value);
+    let color = p.get("color").and_then(color_value).map(|c| super::paint::new_color(s, p, c));
     let opacity = p.get("opacity").and_then(Value::as_f64);
     if color.is_none() && opacity.is_none() {
         return Err(bad(C, "missing `color` or `opacity`"));
@@ -1559,7 +1573,7 @@ fn mesh_move_point(s: &mut Session, p: &Value) -> Result<Value> {
 fn mesh_add_line(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "object.mesh.addLine";
     let q = Point::new(f64_req(p, "x", C)?, f64_req(p, "y", C)?);
-    let color = p.get("color").and_then(color_value);
+    let color = p.get("color").and_then(color_value).map(|c| super::paint::new_color(s, p, c));
     let index = with_mesh(s, p, C, "Add Mesh Line", true, |m| {
         let i = m.add_lines_at(q).ok_or_else(|| bad(C, "point is outside the mesh"))?;
         if let Some(c) = color {

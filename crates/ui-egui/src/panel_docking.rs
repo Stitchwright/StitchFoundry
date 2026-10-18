@@ -504,6 +504,11 @@ struct PanelContent<'a> {
 
 impl craft_ui::docking::DockContent<String> for PanelContent<'_> {
     fn body(&mut self, ui: &mut egui::Ui, panel: &String) {
+        let t = crate::theme::Tokens::get(ui.ctx());
+        let back = ui.max_rect();
+        if back.is_positive() {
+            ui.painter().rect_filled(back, 0.0, t.panel);
+        }
         let width = ui.available_width();
         let height = (ui.available_height() - 20.0).max(0.0);
         if crate::state::DockTab::from_id(panel).is_some() {
@@ -637,10 +642,13 @@ pub(crate) fn show(app: &mut VectorcraftApp, ui: &mut egui::Ui) -> bool {
     let fills: Vec<_> = display
         .floating
         .iter()
-        .filter_map(|group| group.panels.first())
-        .map(|first| {
+        .filter_map(|group| {
+            let first = group.panels.first()?;
             let layer = egui::LayerId::new(egui::Order::Middle, area.with(("floating", first)));
-            (layer, ui.ctx().layer_painter(layer).add(egui::Shape::Noop))
+            let [x, y, w, h] = group.rect;
+            let layout_rect = egui::Rect::from_min_size(egui::pos2(x, y), egui::vec2(w, h));
+            let fill = ui.ctx().layer_painter(layer).add(egui::Shape::Noop);
+            Some((layer, layout_rect, fill))
         })
         .collect();
     let mut draw = |ui: &mut egui::Ui| {
@@ -787,8 +795,9 @@ pub(crate) fn show(app: &mut VectorcraftApp, ui: &mut egui::Ui) -> bool {
             ui.ctx().data_mut(|data| data.insert_temp(crate::floating::group_rect_id(first), rect));
         }
     }
-    for (layer, fill) in fills {
-        if let Some(rect) = ui.ctx().memory(|memory| memory.area_rect(layer.id)) {
+    for (layer, layout_rect, fill) in fills {
+        let rect = ui.ctx().memory(|memory| memory.area_rect(layer.id)).filter(|rect| rect.is_positive()).unwrap_or(layout_rect);
+        if rect.is_positive() {
             ui.ctx().layer_painter(layer).set(fill, egui::Shape::rect_filled(rect, 0.0, t.panel));
         }
     }

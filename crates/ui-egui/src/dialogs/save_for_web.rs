@@ -173,7 +173,7 @@ fn has_warnings(r: &Value) -> bool {
     r["warnings"].as_array().is_some_and(|w| !w.is_empty())
 }
 
-/// `file.saveForWeb.browser`: the HTML page and its images in a temporary folder, opened in the
+/// `file.saveForWeb.browser`: the HTML page and its images in a new temporary folder, opened in the
 /// default browser (desktop). When the export has warnings, the status bar shows the first in
 /// place of "Opened …".
 pub(crate) fn browser_preview(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
@@ -196,12 +196,39 @@ pub(crate) fn browser_preview(app: &mut VectorcraftApp, p: &Value) -> Result<Val
     Ok(json!({ "path": path, "warnings": r["warnings"] }))
 }
 
-/// The folder browser previews go to.
+/// The age at which a later browser preview removes an earlier preview's folder.
+#[cfg(not(target_arch = "wasm32"))]
+const PREVIEW_KEEP: std::time::Duration = std::time::Duration::from_secs(3600);
+
+/// The folder a browser preview goes to: a new one for each preview, in the temporary folder's
+/// `VectorCraft Save for Web`.
 #[cfg(not(target_arch = "wasm32"))]
 fn temp_folder() -> Result<String, String> {
-    let dir = std::env::temp_dir().join("VectorCraft Save for Web");
-    std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-    Ok(dir.to_string_lossy().replace('\\', "/"))
+    preview_folder(&std::env::temp_dir().join("VectorCraft Save for Web"), PREVIEW_KEEP)
+}
+
+/// A new folder in `root`, named after the process id and a count of the process's previews. A
+/// name that is already taken, by an earlier process with the same id, is skipped for the next
+/// count. Entries of `root` last changed `keep` or longer ago are removed first.
+#[cfg(not(target_arch = "wasm32"))]
+pub(super) fn preview_folder(root: &std::path::Path, keep: std::time::Duration) -> Result<String, String> {
+    static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    for e in std::fs::read_dir(root).into_iter().flatten().flatten() {
+        let old = e.metadata().and_then(|m| m.modified()).ok().and_then(|t| t.elapsed().ok()).is_some_and(|age| age >= keep);
+        if old {
+            // Best effort: one that can't be removed now is tried again by the next preview.
+            let _ = if e.file_type().is_ok_and(|t| t.is_dir()) { std::fs::remove_dir_all(e.path()) } else { std::fs::remove_file(e.path()) };
+        }
+    }
+    std::fs::create_dir_all(root).map_err(|e| format!("{}: {e}", root.display()))?;
+    loop {
+        let dir = root.join(format!("{}-{}", std::process::id(), NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)));
+        match std::fs::create_dir(&dir) {
+            Ok(()) => return Ok(dir.to_string_lossy().replace('\\', "/")),
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {}
+            Err(e) => return Err(format!("{}: {e}", dir.display())),
+        }
+    }
 }
 
 #[cfg(target_arch = "wasm32")]

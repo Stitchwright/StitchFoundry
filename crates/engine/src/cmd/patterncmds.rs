@@ -210,14 +210,14 @@ fn roots(s: &Session, p: &Value) -> Result<Vec<NodeId>> {
 }
 
 fn unique_pattern_name(d: &Document, base: &str) -> String {
-    if d.pattern(base).is_none() && d.swatch(base).is_none() {
+    if d.pattern(base).is_none() && !d.swatch_name_taken(base) {
         return base.to_string();
     }
-    (2..).map(|i| format!("{base} {i}")).find(|n| d.pattern(n).is_none() && d.swatch(n).is_none()).unwrap_or_else(|| base.to_string())
+    (2..).map(|i| format!("{base} {i}")).find(|n| d.pattern(n).is_none() && !d.swatch_name_taken(n)).unwrap_or_else(|| base.to_string())
 }
 
 fn next_pattern_name(d: &Document) -> String {
-    (1..).map(|i| format!("New Pattern {i}")).find(|n| d.pattern(n).is_none() && d.swatch(n).is_none()).unwrap_or_else(|| "New Pattern".to_string())
+    (1..).map(|i| format!("New Pattern {i}")).find(|n| d.pattern(n).is_none() && !d.swatch_name_taken(n)).unwrap_or_else(|| "New Pattern".to_string())
 }
 
 /// Add pattern `def` and its swatch.
@@ -420,10 +420,14 @@ fn pattern_options(s: &mut Session, p: &Value) -> Result<Value> {
         }
     }
     let new_name = str_param(p, "newName").map(str::trim).filter(|n| !n.is_empty() && *n != name).map(str::to_string);
-    if let Some(n) = &new_name
-        && s.doc()?.doc.pattern(n).is_some()
-    {
-        return Err(bad(C, format!("a pattern named `{n}` exists")));
+    if let Some(n) = &new_name {
+        let d = &s.doc()?.doc;
+        if d.pattern(n).is_some() {
+            return Err(bad(C, format!("a pattern named `{n}` exists")));
+        }
+        if swatch_name_clash(d, &name, n) {
+            return Err(bad(C, format!("a swatch or color group named `{n}` exists")));
+        }
     }
     let overlap = match p.get("overlap") {
         Some(o) => Overlap {
@@ -479,7 +483,19 @@ fn pattern_options(s: &mut Session, p: &Value) -> Result<Value> {
     Ok(json!({ "name": out_name }))
 }
 
-/// Rename a pattern in swatches, paints and the edit record.
+/// Is `new` taken for pattern `old` by a swatch or a color group (they share one namespace,
+/// [`Document::swatch_name_taken`])? It is free when the swatches named `new` are one or more
+/// swatches of the pattern and none of the pattern's swatches is named `old` (those take the new
+/// name in [`rename_pattern_uses`]).
+fn swatch_name_clash(d: &Document, old: &str, new: &str) -> bool {
+    let own = |w: &vectorcraft_color::Swatch| pattern_name(&w.paint).is_some_and(|p| p == old);
+    let mut holders = d.swatches_iter().filter(|w| w.name == new).peekable();
+    let only_own = holders.peek().is_some() && holders.all(own);
+    d.swatch_name_taken(new) && !(only_own && !d.swatches_iter().any(|w| w.name == old && own(w)))
+}
+
+/// Rename a pattern in swatches, paints and the edit record. Of the swatches named `old`, only the
+/// pattern's own take the new name.
 fn rename_pattern_uses(d: &mut Document, old: &str, new: &str) {
     let fix = |p: &mut Paint| {
         if let Paint::Pattern { pattern, .. } = p
@@ -489,7 +505,7 @@ fn rename_pattern_uses(d: &mut Document, old: &str, new: &str) {
         }
     };
     for sw in d.swatches.iter_mut().chain(d.swatch_groups.iter_mut().flat_map(|g| g.swatches.iter_mut())) {
-        if sw.name == old {
+        if sw.name == old && pattern_name(&sw.paint).is_some_and(|p| p == old) {
             sw.name = new.to_string();
         }
         fix(&mut sw.paint);
