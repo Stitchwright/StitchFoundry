@@ -5159,3 +5159,1292 @@ swatch	Bright Violet	Violet cerah
 	Typing	Mengetik
 	Persistent	Persisten
 	Library Panel Options	Opsi panel pustaka
+
+# StitchFoundry (embroidery)
+	#	#
+	3D Puff	3D puff
+	3D effect	Efek 3D
+	3D puff	3D puff
+	A USB stick, the machine's folder or a network share the machine reads	Flashdisk USB, folder mesin, atau folder jaringan yang dibaca mesin
+	A block	Sebuah blok
+	A border of the selected line	Bingkai dari garis terpilih
+	A border strip	Strip bingkai
+	A check costs {n} credits; free checks come back next month.	Satu pemeriksaan memakai {n} kredit; pemeriksaan gratis kembali bulan depan.
+	A copy of this fabric to change	Salinan kain ini untuk diubah
+	A corner	Sebuah sudut
+	A fabric shape: the machine stops for you to lay the fabric, then sews it down	Bentuk dari kain: mesin berhenti agar Anda meletakkan kain, lalu menjahitnya
+	A finished design to sew and learn from	Desain jadi untuk dijahit dan dipelajari
+	A font folder in Ink/Stitch's format: font.json and its glyphs	Folder font dalam format Ink/Stitch: font.json dan glifnya
+	A heart, a star, a flower and more	Hati, bintang, bunga, dan lainnya
+	A heart, a star, a flower and more, ready to sew	Hati, bintang, bunga, dan lainnya, siap dijahit
+	A little pillow front, a mug rug, a coaster or an ornament	Sarung bantal kecil, tatakan gelas besar, tatakan gelas, atau hiasan gantung
+	A machine profile of your own with these settings	Profil mesin Anda sendiri dengan pengaturan ini
+	A moss fill with chain borders sewn before and after it, in a group in the shape's place	Isian moss dengan bingkai rantai yang dijahit sebelum dan sesudahnya, dalam grup di tempat bentuk itu
+	A name or a few words, ready to sew	Nama atau beberapa kata, siap dijahit
+	A name or some words	Nama atau beberapa kata
+	A new design the size of this hoop's sewing field	Desain baru seukuran bidang jahit ram ini
+	A photo of the garment behind the design, life size, on a locked template layer that is never stitched	Foto pakaian di belakang desain, ukuran asli, pada lapisan templat terkunci yang tidak pernah dijahit
+	A photo or a drawing turned into stitches	Foto atau gambar yang diubah menjadi jahitan
+	A photo or drawing to turn into stitches	Foto atau gambar untuk diubah menjadi jahitan
+	A picture	Sebuah gambar
+	A sample to try	Contoh untuk dicoba
+	A shape	Sebuah bentuk
+	A shape cut from fabric and sewn down	Bentuk yang dipotong dari kain lalu dijahit
+	A sheet of the designs found, to print or save as PDF	Lembar berisi desain yang ditemukan, untuk dicetak atau disimpan sebagai PDF
+	A smoothed copy of the image in these colours, its specks cleaned, to digitize or click to stitch	Salinan gambar yang dihaluskan dengan warna-warna ini, bintik-bintiknya dibersihkan, untuk didigitasi atau diklik untuk dijahit
+	A thread chart of your own from a CSV file (code, name and colour a thread) or a GIMP palette (.gpl)	Bagan benang Anda sendiri dari file CSV (kode, nama, dan warna per benang) atau palet GIMP (.gpl)
+	About StitchFoundry	Tentang StitchFoundry
+	About the library	Tentang pustaka
+	About the sewing	Tentang penjahitan
+	Accordion	Akordeon
+	Account	Akun
+	Add Appliqué	Tambah aplikasi
+	Add Appliqué…	Tambah aplikasi…
+	Add Buttonholes	Tambah lubang kancing
+	Add Glyphs	Tambah glif
+	Add Inclination Line	Tambah garis kemiringan
+	Add Laydown	Tambah jahitan alas
+	Add Machine Folder…	Tambah folder mesin…
+	Add My Hoop	Tambah ram saya
+	Add Outline	Tambah garis luar
+	Add Photos…	Tambah foto…
+	Add Words	Tambah kata
+	Add Words…	Tambah kata…
+	Add a Picture…	Tambah gambar…
+	Add a Shape	Tambah bentuk
+	Add a Shape…	Tambah bentuk…
+	Add a ribbon band across it	Tambahkan pita melintang di atasnya
+	Add a ribbon loop to hang it	Tambahkan gantungan pita untuk menggantungnya
+	Add the folder your machine reads: a USB stick, its folder or a network share.	Tambahkan folder yang dibaca mesin Anda: flashdisk USB, foldernya, atau folder jaringan.
+	Add to Design	Tambahkan ke desain
+	Add to Send Queue	Tambahkan ke antrean kirim
+	Adjust Letter	Sesuaikan huruf
+	After each letter	Setelah setiap huruf
+	After each line	Setelah setiap baris
+	After each word	Setelah setiap kata
+	After the selection	Setelah seleksi
+	Again	Lagi
+	All Tools, Ungrouped	Semua alat, tanpa grup
+	Allow	Izinkan
+	Along the baseline	Sepanjang garis dasar
+	Along the line	Sepanjang garis
+	Along the selected line	Sepanjang garis terpilih
+	An appliqué	Sebuah aplikasi
+	An in-the-hoop project	Proyek in-the-hoop
+	Another fabric, or not sure: leave it as it is	Kain lain, atau tidak yakin: biarkan seperti apa adanya
+	Another machine (DST)	Mesin lain (DST)
+	Answers come from Claude with your own Anthropic API key, billed to your Anthropic account. They can be wrong: try a test sew before an important piece.	Jawaban berasal dari Claude dengan kunci API Anthropic Anda sendiri, ditagihkan ke akun Anthropic Anda. Jawaban bisa salah: coba jahit uji sebelum mengerjakan karya penting.
+	Anthropic API key:	Kunci API Anthropic:
+	Anything else? For example: a gap above the bumper	Ada yang lain? Misalnya: celah di atas bemper
+	Applies the next time StitchFoundry starts.	Berlaku saat StitchFoundry dijalankan lagi.
+	Appliqué	Aplikasi
+	Appliqué letters	Huruf aplikasi
+	Appliqué star	Bintang aplikasi
+	Apply Embroidery Style	Terapkan gaya bordir
+	Apply Fabric	Terapkan kain
+	Apply Motif	Terapkan motif
+	Approval	Persetujuan
+	Arc Down	Lengkung ke bawah
+	Arc Up	Lengkung ke atas
+	Arch	Busur
+	Arches	Busur-busur
+	Argyle	Argyle
+	Arrows	Panah
+	Artwork	Karya seni
+	As large as fits	Sebesar yang muat
+	As the design has it	Sesuai desain
+	As the font has them	Sesuai font
+	As typed	Sesuai ketikan
+	Ask	Tanya
+	Ask About Embroidery	Tanya tentang bordir
+	Ask About Embroidery…	Tanya tentang bordir…
+	Ask anything about machine embroidery or StitchFoundry: which stabilizer to use, why thread breaks, how to make letters sew cleaner, where a feature is. Claude can also change your design when you ask, after you allow it.	Tanyakan apa saja tentang bordir mesin atau StitchFoundry: stabilizer mana yang dipakai, mengapa benang putus, cara membuat huruf terjahit lebih rapi, di mana letak suatu fitur. Claude juga bisa mengubah desain Anda bila Anda memintanya, setelah Anda mengizinkannya.
+	Assign to Glyph	Tetapkan ke glif
+	At each point	Di setiap titik
+	Auto Direction	Arah otomatis
+	Auto Sequence	Urutan otomatis
+	Auto Stitch Direction	Arah jahitan otomatis
+	Auto spacing	Spasi otomatis
+	Auto split	Pisah otomatis
+	Auto-Digitize Image	Digitasi gambar otomatis
+	Automatic Knife	Pisau otomatis
+	Automatic underlay	Lapisan dasar otomatis
+	Average stitch (mm)	Rata-rata jahitan (mm)
+	Back to the Design	Kembali ke desain
+	Back to the start	Kembali ke awal
+	Background Quilting	Quilting latar belakang
+	Background quilting the size of a quilting tile, block by block	Quilting latar belakang seukuran ubin quilting, blok demi blok
+	Backstitch	Tusuk tikam jejak
+	Backstitch Lines	Garis tusuk tikam jejak
+	Backstitch lines	Garis tusuk tikam jejak
+	Bank card	Kartu bank
+	Barudan DSB (.dsb)…	Barudan DSB (.dsb)…
+	Barudan U01 (.u01)…	Barudan U01 (.u01)…
+	Basket weave	Anyaman keranjang
+	Basting first	Jelujur dulu
+	Basting margin	Margin jelujur
+	Basting round	Jelujur keliling
+	Batch Convert	Konversi massal
+	Batch Output	Output massal
+	Bead length	Panjang manik
+	Beads	Manik-manik
+	Bean Outline	Garis luar bean
+	Bean Ring	Cincin bean
+	Bean Run	Jelujur bean
+	Before the selection	Sebelum seleksi
+	Bigger	Lebih besar
+	Blanket	Selimut
+	Blend Colors	Campur warna
+	Blend from Gradient	Campur dari gradien
+	Blend into	Campur ke
+	Blend layers	Campur lapisan
+	Bobbin thread (m)	Benang bobbin (m)
+	Border	Bingkai
+	Border depth	Kedalaman bingkai
+	Border length	Panjang bingkai
+	Border or Corner…	Bingkai atau sudut…
+	Boring	Boring
+	Bottom left	Kiri bawah
+	Bottom right	Kanan bawah
+	Branch	Cabang
+	Break Apart	Pecah
+	Break Link to Embroidery Style	Putuskan tautan ke gaya bordir
+	Bricks	Bata
+	Brother PEC (.pec)…	Brother PEC (.pec)…
+	Brother PES (.pes)…	Brother PES (.pes)…
+	Brother or Baby Lock	Brother atau Baby Lock
+	Brother or Baby Lock multi-needle	Brother atau Baby Lock multi-jarum
+	Brush (squares)	Kuas (persegi)
+	Brush Stroke	Sapuan kuas
+	Bubbles	Gelembung
+	Butterfly	Kupu-kupu
+	Buttonholes	Lubang kancing
+	Buy credits	Beli kredit
+	Buy…	Beli…
+	Calibrate Life Size	Kalibrasi ukuran asli
+	Calibrate Life Size…	Kalibrasi ukuran asli…
+	Calligraphy	Kaligrafi
+	Cancelled	Dibatalkan
+	Capital letters are this tall. 20 to 30 mm suits a towel; 10 to 15 mm a shirt.	Huruf kapital setinggi ini. 20 hingga 30 mm cocok untuk handuk; 10 hingga 15 mm untuk kemeja.
+	Capitals	Huruf kapital
+	Capitals' height	Tinggi huruf kapital
+	Capped	Bertutup
+	Carve Split Lines	Ukir garis pemisah
+	Carve Stamp	Ukir stempel
+	Carving Stamps	Stempel ukir
+	Cell size	Ukuran sel
+	Centre	Tengah
+	Centre line	Garis tengah
+	Centre out	Dari tengah ke luar
+	Centre run	Jelujur tengah
+	Centred	Di tengah
+	Chain	Rantai
+	Change It Anyway	Tetap ubah
+	Change key	Ganti kunci
+	Change the Size?	Ubah ukuran?
+	Changed:	Diubah:
+	Check	Kotak-kotak
+	Check Again	Periksa lagi
+	Check Continuous Line	Periksa garis bersambung
+	Check Design	Periksa desain
+	Check Design in the Embroidery menu finds dense layers, long stitches and text too small to sew.	Periksa desain di menu Bordir menemukan lapisan yang padat, jahitan panjang, dan teks yang terlalu kecil untuk dijahit.
+	Check My Sew-out	Periksa hasil jahitan saya
+	Check My Sew-out…	Periksa hasil jahitan saya…
+	Check settings	Periksa pengaturan
+	Chenille	Chenille
+	Chenille Stitch	Jahitan chenille
+	Chenille Stops	Henti chenille
+	Chenille stops	Henti chenille
+	Chevrons	Chevron
+	Choose Folder…	Pilih folder…
+	Choose My Machine	Pilih mesin saya
+	Choose Smallest Hoop	Pilih ram terkecil
+	Choose a Picture…	Pilih gambar…
+	Choose a hoop in the Embroidery panel to see the sewing field round the design.	Pilih ram di panel Bordir untuk melihat bidang jahit di sekeliling desain.
+	Choose a machine file or the design open now	Pilih file mesin atau desain yang sedang terbuka
+	Choose a picture	Pilih gambar
+	Choose a shape	Pilih bentuk
+	Choose both designs to compare them	Pilih kedua desain untuk membandingkannya
+	Choose how each part is stitched: satin, fill, run and more.	Pilih cara setiap bagian dijahit: satin, isian, jelujur, dan lainnya.
+	Choose the photos in the browser's window…	Pilih foto di jendela peramban…
+	Chord length	Panjang tali busur
+	Circles	Lingkaran
+	Claude draws the artwork with your own Anthropic API key, billed to your Anthropic account; StitchFoundry then digitizes it. Check the stitches before you sew.	Claude menggambar karya seni dengan kunci API Anthropic Anda sendiri, ditagihkan ke akun Anthropic Anda; lalu StitchFoundry mendigitasinya. Periksa jahitannya sebelum Anda menjahit.
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude melihat foto-foto dengan kunci API Anthropic Anda sendiri, ditagihkan ke akun Anthropic Anda. Hasilnya bisa salah: coba perbaikannya dulu pada sisa kain yang sama.
+	Claude redraws the image as clean flat-colour art, then StitchFoundry digitizes it	Claude menggambar ulang gambar menjadi karya warna datar yang bersih, lalu StitchFoundry mendigitasinya
+	Claude redraws the image as flat-colour art with your own Anthropic API key, billed to your Anthropic account; StitchFoundry then digitizes it. Check the stitches before you sew.	Claude menggambar ulang gambar menjadi karya warna datar dengan kunci API Anthropic Anda sendiri, ditagihkan ke akun Anthropic Anda; lalu StitchFoundry mendigitasinya. Periksa jahitannya sebelum Anda menjahit.
+	Claude wants to change your design:	Claude ingin mengubah desain Anda:
+	Clear Default	Hapus default
+	Clear Export History	Hapus riwayat ekspor
+	Clear Flow Lines	Hapus garis alur
+	Clear Inclination Lines	Hapus garis kemiringan
+	Clear Lines	Hapus garis
+	Clear Machine Function	Hapus fungsi mesin
+	Clear Sent	Hapus yang terkirim
+	Clear Split Lines	Hapus garis pemisah
+	Clear everything in this design and begin again?	Hapus semua isi desain ini dan mulai lagi?
+	Clear the design and begin again	Kosongkan desain dan mulai lagi
+	Clear vinyl on top (wipe-clean)	Vinil bening di atasnya (mudah dilap)
+	Click a motif to place it, digitized, in the middle of the page.	Klik motif untuk menempatkannya, sudah didigitasi, di tengah halaman.
+	Click a part of the design to change how it sews.	Klik bagian desain untuk mengubah cara menjahitnya.
+	Click a part of the design to choose it, drag it to move it	Klik bagian desain untuk memilihnya, seret untuk memindahkannya
+	Click a region of a placed image to stitch it; raise Tolerance to take in more of its shades.	Klik area pada gambar yang ditempatkan untuk menjahitnya; naikkan Toleransi untuk mencakup lebih banyak nuansanya.
+	Click a region of an image to stitch it	Klik area gambar untuk menjahitnya
+	Click a square to fill every touching square like it; hold Alt to clear them	Klik kotak untuk mengisi setiap kotak bersebelahan yang serupa; tahan Alt untuk mengosongkannya
+	Click on one side of the column, then the other, in turn; Enter or Escape ends it.	Klik di satu sisi kolom, lalu sisi lainnya, bergantian; Enter atau Escape mengakhirinya.
+	Click or drag on a cross-stitch grid to fill its squares; hold Alt to erase	Klik atau seret pada kisi kristik untuk mengisi kotaknya; tahan Alt untuk menghapus
+	Click to Stitch	Klik untuk menjahit
+	Click to select and show it	Klik untuk memilih dan menampilkannya
+	Click-to-Stitch Tool	Alat klik untuk menjahit
+	Clipart	Clipart
+	Closest	Terdekat
+	Clover	Semanggi
+	Coaster, 3¾″ square	Tatakan gelas, persegi 3¾″
+	Coil	Kumparan
+	Color change	Ganti warna
+	Colors and Order	Warna dan urutan
+	Colorway	Varian warna
+	Colorway Thread	Benang varian warna
+	Colorways	Varian warna
+	Colour	Warna
+	Colour Preview	Pratinjau warna
+	Colour changes	Pergantian warna
+	Colour the design by how deep the thread lies: blue one layer, red as dense as Check Design flags	Warnai desain menurut seberapa tebal benang bertumpuk: biru satu lapis, merah sepadat yang ditandai Periksa desain
+	Colours	Warna
+	Column A/B	Kolom A/B
+	Column A/B Tool	Alat kolom A/B
+	Combine Appliqué	Gabungkan aplikasi
+	Commercial multi-needle (DST)	Multi-jarum komersial (DST)
+	Compare Designs	Bandingkan desain
+	Compare Designs…	Bandingkan desain…
+	Compound Chenille…	Chenille majemuk…
+	Connectors	Penghubung
+	Constant	Konstan
+	Continuous Fill	Isian bersambung
+	Continuous Fill…	Isian bersambung…
+	Contour Fill	Isian kontur
+	Contour Split Lines	Garis pemisah kontur
+	Convert All	Konversi semua
+	Convert Artwork to Embroidery	Konversi karya seni menjadi bordir
+	Convert Stitches to Objects	Konversi jahitan menjadi objek
+	Convert to	Konversi ke
+	Convert to Satin Column	Konversi menjadi kolom satin
+	Converted:	Dikonversi:
+	Cord	Tali
+	Cord width	Lebar tali
+	Corner leg (0: no corner)	Kaki sudut (0: tanpa sudut)
+	Cost Estimate	Perkiraan biaya
+	Cost a piece	Hitung biaya satu potong
+	Cost settings	Pengaturan biaya
+	Couldn't be read	Tidak dapat dibaca
+	Couldn't change:	Tidak dapat diubah:
+	Count	Jumlah
+	Count Decorations	Hitung dekorasi
+	Cover stitch	Jahitan penutup
+	Cover width	Lebar penutup
+	Create Account	Buat akun
+	Crib (36 × 52″)	Boks bayi (36 × 52″)
+	Cross Fill	Isian silang
+	Cross Stitch	Kristik
+	Cross Stitch Tool	Alat kristik
+	Cross Stitch from Image…	Kristik dari gambar…
+	Cross style	Gaya silang
+	Cross-Stitch Pattern Info	Info pola kristik
+	Cross-Stitch Pattern Settings	Pengaturan pola kristik
+	Crosses	Silang
+	Crown	Mahkota
+	Currency	Mata uang
+	Current Properties	Properti saat ini
+	Custom Hoops	Ram kustom
+	Customer	Pelanggan
+	Cut File	File potong
+	Cut-away	Cut-away
+	Cutwork	Cutwork
+	DXF Lines (.dxf)…	Garis DXF (.dxf)…
+	Dad cap	Topi dad cap
+	Decoration Sizes	Ukuran dekorasi
+	Delete Colorway	Hapus varian warna
+	Delete Custom Hoop	Hapus ram kustom
+	Delete Design Template	Hapus templat desain
+	Delete Embroidery Style	Hapus gaya bordir
+	Delete Fabric	Hapus kain
+	Delete Hoop	Hapus ram
+	Delete Inclination Line	Hapus garis kemiringan
+	Delete Job Order	Hapus pesanan kerja
+	Delete Machine	Hapus mesin
+	Delete Machine Profile	Hapus profil mesin
+	Delete Monogram Template	Hapus templat monogram
+	Delete Motif	Hapus motif
+	Delete My Shared Sew-out Checks	Hapus pemeriksaan hasil jahitan yang saya bagikan
+	Delete Output Profile	Hapus profil output
+	Delete Template	Hapus templat
+	Delete Thread Chart	Hapus bagan benang
+	Denim	Denim
+	Denim / canvas	Denim / kanvas
+	Dense from (layers)	Padat mulai (lapisan)
+	Densities (mm)	Kerapatan (mm)
+	Density	Kerapatan
+	Density Map	Peta kerapatan
+	Density map	Peta kerapatan
+	Describe a design and Claude draws artwork for it, then StitchFoundry digitizes it	Jelaskan sebuah desain dan Claude menggambar karya seninya, lalu StitchFoundry mendigitasinya
+	Describe the design:	Jelaskan desainnya:
+	Design	Desain
+	Design Catalogue	Katalog desain
+	Design Information	Informasi desain
+	Design Library	Pustaka desain
+	Design Templates	Templat desain
+	Design from Prompt	Desain dari perintah teks
+	Design from Prompt…	Desain dari perintah teks…
+	Design notes	Catatan desain
+	Design setting	Pengaturan desain
+	Designs	Desain
+	Diamonds	Wajik
+	Differences of 10% or more are highlighted. The real test is sewing both.	Perbedaan 10% atau lebih disorot. Uji sebenarnya adalah menjahit keduanya.
+	Different on each side	Berbeda di setiap sisi
+	Digitizer	Digitizer
+	Digitizing	Digitasi
+	Digitizing Widget	Widget digitasi
+	Dimmed	Diredupkan
+	Direction	Arah
+	Direction: automatic	Arah: otomatis
+	Direction: fixed angle	Arah: sudut tetap
+	Direction: one inclination line	Arah: satu garis kemiringan
+	Direction: turning along	Arah: berbelok mengikuti
+	Don't Allow	Jangan izinkan
+	Double	Ganda
+	Double cross	Silang ganda
+	Double zigzag	Zigzag ganda
+	Download Again	Unduh lagi
+	Download All	Unduh semua
+	Download fonts from an embroidery font library, ready for lettering	Unduh font dari pustaka font bordir, siap untuk huruf bordir
+	Downloaded for your machine:	Diunduh untuk mesin Anda:
+	Downloaded:	Diunduh:
+	Downloading	Mengunduh
+	Drag across the shape to add a line; drag a bead to move it	Seret melintasi bentuk untuk menambah garis; seret manik untuk memindahkannya
+	Drag from corner to corner of the squares to draw a backstitch line; Alt-click a line to take it away	Seret dari sudut ke sudut kotak untuk menggambar garis tusuk tikam jejak; Alt+klik garis untuk menghapusnya
+	Drag picked needle points to move them, Alt-click a stitch to add one, Delete removes them.	Seret titik jarum yang dipilih untuk memindahkannya, Alt+klik jahitan untuk menambah satu, Delete menghapusnya.
+	Draw an inclination line across a shape to set its stitch angle; two or more lines make the stitches turn.	Gambar garis kemiringan melintasi bentuk untuk mengatur sudut jahitannya; dua garis atau lebih membuat jahitan berbelok.
+	Draw shapes, place a picture or type text.	Gambar bentuk, tempatkan gambar, atau ketik teks.
+	Drawing the design…	Menggambar desain…
+	Drop the hand edits and stitch the shape again	Buang suntingan manual dan jahit ulang bentuknya
+	Due (YYYY-MM-DD)	Tenggat (YYYY-MM-DD)
+	Duplicate Embroidery Style	Duplikat gaya bordir
+	E-stitch	Tusuk E
+	Each anchor point is a needle penetration.	Setiap titik jangkar adalah satu tusukan jarum.
+	Each design found written again in this format beside it	Setiap desain yang ditemukan ditulis ulang dalam format ini di sebelahnya
+	Each font comes with its own licence, in its folder.	Setiap font disertai lisensinya sendiri, di dalam foldernya.
+	Each letter a patch of fabric: placement line, tack-down and cover	Setiap huruf sepotong kain: garis penempatan, jahitan pengunci, dan penutup
+	Each name with its size, stitches and sewing time, and the totals	Setiap nama dengan ukuran, jumlah jahitan, dan waktu jahitnya, serta totalnya
+	Echo	Gema
+	Echo Quilting	Quilting gema
+	Edge run	Jelujur tepi
+	Edge run and zigzag	Jelujur tepi dan zigzag
+	Edge run under fills	Jelujur tepi di bawah isian
+	Edge run underlay	Lapisan dasar jelujur tepi
+	Edge width	Lebar tepi
+	Edge-to-Edge Rows	Baris tepi ke tepi
+	Edge-to-Edge Rows…	Baris tepi ke tepi…
+	Edge-to-edge rows of the selected line	Baris tepi ke tepi dari garis terpilih
+	Edit Embroidery Font	Edit font bordir
+	Edit Font	Edit font
+	Edit Lettering	Edit huruf bordir
+	Edit Lines	Edit garis
+	Edit Stitches	Edit jahitan
+	Edit › Undo takes each change back.	Edit › Urungkan membatalkan setiap perubahan.
+	Email	Email
+	Embroidery	Bordir
+	Embroidery Basics	Dasar-dasar bordir
+	Embroidery Brush Tool	Alat kuas bordir
+	Embroidery Business	Usaha bordir
+	Embroidery Clipart	Clipart bordir
+	Embroidery Fonts	Font bordir
+	Embroidery Lettering	Huruf bordir
+	Embroidery Motifs	Motif bordir
+	Embroidery Settings	Pengaturan bordir
+	Embroidery Styles	Gaya bordir
+	End	Akhir
+	End at	Berakhir di
+	Erase	Hapus
+	Estimate cost	Perkirakan biaya
+	Every digitizing tool, rulers and the control bar	Semua alat digitasi, penggaris, dan bilah kontrol
+	Every font not downloaded yet, one after another	Semua font yang belum diunduh, satu demi satu
+	Every name in one design, in rows and columns, for a large hoop or patches	Semua nama dalam satu desain, dalam baris dan kolom, untuk ram besar atau emblem
+	Every new design starts with these properties	Setiap desain baru dimulai dengan properti ini
+	Every thread changed by the scheme and matched to the design's chart; undo puts them back	Setiap benang yang diubah oleh skema dan dicocokkan dengan bagan desain; urungkan untuk mengembalikannya
+	Everything	Semuanya
+	Everything, with job orders and batch output	Semuanya, dengan pesanan kerja dan output massal
+	Experience	Pengalaman
+	Export Again	Ekspor lagi
+	Export Chart…	Ekspor bagan…
+	Export History	Riwayat ekspor
+	Export Machine File	Ekspor file mesin
+	Export Machine File…	Ekspor file mesin…
+	Export One File per Name…	Ekspor satu file per nama…
+	Export Quilting Lines	Ekspor garis quilting
+	Export Quilting Lines…	Ekspor garis quilting…
+	Export Stitch Image	Ekspor gambar jahitan
+	Export Stitch Image…	Ekspor gambar jahitan…
+	Export Team Names	Ekspor nama tim
+	Export Thread Chart	Ekspor bagan benang
+	Export it again, as it was asked, from this document	Ekspor lagi, seperti yang diminta, dari dokumen ini
+	Export the file for your machine.	Ekspor file untuk mesin Anda.
+	Export with Embroidery › Export Machine File and pick your machine's format.	Ekspor dengan Bordir › Ekspor file mesin dan pilih format mesin Anda.
+	Exports	Ekspor
+	Fabric	Kain
+	Fabric color	Warna kain
+	Fabric colour	Warna kain
+	Fabric pattern	Pola kain
+	Fabric settings	Pengaturan kain
+	Fade in	Muncul perlahan
+	Fade out	Hilang perlahan
+	Feathers	Bulu
+	Felt	Flanel
+	Fill Along Lines	Isi sepanjang garis
+	Fill Cross Stitches	Isi kristik
+	Fill Holes	Isi lubang
+	Fill a patch	Isi emblem
+	Fill density	Kerapatan isian
+	Fill stitch length	Panjang jahitan isian
+	Fill stitches {n} mm long can ripple after washing	Jahitan isian sepanjang {n} mm bisa berkerut setelah dicuci
+	Fill style	Gaya isian
+	Fill the shape	Isi bentuk
+	Fill underlay	Lapisan dasar isian
+	Fill without holes	Isian tanpa lubang
+	Filled	Terisi
+	Filled Ring	Cincin terisi
+	Finished in the hoop: batting, backing and a satin edge	Diselesaikan di dalam ram: dakron, kain pelapis belakang, dan tepi satin
+	First design	Desain pertama
+	Fits the hoop	Muat di ram
+	Fixing	Memperbaiki
+	Fleece / sweatshirt	Fleece / kaus sweter
+	Flip every other	Balik selang-seling
+	Flip to the other side	Balik ke sisi lain
+	Flower	Bunga
+	Flowers	Bunga-bunga
+	Foil	Foil
+	Font Creator	Pembuat font
+	Font Info	Info font
+	Font Properties	Properti font
+	Fonts are kept in	Font disimpan di
+	Fonts downloaded:	Font diunduh:
+	For towels, bags, pillows and gifts	Untuk handuk, tas, bantal, dan hadiah
+	Forget Embroidery Font	Lupakan font bordir
+	Forget Folder	Lupakan folder
+	Forget Font	Lupakan font
+	Forget Motif	Lupakan motif
+	Free sew-out checks left this month: {n}	Sisa pemeriksaan hasil jahitan gratis bulan ini: {n}
+	Freeze Stitches	Bekukan jahitan
+	Full cross	Silang penuh
+	Function	Fungsi
+	G-code (.gcode)…	G-code (.gcode)…
+	Gap	Celah
+	Gap between repeats	Celah antar-pengulangan
+	Garment Background	Latar belakang pakaian
+	Garment Photo…	Foto pakaian…
+	Generate	Buat
+	Get Embroidery Fonts	Dapatkan font bordir
+	Get Embroidery Fonts…	Dapatkan font bordir…
+	Get a key	Dapatkan kunci
+	Give every stitched object the chart's closest thread	Beri setiap objek yang dijahit benang terdekat dari bagan
+	Give objects a stitch type in the Embroidery panel.	Beri objek jenis jahitan di panel Bordir.
+	Give the hoop a name	Beri nama ram
+	Globe in	Gembung ke dalam
+	Globe out	Gembung ke luar
+	Glyphs to add	Glif yang ditambahkan
+	Graded	Bertingkat
+	Gradient to	Gradien ke
+	Greek key	Motif Yunani
+	HP-GL Plot (.plt)…	Plot HP-GL (.plt)…
+	Half cross	Setengah silang
+	Hand stitch	Jahitan tangan
+	Happy TAP (.tap)…	Happy TAP (.tap)…
+	Heart	Hati
+	Heart patch	Emblem hati
+	Hearts	Hati-hati
+	Height (mm)	Tinggi (mm)
+	Help Topic	Topik bantuan
+	Help Topics	Topik bantuan
+	Help for Tool	Bantuan untuk alat
+	Herringbone	Tulang ikan
+	Hexagons	Segi enam
+	Hidden (not sewn)	Tersembunyi (tidak dijahit)
+	Hide Digitizing Widget	Sembunyikan widget digitasi
+	Hide StitchFoundry	Sembunyikan StitchFoundry
+	Hold a ruler, or a bank card, against the screen and change the size until the marks match. Actual Size then shows designs life size.	Tempelkan penggaris, atau kartu bank, ke layar dan ubah ukurannya sampai tandanya cocok. Ukuran sebenarnya lalu menampilkan desain dalam ukuran asli.
+	Honeycomb	Sarang lebah
+	Hoodie	Hoodie
+	Hoop	Ram
+	Hoop name	Nama ram
+	Hoop not listed? Add its sewing field here.	Ram tidak ada di daftar? Tambahkan bidang jahitnya di sini.
+	Hoops	Ram
+	How do you work?	Bagaimana Anda bekerja?
+	How tall	Seberapa tinggi
+	Husqvarna Viking (other models)	Husqvarna Viking (model lain)
+	I digitize designs	Saya mendigitasi desain
+	I run an embroidery business	Saya menjalankan usaha bordir
+	Image Colours	Warna gambar
+	Import Chart…	Impor bagan…
+	Import Names…	Impor nama…
+	Import Thread Chart	Impor bagan benang
+	In StitchFoundry	Di StitchFoundry
+	In a line	Dalam satu baris
+	In production	Dalam produksi
+	In the hoop	Di dalam ram
+	In the middle (you can leave this empty)	Di tengah (boleh dikosongkan)
+	In-the-Hoop Cutting Templates	Templat potong in-the-hoop
+	In-the-Hoop Projects	Proyek in-the-hoop
+	Inclination Tool	Alat kemiringan
+	Inclination lines	Garis kemiringan
+	Include my design	Sertakan desain saya
+	Include the design that was sewn (open now), so it can be fixed	Sertakan desain yang dijahit (sedang terbuka), agar bisa diperbaiki
+	Initials	Inisial
+	Insert Clipart	Sisipkan clipart
+	Insert Machine Function	Sisipkan fungsi mesin
+	Inverted	Terbalik
+	Jag depth	Kedalaman gerigi
+	Jagged edges	Tepi bergerigi
+	Janome JEF (.jef)…	Janome JEF (.jef)…
+	Janome or Elna	Janome atau Elna
+	Jersey knit (T-shirt)	Kaus rajut jersey (kaus oblong)
+	Job Orders	Pesanan kerja
+	Job Output	Output pekerjaan
+	Job Worksheet	Lembar kerja
+	Join into One Line	Gabungkan menjadi satu garis
+	Jump	Lompatan
+	Jumps	Lompatan
+	Just the outline	Hanya garis luar
+	Keep Design Safe	Amankan desain
+	Keep It	Simpan
+	Keep Motif	Simpan motif
+	Keep the Size	Pertahankan ukuran
+	Keep the motif in My Motifs, for any design	Simpan motif di Motif saya, untuk desain apa pun
+	Keep the same pattern and spacing for every block of a quilt, so the blocks flow into each other.	Pertahankan pola dan jarak yang sama untuk setiap blok quilt, agar blok-bloknya menyambung satu sama lain.
+	Keep these settings in the machine's profile, for new designs	Simpan pengaturan ini di profil mesin, untuk desain baru
+	Keep this design's page, art, hoop, fabric and settings to start new designs from	Simpan halaman, karya seni, ram, kain, dan pengaturan desain ini untuk memulai desain baru
+	Kern	Kerning
+	Kern Glyph Pair	Kerning pasangan glif
+	Kerning (mm closer)	Kerning (mm lebih rapat)
+	Keyhole	Lubang kunci
+	Keyhole Buttonhole	Lubang kancing lubang kunci
+	King (108 × 108″)	King (108 × 108″)
+	Kiosk Lettering	Kios huruf bordir
+	Larger than the hoop	Lebih besar dari ram
+	Largest	Terbesar
+	Lattice	Kisi-kisi
+	Lay Out Team Names	Tata letak nama tim
+	Lay Out Together	Tata letak bersama
+	Learn how	Pelajari caranya
+	Leather / vinyl	Kulit / vinil
+	Leave Kiosk	Keluar dari kios
+	Leave it empty for StitchFoundry's own service.	Kosongkan untuk memakai layanan StitchFoundry sendiri.
+	Leaves	Daun
+	Leaving the kiosk will take this PIN	Keluar dari kios akan memerlukan PIN ini
+	Left to right	Kiri ke kanan
+	Lengths (mm)	Panjang (mm)
+	Let sewing start and stop at the closest points again	Biarkan jahitan mulai dan berhenti di titik terdekat lagi
+	Letter case	Huruf besar/kecil
+	Lettering Kiosk	Kios huruf bordir
+	Lettering only {n} mm tall is hard to sew clearly	Huruf bordir yang tingginya hanya {n} mm sulit dijahit dengan jelas
+	Letters sewn	Huruf dijahit
+	Line spacing	Spasi baris
+	Lines apart	Jarak antar-garis
+	Listing the fonts…	Mendaftar font…
+	Little pillow front, 8″ square	Sarung bantal kecil, persegi 8″
+	Little pillow front, 9½ × 5½″	Sarung bantal kecil, 9½ × 5½″
+	Load Embroidery Font	Muat font bordir
+	Load Embroidery Font…	Muat font bordir…
+	Load an embroidery font (Embroidery Lettering) to make monograms.	Muat font bordir (Huruf bordir) untuk membuat monogram.
+	Load an embroidery font to set text with it.	Muat font bordir untuk mengetik teks dengannya.
+	Load this lettering's font to change it:	Muat font huruf bordir ini untuk mengubahnya:
+	Lockstitch	Jahitan kunci
+	Long stitches catch from 7 mm on clothing, 12.1 mm on other items	Jahitan panjang mudah tersangkut mulai 7 mm pada pakaian, 12,1 mm pada barang lain
+	Long stitches from	Jahitan panjang mulai
+	Longarm Quilting	Quilting longarm
+	Longest jump	Lompatan terpanjang
+	Longest stitch	Jahitan terpanjang
+	Longest stitch (mm)	Jahitan terpanjang (mm)
+	Look for dense spots, long stitches, tiny objects and small lettering	Cari titik padat, jahitan panjang, objek kecil, dan huruf kecil
+	Loop	Lingkaran
+	Loops	Lingkaran-lingkaran
+	Machine	Mesin
+	Machine Embroidery File	File bordir mesin
+	Machine Folders	Folder mesin
+	Machine Profiles	Profil mesin
+	Machine embroidery digitizing — fast, open, scriptable.	Digitasi bordir mesin — cepat, terbuka, dapat diskrip.
+	Machine files, worksheet PDF and design, named alike	File mesin, PDF lembar kerja, dan desain, dengan nama yang sama
+	Machine folder	Folder mesin
+	Machine formats (none ticked: the machine's)	Format mesin (tidak ada yang dicentang: format mesin)
+	Machine heads	Kepala mesin
+	Machine settings	Pengaturan mesin
+	Machine time an hour	Waktu mesin per jam
+	Make Border	Buat bingkai
+	Make Current	Jadikan saat ini
+	Make Design	Buat desain
+	Make Every Size…	Buat semua ukuran…
+	Make In-the-Hoop Project	Buat proyek in-the-hoop
+	Make It	Buat
+	Make Motif	Buat motif
+	Make Properties Current	Jadikan properti saat ini
+	Make Rows	Buat baris
+	Make a Design	Buat desain
+	Make a Design, Step by Step	Buat desain, langkah demi langkah
+	Make a Design…	Buat desain…
+	Make an embroidery font: a document with an artboard for each glyph to digitize.	Buat font bordir: dokumen dengan papan gambar untuk setiap glif yang akan didigitasi.
+	Makes no stitches	Tidak membuat jahitan
+	Manual Stitches	Jahitan manual
+	Mark where a button goes	Tandai letak kancing
+	Match Threads to Chart	Cocokkan benang dengan bagan
+	Meander	Berkelok
+	Meander Fill	Isian berkelok
+	Measure in	Ukur dalam
+	Melco EXP (.exp)…	Melco EXP (.exp)…
+	Merge Colours	Gabungkan warna
+	Merge Embroidery Font	Gabungkan font bordir
+	Merge glyphs from	Gabungkan glif dari
+	Monogram	Monogram
+	Monogram Templates	Templat monogram
+	Moon	Bulan
+	Moons	Bulan-bulan
+	More tips	Tips lainnya
+	Moss	Moss
+	Moss pattern	Pola moss
+	Most stitches	Jahitan terbanyak
+	Motif	Motif
+	Motif Border	Bingkai motif
+	Motif Fill	Isian motif
+	Motif Tool	Alat motif
+	Motif length (× width)	Panjang motif (× lebar)
+	Motif size	Ukuran motif
+	Motifs	Motif
+	Move Inclination Line	Pindahkan garis kemiringan
+	Move along	Geser sepanjang
+	Move down	Pindah ke bawah
+	Mug rug, 6½ × 4½″	Tatakan gelas besar, 6½ × 4½″
+	Multi-Hooping	Multi-ram
+	My Machine	Mesin saya
+	My Machine…	Mesin saya…
+	My Motifs	Motif saya
+	My hoop	Ram saya
+	My machine:	Mesin saya:
+	My own hoops	Ram saya sendiri
+	My sew-out ({n} photos)	Hasil jahitan saya ({n} foto)
+	Names	Nama
+	Names Worksheet	Lembar kerja nama
+	Narrow satin under	Satin sempit di bawah
+	Needle	Jarum
+	Needle height	Tinggi jarum
+	Needle points	Titik jarum
+	Nest the rows	Susun baris berselang
+	Nested diamonds	Wajik bertumpuk
+	New Colorway	Varian warna baru
+	New Conversation	Percakapan baru
+	New Cross-Stitch Pattern…	Pola kristik baru…
+	New Design for Hoop	Desain baru untuk ram
+	New Embroidery Font	Font bordir baru
+	New Embroidery Font from Type	Font bordir baru dari teks
+	New Embroidery Style	Gaya bordir baru
+	New Font from Type	Font baru dari teks
+	New Job Order	Pesanan kerja baru
+	New Job for This Design	Pekerjaan baru untuk desain ini
+	New Object Properties	Properti objek baru
+	New designs take the built-in properties again	Desain baru kembali memakai properti bawaan
+	New from Design Template	Baru dari templat desain
+	New objects of this stitch type take these properties	Objek baru dengan jenis jahitan ini memakai properti ini
+	New strokes	Stroke baru
+	New to Embroidery	Baru mengenal bordir
+	New to digitizing? Read the basics	Baru mengenal digitasi? Baca dasar-dasarnya
+	New to embroidery	Baru mengenal bordir
+	Newest	Terbaru
+	Next Name	Nama berikutnya
+	No Stitches	Tanpa jahitan
+	No embroidery font is loaded: ask the shop to load one.	Belum ada font bordir yang dimuat: minta toko untuk memuatnya.
+	No folder chosen	Belum ada folder yang dipilih
+	No folder chosen yet	Belum ada folder yang dipilih
+	No hoop	Tanpa ram
+	No problems found.	Tidak ada masalah yang ditemukan.
+	No shape	Tanpa bentuk
+	No stitches yet.	Belum ada jahitan.
+	No styles yet. Select a stitched object and create one to reuse its stitch properties.	Belum ada gaya. Pilih objek yang dijahit dan buat gaya untuk memakai ulang properti jahitannya.
+	No-show mesh	Mesh tak terlihat (no-show)
+	Not changed:	Tidak diubah:
+	Not digitized yet: show its artboard	Belum didigitasi: tampilkan artboard-nya
+	Not set	Belum diatur
+	Not sewn	Tidak dijahit
+	Not sure	Tidak yakin
+	Nothing exported yet in this session.	Belum ada yang diekspor dalam sesi ini.
+	Nothing found	Tidak ada yang ditemukan
+	Nothing stitched yet	Belum ada yang dijahit
+	Nothing to sew yet. Add words, a shape or a picture with the buttons on the left.	Belum ada yang bisa dijahit. Tambahkan kata, bentuk, atau gambar dengan tombol di sebelah kiri.
+	Object Stitches	Jahitan objek
+	Object color	Warna objek
+	Objects you give a stitch type take these properties.	Objek yang Anda beri jenis jahitan memakai properti ini.
+	Octagon	Segi delapan
+	Omit last stitch	Lewati jahitan terakhir
+	One colour	Satu warna
+	One continuous line, ready for a longarm	Satu garis bersambung, siap untuk mesin longarm
+	One file for each usual tile size, in a folder or on the USB stick	Satu file untuk setiap ukuran ubin umum, di folder atau di flashdisk USB
+	One letter: moved, scaled or turned, kept when the lettering is set again	Satu huruf: dipindah, diskalakan, atau diputar, tetap dipertahankan saat huruf bordir diatur ulang
+	One name a line	Satu nama per baris
+	One over the Other	Satu di atas yang lain
+	Only redraw artwork you own or have permission to use.	Hanya gambar ulang karya seni milik Anda atau yang Anda punya izin untuk memakainya.
+	Open File…	Buka file…
+	Open Sample Design	Buka desain contoh
+	Open a document to see its stitch sequence.	Buka dokumen untuk melihat urutan jahitannya.
+	Open a document to see its stitches.	Buka dokumen untuk melihat jahitannya.
+	Open or create a document to digitize embroidery.	Buka atau buat dokumen untuk mendigitasi bordir.
+	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	Saat dibuka, bagian yang belum dapat dibaca StitchFoundry ({what}) ditinggalkan: menimpanya akan menghilangkan bagian itu selamanya. Simpan dengan nama lain untuk menyimpannya.
+	Ornament	Hiasan gantung
+	Outline Around	Garis luar di sekeliling
+	Output Profiles	Profil output
+	Outside the sizes the font was made for: its stitches may come out too dense or too long	Di luar ukuran yang dirancang untuk font ini: jahitannya bisa terlalu padat atau terlalu panjang
+	Oval Border	Bingkai oval
+	Overlap	Tumpang tindih
+	Overlap where shapes touch	Tumpang tindih di tempat bentuk bersentuhan
+	Own colour block	Blok warna sendiri
+	PIN	PIN
+	Packing	Pengemasan
+	Paid with StitchFoundry credits ({n} left).	Dibayar dengan kredit StitchFoundry (sisa {n}).
+	Paid with StitchFoundry credits.	Dibayar dengan kredit StitchFoundry.
+	Paint	Cat
+	Paint Cross Stitches	Lukis kristik
+	Pair	Pasangan
+	Paired with	Dipasangkan dengan
+	Paisley	Paisley
+	Partial cover	Penutup sebagian
+	Passes	Lintasan
+	Path spacing	Jarak jalur
+	Pattern colour	Warna pola
+	Pattern colours	Warna pola
+	Pause	Jeda
+	Paw	Tapak
+	Paw Print	Jejak tapak
+	Pay for the AI features with my StitchFoundry credits	Bayar fitur AI dengan kredit StitchFoundry saya
+	Pay with StitchFoundry credits instead	Bayar dengan kredit StitchFoundry saja
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Pembayaran dilakukan di halaman aman Stripe, di peramban Anda; kartu Anda tidak pernah sampai ke StitchFoundry.
+	Pebbles	Kerikil
+	Per 1000 stitches	Per 1000 jahitan
+	Pfaff PCS (.pcs)…	Pfaff PCS (.pcs)…
+	Pfaff VP3 (.vp3)…	Pfaff VP3 (.vp3)…
+	Photo Stitch	Jahitan foto
+	Photos of your finished sew-out	Foto hasil jahitan Anda yang sudah jadi
+	Pick a brush, width, density and shape from a dial, then draw on the canvas	Pilih kuas, lebar, kerapatan, dan bentuk dari dial, lalu gambar di kanvas
+	Pick the hoop you will put the fabric in. The design is made to fit it.	Pilih ram tempat Anda akan memasang kain. Desain dibuat agar muat di dalamnya.
+	Pick, move, add and delete single stitches	Pilih, pindahkan, tambah, dan hapus jahitan tunggal
+	Pinstripes	Garis-garis tipis
+	Pique knit (polo shirt)	Rajut pique (kaus polo)
+	Place Along Selected Line	Tempatkan di sepanjang garis terpilih
+	Place Artwork as Embroidery	Tempatkan karya seni sebagai bordir
+	Place Lettering	Tempatkan huruf bordir
+	Place Monogram	Tempatkan monogram
+	Place Motif	Tempatkan motif
+	Place Ring	Tempatkan cincin
+	Place editable inclination lines (or pick the angle) automatically	Tempatkan garis kemiringan yang dapat diedit (atau pilih sudutnya) secara otomatis
+	Placement line and stop	Garis penempatan dan berhenti
+	Placement template	Templat penempatan
+	Plain	Polos
+	Play the stitches	Putar jahitan
+	Plug in the USB stick you take to your machine, then choose it here.	Colokkan flashdisk USB yang Anda bawa ke mesin, lalu pilih di sini.
+	Polo shirt	Kaus polo
+	Prepare Appliqué	Siapkan aplikasi
+	Prepare Image	Siapkan gambar
+	Preserve long stitches	Pertahankan jahitan panjang
+	Print Catalogue	Cetak katalog
+	Print Chart…	Cetak bagan…
+	Print Cross-Stitch Chart	Cetak bagan kristik
+	Print Cross-Stitch Chart…	Cetak bagan kristik…
+	Print Stitch View	Cetak tampilan jahitan
+	Print and Export	Cetak dan ekspor
+	Print the Cutting Templates…	Cetak templat potong…
+	Print the Steps…	Cetak langkah-langkahnya…
+	Printed on worksheets	Dicetak di lembar kerja
+	Product	Produk
+	Product Visualizer	Visualisasi produk
+	Production	Produksi
+	Profile	Profil
+	Profile name	Nama profil
+	Properties for New Objects	Properti untuk objek baru
+	Pull comp., side 1	Komp. tarikan, sisi 1
+	Pull comp., side 2	Komp. tarikan, sisi 2
+	Pull compensation	Kompensasi tarikan
+	Push compensation	Kompensasi dorongan
+	Put back what Undo took back	Kembalikan apa yang dibatalkan Urungkan
+	Put the machine's profile back to how it ships, and use it	Kembalikan profil mesin ke pengaturan pabrik, lalu gunakan
+	Pyramids	Piramida
+	Quatrefoils	Quatrefoil
+	Queen (90 × 108″)	Queen (90 × 108″)
+	Queue the design for this folder: it is written now if the folder is there, else as soon as it is	Antrekan desain untuk folder ini: ditulis sekarang jika folder tersedia, atau segera setelah tersedia
+	Quilt Block	Blok quilt
+	Quilt Block Patterns	Pola blok quilt
+	Quilt Block Set	Set blok quilt
+	Quilt blocks saved:	Blok quilt disimpan:
+	Quilt height	Tinggi quilt
+	Quilt width	Lebar quilt
+	Quilting for a tile	Quilting untuk satu ubin
+	Quit StitchFoundry	Keluar dari StitchFoundry
+	Radial Fill	Isian radial
+	Randomness	Keacakan
+	Read Team Names	Baca nama tim
+	Read the size in the tile's window. The block is quilted edge to edge, the size of the tile.	Baca ukurannya di jendela ubin. Blok di-quilt dari tepi ke tepi, seukuran ubin.
+	Reading your credits…	Membaca kredit Anda…
+	Recolour	Warnai ulang
+	Recolour Threads	Warnai ulang benang
+	Rectangle Border	Bingkai persegi panjang
+	Redefine Embroidery Style	Definisikan ulang gaya bordir
+	Redraw Image with Claude	Gambar ulang gambar dengan Claude
+	Redraw Image with Claude…	Gambar ulang gambar dengan Claude…
+	Redraw with Claude…	Gambar ulang dengan Claude…
+	Redwork	Redwork
+	Regenerate Stitches	Buat ulang jahitan
+	Remember the key on this computer	Ingat kunci di komputer ini
+	Remove Blend	Hapus campuran
+	Remove Holes	Hapus lubang
+	Remove background	Hapus latar belakang
+	Remove from Send Queue	Hapus dari antrean kirim
+	Remove the motif from the design; what sews it keeps it.	Hapus motif dari desain; objek yang menjahitnya tetap menyimpannya.
+	Remove underlying stitching	Hapus jahitan di bawahnya
+	Rename Colorway	Ganti nama varian warna
+	Rename Embroidery Style	Ganti nama gaya bordir
+	Rename Embroidery Style…	Ganti nama gaya bordir…
+	Repeats across	Pengulangan mendatar
+	Repeats down	Pengulangan menurun
+	Replace Cross-Stitch Colour	Ganti warna kristik
+	Report a Bug…	Laporkan bug…
+	Reset Current Properties	Setel ulang properti saat ini
+	Reset Letter	Setel ulang huruf
+	Reset Machine	Setel ulang mesin
+	Reset Start and Stop	Setel ulang awal dan akhir
+	Reverse Stitch Direction	Balikkan arah jahitan
+	Rhinestones	Berlian imitasi
+	Rhinestones aren't sewn: export their template to cut and set them	Berlian imitasi tidak dijahit: ekspor templatnya untuk memotong dan memasangnya
+	Right to left	Kanan ke kiri
+	Rings (0: all)	Cincin (0: semua)
+	Ripples	Riak
+	Rotate Hoop	Putar ram
+	Round ornament, 3½″	Hiasan gantung bulat, 3½″
+	Round the edge	Mengelilingi tepi
+	Rounded Border	Bingkai membulat
+	Rounded Buttonhole	Lubang kancing membulat
+	Row offset	Offset baris
+	Row spacing	Jarak baris
+	Row spacing (0: the line's height)	Jarak baris (0: tinggi garis)
+	Rows across the shape: up is denser. Drag a point; double-click to add one; right-click one to take it out.	Baris melintasi bentuk: ke atas lebih padat. Seret titik; klik ganda untuk menambah titik; klik kanan titik untuk menghapusnya.
+	Rows follow lines:	Baris mengikuti garis:
+	Run	Jelujur
+	Run style	Gaya jelujur
+	SVG Lines (.svg)…	Garis SVG (.svg)…
+	Sample Designs	Desain contoh
+	Satin	Satin
+	Satin Fill	Isian satin
+	Satin Outline	Garis luar satin
+	Satin Ring	Cincin satin
+	Satin density	Kerapatan satin
+	Satin only {n} mm wide sinks into the fabric	Satin yang lebarnya hanya {n} mm tenggelam ke dalam kain
+	Satin sewn over foam: dense, no underlay, its ends capped. Sew it in a colour of its own, to lay the foam at the stop	Satin dijahit di atas busa: padat, tanpa lapisan dasar, ujungnya ditutup. Jahit dengan warnanya sendiri, agar busa bisa diletakkan saat mesin berhenti
+	Satin suits shapes up to about 7 mm wide; wider areas sew better as tatami fill.	Satin cocok untuk bentuk selebar sekitar 7 mm; area yang lebih lebar lebih baik dijahit sebagai isian tatami.
+	Satin underlay	Lapisan dasar satin
+	Save Custom Hoop	Simpan ram kustom
+	Save Design keeps a copy you can open and change later.	Simpan desain menyimpan salinan yang bisa Anda buka dan ubah nanti.
+	Save Design…	Simpan desain…
+	Save Embroidery Font	Simpan font bordir
+	Save Embroidery Font…	Simpan font bordir…
+	Save Fabric	Simpan kain
+	Save Hoop	Simpan ram
+	Save Machine File…	Simpan file mesin…
+	Save Machine Profile	Simpan profil mesin
+	Save Monogram Template	Simpan templat monogram
+	Save Output Profile	Simpan profil output
+	Save Profile	Simpan profil
+	Save Thread Chart	Simpan bagan benang
+	Save as Default	Simpan sebagai default
+	Save as Design Template	Simpan sebagai templat desain
+	Save as New Fabric	Simpan sebagai kain baru
+	Save as New Machine	Simpan sebagai mesin baru
+	Save designs to	Simpan desain ke
+	Save for My Machine	Simpan untuk mesin saya
+	Save for My Machine downloads the design: copy it to the USB stick you take to your machine.	Simpan untuk mesin saya mengunduh desain: salin ke flashdisk USB yang Anda bawa ke mesin.
+	Save for My Machine downloads the file your machine sews: copy it to its USB stick.	Simpan untuk mesin saya mengunduh file yang dijahit mesin Anda: salin ke flashdisk USB-nya.
+	Save for My Machine writes the file your machine sews, to its USB stick.	Simpan untuk mesin saya menulis file yang dijahit mesin Anda ke flashdisk USB-nya.
+	Save it	Simpan
+	Save to Machine	Simpan ke mesin
+	Saved for you automatically in My Designs:	Otomatis disimpan untuk Anda di Desain saya:
+	Saved for your machine:	Disimpan untuk mesin Anda:
+	Scales	Sisik
+	Scallops	Lekukan scallop
+	Scatter Copies	Sebar salinan
+	Screen Points per Inch at Life Size	Titik layar per inci pada ukuran asli
+	Screen points per inch	Titik layar per inci
+	Sculpture run	Jelujur pahat
+	Search help	Cari bantuan
+	Second	Kedua
+	Second design	Desain kedua
+	Seconds per color change	Detik per ganti warna
+	Seconds per trim	Detik per potong benang
+	See the design sew on screen, stitch by stitch	Lihat desain dijahit di layar, jahitan demi jahitan
+	See the needle go stitch by stitch, in the order your machine will sew it.	Lihat jarum bergerak jahitan demi jahitan, sesuai urutan mesin Anda akan menjahitnya.
+	Select a path, shape or compound path to give it a stitch type.	Pilih jalur, bentuk, atau jalur majemuk untuk memberinya jenis jahitan.
+	Select art and choose Embroidery › Convert Artwork to Embroidery to digitize it in one step.	Pilih karya seni dan pilih Bordir › Konversi karya seni menjadi bordir untuk mendigitasinya dalam satu langkah.
+	Select lettering set in an embroidery font: a machine file is written for each name, the lettering set to it.	Pilih huruf bordir dengan font bordir: satu file mesin ditulis untuk setiap nama, dengan huruf bordir diatur ke nama itu.
+	Selection to glyph	Seleksi ke glif
+	Send	Kirim
+	Send Queue	Antrean kirim
+	Send Waiting Designs	Kirim desain yang menunggu
+	Send When Ready	Kirim saat siap
+	Send queue	Antrean kirim
+	Send to Machine	Kirim ke mesin
+	Sent:	Terkirim:
+	Sequins	Payet
+	Server	Server
+	Set Flow Lines	Atur garis alur
+	Set Inclination Lines	Atur garis kemiringan
+	Set My Machine	Atur mesin saya
+	Set Split Lines	Atur garis pemisah
+	Set Start and Stop	Atur awal dan akhir
+	Set Thread	Atur benang
+	Set-up an order	Siapkan pesanan
+	Sew Puff Last	Jahit puff terakhir
+	Sew as	Jahit sebagai
+	Sew earlier	Jahit lebih awal
+	Sew first	Jahit pertama
+	Sew it as	Jahit sebagai
+	Sew last	Jahit terakhir
+	Sew later	Jahit lebih akhir
+	Sew order	Urutan jahit
+	Sew the gradient's colours blended the way it runs	Jahit warna-warna gradien dengan berbaur sesuai arahnya
+	Sew the objects separately again	Jahit objek secara terpisah lagi
+	Sew the photo over itself as zigzag lines, one meandering run, or its colours	Jahit foto di atas dirinya sendiri sebagai garis zigzag, satu jelujur berkelok, atau warnanya
+	Sew the pieces together	Jahit potongan-potongan menjadi satu
+	Sew the shape as appliqué	Jahit bentuk sebagai aplikasi
+	Sewing time	Waktu jahit
+	Sewn as one line that ends where it starts; the way between lines is retraced along them.	Dijahit sebagai satu garis yang berakhir di tempat awalnya; jalan antar-garis dijahit ulang di sepanjang garis itu.
+	Sewn in a 5×7 hoop, borders and back sewn on after	Dijahit di ram 5×7, bingkai dan bagian belakang dijahit sesudahnya
+	Sewn last	Dijahit terakhir
+	Sewn on clothing	Dijahit pada pakaian
+	Sews well at	Bagus dijahit pada
+	Sews well from	Bagus dijahit mulai
+	Sews well up to	Bagus dijahit hingga
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Bagikan pemeriksaan ini untuk membantu menyempurnakan StitchFoundry (dijaga privat; hapus kapan saja di Akun StitchFoundry)
+	Shell	Kerang
+	Shield	Perisai
+	Short fill stitches under	Jahitan isian pendek di bawah
+	Short stitches on curves	Jahitan pendek di lengkungan
+	Short stitches under	Jahitan pendek di bawah
+	Shortest stitch	Jahitan terpendek
+	Show Repeats	Tampilkan pengulangan
+	Show every stitch	Tampilkan setiap jahitan
+	Show everything	Tampilkan semuanya
+	Show on Product	Tampilkan pada produk
+	Show stitches	Tampilkan jahitan
+	Show this glyph	Tampilkan glif ini
+	Showing the basics.	Menampilkan dasar-dasarnya.
+	Shown with the design, not sewn	Ditampilkan bersama desain, tidak dijahit
+	Side 1	Sisi 1
+	Side 2	Sisi 2
+	Side by Side	Berdampingan
+	Sign In	Masuk
+	Sign Out	Keluar
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Masuk, atau buat akun, untuk membayar fitur AI dengan kredit StitchFoundry alih-alih kunci API Anthropic Anda sendiri. Akun baru dimulai dengan kredit gratis.
+	Signed in as {email}	Masuk sebagai {email}
+	Silk / lightweight	Sutra / kain tipis
+	Simple pictures with a few flat colours and clear edges work best: a cartoon, a logo, clipart.	Gambar sederhana dengan sedikit warna datar dan tepi yang jelas paling cocok: kartun, logo, clipart.
+	Singer XXX (.xxx)…	Singer XXX (.xxx)…
+	Single	Tunggal
+	Single stitch length	Panjang jahitan tunggal
+	Single stitches	Jahitan tunggal
+	Size (longest side):	Ukuran (sisi terpanjang):
+	Slants	Miring
+	Small lettering under	Huruf kecil di bawah
+	Small letters	Huruf kecil
+	Small text	Teks kecil
+	Smaller	Lebih kecil
+	Smallest That Fits	Terkecil yang muat
+	Smooth edge (satin)	Tepi halus (satin)
+	Snapback	Topi snapback
+	Snowflake	Kepingan salju
+	Snowflakes	Kepingan-kepingan salju
+	Sort by Thread Color	Urutkan menurut warna benang
+	Space width	Lebar spasi
+	Spacing profile	Profil spasi
+	Special Machines	Mesin khusus
+	Spiral Fill	Isian spiral
+	Spirals	Spiral
+	Split Here	Pisah di sini
+	Split Lines	Garis pemisah
+	Split Object	Pisah objek
+	Split lines:	Garis pemisah:
+	Split the object in two at the picked stitch	Pisah objek menjadi dua pada jahitan yang dipilih
+	Square corners	Sudut siku
+	Square loop	Lingkaran persegi
+	Squares spiral	Spiral persegi
+	Stabiliser	Stabilizer
+	Stabilizer	Stabilizer
+	Stars	Bintang
+	Start	Awal
+	Start Over	Mulai lagi
+	Start Over…	Mulai lagi…
+	Start a design for your hoop	Mulai desain untuk ram Anda
+	Start a design from the Home screen.	Mulai desain dari layar Beranda.
+	Start and End on the Edges	Mulai dan akhiri di tepi
+	Start and stop	Awal dan akhir
+	Start at	Mulai di
+	Start from StitchFoundry Defaults	Mulai dari default StitchFoundry
+	Stem Stitch	Tusuk tangkai
+	Stem stitch	Tusuk tangkai
+	Step by step: words, a shape, appliqué, a picture or a sample	Langkah demi langkah: kata, bentuk, aplikasi, gambar, atau contoh
+	Steps	Langkah
+	Still to digitize	Belum didigitasi
+	Stipple	Stipple
+	Stitch	Jahit
+	Stitch Direction	Arah jahitan
+	Stitch Edit Tool	Alat edit jahitan
+	Stitch Image PNG (.png)…	Gambar jahitan PNG (.png)…
+	Stitch Lines	Garis jahitan
+	Stitch List	Daftar jahitan
+	Stitch List CSV (.csv)…	Daftar jahitan CSV (.csv)…
+	Stitch List JSON (.json)…	Daftar jahitan JSON (.json)…
+	Stitch Parameters	Parameter jahitan
+	Stitch Plan	Rencana jahitan
+	Stitch Sequence	Urutan jahitan
+	Stitch Type	Jenis jahitan
+	Stitch as	Jahit sebagai
+	Stitch in the Ditch	Jahit di parit (stitch in the ditch)
+	Stitch length	Panjang jahitan
+	Stitch type	Jenis jahitan
+	StitchFoundry	StitchFoundry
+	StitchFoundry Account	Akun StitchFoundry
+	StitchFoundry Account…	Akun StitchFoundry…
+	StitchFoundry Help	Bantuan StitchFoundry
+	StitchFoundry Help…	Bantuan StitchFoundry…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Akun StitchFoundry belum dibuka. Sampai saat itu, fitur AI bekerja dengan kunci API Anthropic Anda sendiri.
+	StitchFoundry copies the fonts to {folder}.	StitchFoundry menyalin font ke {folder}.
+	StitchFoundry didn't quit normally last time. These documents had unsaved changes:	StitchFoundry tidak ditutup dengan normal terakhir kali. Dokumen-dokumen ini memiliki perubahan yang belum disimpan:
+	StitchFoundry on GitHub	StitchFoundry di GitHub
+	StitchFoundry read this script without running it.	StitchFoundry membaca skrip ini tanpa menjalankannya.
+	Stitches	Jahitan
+	Stitches edited by hand: the shape no longer changes them.	Jahitan diedit secara manual: bentuknya tidak lagi mengubahnya.
+	Stitches over 7 mm	Jahitan di atas 7 mm
+	Stitches per minute	Jahitan per menit
+	Stitches under 1 mm	Jahitan di bawah 1 mm
+	Stitches up to {n} mm long can snag	Jahitan hingga {n} mm bisa tersangkut
+	Stop after	Berhenti setelah
+	Stop before	Berhenti sebelum
+	Stop to trim fabric	Berhenti untuk memotong kain
+	Stops	Berhenti
+	Straight	Lurus
+	Straight Buttonhole	Lubang kancing lurus
+	String stitch	Jahitan string
+	Stripes	Garis-garis
+	Structured cap	Topi terstruktur
+	Sun	Matahari
+	Sun and moon	Matahari dan bulan
+	Sunbursts	Sinar matahari
+	Swap Satin Sides	Tukar sisi satin
+	Swirl	Pusaran
+	Swirls	Pusaran-pusaran
+	T-shirt	Kaus oblong
+	Tack-down	Jahitan pengunci
+	Tajima DST (.dst)…	Tajima DST (.dst)…
+	Take back the last change	Batalkan perubahan terakhir
+	Tapered	Meruncing
+	Tartan Fill	Isian tartan
+	Tatami Fill	Isian tatami
+	Tatami stitches	Jahitan tatami
+	Tatami underlay	Lapisan dasar tatami
+	Team Names	Nama tim
+	Team Names Worksheet	Lembar kerja nama tim
+	Team name files written	File nama tim ditulis
+	Tear-away	Tear-away
+	Tell us your machine to see its hoops and save in its format.	Beri tahu kami mesin Anda untuk melihat ram-ramnya dan menyimpan dalam formatnya.
+	Tell us your machine to see its hoops.	Beri tahu kami mesin Anda untuk melihat ram-ramnya.
+	Template name	Nama templat
+	Test Sew-Out	Uji jahit
+	Test Sew-Outs	Uji jahit
+	Test text	Teks uji
+	Text size	Ukuran teks
+	Texture angle	Sudut tekstur
+	Texture size	Ukuran tekstur
+	The basic tools and everyday sections, nothing more	Alat dasar dan bagian sehari-hari, tidak lebih
+	The bobbin ran out	Benang bobbin habis
+	The bobbin thread didn't cut, or caught	Benang bobbin tidak terpotong, atau tersangkut
+	The chosen part	Bagian yang dipilih
+	The chosen parts	Bagian-bagian yang dipilih
+	The design	Desain
+	The design file too	File desain juga
+	The design is bigger than the hoop: make it smaller before you sew.	Desain lebih besar dari ram: perkecil sebelum Anda menjahit.
+	The design is larger than the hoop	Desain lebih besar dari ram
+	The design's own	Milik desain
+	The dial in the lower-left corner sets the brush, width, density, length and shape.	Dial di sudut kiri bawah mengatur kuas, lebar, kerapatan, panjang, dan bentuk.
+	The first column of a CSV table, or a text file of one name a line	Kolom pertama tabel CSV, atau file teks berisi satu nama per baris
+	The first design in blue, the second in red, at the same scale and centred on each other	Desain pertama berwarna biru, yang kedua merah, pada skala yang sama dan saling berpusat
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Bagian depan, bagian belakang, dan foto dekat dari apa pun yang tampak salah. Penggaris atau koin di foto menunjukkan ukurannya.
+	The hoop	Ram
+	The hoop was knocked or the fabric slipped	Ram tersenggol atau kainnya bergeser
+	The machine also stops where you lay or trim fabric.	Mesin juga berhenti di tempat Anda meletakkan atau memotong kain.
+	The machine sews where the fabric goes and stops; you lay the fabric on, it tacks it down and stops again for you to trim; then it sews the edge.	Mesin menjahit tempat kain diletakkan lalu berhenti; Anda meletakkan kain, mesin menjahit penguncinya lalu berhenti lagi agar Anda memotongnya; kemudian mesin menjahit tepinya.
+	The machine stopped with a message	Mesin berhenti dengan sebuah pesan
+	The needle broke	Jarum patah
+	The pattern as a counted chart to stitch from: a symbol a square, numbered every 10, and a key of the threads	Pola sebagai bagan hitung untuk dijahit: satu simbol per kotak, diberi nomor setiap 10, dan keterangan benang
+	The selected art becomes the glyph, moved onto its artboard	Karya seni yang dipilih menjadi glif, dipindahkan ke artboard-nya
+	The smallest hoop that holds the design, turned if that fits better	Ram terkecil yang memuat desain, diputar jika itu lebih muat
+	The stitches are made to suit it: a stretchy T-shirt needs more holding than a towel or denim.	Jahitan dibuat sesuai kainnya: kaus oblong yang melar perlu lebih banyak penahan daripada handuk atau denim.
+	The text along the selected line or shape, from its start	Teks di sepanjang garis atau bentuk yang dipilih, dari awalnya
+	The top thread broke	Benang atas putus
+	These are sewn in this order. Click a colour to match a thread you have.	Bagian-bagian ini dijahit dengan urutan ini. Klik warna untuk mencocokkannya dengan benang yang Anda punya.
+	These objects are sewn as one path (a branch).	Objek-objek ini dijahit sebagai satu jalur (cabang).
+	Thinking…	Berpikir…
+	This Design	Desain ini
+	This design	Desain ini
+	This design stops for fabric you cut to size. Made bigger or smaller, the pieces may no longer fit.	Desain ini berhenti untuk kain yang Anda potong sesuai ukuran. Jika diperbesar atau diperkecil, potongannya mungkin tidak lagi pas.
+	This is the sew-out after the fix from my last check	Ini hasil jahitan setelah perbaikan dari pemeriksaan terakhir saya
+	Thread	Benang
+	Thread Charts	Bagan benang
+	Thread Color	Warna benang
+	Thread chart	Bagan benang
+	Thread colors	Warna benang
+	Thread colour	Warna benang
+	Thread colours	Warna benang
+	Thread per 1000 m	Benang per 1000 m
+	Threads of the same or a near colour made one, and their colour blocks joined; undo puts them back	Benang dengan warna yang sama atau mirip dijadikan satu, dan blok warnanya digabung; urungkan untuk mengembalikannya
+	Three	Tiga
+	Throw (50 × 65″)	Selimut sofa (50 × 65″)
+	Tie in	Kunci awal
+	Tie length	Panjang pengunci
+	Tie off	Kunci akhir
+	Tie style	Gaya pengunci
+	Tiny object: may not sew cleanly	Objek sangat kecil: mungkin tidak terjahit rapi
+	Tiny objects under	Objek sangat kecil di bawah
+	Tip:	Tips:
+	Tips	Tips
+	To follow a line of your own, draw it first, select it, then Add Words.	Untuk mengikuti garis Anda sendiri, gambar dulu garisnya, pilih, lalu Tambah kata.
+	Toolbar: All Tools, Ungrouped	Bilah alat: Semua alat, tanpa grup
+	Top left	Kiri atas
+	Top right	Kanan atas
+	Top thread (m)	Benang atas (m)
+	Topping	Lapisan atas (topping)
+	Tote bag	Tas jinjing
+	Towel	Handuk
+	Towel / terry	Handuk / kain terry
+	Trapunto (travel along the outline)	Trapunto (bergerak di sepanjang garis luar)
+	Travel by	Berpindah dengan
+	Trefoils	Trefoil
+	Trim after	Potong benang setelah
+	Trim jumps longer than	Potong lompatan yang lebih panjang dari
+	Trims	Potong benang
+	Triple	Tripel
+	Triple run	Jelujur tripel
+	Triple stitch length	Panjang jahitan tripel
+	Triple stitches	Jahitan tripel
+	Trucker cap	Topi trucker
+	TrueView	TrueView
+	Try Again	Coba lagi
+	Try a sample	Coba contoh
+	Try in a New Document	Coba di dokumen baru
+	Turn	Putar
+	Turn Into Stitches	Ubah menjadi jahitan
+	Turn it into stitches in your thread colours.	Ubah menjadi jahitan dengan warna benang Anda.
+	Turn the hue	Putar rona
+	Turn the image into stitches: narrow parts become satin, the rest tatami fill.	Ubah gambar menjadi jahitan: bagian sempit menjadi satin, sisanya isian tatami.
+	Twin (70 × 90″)	Twin (70 × 90″)
+	Type a name and make the design	Ketik nama dan buat desainnya
+	Type family	Keluarga font
+	Type the hoop's width and height as numbers	Ketik lebar dan tinggi ram sebagai angka
+	Type your question, then press Enter	Ketik pertanyaan Anda, lalu tekan Enter
+	Type your text, then choose an embroidery font in the Lettering panel so it sews cleanly.	Ketik teks Anda, lalu pilih font bordir di panel Huruf bordir agar terjahit rapi.
+	Under 6 mm	Di bawah 6 mm
+	Underlay spacing	Jarak lapisan dasar
+	Unload the font and stop loading its folder	Lepas font dan berhenti memuat foldernya
+	Update Job Order	Perbarui pesanan kerja
+	Update Lettering	Perbarui huruf bordir
+	Upright cross	Silang tegak
+	Use Colorway	Gunakan varian warna
+	Use Line as Direction	Gunakan garis sebagai arah
+	Use This Size	Gunakan ukuran ini
+	Valley	Lembah
+	Version {version} — open-source machine embroidery digitizing in pure Rust.	Versi {version} — digitasi bordir mesin sumber terbuka dalam Rust murni.
+	Very dense: about {n} layers of thread here	Sangat padat: sekitar {n} lapis benang di sini
+	Waiting for the folder	Menunggu folder
+	Wash-away	Wash-away
+	Watch It Sew	Lihat proses jahitnya
+	Watch it sew	Lihat proses jahitnya
+	Watch it sew with the stitch player and check it.	Lihat proses jahitnya dengan pemutar jahitan dan periksa.
+	Watch the design sew with the stitch player in Stitch Sequence before you send it.	Lihat desain dijahit dengan pemutar jahitan di Urutan jahitan sebelum Anda mengirimnya.
+	Wave	Gelombang
+	Waves	Gelombang-gelombang
+	Welcome to StitchFoundry	Selamat datang di StitchFoundry
+	What fabric will you sew it on?	Pada kain apa Anda akan menjahitnya?
+	What should it say?	Tulisannya apa?
+	What size is the tile?	Berapa ukuran ubinnya?
+	What to change (optional):	Apa yang diubah (opsional):
+	What would you like to make?	Apa yang ingin Anda buat?
+	Where it falls	Di tempat jatuhnya
+	Where needed	Di tempat yang perlu
+	Which embroidery machine do you have?	Mesin bordir apa yang Anda miliki?
+	Which fabric?	Kain apa?
+	Which hoop will you use?	Ram mana yang akan Anda pakai?
+	Which project?	Proyek apa?
+	Which sample?	Contoh yang mana?
+	Which shape of fabric?	Bentuk kain apa?
+	Which shape?	Bentuk apa?
+	While it sewed:	Saat menjahit:
+	Wicker	Anyaman rotan
+	Widget values	Nilai widget
+	Width (mm)	Lebar (mm)
+	Width at end	Lebar di ujung
+	Width profile	Profil lebar
+	Widths (mm)	Lebar (mm)
+	With the Thread Colour	Dengan warna benang
+	Words	Kata
+	Words (you can leave this empty)	Kata (boleh dikosongkan)
+	Worksheet	Lembar kerja
+	Worksheet Setup	Pengaturan lembar kerja
+	Woven (twill, poplin)	Kain tenun (twill, poplin)
+	Write Again	Tulis lagi
+	Write the design for your machine to its USB stick or folder	Tulis desain untuk mesin Anda ke flashdisk USB atau foldernya
+	Write to Folder…	Tulis ke folder…
+	X (mm)	X (mm)
+	Y (mm)	Y (mm)
+	You can still get it back with Undo.	Anda masih bisa mengembalikannya dengan Urungkan.
+	Your design	Desain Anda
+	Your first design	Desain pertama Anda
+	Your thread colours	Warna benang Anda
+	Zigzag	Zigzag
+	background, not sewn	latar belakang, tidak dijahit
+	colours	warna
+	commercial machines	mesin komersial
+	couldn't be read:	tidak dapat dibaca:
+	e.g. 75/11 ballpoint	mis. 75/11 ujung bulat (ballpoint)
+	failed	gagal
+	failed:	gagal:
+	files written	file ditulis
+	fonts	font
+	fonts downloaded, ready for lettering	font diunduh, siap untuk huruf bordir
+	home machines	mesin rumahan
+	in	inci
+	inclination lines	garis kemiringan
+	is ready for lettering	siap untuk huruf bordir
+	joins needed: Join into One Line makes them	sambungan diperlukan: Gabungkan menjadi satu garis akan membuatnya
+	longest	terpanjang
+	same	sama
+	sent	terkirim
+	stitches	jahitan
+	thread changes	ganti benang
+	threads sewn	benang dijahit
+	waiting	menunggu
+	{n} credits	{n} kredit
+	{n} credits for {price}	{n} kredit seharga {price}
+	{n} free checks left this month.	Sisa {n} pemeriksaan gratis bulan ini.
+	{n} very short stitches can break the thread	{n} jahitan yang sangat pendek bisa memutus benang
+	{n}-count Aida	Aida {n}-count
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Gambar dibuat oleh
+	Claude (draws the shapes itself)	Claude (menggambar bentuknya sendiri)
+	{name} API key:	Kunci API {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Gambar ditagihkan ke akun Anda di layanan itu. Lalu Claude menggambarnya ulang sebagai bentuk datar dengan warna benang Anda, sehingga dibordir dengan sedikit pergantian benang.
+	Making the picture…	Membuat gambar…
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	Digitasi otomatis
+	Backstitch Line	Garis tusuk tikam jejak
+	Close Appliqué Outlines	Tutup garis tepi aplikasi
+	Erase Backstitch	Hapus tusuk tikam jejak
+	Erase Cross Stitches	Hapus kristik
+	Move Stitches	Pindahkan jahitan
+	Place Artwork	Tempatkan karya seni

@@ -5159,3 +5159,1292 @@ swatch	Bright Violet	Kraftig violet
 	Typing	Indtastning
 	Persistent	Vedvarende
 	Library Panel Options	Indstillinger for bibliotekspanel
+
+# StitchFoundry (embroidery)
+	#	#
+	3D Puff	3D-puff
+	3D effect	3D-effekt
+	3D puff	3D-puff
+	A USB stick, the machine's folder or a network share the machine reads	Et USB-stik, maskinens mappe eller et netværksdrev, som maskinen læser
+	A block	En blok
+	A border of the selected line	En kant af den markerede linje
+	A border strip	En kantstrimmel
+	A check costs {n} credits; free checks come back next month.	Et tjek koster {n} kreditter; gratis tjek kommer igen næste måned.
+	A copy of this fabric to change	En kopi af dette stof, som du kan ændre
+	A corner	Et hjørne
+	A fabric shape: the machine stops for you to lay the fabric, then sews it down	En stofform: maskinen stopper, så du kan lægge stoffet på, og syr det derefter fast
+	A finished design to sew and learn from	Et færdigt design at sy og lære af
+	A font folder in Ink/Stitch's format: font.json and its glyphs	En skrifttypemappe i Ink/Stitch' format: font.json og dens glyffer
+	A heart, a star, a flower and more	Et hjerte, en stjerne, en blomst og mere
+	A heart, a star, a flower and more, ready to sew	Et hjerte, en stjerne, en blomst og mere, klar til at sy
+	A little pillow front, a mug rug, a coaster or an ornament	En lille pudeforside, et krusunderlag, en bordskåner eller en ophængspynt
+	A machine profile of your own with these settings	En maskinprofil af din egen med disse indstillinger
+	A moss fill with chain borders sewn before and after it, in a group in the shape's place	En mosfyldning med kædestingskanter syet før og efter den, i en gruppe i figurens sted
+	A name or a few words, ready to sew	Et navn eller nogle få ord, klar til at sy
+	A name or some words	Et navn eller nogle ord
+	A new design the size of this hoop's sewing field	Et nyt design på størrelse med denne broderirammes syfelt
+	A photo of the garment behind the design, life size, on a locked template layer that is never stitched	Et foto af beklædningen bag designet, i naturlig størrelse, på et låst skabelonlag, der aldrig broderes
+	A photo or a drawing turned into stitches	Et foto eller en tegning omdannet til sting
+	A photo or drawing to turn into stitches	Et foto eller en tegning, der skal omdannes til sting
+	A picture	Et billede
+	A sample to try	En prøve at afprøve
+	A shape	En figur
+	A shape cut from fabric and sewn down	En figur klippet af stof og syet fast
+	A sheet of the designs found, to print or save as PDF	Et ark med de fundne designs, til udskrivning eller til at gemme som PDF
+	A smoothed copy of the image in these colours, its specks cleaned, to digitize or click to stitch	En udglattet kopi af billedet i disse farver, renset for prikker, til digitalisering eller klik for at brodere
+	A thread chart of your own from a CSV file (code, name and colour a thread) or a GIMP palette (.gpl)	Dit eget trådkort fra en CSV-fil (kode, navn og farve for hver tråd) eller en GIMP-palet (.gpl)
+	About StitchFoundry	Om StitchFoundry
+	About the library	Om biblioteket
+	About the sewing	Om syningen
+	Accordion	Harmonika
+	Account	Konto
+	Add Appliqué	Tilføj applikation
+	Add Appliqué…	Tilføj applikation…
+	Add Buttonholes	Tilføj knaphuller
+	Add Glyphs	Tilføj glyffer
+	Add Inclination Line	Tilføj hældningslinje
+	Add Laydown	Tilføj underlag
+	Add Machine Folder…	Tilføj maskinmappe…
+	Add My Hoop	Tilføj min broderiramme
+	Add Outline	Tilføj kontur
+	Add Photos…	Tilføj fotos…
+	Add Words	Tilføj ord
+	Add Words…	Tilføj ord…
+	Add a Picture…	Tilføj et billede…
+	Add a Shape	Tilføj en figur
+	Add a Shape…	Tilføj en figur…
+	Add a ribbon band across it	Tilføj et bånd på tværs
+	Add a ribbon loop to hang it	Tilføj en båndløkke til ophæng
+	Add the folder your machine reads: a USB stick, its folder or a network share.	Tilføj den mappe, din maskine læser: et USB-stik, dens mappe eller et netværksdrev.
+	Add to Design	Føj til design
+	Add to Send Queue	Føj til sendekø
+	Adjust Letter	Justér bogstav
+	After each letter	Efter hvert bogstav
+	After each line	Efter hver linje
+	After each word	Efter hvert ord
+	After the selection	Efter markeringen
+	Again	Igen
+	All Tools, Ungrouped	Alle værktøjer, ugrupperet
+	Allow	Tillad
+	Along the baseline	Langs grundlinjen
+	Along the line	Langs linjen
+	Along the selected line	Langs den markerede linje
+	An appliqué	En applikation
+	An in-the-hoop project	Et projekt syet i rammen
+	Another fabric, or not sure: leave it as it is	Et andet stof, eller ikke sikker: lad det være, som det er
+	Another machine (DST)	En anden maskine (DST)
+	Answers come from Claude with your own Anthropic API key, billed to your Anthropic account. They can be wrong: try a test sew before an important piece.	Svarene kommer fra Claude med din egen Anthropic API-nøgle og faktureres til din Anthropic-konto. De kan være forkerte: lav en prøvesyning før et vigtigt stykke.
+	Anthropic API key:	Anthropic API-nøgle:
+	Anything else? For example: a gap above the bumper	Andet? For eksempel: et mellemrum over kofangeren
+	Applies the next time StitchFoundry starts.	Træder i kraft næste gang StitchFoundry starter.
+	Appliqué	Applikation
+	Appliqué letters	Applikationsbogstaver
+	Appliqué star	Applikationsstjerne
+	Apply Embroidery Style	Anvend broderistil
+	Apply Fabric	Anvend stof
+	Apply Motif	Anvend motiv
+	Approval	Godkendelse
+	Arc Down	Bue ned
+	Arc Up	Bue op
+	Arch	Hvælving
+	Arches	Buer
+	Argyle	Argyle
+	Arrows	Pile
+	Artwork	Grafik
+	As large as fits	Så stor som muligt
+	As the design has it	Som designet har det
+	As the font has them	Som skrifttypen har dem
+	As typed	Som skrevet
+	Ask	Spørg
+	Ask About Embroidery	Spørg om broderi
+	Ask About Embroidery…	Spørg om broderi…
+	Ask anything about machine embroidery or StitchFoundry: which stabilizer to use, why thread breaks, how to make letters sew cleaner, where a feature is. Claude can also change your design when you ask, after you allow it.	Spørg om alt inden for maskinbroderi eller StitchFoundry: hvilken stabilisering du skal bruge, hvorfor tråden knækker, hvordan bogstaver syes pænere, hvor en funktion findes. Claude kan også ændre dit design, når du beder om det, efter at du har tilladt det.
+	Assign to Glyph	Tildel til glyf
+	At each point	Ved hvert punkt
+	Auto Direction	Automatisk retning
+	Auto Sequence	Automatisk rækkefølge
+	Auto Stitch Direction	Automatisk stingretning
+	Auto spacing	Automatisk afstand
+	Auto split	Automatisk opdeling
+	Auto-Digitize Image	Autodigitalisér billede
+	Automatic Knife	Automatisk kniv
+	Automatic underlay	Automatiske understing
+	Average stitch (mm)	Gennemsnitligt sting (mm)
+	Back to the Design	Tilbage til designet
+	Back to the start	Tilbage til starten
+	Background Quilting	Baggrundsquiltning
+	Background quilting the size of a quilting tile, block by block	Baggrundsquiltning på størrelse med et quiltefelt, blok for blok
+	Backstitch	Tilbagesting
+	Backstitch Lines	Tilbagestingslinjer
+	Backstitch lines	Tilbagestingslinjer
+	Bank card	Betalingskort
+	Barudan DSB (.dsb)…	Barudan DSB (.dsb)…
+	Barudan U01 (.u01)…	Barudan U01 (.u01)…
+	Basket weave	Kurvevævning
+	Basting first	Ri først
+	Basting margin	Rimargen
+	Basting round	Riningsrunde
+	Batch Convert	Batchkonvertering
+	Batch Output	Batchoutput
+	Bead length	Perlelængde
+	Beads	Perler
+	Bean Outline	Bønnestingskontur
+	Bean Ring	Bønnestingsring
+	Bean Run	Bønnesting
+	Before the selection	Før markeringen
+	Bigger	Større
+	Blanket	Languettesting
+	Blend Colors	Bland farver
+	Blend from Gradient	Blanding fra gradient
+	Blend into	Bland ind i
+	Blend layers	Bland lag
+	Bobbin thread (m)	Undertråd (m)
+	Border	Kant
+	Border depth	Kantdybde
+	Border length	Kantlængde
+	Border or Corner…	Kant eller hjørne…
+	Boring	Boring
+	Bottom left	Nederst til venstre
+	Bottom right	Nederst til højre
+	Branch	Gren
+	Break Apart	Del op
+	Break Link to Embroidery Style	Afbryd link til broderistil
+	Bricks	Mursten
+	Brother PEC (.pec)…	Brother PEC (.pec)…
+	Brother PES (.pes)…	Brother PES (.pes)…
+	Brother or Baby Lock	Brother eller Baby Lock
+	Brother or Baby Lock multi-needle	Brother eller Baby Lock flernålsmaskine
+	Brush (squares)	Pensel (firkanter)
+	Brush Stroke	Penselstrøg
+	Bubbles	Bobler
+	Butterfly	Sommerfugl
+	Buttonholes	Knaphuller
+	Buy credits	Køb kreditter
+	Buy…	Køb…
+	Calibrate Life Size	Kalibrér naturlig størrelse
+	Calibrate Life Size…	Kalibrér naturlig størrelse…
+	Calligraphy	Kalligrafi
+	Cancelled	Annulleret
+	Capital letters are this tall. 20 to 30 mm suits a towel; 10 to 15 mm a shirt.	Store bogstaver er så høje. 20 til 30 mm passer til et håndklæde; 10 til 15 mm til en skjorte.
+	Capitals	Store bogstaver
+	Capitals' height	Højde på store bogstaver
+	Capped	Med lukkede ender
+	Carve Split Lines	Skær delelinjer
+	Carve Stamp	Skær stempel
+	Carving Stamps	Skærestempler
+	Cell size	Cellestørrelse
+	Centre	Midte
+	Centre line	Midterlinje
+	Centre out	Fra midten og ud
+	Centre run	Midterløbesting
+	Centred	Centreret
+	Chain	Kædesting
+	Change It Anyway	Ændr alligevel
+	Change key	Skift nøgle
+	Change the Size?	Ændre størrelsen?
+	Changed:	Ændret:
+	Check	Tern
+	Check Again	Tjek igen
+	Check Continuous Line	Tjek sammenhængende linje
+	Check Design	Tjek design
+	Check Design in the Embroidery menu finds dense layers, long stitches and text too small to sew.	Tjek design i menuen Broderi finder tætte lag, lange sting og tekst, der er for lille til at sy.
+	Check My Sew-out	Tjek min syprøve
+	Check My Sew-out…	Tjek min syprøve…
+	Check settings	Tjek indstillinger
+	Chenille	Chenille
+	Chenille Stitch	Chenillesting
+	Chenille Stops	Chenillestop
+	Chenille stops	Chenillestop
+	Chevrons	Chevroner
+	Choose Folder…	Vælg mappe…
+	Choose My Machine	Vælg min maskine
+	Choose Smallest Hoop	Vælg mindste broderiramme
+	Choose a Picture…	Vælg et billede…
+	Choose a hoop in the Embroidery panel to see the sewing field round the design.	Vælg en broderiramme i panelet Broderi for at se syfeltet omkring designet.
+	Choose a machine file or the design open now	Vælg en maskinfil eller det design, der er åbent nu
+	Choose a picture	Vælg et billede
+	Choose a shape	Vælg en figur
+	Choose both designs to compare them	Vælg begge designs for at sammenligne dem
+	Choose how each part is stitched: satin, fill, run and more.	Vælg, hvordan hver del broderes: satin, fyld, løbesting og mere.
+	Choose the photos in the browser's window…	Vælg fotoene i browserens vindue…
+	Chord length	Kordelængde
+	Circles	Cirkler
+	Claude draws the artwork with your own Anthropic API key, billed to your Anthropic account; StitchFoundry then digitizes it. Check the stitches before you sew.	Claude tegner grafikken med din egen Anthropic API-nøgle, faktureret til din Anthropic-konto; derefter digitaliserer StitchFoundry den. Tjek stingene, før du syr.
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude ser på fotoene med din egen Anthropic API-nøgle, faktureret til din Anthropic-konto. Det kan tage fejl: prøv en rettelse på en stofrest af samme stof først.
+	Claude redraws the image as clean flat-colour art, then StitchFoundry digitizes it	Claude tegner billedet om som ren grafik i flade farver, og derefter digitaliserer StitchFoundry det
+	Claude redraws the image as flat-colour art with your own Anthropic API key, billed to your Anthropic account; StitchFoundry then digitizes it. Check the stitches before you sew.	Claude tegner billedet om som grafik i flade farver med din egen Anthropic API-nøgle, faktureret til din Anthropic-konto; derefter digitaliserer StitchFoundry det. Tjek stingene, før du syr.
+	Claude wants to change your design:	Claude vil ændre dit design:
+	Clear Default	Ryd standard
+	Clear Export History	Ryd eksporthistorik
+	Clear Flow Lines	Ryd flowlinjer
+	Clear Inclination Lines	Ryd hældningslinjer
+	Clear Lines	Ryd linjer
+	Clear Machine Function	Ryd maskinfunktion
+	Clear Sent	Ryd sendte
+	Clear Split Lines	Ryd delelinjer
+	Clear everything in this design and begin again?	Ryd alt i dette design, og start forfra?
+	Clear the design and begin again	Ryd designet, og start forfra
+	Clear vinyl on top (wipe-clean)	Klar vinyl ovenpå (kan tørres af)
+	Click a motif to place it, digitized, in the middle of the page.	Klik på et motiv for at placere det, digitaliseret, midt på siden.
+	Click a part of the design to change how it sews.	Klik på en del af designet for at ændre, hvordan den syes.
+	Click a part of the design to choose it, drag it to move it	Klik på en del af designet for at vælge den, træk for at flytte den
+	Click a region of a placed image to stitch it; raise Tolerance to take in more of its shades.	Klik på et område i et placeret billede for at brodere det; hæv Tolerance for at tage flere af dets nuancer med.
+	Click a region of an image to stitch it	Klik på et område i et billede for at brodere det
+	Click a square to fill every touching square like it; hold Alt to clear them	Klik på en tern for at udfylde alle tilstødende ens tern; hold Alt nede for at rydde dem
+	Click on one side of the column, then the other, in turn; Enter or Escape ends it.	Klik skiftevis på den ene side af søjlen og så den anden; Enter eller Escape afslutter.
+	Click or drag on a cross-stitch grid to fill its squares; hold Alt to erase	Klik eller træk på et korsstingsgitter for at udfylde dets tern; hold Alt nede for at viske ud
+	Click to Stitch	Klik for at brodere
+	Click to select and show it	Klik for at markere og vise det
+	Click-to-Stitch Tool	Værktøjet Klik for at brodere
+	Clipart	Clipart
+	Closest	Nærmest
+	Clover	Kløver
+	Coaster, 3¾″ square	Bordskåner, 3¾″ kvadratisk
+	Coil	Spiral
+	Color change	Farveskift
+	Colors and Order	Farver og rækkefølge
+	Colorway	Farvevariant
+	Colorway Thread	Farvevarianttråd
+	Colorways	Farvevarianter
+	Colour	Farve
+	Colour Preview	Farveforhåndsvisning
+	Colour changes	Farveskift
+	Colour the design by how deep the thread lies: blue one layer, red as dense as Check Design flags	Farv designet efter, hvor tykt tråden ligger: blå ét lag, rød så tæt som det, Tjek design markerer
+	Colours	Farver
+	Column A/B	Søjle A/B
+	Column A/B Tool	Værktøjet Søjle A/B
+	Combine Appliqué	Kombinér applikation
+	Commercial multi-needle (DST)	Industriel flernålsmaskine (DST)
+	Compare Designs	Sammenlign designs
+	Compare Designs…	Sammenlign designs…
+	Compound Chenille…	Sammensat chenille…
+	Connectors	Forbindelser
+	Constant	Konstant
+	Continuous Fill	Sammenhængende fyld
+	Continuous Fill…	Sammenhængende fyld…
+	Contour Fill	Konturfyld
+	Contour Split Lines	Konturdelelinjer
+	Convert All	Konvertér alle
+	Convert Artwork to Embroidery	Konvertér grafik til broderi
+	Convert Stitches to Objects	Konvertér sting til objekter
+	Convert to	Konvertér til
+	Convert to Satin Column	Konvertér til satinsøjle
+	Converted:	Konverteret:
+	Cord	Snor
+	Cord width	Snorbredde
+	Corner leg (0: no corner)	Hjørneben (0: intet hjørne)
+	Cost Estimate	Omkostningsoverslag
+	Cost a piece	Beregn pris for et stykke
+	Cost settings	Omkostningsindstillinger
+	Couldn't be read	Kunne ikke læses
+	Couldn't change:	Kunne ikke ændre:
+	Count	Antal
+	Count Decorations	Tæl dekorationer
+	Cover stitch	Dæksting
+	Cover width	Dækbredde
+	Create Account	Opret konto
+	Crib (36 × 52″)	Tremmeseng (36 × 52″)
+	Cross Fill	Krydsfyld
+	Cross Stitch	Korssting
+	Cross Stitch Tool	Korsstingsværktøj
+	Cross Stitch from Image…	Korssting fra billede…
+	Cross style	Korsstingstype
+	Cross-Stitch Pattern Info	Info om korsstingsmønster
+	Cross-Stitch Pattern Settings	Indstillinger for korsstingsmønster
+	Crosses	Kryds
+	Crown	Krone
+	Currency	Valuta
+	Current Properties	Aktuelle egenskaber
+	Custom Hoops	Brugerdefinerede broderirammer
+	Customer	Kunde
+	Cut File	Skærefil
+	Cut-away	Afklipningsindlæg
+	Cutwork	Cutwork
+	DXF Lines (.dxf)…	DXF-linjer (.dxf)…
+	Dad cap	Blød kasket (dad cap)
+	Decoration Sizes	Dekorationsstørrelser
+	Delete Colorway	Slet farvevariant
+	Delete Custom Hoop	Slet brugerdefineret broderiramme
+	Delete Design Template	Slet designskabelon
+	Delete Embroidery Style	Slet broderistil
+	Delete Fabric	Slet stof
+	Delete Hoop	Slet broderiramme
+	Delete Inclination Line	Slet hældningslinje
+	Delete Job Order	Slet arbejdsordre
+	Delete Machine	Slet maskine
+	Delete Machine Profile	Slet maskinprofil
+	Delete Monogram Template	Slet monogramskabelon
+	Delete Motif	Slet motiv
+	Delete My Shared Sew-out Checks	Slet mine delte syprøvetjek
+	Delete Output Profile	Slet outputprofil
+	Delete Template	Slet skabelon
+	Delete Thread Chart	Slet trådkort
+	Denim	Denim
+	Denim / canvas	Denim / lærred
+	Dense from (layers)	Tæt fra (lag)
+	Densities (mm)	Tætheder (mm)
+	Density	Tæthed
+	Density Map	Tæthedskort
+	Density map	Tæthedskort
+	Describe a design and Claude draws artwork for it, then StitchFoundry digitizes it	Beskriv et design, så tegner Claude grafik til det, og derefter digitaliserer StitchFoundry det
+	Describe the design:	Beskriv designet:
+	Design	Design
+	Design Catalogue	Designkatalog
+	Design Information	Designoplysninger
+	Design Library	Designbibliotek
+	Design Templates	Designskabeloner
+	Design from Prompt	Design ud fra beskrivelse
+	Design from Prompt…	Design ud fra beskrivelse…
+	Design notes	Designnoter
+	Design setting	Designindstilling
+	Designs	Designs
+	Diamonds	Ruder
+	Differences of 10% or more are highlighted. The real test is sewing both.	Forskelle på 10 % eller mere fremhæves. Den rigtige test er at sy begge.
+	Different on each side	Forskellig på hver side
+	Digitizer	Digitalisør
+	Digitizing	Digitalisering
+	Digitizing Widget	Digitaliseringswidget
+	Dimmed	Nedtonet
+	Direction	Retning
+	Direction: automatic	Retning: automatisk
+	Direction: fixed angle	Retning: fast vinkel
+	Direction: one inclination line	Retning: én hældningslinje
+	Direction: turning along	Retning: drejer langs
+	Don't Allow	Tillad ikke
+	Double	Dobbelt
+	Double cross	Dobbelt kryds
+	Double zigzag	Dobbelt zigzag
+	Download Again	Download igen
+	Download All	Download alle
+	Download fonts from an embroidery font library, ready for lettering	Download skrifttyper fra et bibliotek med broderiskrifttyper, klar til bogstaver
+	Downloaded for your machine:	Downloadet til din maskine:
+	Downloaded:	Downloadet:
+	Downloading	Downloader
+	Drag across the shape to add a line; drag a bead to move it	Træk hen over figuren for at tilføje en linje; træk en perle for at flytte den
+	Drag from corner to corner of the squares to draw a backstitch line; Alt-click a line to take it away	Træk fra hjørne til hjørne af ternene for at tegne en tilbagestingslinje; Alt-klik på en linje for at fjerne den
+	Drag picked needle points to move them, Alt-click a stitch to add one, Delete removes them.	Træk valgte nålepunkter for at flytte dem, Alt-klik på et sting for at tilføje et, Delete fjerner dem.
+	Draw an inclination line across a shape to set its stitch angle; two or more lines make the stitches turn.	Tegn en hældningslinje hen over en figur for at angive dens stingvinkel; to eller flere linjer får stingene til at dreje.
+	Draw shapes, place a picture or type text.	Tegn figurer, placér et billede, eller skriv tekst.
+	Drawing the design…	Tegner designet…
+	Drop the hand edits and stitch the shape again	Kassér de manuelle redigeringer, og broder figuren igen
+	Due (YYYY-MM-DD)	Forfalder (ÅÅÅÅ-MM-DD)
+	Duplicate Embroidery Style	Duplikér broderistil
+	E-stitch	E-sting
+	Each anchor point is a needle penetration.	Hvert ankerpunkt er et nålestik.
+	Each design found written again in this format beside it	Hvert fundet design skrevet igen i dette format ved siden af
+	Each font comes with its own licence, in its folder.	Hver skrifttype har sin egen licens i sin mappe.
+	Each letter a patch of fabric: placement line, tack-down and cover	Hvert bogstav en stofbid: placeringslinje, fastsyning og dækning
+	Each name with its size, stitches and sewing time, and the totals	Hvert navn med dets størrelse, sting og sytid samt totalerne
+	Echo	Ekko
+	Echo Quilting	Ekkoquiltning
+	Edge run	Kantløbesting
+	Edge run and zigzag	Kantløbesting og zigzag
+	Edge run under fills	Kantløbesting under fyld
+	Edge run underlay	Kantløbesting som understing
+	Edge width	Kantbredde
+	Edge-to-Edge Rows	Rækker fra kant til kant
+	Edge-to-Edge Rows…	Rækker fra kant til kant…
+	Edge-to-edge rows of the selected line	Rækker fra kant til kant af den markerede linje
+	Edit Embroidery Font	Redigér broderiskrifttype
+	Edit Font	Redigér skrifttype
+	Edit Lettering	Redigér bogstaver
+	Edit Lines	Redigér linjer
+	Edit Stitches	Redigér sting
+	Edit › Undo takes each change back.	Redigér › Fortryd tager hver ændring tilbage.
+	Email	E-mail
+	Embroidery	Broderi
+	Embroidery Basics	Grundlæggende broderi
+	Embroidery Brush Tool	Broderipenselværktøj
+	Embroidery Business	Broderivirksomhed
+	Embroidery Clipart	Brodericlipart
+	Embroidery Fonts	Broderiskrifttyper
+	Embroidery Lettering	Broderiskrift
+	Embroidery Motifs	Broderimotiver
+	Embroidery Settings	Broderiindstillinger
+	Embroidery Styles	Broderistile
+	End	Slut
+	End at	Slut ved
+	Erase	Visk ud
+	Estimate cost	Anslå pris
+	Every digitizing tool, rulers and the control bar	Alle digitaliseringsværktøjer, linealer og kontrolbjælken
+	Every font not downloaded yet, one after another	Alle skrifttyper, der ikke er downloadet endnu, den ene efter den anden
+	Every name in one design, in rows and columns, for a large hoop or patches	Alle navne i ét design, i rækker og kolonner, til en stor broderiramme eller mærker
+	Every new design starts with these properties	Alle nye designs starter med disse egenskaber
+	Every thread changed by the scheme and matched to the design's chart; undo puts them back	Alle tråde ændret af farveskemaet og matchet til designets trådkort; Fortryd sætter dem tilbage
+	Everything	Alt
+	Everything, with job orders and batch output	Alt, med arbejdsordrer og batchoutput
+	Experience	Erfaring
+	Export Again	Eksportér igen
+	Export Chart…	Eksportér kort…
+	Export History	Eksporthistorik
+	Export Machine File	Eksportér maskinfil
+	Export Machine File…	Eksportér maskinfil…
+	Export One File per Name…	Eksportér én fil pr. navn…
+	Export Quilting Lines	Eksportér quiltelinjer
+	Export Quilting Lines…	Eksportér quiltelinjer…
+	Export Stitch Image	Eksportér stingbillede
+	Export Stitch Image…	Eksportér stingbillede…
+	Export Team Names	Eksportér holdnavne
+	Export Thread Chart	Eksportér trådkort
+	Export it again, as it was asked, from this document	Eksportér den igen, som den blev bestilt, fra dette dokument
+	Export the file for your machine.	Eksportér filen til din maskine.
+	Export with Embroidery › Export Machine File and pick your machine's format.	Eksportér med Broderi › Eksportér maskinfil, og vælg din maskines format.
+	Exports	Eksporter
+	Fabric	Stof
+	Fabric color	Stoffarve
+	Fabric colour	Stoffarve
+	Fabric pattern	Stofmønster
+	Fabric settings	Stofindstillinger
+	Fade in	Tone ind
+	Fade out	Tone ud
+	Feathers	Fjer
+	Felt	Filt
+	Fill Along Lines	Fyld langs linjer
+	Fill Cross Stitches	Udfyld korssting
+	Fill Holes	Udfyld huller
+	Fill a patch	Udfyld et mærke
+	Fill density	Fyldtæthed
+	Fill stitch length	Fyldstingslængde
+	Fill stitches {n} mm long can ripple after washing	Fyldsting på {n} mm kan slå bølger efter vask
+	Fill style	Fyldstil
+	Fill the shape	Udfyld figuren
+	Fill underlay	Understing til fyld
+	Fill without holes	Fyld uden huller
+	Filled	Udfyldt
+	Filled Ring	Udfyldt ring
+	Finished in the hoop: batting, backing and a satin edge	Færdiggjort i rammen: vat, bagside og en satinkant
+	First design	Første design
+	Fits the hoop	Passer i broderirammen
+	Fixing	Fastgøring
+	Fleece / sweatshirt	Fleece / sweatshirt
+	Flip every other	Vend hver anden
+	Flip to the other side	Vend til den anden side
+	Flower	Blomst
+	Flowers	Blomster
+	Foil	Folie
+	Font Creator	Skrifttypeværktøj
+	Font Info	Skrifttypeinfo
+	Font Properties	Skrifttypeegenskaber
+	Fonts are kept in	Skrifttyper gemmes i
+	Fonts downloaded:	Skrifttyper downloadet:
+	For towels, bags, pillows and gifts	Til håndklæder, tasker, puder og gaver
+	Forget Embroidery Font	Glem broderiskrifttype
+	Forget Folder	Glem mappe
+	Forget Font	Glem skrifttype
+	Forget Motif	Glem motiv
+	Free sew-out checks left this month: {n}	Gratis syprøvetjek tilbage denne måned: {n}
+	Freeze Stitches	Frys sting
+	Full cross	Helt kryds
+	Function	Funktion
+	G-code (.gcode)…	G-code (.gcode)…
+	Gap	Mellemrum
+	Gap between repeats	Mellemrum mellem gentagelser
+	Garment Background	Beklædningsbaggrund
+	Garment Photo…	Foto af beklædning…
+	Generate	Generér
+	Get Embroidery Fonts	Hent broderiskrifttyper
+	Get Embroidery Fonts…	Hent broderiskrifttyper…
+	Get a key	Hent en nøgle
+	Give every stitched object the chart's closest thread	Giv hvert broderet objekt kortets nærmeste tråd
+	Give objects a stitch type in the Embroidery panel.	Giv objekter en stingtype i panelet Broderi.
+	Give the hoop a name	Giv broderirammen et navn
+	Globe in	Kugle ind
+	Globe out	Kugle ud
+	Glyphs to add	Glyffer, der skal tilføjes
+	Graded	Gradueret
+	Gradient to	Gradient til
+	Greek key	Græsk bort
+	HP-GL Plot (.plt)…	HP-GL-plot (.plt)…
+	Half cross	Halvt kryds
+	Hand stitch	Håndsting
+	Happy TAP (.tap)…	Happy TAP (.tap)…
+	Heart	Hjerte
+	Heart patch	Hjertemærke
+	Hearts	Hjerter
+	Height (mm)	Højde (mm)
+	Help Topic	Hjælpeemne
+	Help Topics	Hjælpeemner
+	Help for Tool	Hjælp til værktøj
+	Herringbone	Sildeben
+	Hexagons	Sekskanter
+	Hidden (not sewn)	Skjult (syes ikke)
+	Hide Digitizing Widget	Skjul digitaliseringswidget
+	Hide StitchFoundry	Skjul StitchFoundry
+	Hold a ruler, or a bank card, against the screen and change the size until the marks match. Actual Size then shows designs life size.	Hold en lineal eller et betalingskort op mod skærmen, og ændr størrelsen, indtil mærkerne passer. Faktisk størrelse viser derefter designs i naturlig størrelse.
+	Honeycomb	Bikube
+	Hoodie	Hættetrøje
+	Hoop	Broderiramme
+	Hoop name	Rammenavn
+	Hoop not listed? Add its sewing field here.	Står broderirammen ikke på listen? Tilføj dens syfelt her.
+	Hoops	Broderirammer
+	How do you work?	Hvordan arbejder du?
+	How tall	Hvor høj
+	Husqvarna Viking (other models)	Husqvarna Viking (andre modeller)
+	I digitize designs	Jeg digitaliserer designs
+	I run an embroidery business	Jeg driver en broderivirksomhed
+	Image Colours	Billedfarver
+	Import Chart…	Importér kort…
+	Import Names…	Importér navne…
+	Import Thread Chart	Importér trådkort
+	In StitchFoundry	I StitchFoundry
+	In a line	På en linje
+	In production	I produktion
+	In the hoop	I broderirammen
+	In the middle (you can leave this empty)	I midten (du kan lade dette være tomt)
+	In-the-Hoop Cutting Templates	Tilskæringsskabeloner til projekter i rammen
+	In-the-Hoop Projects	Projekter i rammen
+	Inclination Tool	Hældningsværktøj
+	Inclination lines	Hældningslinjer
+	Include my design	Medtag mit design
+	Include the design that was sewn (open now), so it can be fixed	Medtag det design, der blev syet (åbent nu), så det kan rettes
+	Initials	Initialer
+	Insert Clipart	Indsæt clipart
+	Insert Machine Function	Indsæt maskinfunktion
+	Inverted	Inverteret
+	Jag depth	Takdybde
+	Jagged edges	Takkede kanter
+	Janome JEF (.jef)…	Janome JEF (.jef)…
+	Janome or Elna	Janome eller Elna
+	Jersey knit (T-shirt)	Jersey (T-shirt)
+	Job Orders	Arbejdsordrer
+	Job Output	Jobudskrift
+	Job Worksheet	Arbejdsark til job
+	Join into One Line	Forbind til én linje
+	Jump	Spring
+	Jumps	Spring
+	Just the outline	Kun konturen
+	Keep Design Safe	Hold designet sikkert
+	Keep It	Behold det
+	Keep Motif	Behold motiv
+	Keep the Size	Behold størrelsen
+	Keep the motif in My Motifs, for any design	Behold motivet i Mine motiver, til ethvert design
+	Keep the same pattern and spacing for every block of a quilt, so the blocks flow into each other.	Behold samme mønster og afstand for hver blok i en quilt, så blokkene flyder over i hinanden.
+	Keep these settings in the machine's profile, for new designs	Gem disse indstillinger i maskinens profil til nye designs
+	Keep this design's page, art, hoop, fabric and settings to start new designs from	Gem dette designs side, grafik, broderiramme, stof og indstillinger som udgangspunkt for nye designs
+	Kern	Knib
+	Kern Glyph Pair	Knib glyfpar
+	Kerning (mm closer)	Knibning (mm tættere)
+	Keyhole	Nøglehul
+	Keyhole Buttonhole	Nøglehulsknaphul
+	King (108 × 108″)	King-size (108 × 108″)
+	Kiosk Lettering	Bogstavkiosk
+	Larger than the hoop	Større end broderirammen
+	Largest	Største
+	Lattice	Gitter
+	Lay Out Team Names	Placér holdnavne
+	Lay Out Together	Placér sammen
+	Learn how	Lær hvordan
+	Leather / vinyl	Læder / vinyl
+	Leave Kiosk	Forlad kiosk
+	Leave it empty for StitchFoundry's own service.	Lad det være tomt for at bruge StitchFoundrys egen tjeneste.
+	Leaves	Blade
+	Leaving the kiosk will take this PIN	For at forlade kiosken skal denne PIN-kode bruges
+	Left to right	Venstre mod højre
+	Lengths (mm)	Længder (mm)
+	Let sewing start and stop at the closest points again	Lad syningen starte og stoppe ved de nærmeste punkter igen
+	Letter case	Store/små bogstaver
+	Lettering Kiosk	Bogstavkiosk
+	Lettering only {n} mm tall is hard to sew clearly	Bogstaver kun {n} mm høje er svære at sy tydeligt
+	Letters sewn	Syede bogstaver
+	Line spacing	Linjeafstand
+	Lines apart	Afstand mellem linjer
+	Listing the fonts…	Henter liste over skrifttyper…
+	Little pillow front, 8″ square	Lille pudeforside, 8″ kvadratisk
+	Little pillow front, 9½ × 5½″	Lille pudeforside, 9½ × 5½″
+	Load Embroidery Font	Indlæs broderiskrifttype
+	Load Embroidery Font…	Indlæs broderiskrifttype…
+	Load an embroidery font (Embroidery Lettering) to make monograms.	Indlæs en broderiskrifttype (Broderiskrift) for at lave monogrammer.
+	Load an embroidery font to set text with it.	Indlæs en broderiskrifttype for at sætte tekst med den.
+	Load this lettering's font to change it:	Indlæs denne teksts skrifttype for at ændre den:
+	Lockstitch	Hæftesting
+	Long stitches catch from 7 mm on clothing, 12.1 mm on other items	Lange sting hænger fast fra 7 mm på tøj, 12,1 mm på andre ting
+	Long stitches from	Lange sting fra
+	Longarm Quilting	Longarm-quiltning
+	Longest jump	Længste spring
+	Longest stitch	Længste sting
+	Longest stitch (mm)	Længste sting (mm)
+	Look for dense spots, long stitches, tiny objects and small lettering	Kig efter tætte steder, lange sting, meget små objekter og små bogstaver
+	Loop	Løkke
+	Loops	Løkker
+	Machine	Maskine
+	Machine Embroidery File	Maskinbroderifil
+	Machine Folders	Maskinmapper
+	Machine Profiles	Maskinprofiler
+	Machine embroidery digitizing — fast, open, scriptable.	Digitalisering til maskinbroderi — hurtig, åben, kan scriptes.
+	Machine files, worksheet PDF and design, named alike	Maskinfiler, arbejdsark-PDF og design med samme navn
+	Machine folder	Maskinmappe
+	Machine formats (none ticked: the machine's)	Maskinformater (intet afkrydset: maskinens)
+	Machine heads	Maskinhoveder
+	Machine settings	Maskinindstillinger
+	Machine time an hour	Maskintid pr. time
+	Make Border	Lav kant
+	Make Current	Gør aktuel
+	Make Design	Lav design
+	Make Every Size…	Lav alle størrelser…
+	Make In-the-Hoop Project	Lav projekt i rammen
+	Make It	Lav det
+	Make Motif	Lav motiv
+	Make Properties Current	Gør egenskaber aktuelle
+	Make Rows	Lav rækker
+	Make a Design	Lav et design
+	Make a Design, Step by Step	Lav et design, trin for trin
+	Make a Design…	Lav et design…
+	Make an embroidery font: a document with an artboard for each glyph to digitize.	Lav en broderiskrifttype: et dokument med en kunstplade for hver glyf, der skal digitaliseres.
+	Makes no stitches	Laver ingen sting
+	Manual Stitches	Manuelle sting
+	Mark where a button goes	Markér, hvor en knap skal sidde
+	Match Threads to Chart	Match tråde til kort
+	Meander	Meander
+	Meander Fill	Meanderfyld
+	Measure in	Mål i
+	Melco EXP (.exp)…	Melco EXP (.exp)…
+	Merge Colours	Flet farver
+	Merge Embroidery Font	Flet broderiskrifttype
+	Merge glyphs from	Flet glyffer fra
+	Monogram	Monogram
+	Monogram Templates	Monogramskabeloner
+	Moon	Måne
+	Moons	Måner
+	More tips	Flere tips
+	Moss	Mos
+	Moss pattern	Mosmønster
+	Most stitches	Flest sting
+	Motif	Motiv
+	Motif Border	Motivkant
+	Motif Fill	Motivfyld
+	Motif Tool	Motivværktøj
+	Motif length (× width)	Motivlængde (× bredde)
+	Motif size	Motivstørrelse
+	Motifs	Motiver
+	Move Inclination Line	Flyt hældningslinje
+	Move along	Flyt langs
+	Move down	Flyt ned
+	Mug rug, 6½ × 4½″	Krusunderlag, 6½ × 4½″
+	Multi-Hooping	Flere opspændinger
+	My Machine	Min maskine
+	My Machine…	Min maskine…
+	My Motifs	Mine motiver
+	My hoop	Min broderiramme
+	My machine:	Min maskine:
+	My own hoops	Mine egne broderirammer
+	My sew-out ({n} photos)	Min syprøve ({n} fotos)
+	Names	Navne
+	Names Worksheet	Arbejdsark med navne
+	Narrow satin under	Smal satin under
+	Needle	Nål
+	Needle height	Nålehøjde
+	Needle points	Nålepunkter
+	Nest the rows	Forskyd rækkerne ind i hinanden
+	Nested diamonds	Indlejrede ruder
+	New Colorway	Ny farvevariant
+	New Conversation	Ny samtale
+	New Cross-Stitch Pattern…	Nyt korsstingsmønster…
+	New Design for Hoop	Nyt design til broderiramme
+	New Embroidery Font	Ny broderiskrifttype
+	New Embroidery Font from Type	Ny broderiskrifttype fra tekst
+	New Embroidery Style	Ny broderistil
+	New Font from Type	Ny skrifttype fra tekst
+	New Job Order	Ny arbejdsordre
+	New Job for This Design	Nyt job til dette design
+	New Object Properties	Egenskaber for nye objekter
+	New designs take the built-in properties again	Nye designs får de indbyggede egenskaber igen
+	New from Design Template	Ny fra designskabelon
+	New objects of this stitch type take these properties	Nye objekter med denne stingtype får disse egenskaber
+	New strokes	Nye strøg
+	New to Embroidery	Ny i broderi
+	New to digitizing? Read the basics	Ny i digitalisering? Læs det grundlæggende
+	New to embroidery	Ny i broderi
+	Newest	Nyeste
+	Next Name	Næste navn
+	No Stitches	Ingen sting
+	No embroidery font is loaded: ask the shop to load one.	Ingen broderiskrifttype er indlæst: bed butikken om at indlæse en.
+	No folder chosen	Ingen mappe valgt
+	No folder chosen yet	Ingen mappe valgt endnu
+	No hoop	Ingen broderiramme
+	No problems found.	Ingen problemer fundet.
+	No shape	Ingen figur
+	No stitches yet.	Ingen sting endnu.
+	No styles yet. Select a stitched object and create one to reuse its stitch properties.	Ingen stile endnu. Markér et broderet objekt, og opret en for at genbruge dets stingegenskaber.
+	No-show mesh	Usynligt net (no-show mesh)
+	Not changed:	Ikke ændret:
+	Not digitized yet: show its artboard	Ikke digitaliseret endnu: vis dens kunstplade
+	Not set	Ikke angivet
+	Not sewn	Ikke syet
+	Not sure	Ikke sikker
+	Nothing exported yet in this session.	Intet eksporteret endnu i denne session.
+	Nothing found	Intet fundet
+	Nothing stitched yet	Intet broderet endnu
+	Nothing to sew yet. Add words, a shape or a picture with the buttons on the left.	Intet at sy endnu. Tilføj ord, en figur eller et billede med knapperne til venstre.
+	Object Stitches	Objektets sting
+	Object color	Objektfarve
+	Objects you give a stitch type take these properties.	Objekter, du giver en stingtype, får disse egenskaber.
+	Octagon	Ottekant
+	Omit last stitch	Udelad sidste sting
+	One colour	Én farve
+	One continuous line, ready for a longarm	Én sammenhængende linje, klar til en longarm
+	One file for each usual tile size, in a folder or on the USB stick	Én fil for hver almindelig feltstørrelse, i en mappe eller på USB-stikket
+	One letter: moved, scaled or turned, kept when the lettering is set again	Ét bogstav: flyttet, skaleret eller drejet, bevares, når teksten sættes igen
+	One name a line	Ét navn pr. linje
+	One over the Other	Den ene over den anden
+	Only redraw artwork you own or have permission to use.	Tegn kun grafik om, som du ejer eller har tilladelse til at bruge.
+	Open File…	Åbn fil…
+	Open Sample Design	Åbn eksempeldesign
+	Open a document to see its stitch sequence.	Åbn et dokument for at se dets stingrækkefølge.
+	Open a document to see its stitches.	Åbn et dokument for at se dets sting.
+	Open or create a document to digitize embroidery.	Åbn eller opret et dokument for at digitalisere broderi.
+	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	Ved åbningen blev det udeladt, som StitchFoundry ikke kan læse endnu ({what}): hvis du erstatter filen, mistes det for altid. Gem under et andet navn for at beholde det.
+	Ornament	Ophængspynt
+	Outline Around	Kontur rundt om
+	Output Profiles	Outputprofiler
+	Outside the sizes the font was made for: its stitches may come out too dense or too long	Uden for de størrelser, skrifttypen blev lavet til: dens sting kan blive for tætte eller for lange
+	Oval Border	Oval kant
+	Overlap	Overlapning
+	Overlap where shapes touch	Overlap, hvor figurer rører hinanden
+	Own colour block	Egen farveblok
+	PIN	PIN-kode
+	Packing	Pakning
+	Paid with StitchFoundry credits ({n} left).	Betalt med StitchFoundry-kreditter ({n} tilbage).
+	Paid with StitchFoundry credits.	Betalt med StitchFoundry-kreditter.
+	Paint	Mal
+	Paint Cross Stitches	Mal korssting
+	Pair	Par
+	Paired with	Parret med
+	Paisley	Paisley
+	Partial cover	Delvis dækning
+	Passes	Gennemløb
+	Path spacing	Kurveafstand
+	Pattern colour	Mønsterfarve
+	Pattern colours	Mønsterfarver
+	Pause	Pause
+	Paw	Pote
+	Paw Print	Poteaftryk
+	Pay for the AI features with my StitchFoundry credits	Betal for AI-funktionerne med mine StitchFoundry-kreditter
+	Pay with StitchFoundry credits instead	Betal med StitchFoundry-kreditter i stedet
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Betalingen sker på Stripes sikre side i din browser; dit kort når aldrig StitchFoundry.
+	Pebbles	Småsten
+	Per 1000 stitches	Pr. 1000 sting
+	Pfaff PCS (.pcs)…	Pfaff PCS (.pcs)…
+	Pfaff VP3 (.vp3)…	Pfaff VP3 (.vp3)…
+	Photo Stitch	Fotobroderi
+	Photos of your finished sew-out	Fotos af dit færdige broderi
+	Pick a brush, width, density and shape from a dial, then draw on the canvas	Vælg en pensel, bredde, tæthed og form på en drejeskive, og tegn derefter på lærredet
+	Pick the hoop you will put the fabric in. The design is made to fit it.	Vælg den broderiramme, du vil spænde stoffet i. Designet laves, så det passer.
+	Pick, move, add and delete single stitches	Vælg, flyt, tilføj og slet enkelte sting
+	Pinstripes	Nålestriber
+	Pique knit (polo shirt)	Piké (poloshirt)
+	Place Along Selected Line	Placér langs markeret linje
+	Place Artwork as Embroidery	Placér grafik som broderi
+	Place Lettering	Placér bogstaver
+	Place Monogram	Placér monogram
+	Place Motif	Placér motiv
+	Place Ring	Placér ring
+	Place editable inclination lines (or pick the angle) automatically	Placér redigerbare hældningslinjer (eller vælg vinklen) automatisk
+	Placement line and stop	Placeringslinje og stop
+	Placement template	Placeringsskabelon
+	Plain	Ensfarvet
+	Play the stitches	Afspil stingene
+	Plug in the USB stick you take to your machine, then choose it here.	Sæt det USB-stik i, som du tager med til din maskine, og vælg det her.
+	Polo shirt	Poloshirt
+	Prepare Appliqué	Forbered applikation
+	Prepare Image	Forbered billede
+	Preserve long stitches	Bevar lange sting
+	Print Catalogue	Udskriv katalog
+	Print Chart…	Udskriv kort…
+	Print Cross-Stitch Chart	Udskriv korsstingskort
+	Print Cross-Stitch Chart…	Udskriv korsstingskort…
+	Print Stitch View	Udskriv stingvisning
+	Print and Export	Udskriv og eksportér
+	Print the Cutting Templates…	Udskriv tilskæringsskabelonerne…
+	Print the Steps…	Udskriv trinene…
+	Printed on worksheets	Udskrevet på arbejdsark
+	Product	Produkt
+	Product Visualizer	Produktvisning
+	Production	Produktion
+	Profile	Profil
+	Profile name	Profilnavn
+	Properties for New Objects	Egenskaber for nye objekter
+	Pull comp., side 1	Trækkomp., side 1
+	Pull comp., side 2	Trækkomp., side 2
+	Pull compensation	Trækkompensation
+	Push compensation	Trykkompensation
+	Put back what Undo took back	Gør det om, som Fortryd tog tilbage
+	Put the machine's profile back to how it ships, and use it	Sæt maskinens profil tilbage til fabriksindstillingen, og brug den
+	Pyramids	Pyramider
+	Quatrefoils	Firpas
+	Queen (90 × 108″)	Queen-size (90 × 108″)
+	Queue the design for this folder: it is written now if the folder is there, else as soon as it is	Sæt designet i kø til denne mappe: det skrives nu, hvis mappen er der, ellers så snart den er
+	Quilt Block	Quilteblok
+	Quilt Block Patterns	Mønstre til quilteblokke
+	Quilt Block Set	Sæt af quilteblokke
+	Quilt blocks saved:	Quilteblokke gemt:
+	Quilt height	Quiltens højde
+	Quilt width	Quiltens bredde
+	Quilting for a tile	Quiltning til et felt
+	Quit StitchFoundry	Slut StitchFoundry
+	Radial Fill	Radialt fyld
+	Randomness	Tilfældighed
+	Read Team Names	Læs holdnavne
+	Read the size in the tile's window. The block is quilted edge to edge, the size of the tile.	Aflæs størrelsen i feltets vindue. Blokken quiltes fra kant til kant, på størrelse med feltet.
+	Reading your credits…	Henter dine kreditter…
+	Recolour	Omfarv
+	Recolour Threads	Omfarv tråde
+	Rectangle Border	Rektangulær kant
+	Redefine Embroidery Style	Omdefinér broderistil
+	Redraw Image with Claude	Tegn billede om med Claude
+	Redraw Image with Claude…	Tegn billede om med Claude…
+	Redraw with Claude…	Tegn om med Claude…
+	Redwork	Redwork
+	Regenerate Stitches	Generér sting igen
+	Remember the key on this computer	Husk nøglen på denne computer
+	Remove Blend	Fjern blanding
+	Remove Holes	Fjern huller
+	Remove background	Fjern baggrund
+	Remove from Send Queue	Fjern fra sendekø
+	Remove the motif from the design; what sews it keeps it.	Fjern motivet fra designet; det, der syr det, beholder det.
+	Remove underlying stitching	Fjern underliggende sting
+	Rename Colorway	Omdøb farvevariant
+	Rename Embroidery Style	Omdøb broderistil
+	Rename Embroidery Style…	Omdøb broderistil…
+	Repeats across	Gentagelser på tværs
+	Repeats down	Gentagelser nedad
+	Replace Cross-Stitch Colour	Erstat korsstingsfarve
+	Report a Bug…	Rapportér en fejl…
+	Reset Current Properties	Nulstil aktuelle egenskaber
+	Reset Letter	Nulstil bogstav
+	Reset Machine	Nulstil maskine
+	Reset Start and Stop	Nulstil start og stop
+	Reverse Stitch Direction	Vend stingretning
+	Rhinestones	Rhinsten
+	Rhinestones aren't sewn: export their template to cut and set them	Rhinsten syes ikke: eksportér deres skabelon for at skære og sætte dem
+	Right to left	Højre mod venstre
+	Rings (0: all)	Ringe (0: alle)
+	Ripples	Krusninger
+	Rotate Hoop	Drej broderiramme
+	Round ornament, 3½″	Rund ophængspynt, 3½″
+	Round the edge	Rundt om kanten
+	Rounded Border	Afrundet kant
+	Rounded Buttonhole	Afrundet knaphul
+	Row offset	Rækkeforskydning
+	Row spacing	Rækkeafstand
+	Row spacing (0: the line's height)	Rækkeafstand (0: linjens højde)
+	Rows across the shape: up is denser. Drag a point; double-click to add one; right-click one to take it out.	Rækker hen over figuren: op er tættere. Træk et punkt; dobbeltklik for at tilføje et; højreklik på et for at fjerne det.
+	Rows follow lines:	Rækker følger linjer:
+	Run	Løbesting
+	Run style	Løbestingstype
+	SVG Lines (.svg)…	SVG-linjer (.svg)…
+	Sample Designs	Eksempeldesigns
+	Satin	Satin
+	Satin Fill	Satinfyld
+	Satin Outline	Satinkontur
+	Satin Ring	Satinring
+	Satin density	Satintæthed
+	Satin only {n} mm wide sinks into the fabric	Satin kun {n} mm bred synker ned i stoffet
+	Satin sewn over foam: dense, no underlay, its ends capped. Sew it in a colour of its own, to lay the foam at the stop	Satin syet over skum: tæt, uden understing, med lukkede ender. Sy den i sin egen farve, så du kan lægge skummet på ved stoppet
+	Satin suits shapes up to about 7 mm wide; wider areas sew better as tatami fill.	Satin passer til figurer op til ca. 7 mm brede; bredere områder syes bedre som tatamifyld.
+	Satin underlay	Understing til satin
+	Save Custom Hoop	Gem brugerdefineret broderiramme
+	Save Design keeps a copy you can open and change later.	Gem design gemmer en kopi, du kan åbne og ændre senere.
+	Save Design…	Gem design…
+	Save Embroidery Font	Gem broderiskrifttype
+	Save Embroidery Font…	Gem broderiskrifttype…
+	Save Fabric	Gem stof
+	Save Hoop	Gem broderiramme
+	Save Machine File…	Gem maskinfil…
+	Save Machine Profile	Gem maskinprofil
+	Save Monogram Template	Gem monogramskabelon
+	Save Output Profile	Gem outputprofil
+	Save Profile	Gem profil
+	Save Thread Chart	Gem trådkort
+	Save as Default	Gem som standard
+	Save as Design Template	Gem som designskabelon
+	Save as New Fabric	Gem som nyt stof
+	Save as New Machine	Gem som ny maskine
+	Save designs to	Gem designs i
+	Save for My Machine	Gem til min maskine
+	Save for My Machine downloads the design: copy it to the USB stick you take to your machine.	Gem til min maskine downloader designet: kopiér det til det USB-stik, du tager med til din maskine.
+	Save for My Machine downloads the file your machine sews: copy it to its USB stick.	Gem til min maskine downloader den fil, din maskine syr: kopiér den til dens USB-stik.
+	Save for My Machine writes the file your machine sews, to its USB stick.	Gem til min maskine skriver den fil, din maskine syr, til dens USB-stik.
+	Save it	Gem det
+	Save to Machine	Gem på maskine
+	Saved for you automatically in My Designs:	Gemt automatisk til dig i Mine designs:
+	Saved for your machine:	Gemt til din maskine:
+	Scales	Skæl
+	Scallops	Buekanter
+	Scatter Copies	Spred kopier
+	Screen Points per Inch at Life Size	Skærmpunkter pr. tomme i naturlig størrelse
+	Screen points per inch	Skærmpunkter pr. tomme
+	Sculpture run	Skulpturløbesting
+	Search help	Søg i hjælp
+	Second	Anden
+	Second design	Andet design
+	Seconds per color change	Sekunder pr. farveskift
+	Seconds per trim	Sekunder pr. klip
+	See the design sew on screen, stitch by stitch	Se designet blive syet på skærmen, sting for sting
+	See the needle go stitch by stitch, in the order your machine will sew it.	Se nålen gå sting for sting, i den rækkefølge din maskine vil sy det.
+	Select a path, shape or compound path to give it a stitch type.	Markér en kurve, figur eller sammensat kurve for at give den en stingtype.
+	Select art and choose Embroidery › Convert Artwork to Embroidery to digitize it in one step.	Markér grafik, og vælg Broderi › Konvertér grafik til broderi for at digitalisere den i ét trin.
+	Select lettering set in an embroidery font: a machine file is written for each name, the lettering set to it.	Markér tekst sat med en broderiskrifttype: der skrives en maskinfil for hvert navn med teksten sat til det.
+	Selection to glyph	Markering til glyf
+	Send	Send
+	Send Queue	Sendekø
+	Send Waiting Designs	Send ventende designs
+	Send When Ready	Send når klar
+	Send queue	Sendekø
+	Send to Machine	Send til maskine
+	Sent:	Sendt:
+	Sequins	Pailletter
+	Server	Server
+	Set Flow Lines	Angiv flowlinjer
+	Set Inclination Lines	Angiv hældningslinjer
+	Set My Machine	Angiv min maskine
+	Set Split Lines	Angiv delelinjer
+	Set Start and Stop	Angiv start og stop
+	Set Thread	Angiv tråd
+	Set-up an order	Opret en ordre
+	Sew Puff Last	Sy puff til sidst
+	Sew as	Sy som
+	Sew earlier	Sy tidligere
+	Sew first	Sy først
+	Sew it as	Sy det som
+	Sew last	Sy sidst
+	Sew later	Sy senere
+	Sew order	Syrækkefølge
+	Sew the gradient's colours blended the way it runs	Sy gradientens farver blandet i den retning, den løber
+	Sew the objects separately again	Sy objekterne hver for sig igen
+	Sew the photo over itself as zigzag lines, one meandering run, or its colours	Sy fotoet over sig selv som zigzaglinjer, én bugtende løbesting eller dets farver
+	Sew the pieces together	Sy stykkerne sammen
+	Sew the shape as appliqué	Sy figuren som applikation
+	Sewing time	Sytid
+	Sewn as one line that ends where it starts; the way between lines is retraced along them.	Syet som én linje, der ender, hvor den starter; vejen mellem linjer syes igen langs dem.
+	Sewn in a 5×7 hoop, borders and back sewn on after	Syet i en 5×7-ramme, kanter og bagside syet på bagefter
+	Sewn last	Syes sidst
+	Sewn on clothing	Syet på tøj
+	Sews well at	Syes godt ved
+	Sews well from	Syes godt fra
+	Sews well up to	Syes godt op til
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Del dette tjek for at hjælpe med at forbedre StitchFoundry (holdes privat; slet det når som helst under StitchFoundry-konto)
+	Shell	Muslingeskal
+	Shield	Skjold
+	Short fill stitches under	Korte fyldsting under
+	Short stitches on curves	Korte sting i kurver
+	Short stitches under	Korte sting under
+	Shortest stitch	Korteste sting
+	Show Repeats	Vis gentagelser
+	Show every stitch	Vis alle sting
+	Show everything	Vis alt
+	Show on Product	Vis på produkt
+	Show stitches	Vis sting
+	Show this glyph	Vis denne glyf
+	Showing the basics.	Viser det grundlæggende.
+	Shown with the design, not sewn	Vises med designet, syes ikke
+	Side 1	Side 1
+	Side 2	Side 2
+	Side by Side	Side om side
+	Sign In	Log ind
+	Sign Out	Log ud
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Log ind, eller opret en konto, for at betale for AI-funktionerne med StitchFoundry-kreditter i stedet for din egen Anthropic API-nøgle. En ny konto starter med gratis kreditter.
+	Signed in as {email}	Logget ind som {email}
+	Silk / lightweight	Silke / let stof
+	Simple pictures with a few flat colours and clear edges work best: a cartoon, a logo, clipart.	Enkle billeder med få flade farver og tydelige kanter virker bedst: en tegneseriefigur, et logo, clipart.
+	Singer XXX (.xxx)…	Singer XXX (.xxx)…
+	Single	Enkelt
+	Single stitch length	Længde på enkeltsting
+	Single stitches	Enkeltsting
+	Size (longest side):	Størrelse (længste side):
+	Slants	Skråninger
+	Small lettering under	Små bogstaver under
+	Small letters	Små bogstaver
+	Small text	Lille tekst
+	Smaller	Mindre
+	Smallest That Fits	Mindste, der passer
+	Smooth edge (satin)	Glat kant (satin)
+	Snapback	Snapback
+	Snowflake	Snefnug
+	Snowflakes	Snefnug
+	Sort by Thread Color	Sortér efter trådfarve
+	Space width	Mellemrumsbredde
+	Spacing profile	Afstandsprofil
+	Special Machines	Specialmaskiner
+	Spiral Fill	Spiralfyld
+	Spirals	Spiraler
+	Split Here	Del her
+	Split Lines	Delelinjer
+	Split Object	Del objekt
+	Split lines:	Delelinjer:
+	Split the object in two at the picked stitch	Del objektet i to ved det valgte sting
+	Square corners	Firkantede hjørner
+	Square loop	Firkantet løkke
+	Squares spiral	Firkantspiral
+	Stabiliser	Stabilisering
+	Stabilizer	Stabilisering
+	Stars	Stjerner
+	Start	Start
+	Start Over	Start forfra
+	Start Over…	Start forfra…
+	Start a design for your hoop	Start et design til din broderiramme
+	Start a design from the Home screen.	Start et design fra startskærmen.
+	Start and End on the Edges	Start og slut på kanterne
+	Start and stop	Start og stop
+	Start at	Start ved
+	Start from StitchFoundry Defaults	Start fra StitchFoundrys standarder
+	Stem Stitch	Stilksting
+	Stem stitch	Stilksting
+	Step by step: words, a shape, appliqué, a picture or a sample	Trin for trin: ord, en figur, applikation, et billede eller en prøve
+	Steps	Trin
+	Still to digitize	Mangler at blive digitaliseret
+	Stipple	Stipling
+	Stitch	Sting
+	Stitch Direction	Stingretning
+	Stitch Edit Tool	Stingredigeringsværktøj
+	Stitch Image PNG (.png)…	Stingbillede PNG (.png)…
+	Stitch Lines	Stinglinjer
+	Stitch List	Stingliste
+	Stitch List CSV (.csv)…	Stingliste CSV (.csv)…
+	Stitch List JSON (.json)…	Stingliste JSON (.json)…
+	Stitch Parameters	Stingparametre
+	Stitch Plan	Stingplan
+	Stitch Sequence	Stingrækkefølge
+	Stitch Type	Stingtype
+	Stitch as	Brodér som
+	Stitch in the Ditch	Sy i sømmen
+	Stitch length	Stinglængde
+	Stitch type	Stingtype
+	StitchFoundry	StitchFoundry
+	StitchFoundry Account	StitchFoundry-konto
+	StitchFoundry Account…	StitchFoundry-konto…
+	StitchFoundry Help	StitchFoundry Hjælp
+	StitchFoundry Help…	StitchFoundry Hjælp…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-konti er ikke åbnet endnu. Indtil da virker AI-funktionerne med din egen Anthropic API-nøgle.
+	StitchFoundry copies the fonts to {folder}.	StitchFoundry kopierer skrifttyperne til {folder}.
+	StitchFoundry didn't quit normally last time. These documents had unsaved changes:	StitchFoundry blev ikke afsluttet normalt sidste gang. Disse dokumenter havde ændringer, der ikke var gemt:
+	StitchFoundry on GitHub	StitchFoundry på GitHub
+	StitchFoundry read this script without running it.	StitchFoundry læste dette script uden at køre det.
+	Stitches	Sting
+	Stitches edited by hand: the shape no longer changes them.	Sting redigeret manuelt: figuren ændrer dem ikke længere.
+	Stitches over 7 mm	Sting over 7 mm
+	Stitches per minute	Sting pr. minut
+	Stitches under 1 mm	Sting under 1 mm
+	Stitches up to {n} mm long can snag	Sting op til {n} mm lange kan hænge fast
+	Stop after	Stop efter
+	Stop before	Stop før
+	Stop to trim fabric	Stop for at klippe stof
+	Stops	Stop
+	Straight	Lige
+	Straight Buttonhole	Lige knaphul
+	String stitch	Snorsting
+	Stripes	Striber
+	Structured cap	Stiv kasket
+	Sun	Sol
+	Sun and moon	Sol og måne
+	Sunbursts	Solstråler
+	Swap Satin Sides	Byt satinsider
+	Swirl	Hvirvel
+	Swirls	Hvirvler
+	T-shirt	T-shirt
+	Tack-down	Fastsyning
+	Tajima DST (.dst)…	Tajima DST (.dst)…
+	Take back the last change	Tag den seneste ændring tilbage
+	Tapered	Tilspidset
+	Tartan Fill	Tartanfyld
+	Tatami Fill	Tatamifyld
+	Tatami stitches	Tatamisting
+	Tatami underlay	Tatami-understing
+	Team Names	Holdnavne
+	Team Names Worksheet	Arbejdsark med holdnavne
+	Team name files written	Holdnavnefiler skrevet
+	Tear-away	Afrivningsindlæg
+	Tell us your machine to see its hoops and save in its format.	Fortæl os din maskine for at se dens broderirammer og gemme i dens format.
+	Tell us your machine to see its hoops.	Fortæl os din maskine for at se dens broderirammer.
+	Template name	Skabelonnavn
+	Test Sew-Out	Prøvebroderi
+	Test Sew-Outs	Prøvebroderier
+	Test text	Testtekst
+	Text size	Tekststørrelse
+	Texture angle	Teksturvinkel
+	Texture size	Teksturstørrelse
+	The basic tools and everyday sections, nothing more	De grundlæggende værktøjer og de daglige sektioner, intet andet
+	The bobbin ran out	Undertråden slap op
+	The bobbin thread didn't cut, or caught	Undertråden blev ikke klippet, eller den hang fast
+	The chosen part	Den valgte del
+	The chosen parts	De valgte dele
+	The design	Designet
+	The design file too	Også designfilen
+	The design is bigger than the hoop: make it smaller before you sew.	Designet er større end broderirammen: gør det mindre, før du syr.
+	The design is larger than the hoop	Designet er større end broderirammen
+	The design's own	Designets egen
+	The dial in the lower-left corner sets the brush, width, density, length and shape.	Drejeskiven i nederste venstre hjørne angiver pensel, bredde, tæthed, længde og form.
+	The first column of a CSV table, or a text file of one name a line	Den første kolonne i en CSV-tabel eller en tekstfil med ét navn pr. linje
+	The first design in blue, the second in red, at the same scale and centred on each other	Det første design i blåt, det andet i rødt, i samme skala og centreret over hinanden
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	Forsiden, bagsiden og nærbilleder af alt, der ser forkert ud. En lineal eller en mønt på fotoet viser størrelsen.
+	The hoop	Broderirammen
+	The hoop was knocked or the fabric slipped	Broderirammen blev stødt, eller stoffet gled
+	The machine also stops where you lay or trim fabric.	Maskinen stopper også, hvor du lægger eller klipper stof.
+	The machine sews where the fabric goes and stops; you lay the fabric on, it tacks it down and stops again for you to trim; then it sews the edge.	Maskinen syr, hvor stoffet skal ligge, og stopper; du lægger stoffet på, den syr det fast og stopper igen, så du kan klippe til; derefter syr den kanten.
+	The machine stopped with a message	Maskinen stoppede med en meddelelse
+	The needle broke	Nålen knækkede
+	The pattern as a counted chart to stitch from: a symbol a square, numbered every 10, and a key of the threads	Mønsteret som et tællemønster at brodere efter: et symbol pr. tern, nummereret for hver 10, og en forklaring til trådene
+	The selected art becomes the glyph, moved onto its artboard	Den markerede grafik bliver til glyffen, flyttet over på dens kunstplade
+	The smallest hoop that holds the design, turned if that fits better	Den mindste broderiramme, der kan rumme designet, drejet hvis det passer bedre
+	The stitches are made to suit it: a stretchy T-shirt needs more holding than a towel or denim.	Stingene tilpasses stoffet: en elastisk T-shirt kræver mere støtte end et håndklæde eller denim.
+	The text along the selected line or shape, from its start	Teksten langs den markerede linje eller figur, fra dens start
+	The top thread broke	Overtråden knækkede
+	These are sewn in this order. Click a colour to match a thread you have.	De syes i denne rækkefølge. Klik på en farve for at matche en tråd, du har.
+	These objects are sewn as one path (a branch).	Disse objekter syes som én kurve (en gren).
+	Thinking…	Tænker…
+	This Design	Dette design
+	This design	Dette design
+	This design stops for fabric you cut to size. Made bigger or smaller, the pieces may no longer fit.	Dette design stopper for stof, du klipper til. Gøres det større eller mindre, passer stykkerne måske ikke længere.
+	This is the sew-out after the fix from my last check	Dette er syprøven efter rettelsen fra mit seneste tjek
+	Thread	Tråd
+	Thread Charts	Trådkort
+	Thread Color	Trådfarve
+	Thread chart	Trådkort
+	Thread colors	Trådfarver
+	Thread colour	Trådfarve
+	Thread colours	Trådfarver
+	Thread per 1000 m	Tråd pr. 1000 m
+	Threads of the same or a near colour made one, and their colour blocks joined; undo puts them back	Tråde i samme eller næsten samme farve er gjort til én, og deres farveblokke er sat sammen; Fortryd sætter dem tilbage
+	Three	Tre
+	Throw (50 × 65″)	Plaid (50 × 65″)
+	Tie in	Hæft ind
+	Tie length	Hæftelængde
+	Tie off	Hæft af
+	Tie style	Hæftetype
+	Tiny object: may not sew cleanly	Meget lille objekt: syes måske ikke pænt
+	Tiny objects under	Meget små objekter under
+	Tip:	Tip:
+	Tips	Tips
+	To follow a line of your own, draw it first, select it, then Add Words.	For at følge din egen linje skal du først tegne den, markere den og derefter vælge Tilføj ord.
+	Toolbar: All Tools, Ungrouped	Værktøjslinje: Alle værktøjer, ugrupperet
+	Top left	Øverst til venstre
+	Top right	Øverst til højre
+	Top thread (m)	Overtråd (m)
+	Topping	Topfilm
+	Tote bag	Mulepose
+	Towel	Håndklæde
+	Towel / terry	Håndklæde / frotté
+	Trapunto (travel along the outline)	Trapunto (bevæg dig langs konturen)
+	Travel by	Flyt via
+	Trefoils	Trepas
+	Trim after	Klip efter
+	Trim jumps longer than	Klip spring længere end
+	Trims	Klip
+	Triple	Tredobbelt
+	Triple run	Tredobbelt løbesting
+	Triple stitch length	Længde på tredobbelte sting
+	Triple stitches	Tredobbelte sting
+	Trucker cap	Truckerkasket
+	TrueView	TrueView
+	Try Again	Prøv igen
+	Try a sample	Prøv et eksempel
+	Try in a New Document	Prøv i et nyt dokument
+	Turn	Drej
+	Turn Into Stitches	Omdan til sting
+	Turn it into stitches in your thread colours.	Omdan det til sting i dine trådfarver.
+	Turn the hue	Drej farvetonen
+	Turn the image into stitches: narrow parts become satin, the rest tatami fill.	Omdan billedet til sting: smalle dele bliver satin, resten tatamifyld.
+	Twin (70 × 90″)	Enkeltseng (70 × 90″)
+	Type a name and make the design	Skriv et navn, og lav designet
+	Type family	Skriftfamilie
+	Type the hoop's width and height as numbers	Skriv broderirammens bredde og højde som tal
+	Type your question, then press Enter	Skriv dit spørgsmål, og tryk derefter på Enter
+	Type your text, then choose an embroidery font in the Lettering panel so it sews cleanly.	Skriv din tekst, og vælg derefter en broderiskrifttype i panelet Bogstaver, så den syes pænt.
+	Under 6 mm	Under 6 mm
+	Underlay spacing	Afstand i understing
+	Unload the font and stop loading its folder	Fjern skrifttypen, og stop med at indlæse dens mappe
+	Update Job Order	Opdatér arbejdsordre
+	Update Lettering	Opdatér bogstaver
+	Upright cross	Opretstående kryds
+	Use Colorway	Brug farvevariant
+	Use Line as Direction	Brug linje som retning
+	Use This Size	Brug denne størrelse
+	Valley	Dal
+	Version {version} — open-source machine embroidery digitizing in pure Rust.	Version {version} — open source-digitalisering til maskinbroderi i ren Rust.
+	Very dense: about {n} layers of thread here	Meget tæt: ca. {n} lag tråd her
+	Waiting for the folder	Venter på mappen
+	Wash-away	Vandopløseligt indlæg
+	Watch It Sew	Se det blive syet
+	Watch it sew	Se det blive syet
+	Watch it sew with the stitch player and check it.	Se det blive syet med stingafspilleren, og tjek det.
+	Watch the design sew with the stitch player in Stitch Sequence before you send it.	Se designet blive syet med stingafspilleren i Stingrækkefølge, før du sender det.
+	Wave	Bølge
+	Waves	Bølger
+	Welcome to StitchFoundry	Velkommen til StitchFoundry
+	What fabric will you sew it on?	Hvilket stof vil du sy det på?
+	What should it say?	Hvad skal der stå?
+	What size is the tile?	Hvor stort er feltet?
+	What to change (optional):	Hvad skal ændres (valgfrit):
+	What would you like to make?	Hvad vil du gerne lave?
+	Where it falls	Hvor det falder
+	Where needed	Hvor nødvendigt
+	Which embroidery machine do you have?	Hvilken broderimaskine har du?
+	Which fabric?	Hvilket stof?
+	Which hoop will you use?	Hvilken broderiramme vil du bruge?
+	Which project?	Hvilket projekt?
+	Which sample?	Hvilket eksempel?
+	Which shape of fabric?	Hvilken form på stoffet?
+	Which shape?	Hvilken figur?
+	While it sewed:	Mens den syede:
+	Wicker	Flet
+	Widget values	Widgetværdier
+	Width (mm)	Bredde (mm)
+	Width at end	Bredde ved slut
+	Width profile	Breddeprofil
+	Widths (mm)	Bredder (mm)
+	With the Thread Colour	Med trådfarven
+	Words	Ord
+	Words (you can leave this empty)	Ord (du kan lade dette være tomt)
+	Worksheet	Arbejdsark
+	Worksheet Setup	Opsætning af arbejdsark
+	Woven (twill, poplin)	Vævet (twill, poplin)
+	Write Again	Skriv igen
+	Write the design for your machine to its USB stick or folder	Skriv designet til din maskine på dens USB-stik eller mappe
+	Write to Folder…	Skriv til mappe…
+	X (mm)	X (mm)
+	Y (mm)	Y (mm)
+	You can still get it back with Undo.	Du kan stadig få det tilbage med Fortryd.
+	Your design	Dit design
+	Your first design	Dit første design
+	Your thread colours	Dine trådfarver
+	Zigzag	Zigzag
+	background, not sewn	baggrund, syes ikke
+	colours	farver
+	commercial machines	industrimaskiner
+	couldn't be read:	kunne ikke læses:
+	e.g. 75/11 ballpoint	f.eks. 75/11 kuglespids
+	failed	mislykkedes
+	failed:	mislykkedes:
+	files written	filer skrevet
+	fonts	skrifttyper
+	fonts downloaded, ready for lettering	skrifttyper downloadet, klar til bogstaver
+	home machines	hjemmemaskiner
+	in	i
+	inclination lines	hældningslinjer
+	is ready for lettering	er klar til bogstaver
+	joins needed: Join into One Line makes them	samlinger nødvendige: Forbind til én linje laver dem
+	longest	længste
+	same	samme
+	sent	sendt
+	stitches	sting
+	thread changes	trådskift
+	threads sewn	tråde syet
+	waiting	venter
+	{n} credits	{n} kreditter
+	{n} credits for {price}	{n} kreditter for {price}
+	{n} free checks left this month.	{n} gratis tjek tilbage denne måned.
+	{n} very short stitches can break the thread	{n} meget korte sting kan få tråden til at knække
+	{n}-count Aida	Aida med {n} tern pr. tomme
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Billede lavet af
+	Claude (draws the shapes itself)	Claude (tegner selv formerne)
+	{name} API key:	API-nøgle til {name}:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Billedet betales over din konto hos den tjeneste. Claude tegner det derefter om som flade former i dine trådfarver, så det broderes med få trådskift.
+	Making the picture…	Laver billedet…
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	Digitalisér automatisk
+	Backstitch Line	Tilbagestingslinje
+	Close Appliqué Outlines	Luk applikationens konturer
+	Erase Backstitch	Slet tilbagesting
+	Erase Cross Stitches	Slet korssting
+	Move Stitches	Flyt sting
+	Place Artwork	Placér grafik

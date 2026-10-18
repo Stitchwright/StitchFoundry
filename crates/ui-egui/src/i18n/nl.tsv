@@ -5202,3 +5202,1292 @@ swatch	Bright Violet	Felviolet
 @msg	too many library panels were opened in this session	er zijn in deze sessie te veel bibliotheekpanelen geopend
 @msg	The image is {_1} × {_2} pixels, more than {LARGE_TRACE_SIDE} on a side: it is traced, but more slowly. A lower-fidelity preset or a smaller copy of the image traces faster.	De afbeelding is {_1} × {_2} pixels, meer dan {LARGE_TRACE_SIDE} aan één zijde: ze wordt getraceerd, maar langzamer. Een voorinstelling met minder detail of een kleinere kopie van de afbeelding traceert sneller.
 @msg	The image was traced at {_1} × {_2} pixels, scaled down from {_3} × {_4} ({_5} megapixels at most).	De afbeelding is getraceerd op {_1} × {_2} pixels, verkleind van {_3} × {_4} (maximaal {_5} megapixels).
+
+# StitchFoundry (embroidery)
+	#	#
+	3D Puff	3D-puff
+	3D effect	3D-effect
+	3D puff	3D-puff
+	A USB stick, the machine's folder or a network share the machine reads	Een usb-stick, de map van de machine of een netwerkmap die de machine leest
+	A block	Een blok
+	A border of the selected line	Een rand langs de geselecteerde lijn
+	A border strip	Een randstrook
+	A check costs {n} credits; free checks come back next month.	Een controle kost {n} credits; gratis controles komen volgende maand terug.
+	A copy of this fabric to change	Een kopie van deze stof om te wijzigen
+	A corner	Een hoek
+	A fabric shape: the machine stops for you to lay the fabric, then sews it down	Een stofvorm: de machine stopt zodat u de stof kunt neerleggen en naait die dan vast
+	A finished design to sew and learn from	Een afgewerkt ontwerp om te borduren en van te leren
+	A font folder in Ink/Stitch's format: font.json and its glyphs	Een lettertypemap in de indeling van Ink/Stitch: font.json en de glyphs
+	A heart, a star, a flower and more	Een hart, een ster, een bloem en meer
+	A heart, a star, a flower and more, ready to sew	Een hart, een ster, een bloem en meer, klaar om te borduren
+	A little pillow front, a mug rug, a coaster or an ornament	Een kussenvoorkant, een mug rug, een onderzetter of een ornament
+	A machine profile of your own with these settings	Een eigen machineprofiel met deze instellingen
+	A moss fill with chain borders sewn before and after it, in a group in the shape's place	Een mossteekvulling met kettingsteekranden ervoor en erna, in een groep op de plaats van de vorm
+	A name or a few words, ready to sew	Een naam of een paar woorden, klaar om te borduren
+	A name or some words	Een naam of een paar woorden
+	A new design the size of this hoop's sewing field	Een nieuw ontwerp zo groot als het borduurveld van dit raam
+	A photo of the garment behind the design, life size, on a locked template layer that is never stitched	Een foto van het kledingstuk achter het ontwerp, op ware grootte, op een vergrendelde sjabloonlaag die nooit geborduurd wordt
+	A photo or a drawing turned into stitches	Een foto of tekening omgezet in steken
+	A photo or drawing to turn into stitches	Een foto of tekening om in steken om te zetten
+	A picture	Een afbeelding
+	A sample to try	Een voorbeeld om te proberen
+	A shape	Een vorm
+	A shape cut from fabric and sewn down	Een vorm uit stof geknipt en vastgenaaid
+	A sheet of the designs found, to print or save as PDF	Een overzicht van de gevonden ontwerpen, om af te drukken of als PDF op te slaan
+	A smoothed copy of the image in these colours, its specks cleaned, to digitize or click to stitch	Een gladgemaakte kopie van de afbeelding in deze kleuren, met de spikkels weggewerkt, om te digitaliseren of met klikken te borduren
+	A thread chart of your own from a CSV file (code, name and colour a thread) or a GIMP palette (.gpl)	Een eigen garenkaart uit een CSV-bestand (code, naam en kleur per draad) of een GIMP-palet (.gpl)
+	About StitchFoundry	Over StitchFoundry
+	About the library	Over de bibliotheek
+	About the sewing	Over het borduren
+	Accordion	Accordeon
+	Account	Account
+	Add Appliqué	Applicatie toevoegen
+	Add Appliqué…	Applicatie toevoegen…
+	Add Buttonholes	Knoopsgaten toevoegen
+	Add Glyphs	Glyphs toevoegen
+	Add Inclination Line	Hellingslijn toevoegen
+	Add Laydown	Neerleglaag toevoegen
+	Add Machine Folder…	Machinemap toevoegen…
+	Add My Hoop	Mijn raam toevoegen
+	Add Outline	Omtrek toevoegen
+	Add Photos…	Foto's toevoegen…
+	Add Words	Woorden toevoegen
+	Add Words…	Woorden toevoegen…
+	Add a Picture…	Afbeelding toevoegen…
+	Add a Shape	Vorm toevoegen
+	Add a Shape…	Vorm toevoegen…
+	Add a ribbon band across it	Een lintband erover toevoegen
+	Add a ribbon loop to hang it	Een lintlus toevoegen om het op te hangen
+	Add the folder your machine reads: a USB stick, its folder or a network share.	Voeg de map toe die uw machine leest: een usb-stick, de map van de machine of een netwerkmap.
+	Add to Design	Aan ontwerp toevoegen
+	Add to Send Queue	Aan verzendwachtrij toevoegen
+	Adjust Letter	Letter aanpassen
+	After each letter	Na elke letter
+	After each line	Na elke regel
+	After each word	Na elk woord
+	After the selection	Na de selectie
+	Again	Opnieuw
+	All Tools, Ungrouped	Alle gereedschappen, niet gegroepeerd
+	Allow	Toestaan
+	Along the baseline	Langs de basislijn
+	Along the line	Langs de lijn
+	Along the selected line	Langs de geselecteerde lijn
+	An appliqué	Een applicatie
+	An in-the-hoop project	Een in-het-raam-project
+	Another fabric, or not sure: leave it as it is	Een andere stof, of niet zeker: laat het zoals het is
+	Another machine (DST)	Een andere machine (DST)
+	Answers come from Claude with your own Anthropic API key, billed to your Anthropic account. They can be wrong: try a test sew before an important piece.	Antwoorden komen van Claude met uw eigen Anthropic API-sleutel, gefactureerd op uw Anthropic-account. Ze kunnen fout zijn: borduur eerst een proef voor een belangrijk stuk.
+	Anthropic API key:	Anthropic API-sleutel:
+	Anything else? For example: a gap above the bumper	Nog iets anders? Bijvoorbeeld: een opening boven de bumper
+	Applies the next time StitchFoundry starts.	Wordt toegepast bij de volgende start van StitchFoundry.
+	Appliqué	Applicatie
+	Appliqué letters	Applicatieletters
+	Appliqué star	Applicatiester
+	Apply Embroidery Style	Borduurstijl toepassen
+	Apply Fabric	Stof toepassen
+	Apply Motif	Motief toepassen
+	Approval	Goedkeuring
+	Arc Down	Boog omlaag
+	Arc Up	Boog omhoog
+	Arch	Boog
+	Arches	Bogen
+	Argyle	Argyle
+	Arrows	Pijlen
+	Artwork	Illustratie
+	As large as fits	Zo groot als past
+	As the design has it	Zoals het ontwerp het heeft
+	As the font has them	Zoals het lettertype ze heeft
+	As typed	Zoals getypt
+	Ask	Vragen
+	Ask About Embroidery	Vraag over borduren
+	Ask About Embroidery…	Vraag over borduren…
+	Ask anything about machine embroidery or StitchFoundry: which stabilizer to use, why thread breaks, how to make letters sew cleaner, where a feature is. Claude can also change your design when you ask, after you allow it.	Vraag alles over machinaal borduren of StitchFoundry: welke versteviging u moet gebruiken, waarom de draad breekt, hoe letters netter borduren, waar een functie zit. Claude kan ook uw ontwerp wijzigen als u daarom vraagt, nadat u dat toestaat.
+	Assign to Glyph	Aan glyph toewijzen
+	At each point	Bij elk punt
+	Auto Direction	Automatische richting
+	Auto Sequence	Automatische volgorde
+	Auto Stitch Direction	Automatische steekrichting
+	Auto spacing	Automatische tussenruimte
+	Auto split	Automatisch splitsen
+	Auto-Digitize Image	Afbeelding automatisch digitaliseren
+	Automatic Knife	Automatisch mes
+	Automatic underlay	Automatische onderlaag
+	Average stitch (mm)	Gemiddelde steek (mm)
+	Back to the Design	Terug naar het ontwerp
+	Back to the start	Terug naar het begin
+	Background Quilting	Achtergrondquilting
+	Background quilting the size of a quilting tile, block by block	Achtergrondquilting zo groot als een quilttegel, blok voor blok
+	Backstitch	Stiksteek
+	Backstitch Lines	Stiksteeklijnen
+	Backstitch lines	Stiksteeklijnen
+	Bank card	Bankpas
+	Barudan DSB (.dsb)…	Barudan DSB (.dsb)…
+	Barudan U01 (.u01)…	Barudan U01 (.u01)…
+	Basket weave	Mandenvlecht
+	Basting first	Eerst rijgen
+	Basting margin	Rijgmarge
+	Basting round	Rijgrand
+	Batch Convert	Batchconversie
+	Batch Output	Batchuitvoer
+	Bead length	Kraallengte
+	Beads	Kralen
+	Bean Outline	Boonsteekomtrek
+	Bean Ring	Boonsteekring
+	Bean Run	Boonsteek
+	Before the selection	Vóór de selectie
+	Bigger	Groter
+	Blanket	Festonsteek
+	Blend Colors	Kleuren mengen
+	Blend from Gradient	Mengen vanuit verloop
+	Blend into	Mengen in
+	Blend layers	Lagen mengen
+	Bobbin thread (m)	Onderdraad (m)
+	Border	Rand
+	Border depth	Randdiepte
+	Border length	Randlengte
+	Border or Corner…	Rand of hoek…
+	Boring	Gaatjes
+	Bottom left	Linksonder
+	Bottom right	Rechtsonder
+	Branch	Tak
+	Break Apart	Uit elkaar halen
+	Break Link to Embroidery Style	Koppeling met borduurstijl verbreken
+	Bricks	Bakstenen
+	Brother PEC (.pec)…	Brother PEC (.pec)…
+	Brother PES (.pes)…	Brother PES (.pes)…
+	Brother or Baby Lock	Brother of Baby Lock
+	Brother or Baby Lock multi-needle	Brother of Baby Lock meernaalds
+	Brush (squares)	Penseel (vierkantjes)
+	Brush Stroke	Penseelstreek
+	Bubbles	Bellen
+	Butterfly	Vlinder
+	Buttonholes	Knoopsgaten
+	Buy credits	Credits kopen
+	Buy…	Kopen…
+	Calibrate Life Size	Ware grootte kalibreren
+	Calibrate Life Size…	Ware grootte kalibreren…
+	Calligraphy	Kalligrafie
+	Cancelled	Geannuleerd
+	Capital letters are this tall. 20 to 30 mm suits a towel; 10 to 15 mm a shirt.	Hoofdletters zijn zo hoog. 20 tot 30 mm past bij een handdoek; 10 tot 15 mm bij een shirt.
+	Capitals	Hoofdletters
+	Capitals' height	Hoogte hoofdletters
+	Capped	Afgedekt
+	Carve Split Lines	Splitslijnen uitsnijden
+	Carve Stamp	Stempel uitsnijden
+	Carving Stamps	Stempels uitsnijden
+	Cell size	Celgrootte
+	Centre	Midden
+	Centre line	Middenlijn
+	Centre out	Vanuit het midden
+	Centre run	Middenloopsteek
+	Centred	Gecentreerd
+	Chain	Kettingsteek
+	Change It Anyway	Toch wijzigen
+	Change key	Sleutel wijzigen
+	Change the Size?	Grootte wijzigen?
+	Changed:	Gewijzigd:
+	Check	Controleren
+	Check Again	Opnieuw controleren
+	Check Continuous Line	Doorlopende lijn controleren
+	Check Design	Ontwerp controleren
+	Check Design in the Embroidery menu finds dense layers, long stitches and text too small to sew.	Ontwerp controleren in het menu Borduren vindt te dichte lagen, lange steken en tekst die te klein is om te borduren.
+	Check My Sew-out	Mijn borduurwerk controleren
+	Check My Sew-out…	Mijn borduurwerk controleren…
+	Check settings	Instellingen controleren
+	Chenille	Chenille
+	Chenille Stitch	Chenillesteek
+	Chenille Stops	Chenillestops
+	Chenille stops	Chenillestops
+	Chevrons	Visgraatstrepen
+	Choose Folder…	Map kiezen…
+	Choose My Machine	Mijn machine kiezen
+	Choose Smallest Hoop	Kleinste raam kiezen
+	Choose a Picture…	Afbeelding kiezen…
+	Choose a hoop in the Embroidery panel to see the sewing field round the design.	Kies een borduurraam in het Borduren-paneel om het borduurveld rond het ontwerp te zien.
+	Choose a machine file or the design open now	Kies een machinebestand of het ontwerp dat nu open is
+	Choose a picture	Kies een afbeelding
+	Choose a shape	Kies een vorm
+	Choose both designs to compare them	Kies beide ontwerpen om ze te vergelijken
+	Choose how each part is stitched: satin, fill, run and more.	Kies hoe elk deel geborduurd wordt: satijnsteek, vulsteek, loopsteek en meer.
+	Choose the photos in the browser's window…	Kies de foto's in het venster van de browser…
+	Chord length	Koordelengte
+	Circles	Cirkels
+	Claude draws the artwork with your own Anthropic API key, billed to your Anthropic account; StitchFoundry then digitizes it. Check the stitches before you sew.	Claude tekent de illustratie met uw eigen Anthropic API-sleutel, gefactureerd op uw Anthropic-account; daarna digitaliseert StitchFoundry die. Controleer de steken voordat u borduurt.
+	Claude looks at the photos with your own Anthropic API key, billed to your Anthropic account. It can be wrong: try a fix on a scrap of the same fabric first.	Claude bekijkt de foto's met uw eigen Anthropic API-sleutel, gefactureerd op uw Anthropic-account. Het kan fout zijn: probeer een oplossing eerst op een restje van dezelfde stof.
+	Claude redraws the image as clean flat-colour art, then StitchFoundry digitizes it	Claude tekent de afbeelding opnieuw als nette illustratie in egale kleuren, daarna digitaliseert StitchFoundry die
+	Claude redraws the image as flat-colour art with your own Anthropic API key, billed to your Anthropic account; StitchFoundry then digitizes it. Check the stitches before you sew.	Claude tekent de afbeelding opnieuw als illustratie in egale kleuren met uw eigen Anthropic API-sleutel, gefactureerd op uw Anthropic-account; daarna digitaliseert StitchFoundry die. Controleer de steken voordat u borduurt.
+	Claude wants to change your design:	Claude wil uw ontwerp wijzigen:
+	Clear Default	Standaard wissen
+	Clear Export History	Exportgeschiedenis wissen
+	Clear Flow Lines	Stroomlijnen wissen
+	Clear Inclination Lines	Hellingslijnen wissen
+	Clear Lines	Lijnen wissen
+	Clear Machine Function	Machinefunctie wissen
+	Clear Sent	Verzonden wissen
+	Clear Split Lines	Splitslijnen wissen
+	Clear everything in this design and begin again?	Alles in dit ontwerp wissen en opnieuw beginnen?
+	Clear the design and begin again	Het ontwerp wissen en opnieuw beginnen
+	Clear vinyl on top (wipe-clean)	Doorzichtig vinyl erop (afneembaar)
+	Click a motif to place it, digitized, in the middle of the page.	Klik op een motief om het gedigitaliseerd midden op de pagina te plaatsen.
+	Click a part of the design to change how it sews.	Klik op een deel van het ontwerp om te wijzigen hoe het geborduurd wordt.
+	Click a part of the design to choose it, drag it to move it	Klik op een deel van het ontwerp om het te kiezen, sleep om het te verplaatsen
+	Click a region of a placed image to stitch it; raise Tolerance to take in more of its shades.	Klik op een gebied van een geplaatste afbeelding om het te borduren; verhoog Tolerantie om meer tinten mee te nemen.
+	Click a region of an image to stitch it	Klik op een gebied van een afbeelding om het te borduren
+	Click a square to fill every touching square like it; hold Alt to clear them	Klik op een vakje om alle aangrenzende gelijke vakjes te vullen; houd Alt ingedrukt om ze te wissen
+	Click on one side of the column, then the other, in turn; Enter or Escape ends it.	Klik afwisselend op de ene kant van de kolom en dan op de andere; Enter of Escape beëindigt het.
+	Click or drag on a cross-stitch grid to fill its squares; hold Alt to erase	Klik of sleep op een kruissteekraster om de vakjes te vullen; houd Alt ingedrukt om te wissen
+	Click to Stitch	Klikken om te borduren
+	Click to select and show it	Klik om te selecteren en te tonen
+	Click-to-Stitch Tool	Gereedschap Klikken om te borduren
+	Clipart	Clipart
+	Closest	Dichtstbijzijnde
+	Clover	Klaverblad
+	Coaster, 3¾″ square	Onderzetter, 3¾″ vierkant
+	Coil	Spiraal
+	Color change	Kleurwissel
+	Colors and Order	Kleuren en volgorde
+	Colorway	Kleurvariant
+	Colorway Thread	Draad kleurvariant
+	Colorways	Kleurvarianten
+	Colour	Kleur
+	Colour Preview	Kleurvoorbeeld
+	Colour changes	Kleurwissels
+	Colour the design by how deep the thread lies: blue one layer, red as dense as Check Design flags	Kleur het ontwerp naar hoe dik de draad ligt: blauw één laag, rood zo dicht als Ontwerp controleren aangeeft
+	Colours	Kleuren
+	Column A/B	Kolom A/B
+	Column A/B Tool	Gereedschap Kolom A/B
+	Combine Appliqué	Applicatie combineren
+	Commercial multi-needle (DST)	Professionele meernaalds (DST)
+	Compare Designs	Ontwerpen vergelijken
+	Compare Designs…	Ontwerpen vergelijken…
+	Compound Chenille…	Samengestelde chenille…
+	Connectors	Verbindingen
+	Constant	Constant
+	Continuous Fill	Doorlopende vulling
+	Continuous Fill…	Doorlopende vulling…
+	Contour Fill	Contourvulling
+	Contour Split Lines	Contoursplitslijnen
+	Convert All	Alles omzetten
+	Convert Artwork to Embroidery	Illustratie omzetten naar borduurwerk
+	Convert Stitches to Objects	Steken omzetten naar objecten
+	Convert to	Omzetten naar
+	Convert to Satin Column	Omzetten naar satijnkolom
+	Converted:	Omgezet:
+	Cord	Koord
+	Cord width	Koordbreedte
+	Corner leg (0: no corner)	Hoekpoot (0: geen hoek)
+	Cost Estimate	Kostenraming
+	Cost a piece	Kosten per stuk
+	Cost settings	Kosteninstellingen
+	Couldn't be read	Kon niet worden gelezen
+	Couldn't change:	Kon niet wijzigen:
+	Count	Aantal
+	Count Decorations	Decoraties tellen
+	Cover stitch	Dekkende steek
+	Cover width	Dekbreedte
+	Create Account	Account aanmaken
+	Crib (36 × 52″)	Wieg (36 × 52″)
+	Cross Fill	Kruisvulling
+	Cross Stitch	Kruissteek
+	Cross Stitch Tool	Gereedschap Kruissteek
+	Cross Stitch from Image…	Kruissteek uit afbeelding…
+	Cross style	Kruisstijl
+	Cross-Stitch Pattern Info	Info kruissteekpatroon
+	Cross-Stitch Pattern Settings	Instellingen kruissteekpatroon
+	Crosses	Kruisjes
+	Crown	Kroon
+	Currency	Valuta
+	Current Properties	Huidige eigenschappen
+	Custom Hoops	Aangepaste ramen
+	Customer	Klant
+	Cut File	Snijbestand
+	Cut-away	Knipversteviging
+	Cutwork	Uitsnijwerk
+	DXF Lines (.dxf)…	DXF-lijnen (.dxf)…
+	Dad cap	Dad cap
+	Decoration Sizes	Decoratiegroottes
+	Delete Colorway	Kleurvariant verwijderen
+	Delete Custom Hoop	Aangepast raam verwijderen
+	Delete Design Template	Ontwerpsjabloon verwijderen
+	Delete Embroidery Style	Borduurstijl verwijderen
+	Delete Fabric	Stof verwijderen
+	Delete Hoop	Raam verwijderen
+	Delete Inclination Line	Hellingslijn verwijderen
+	Delete Job Order	Werkorder verwijderen
+	Delete Machine	Machine verwijderen
+	Delete Machine Profile	Machineprofiel verwijderen
+	Delete Monogram Template	Monogramsjabloon verwijderen
+	Delete Motif	Motief verwijderen
+	Delete My Shared Sew-out Checks	Mijn gedeelde borduurcontroles verwijderen
+	Delete Output Profile	Uitvoerprofiel verwijderen
+	Delete Template	Sjabloon verwijderen
+	Delete Thread Chart	Garenkaart verwijderen
+	Denim	Denim
+	Denim / canvas	Denim / canvas
+	Dense from (layers)	Dicht vanaf (lagen)
+	Densities (mm)	Dichtheden (mm)
+	Density	Dichtheid
+	Density Map	Dichtheidskaart
+	Density map	Dichtheidskaart
+	Describe a design and Claude draws artwork for it, then StitchFoundry digitizes it	Beschrijf een ontwerp en Claude tekent er een illustratie voor, daarna digitaliseert StitchFoundry die
+	Describe the design:	Beschrijf het ontwerp:
+	Design	Ontwerp
+	Design Catalogue	Ontwerpcatalogus
+	Design Information	Ontwerpinformatie
+	Design Library	Ontwerpbibliotheek
+	Design Templates	Ontwerpsjablonen
+	Design from Prompt	Ontwerp vanuit prompt
+	Design from Prompt…	Ontwerp vanuit prompt…
+	Design notes	Ontwerpnotities
+	Design setting	Ontwerpinstelling
+	Designs	Ontwerpen
+	Diamonds	Ruiten
+	Differences of 10% or more are highlighted. The real test is sewing both.	Verschillen van 10% of meer worden gemarkeerd. De echte test is beide borduren.
+	Different on each side	Aan elke kant anders
+	Digitizer	Digitaliseerder
+	Digitizing	Digitaliseren
+	Digitizing Widget	Digitaliseerwidget
+	Dimmed	Gedimd
+	Direction	Richting
+	Direction: automatic	Richting: automatisch
+	Direction: fixed angle	Richting: vaste hoek
+	Direction: one inclination line	Richting: één hellingslijn
+	Direction: turning along	Richting: meedraaiend
+	Don't Allow	Niet toestaan
+	Double	Dubbel
+	Double cross	Dubbel kruis
+	Double zigzag	Dubbele zigzag
+	Download Again	Opnieuw downloaden
+	Download All	Alles downloaden
+	Download fonts from an embroidery font library, ready for lettering	Download lettertypen uit een bibliotheek met borduurlettertypen, klaar voor belettering
+	Downloaded for your machine:	Gedownload voor uw machine:
+	Downloaded:	Gedownload:
+	Downloading	Bezig met downloaden
+	Drag across the shape to add a line; drag a bead to move it	Sleep over de vorm om een lijn toe te voegen; sleep een kraal om die te verplaatsen
+	Drag from corner to corner of the squares to draw a backstitch line; Alt-click a line to take it away	Sleep van hoek naar hoek van de vakjes om een stiksteeklijn te tekenen; Alt-klik op een lijn om die weg te halen
+	Drag picked needle points to move them, Alt-click a stitch to add one, Delete removes them.	Sleep gekozen naaldpunten om ze te verplaatsen, Alt-klik op een steek om er een toe te voegen, Delete verwijdert ze.
+	Draw an inclination line across a shape to set its stitch angle; two or more lines make the stitches turn.	Teken een hellingslijn over een vorm om de steekhoek in te stellen; twee of meer lijnen laten de steken draaien.
+	Draw shapes, place a picture or type text.	Teken vormen, plaats een afbeelding of typ tekst.
+	Drawing the design…	Het ontwerp tekenen…
+	Drop the hand edits and stitch the shape again	De handmatige bewerkingen weggooien en de vorm opnieuw borduren
+	Due (YYYY-MM-DD)	Klaar op (JJJJ-MM-DD)
+	Duplicate Embroidery Style	Borduurstijl dupliceren
+	E-stitch	E-steek
+	Each anchor point is a needle penetration.	Elk ankerpunt is een naaldsteek.
+	Each design found written again in this format beside it	Elk gevonden ontwerp opnieuw geschreven in deze indeling ernaast
+	Each font comes with its own licence, in its folder.	Elk lettertype heeft een eigen licentie, in de map ervan.
+	Each letter a patch of fabric: placement line, tack-down and cover	Elke letter een lapje stof: plaatsingslijn, vastzetsteek en afdekking
+	Each name with its size, stitches and sewing time, and the totals	Elke naam met grootte, steken en borduurtijd, en de totalen
+	Echo	Echo
+	Echo Quilting	Echoquilting
+	Edge run	Randloopsteek
+	Edge run and zigzag	Randloopsteek en zigzag
+	Edge run under fills	Randloopsteek onder vullingen
+	Edge run underlay	Onderlaag randloopsteek
+	Edge width	Randbreedte
+	Edge-to-Edge Rows	Rand-tot-rand-rijen
+	Edge-to-Edge Rows…	Rand-tot-rand-rijen…
+	Edge-to-edge rows of the selected line	Rand-tot-rand-rijen van de geselecteerde lijn
+	Edit Embroidery Font	Borduurlettertype bewerken
+	Edit Font	Lettertype bewerken
+	Edit Lettering	Belettering bewerken
+	Edit Lines	Lijnen bewerken
+	Edit Stitches	Steken bewerken
+	Edit › Undo takes each change back.	Bewerken › Ongedaan maken draait elke wijziging terug.
+	Email	E-mail
+	Embroidery	Borduren
+	Embroidery Basics	Basis van borduren
+	Embroidery Brush Tool	Gereedschap Borduurpenseel
+	Embroidery Business	Borduurbedrijf
+	Embroidery Clipart	Borduurclipart
+	Embroidery Fonts	Borduurlettertypen
+	Embroidery Lettering	Borduurbelettering
+	Embroidery Motifs	Borduurmotieven
+	Embroidery Settings	Borduurinstellingen
+	Embroidery Styles	Borduurstijlen
+	End	Einde
+	End at	Eindigen bij
+	Erase	Wissen
+	Estimate cost	Kosten ramen
+	Every digitizing tool, rulers and the control bar	Alle digitaliseergereedschappen, linialen en de bedieningsbalk
+	Every font not downloaded yet, one after another	Alle nog niet gedownloade lettertypen, een voor een
+	Every name in one design, in rows and columns, for a large hoop or patches	Alle namen in één ontwerp, in rijen en kolommen, voor een groot raam of emblemen
+	Every new design starts with these properties	Elk nieuw ontwerp begint met deze eigenschappen
+	Every thread changed by the scheme and matched to the design's chart; undo puts them back	Alle draden die door het schema zijn gewijzigd en gekoppeld aan de garenkaart van het ontwerp; ongedaan maken zet ze terug
+	Everything	Alles
+	Everything, with job orders and batch output	Alles, met werkorders en batchuitvoer
+	Experience	Ervaring
+	Export Again	Opnieuw exporteren
+	Export Chart…	Kaart exporteren…
+	Export History	Exportgeschiedenis
+	Export Machine File	Machinebestand exporteren
+	Export Machine File…	Machinebestand exporteren…
+	Export One File per Name…	Eén bestand per naam exporteren…
+	Export Quilting Lines	Quiltlijnen exporteren
+	Export Quilting Lines…	Quiltlijnen exporteren…
+	Export Stitch Image	Steekafbeelding exporteren
+	Export Stitch Image…	Steekafbeelding exporteren…
+	Export Team Names	Teamnamen exporteren
+	Export Thread Chart	Garenkaart exporteren
+	Export it again, as it was asked, from this document	Opnieuw exporteren, zoals gevraagd, vanuit dit document
+	Export the file for your machine.	Exporteer het bestand voor uw machine.
+	Export with Embroidery › Export Machine File and pick your machine's format.	Exporteer met Borduren › Machinebestand exporteren en kies de indeling van uw machine.
+	Exports	Exports
+	Fabric	Stof
+	Fabric color	Stofkleur
+	Fabric colour	Stofkleur
+	Fabric pattern	Stofpatroon
+	Fabric settings	Stofinstellingen
+	Fade in	Infaden
+	Fade out	Uitfaden
+	Feathers	Veren
+	Felt	Vilt
+	Fill Along Lines	Vullen langs lijnen
+	Fill Cross Stitches	Kruissteken vullen
+	Fill Holes	Gaten vullen
+	Fill a patch	Een embleem vullen
+	Fill density	Vuldichtheid
+	Fill stitch length	Vulsteeklengte
+	Fill stitches {n} mm long can ripple after washing	Vulsteken van {n} mm lang kunnen na het wassen gaan rimpelen
+	Fill style	Vulstijl
+	Fill the shape	De vorm vullen
+	Fill underlay	Onderlaag vulling
+	Fill without holes	Vullen zonder gaten
+	Filled	Gevuld
+	Filled Ring	Gevulde ring
+	Finished in the hoop: batting, backing and a satin edge	In het raam afgewerkt: vulling, achterkant en een satijnrand
+	First design	Eerste ontwerp
+	Fits the hoop	Past in het raam
+	Fixing	Repareren
+	Fleece / sweatshirt	Fleece / sweater
+	Flip every other	Om en om spiegelen
+	Flip to the other side	Naar de andere kant spiegelen
+	Flower	Bloem
+	Flowers	Bloemen
+	Foil	Folie
+	Font Creator	Lettertypemaker
+	Font Info	Lettertype-info
+	Font Properties	Lettertype-eigenschappen
+	Fonts are kept in	Lettertypen worden bewaard in
+	Fonts downloaded:	Lettertypen gedownload:
+	For towels, bags, pillows and gifts	Voor handdoeken, tassen, kussens en cadeaus
+	Forget Embroidery Font	Borduurlettertype vergeten
+	Forget Folder	Map vergeten
+	Forget Font	Lettertype vergeten
+	Forget Motif	Motief vergeten
+	Free sew-out checks left this month: {n}	Gratis borduurcontroles over deze maand: {n}
+	Freeze Stitches	Steken bevriezen
+	Full cross	Hele kruissteek
+	Function	Functie
+	G-code (.gcode)…	G-code (.gcode)…
+	Gap	Tussenruimte
+	Gap between repeats	Ruimte tussen herhalingen
+	Garment Background	Achtergrond kledingstuk
+	Garment Photo…	Foto kledingstuk…
+	Generate	Genereren
+	Get Embroidery Fonts	Borduurlettertypen ophalen
+	Get Embroidery Fonts…	Borduurlettertypen ophalen…
+	Get a key	Een sleutel aanvragen
+	Give every stitched object the chart's closest thread	Geef elk geborduurd object de dichtstbijzijnde draad van de kaart
+	Give objects a stitch type in the Embroidery panel.	Geef objecten een steeksoort in het Borduren-paneel.
+	Give the hoop a name	Geef het raam een naam
+	Globe in	Bol naar binnen
+	Globe out	Bol naar buiten
+	Glyphs to add	Toe te voegen glyphs
+	Graded	Geleidelijk
+	Gradient to	Verloop naar
+	Greek key	Griekse rand
+	HP-GL Plot (.plt)…	HP-GL-plot (.plt)…
+	Half cross	Halve kruissteek
+	Hand stitch	Handsteek
+	Happy TAP (.tap)…	Happy TAP (.tap)…
+	Heart	Hart
+	Heart patch	Hartembleem
+	Hearts	Harten
+	Height (mm)	Hoogte (mm)
+	Help Topic	Helponderwerp
+	Help Topics	Helponderwerpen
+	Help for Tool	Help bij gereedschap
+	Herringbone	Visgraat
+	Hexagons	Zeshoeken
+	Hidden (not sewn)	Verborgen (niet geborduurd)
+	Hide Digitizing Widget	Digitaliseerwidget verbergen
+	Hide StitchFoundry	StitchFoundry verbergen
+	Hold a ruler, or a bank card, against the screen and change the size until the marks match. Actual Size then shows designs life size.	Houd een liniaal of een bankpas tegen het scherm en wijzig de grootte tot de streepjes overeenkomen. Werkelijke grootte toont ontwerpen dan op ware grootte.
+	Honeycomb	Honingraat
+	Hoodie	Hoodie
+	Hoop	Borduurraam
+	Hoop name	Naam raam
+	Hoop not listed? Add its sewing field here.	Raam staat er niet bij? Voeg hier het borduurveld toe.
+	Hoops	Borduurramen
+	How do you work?	Hoe werkt u?
+	How tall	Hoe hoog
+	Husqvarna Viking (other models)	Husqvarna Viking (andere modellen)
+	I digitize designs	Ik digitaliseer ontwerpen
+	I run an embroidery business	Ik heb een borduurbedrijf
+	Image Colours	Afbeeldingskleuren
+	Import Chart…	Kaart importeren…
+	Import Names…	Namen importeren…
+	Import Thread Chart	Garenkaart importeren
+	In StitchFoundry	In StitchFoundry
+	In a line	Op een rij
+	In production	In productie
+	In the hoop	In het raam
+	In the middle (you can leave this empty)	In het midden (u mag dit leeg laten)
+	In-the-Hoop Cutting Templates	Snijsjablonen voor in het raam
+	In-the-Hoop Projects	In-het-raam-projecten
+	Inclination Tool	Gereedschap Helling
+	Inclination lines	Hellingslijnen
+	Include my design	Mijn ontwerp meesturen
+	Include the design that was sewn (open now), so it can be fixed	Het ontwerp dat geborduurd is meesturen (nu open), zodat het gerepareerd kan worden
+	Initials	Initialen
+	Insert Clipart	Clipart invoegen
+	Insert Machine Function	Machinefunctie invoegen
+	Inverted	Omgekeerd
+	Jag depth	Kartelingsdiepte
+	Jagged edges	Gekartelde randen
+	Janome JEF (.jef)…	Janome JEF (.jef)…
+	Janome or Elna	Janome of Elna
+	Jersey knit (T-shirt)	Jersey tricot (T-shirt)
+	Job Orders	Werkorders
+	Job Output	Werkuitvoer
+	Job Worksheet	Werkblad opdracht
+	Join into One Line	Samenvoegen tot één lijn
+	Jump	Sprong
+	Jumps	Sprongen
+	Just the outline	Alleen de omtrek
+	Keep Design Safe	Ontwerp veilig bewaren
+	Keep It	Behouden
+	Keep Motif	Motief behouden
+	Keep the Size	Grootte behouden
+	Keep the motif in My Motifs, for any design	Het motief bewaren in Mijn motieven, voor elk ontwerp
+	Keep the same pattern and spacing for every block of a quilt, so the blocks flow into each other.	Houd hetzelfde patroon en dezelfde tussenruimte voor elk blok van een quilt, zodat de blokken in elkaar overlopen.
+	Keep these settings in the machine's profile, for new designs	Deze instellingen in het machineprofiel bewaren, voor nieuwe ontwerpen
+	Keep this design's page, art, hoop, fabric and settings to start new designs from	De pagina, illustratie, het raam, de stof en de instellingen van dit ontwerp bewaren om nieuwe ontwerpen mee te beginnen
+	Kern	Kernen
+	Kern Glyph Pair	Glyphpaar kernen
+	Kerning (mm closer)	Kerning (mm dichter)
+	Keyhole	Sleutelgat
+	Keyhole Buttonhole	Sleutelgatknoopsgat
+	King (108 × 108″)	King (108 × 108″)
+	Kiosk Lettering	Kioskbelettering
+	Larger than the hoop	Groter dan het raam
+	Largest	Grootste
+	Lattice	Traliewerk
+	Lay Out Team Names	Teamnamen opmaken
+	Lay Out Together	Samen opmaken
+	Learn how	Leer hoe
+	Leather / vinyl	Leer / vinyl
+	Leave Kiosk	Kiosk verlaten
+	Leave it empty for StitchFoundry's own service.	Laat dit leeg voor de eigen dienst van StitchFoundry.
+	Leaves	Bladeren
+	Leaving the kiosk will take this PIN	Om de kiosk te verlaten is deze pincode nodig
+	Left to right	Van links naar rechts
+	Lengths (mm)	Lengtes (mm)
+	Let sewing start and stop at the closest points again	Borduren weer laten beginnen en stoppen bij de dichtstbijzijnde punten
+	Letter case	Hoofdletters/kleine letters
+	Lettering Kiosk	Beletteringskiosk
+	Lettering only {n} mm tall is hard to sew clearly	Belettering van maar {n} mm hoog is moeilijk duidelijk te borduren
+	Letters sewn	Geborduurde letters
+	Line spacing	Regelafstand
+	Lines apart	Lijnen uit elkaar
+	Listing the fonts…	Lettertypen ophalen…
+	Little pillow front, 8″ square	Kussenvoorkant, 8″ vierkant
+	Little pillow front, 9½ × 5½″	Kussenvoorkant, 9½ × 5½″
+	Load Embroidery Font	Borduurlettertype laden
+	Load Embroidery Font…	Borduurlettertype laden…
+	Load an embroidery font (Embroidery Lettering) to make monograms.	Laad een borduurlettertype (Borduurbelettering) om monogrammen te maken.
+	Load an embroidery font to set text with it.	Laad een borduurlettertype om er tekst mee te zetten.
+	Load this lettering's font to change it:	Laad het lettertype van deze belettering om die te wijzigen:
+	Lockstitch	Vastzetsteek
+	Long stitches catch from 7 mm on clothing, 12.1 mm on other items	Lange steken blijven haken vanaf 7 mm op kleding, 12,1 mm op andere artikelen
+	Long stitches from	Lange steken vanaf
+	Longarm Quilting	Longarm-quilting
+	Longest jump	Langste sprong
+	Longest stitch	Langste steek
+	Longest stitch (mm)	Langste steek (mm)
+	Look for dense spots, long stitches, tiny objects and small lettering	Zoeken naar te dichte plekken, lange steken, kleine objecten en kleine belettering
+	Loop	Lus
+	Loops	Lussen
+	Machine	Machine
+	Machine Embroidery File	Borduurmachinebestand
+	Machine Folders	Machinemappen
+	Machine Profiles	Machineprofielen
+	Machine embroidery digitizing — fast, open, scriptable.	Digitaliseren voor machinaal borduren — snel, open, scriptbaar.
+	Machine files, worksheet PDF and design, named alike	Machinebestanden, werkblad-PDF en ontwerp, met dezelfde naam
+	Machine folder	Machinemap
+	Machine formats (none ticked: the machine's)	Machine-indelingen (niets aangevinkt: die van de machine)
+	Machine heads	Machinekoppen
+	Machine settings	Machine-instellingen
+	Machine time an hour	Machinetijd per uur
+	Make Border	Rand maken
+	Make Current	Huidig maken
+	Make Design	Ontwerp maken
+	Make Every Size…	Alle maten maken…
+	Make In-the-Hoop Project	In-het-raam-project maken
+	Make It	Maken
+	Make Motif	Motief maken
+	Make Properties Current	Eigenschappen huidig maken
+	Make Rows	Rijen maken
+	Make a Design	Een ontwerp maken
+	Make a Design, Step by Step	Een ontwerp maken, stap voor stap
+	Make a Design…	Een ontwerp maken…
+	Make an embroidery font: a document with an artboard for each glyph to digitize.	Maak een borduurlettertype: een document met een tekengebied voor elke glyph om te digitaliseren.
+	Makes no stitches	Maakt geen steken
+	Manual Stitches	Handmatige steken
+	Mark where a button goes	Markeren waar een knoop komt
+	Match Threads to Chart	Draden koppelen aan kaart
+	Meander	Meander
+	Meander Fill	Meandervulling
+	Measure in	Meten in
+	Melco EXP (.exp)…	Melco EXP (.exp)…
+	Merge Colours	Kleuren samenvoegen
+	Merge Embroidery Font	Borduurlettertype samenvoegen
+	Merge glyphs from	Glyphs samenvoegen uit
+	Monogram	Monogram
+	Monogram Templates	Monogramsjablonen
+	Moon	Maan
+	Moons	Manen
+	More tips	Meer tips
+	Moss	Mossteek
+	Moss pattern	Mossteekpatroon
+	Most stitches	Meeste steken
+	Motif	Motief
+	Motif Border	Motiefrand
+	Motif Fill	Motiefvulling
+	Motif Tool	Gereedschap Motief
+	Motif length (× width)	Motieflengte (× breedte)
+	Motif size	Motiefgrootte
+	Motifs	Motieven
+	Move Inclination Line	Hellingslijn verplaatsen
+	Move along	Verplaatsen langs
+	Move down	Omlaag verplaatsen
+	Mug rug, 6½ × 4½″	Mug rug, 6½ × 4½″
+	Multi-Hooping	Meerdere keren inspannen
+	My Machine	Mijn machine
+	My Machine…	Mijn machine…
+	My Motifs	Mijn motieven
+	My hoop	Mijn raam
+	My machine:	Mijn machine:
+	My own hoops	Mijn eigen ramen
+	My sew-out ({n} photos)	Mijn borduurwerk ({n} foto's)
+	Names	Namen
+	Names Worksheet	Werkblad namen
+	Narrow satin under	Smalle satijnsteek onder
+	Needle	Naald
+	Needle height	Naaldhoogte
+	Needle points	Naaldpunten
+	Nest the rows	De rijen in elkaar schuiven
+	Nested diamonds	Geneste ruiten
+	New Colorway	Nieuwe kleurvariant
+	New Conversation	Nieuw gesprek
+	New Cross-Stitch Pattern…	Nieuw kruissteekpatroon…
+	New Design for Hoop	Nieuw ontwerp voor raam
+	New Embroidery Font	Nieuw borduurlettertype
+	New Embroidery Font from Type	Nieuw borduurlettertype uit lettertype
+	New Embroidery Style	Nieuwe borduurstijl
+	New Font from Type	Nieuw lettertype uit lettertype
+	New Job Order	Nieuwe werkorder
+	New Job for This Design	Nieuwe opdracht voor dit ontwerp
+	New Object Properties	Eigenschappen nieuwe objecten
+	New designs take the built-in properties again	Nieuwe ontwerpen krijgen weer de ingebouwde eigenschappen
+	New from Design Template	Nieuw uit ontwerpsjabloon
+	New objects of this stitch type take these properties	Nieuwe objecten van deze steeksoort krijgen deze eigenschappen
+	New strokes	Nieuwe streken
+	New to Embroidery	Nieuw met borduren
+	New to digitizing? Read the basics	Nieuw met digitaliseren? Lees de basis
+	New to embroidery	Nieuw met borduren
+	Newest	Nieuwste
+	Next Name	Volgende naam
+	No Stitches	Geen steken
+	No embroidery font is loaded: ask the shop to load one.	Er is geen borduurlettertype geladen: vraag de winkel om er een te laden.
+	No folder chosen	Geen map gekozen
+	No folder chosen yet	Nog geen map gekozen
+	No hoop	Geen raam
+	No problems found.	Geen problemen gevonden.
+	No shape	Geen vorm
+	No stitches yet.	Nog geen steken.
+	No styles yet. Select a stitched object and create one to reuse its stitch properties.	Nog geen stijlen. Selecteer een geborduurd object en maak er een om de steekeigenschappen ervan opnieuw te gebruiken.
+	No-show mesh	Onzichtbare mesh-versteviging
+	Not changed:	Niet gewijzigd:
+	Not digitized yet: show its artboard	Nog niet gedigitaliseerd: tekengebied tonen
+	Not set	Niet ingesteld
+	Not sewn	Niet geborduurd
+	Not sure	Niet zeker
+	Nothing exported yet in this session.	Nog niets geëxporteerd in deze sessie.
+	Nothing found	Niets gevonden
+	Nothing stitched yet	Nog niets geborduurd
+	Nothing to sew yet. Add words, a shape or a picture with the buttons on the left.	Nog niets om te borduren. Voeg woorden, een vorm of een afbeelding toe met de knoppen links.
+	Object Stitches	Objectsteken
+	Object color	Objectkleur
+	Objects you give a stitch type take these properties.	Objecten die u een steeksoort geeft, krijgen deze eigenschappen.
+	Octagon	Achthoek
+	Omit last stitch	Laatste steek weglaten
+	One colour	Eén kleur
+	One continuous line, ready for a longarm	Eén doorlopende lijn, klaar voor een longarm
+	One file for each usual tile size, in a folder or on the USB stick	Eén bestand voor elke gangbare tegelgrootte, in een map of op de usb-stick
+	One letter: moved, scaled or turned, kept when the lettering is set again	Eén letter: verplaatst, geschaald of gedraaid, behouden wanneer de belettering opnieuw wordt gezet
+	One name a line	Eén naam per regel
+	One over the Other	Een over de ander
+	Only redraw artwork you own or have permission to use.	Teken alleen illustraties opnieuw die van u zijn of die u mag gebruiken.
+	Open File…	Bestand openen…
+	Open Sample Design	Voorbeeldontwerp openen
+	Open a document to see its stitch sequence.	Open een document om de steekvolgorde te zien.
+	Open a document to see its stitches.	Open een document om de steken te zien.
+	Open or create a document to digitize embroidery.	Open of maak een document om borduurwerk te digitaliseren.
+	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	Bij het openen is weggelaten wat StitchFoundry nog niet kan lezen ({what}): vervangen laat dat definitief verloren gaan. Sla op onder een andere naam om het te behouden.
+	Ornament	Ornament
+	Outline Around	Omtrek rondom
+	Output Profiles	Uitvoerprofielen
+	Outside the sizes the font was made for: its stitches may come out too dense or too long	Buiten de maten waarvoor het lettertype is gemaakt: de steken kunnen te dicht of te lang worden
+	Oval Border	Ovale rand
+	Overlap	Overlap
+	Overlap where shapes touch	Overlap waar vormen elkaar raken
+	Own colour block	Eigen kleurblok
+	PIN	Pincode
+	Packing	Inpakken
+	Paid with StitchFoundry credits ({n} left).	Betaald met StitchFoundry-credits (nog {n}).
+	Paid with StitchFoundry credits.	Betaald met StitchFoundry-credits.
+	Paint	Verven
+	Paint Cross Stitches	Kruissteken schilderen
+	Pair	Paar
+	Paired with	Gekoppeld aan
+	Paisley	Paisley
+	Partial cover	Gedeeltelijke afdekking
+	Passes	Doorgangen
+	Path spacing	Padafstand
+	Pattern colour	Patroonkleur
+	Pattern colours	Patroonkleuren
+	Pause	Pauzeren
+	Paw	Poot
+	Paw Print	Pootafdruk
+	Pay for the AI features with my StitchFoundry credits	De AI-functies betalen met mijn StitchFoundry-credits
+	Pay with StitchFoundry credits instead	In plaats daarvan betalen met StitchFoundry-credits
+	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Betalen gebeurt op de beveiligde pagina van Stripe, in uw browser; uw kaart komt nooit bij StitchFoundry.
+	Pebbles	Kiezels
+	Per 1000 stitches	Per 1000 steken
+	Pfaff PCS (.pcs)…	Pfaff PCS (.pcs)…
+	Pfaff VP3 (.vp3)…	Pfaff VP3 (.vp3)…
+	Photo Stitch	Fotosteek
+	Photos of your finished sew-out	Foto's van uw afgewerkte borduurwerk
+	Pick a brush, width, density and shape from a dial, then draw on the canvas	Kies een penseel, breedte, dichtheid en vorm uit een draaiknop en teken dan op het canvas
+	Pick the hoop you will put the fabric in. The design is made to fit it.	Kies het raam waarin u de stof gaat spannen. Het ontwerp wordt daarop passend gemaakt.
+	Pick, move, add and delete single stitches	Losse steken kiezen, verplaatsen, toevoegen en verwijderen
+	Pinstripes	Krijtstrepen
+	Pique knit (polo shirt)	Piqué tricot (poloshirt)
+	Place Along Selected Line	Langs geselecteerde lijn plaatsen
+	Place Artwork as Embroidery	Illustratie als borduurwerk plaatsen
+	Place Lettering	Belettering plaatsen
+	Place Monogram	Monogram plaatsen
+	Place Motif	Motief plaatsen
+	Place Ring	Ring plaatsen
+	Place editable inclination lines (or pick the angle) automatically	Bewerkbare hellingslijnen (of de hoek) automatisch plaatsen
+	Placement line and stop	Plaatsingslijn en stop
+	Placement template	Plaatsingssjabloon
+	Plain	Effen
+	Play the stitches	De steken afspelen
+	Plug in the USB stick you take to your machine, then choose it here.	Steek de usb-stick die u naar uw machine meeneemt in de computer en kies die hier.
+	Polo shirt	Poloshirt
+	Prepare Appliqué	Applicatie voorbereiden
+	Prepare Image	Afbeelding voorbereiden
+	Preserve long stitches	Lange steken behouden
+	Print Catalogue	Catalogus afdrukken
+	Print Chart…	Kaart afdrukken…
+	Print Cross-Stitch Chart	Kruissteekpatroon afdrukken
+	Print Cross-Stitch Chart…	Kruissteekpatroon afdrukken…
+	Print Stitch View	Steekweergave afdrukken
+	Print and Export	Afdrukken en exporteren
+	Print the Cutting Templates…	Snijsjablonen afdrukken…
+	Print the Steps…	Stappen afdrukken…
+	Printed on worksheets	Afgedrukt op werkbladen
+	Product	Product
+	Product Visualizer	Productvisualisatie
+	Production	Productie
+	Profile	Profiel
+	Profile name	Profielnaam
+	Properties for New Objects	Eigenschappen voor nieuwe objecten
+	Pull comp., side 1	Trekcomp., kant 1
+	Pull comp., side 2	Trekcomp., kant 2
+	Pull compensation	Trekcompensatie
+	Push compensation	Duwcompensatie
+	Put back what Undo took back	Terugzetten wat Ongedaan maken terugdraaide
+	Put the machine's profile back to how it ships, and use it	Het machineprofiel terugzetten naar de fabrieksinstellingen en het gebruiken
+	Pyramids	Piramides
+	Quatrefoils	Vierpassen
+	Queen (90 × 108″)	Queen (90 × 108″)
+	Queue the design for this folder: it is written now if the folder is there, else as soon as it is	Het ontwerp in de wachtrij zetten voor deze map: het wordt nu geschreven als de map er is, anders zodra die er is
+	Quilt Block	Quiltblok
+	Quilt Block Patterns	Quiltblokpatronen
+	Quilt Block Set	Quiltblokset
+	Quilt blocks saved:	Quiltblokken opgeslagen:
+	Quilt height	Quilthoogte
+	Quilt width	Quiltbreedte
+	Quilting for a tile	Quilting voor een tegel
+	Quit StitchFoundry	StitchFoundry afsluiten
+	Radial Fill	Radiale vulling
+	Randomness	Willekeur
+	Read Team Names	Teamnamen inlezen
+	Read the size in the tile's window. The block is quilted edge to edge, the size of the tile.	Lees de grootte af in het venster van de tegel. Het blok wordt van rand tot rand gequilt, zo groot als de tegel.
+	Reading your credits…	Uw credits ophalen…
+	Recolour	Opnieuw kleuren
+	Recolour Threads	Draden opnieuw kleuren
+	Rectangle Border	Rechthoekige rand
+	Redefine Embroidery Style	Borduurstijl opnieuw definiëren
+	Redraw Image with Claude	Afbeelding opnieuw tekenen met Claude
+	Redraw Image with Claude…	Afbeelding opnieuw tekenen met Claude…
+	Redraw with Claude…	Opnieuw tekenen met Claude…
+	Redwork	Redwork
+	Regenerate Stitches	Steken opnieuw genereren
+	Remember the key on this computer	De sleutel op deze computer onthouden
+	Remove Blend	Overvloeiing verwijderen
+	Remove Holes	Gaten verwijderen
+	Remove background	Achtergrond verwijderen
+	Remove from Send Queue	Uit verzendwachtrij verwijderen
+	Remove the motif from the design; what sews it keeps it.	Het motief uit het ontwerp verwijderen; wat het borduurt, blijft behouden.
+	Remove underlying stitching	Onderliggende steken verwijderen
+	Rename Colorway	Kleurvariant hernoemen
+	Rename Embroidery Style	Borduurstijl hernoemen
+	Rename Embroidery Style…	Borduurstijl hernoemen…
+	Repeats across	Herhalingen horizontaal
+	Repeats down	Herhalingen verticaal
+	Replace Cross-Stitch Colour	Kruissteekkleur vervangen
+	Report a Bug…	Een bug melden…
+	Reset Current Properties	Huidige eigenschappen herstellen
+	Reset Letter	Letter herstellen
+	Reset Machine	Machine herstellen
+	Reset Start and Stop	Begin en einde herstellen
+	Reverse Stitch Direction	Steekrichting omkeren
+	Rhinestones	Strass-steentjes
+	Rhinestones aren't sewn: export their template to cut and set them	Strass-steentjes worden niet geborduurd: exporteer hun sjabloon om ze uit te snijden en te plaatsen
+	Right to left	Van rechts naar links
+	Rings (0: all)	Ringen (0: alle)
+	Ripples	Rimpelingen
+	Rotate Hoop	Raam draaien
+	Round ornament, 3½″	Rond ornament, 3½″
+	Round the edge	Langs de rand
+	Rounded Border	Afgeronde rand
+	Rounded Buttonhole	Afgerond knoopsgat
+	Row offset	Rijverschuiving
+	Row spacing	Rijafstand
+	Row spacing (0: the line's height)	Rijafstand (0: de regelhoogte)
+	Rows across the shape: up is denser. Drag a point; double-click to add one; right-click one to take it out.	Rijen over de vorm: omhoog is dichter. Sleep een punt; dubbelklik om er een toe te voegen; rechtsklik op een punt om het weg te halen.
+	Rows follow lines:	Rijen volgen lijnen:
+	Run	Loopsteek
+	Run style	Loopsteekstijl
+	SVG Lines (.svg)…	SVG-lijnen (.svg)…
+	Sample Designs	Voorbeeldontwerpen
+	Satin	Satijnsteek
+	Satin Fill	Satijnvulling
+	Satin Outline	Satijnomtrek
+	Satin Ring	Satijnring
+	Satin density	Satijndichtheid
+	Satin only {n} mm wide sinks into the fabric	Satijnsteek van maar {n} mm breed zakt weg in de stof
+	Satin sewn over foam: dense, no underlay, its ends capped. Sew it in a colour of its own, to lay the foam at the stop	Satijnsteek over schuim: dicht, geen onderlaag, de uiteinden afgedekt. Borduur het in een eigen kleur, om het schuim bij de stop neer te leggen
+	Satin suits shapes up to about 7 mm wide; wider areas sew better as tatami fill.	Satijnsteek past bij vormen tot ongeveer 7 mm breed; bredere vlakken borduren beter als tatamivulling.
+	Satin underlay	Onderlaag satijnsteek
+	Save Custom Hoop	Aangepast raam opslaan
+	Save Design keeps a copy you can open and change later.	Ontwerp opslaan bewaart een kopie die u later kunt openen en wijzigen.
+	Save Design…	Ontwerp opslaan…
+	Save Embroidery Font	Borduurlettertype opslaan
+	Save Embroidery Font…	Borduurlettertype opslaan…
+	Save Fabric	Stof opslaan
+	Save Hoop	Raam opslaan
+	Save Machine File…	Machinebestand opslaan…
+	Save Machine Profile	Machineprofiel opslaan
+	Save Monogram Template	Monogramsjabloon opslaan
+	Save Output Profile	Uitvoerprofiel opslaan
+	Save Profile	Profiel opslaan
+	Save Thread Chart	Garenkaart opslaan
+	Save as Default	Opslaan als standaard
+	Save as Design Template	Opslaan als ontwerpsjabloon
+	Save as New Fabric	Opslaan als nieuwe stof
+	Save as New Machine	Opslaan als nieuwe machine
+	Save designs to	Ontwerpen opslaan in
+	Save for My Machine	Opslaan voor mijn machine
+	Save for My Machine downloads the design: copy it to the USB stick you take to your machine.	Opslaan voor mijn machine downloadt het ontwerp: kopieer het naar de usb-stick die u naar uw machine meeneemt.
+	Save for My Machine downloads the file your machine sews: copy it to its USB stick.	Opslaan voor mijn machine downloadt het bestand dat uw machine borduurt: kopieer het naar de usb-stick ervan.
+	Save for My Machine writes the file your machine sews, to its USB stick.	Opslaan voor mijn machine schrijft het bestand dat uw machine borduurt naar de usb-stick ervan.
+	Save it	Opslaan
+	Save to Machine	Opslaan naar machine
+	Saved for you automatically in My Designs:	Automatisch voor u opgeslagen in Mijn ontwerpen:
+	Saved for your machine:	Opgeslagen voor uw machine:
+	Scales	Schubben
+	Scallops	Schulpen
+	Scatter Copies	Kopieën verspreiden
+	Screen Points per Inch at Life Size	Schermpunten per inch op ware grootte
+	Screen points per inch	Schermpunten per inch
+	Sculpture run	Sculptuurloopsteek
+	Search help	Help doorzoeken
+	Second	Tweede
+	Second design	Tweede ontwerp
+	Seconds per color change	Seconden per kleurwissel
+	Seconds per trim	Seconden per knipbeurt
+	See the design sew on screen, stitch by stitch	Het ontwerp op het scherm zien borduren, steek voor steek
+	See the needle go stitch by stitch, in the order your machine will sew it.	Zie de naald steek voor steek gaan, in de volgorde waarin uw machine het borduurt.
+	Select a path, shape or compound path to give it a stitch type.	Selecteer een pad, vorm of samengesteld pad om het een steeksoort te geven.
+	Select art and choose Embroidery › Convert Artwork to Embroidery to digitize it in one step.	Selecteer illustraties en kies Borduren › Illustratie omzetten naar borduurwerk om ze in één stap te digitaliseren.
+	Select lettering set in an embroidery font: a machine file is written for each name, the lettering set to it.	Selecteer belettering in een borduurlettertype: voor elke naam wordt een machinebestand geschreven, met de belettering op die naam ingesteld.
+	Selection to glyph	Selectie naar glyph
+	Send	Verzenden
+	Send Queue	Verzendwachtrij
+	Send Waiting Designs	Wachtende ontwerpen verzenden
+	Send When Ready	Verzenden wanneer gereed
+	Send queue	Verzendwachtrij
+	Send to Machine	Naar machine verzenden
+	Sent:	Verzonden:
+	Sequins	Pailletten
+	Server	Server
+	Set Flow Lines	Stroomlijnen instellen
+	Set Inclination Lines	Hellingslijnen instellen
+	Set My Machine	Mijn machine instellen
+	Set Split Lines	Splitslijnen instellen
+	Set Start and Stop	Begin en einde instellen
+	Set Thread	Draad instellen
+	Set-up an order	Een order opzetten
+	Sew Puff Last	Puff als laatste borduren
+	Sew as	Borduren als
+	Sew earlier	Eerder borduren
+	Sew first	Als eerste borduren
+	Sew it as	Borduren als
+	Sew last	Als laatste borduren
+	Sew later	Later borduren
+	Sew order	Borduurvolgorde
+	Sew the gradient's colours blended the way it runs	De kleuren van het verloop gemengd borduren in de richting van het verloop
+	Sew the objects separately again	De objecten weer afzonderlijk borduren
+	Sew the photo over itself as zigzag lines, one meandering run, or its colours	De foto over zichzelf borduren als zigzaglijnen, één meanderende loopsteek of in de kleuren ervan
+	Sew the pieces together	De stukken aan elkaar naaien
+	Sew the shape as appliqué	De vorm als applicatie borduren
+	Sewing time	Borduurtijd
+	Sewn as one line that ends where it starts; the way between lines is retraced along them.	Geborduurd als één lijn die eindigt waar hij begint; de weg tussen lijnen wordt erlangs teruggelegd.
+	Sewn in a 5×7 hoop, borders and back sewn on after	Geborduurd in een 5×7-raam, randen en achterkant er daarna aangenaaid
+	Sewn last	Als laatste geborduurd
+	Sewn on clothing	Geborduurd op kleding
+	Sews well at	Borduurt goed bij
+	Sews well from	Borduurt goed vanaf
+	Sews well up to	Borduurt goed tot
+	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Deel deze controle om StitchFoundry te helpen verbeteren (blijft privé; verwijder hem wanneer u wilt in StitchFoundry-account)
+	Shell	Schelp
+	Shield	Schild
+	Short fill stitches under	Korte vulsteken onder
+	Short stitches on curves	Korte steken in bochten
+	Short stitches under	Korte steken onder
+	Shortest stitch	Kortste steek
+	Show Repeats	Herhalingen tonen
+	Show every stitch	Elke steek tonen
+	Show everything	Alles tonen
+	Show on Product	Op product tonen
+	Show stitches	Steken tonen
+	Show this glyph	Deze glyph tonen
+	Showing the basics.	De basis wordt getoond.
+	Shown with the design, not sewn	Getoond met het ontwerp, niet geborduurd
+	Side 1	Kant 1
+	Side 2	Kant 2
+	Side by Side	Naast elkaar
+	Sign In	Aanmelden
+	Sign Out	Afmelden
+	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Meld u aan, of maak een account, om de AI-functies te betalen met StitchFoundry-credits in plaats van uw eigen Anthropic API-sleutel. Een nieuw account begint met gratis credits.
+	Signed in as {email}	Aangemeld als {email}
+	Silk / lightweight	Zijde / licht
+	Simple pictures with a few flat colours and clear edges work best: a cartoon, a logo, clipart.	Eenvoudige afbeeldingen met een paar egale kleuren en duidelijke randen werken het best: een cartoon, een logo, clipart.
+	Singer XXX (.xxx)…	Singer XXX (.xxx)…
+	Single	Enkel
+	Single stitch length	Lengte enkele steek
+	Single stitches	Enkele steken
+	Size (longest side):	Grootte (langste zijde):
+	Slants	Schuine strepen
+	Small lettering under	Kleine belettering onder
+	Small letters	Kleine letters
+	Small text	Kleine tekst
+	Smaller	Kleiner
+	Smallest That Fits	Kleinste die past
+	Smooth edge (satin)	Gladde rand (satijnsteek)
+	Snapback	Snapback
+	Snowflake	Sneeuwvlok
+	Snowflakes	Sneeuwvlokken
+	Sort by Thread Color	Sorteren op draadkleur
+	Space width	Spatiebreedte
+	Spacing profile	Afstandsprofiel
+	Special Machines	Speciale machines
+	Spiral Fill	Spiraalvulling
+	Spirals	Spiralen
+	Split Here	Hier splitsen
+	Split Lines	Splitslijnen
+	Split Object	Object splitsen
+	Split lines:	Splitslijnen:
+	Split the object in two at the picked stitch	Het object in tweeën splitsen bij de gekozen steek
+	Square corners	Rechte hoeken
+	Square loop	Vierkante lus
+	Squares spiral	Vierkantenspiraal
+	Stabiliser	Versteviging
+	Stabilizer	Versteviging
+	Stars	Sterren
+	Start	Begin
+	Start Over	Opnieuw beginnen
+	Start Over…	Opnieuw beginnen…
+	Start a design for your hoop	Een ontwerp beginnen voor uw raam
+	Start a design from the Home screen.	Begin een ontwerp vanuit het beginscherm.
+	Start and End on the Edges	Beginnen en eindigen aan de randen
+	Start and stop	Begin en einde
+	Start at	Beginnen bij
+	Start from StitchFoundry Defaults	Beginnen met de standaardinstellingen van StitchFoundry
+	Stem Stitch	Steelsteek
+	Stem stitch	Steelsteek
+	Step by step: words, a shape, appliqué, a picture or a sample	Stap voor stap: woorden, een vorm, applicatie, een afbeelding of een voorbeeld
+	Steps	Stappen
+	Still to digitize	Nog te digitaliseren
+	Stipple	Stippelen
+	Stitch	Steek
+	Stitch Direction	Steekrichting
+	Stitch Edit Tool	Gereedschap Steken bewerken
+	Stitch Image PNG (.png)…	Steekafbeelding PNG (.png)…
+	Stitch Lines	Steeklijnen
+	Stitch List	Steeklijst
+	Stitch List CSV (.csv)…	Steeklijst CSV (.csv)…
+	Stitch List JSON (.json)…	Steeklijst JSON (.json)…
+	Stitch Parameters	Steekparameters
+	Stitch Plan	Steekplan
+	Stitch Sequence	Steekvolgorde
+	Stitch Type	Steeksoort
+	Stitch as	Borduren als
+	Stitch in the Ditch	In de naad stikken
+	Stitch length	Steeklengte
+	Stitch type	Steeksoort
+	StitchFoundry	StitchFoundry
+	StitchFoundry Account	StitchFoundry-account
+	StitchFoundry Account…	StitchFoundry-account…
+	StitchFoundry Help	StitchFoundry Help
+	StitchFoundry Help…	StitchFoundry Help…
+	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-accounts zijn nog niet open. Tot dan werken de AI-functies met uw eigen Anthropic API-sleutel.
+	StitchFoundry copies the fonts to {folder}.	StitchFoundry kopieert de lettertypen naar {folder}.
+	StitchFoundry didn't quit normally last time. These documents had unsaved changes:	StitchFoundry is de vorige keer niet normaal afgesloten. Deze documenten hadden niet-opgeslagen wijzigingen:
+	StitchFoundry on GitHub	StitchFoundry op GitHub
+	StitchFoundry read this script without running it.	StitchFoundry heeft dit script gelezen zonder het uit te voeren.
+	Stitches	Steken
+	Stitches edited by hand: the shape no longer changes them.	Steken met de hand bewerkt: de vorm wijzigt ze niet meer.
+	Stitches over 7 mm	Steken langer dan 7 mm
+	Stitches per minute	Steken per minuut
+	Stitches under 1 mm	Steken korter dan 1 mm
+	Stitches up to {n} mm long can snag	Steken tot {n} mm lang kunnen blijven haken
+	Stop after	Stoppen na
+	Stop before	Stoppen voor
+	Stop to trim fabric	Stoppen om stof bij te knippen
+	Stops	Stops
+	Straight	Recht
+	Straight Buttonhole	Recht knoopsgat
+	String stitch	Koordsteek
+	Stripes	Strepen
+	Structured cap	Gestructureerde pet
+	Sun	Zon
+	Sun and moon	Zon en maan
+	Sunbursts	Zonnestralen
+	Swap Satin Sides	Satijnzijden verwisselen
+	Swirl	Krul
+	Swirls	Krullen
+	T-shirt	T-shirt
+	Tack-down	Vastzetsteek
+	Tajima DST (.dst)…	Tajima DST (.dst)…
+	Take back the last change	De laatste wijziging terugdraaien
+	Tapered	Taps
+	Tartan Fill	Tartanvulling
+	Tatami Fill	Tatamivulling
+	Tatami stitches	Tatamisteken
+	Tatami underlay	Onderlaag tatami
+	Team Names	Teamnamen
+	Team Names Worksheet	Werkblad teamnamen
+	Team name files written	Teamnaambestanden geschreven
+	Tear-away	Scheurversteviging
+	Tell us your machine to see its hoops and save in its format.	Vertel ons welke machine u hebt om de ramen te zien en in de indeling ervan op te slaan.
+	Tell us your machine to see its hoops.	Vertel ons welke machine u hebt om de ramen te zien.
+	Template name	Naam sjabloon
+	Test Sew-Out	Proefborduursel
+	Test Sew-Outs	Proefborduursels
+	Test text	Testtekst
+	Text size	Tekstgrootte
+	Texture angle	Textuurhoek
+	Texture size	Textuurgrootte
+	The basic tools and everyday sections, nothing more	De basisgereedschappen en de dagelijkse onderdelen, verder niets
+	The bobbin ran out	De spoel was leeg
+	The bobbin thread didn't cut, or caught	De onderdraad werd niet geknipt of bleef haken
+	The chosen part	Het gekozen deel
+	The chosen parts	De gekozen delen
+	The design	Het ontwerp
+	The design file too	Het ontwerpbestand ook
+	The design is bigger than the hoop: make it smaller before you sew.	Het ontwerp is groter dan het raam: maak het kleiner voordat u borduurt.
+	The design is larger than the hoop	Het ontwerp is groter dan het raam
+	The design's own	Eigen aan het ontwerp
+	The dial in the lower-left corner sets the brush, width, density, length and shape.	De draaiknop linksonder stelt het penseel, de breedte, dichtheid, lengte en vorm in.
+	The first column of a CSV table, or a text file of one name a line	De eerste kolom van een CSV-tabel, of een tekstbestand met één naam per regel
+	The first design in blue, the second in red, at the same scale and centred on each other	Het eerste ontwerp in blauw, het tweede in rood, op dezelfde schaal en op elkaar gecentreerd
+	The front, the back, and close-ups of anything that looks wrong. A ruler or a coin in the photo shows the size.	De voorkant, de achterkant en close-ups van alles wat er verkeerd uitziet. Een liniaal of een munt op de foto laat de grootte zien.
+	The hoop	Het raam
+	The hoop was knocked or the fabric slipped	Er werd tegen het raam gestoten of de stof verschoof
+	The machine also stops where you lay or trim fabric.	De machine stopt ook waar u stof neerlegt of bijknipt.
+	The machine sews where the fabric goes and stops; you lay the fabric on, it tacks it down and stops again for you to trim; then it sews the edge.	De machine borduurt waar de stof komt en stopt; u legt de stof erop, zij zet die vast en stopt weer zodat u kunt bijknippen; daarna borduurt zij de rand.
+	The machine stopped with a message	De machine stopte met een melding
+	The needle broke	De naald brak
+	The pattern as a counted chart to stitch from: a symbol a square, numbered every 10, and a key of the threads	Het patroon als telpatroon om van te borduren: een symbool per vakje, om de 10 genummerd, en een legenda van de draden
+	The selected art becomes the glyph, moved onto its artboard	De geselecteerde illustratie wordt de glyph, verplaatst naar het tekengebied ervan
+	The smallest hoop that holds the design, turned if that fits better	Het kleinste raam waar het ontwerp in past, gedraaid als dat beter past
+	The stitches are made to suit it: a stretchy T-shirt needs more holding than a towel or denim.	De steken worden erop afgestemd: een rekbaar T-shirt heeft meer houvast nodig dan een handdoek of denim.
+	The text along the selected line or shape, from its start	De tekst langs de geselecteerde lijn of vorm, vanaf het begin ervan
+	The top thread broke	De bovendraad brak
+	These are sewn in this order. Click a colour to match a thread you have.	Deze worden in deze volgorde geborduurd. Klik op een kleur om die aan een draad te koppelen die u hebt.
+	These objects are sewn as one path (a branch).	Deze objecten worden als één pad geborduurd (een tak).
+	Thinking…	Denken…
+	This Design	Dit ontwerp
+	This design	Dit ontwerp
+	This design stops for fabric you cut to size. Made bigger or smaller, the pieces may no longer fit.	Dit ontwerp stopt voor stof die u op maat knipt. Groter of kleiner gemaakt passen de stukken misschien niet meer.
+	This is the sew-out after the fix from my last check	Dit is het borduurwerk na de oplossing van mijn vorige controle
+	Thread	Draad
+	Thread Charts	Garenkaarten
+	Thread Color	Draadkleur
+	Thread chart	Garenkaart
+	Thread colors	Draadkleuren
+	Thread colour	Draadkleur
+	Thread colours	Draadkleuren
+	Thread per 1000 m	Draad per 1000 m
+	Threads of the same or a near colour made one, and their colour blocks joined; undo puts them back	Draden van dezelfde of een bijna gelijke kleur samengevoegd, en hun kleurblokken verbonden; ongedaan maken zet ze terug
+	Three	Drie
+	Throw (50 × 65″)	Plaid (50 × 65″)
+	Tie in	Inhechten
+	Tie length	Hechtlengte
+	Tie off	Afhechten
+	Tie style	Hechtstijl
+	Tiny object: may not sew cleanly	Heel klein object: wordt misschien niet netjes geborduurd
+	Tiny objects under	Heel kleine objecten onder
+	Tip:	Tip:
+	Tips	Tips
+	To follow a line of your own, draw it first, select it, then Add Words.	Om een eigen lijn te volgen, teken die eerst, selecteer die en kies dan Woorden toevoegen.
+	Toolbar: All Tools, Ungrouped	Werkbalk: alle gereedschappen, niet gegroepeerd
+	Top left	Linksboven
+	Top right	Rechtsboven
+	Top thread (m)	Bovendraad (m)
+	Topping	Toplaag
+	Tote bag	Draagtas
+	Towel	Handdoek
+	Towel / terry	Handdoek / badstof
+	Trapunto (travel along the outline)	Trapunto (langs de omtrek verplaatsen)
+	Travel by	Verplaatsen via
+	Trefoils	Driepassen
+	Trim after	Knippen na
+	Trim jumps longer than	Sprongen knippen langer dan
+	Trims	Knipbeurten
+	Triple	Drievoudig
+	Triple run	Drievoudige loopsteek
+	Triple stitch length	Lengte drievoudige steek
+	Triple stitches	Drievoudige steken
+	Trucker cap	Truckerpet
+	TrueView	TrueView
+	Try Again	Opnieuw proberen
+	Try a sample	Een voorbeeld proberen
+	Try in a New Document	Proberen in een nieuw document
+	Turn	Draaien
+	Turn Into Stitches	Omzetten in steken
+	Turn it into stitches in your thread colours.	Zet het om in steken in uw draadkleuren.
+	Turn the hue	De tint draaien
+	Turn the image into stitches: narrow parts become satin, the rest tatami fill.	De afbeelding omzetten in steken: smalle delen worden satijnsteek, de rest tatamivulling.
+	Twin (70 × 90″)	Eenpersoons (70 × 90″)
+	Type a name and make the design	Typ een naam en maak het ontwerp
+	Type family	Lettertypefamilie
+	Type the hoop's width and height as numbers	Typ de breedte en hoogte van het raam als getallen
+	Type your question, then press Enter	Typ uw vraag en druk dan op Enter
+	Type your text, then choose an embroidery font in the Lettering panel so it sews cleanly.	Typ uw tekst en kies dan een borduurlettertype in het Belettering-paneel, zodat het netjes borduurt.
+	Under 6 mm	Onder 6 mm
+	Underlay spacing	Afstand onderlaag
+	Unload the font and stop loading its folder	Het lettertype verwijderen en stoppen met het laden van de map
+	Update Job Order	Werkorder bijwerken
+	Update Lettering	Belettering bijwerken
+	Upright cross	Rechtopstaand kruis
+	Use Colorway	Kleurvariant gebruiken
+	Use Line as Direction	Lijn als richting gebruiken
+	Use This Size	Deze grootte gebruiken
+	Valley	Dal
+	Version {version} — open-source machine embroidery digitizing in pure Rust.	Versie {version} — opensource digitaliseren voor machinaal borduren in pure Rust.
+	Very dense: about {n} layers of thread here	Erg dicht: ongeveer {n} lagen draad hier
+	Waiting for the folder	Wachten op de map
+	Wash-away	Oplosbare versteviging
+	Watch It Sew	Zien borduren
+	Watch it sew	Zien borduren
+	Watch it sew with the stitch player and check it.	Bekijk het borduren met de steekspeler en controleer het.
+	Watch the design sew with the stitch player in Stitch Sequence before you send it.	Bekijk het ontwerp borduren met de steekspeler in Steekvolgorde voordat u het verzendt.
+	Wave	Golf
+	Waves	Golven
+	Welcome to StitchFoundry	Welkom bij StitchFoundry
+	What fabric will you sew it on?	Op welke stof gaat u het borduren?
+	What should it say?	Wat moet er staan?
+	What size is the tile?	Hoe groot is de tegel?
+	What to change (optional):	Wat moet er veranderen (optioneel):
+	What would you like to make?	Wat wilt u maken?
+	Where it falls	Waar het valt
+	Where needed	Waar nodig
+	Which embroidery machine do you have?	Welke borduurmachine hebt u?
+	Which fabric?	Welke stof?
+	Which hoop will you use?	Welk raam gaat u gebruiken?
+	Which project?	Welk project?
+	Which sample?	Welk voorbeeld?
+	Which shape of fabric?	Welke vorm stof?
+	Which shape?	Welke vorm?
+	While it sewed:	Tijdens het borduren:
+	Wicker	Vlechtwerk
+	Widget values	Widgetwaarden
+	Width (mm)	Breedte (mm)
+	Width at end	Breedte aan het eind
+	Width profile	Breedteprofiel
+	Widths (mm)	Breedtes (mm)
+	With the Thread Colour	Met de draadkleur
+	Words	Woorden
+	Words (you can leave this empty)	Woorden (u mag dit leeg laten)
+	Worksheet	Werkblad
+	Worksheet Setup	Werkblad instellen
+	Woven (twill, poplin)	Geweven (keperstof, popeline)
+	Write Again	Opnieuw schrijven
+	Write the design for your machine to its USB stick or folder	Het ontwerp voor uw machine naar de usb-stick of map ervan schrijven
+	Write to Folder…	Naar map schrijven…
+	X (mm)	X (mm)
+	Y (mm)	Y (mm)
+	You can still get it back with Undo.	U kunt het nog terughalen met Ongedaan maken.
+	Your design	Uw ontwerp
+	Your first design	Uw eerste ontwerp
+	Your thread colours	Uw draadkleuren
+	Zigzag	Zigzag
+	background, not sewn	achtergrond, niet geborduurd
+	colours	kleuren
+	commercial machines	professionele machines
+	couldn't be read:	kon niet worden gelezen:
+	e.g. 75/11 ballpoint	bijv. 75/11 ballpoint
+	failed	mislukt
+	failed:	mislukt:
+	files written	bestanden geschreven
+	fonts	lettertypen
+	fonts downloaded, ready for lettering	lettertypen gedownload, klaar voor belettering
+	home machines	huismachines
+	in	in
+	inclination lines	hellingslijnen
+	is ready for lettering	is klaar voor belettering
+	joins needed: Join into One Line makes them	verbindingen nodig: Samenvoegen tot één lijn maakt ze
+	longest	langste
+	same	hetzelfde
+	sent	verzonden
+	stitches	steken
+	thread changes	draadwissels
+	threads sewn	geborduurde draden
+	waiting	wachtend
+	{n} credits	{n} credits
+	{n} credits for {price}	{n} credits voor {price}
+	{n} free checks left this month.	Nog {n} gratis controles deze maand.
+	{n} very short stitches can break the thread	{n} heel korte steken kunnen de draad laten breken
+	{n}-count Aida	{n}-count Aida
+# Embroidery (StitchFoundry): picture services
+	Picture made by	Afbeelding gemaakt door
+	Claude (draws the shapes itself)	Claude (tekent de vormen zelf)
+	{name} API key:	{name}-API-sleutel:
+	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	De afbeelding wordt afgerekend op je account bij die dienst. Claude tekent haar daarna opnieuw als vlakke vormen in je draadkleuren, zodat ze met weinig draadwissels borduurt.
+	Making the picture…	Afbeelding maken…
+# Embroidery (StitchFoundry): undo steps
+	Auto-Digitize	Automatisch digitaliseren
+	Backstitch Line	Stiksteeklijn
+	Close Appliqué Outlines	Applicatieomtrekken sluiten
+	Erase Backstitch	Stiksteek wissen
+	Erase Cross Stitches	Kruissteken wissen
+	Move Stitches	Steken verplaatsen
+	Place Artwork	Illustratie plaatsen

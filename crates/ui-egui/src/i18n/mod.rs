@@ -238,13 +238,11 @@ pub static LANGUAGES: [LangInfo; 23] = [
         name: "Nederlands",
         source: include_str!("nl.tsv"),
         plural: plural_one_other,
-        // VectorCraft's Dutch is complete; StitchFoundry's embroidery strings aren't translated yet
-        complete_menus: false,
+        complete_menus: true,
         catalog: OnceLock::new(),
     },
     // Danish; every `da-*` locale (`da-DK`, `da_DK.UTF-8`…) resolves here.
-    // (VectorCraft's Danish is complete; StitchFoundry's embroidery strings aren't translated yet)
-    LangInfo { code: "da", name: "Dansk", source: include_str!("da.tsv"), plural: plural_one_other, complete_menus: false, catalog: OnceLock::new() },
+    LangInfo { code: "da", name: "Dansk", source: include_str!("da.tsv"), plural: plural_one_other, complete_menus: true, catalog: OnceLock::new() },
     // Indonesian; every `id-*` locale (`id-ID`, `id_ID.UTF-8`…) resolves here. CLDR `id` counts
     // have one form, so `@plural` entries list a single form.
     LangInfo {
@@ -252,7 +250,7 @@ pub static LANGUAGES: [LangInfo; 23] = [
         name: "Bahasa Indonesia",
         source: include_str!("id.tsv"),
         plural: plural_none,
-        complete_menus: false,
+        complete_menus: true,
         catalog: OnceLock::new(),
     },
     // Finnish: the whole interface and the status and error messages, keeping the same names in
