@@ -22,6 +22,8 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  # the StitchFoundry cloud service the app's account, credits and AI use (docs/cloud.md)
+  SF_CLOUD_URL: https://cloud.stitchfoundry.app
   CARGO_INCREMENTAL: 0
   VECTORCRAFT_BUILD_SHA: ${{ github.sha }}
   CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts

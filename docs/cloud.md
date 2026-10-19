@@ -1,10 +1,11 @@
 # StitchFoundry cloud service
 
-> **Status:** 2026-10-18. Accounts, credits, Stripe Checkout and AI requests paid in credits
+> **Status:** 2026-10-19. Accounts, credits, Stripe Checkout and AI requests paid in credits
 > (CLOUD-01); StitchFoundry Account in the app, with Design from Prompt, Redraw Image, Ask About
 > Embroidery and Check My Sew-out paid with credits (CLOUD-02); Check My Sew-out's free monthly
 > checks, opt-in sharing and follow-ups (SO-01); a Postgres database and a Railway setup
-> (CLOUD-03); a monthly budget for the free offers (CLOUD-04). Not yet hosted.
+> (CLOUD-03); a monthly budget for the free offers (CLOUD-04). Hosted on Railway at `https://cloud.stitchfoundry.app`
+> since 2026-10-19 (Stripe in test mode); the official builds know it (CLOUD-05).
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
@@ -99,9 +100,11 @@ database beside it.
    Try it with Stripe's test keys and test cards before the live ones.
 7. **Check it:** `https://<the address>/v1/health` answers `{"ok": true, "ai": true, "payments":
    true}` when everything is set.
-8. **The app:** builds made with `SF_CLOUD_URL=https://<the address>` know the service; until then
-   anyone can type the address in StitchFoundry Account's **Server** row (or set
-   `STITCHFOUNDRY_CLOUD_URL`).
+8. **The app:** builds made with `SF_CLOUD_URL=https://<the address>` know the service. The
+   official builds (`builds.yml`, `release.yml`, `pages.yml` and the Windows workflows) are made
+   with `SF_CLOUD_URL=https://cloud.stitchfoundry.app`, StitchFoundry's own service; builds of
+   your own know none until you set it. Anyone can type another address in StitchFoundry
+   Account's **Server** row (or set `STITCHFOUNDRY_CLOUD_URL`).
 
 Railway backs up the database (Postgres **Backups**); turn them on. Railway is retiring its
 `railway.json` configuration files, which is why the Dockerfile's path is a variable.
