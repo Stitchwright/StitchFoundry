@@ -6545,3 +6545,15 @@ machine	Stop	Спиране
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	променливите и наборите от данни на файла не бяха прочетени (променливи: {variables}, набори от данни: {data_sets}): панелът „Променливи“ не ги показва
 # Select by Color (select.color)
 	Select by Color	Избиране по цвят
+# Patches (embroidery.patches.*)
+	Patches	Емблеми
+	Make Patches	Създаване на емблеми
+	Export Patches	Експортиране на емблеми
+	Export Patches…	Експортиране на емблеми…
+	Fill Hoop With Copies	Запълване на гергефа с копия
+	Patch files written	Файловете с емблеми са записани
+	Words on every patch	Текст на всяка емблема
+	Or one name a line: a patch for each worker	Или по едно име на ред: емблема за всеки служител
+	A new design: a hoopful of patches, each colour sewn once for all of them	Нов дизайн: гергеф, пълен с емблеми, всеки цвят се бродира веднъж за всички
+	Every hoopful as a machine file, and a list of the names in each	Всеки пълен гергеф като машинен файл и списък с имената във всеки
+	The open design repeated across its hoop, sorted so each colour is sewn once	Отвореният дизайн, повторен по гергефа и подреден така, че всеки цвят да се бродира веднъж

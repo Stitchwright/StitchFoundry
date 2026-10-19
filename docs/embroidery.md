@@ -20,6 +20,7 @@ the control channel, the CLI and the MCP server.
 - [Stitch direction: automatic, then editable](#stitch-direction-automatic-then-editable)
 - [The digitizing widget and brush](#the-digitizing-widget-and-brush)
 - [Lettering](#lettering)
+- [Patches](#patches)
 - [Auto-Digitize](#auto-digitize)
 - [Design from Prompt](#design-from-prompt)
 - [Redraw Image with Claude](#redraw-image-with-claude)
@@ -1964,6 +1965,29 @@ columns a gap apart, each still lettering, for a large hoop or patches cut apart
 its size, stitches and sewing time, and the totals for the order
 (`embroidery.teamNames.worksheet {names, page}`).
 
+## Patches
+
+Badges and name patches for a company's workers, a club or a team, laid out so a whole hoop of
+them sews at once. In the Embroidery panel's **Patches** section (shown also with no document
+open) choose the shape (circle, oval, rectangle, rounded rectangle or shield), its size, the
+satin edge's width (0 for none) and colour, a background fill (or none, so the fabric shows) and
+the colour of the words. Type words for every patch, or a list of names, one a line: a patch for
+each worker, their name on it (a line break in a name sets two lines; long names are made
+smaller to fit).
+
+*Make Patches* starts a new design holding a hoopful of them in rows, 5 mm apart
+(`embroidery.patches.make`). Every patch's background is sewn first, then every patch's words,
+then every edge, so a hoopful has three thread changes however many patches it holds. With no
+hoop named, several patches go in My Machine's largest hoop (one goes in the smallest that holds
+it). When the names need more than one hoopful, the status line says how many; *Export
+Patches…* writes every hoopful as a machine file of its own (`patches-1.vp3`, `patches-2.vp3`…,
+in My Machine's format) and `patches-names.txt`, listing the names in each hoopful
+(`embroidery.patches.export {…, dir, format, prefix}`). *Fill Hoop With Copies* repeats the open
+design across its hoop in rows, as many as fit, then sorts the stitching by thread so each colour
+is sewn once for all the copies (`embroidery.patches.fillHoop {gap, count}`, one undo step).
+Sew the patches on stiff backing (or felt or twill with a cut-away stabilizer) and cut them out
+round the edge.
+
 ## Commands
 
 Every feature is an engine command. A few of the main ones (see `document.commands` or the MCP
@@ -1971,6 +1995,7 @@ tool list for all parameters):
 
 | Command | Does |
 |---|---|
+| `embroidery.patches.make {shape, width, height, border, borderColor, background, text \| names, textColor, count, hoop, gap, hoopful}`, `embroidery.patches.export {…, dir, format, prefix}`, `embroidery.patches.fillHoop {gap, count}` | patches: a hoopful as a new design (a name each), every hoopful written as machine files, the open design repeated across its hoop |
 | `embroidery.set {type}` | give the selection a stitch type (`run`, `bean`, `blanket`, `satin`, `fill`, `satinfill`, `contour`, `spiral`, `radial`, `cross`, `meander`, `applique`, `manual`, `redwork`, `none`) |
 | `embroidery.setParams {params}` | change stitch parameters (camelCase names, mm) |
 | `embroidery.setThread {color, name?, code?, chart?}` | set the thread |

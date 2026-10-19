@@ -6480,3 +6480,15 @@ swatch	Bright Violet	Violet cerah
 	Justification	Justifikasi
 # Select by Color (select.color)
 	Select by Color	Pilih berdasarkan warna
+# Patches (embroidery.patches.*)
+	Patches	Emblem
+	Make Patches	Buat Emblem
+	Export Patches	Ekspor Emblem
+	Export Patches…	Ekspor Emblem…
+	Fill Hoop With Copies	Isi Pembidang dengan Salinan
+	Patch files written	File emblem ditulis
+	Words on every patch	Teks di setiap emblem
+	Or one name a line: a patch for each worker	Atau satu nama per baris: satu emblem untuk setiap karyawan
+	A new design: a hoopful of patches, each colour sewn once for all of them	Desain baru: satu pembidang penuh emblem, setiap warna dijahit sekali untuk semuanya
+	Every hoopful as a machine file, and a list of the names in each	Setiap pembidang penuh sebagai file mesin, dan daftar nama di masing-masing
+	The open design repeated across its hoop, sorted so each colour is sewn once	Desain yang terbuka diulang di seluruh pembidangnya, diurutkan agar setiap warna dijahit sekali

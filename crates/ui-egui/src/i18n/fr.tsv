@@ -6592,3 +6592,15 @@ theme	Appearance	Apparence
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	les variables et jeux de données du fichier n’ont pas été lus (variables : {variables}, jeux de données : {data_sets}) : le panneau Variables ne les affiche pas
 # Select by Color (select.color)
 	Select by Color	Sélectionner par couleur
+# Patches (embroidery.patches.*)
+	Patches	Écussons
+	Make Patches	Créer des écussons
+	Export Patches	Exporter les écussons
+	Export Patches…	Exporter les écussons…
+	Fill Hoop With Copies	Remplir le cadre de copies
+	Patch files written	Fichiers d’écussons écrits
+	Words on every patch	Texte sur chaque écusson
+	Or one name a line: a patch for each worker	Ou un nom par ligne : un écusson pour chaque employé
+	A new design: a hoopful of patches, each colour sewn once for all of them	Un nouveau motif : un cadre rempli d’écussons, chaque couleur brodée une seule fois pour tous
+	Every hoopful as a machine file, and a list of the names in each	Chaque cadre rempli dans son propre fichier machine, avec la liste des noms qu’il contient
+	The open design repeated across its hoop, sorted so each colour is sewn once	Le motif ouvert répété dans tout son cadre, trié pour que chaque couleur soit brodée une seule fois

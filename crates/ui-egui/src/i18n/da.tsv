@@ -6480,3 +6480,15 @@ swatch	Bright Violet	Kraftig violet
 	Justification	Justering
 # Select by Color (select.color)
 	Select by Color	Markér efter farve
+# Patches (embroidery.patches.*)
+	Patches	Mærker
+	Make Patches	Lav mærker
+	Export Patches	Eksportér mærker
+	Export Patches…	Eksportér mærker…
+	Fill Hoop With Copies	Fyld rammen med kopier
+	Patch files written	Mærkefiler skrevet
+	Words on every patch	Tekst på hvert mærke
+	Or one name a line: a patch for each worker	Eller ét navn pr. linje: et mærke til hver medarbejder
+	A new design: a hoopful of patches, each colour sewn once for all of them	Et nyt design: en ramme fuld af mærker, hver farve broderet én gang for dem alle
+	Every hoopful as a machine file, and a list of the names in each	Hver fuld ramme som maskinfil og en liste over navnene i hver
+	The open design repeated across its hoop, sorted so each colour is sewn once	Det åbne design gentaget hen over rammen, sorteret så hver farve broderes én gang

@@ -6181,3 +6181,15 @@ machine	Stop	Dừng máy
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	các biến và tập dữ liệu của tệp chưa được đọc (biến: {variables}, tập dữ liệu: {data_sets}): bảng Biến không liệt kê chúng
 # Select by Color (select.color)
 	Select by Color	Chọn theo màu
+# Patches (embroidery.patches.*)
+	Patches	Miếng vá
+	Make Patches	Tạo miếng vá
+	Export Patches	Xuất miếng vá
+	Export Patches…	Xuất miếng vá…
+	Fill Hoop With Copies	Lấp đầy khung bằng bản sao
+	Patch files written	Đã ghi tệp miếng vá
+	Words on every patch	Chữ trên mỗi miếng vá
+	Or one name a line: a patch for each worker	Hoặc mỗi dòng một tên: một miếng vá cho mỗi nhân viên
+	A new design: a hoopful of patches, each colour sewn once for all of them	Thiết kế mới: một khung đầy miếng vá, mỗi màu thêu một lần cho tất cả
+	Every hoopful as a machine file, and a list of the names in each	Mỗi khung đầy thành một tệp máy, kèm danh sách tên trong mỗi khung
+	The open design repeated across its hoop, sorted so each colour is sewn once	Thiết kế đang mở được lặp khắp khung, sắp xếp để mỗi màu chỉ thêu một lần

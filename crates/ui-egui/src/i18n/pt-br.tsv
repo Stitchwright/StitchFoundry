@@ -6439,3 +6439,15 @@ mark-style	Japanese	Japonesas
 # Paragraph panel menu › Justification…
 # Select by Color (select.color)
 	Length	Comprimento
+# Patches (embroidery.patches.*)
+	Patches	Patches
+	Make Patches	Criar patches
+	Export Patches	Exportar patches
+	Export Patches…	Exportar patches…
+	Fill Hoop With Copies	Encher o bastidor de cópias
+	Patch files written	Arquivos de patches gravados
+	Words on every patch	Texto em cada patch
+	Or one name a line: a patch for each worker	Ou um nome por linha: um patch para cada funcionário
+	A new design: a hoopful of patches, each colour sewn once for all of them	Um novo desenho: um bastidor cheio de patches, cada cor bordada uma vez para todos
+	Every hoopful as a machine file, and a list of the names in each	Cada bastidor como arquivo de máquina, e uma lista dos nomes de cada um
+	The open design repeated across its hoop, sorted so each colour is sewn once	O desenho aberto repetido por todo o bastidor, ordenado para bordar cada cor uma só vez

@@ -6558,3 +6558,15 @@ machine	Stop	Megállás
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	a fájl változói és adatkészletei nem lettek beolvasva (változók: {variables}, adatkészletek: {data_sets}): a Változók panel nem listázza őket
 # Select by Color (select.color)
 	Select by Color	Kijelölés szín szerint
+# Patches (embroidery.patches.*)
+	Patches	Felvarrók
+	Make Patches	Felvarrók készítése
+	Export Patches	Felvarrók exportálása
+	Export Patches…	Felvarrók exportálása…
+	Fill Hoop With Copies	Keret kitöltése másolatokkal
+	Patch files written	Felvarró-fájlok kiírva
+	Words on every patch	Szöveg minden felvarrón
+	Or one name a line: a patch for each worker	Vagy soronként egy név: felvarró minden dolgozónak
+	A new design: a hoopful of patches, each colour sewn once for all of them	Új minta: egy keretnyi felvarró, minden szín egyszer hímezve mindegyikhez
+	Every hoopful as a machine file, and a list of the names in each	Minden keretnyi külön gépfájlként, és a bennük lévő nevek listája
+	The open design repeated across its hoop, sorted so each colour is sewn once	A nyitott minta ismételve a kereten, úgy rendezve, hogy minden szín egyszer legyen hímezve

@@ -6219,3 +6219,15 @@ machine	Stop	Arresto
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	le variabili e i set di dati del file non sono stati letti (variabili: {variables}, set di dati: {data_sets}): il pannello Variabili non li elenca
 # Select by Color (select.color)
 	Select by Color	Seleziona per colore
+# Patches (embroidery.patches.*)
+	Patches	Toppe
+	Make Patches	Crea toppe
+	Export Patches	Esporta toppe
+	Export Patches…	Esporta toppe…
+	Fill Hoop With Copies	Riempi il telaio di copie
+	Patch files written	File delle toppe scritti
+	Words on every patch	Testo su ogni toppa
+	Or one name a line: a patch for each worker	Oppure un nome per riga: una toppa per ogni dipendente
+	A new design: a hoopful of patches, each colour sewn once for all of them	Un nuovo disegno: un telaio pieno di toppe, ogni colore ricamato una volta per tutte
+	Every hoopful as a machine file, and a list of the names in each	Ogni telaio come file macchina, con l’elenco dei nomi di ciascuno
+	The open design repeated across its hoop, sorted so each colour is sewn once	Il disegno aperto ripetuto in tutto il telaio, ordinato in modo che ogni colore sia ricamato una volta

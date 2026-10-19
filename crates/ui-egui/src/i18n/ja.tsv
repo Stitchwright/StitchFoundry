@@ -6258,3 +6258,15 @@ machine	Stop	停止
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	ファイルの変数とデータセットは読み込まれませんでした (変数: {variables}、データセット: {data_sets})。変数パネルには表示されません
 # Select by Color (select.color)
 	Select by Color	カラーで選択
+# Patches (embroidery.patches.*)
+	Patches	ワッペン
+	Make Patches	ワッペンを作成
+	Export Patches	ワッペンを書き出し
+	Export Patches…	ワッペンを書き出し…
+	Fill Hoop With Copies	枠をコピーで埋める
+	Patch files written	ワッペンのファイルを書き出しました
+	Words on every patch	すべてのワッペンに入れる文字
+	Or one name a line: a patch for each worker	または1行に1名:社員ごとにワッペン1枚
+	A new design: a hoopful of patches, each colour sewn once for all of them	新しいデザイン:枠いっぱいのワッペン。各色は全部まとめて1回で縫います
+	Every hoopful as a machine file, and a list of the names in each	枠ごとのミシンファイルと、各枠の名前の一覧
+	The open design repeated across its hoop, sorted so each colour is sewn once	開いているデザインを枠全体に繰り返し、各色を1回で縫うよう並べ替えます

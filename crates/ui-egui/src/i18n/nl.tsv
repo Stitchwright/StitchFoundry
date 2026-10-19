@@ -6522,3 +6522,15 @@ swatch	Bright Violet	Felviolet
 	Justification	Uitvullen
 # Select by Color (select.color)
 	Select by Color	Selecteren op kleur
+# Patches (embroidery.patches.*)
+	Patches	Badges
+	Make Patches	Badges maken
+	Export Patches	Badges exporteren
+	Export Patches…	Badges exporteren…
+	Fill Hoop With Copies	Ring vullen met kopieën
+	Patch files written	Badgebestanden geschreven
+	Words on every patch	Tekst op elke badge
+	Or one name a line: a patch for each worker	Of één naam per regel: een badge voor elke medewerker
+	A new design: a hoopful of patches, each colour sewn once for all of them	Een nieuw ontwerp: een ring vol badges, elke kleur één keer voor allemaal geborduurd
+	Every hoopful as a machine file, and a list of the names in each	Elke volle ring als machinebestand, en een lijst van de namen in elke ring
+	The open design repeated across its hoop, sorted so each colour is sewn once	Het open ontwerp herhaald over zijn ring, gesorteerd zodat elke kleur één keer wordt geborduurd

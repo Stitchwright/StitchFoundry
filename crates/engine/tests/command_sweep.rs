@@ -871,8 +871,17 @@ fn every_command_undoes_exactly() {
         let mut s = Fixture::Multi.session();
         let before = doc_json(&s.doc().unwrap().doc);
         let depth = s.doc().unwrap().history.undo.len();
+        let docs = s.documents().len();
         let Ok(Ok(_)) = catch_quiet(|| s.execute(c.id, &json!({}))) else { continue };
-        if s.doc().unwrap().history.undo.len() > depth {
+        if s.documents().len() > docs {
+            // a command that opens a document of its own (File › New) builds it in its own steps:
+            // it says so, and the document it started from is untouched
+            if !c.params.contains("opens a new document") {
+                failures.push(format!("{}: opened a document without saying so", c.id));
+            } else if s.documents().first().map(|d| doc_json(&d.doc)) != Some(before) {
+                failures.push(format!("{}: changed the document it started from", c.id));
+            }
+        } else if s.doc().unwrap().history.undo.len() > depth {
             let _ = no_panic(s.execute("edit.undo", &json!({})));
             let after = doc_json(&s.doc().unwrap().doc);
             if after != before {

@@ -6537,3 +6537,15 @@ machine	Stop	Stopp
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	filens variabler och datauppsättningar lästes inte (variabler: {variables}, datauppsättningar: {data_sets}): panelen Variabler visar dem inte
 # Select by Color (select.color)
 	Select by Color	Markera efter färg
+# Patches (embroidery.patches.*)
+	Patches	Märken
+	Make Patches	Skapa märken
+	Export Patches	Exportera märken
+	Export Patches…	Exportera märken…
+	Fill Hoop With Copies	Fyll ramen med kopior
+	Patch files written	Märkesfiler skrivna
+	Words on every patch	Text på varje märke
+	Or one name a line: a patch for each worker	Eller ett namn per rad: ett märke för varje anställd
+	A new design: a hoopful of patches, each colour sewn once for all of them	En ny design: en ram full av märken, varje färg broderad en gång för alla
+	Every hoopful as a machine file, and a list of the names in each	Varje full ram som maskinfil och en lista över namnen i varje
+	The open design repeated across its hoop, sorted so each colour is sewn once	Den öppna designen upprepad över ramen, sorterad så att varje färg broderas en gång

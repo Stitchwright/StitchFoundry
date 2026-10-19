@@ -6404,3 +6404,15 @@ machine	Stop	停止
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	文件的变量和数据集未被读取（变量：{variables}，数据集：{data_sets}）：“变量”面板不会列出它们
 # Select by Color (select.color)
 	Select by Color	按颜色选择
+# Patches (embroidery.patches.*)
+	Patches	布贴
+	Make Patches	制作布贴
+	Export Patches	导出布贴
+	Export Patches…	导出布贴…
+	Fill Hoop With Copies	用副本填满绣框
+	Patch files written	已写入布贴文件
+	Words on every patch	每块布贴的文字
+	Or one name a line: a patch for each worker	或每行一个姓名:每位员工一块布贴
+	A new design: a hoopful of patches, each colour sewn once for all of them	新设计:一整框布贴,每种颜色为全部布贴只绣一次
+	Every hoopful as a machine file, and a list of the names in each	每一框写成一个机器文件,并列出每框中的姓名
+	The open design repeated across its hoop, sorted so each colour is sewn once	将打开的设计在绣框中重复排列,并排序使每种颜色只绣一次

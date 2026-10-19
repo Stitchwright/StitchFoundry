@@ -6545,3 +6545,15 @@ machine	Stop	Pysäytys
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	tiedoston muuttujia ja tietojoukkoja ei luettu (muuttujia: {variables}, tietojoukkoja: {data_sets}): Muuttujat-paneeli ei näytä niitä
 # Select by Color (select.color)
 	Select by Color	Valitse värin mukaan
+# Patches (embroidery.patches.*)
+	Patches	Merkit
+	Make Patches	Tee merkit
+	Export Patches	Vie merkit
+	Export Patches…	Vie merkit…
+	Fill Hoop With Copies	Täytä kehys kopioilla
+	Patch files written	Merkkitiedostot kirjoitettu
+	Words on every patch	Teksti jokaiseen merkkiin
+	Or one name a line: a patch for each worker	Tai yksi nimi riville: merkki jokaiselle työntekijälle
+	A new design: a hoopful of patches, each colour sewn once for all of them	Uusi kuvio: kehyksellinen merkkejä, jokainen väri kirjottu kerran kaikille
+	Every hoopful as a machine file, and a list of the names in each	Jokainen kehyksellinen omana konetiedostonaan ja luettelo kunkin nimistä
+	The open design repeated across its hoop, sorted so each colour is sewn once	Avoin kuvio toistettuna kehyksen yli, järjestettynä niin että jokainen väri kirjotaan kerran

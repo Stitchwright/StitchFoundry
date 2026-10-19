@@ -188,6 +188,8 @@ pub struct EmbroideryUi {
     pub library: LibraryView,
     /// The Batch Output section's choices.
     pub output: OutputView,
+    /// The Patches section's choices.
+    pub patches: PatchForm,
     /// A hoop of one's own as typed: name, width and height (mm).
     pub hoop_draft: (String, f64, f64),
     /// Recolour: the scheme (an index), the hue turn (degrees) and the one colour.
@@ -342,6 +344,7 @@ impl Default for EmbroideryUi {
             team_names: String::new(),
             library: LibraryView::default(),
             output: OutputView::default(),
+            patches: PatchForm::default(),
             hoop_draft: (String::new(), 150.0, 150.0),
             recolor_scheme: 0,
             recolor_degrees: 60.0,
@@ -429,6 +432,43 @@ pub struct LibraryView {
     pub result: Option<serde_json::Value>,
     /// The format Convert writes, an index of the machine formats.
     pub convert_to: usize,
+}
+
+/// The Patches section's choices (`embroidery.patches.*`'s parameters).
+pub struct PatchForm {
+    /// An index of `PATCH_SHAPES`.
+    pub shape: usize,
+    pub width: f64,
+    pub height: f64,
+    /// The satin edge's width (mm, 0: none).
+    pub border: f64,
+    pub border_color: [u8; 3],
+    /// The fill inside the edge (none: the fabric shows).
+    pub background: Option<[u8; 3]>,
+    pub text_color: [u8; 3],
+    /// Words on every patch.
+    pub text: String,
+    /// One name a line: a patch each.
+    pub names: String,
+}
+
+/// The shapes the Patches section offers, as `embroidery.patches.make` names them.
+pub const PATCH_SHAPES: [&str; 5] = ["circle", "oval", "rectangle", "rounded", "shield"];
+
+impl Default for PatchForm {
+    fn default() -> Self {
+        Self {
+            shape: 0,
+            width: 75.0,
+            height: 75.0,
+            border: 3.5,
+            border_color: [0x1d, 0x35, 0x57],
+            background: Some([0xf1, 0xfa, 0xee]),
+            text_color: [0x1d, 0x35, 0x57],
+            text: String::new(),
+            names: String::new(),
+        }
+    }
 }
 
 /// The Batch Output section's state.

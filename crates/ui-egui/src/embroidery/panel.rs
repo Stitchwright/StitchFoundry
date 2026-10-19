@@ -158,6 +158,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
     if app.session.active().is_none() {
         crate::panels::empty_state(ui, "waves", tl!("No document"), tl!("Open or create a document to digitize embroidery."));
         templates_body(app, ui);
+        egui::CollapsingHeader::new(tl!("Patches")).id_salt("emb-patches").show(ui, |ui| patches_body(app, ui));
         return;
     }
     // the sections shown follow Window › Experience (a font document always has its Font Creator)
@@ -179,6 +180,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         team_name_rows(app, ui);
     }
     monogram_rows(app, ui);
+    egui::CollapsingHeader::new(tl!("Patches")).id_salt("emb-patches").show(ui, |ui| patches_body(app, ui));
     egui::CollapsingHeader::new(tl!("Design Templates")).id_salt("emb-templates").show(ui, |ui| templates_body(app, ui));
     egui::CollapsingHeader::new(tl!("Design Library")).id_salt("emb-library").show(ui, |ui| library_body(app, ui));
     egui::CollapsingHeader::new(tl!("Clipart")).id_salt("emb-clipart").show(ui, |ui| clipart_body(app, ui));
@@ -1311,6 +1313,100 @@ pub(crate) fn team_names_body(app: &mut VectorcraftApp, ui: &mut Ui) {
                 Err(e) => app.status(e),
             }
         });
+    }
+}
+
+/// The Patches section: a patch's shape, size, edge and colours, the words on it or a list of
+/// names (a patch each); Make Patches lays a hoopful out as a new design, Export Patches writes
+/// every hoopful, and Fill Hoop repeats the open design across its hoop.
+pub(crate) fn patches_body(app: &mut VectorcraftApp, ui: &mut Ui) {
+    use super::PATCH_SHAPES;
+    let hex = |c: [u8; 3]| format!("#{:02x}{:02x}{:02x}", c[0], c[1], c[2]);
+    let shapes = [tl!("Circle"), tl!("Oval"), tl!("Rectangle"), tl!("Rounded Rectangle"), tl!("Shield")];
+    let f = &mut app.embroidery.patches;
+    if let Some(i) = pick(ui, tl!("Shape"), "patch-shape", f.shape, &shapes) {
+        f.shape = i;
+    }
+    let circle = PATCH_SHAPES.get(f.shape) == Some(&"circle");
+    if let Some(v) = num(ui, tl!("Width"), "patch-w", f.width, " mm", 1) {
+        f.width = v.clamp(15.0, 300.0);
+    }
+    if !circle && let Some(v) = num(ui, tl!("Height"), "patch-h", f.height, " mm", 1) {
+        f.height = v.clamp(15.0, 300.0);
+    }
+    if let Some(v) = num(ui, tl!("Edge width"), "patch-border", f.border, " mm", 1) {
+        f.border = if v < 0.75 { 0.0 } else { v.clamp(1.5, 8.0) };
+    }
+    ui.horizontal(|ui| {
+        ui.label(tl!("Border"));
+        ui.color_edit_button_srgb(&mut f.border_color);
+        let mut filled = f.background.is_some();
+        if ui.checkbox(&mut filled, tl!("Fill")).changed() {
+            f.background = filled.then_some([0xf1, 0xfa, 0xee]);
+        }
+        if let Some(c) = f.background.as_mut() {
+            ui.color_edit_button_srgb(c);
+        }
+        ui.label(tl!("Words"));
+        ui.color_edit_button_srgb(&mut f.text_color);
+    });
+    ui.add(egui::TextEdit::singleline(&mut f.text).hint_text(tl!("Words on every patch")));
+    ui.add(egui::TextEdit::multiline(&mut f.names).desired_rows(4).hint_text(tl!("Or one name a line: a patch for each worker")));
+    let names: Vec<String> = f.names.lines().map(str::trim).filter(|l| !l.is_empty()).map(str::to_string).collect();
+    let mut params = json!({
+        "shape": PATCH_SHAPES.get(f.shape).copied().unwrap_or("circle"),
+        "width": f.width,
+        "border": f.border,
+        "borderColor": hex(f.border_color),
+        "background": f.background.map(hex),
+        "textColor": hex(f.text_color),
+    });
+    if !circle {
+        params["height"] = json!(f.height);
+    }
+    if !names.is_empty() {
+        params["names"] = json!(names);
+    } else if !f.text.trim().is_empty() {
+        params["text"] = json!(f.text.trim());
+    }
+    if !names.is_empty() {
+        ui.label(format!("{}: {}", tl!("Names"), names.len()));
+    }
+    ui.horizontal_wrapped(|ui| {
+        if button(ui, tl!("Make Patches")).on_hover_text(tl!("A new design: a hoopful of patches, each colour sewn once for all of them")).clicked() {
+            match app.run("embroidery.patches.make", params.clone()) {
+                Ok(r) => {
+                    let (made, all, hoops) =
+                        (r["made"].as_u64().unwrap_or(0), r["patches"].as_u64().unwrap_or(0), r["hoopfuls"].as_u64().unwrap_or(0));
+                    app.status(format!("{}: {} / {} · {}: {}", tl!("Patches"), made, all, tl!("Hoops"), hoops));
+                }
+                Err(e) => app.status(e),
+            }
+        }
+        if app.services.pick_folder.is_some()
+            && button(ui, tl!("Export Patches…")).on_hover_text(tl!("Every hoopful as a machine file, and a list of the names in each")).clicked()
+        {
+            let params = params.clone();
+            crate::picks::button(app, move |app| {
+                let Some(dir) = crate::picks::folder(app) else { return };
+                let mut params = params.clone();
+                params["dir"] = json!(dir);
+                match app.run("embroidery.patches.export", params) {
+                    Ok(r) => app.status(format!("{}: {}", tl!("Patch files written"), r["hoopfuls"].as_u64().unwrap_or(0))),
+                    Err(e) => app.status(e),
+                }
+            });
+        }
+    });
+    if app.session.active().is_some()
+        && button(ui, tl!("Fill Hoop With Copies"))
+            .on_hover_text(tl!("The open design repeated across its hoop, sorted so each colour is sewn once"))
+            .clicked()
+    {
+        match app.run("embroidery.patches.fillHoop", json!({})) {
+            Ok(r) => app.status(format!("{}: {}", tl!("Fill Hoop With Copies"), r["copies"].as_u64().unwrap_or(0))),
+            Err(e) => app.status(e),
+        }
     }
 }
 

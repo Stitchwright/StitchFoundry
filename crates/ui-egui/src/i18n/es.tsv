@@ -6533,3 +6533,15 @@ mark-style	Japanese	Japonesas
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	no se leyeron las variables ni los conjuntos de datos del archivo (variables: {variables}, conjuntos de datos: {data_sets}): el panel Variables no los muestra
 # Select by Color (select.color)
 	Select by Color	Seleccionar por color
+# Patches (embroidery.patches.*)
+	Patches	Parches
+	Make Patches	Crear parches
+	Export Patches	Exportar parches
+	Export Patches…	Exportar parches…
+	Fill Hoop With Copies	Llenar el bastidor con copias
+	Patch files written	Archivos de parches escritos
+	Words on every patch	Texto en cada parche
+	Or one name a line: a patch for each worker	O un nombre por línea: un parche para cada trabajador
+	A new design: a hoopful of patches, each colour sewn once for all of them	Un diseño nuevo: un bastidor lleno de parches, cada color bordado una vez para todos
+	Every hoopful as a machine file, and a list of the names in each	Cada bastidor como archivo de máquina, y una lista de los nombres de cada uno
+	The open design repeated across its hoop, sorted so each colour is sewn once	El diseño abierto repetido por todo su bastidor, ordenado para bordar cada color una sola vez

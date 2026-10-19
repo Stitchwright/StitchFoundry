@@ -6533,3 +6533,15 @@ machine	Stop	Στάση
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	οι μεταβλητές και τα σύνολα δεδομένων του αρχείου δεν διαβάστηκαν (μεταβλητές: {variables}, σύνολα δεδομένων: {data_sets}): ο πίνακας Μεταβλητές δεν τα εμφανίζει
 # Select by Color (select.color)
 	Select by Color	Επιλογή βάσει χρώματος
+# Patches (embroidery.patches.*)
+	Patches	Σήματα
+	Make Patches	Δημιουργία σημάτων
+	Export Patches	Εξαγωγή σημάτων
+	Export Patches…	Εξαγωγή σημάτων…
+	Fill Hoop With Copies	Γέμισμα τελάρου με αντίγραφα
+	Patch files written	Τα αρχεία σημάτων γράφτηκαν
+	Words on every patch	Κείμενο σε κάθε σήμα
+	Or one name a line: a patch for each worker	Ή ένα όνομα ανά γραμμή: ένα σήμα για κάθε εργαζόμενο
+	A new design: a hoopful of patches, each colour sewn once for all of them	Νέο σχέδιο: ένα τελάρο γεμάτο σήματα, κάθε χρώμα κεντιέται μία φορά για όλα
+	Every hoopful as a machine file, and a list of the names in each	Κάθε γεμάτο τελάρο ως αρχείο μηχανής, και λίστα με τα ονόματα του καθενός
+	The open design repeated across its hoop, sorted so each colour is sewn once	Το ανοιχτό σχέδιο επαναλαμβάνεται σε όλο το τελάρο, ταξινομημένο ώστε κάθε χρώμα να κεντιέται μία φορά

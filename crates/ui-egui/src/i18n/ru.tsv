@@ -6215,3 +6215,15 @@ machine	Stop	Остановка
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	переменные и наборы данных файла не прочитаны (переменных: {variables}, наборов данных: {data_sets}): панель «Переменные» их не показывает
 # Select by Color (select.color)
 	Select by Color	Выделить по цвету
+# Patches (embroidery.patches.*)
+	Patches	Нашивки
+	Make Patches	Создать нашивки
+	Export Patches	Экспорт нашивок
+	Export Patches…	Экспорт нашивок…
+	Fill Hoop With Copies	Заполнить пяльцы копиями
+	Patch files written	Файлы нашивок записаны
+	Words on every patch	Текст на каждой нашивке
+	Or one name a line: a patch for each worker	Или по одному имени в строке: нашивка для каждого сотрудника
+	A new design: a hoopful of patches, each colour sewn once for all of them	Новый дизайн: пяльцы, полные нашивок, каждый цвет вышивается один раз для всех
+	Every hoopful as a machine file, and a list of the names in each	Каждые пяльцы отдельным файлом для машины и список имён в каждых
+	The open design repeated across its hoop, sorted so each colour is sewn once	Открытый дизайн повторён по пяльцам и отсортирован так, чтобы каждый цвет вышивался один раз

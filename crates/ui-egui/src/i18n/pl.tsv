@@ -6424,3 +6424,15 @@ machine	Stop	Zatrzymanie
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	zmienne i zestawy danych pliku nie zostały wczytane (zmienne: {variables}, zestawy danych: {data_sets}): panel Zmienne ich nie wyświetla
 # Select by Color (select.color)
 	Select by Color	Zaznacz według koloru
+# Patches (embroidery.patches.*)
+	Patches	Naszywki
+	Make Patches	Utwórz naszywki
+	Export Patches	Eksportuj naszywki
+	Export Patches…	Eksportuj naszywki…
+	Fill Hoop With Copies	Wypełnij tamborek kopiami
+	Patch files written	Zapisano pliki naszywek
+	Words on every patch	Tekst na każdej naszywce
+	Or one name a line: a patch for each worker	Albo jedno imię w wierszu: naszywka dla każdego pracownika
+	A new design: a hoopful of patches, each colour sewn once for all of them	Nowy projekt: tamborek pełen naszywek, każdy kolor haftowany raz dla wszystkich
+	Every hoopful as a machine file, and a list of the names in each	Każdy tamborek jako plik maszyny i lista imion w każdym
+	The open design repeated across its hoop, sorted so each colour is sewn once	Otwarty projekt powtórzony w całym tamborku, posortowany tak, by każdy kolor haftować raz

@@ -6413,3 +6413,15 @@ imageTrace	Outline	კონტური
 # Select by Color (select.color)
 file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	Length	სიგრძე
+# Patches (embroidery.patches.*)
+	Patches	ნაჭრები
+	Make Patches	ნაჭრების შექმნა
+	Export Patches	ნაჭრების ექსპორტი
+	Export Patches…	ნაჭრების ექსპორტი…
+	Fill Hoop With Copies	გარგარის შევსება ასლებით
+	Patch files written	ნაჭრების ფაილები ჩაიწერა
+	Words on every patch	ტექსტი ყველა ნაჭერზე
+	Or one name a line: a patch for each worker	ან თითო სახელი ხაზზე: ნაჭერი ყველა თანამშრომლისთვის
+	A new design: a hoopful of patches, each colour sewn once for all of them	ახალი დიზაინი: ნაჭრებით სავსე გარგარა, თითო ფერი ერთხელ იქარგება ყველასთვის
+	Every hoopful as a machine file, and a list of the names in each	თითო გარგარა ცალკე მანქანის ფაილად და თითოეულში მყოფი სახელების სია
+	The open design repeated across its hoop, sorted so each colour is sewn once	ღია დიზაინი გამეორებული მთელ გარგარაზე, დალაგებული ისე, რომ თითო ფერი ერთხელ იქარგოს

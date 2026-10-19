@@ -5742,3 +5742,63 @@ fn a_fabrics_fill_length_isnt_flagged_as_short() {
     s.execute("embroidery.setParams", &json!({"params": {"stitchLength": 2.5}})).unwrap();
     assert_eq!(short(&mut s), 1);
 }
+
+#[test]
+fn patches_with_names_fill_hoops_sewn_colour_by_colour() {
+    let mut s = session();
+    let names: Vec<String> = (1..=10).map(|k| format!("Worker {k}")).collect();
+    let q = json!({"shape": "circle", "width": 60, "names": names, "textColor": "#e63946", "hoop": "Brother 200 × 200 (8×8)"});
+    // 60 mm circles 5 mm apart in a 200 mm field: 3 × 3 a hoopful, so two hoopfuls for ten names
+    let r = s.execute("embroidery.patches.make", &q).unwrap();
+    assert_eq!((r["perHoop"].as_u64(), r["hoopfuls"].as_u64(), r["made"].as_u64()), (Some(9), Some(2), Some(9)), "{r}");
+    // every background, then every name, then every edge: three thread changes for the hoopful
+    let plan = s.embroidery_plan().unwrap();
+    assert_eq!(plan.pattern().color_blocks().len(), 3);
+    let st = plan.stats.clone().unwrap();
+    assert!(st.width_mm <= 195.0 && st.height_mm <= 195.0, "inside the hoop: {st:?}");
+    // the second hoopful holds the tenth name
+    let mut q2 = q.clone();
+    q2["hoopful"] = json!(2);
+    let r = s.execute("embroidery.patches.make", &q2).unwrap();
+    assert_eq!(r["made"].as_u64(), Some(1));
+    q2["hoopful"] = json!(3);
+    assert!(s.execute("embroidery.patches.make", &q2).is_err());
+    // a hoopful each as a machine file, and which names are in which
+    let dir = std::env::temp_dir().join(format!("sf-patches-{}", std::process::id()));
+    let mut qe = q.clone();
+    qe["dir"] = json!(dir.to_string_lossy());
+    qe["format"] = json!("dst");
+    let docs = s.documents().len();
+    let r = s.execute("embroidery.patches.export", &qe).unwrap();
+    assert_eq!(r["files"].as_array().map(Vec::len), Some(2), "{r}");
+    assert!(std::fs::read(dir.join("patches-1.dst")).unwrap().len() > 512);
+    let list = std::fs::read_to_string(dir.join("patches-names.txt")).unwrap();
+    assert!(list.contains("patches-1.dst: Worker 1,") && list.contains("patches-2.dst: Worker 10"), "{list}");
+    assert_eq!(s.documents().len(), docs, "the hoopfuls' documents are closed again");
+    std::fs::remove_dir_all(&dir).ok();
+    // bad requests
+    assert!(s.execute("embroidery.patches.make", &json!({"shape": "star"})).is_err());
+    assert!(s.execute("embroidery.patches.make", &json!({"width": 400})).is_err());
+    assert!(s.execute("embroidery.patches.make", &json!({"border": 1.0})).is_err());
+    assert!(s.execute("embroidery.patches.make", &json!({"width": 250, "hoop": "Brother 100 × 100 (4×4)"})).is_err());
+    assert!(s.execute("embroidery.patches.export", &json!({"names": ["A"]})).is_err());
+}
+
+#[test]
+fn a_patch_copied_to_fill_its_hoop() {
+    let mut s = session();
+    // one name tape with words, in a 200 mm hoop: as many as fit, each colour sewn once
+    let r = s.execute("embroidery.patches.make", &json!({"shape": "rounded", "width": 90, "height": 30, "text": "STAFF", "textColor": "#e63946", "count": 1, "hoop": "Brother 200 × 200 (8×8)"})).unwrap();
+    assert_eq!(r["made"].as_u64(), Some(1));
+    let r = s.execute("embroidery.patches.fillHoop", &json!({})).unwrap();
+    // 90 × 30 tapes 5 mm apart in 190 mm: 2 across, 5 down
+    assert_eq!((r["columns"].as_u64(), r["rows"].as_u64(), r["copies"].as_u64()), (Some(2), Some(5), Some(10)), "{r}");
+    let plan = s.embroidery_plan().unwrap();
+    assert_eq!(plan.pattern().color_blocks().len(), 3);
+    let st = plan.stats.clone().unwrap();
+    assert!(st.width_mm <= 195.0 && st.height_mm <= 195.0, "inside the hoop: {st:?}");
+    // one undo step takes the copies away again
+    s.execute("edit.undo", &json!({})).unwrap();
+    let st = s.embroidery_plan().unwrap().stats.clone().unwrap();
+    assert!(st.width_mm < 100.0, "{st:?}");
+}

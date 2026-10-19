@@ -6184,3 +6184,15 @@ effect	Soft	Weich
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	die Variablen und Datensätze der Datei wurden nicht gelesen (Variablen: {variables}, Datensätze: {data_sets}): Das Bedienfeld „Variablen“ listet sie nicht auf
 # Select by Color (select.color)
 	Select by Color	Nach Farbe auswählen
+# Patches (embroidery.patches.*)
+	Patches	Aufnäher
+	Make Patches	Aufnäher erstellen
+	Export Patches	Aufnäher exportieren
+	Export Patches…	Aufnäher exportieren…
+	Fill Hoop With Copies	Rahmen mit Kopien füllen
+	Patch files written	Aufnäher-Dateien geschrieben
+	Words on every patch	Text auf jedem Aufnäher
+	Or one name a line: a patch for each worker	Oder ein Name pro Zeile: ein Aufnäher für jeden Mitarbeiter
+	A new design: a hoopful of patches, each colour sewn once for all of them	Ein neues Design: ein Rahmen voller Aufnäher, jede Farbe einmal für alle gestickt
+	Every hoopful as a machine file, and a list of the names in each	Jede Rahmenfüllung als Maschinendatei und eine Liste der Namen darin
+	The open design repeated across its hoop, sorted so each colour is sewn once	Das offene Design über seinen Rahmen wiederholt, so sortiert, dass jede Farbe einmal gestickt wird

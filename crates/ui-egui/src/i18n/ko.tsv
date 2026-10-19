@@ -6177,3 +6177,15 @@ machine	Stop	정지
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	파일의 변수와 데이터 세트를 읽지 않았습니다(변수: {variables}, 데이터 세트: {data_sets}). 변수 패널에 표시되지 않습니다
 # Select by Color (select.color)
 	Select by Color	색상별 선택
+# Patches (embroidery.patches.*)
+	Patches	패치
+	Make Patches	패치 만들기
+	Export Patches	패치 내보내기
+	Export Patches…	패치 내보내기…
+	Fill Hoop With Copies	후프를 복사본으로 채우기
+	Patch files written	패치 파일을 저장했습니다
+	Words on every patch	모든 패치에 들어갈 글자
+	Or one name a line: a patch for each worker	또는 한 줄에 이름 하나: 직원마다 패치 하나
+	A new design: a hoopful of patches, each colour sewn once for all of them	새 디자인: 후프 가득 패치, 각 색상은 전체를 한 번에 수놓습니다
+	Every hoopful as a machine file, and a list of the names in each	후프마다 기계 파일 하나와 각 후프의 이름 목록
+	The open design repeated across its hoop, sorted so each colour is sewn once	열린 디자인을 후프 전체에 반복하고 각 색상을 한 번에 수놓도록 정렬합니다

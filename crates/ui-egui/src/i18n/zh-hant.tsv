@@ -6184,3 +6184,15 @@ machine	Stop	停止
 @msg	{key} must be an array of non-negative integer object ids	{key} 必須是由非負整數物件 id 組成的陣列
 @msg	invalid object id {value}: expected a non-negative integer	無效的物件 id {value}：應為非負整數
 @msg	no such object id {value}	沒有 id 為 {value} 的物件
+# Patches (embroidery.patches.*)
+	Patches	布章
+	Make Patches	製作布章
+	Export Patches	匯出布章
+	Export Patches…	匯出布章…
+	Fill Hoop With Copies	以複本填滿繡框
+	Patch files written	已寫入布章檔案
+	Words on every patch	每個布章上的文字
+	Or one name a line: a patch for each worker	或每行一個姓名:每位員工一個布章
+	A new design: a hoopful of patches, each colour sewn once for all of them	新設計:一整框布章,每種顏色為全部布章只繡一次
+	Every hoopful as a machine file, and a list of the names in each	每一框寫成一個機器檔案,並列出每框中的姓名
+	The open design repeated across its hoop, sorted so each colour is sewn once	將開啟的設計在繡框中重複排列,並排序使每種顏色只繡一次

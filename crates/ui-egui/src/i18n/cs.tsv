@@ -6580,3 +6580,15 @@ mark-style	Japanese	Japonské
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	proměnné a sady dat souboru nebyly načteny (proměnné: {variables}, sady dat: {data_sets}): panel Proměnné je nezobrazuje
 # Select by Color (select.color)
 	Select by Color	Vybrat podle barvy
+# Patches (embroidery.patches.*)
+	Patches	Nášivky
+	Make Patches	Vytvořit nášivky
+	Export Patches	Exportovat nášivky
+	Export Patches…	Exportovat nášivky…
+	Fill Hoop With Copies	Vyplnit rámeček kopiemi
+	Patch files written	Soubory nášivek zapsány
+	Words on every patch	Text na každé nášivce
+	Or one name a line: a patch for each worker	Nebo jedno jméno na řádek: nášivka pro každého zaměstnance
+	A new design: a hoopful of patches, each colour sewn once for all of them	Nový návrh: rámeček plný nášivek, každá barva vyšita jednou pro všechny
+	Every hoopful as a machine file, and a list of the names in each	Každý rámeček jako soubor pro stroj a seznam jmen v každém
+	The open design repeated across its hoop, sorted so each colour is sewn once	Otevřený návrh opakovaný přes celý rámeček, seřazený tak, aby se každá barva vyšívala jednou

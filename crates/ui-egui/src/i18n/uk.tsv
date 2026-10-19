@@ -6199,3 +6199,15 @@ machine	Stop	Зупинка
 @msg	the file's variables and data sets weren't read (variables: {variables}, data sets: {data_sets}): the Variables panel doesn't list them	змінні та набори даних файлу не прочитано (змінних: {variables}, наборів даних: {data_sets}): панель «Змінні» їх не показує
 # Select by Color (select.color)
 	Select by Color	Виділити за кольором
+# Patches (embroidery.patches.*)
+	Patches	Нашивки
+	Make Patches	Створити нашивки
+	Export Patches	Експорт нашивок
+	Export Patches…	Експорт нашивок…
+	Fill Hoop With Copies	Заповнити п’яльця копіями
+	Patch files written	Файли нашивок записано
+	Words on every patch	Текст на кожній нашивці
+	Or one name a line: a patch for each worker	Або по одному імені в рядку: нашивка для кожного працівника
+	A new design: a hoopful of patches, each colour sewn once for all of them	Новий дизайн: п’яльця, повні нашивок, кожен колір вишивається один раз для всіх
+	Every hoopful as a machine file, and a list of the names in each	Кожні п’яльця окремим файлом для машини та список імен у кожних
+	The open design repeated across its hoop, sorted so each colour is sewn once	Відкритий дизайн повторено по п’яльцях і відсортовано, щоб кожен колір вишивався один раз
