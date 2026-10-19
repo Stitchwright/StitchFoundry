@@ -31,7 +31,9 @@ impl LayerGrid {
     pub fn of(pattern: &Pattern, cell: f64) -> LayerGrid {
         let b = pattern.bounds();
         let (w, h) = (b.width(), b.height());
-        if !pattern.stitches.iter().any(|s| s.cmd == Cmd::Stitch) || !(w.is_finite() && h.is_finite() && w >= 0.0 && h >= 0.0) {
+        let has_stitches = pattern.stitches.iter().any(|s| s.cmd == Cmd::Stitch);
+        let sized = w.is_finite() && h.is_finite() && w >= 0.0 && h >= 0.0;
+        if !(has_stitches && sized) {
             return LayerGrid { cell: cell.max(0.1), ..LayerGrid::default() };
         }
         let cell = if cell.is_finite() { cell.max(0.1) } else { 1.0 }.max(w.max(h) / (MAX_CELLS - 1) as f64);
