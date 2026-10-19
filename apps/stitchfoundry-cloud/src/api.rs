@@ -32,6 +32,8 @@ pub const MAX_IN_FLIGHT: u32 = 3;
 /// reply allowed) can be more than a new account's credits; it holds what there is, and is
 /// charged what it used, at most that.
 pub const MIN_TO_START: u64 = 25;
+/// StitchFoundry's site, linked from the pages Stripe returns to.
+const SITE_URL: &str = "https://stitchfoundry.app";
 /// The Anthropic Messages API.
 pub const ANTHROPIC_URL: &str = "https://api.anthropic.com/v1/messages";
 /// The keys of a Messages request passed on; any others are left out.
@@ -76,9 +78,11 @@ impl Response {
         Response::json(status, &json!({ "type": "error", "error": { "type": kind, "message": message.into() } }))
     }
 
-    fn page(text: &str) -> Response {
+    /// A page for Stripe's return addresses: `text`, what to do next, and a way to the site (the
+    /// app has no address a page could go back to, so it says where to look instead).
+    fn page(text: &str, next: &str) -> Response {
         let body = format!(
-            "<!doctype html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em\"><h1>StitchFoundry</h1><p>{text}</p></body>"
+            "<!doctype html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em;line-height:1.5\"><h1>StitchFoundry</h1><p>{text}</p><p>{next}</p><p><a href=\"{SITE_URL}\" style=\"display:inline-block;padding:.6em 1.2em;border-radius:.4em;background:#2a5bd7;color:#fff;text-decoration:none\">Back to stitchfoundry.app</a></p></body>"
         );
         Response { status: 200, content_type: "text/html; charset=utf-8", body, headers: Vec::new() }
     }
@@ -204,7 +208,9 @@ impl Service {
             ("POST", "/v1/sewout") => self.sewout(req),
             ("POST", "/v1/sewout/delete") => self.delete_shared(req),
             ("GET", "/paid") => self.paid(req),
-            ("GET", "/cancelled") => Response::page("The payment was cancelled; nothing was charged. You can close this page."),
+            ("GET", "/cancelled") => {
+                Response::page("The payment was cancelled; nothing was charged.", "You can close this tab and go back to StitchFoundry.")
+            }
             _ => Response::error(404, "not_found_error", "no such endpoint"),
         }
     }
@@ -362,16 +368,18 @@ impl Service {
     fn paid(&self, req: &Request) -> Response {
         let query = req.path.split_once('?').map(|(_, q)| q).unwrap_or_default();
         let pack_id = query.split('&').find_map(|kv| kv.strip_prefix("pack="));
+        let next = "You can close this tab: in StitchFoundry, press Refresh in Account to see them.";
         match pack_id.and_then(|id| self.cfg.packs.iter().find(|p| p.id == id)) {
-            Some(p) => Response::page(&format!(
-                "Thank you. Your {} credits (${}.{:02}) are added as soon as the payment is through, usually within a minute: go back to StitchFoundry.",
-                thousands(p.credits),
-                p.cents / 100,
-                p.cents % 100
-            )),
-            None => Response::page(
-                "Thank you. Your credits are added as soon as the payment is through, usually within a minute: go back to StitchFoundry.",
+            Some(p) => Response::page(
+                &format!(
+                    "Thank you. Your {} credits (${}.{:02}) are added as soon as the payment is through, usually within a minute.",
+                    thousands(p.credits),
+                    p.cents / 100,
+                    p.cents % 100
+                ),
+                next,
             ),
+            None => Response::page("Thank you. Your credits are added as soon as the payment is through, usually within a minute.", next),
         }
     }
 
@@ -928,6 +936,11 @@ mod tests {
         let unknown = page("/paid?pack=%3Cscript%3E");
         assert!(unknown.contains("Your credits are added") && !unknown.contains("script"));
         assert!(page("/paid").contains("Your credits are added"));
+        // both return pages say what to do next and link to the site
+        for p in [page("/paid?pack=small"), page("/cancelled")] {
+            assert!(p.contains("close this tab") && p.contains("href=\"https://stitchfoundry.app\""));
+        }
+        assert!(page("/paid?pack=small").contains("press Refresh in Account"));
         assert_eq!(thousands(0), "0");
         assert_eq!(thousands(999), "999");
         assert_eq!(thousands(1_234_567), "1,234,567");
