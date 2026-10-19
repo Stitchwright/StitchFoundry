@@ -6,7 +6,8 @@
 > checks, opt-in sharing and follow-ups (SO-01); a Postgres database and a Railway setup
 > (CLOUD-03); a monthly budget for the free offers (CLOUD-04). Hosted on Railway at `https://cloud.stitchfoundry.app`
 > since 2026-10-19 (Stripe in test mode); the official builds know it (CLOUD-05); the account's
-> lasting `id` in its answers, for MakerFoundry's records (CLOUD-06).
+> lasting `id` in its answers, for MakerFoundry's records (CLOUD-06); password reset by email
+> (CLOUD-07).
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
@@ -20,7 +21,14 @@ its keys and prices; nothing secret is in the repository.
 - **Accounts:** sign up and sign in with an email and a password (in the app: **Embroidery ›
   StitchFoundry Account…**). Passwords are kept only as Argon2id hashes; a sign-in gives the app a
   session token (kept by the service only as its SHA-256), which lasts 90 days unused. Five wrong
-  passwords in 15 minutes lock that email out for the rest of the 15 minutes.
+  passwords in 15 minutes lock that email out for the rest of the 15 minutes. The same account
+  signs in to MakerFoundry (owner's decision, 2026-10-19), which keeps its own records under the
+  account's `id`.
+- **Forgotten passwords:** `POST /v1/password/forgot` emails a link (through Resend, from
+  `SF_CLOUD_MAIL_FROM`) that opens `/reset`, a page with no scripts where the new password is set.
+  The link works once, for an hour; the service keeps only its SHA-256. Setting a new password
+  signs the account out everywhere. The answer is the same whether or not an account has the
+  email, and an address gets at most five reset emails in 15 minutes.
 - **Credits:** a new account starts with `SF_CLOUD_SIGNUP_CREDITS` (100). Before an AI request goes
   out, the most it could cost is held (or, when that is more than the account has, all it has, if
   at least 25 credits); when the answer is in, only what it used is taken, never more than was
@@ -100,7 +108,7 @@ database beside it.
    `checkout.session.async_payment_succeeded`; put its signing secret in `STRIPE_WEBHOOK_SECRET`.
    Try it with Stripe's test keys and test cards before the live ones.
 7. **Check it:** `https://<the address>/v1/health` answers `{"ok": true, "ai": true, "payments":
-   true}` when everything is set.
+   true, "email": true}` when everything is set.
 8. **The app:** builds made with `SF_CLOUD_URL=https://<the address>` know the service. The
    official builds (`builds.yml`, `release.yml`, `pages.yml` and the Windows workflows) are made
    with `SF_CLOUD_URL=https://cloud.stitchfoundry.app`, StitchFoundry's own service; builds of
@@ -133,6 +141,7 @@ target/release/stitchfoundry-cloud
 | `SF_CLOUD_PACKS` | the packs on sale (see Prices) |
 | `SF_CLOUD_FREE_CHECKS`, `SF_CLOUD_CHECK_CREDITS` | sew-out checks free a month (3) and a check's price after them (10) |
 | `SF_CLOUD_FREE_BUDGET_CENTS` | the most the free offers may cost in AI a month (2500: $25; see Prices) |
+| `SF_CLOUD_MAIL_FROM` | who password-reset emails come from (`StitchFoundry <accounts@stitchfoundry.app>`), through Resend (`RESEND_API_KEY`); without the key there's no reset by email |
 | `RESEND_API_KEY`, `SF_CLOUD_REPORTS_TO`, `SF_CLOUD_REPORTS_FROM` | sew-out reports emailed through Resend to this address (e.g. `support@stitchfoundry.app`), from an address on a domain Resend has verified (`StitchFoundry <reports@stitchfoundry.app>`); without them reports are only kept |
 
 It speaks plain HTTP: put it behind a TLS proxy (Caddy, nginx, or the host's load balancer, as
@@ -156,10 +165,13 @@ cargo test -p stitchfoundry-cloud` (it empties StitchFoundry's tables there).
 
 | | |
 |---|---|
-| `GET /v1/health` | `{ok, ai, payments}`: whether AI requests and payments are set up |
+| `GET /v1/health` | `{ok, ai, payments, email}`: whether AI requests, payments and emails (Resend) are set up |
 | `POST /v1/signup {email, password}` | a new account → `{token, account: {id, email, credits}}` |
 | `POST /v1/signin {email, password}` | → `{token, account}` |
 | `POST /v1/signout` | ends the session |
+| `POST /v1/password/forgot {email}` | emails a reset link if there's an account with that email → `{sent, message}` (the same answer either way; 503 without Resend, 429 after five in 15 minutes) |
+| `GET /reset?token=…`, `POST /reset` | the page the link opens, and its form (`token`, `password`, `again`) |
+| `POST /v1/password/reset {token, password}` | the same for apps → `{ok}`; 400 when the link expired, was used, or the password is too short |
 | `GET` or `POST /v1/account` | → `{id, email, credits, freeChecks, checkCredits, sharedChecks, packs, payments, history}` |
 | `POST /v1/checkout {pack}` | → `{url}`: Stripe's checkout page |
 | `POST /v1/stripe/webhook` | Stripe's signed events |

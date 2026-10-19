@@ -67,6 +67,9 @@ pub struct Config {
     pub resend_key: Option<String>,
     pub reports_to: Option<String>,
     pub reports_from: String,
+    /// Who account emails (password resets) come from (`SF_CLOUD_MAIL_FROM`, an address on a
+    /// domain Resend has verified), through Resend; without `RESEND_API_KEY` there are none.
+    pub mail_from: String,
 }
 
 /// The default packs, as the owner priced them (2026-10-18): $10, $25 and $50.
@@ -113,6 +116,7 @@ impl Config {
             resend_key: nonempty("RESEND_API_KEY"),
             reports_to: nonempty("SF_CLOUD_REPORTS_TO"),
             reports_from: nonempty("SF_CLOUD_REPORTS_FROM").unwrap_or_else(|| "StitchFoundry <reports@stitchfoundry.app>".into()),
+            mail_from: nonempty("SF_CLOUD_MAIL_FROM").unwrap_or_else(|| "StitchFoundry <accounts@stitchfoundry.app>".into()),
         })
     }
 

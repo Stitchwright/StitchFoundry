@@ -70,6 +70,13 @@ pub struct Check {
     pub spent: u64,
 }
 
+/// A password-reset link on its way: whose, and until when it works.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Reset {
+    pub account: u64,
+    pub expires: u64,
+}
+
 /// A sew-out report someone sent (Report to StitchFoundry): whose, and when. Its photos and
 /// text are kept as a shared check's are, under its id.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -97,6 +104,9 @@ struct State {
     free_spent: BTreeMap<String, u64>,
     #[serde(default)]
     reports: BTreeMap<String, Report>,
+    /// Password-reset links by the SHA-256 of their token (the token itself is never kept).
+    #[serde(default)]
+    resets: BTreeMap<String, Reset>,
 }
 
 /// The most recent entries kept for an account's history.
@@ -456,6 +466,32 @@ impl Store {
         self.save()
     }
 
+    /// A new password-reset link for `account`, working until `RESET_TTL` from `now`. An account
+    /// has one link at a time: asking again replaces the earlier one.
+    pub fn add_reset(&mut self, token_hash: String, account: u64, now: u64) -> Result<(), StoreError> {
+        self.state.resets.retain(|_, r| r.account != account && r.expires > now);
+        self.state.resets.insert(token_hash, Reset { account, expires: now.saturating_add(crate::auth::RESET_TTL) });
+        self.save()
+    }
+
+    /// The account a reset link is for, while it works (it isn't used up by asking).
+    pub fn reset_for(&self, token_hash: &str, now: u64) -> Option<u64> {
+        self.state.resets.get(token_hash).filter(|r| r.expires > now).map(|r| r.account)
+    }
+
+    /// Uses a reset link: the account gets `password_hash` as its password and every session it
+    /// had ends (whoever knew the old password is signed out). `Ok(None)` when the link has
+    /// expired or was used.
+    pub fn use_reset(&mut self, token_hash: &str, password_hash: String, now: u64) -> Result<Option<u64>, StoreError> {
+        let Some(account) = self.reset_for(token_hash, now) else { return Ok(None) };
+        let a = self.state.accounts.get_mut(&account).ok_or(StoreError::NoAccount)?;
+        a.password = password_hash;
+        self.state.resets.retain(|_, r| r.account != account);
+        self.state.sessions.retain(|_, s| s.account != account);
+        self.save()?;
+        Ok(Some(account))
+    }
+
     /// Credits added (a purchase or a grant), once for each `key` (a Stripe event or checkout).
     /// `Ok(false)` when that key was credited already.
     pub fn add_credits(&mut self, account: u64, credits: u64, kind: &str, key: &str, note: &str, now: u64) -> Result<bool, StoreError> {
@@ -539,6 +575,29 @@ mod tests {
         s.reserve(id, 50).unwrap();
         assert_eq!(s.settle(id, 50, 0, "ask", 2).unwrap(), 88);
         assert_eq!(s.recent(id).iter().filter(|e| e.kind == "ai").count(), 1);
+    }
+
+    #[test]
+    fn a_reset_link_works_once_for_an_hour_and_ends_the_sessions() {
+        let mut s = Store::in_memory();
+        let id = s.create("a@b.c", "old".into(), 0, 0).unwrap();
+        let other = s.create("d@e.f", "theirs".into(), 0, 0).unwrap();
+        s.add_session("t1".into(), id, 0).unwrap();
+        s.add_session("t2".into(), other, 0).unwrap();
+        s.add_reset("r1".into(), id, 0).unwrap();
+        assert_eq!(s.reset_for("r1", 10), Some(id));
+        assert_eq!(s.reset_for("r1", crate::auth::RESET_TTL), None, "an hour");
+        assert_eq!(s.use_reset("r1", "new".into(), crate::auth::RESET_TTL).unwrap(), None);
+        assert_eq!(s.account(id).unwrap().password, "old", "an expired link changes nothing");
+        // asking again replaces the earlier link
+        s.add_reset("r2".into(), id, 100).unwrap();
+        s.add_reset("r3".into(), id, 200).unwrap();
+        assert_eq!(s.reset_for("r2", 300), None);
+        assert_eq!(s.use_reset("r3", "new".into(), 300).unwrap(), Some(id));
+        assert_eq!(s.account(id).unwrap().password, "new");
+        assert_eq!(s.session("t1", 300), None, "signed out everywhere");
+        assert_eq!(s.session("t2", 300), Some(other), "other accounts stay signed in");
+        assert_eq!(s.use_reset("r3", "again".into(), 301).unwrap(), None, "once");
     }
 
     /// The Postgres store, with a database to try it on (`SF_CLOUD_TEST_DATABASE_URL`, whose

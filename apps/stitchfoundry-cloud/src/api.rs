@@ -6,6 +6,9 @@
 //! - `GET  /v1/health`: whether AI requests and payments are set up.
 //! - `POST /v1/signup {email, password}`, `POST /v1/signin {email, password}` → `{token, account}`.
 //! - `POST /v1/signout` (with the token).
+//! - `POST /v1/password/forgot {email}`: a link to reset the password, emailed if the account
+//!   exists (the answer is the same either way); `GET /reset?token=…` is the page it opens, and
+//!   `POST /reset` (its form) or `POST /v1/password/reset {token, password}` sets the new one.
 //! - `GET  /v1/account` → `{id, email, credits, packs, history}`.
 //! - `POST /v1/checkout {pack}` → `{url}`: Stripe's checkout page for the pack.
 //! - `POST /v1/stripe/webhook`: Stripe's signed word that a checkout was paid.
@@ -125,6 +128,8 @@ pub struct Service {
     cfg: Config,
     store: Mutex<Store>,
     throttle: Mutex<Throttle>,
+    /// Reset emails lately, by address (so nobody's inbox can be flooded).
+    resets: Mutex<Throttle>,
     in_flight: Mutex<HashMap<u64, u32>>,
     upstream: Box<dyn Upstream>,
     clock: Box<dyn Fn() -> u64 + Send + Sync>,
@@ -152,6 +157,85 @@ fn thousands(n: u64) -> String {
     out
 }
 
+/// Why a reset link doesn't work.
+const EXPIRED: &str = "This link has expired or was used already: ask for a new one where you sign in";
+
+/// `text` with a capital first letter.
+fn capitalized(text: &str) -> String {
+    let mut c = text.chars();
+    c.next().map(|f| f.to_uppercase().chain(c).collect()).unwrap_or_default()
+}
+
+/// A `%`-encoded form or query value decoded (`+` is a space); `None` if it isn't UTF-8.
+fn url_decode(s: &str) -> Option<String> {
+    let bytes = s.as_bytes();
+    let mut out = Vec::with_capacity(bytes.len());
+    let mut i = 0;
+    while let Some(&b) = bytes.get(i) {
+        match b {
+            b'+' => out.push(b' '),
+            b'%' => {
+                let hex = bytes.get(i + 1..i + 3).and_then(|h| std::str::from_utf8(h).ok()).and_then(|h| u8::from_str_radix(h, 16).ok());
+                match hex {
+                    Some(v) => {
+                        out.push(v);
+                        i += 2;
+                    }
+                    None => out.push(b'%'),
+                }
+            }
+            _ => out.push(b),
+        }
+        i += 1;
+    }
+    String::from_utf8(out).ok()
+}
+
+/// `name`'s value in a form body (`a=1&b=2`).
+fn form_value(body: &str, name: &str) -> Option<String> {
+    body.split('&').filter_map(|pair| pair.split_once('=')).find(|(k, _)| url_decode(k).as_deref() == Some(name)).and_then(|(_, v)| url_decode(v))
+}
+
+/// `name`'s value in a path's query (`/reset?token=…`).
+fn query_value(path: &str, name: &str) -> Option<String> {
+    form_value(path.split_once('?')?.1, name)
+}
+
+/// The reset form for `token` (checked to be a reset token's shape, so it goes in as it is), with
+/// `problem` above it if there was one.
+fn reset_form_html(token: &str, problem: &str) -> String {
+    let problem = if problem.is_empty() { String::new() } else { format!("<p style=\"color:#b00020\">{problem}</p>") };
+    format!(
+        "<p>Choose a new password for your StitchFoundry account: at least {min} characters.</p>{problem}\
+         <form method=\"post\" action=\"/reset\"><input type=\"hidden\" name=\"token\" value=\"{token}\">\
+         <p><label>New password<br><input type=\"password\" name=\"password\" autocomplete=\"new-password\" minlength=\"{min}\" maxlength=\"{max}\" required style=\"box-sizing:border-box;width:100%;padding:.5em;font-size:1em\"></label></p>\
+         <p><label>The same again<br><input type=\"password\" name=\"again\" autocomplete=\"new-password\" minlength=\"{min}\" maxlength=\"{max}\" required style=\"box-sizing:border-box;width:100%;padding:.5em;font-size:1em\"></label></p>\
+         <p><button type=\"submit\" style=\"padding:.6em 1.2em;border:0;border-radius:.4em;background:#2a5bd7;color:#fff;font-size:1em\">Set the new password</button></p></form>",
+        min = auth::PASSWORD_LEN.0,
+        max = auth::PASSWORD_LEN.1,
+    )
+}
+
+/// A reset page around `body`. The link's token is in its address, so the page is never cached,
+/// framed, or named to another site it links to.
+fn reset_html(body: &str) -> Response {
+    let html = format!(
+        "<!doctype html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>Reset your password · StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em;line-height:1.5\"><h1>StitchFoundry</h1><h2>Reset your password</h2>{body}</body>"
+    );
+    let headers = [
+        ("Cache-Control", "no-store"),
+        ("Referrer-Policy", "no-referrer"),
+        ("X-Frame-Options", "DENY"),
+        ("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"),
+    ];
+    Response {
+        status: 200,
+        content_type: "text/html; charset=utf-8",
+        body: html,
+        headers: headers.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect(),
+    }
+}
+
 fn store_error(e: StoreError) -> Response {
     match e {
         StoreError::Taken => Response::error(409, "invalid_request_error", "an account with that email already exists: sign in instead"),
@@ -170,7 +254,7 @@ impl Service {
     }
 
     pub fn with_clock(cfg: Config, store: Store, upstream: Box<dyn Upstream>, clock: Box<dyn Fn() -> u64 + Send + Sync>) -> Service {
-        Service { cfg, store: Mutex::new(store), throttle: Mutex::default(), in_flight: Mutex::default(), upstream, clock }
+        Service { cfg, store: Mutex::new(store), throttle: Mutex::default(), resets: Mutex::default(), in_flight: Mutex::default(), upstream, clock }
     }
 
     fn store(&self) -> std::sync::MutexGuard<'_, Store> {
@@ -197,11 +281,15 @@ impl Service {
             ("OPTIONS", _) => Response { status: 204, content_type: "text/plain", body: String::new(), headers: Vec::new() },
             ("GET", "/v1/health") => Response::json(
                 200,
-                &json!({ "ok": true, "ai": self.cfg.anthropic_key.is_some(), "payments": self.cfg.stripe_key.is_some() && self.cfg.stripe_webhook_secret.is_some() }),
+                &json!({ "ok": true, "ai": self.cfg.anthropic_key.is_some(), "payments": self.cfg.stripe_key.is_some() && self.cfg.stripe_webhook_secret.is_some(), "email": self.cfg.resend_key.is_some() }),
             ),
             ("POST", "/v1/signup") => self.signup(req),
             ("POST", "/v1/signin") => self.signin(req),
             ("POST", "/v1/signout") => self.signout(req),
+            ("POST", "/v1/password/forgot") => self.forgot(req),
+            ("POST", "/v1/password/reset") => self.reset_json(req),
+            ("GET", "/reset") => self.reset_page(req),
+            ("POST", "/reset") => self.reset_form(req),
             // (POST too: the app's client only posts)
             ("GET" | "POST", "/v1/account") => self.account(req),
             ("POST", "/v1/checkout") => self.checkout(req),
@@ -338,6 +426,128 @@ impl Service {
                 throttle.failed(&email, now);
                 Response::error(401, "authentication_error", "the email or the password is wrong")
             }
+        }
+    }
+
+    /// A password-reset link, emailed to the account's address. The answer is the same whether
+    /// or not there is an account with that email, so it can't be used to find out who has one.
+    fn forgot(&self, req: &Request) -> Response {
+        let v = match body_json(req) {
+            Ok(v) => v,
+            Err(r) => return r,
+        };
+        let Some(email) = v.get("email").and_then(Value::as_str).and_then(auth::clean_email) else {
+            return Response::error(400, "invalid_request_error", "give a real email address");
+        };
+        let Some(key) = &self.cfg.resend_key else {
+            return Response::error(503, "api_error", "password reset by email isn't set up yet: write to support@stitchfoundry.app");
+        };
+        let now = (self.clock)();
+        {
+            let mut resets = self.resets.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+            if !resets.allowed(&email, now) {
+                return Response::error(429, "rate_limit_error", "a few reset emails went to that address lately: wait 15 minutes");
+            }
+            resets.failed(&email, now);
+        }
+        let sent = json!({ "sent": true, "message": "If there's a StitchFoundry account with that email, a link to reset its password is on its way. It works for an hour." });
+        let Some(id) = self.store().by_email(&email).map(|a| a.id) else { return Response::json(200, &sent) };
+        let (token, hash) = match auth::new_reset_token() {
+            Ok(t) => t,
+            Err(e) => return Response::error(500, "api_error", e),
+        };
+        if let Err(e) = self.store().add_reset(hash, id, now) {
+            return store_error(e);
+        }
+        let link = format!("{}/reset?token={token}", self.cfg.public_url);
+        let text = format!(
+            "Someone, hopefully you, asked to reset the password of the StitchFoundry account for {email}.\n\n\
+             To choose a new password, open this link within an hour:\n{link}\n\n\
+             It works once. Setting a new password signs the account out everywhere.\n\n\
+             If you didn't ask, ignore this email: your password stays as it is.\n\n\
+             StitchFoundry · support@stitchfoundry.app\n"
+        );
+        let mail = json!({ "from": self.cfg.mail_from, "to": [email], "reply_to": "support@stitchfoundry.app", "subject": "Reset your StitchFoundry password", "text": text });
+        match self.upstream.post(
+            RESEND_URL,
+            &[("authorization", format!("Bearer {key}")), ("content-type", "application/json".into())],
+            &mail.to_string(),
+        ) {
+            Ok((status, _)) if (200..300).contains(&status) => {}
+            // (logged without the link, which would let whoever reads the log in)
+            Ok((status, _)) => log::error!("reset email for account {id} refused ({status})"),
+            Err(e) => log::error!("reset email for account {id} didn't go: {e}"),
+        }
+        Response::json(200, &sent)
+    }
+
+    /// Sets the password a reset link is for: `Ok` with the account, or the reason it can't.
+    fn use_reset(&self, token: &str, password: &str) -> Result<u64, String> {
+        if !auth::is_reset_token(token) {
+            return Err(EXPIRED.into());
+        }
+        auth::check_password(password)?;
+        let hash = auth::hash_password(password)?;
+        let now = (self.clock)();
+        let mut store = self.store();
+        match store.use_reset(&auth::token_hash(token), hash, now) {
+            Ok(Some(id)) => {
+                // wrong guesses before don't keep the owner out now
+                if let Some(email) = store.account(id).map(|a| a.email.clone()) {
+                    drop(store);
+                    self.throttle.lock().unwrap_or_else(std::sync::PoisonError::into_inner).succeeded(&email);
+                }
+                Ok(id)
+            }
+            Ok(None) => Err(EXPIRED.into()),
+            Err(e) => {
+                log::error!("reset: {e}");
+                Err("the new password couldn't be saved: try again later".into())
+            }
+        }
+    }
+
+    /// `POST /v1/password/reset {token, password}`, for apps → `{ok: true}`.
+    fn reset_json(&self, req: &Request) -> Response {
+        let v = match body_json(req) {
+            Ok(v) => v,
+            Err(r) => return r,
+        };
+        let token = v.get("token").and_then(Value::as_str).unwrap_or_default();
+        let password = v.get("password").and_then(Value::as_str).unwrap_or_default();
+        match self.use_reset(token, password) {
+            Ok(_) => Response::json(200, &json!({ "ok": true })),
+            Err(why) => Response::error(400, "invalid_request_error", why),
+        }
+    }
+
+    /// The page a reset link opens: a form for the new password, or why the link no longer works.
+    fn reset_page(&self, req: &Request) -> Response {
+        let token = query_value(&req.path, "token").unwrap_or_default();
+        let now = (self.clock)();
+        if !auth::is_reset_token(&token) || self.store().reset_for(&auth::token_hash(&token), now).is_none() {
+            return reset_html(&format!("<p>{EXPIRED}.</p>"));
+        }
+        reset_html(&reset_form_html(&token, ""))
+    }
+
+    /// The reset page's form, posted.
+    fn reset_form(&self, req: &Request) -> Response {
+        let body = String::from_utf8_lossy(&req.body);
+        let field = |name: &str| form_value(&body, name).unwrap_or_default();
+        let (token, password) = (field("token"), field("password"));
+        if !auth::is_reset_token(&token) {
+            return reset_html(&format!("<p>{EXPIRED}.</p>"));
+        }
+        if password != field("again") {
+            return reset_html(&reset_form_html(&token, "The two passwords aren't the same."));
+        }
+        match self.use_reset(&token, &password) {
+            Ok(_) => {
+                reset_html("<p>Your password is changed, and the account is signed out everywhere.</p><p>Sign in again with your new password.</p>")
+            }
+            Err(why) if why == EXPIRED => reset_html(&format!("<p>{EXPIRED}.</p>")),
+            Err(why) => reset_html(&reset_form_html(&token, &format!("{}.", capitalized(&why)))),
         }
     }
 
@@ -822,6 +1032,116 @@ mod tests {
         assert_eq!(s.handle(&req("GET", "/v1/account", Some("sfs_made_up"), json!({}))).status, 401);
     }
 
+    /// A service that emails through a fake Resend.
+    fn service_with_email() -> (Service, Calls) {
+        let calls: Calls = Arc::default();
+        let cfg = Config::from_env(|k| match k {
+            "RESEND_API_KEY" => Some("re_test".into()),
+            "SF_CLOUD_PUBLIC_URL" => Some("https://cloud.example.com/".into()),
+            _ => None,
+        })
+        .unwrap();
+        let s =
+            Service::with_clock(cfg, Store::in_memory(), Box::new(Fake { calls: calls.clone(), reply: (200, "{}".into()) }), Box::new(|| 1_000_000));
+        (s, calls)
+    }
+
+    /// A form post, as a browser sends it.
+    fn form(path: &str, body: &str) -> Request {
+        Request {
+            method: "POST".into(),
+            path: path.into(),
+            headers: vec![("Content-Type".into(), "application/x-www-form-urlencoded".into())],
+            body: body.as_bytes().to_vec(),
+        }
+    }
+
+    /// The reset link in the last email sent.
+    fn emailed_link(calls: &Calls) -> String {
+        let mail: Value = serde_json::from_str(&calls.lock().unwrap().last().unwrap().2).unwrap();
+        let text = mail["text"].as_str().unwrap();
+        text.split_whitespace().find(|w| w.starts_with("https://")).unwrap().to_string()
+    }
+
+    #[test]
+    fn a_forgotten_password_is_reset_through_an_emailed_link() {
+        let (s, calls) = service_with_email();
+        let t = sign_up(&s);
+        assert_eq!(json_of(&s.handle(&req("GET", "/v1/health", None, json!({}))))["email"], true);
+        // an unknown address gets the same answer, and no email
+        let unknown = s.handle(&req("POST", "/v1/password/forgot", None, json!({"email": "nobody@example.com"})));
+        let known = s.handle(&req("POST", "/v1/password/forgot", None, json!({"email": " Denise@Example.com"})));
+        assert_eq!((unknown.status, &unknown.body), (known.status, &known.body));
+        assert_eq!(s.handle(&req("POST", "/v1/password/forgot", None, json!({"email": "not an address"}))).status, 400);
+        let sent = calls.lock().unwrap().clone();
+        assert_eq!(sent.len(), 1, "one email, to the account");
+        let mail: Value = serde_json::from_str(&sent[0].2).unwrap();
+        assert_eq!(mail["to"][0], "denise@example.com");
+        assert_eq!(mail["from"], "StitchFoundry <accounts@stitchfoundry.app>");
+        let link = emailed_link(&calls);
+        let token = link.strip_prefix("https://cloud.example.com/reset?token=").unwrap();
+        assert!(auth::is_reset_token(token), "{link}");
+        // the link opens a form that keeps the token to itself
+        let page = s.handle(&req("GET", &format!("/reset?token={token}"), None, json!({})));
+        assert!(page.content_type.starts_with("text/html") && page.body.contains(token) && page.body.contains("new-password"));
+        for (k, v) in [("Referrer-Policy", "no-referrer"), ("Cache-Control", "no-store"), ("X-Frame-Options", "DENY")] {
+            assert!(page.headers.iter().any(|h| h.0 == k && h.1 == v), "{k}");
+        }
+        // two different passwords, or one too short, are refused and leave the link working
+        let mismatch = s.handle(&form("/reset", &format!("token={token}&password=fire+truck+2&again=fire+truck+3")));
+        assert!(mismatch.body.contains("aren't the same"));
+        let short = s.handle(&form("/reset", &format!("token={token}&password=short&again=short")));
+        assert!(short.body.contains("at least 8"), "{}", short.body);
+        // the new password works, the old one and the old sign-in don't
+        let done = s.handle(&form("/reset", &format!("token={token}&password=fire+truck+%232&again=fire+truck+%232")));
+        assert!(done.body.contains("Your password is changed"), "{}", done.body);
+        assert_eq!(s.handle(&req("GET", "/v1/account", Some(&t), json!({}))).status, 401, "signed out everywhere");
+        let signin = |p: &str| s.handle(&req("POST", "/v1/signin", None, json!({"email": "denise@example.com", "password": p}))).status;
+        assert_eq!(signin("fire truck 1"), 401);
+        assert_eq!(signin("fire truck #2"), 200);
+        // a link works once
+        let again = s.handle(&form("/reset", &format!("token={token}&password=fire+truck+4&again=fire+truck+4")));
+        assert!(again.body.contains("expired or was used"));
+        assert!(s.handle(&req("GET", &format!("/reset?token={token}"), None, json!({}))).body.contains("expired or was used"));
+        assert!(s.handle(&req("GET", "/reset?token=%3Cscript%3E", None, json!({}))).body.contains("expired or was used"));
+        // apps reset through the JSON endpoint
+        s.handle(&req("POST", "/v1/password/forgot", None, json!({"email": "denise@example.com"})));
+        let token = emailed_link(&calls).split_once("token=").unwrap().1.to_string();
+        let r = s.handle(&req("POST", "/v1/password/reset", None, json!({"token": token, "password": "short"})));
+        assert_eq!(r.status, 400);
+        assert_eq!(s.handle(&req("POST", "/v1/password/reset", None, json!({"token": token, "password": "fire truck 5"}))).status, 200);
+        assert_eq!(signin("fire truck 5"), 200);
+        assert_eq!(s.handle(&req("POST", "/v1/password/reset", None, json!({"token": token, "password": "fire truck 6"}))).status, 400);
+    }
+
+    #[test]
+    fn reset_emails_are_limited_and_need_resend() {
+        let (s, calls) = service_with_email();
+        sign_up(&s);
+        let ask = || s.handle(&req("POST", "/v1/password/forgot", None, json!({"email": "denise@example.com"}))).status;
+        for _ in 0..auth::MAX_FAILURES {
+            assert_eq!(ask(), 200);
+        }
+        assert_eq!(ask(), 429, "an inbox can't be flooded");
+        assert_eq!(calls.lock().unwrap().len(), auth::MAX_FAILURES);
+        // without Resend there's no way to send the link
+        let (s, _) = service((200, String::new()), false);
+        sign_up(&s);
+        assert_eq!(s.handle(&req("POST", "/v1/password/forgot", None, json!({"email": "denise@example.com"}))).status, 503);
+        assert_eq!(json_of(&s.handle(&req("GET", "/v1/health", None, json!({}))))["email"], false);
+    }
+
+    #[test]
+    fn form_values_are_decoded() {
+        assert_eq!(form_value("a=1&token=sfr_ab&password=a+b%2Bc%25", "password").as_deref(), Some("a b+c%"));
+        assert_eq!(form_value("a=1", "token"), None);
+        assert_eq!(form_value("p=%", "p").as_deref(), Some("%"), "a stray % stays");
+        assert_eq!(form_value("p=%e2%9c%93", "p").as_deref(), Some("\u{2713}"));
+        assert_eq!(form_value("p=%ff", "p"), None, "not UTF-8");
+        assert_eq!(query_value("/reset?token=sfr_1", "token").as_deref(), Some("sfr_1"));
+        assert_eq!(query_value("/reset", "token"), None);
+    }
+
     #[test]
     fn the_web_app_may_call_and_the_account_answers_a_post() {
         let (s, _) = service((200, String::new()), true);
@@ -1090,7 +1410,10 @@ mod tests {
     fn without_keys_the_service_says_what_isnt_open() {
         let (s, _) = service((200, String::new()), false);
         let t = sign_up(&s);
-        assert_eq!(json_of(&s.handle(&req("GET", "/v1/health", None, json!({})))), json!({"ok": true, "ai": false, "payments": false}));
+        assert_eq!(
+            json_of(&s.handle(&req("GET", "/v1/health", None, json!({})))),
+            json!({"ok": true, "ai": false, "payments": false, "email": false})
+        );
         assert_eq!(s.handle(&req("POST", "/v1/messages", Some(&t), json!({}))).status, 503);
         assert_eq!(s.handle(&req("POST", "/v1/checkout", Some(&t), json!({"pack": "small"}))).status, 503);
         assert_eq!(s.handle(&req("GET", "/nope", None, json!({}))).status, 404);
