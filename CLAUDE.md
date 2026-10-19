@@ -64,6 +64,20 @@ Formerly **DrawCraft** (renamed 2026-10-01): old `.drawcraft` files and `"format
 - Shell gotcha: `mv`/`cp` are aliased interactive here — use `/bin/mv -f` / `/bin/cp -f`.
 - Parallel agents: separate `CARGO_TARGET_DIR` per agent; edit only the crates you own; write manifests atomically. Each target dir grows to ~30 GB: delete yours when you finish (a full disk fails links with `errno=28`).
 
+## Debugging
+When something fails and the cause isn't obvious, follow the `/debug` skill
+(`.claude/skills/debug/SKILL.md`, based on Kuhlmann, *The Book of Debugging*). What matters most:
+- **Reproduce first, and make the loop fast**: one named input and one command; never the full CI
+  as the loop. Run the one failing test, or the command on its own with `vectorcraft-cli run --cmd …` (`embroidery.exportImage` to see stitches).
+- **Look at what the program actually did** before theorising, and build a flag or command when you
+  keep wanting to see something.
+- **One hypothesis per experiment**, written down with what either result will teach; cap guessing
+  at about an hour, then switch strategy (bisect, instrument, follow the data).
+- **Verify the fix** by undoing it (the bug returns) and redoing it (it goes); keep the repro as a
+  regression test; look for the same mistake elsewhere.
+- Keep a debugging log in `docs/debug-logs/YYYY-MM-DD-<topic>.md` for anything that takes more
+  than one sitting, and reference it from the commit.
+
 ## Roadmap and progress docs
 The progress docs follow craftrules' [`standards/progress-docs.md`](https://github.com/storytold/craftrules/blob/main/standards/progress-docs.md):
 - [`ROADMAP.md`](ROADMAP.md): stage, headline numbers, dimensions, features, languages, upcoming, progress log.
