@@ -6595,3 +6595,10 @@ machine	Stop	Pysäytys
 	No card needed, and no API key to set up	Ei korttia eikä API-avainta asetettavaksi
 	Sign in to your Foundry Account	Kirjaudu Foundry-tiliisi
 	{email}: {n} credits	{email}: {n} krediittiä
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Julkaise MakerFoundryssa
+	Publish to MakerFoundry…	Julkaise MakerFoundryssa…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Lähetä tämä kuvio MakerFoundryyn luonnoksena. Sen sivu avautuu selaimessa: lisää siellä otsikko, hinta ja lisenssi ja julkaise se.
+	Sending to MakerFoundry…	Lähetetään MakerFoundryyn…
+	Sign in to your Foundry Account to publish.	Kirjaudu Foundry-tiliisi julkaistaksesi.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Luonnoksesi on auki MakerFoundryssa: lisää siellä otsikko, hinta ja lisenssi ja julkaise se.

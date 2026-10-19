@@ -6572,3 +6572,10 @@ swatch	Bright Violet	Felviolet
 	No card needed, and no API key to set up	Geen kaart nodig en geen API-sleutel in te stellen
 	Sign in to your Foundry Account	Meld je aan bij je Foundry-account
 	{email}: {n} credits	{email}: {n} credits
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Publiceren op MakerFoundry
+	Publish to MakerFoundry…	Publiceren op MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Stuur dit ontwerp als concept naar MakerFoundry. De pagina ervan opent in je browser: voeg daar de titel, prijs en licentie toe en publiceer het.
+	Sending to MakerFoundry…	Versturen naar MakerFoundry…
+	Sign in to your Foundry Account to publish.	Meld je aan bij je Foundry-account om te publiceren.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Je concept staat open op MakerFoundry: voeg daar de titel, prijs en licentie toe en publiceer het.

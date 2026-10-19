@@ -6608,3 +6608,10 @@ machine	Stop	Megállás
 	No card needed, and no API key to set up	Nem kell kártya, és API-kulcsot sem kell beállítani
 	Sign in to your Foundry Account	Jelentkezzen be a Foundry-fiókjába
 	{email}: {n} credits	{email}: {n} kredit
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Közzététel a MakerFoundryn
+	Publish to MakerFoundry…	Közzététel a MakerFoundryn…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Küldje el ezt a mintát piszkozatként a MakerFoundrynak. Az oldala megnyílik a böngészőben: ott adja meg a címet, az árat és a licencet, majd tegye közzé.
+	Sending to MakerFoundry…	Küldés a MakerFoundrynak…
+	Sign in to your Foundry Account to publish.	A közzétételhez jelentkezzen be a Foundry-fiókjába.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	A piszkozata megnyílt a MakerFoundryn: ott adja meg a címet, az árat és a licencet, majd tegye közzé.

@@ -6463,3 +6463,10 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	No card needed, and no API key to set up	ბარათი არ არის საჭირო და არც API გასაღების დაყენება
 	Sign in to your Foundry Account	შედით თქვენს Foundry-ის ანგარიშში
 	{email}: {n} credits	{email}: {n} კრედიტი
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	გამოქვეყნება MakerFoundry-ზე
+	Publish to MakerFoundry…	გამოქვეყნება MakerFoundry-ზე…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	გაგზავნეთ ეს დიზაინი MakerFoundry-ზე მონახაზად. მისი გვერდი გაიხსნება ბრაუზერში: იქ დაამატეთ სათაური, ფასი და ლიცენზია და გამოაქვეყნეთ.
+	Sending to MakerFoundry…	იგზავნება MakerFoundry-ზე…
+	Sign in to your Foundry Account to publish.	გამოსაქვეყნებლად შედით თქვენს Foundry-ის ანგარიშში.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	თქვენი მონახაზი გახსნილია MakerFoundry-ზე: იქ დაამატეთ სათაური, ფასი და ლიცენზია და გამოაქვეყნეთ.

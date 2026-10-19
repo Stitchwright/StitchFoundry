@@ -6583,3 +6583,10 @@ machine	Stop	Στάση
 	No card needed, and no API key to set up	Χωρίς κάρτα και χωρίς κλειδί API για ρύθμιση
 	Sign in to your Foundry Account	Συνδεθείτε στον λογαριασμό σας Foundry
 	{email}: {n} credits	{email}: {n} μονάδες
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Δημοσίευση στο MakerFoundry
+	Publish to MakerFoundry…	Δημοσίευση στο MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Στείλτε αυτό το σχέδιο στο MakerFoundry ως πρόχειρο. Η σελίδα του ανοίγει στο πρόγραμμα περιήγησης: προσθέστε εκεί τον τίτλο, την τιμή και την άδεια και δημοσιεύστε το.
+	Sending to MakerFoundry…	Αποστολή στο MakerFoundry…
+	Sign in to your Foundry Account to publish.	Συνδεθείτε στον λογαριασμό σας Foundry για να δημοσιεύσετε.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Το πρόχειρό σας είναι ανοιχτό στο MakerFoundry: προσθέστε εκεί τον τίτλο, την τιμή και την άδεια και δημοσιεύστε το.

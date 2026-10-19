@@ -6583,3 +6583,13 @@ mark-style	Japanese	Japonesas
 	No card needed, and no API key to set up	Sin tarjeta y sin clave de API que configurar
 	Sign in to your Foundry Account	Inicia sesión en tu cuenta de Foundry
 	{email}: {n} credits	{email}: {n} créditos
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Publicar en MakerFoundry
+	Publish to MakerFoundry…	Publicar en MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Envía este diseño a MakerFoundry como borrador. Su página se abre en el navegador: añade allí el título, el precio y la licencia, y publícalo.
+	Sending to MakerFoundry…	Enviando a MakerFoundry…
+	Sign in to your Foundry Account to publish.	Inicia sesión en tu cuenta de Foundry para publicar.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Tu borrador está abierto en MakerFoundry: añade allí el título, el precio y la licencia, y publícalo.
+@msg	`format` is one of {_1}	`format` es uno de {_1}
+@msg	The design is too big for MakerFoundry.	El diseño es demasiado grande para MakerFoundry.
+@msg	MakerFoundry's address isn't valid: use an https:// address.	La dirección de MakerFoundry no es válida: usa una dirección https://.

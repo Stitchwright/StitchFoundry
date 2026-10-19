@@ -6227,3 +6227,10 @@ machine	Stop	정지
 	No card needed, and no API key to set up	카드도, API 키 설정도 필요 없음
 	Sign in to your Foundry Account	Foundry 계정에 로그인
 	{email}: {n} credits	{email}: {n} 크레딧
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	MakerFoundry에 게시
+	Publish to MakerFoundry…	MakerFoundry에 게시…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	이 디자인을 초안으로 MakerFoundry에 보냅니다. 브라우저에서 해당 페이지가 열리면 제목, 가격, 라이선스를 추가하고 게시하세요.
+	Sending to MakerFoundry…	MakerFoundry로 보내는 중…
+	Sign in to your Foundry Account to publish.	게시하려면 Foundry 계정에 로그인하세요.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	초안이 MakerFoundry에 열렸습니다. 그곳에서 제목, 가격, 라이선스를 추가하고 게시하세요.

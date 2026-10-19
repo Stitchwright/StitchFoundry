@@ -87,7 +87,7 @@ pub(crate) fn load(app: &mut VectorcraftApp) {
     st.stale = !st.token.is_empty();
 }
 
-fn keep(app: &VectorcraftApp, name: &str, value: Option<&str>) {
+pub(crate) fn keep(app: &VectorcraftApp, name: &str, value: Option<&str>) {
     if let Some(s) = app.services.secrets.as_ref() {
         // (not kept: asked again next time)
         let _ = s.save(name, value);

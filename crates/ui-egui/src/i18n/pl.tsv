@@ -6474,3 +6474,10 @@ machine	Stop	Zatrzymanie
 	No card needed, and no API key to set up	Bez karty i bez klucza API do ustawiania
 	Sign in to your Foundry Account	Zaloguj się do konta Foundry
 	{email}: {n} credits	{email}: Kredyty: {n}
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Opublikuj w MakerFoundry
+	Publish to MakerFoundry…	Opublikuj w MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Wyślij ten wzór do MakerFoundry jako szkic. Jego strona otworzy się w przeglądarce: dodaj tam tytuł, cenę i licencję, a potem go opublikuj.
+	Sending to MakerFoundry…	Wysyłanie do MakerFoundry…
+	Sign in to your Foundry Account to publish.	Zaloguj się do konta Foundry, aby publikować.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Twój szkic jest otwarty w MakerFoundry: dodaj tam tytuł, cenę i licencję, a potem go opublikuj.

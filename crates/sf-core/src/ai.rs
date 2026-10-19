@@ -14,6 +14,7 @@ use serde_json::{Value, json};
 
 pub mod ask;
 pub mod cloud;
+pub mod makerfoundry;
 pub mod picture;
 pub mod sewout;
 
@@ -156,6 +157,21 @@ pub enum ArtError {
     /// The request never got an answer (from the app's client).
     #[error("Couldn't reach the AI service: {0}")]
     Network(String),
+    /// MakerFoundry's address (the setting) isn't one the app may send to.
+    #[error("MakerFoundry's address isn't valid: use an https:// address.")]
+    NoMakerFoundry,
+    /// The design and its photos are over MakerFoundry's limits (or it answered 413).
+    #[error("The design is too big for MakerFoundry.")]
+    TooBigForMakerFoundry,
+    /// MakerFoundry found the sign-in ended (401), with its message.
+    #[error("{0}")]
+    MakerFoundrySignIn(String),
+    /// MakerFoundry refused the design, with its message to show as it is.
+    #[error("{0}")]
+    MakerFoundry(String),
+    /// MakerFoundry failed without saying why.
+    #[error("MakerFoundry couldn't take the design (error {0}): try again later.")]
+    MakerFoundryFailed(u16),
 }
 
 impl ArtError {

@@ -6234,3 +6234,13 @@ effect	Soft	Weich
 	No card needed, and no API key to set up	Keine Karte nötig, kein API-Schlüssel einzurichten
 	Sign in to your Foundry Account	Bei Ihrem Foundry-Konto anmelden
 	{email}: {n} credits	{email}: {n} Credits
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	In MakerFoundry veröffentlichen
+	Publish to MakerFoundry…	In MakerFoundry veröffentlichen…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Senden Sie dieses Design als Entwurf an MakerFoundry. Seine Seite öffnet sich im Browser: Fügen Sie dort Titel, Preis und Lizenz hinzu und veröffentlichen Sie es.
+	Sending to MakerFoundry…	Wird an MakerFoundry gesendet…
+	Sign in to your Foundry Account to publish.	Melden Sie sich bei Ihrem Foundry-Konto an, um zu veröffentlichen.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Ihr Entwurf ist in MakerFoundry geöffnet: Fügen Sie dort Titel, Preis und Lizenz hinzu und veröffentlichen Sie ihn.
+@msg	`format` is one of {_1}	`format` ist eines von {_1}
+@msg	The design is too big for MakerFoundry.	Das Design ist zu groß für MakerFoundry.
+@msg	MakerFoundry's address isn't valid: use an https:// address.	Die Adresse von MakerFoundry ist ungültig: Verwenden Sie eine https://-Adresse.

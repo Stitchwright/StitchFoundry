@@ -6249,3 +6249,13 @@ machine	Stop	Зупинка
 	No card needed, and no API key to set up	Без картки й без налаштування ключа API
 	Sign in to your Foundry Account	Увійдіть в обліковий запис Foundry
 	{email}: {n} credits	{email}: Кредитів: {n}
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Опублікувати в MakerFoundry
+	Publish to MakerFoundry…	Опублікувати в MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Надішліть цей дизайн у MakerFoundry як чернетку. Його сторінка відкриється в браузері: додайте там назву, ціну й ліцензію та опублікуйте його.
+	Sending to MakerFoundry…	Надсилання в MakerFoundry…
+	Sign in to your Foundry Account to publish.	Увійдіть в обліковий запис Foundry, щоб публікувати.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Ваша чернетка відкрита в MakerFoundry: додайте там назву, ціну й ліцензію та опублікуйте її.
+@msg	`format` is one of {_1}	`format` — одне з: {_1}
+@msg	The design is too big for MakerFoundry.	Дизайн завеликий для MakerFoundry.
+@msg	MakerFoundry's address isn't valid: use an https:// address.	Адреса MakerFoundry недійсна: використайте адресу https://.

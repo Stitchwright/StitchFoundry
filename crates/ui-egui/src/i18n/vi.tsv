@@ -6231,3 +6231,10 @@ machine	Stop	Dừng máy
 	No card needed, and no API key to set up	Không cần thẻ, không cần cài khóa API
 	Sign in to your Foundry Account	Đăng nhập Tài khoản Foundry của bạn
 	{email}: {n} credits	{email}: {n} tín dụng
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Đăng lên MakerFoundry
+	Publish to MakerFoundry…	Đăng lên MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Gửi mẫu thêu này lên MakerFoundry dưới dạng bản nháp. Trang của nó mở trong trình duyệt: thêm tiêu đề, giá và giấy phép ở đó rồi đăng.
+	Sending to MakerFoundry…	Đang gửi lên MakerFoundry…
+	Sign in to your Foundry Account to publish.	Đăng nhập Tài khoản Foundry của bạn để đăng.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Bản nháp của bạn đã mở trên MakerFoundry: thêm tiêu đề, giá và giấy phép ở đó rồi đăng.

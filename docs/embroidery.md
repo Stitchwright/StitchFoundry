@@ -27,6 +27,7 @@ the control channel, the CLI and the MCP server.
 - [Ask About Embroidery](#ask-about-embroidery)
 - [Check My Sew-out](#check-my-sew-out)
 - [Foundry Account](#foundry-account)
+- [Publish to MakerFoundry](#publish-to-makerfoundry)
 - [Design settings: hoop, fabric, threads](#design-settings-hoop-fabric-threads)
 - [Stitch Sequence and the stitch player](#stitch-sequence-and-the-stitch-player)
 - [Machine files](#machine-files)
@@ -1502,6 +1503,39 @@ features: instead of your own Anthropic API key, Foundry credits.
 Until StitchFoundry's service opens, the window says accounts aren't open yet. The **Server** row
 names another service (one you run yourself: `docs/cloud.md`), and so does the
 `STITCHFOUNDRY_CLOUD_URL` environment variable (`ui.account`).
+
+## Publish to MakerFoundry
+
+[MakerFoundry](https://makerfoundry.app) is SiteSentrix's place to share and sell embroidery
+designs, and it uses the same Foundry Account. **File › Publish to MakerFoundry…** sends the open
+design there as a **draft** in your account:
+
+1. Sign in to your Foundry Account (the title bar's **Sign In**). The command needs a design with
+   stitches, and a sign-in.
+2. Pick the machine format (**PES** unless you choose another: DST, JEF, EXP, VP3, XXX, PEC or
+   U01) and, if you checked a sew-out, whether its photos go along (**Include the photos**).
+3. Press **Publish to MakerFoundry**. The design is written in that format and sent with your
+   sign-in; MakerFoundry checks the sign-in with Foundry Accounts for this one request and doesn't
+   keep it. It reads the file as it reads an upload on its site, saves the photos again without
+   their location or camera details, and keeps the design as a draft.
+4. The draft's page opens in your browser. Add the title, description, tags, licence and price
+   there, and publish it: publishing (and agreeing to MakerFoundry's Seller Terms) always happens
+   on the site. If the browser isn't signed in to MakerFoundry, it asks for your Foundry Account
+   first and then comes back to the draft. A draft you don't want is deleted from **Your designs**
+   on the site.
+
+If MakerFoundry refuses the design, the window shows its reason as it wrote it: a file it can't
+read, too many designs today (50 a day, 500 kept), or the service busy. An ended sign-in opens
+Foundry Account to sign in again. A design over MakerFoundry's limits (4 MB for the machine file,
+64 MB with its six photos at most) is refused before anything is sent ("The design is too big for
+MakerFoundry").
+
+The window's **Server** row sends to another MakerFoundry (one you run yourself, for testing:
+`http://127.0.0.1:8080` works on this computer), and so does the `MAKERFOUNDRY_URL` environment
+variable; anything else must be an `https://` address. From the control channel or MCP:
+`embroidery.publishToMakerFoundry {format?, photos?, server?, send?}` (`send: true` publishes at
+once) → `{open, signedIn, format, photos, server, sending, url, error}`. The web app sends from the
+browser, which MakerFoundry allows for stitchfoundry.app.
 
 ## Design settings: hoop, fabric, threads
 

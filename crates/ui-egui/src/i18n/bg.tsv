@@ -6595,3 +6595,10 @@ machine	Stop	Спиране
 	No card needed, and no API key to set up	Без карта и без API ключ за настройване
 	Sign in to your Foundry Account	Влезте в акаунта си в Foundry
 	{email}: {n} credits	{email}: {n} кредита
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Публикуване в MakerFoundry
+	Publish to MakerFoundry…	Публикуване в MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Изпратете този дизайн в MakerFoundry като чернова. Страницата му се отваря в браузъра: добавете там заглавието, цената и лиценза и го публикувайте.
+	Sending to MakerFoundry…	Изпращане към MakerFoundry…
+	Sign in to your Foundry Account to publish.	Влезте в акаунта си в Foundry, за да публикувате.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Черновата ви е отворена в MakerFoundry: добавете там заглавието, цената и лиценза и я публикувайте.

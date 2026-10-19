@@ -6587,3 +6587,10 @@ machine	Stop	Stopp
 	No card needed, and no API key to set up	Inget kort och ingen API-nyckel att ställa in
 	Sign in to your Foundry Account	Logga in på ditt Foundry-konto
 	{email}: {n} credits	{email}: {n} krediter
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Publicera på MakerFoundry
+	Publish to MakerFoundry…	Publicera på MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Skicka den här designen till MakerFoundry som ett utkast. Dess sida öppnas i webbläsaren: lägg till titel, pris och licens där och publicera den.
+	Sending to MakerFoundry…	Skickar till MakerFoundry…
+	Sign in to your Foundry Account to publish.	Logga in på ditt Foundry-konto för att publicera.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Ditt utkast är öppet på MakerFoundry: lägg till titel, pris och licens där och publicera det.

@@ -798,6 +798,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "{create?: bool (open on Create Account, else Sign In)} open Foundry Account: make an account or sign in to the StitchFoundry service or make an account, see the credits and buy more (Stripe's page opens in the browser), and choose to pay for the AI features with them instead of your own Anthropic API key (desktop and web) → {open, signedIn, server, credits, payWithCredits}",
     ),
     (
+        "embroidery.publishToMakerFoundry",
+        "Publish to MakerFoundry…",
+        "",
+        "{format?: pes|dst|jef|exp|vp3|xxx|pec|u01 (pes), photos?: bool (Check My Sew-out's photos go along; default: when there are some), server?: MakerFoundry's address (empty: makerfoundry.app; https://, or http:// on this computer for testing), send?: bool (send at once)} open Publish to MakerFoundry: the design, written in that format, goes with the photos to MakerFoundry as a draft in your Foundry Account (signed in with its session, which MakerFoundry doesn't keep), and the draft's page opens in the browser, where you add its title, price and licence and publish it (desktop and web) → {open, signedIn, format, photos, server, sending, url, error}",
+    ),
+    (
         "ui.addWords",
         "Add Words…",
         "",
@@ -2002,6 +2008,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.checkSewout" => crate::embroidery::sewout::open(app, p),
         "ui.account" => crate::embroidery::account::open(app, p),
         "ui.reportSewout" => crate::embroidery::sewout::open_report(app, p),
+        "embroidery.publishToMakerFoundry" => crate::embroidery::publish::open(app, p),
         "ui.makeDesign" => crate::guide::open(app),
         "ui.saveForMyMachine" => crate::dialogs::my_machine::save(app, p),
         "help.commandPalette" => {
@@ -2849,6 +2856,7 @@ pub fn enabled(app: &VectorcraftApp, id: &str) -> bool {
                 && app.embroidery.ask.last_answer().is_some()
         }
         "ui.redrawImage" => crate::embroidery::prompt::available(app) && crate::embroidery::prompt::selected_image(app).is_some(),
+        "embroidery.publishToMakerFoundry" => crate::embroidery::publish::enabled(app),
         "file.export.embroidery" => app.session.embroidery_plan().is_some_and(|p| !p.is_empty()),
         "ui.saveEmbroideryFont" => app.session.active().is_some_and(|st| st.doc.embroidery.as_deref().is_some_and(|e| e.font.is_some())),
         "ui.batchDialog" => !app.ui.action_sets.is_empty() && app.ui.action_sets.iter().any(|s| !s.actions.is_empty()),
@@ -2921,6 +2929,7 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                 c("Save", "file.save"),
                 c("Save As…", "file.saveAs"),
                 c("Save for My Machine", "ui.saveForMyMachine"),
+                c("Publish to MakerFoundry…", crate::embroidery::publish::COMMAND),
                 c("Save a Copy…", "file.saveCopy"),
                 c("Save as Template…", "file.saveAsTemplate"),
                 c("Save as PDF…", "file.export.pdf"),

@@ -6530,3 +6530,10 @@ swatch	Bright Violet	Violet cerah
 	No card needed, and no API key to set up	Tanpa kartu dan tanpa kunci API yang perlu diatur
 	Sign in to your Foundry Account	Masuk ke Akun Foundry Anda
 	{email}: {n} credits	{email}: {n} kredit
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Terbitkan ke MakerFoundry
+	Publish to MakerFoundry…	Terbitkan ke MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Kirim desain ini ke MakerFoundry sebagai draf. Halamannya terbuka di browser Anda: tambahkan judul, harga, dan lisensi di sana, lalu terbitkan.
+	Sending to MakerFoundry…	Mengirim ke MakerFoundry…
+	Sign in to your Foundry Account to publish.	Masuk ke Akun Foundry Anda untuk menerbitkan.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Draf Anda terbuka di MakerFoundry: tambahkan judul, harga, dan lisensi di sana, lalu terbitkan.

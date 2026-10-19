@@ -6642,3 +6642,13 @@ theme	Appearance	Apparence
 	No card needed, and no API key to set up	Aucune carte nécessaire, aucune clé API à configurer
 	Sign in to your Foundry Account	Connectez-vous à votre compte Foundry
 	{email}: {n} credits	{email}: {n} crédits
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Publier sur MakerFoundry
+	Publish to MakerFoundry…	Publier sur MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Envoyez ce motif à MakerFoundry comme brouillon. Sa page s’ouvre dans votre navigateur : ajoutez-y le titre, le prix et la licence, puis publiez-le.
+	Sending to MakerFoundry…	Envoi à MakerFoundry…
+	Sign in to your Foundry Account to publish.	Connectez-vous à votre compte Foundry pour publier.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Votre brouillon est ouvert sur MakerFoundry : ajoutez-y le titre, le prix et la licence, puis publiez-le.
+@msg	`format` is one of {_1}	`format` est l’un de {_1}
+@msg	The design is too big for MakerFoundry.	Le motif est trop grand pour MakerFoundry.
+@msg	MakerFoundry's address isn't valid: use an https:// address.	L’adresse de MakerFoundry n’est pas valide : utilisez une adresse https://.

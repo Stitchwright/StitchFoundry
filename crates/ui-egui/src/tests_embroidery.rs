@@ -1189,4 +1189,79 @@ mod ask_about_embroidery {
         assert_eq!(b["note"], "On a cotton T-shirt.");
         assert!(b["conversation"].as_str().unwrap().contains("overlap the shapes 1 mm"));
     }
+
+    /// PUB-01: Publish to MakerFoundry sends the design, in the format chosen, with the sew-out
+    /// photos and the Foundry Account session, and opens the draft's page; MakerFoundry's messages
+    /// are shown as it wrote them, and an ended sign-in opens Foundry Account.
+    #[test]
+    fn a_design_is_published_to_makerfoundry_as_a_draft() {
+        use crate::embroidery::{publish, sewout};
+        let said = |status: u16, m: &str| (status, json!({"error": {"message": m}}).to_string());
+        let (mut app, sent, keys) = app(vec![
+            (201, json!({"id": 42, "url": "https://makerfoundry.app/designs/42", "kind": "embroidery", "format": "PES"}).to_string()),
+            said(429, "You've sent 50 designs today: try again tomorrow."),
+            said(401, "Your sign-in has ended: sign in again."),
+            (413, String::new()),
+            (201, json!({"id": 7, "url": "http://127.0.0.1:8080/designs/7", "kind": "embroidery", "format": "DST"}).to_string()),
+        ]);
+        let publish = |app: &mut VectorcraftApp, p: Value| {
+            app.run(publish::COMMAND, p).unwrap();
+            let ctx = egui::Context::default();
+            for _ in 0..400 {
+                publish::poll(app, &ctx);
+                if !app.run(publish::COMMAND, json!({})).unwrap()["sending"].as_bool().unwrap() {
+                    return;
+                }
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            panic!("no answer");
+        };
+        // nothing stitched, or signed out: not now
+        assert!(!crate::menus::enabled(&app, publish::COMMAND));
+        rectangle(&mut app);
+        assert!(!crate::menus::enabled(&app, publish::COMMAND), "signed out");
+        assert!(app.run(publish::COMMAND, json!({"send": true})).unwrap_err().contains("Sign in"));
+        assert!(sent.lock().unwrap().is_empty());
+        app.embroidery.account.token = "sfs_0123456789abcdef".into();
+        assert!(crate::menus::enabled(&app, publish::COMMAND));
+        sewout::add_photo(&mut app, "front.jpg", &jpeg(400, 300));
+        app.embroidery.publish.open = false;
+
+        // PES by default, with the photos: the draft's page opens
+        publish(&mut app, json!({"send": true}));
+        let r = sent.lock().unwrap()[0].clone();
+        assert_eq!(r.url, "https://makerfoundry.app/api/v1/designs");
+        assert!(r.headers.contains(&("authorization", "Bearer sfs_0123456789abcdef".to_string())));
+        assert!(r.headers.contains(&("content-type", "application/json".to_string())));
+        let b: Value = serde_json::from_str(&r.body).unwrap();
+        assert!(b["file_name"].as_str().unwrap().ends_with(".pes"), "{}", b["file_name"]);
+        let file = vectorcraft_format::base64_decode(b["file"].as_str().unwrap()).unwrap();
+        assert!(file.starts_with(b"#PES"), "a PES file");
+        assert_eq!(b["photos"].as_array().unwrap().len(), 1);
+        assert!(b["app"].as_str().unwrap().starts_with("StitchFoundry "));
+        assert_eq!(app.pending_url.as_deref(), Some("https://makerfoundry.app/designs/42"));
+        assert_eq!(app.embroidery.publish.sent.as_ref().map(|d| d.id), Some(42));
+
+        // MakerFoundry's own sentence, as it is
+        publish(&mut app, json!({"format": "DST", "photos": false, "send": true}));
+        assert_eq!(app.embroidery.publish.error.as_deref(), Some("You've sent 50 designs today: try again tomorrow."));
+        let b: Value = serde_json::from_str(&sent.lock().unwrap()[1].body).unwrap();
+        assert!(b["file_name"].as_str().unwrap().ends_with(".dst"));
+        assert_eq!(b["photos"], json!([]));
+        // the sign-in ended: Foundry Account opens on Sign In
+        publish(&mut app, json!({"send": true}));
+        assert_eq!(app.embroidery.publish.error.as_deref(), Some("Your sign-in has ended: sign in again."));
+        assert!(app.embroidery.account.open && app.embroidery.account.sign_in_shown);
+        publish(&mut app, json!({"send": true}));
+        assert_eq!(app.embroidery.publish.error.as_deref(), Some("The design is too big for MakerFoundry."));
+
+        // a MakerFoundry on this computer, kept for next time; nothing but https:// elsewhere
+        publish(&mut app, json!({"server": "http://127.0.0.1:8080", "send": true}));
+        assert_eq!(sent.lock().unwrap()[4].url, "http://127.0.0.1:8080/api/v1/designs");
+        assert_eq!(app.pending_url.as_deref(), Some("http://127.0.0.1:8080/designs/7"));
+        assert_eq!(keys.load("makerfoundry-server").as_deref(), Some("http://127.0.0.1:8080"));
+        assert!(app.run(publish::COMMAND, json!({"server": "http://makerfoundry.example", "send": true})).unwrap_err().contains("https://"));
+        assert!(app.run(publish::COMMAND, json!({"format": "svg"})).is_err());
+        assert_eq!(sent.lock().unwrap().len(), 5);
+    }
 }

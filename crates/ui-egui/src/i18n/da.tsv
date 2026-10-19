@@ -6530,3 +6530,10 @@ swatch	Bright Violet	Kraftig violet
 	No card needed, and no API key to set up	Intet kort, og ingen API-nøgle at sætte op
 	Sign in to your Foundry Account	Log ind på din Foundry-konto
 	{email}: {n} credits	{email}: {n} kreditter
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Udgiv på MakerFoundry
+	Publish to MakerFoundry…	Udgiv på MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Send dette design til MakerFoundry som en kladde. Dets side åbner i din browser: tilføj titel, pris og licens der, og udgiv det.
+	Sending to MakerFoundry…	Sender til MakerFoundry…
+	Sign in to your Foundry Account to publish.	Log ind på din Foundry-konto for at udgive.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Din kladde er åben på MakerFoundry: tilføj titel, pris og licens der, og udgiv den.

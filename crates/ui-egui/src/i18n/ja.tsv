@@ -6308,3 +6308,13 @@ machine	Stop	停止
 	No card needed, and no API key to set up	カード不要、API キーの設定も不要
 	Sign in to your Foundry Account	Foundry アカウントにサインイン
 	{email}: {n} credits	{email}: {n} クレジット
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	MakerFoundry に公開
+	Publish to MakerFoundry…	MakerFoundry に公開…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	このデザインを下書きとして MakerFoundry に送ります。ブラウザーでそのページが開くので、タイトル、価格、ライセンスを追加して公開してください。
+	Sending to MakerFoundry…	MakerFoundry に送信中…
+	Sign in to your Foundry Account to publish.	公開するには Foundry アカウントにサインインしてください。
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	下書きが MakerFoundry で開きました。そこでタイトル、価格、ライセンスを追加して公開してください。
+@msg	`format` is one of {_1}	`format` は {_1} のいずれかです
+@msg	The design is too big for MakerFoundry.	デザインが大きすぎて MakerFoundry に送れません。
+@msg	MakerFoundry's address isn't valid: use an https:// address.	MakerFoundry のアドレスが正しくありません。https:// のアドレスを使ってください。

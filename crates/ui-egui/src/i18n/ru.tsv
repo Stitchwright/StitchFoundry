@@ -6265,3 +6265,13 @@ machine	Stop	Остановка
 	No card needed, and no API key to set up	Без карты и без настройки ключа API
 	Sign in to your Foundry Account	Войдите в свой аккаунт Foundry
 	{email}: {n} credits	{email}: Кредитов: {n}
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Опубликовать в MakerFoundry
+	Publish to MakerFoundry…	Опубликовать в MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Отправьте этот дизайн в MakerFoundry как черновик. Его страница откроется в браузере: добавьте там название, цену и лицензию и опубликуйте его.
+	Sending to MakerFoundry…	Отправка в MakerFoundry…
+	Sign in to your Foundry Account to publish.	Войдите в свой аккаунт Foundry, чтобы публиковать.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Ваш черновик открыт в MakerFoundry: добавьте там название, цену и лицензию и опубликуйте его.
+@msg	`format` is one of {_1}	`format` — одно из: {_1}
+@msg	The design is too big for MakerFoundry.	Дизайн слишком велик для MakerFoundry.
+@msg	MakerFoundry's address isn't valid: use an https:// address.	Адрес MakerFoundry недействителен: используйте адрес https://.

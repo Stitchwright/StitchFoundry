@@ -6234,3 +6234,10 @@ machine	Stop	停止
 	No card needed, and no API key to set up	無需信用卡,也無需設定 API 金鑰
 	Sign in to your Foundry Account	登入你的 Foundry 帳戶
 	{email}: {n} credits	{email}: {n} 點數
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	發佈到 MakerFoundry
+	Publish to MakerFoundry…	發佈到 MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	將此設計作為草稿傳送到 MakerFoundry。它的頁面會在瀏覽器中開啟：在那裡加入標題、價格和授權，然後發佈。
+	Sending to MakerFoundry…	正在傳送到 MakerFoundry…
+	Sign in to your Foundry Account to publish.	登入你的 Foundry 帳戶才能發佈。
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	你的草稿已在 MakerFoundry 開啟：在那裡加入標題、價格和授權，然後發佈。

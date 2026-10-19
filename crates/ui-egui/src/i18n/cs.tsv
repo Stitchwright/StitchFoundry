@@ -6630,3 +6630,13 @@ mark-style	Japanese	Japonské
 	No card needed, and no API key to set up	Bez karty a bez nastavování klíče API
 	Sign in to your Foundry Account	Přihlaste se k účtu Foundry
 	{email}: {n} credits	{email}: {n} kreditů
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Publikovat na MakerFoundry
+	Publish to MakerFoundry…	Publikovat na MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Odešlete tento návrh na MakerFoundry jako koncept. Jeho stránka se otevře v prohlížeči: tam doplňte název, cenu a licenci a publikujte ho.
+	Sending to MakerFoundry…	Odesílání na MakerFoundry…
+	Sign in to your Foundry Account to publish.	Pro publikování se přihlaste k účtu Foundry.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Váš koncept je otevřený na MakerFoundry: doplňte tam název, cenu a licenci a publikujte ho.
+@msg	`format` is one of {_1}	`format` je jedno z: {_1}
+@msg	The design is too big for MakerFoundry.	Návrh je pro MakerFoundry příliš velký.
+@msg	MakerFoundry's address isn't valid: use an https:// address.	Adresa MakerFoundry není platná: použijte adresu https://.

@@ -8,6 +8,7 @@ pub mod overlay;
 pub mod panel;
 pub mod profile_curve;
 pub mod prompt;
+pub mod publish;
 pub mod sequence;
 pub mod sewout;
 pub mod stitch_list;
@@ -153,6 +154,8 @@ pub struct EmbroideryUi {
     pub sewout: sewout::SewOutState,
     /// Foundry Account: the session and the credits (CLOUD-02).
     pub account: account::AccountState,
+    /// Publish to MakerFoundry's window (PUB-01).
+    pub publish: publish::PublishState,
     /// Get Embroidery Fonts' window (NEW-20).
     pub font_library: crate::dialogs::font_library::FontLibraryState,
     /// Compare Designs' window (CMP-01).
@@ -381,6 +384,7 @@ impl Default for EmbroideryUi {
             ask: Default::default(),
             sewout: Default::default(),
             account: Default::default(),
+            publish: Default::default(),
             font_library: Default::default(),
             compare: Default::default(),
         }
@@ -394,6 +398,7 @@ pub fn tick(app: &mut crate::VectorcraftApp, ctx: &egui::Context) {
     ask::poll(app, ctx);
     account::poll(app, ctx);
     sewout::poll_report(app, ctx);
+    publish::poll(app, ctx);
     let tool = app.session.tool_id();
     if tool != app.embroidery.widget.last_tool {
         if tool == widget::TOOL {

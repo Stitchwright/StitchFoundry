@@ -6269,3 +6269,13 @@ machine	Stop	Arresto
 	No card needed, and no API key to set up	Nessuna carta e nessuna chiave API da configurare
 	Sign in to your Foundry Account	Accedi al tuo account Foundry
 	{email}: {n} credits	{email}: {n} crediti
+# Publish to MakerFoundry (embroidery.publishToMakerFoundry)
+	Publish to MakerFoundry	Pubblica su MakerFoundry
+	Publish to MakerFoundry…	Pubblica su MakerFoundry…
+	Send this design to MakerFoundry as a draft. Its page opens in your browser: add the title, price and licence there, and publish it.	Invia questo disegno a MakerFoundry come bozza. La sua pagina si apre nel browser: lì aggiungi titolo, prezzo e licenza, e pubblicalo.
+	Sending to MakerFoundry…	Invio a MakerFoundry…
+	Sign in to your Foundry Account to publish.	Accedi al tuo account Foundry per pubblicare.
+	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	La tua bozza è aperta su MakerFoundry: lì aggiungi titolo, prezzo e licenza, e pubblicala.
+@msg	`format` is one of {_1}	`format` è uno tra {_1}
+@msg	The design is too big for MakerFoundry.	Il disegno è troppo grande per MakerFoundry.
+@msg	MakerFoundry's address isn't valid: use an https:// address.	L’indirizzo di MakerFoundry non è valido: usa un indirizzo https://.
