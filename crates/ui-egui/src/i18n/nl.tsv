@@ -6534,3 +6534,28 @@ swatch	Bright Violet	Felviolet
 	A new design: a hoopful of patches, each colour sewn once for all of them	Een nieuw ontwerp: een ring vol badges, elke kleur één keer voor allemaal geborduurd
 	Every hoopful as a machine file, and a list of the names in each	Elke volle ring als machinebestand, en een lijst van de namen in elke ring
 	The open design repeated across its hoop, sorted so each colour is sewn once	Het open ontwerp herhaald over zijn ring, gesorteerd zodat elke kleur één keer wordt geborduurd
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Nog iets toe te voegen? (optioneel)
+	Claude is writing the report…	Claude schrijft het verslag…
+	Have Claude Write It	Laat Claude het schrijven
+	Help make StitchFoundry better	Help StitchFoundry beter te maken
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Ik ga ermee akkoord dit naar SiteSentrix, de maker van StitchFoundry, te sturen om de software te verbeteren. Het wordt met niemand anders gedeeld.
+	Include a summary of the design	Een samenvatting van het ontwerp meesturen
+	Include the conversation with Claude	Het gesprek met Claude meesturen
+	Include the photos ({n})	De foto's meesturen ({n})
+	Report to StitchFoundry	Melden bij StitchFoundry
+	Report to StitchFoundry…	Melden bij StitchFoundry…
+	Send Report	Verslag versturen
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Dit borduurwerk en Claudes idee van wat StitchFoundry beter kan doen naar de makers sturen
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Stuur dit borduurwerk naar de makers van StitchFoundry, met Claudes idee van wat de software beter kan doen. We gebruiken het alleen om StitchFoundry te verbeteren: we delen, verkopen of publiceren het nooit, en je kunt het op elk moment laten verwijderen (StitchFoundry-account › Mijn gedeelde borduurcontroles verwijderen).
+	Sign in to StitchFoundry Account to send a report.	Meld je aan bij het StitchFoundry-account om een verslag te sturen.
+@msg	Sign in to StitchFoundry Account to send a report.	Meld je aan bij het StitchFoundry-account om een verslag te sturen.
+	Thank you: your report was sent.	Bedankt: je verslag is verstuurd.
+	Title	Titel
+	What went wrong, and what StitchFoundry could do better	Wat ging er mis, en wat kan StitchFoundry beter doen
+	Write a report about this sew-out for the people who make StitchFoundry.	Schrijf een verslag over dit borduurwerk voor de makers van StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Controleer eerst een borduurwerk: het verslag gaat mee met de foto's en Claudes antwoord
+@msg	Tick the box to agree to send it first.	Vink eerst het vakje aan om akkoord te gaan met versturen.
+@msg	Write what went wrong first, or have Claude write it.	Schrijf eerst wat er misging, of laat Claude het schrijven.
+	The {n} credits this check cost are back in your account.	De {n} credits van deze controle staan weer op je account.
+	Paid for this check with credits? Send a report and they come back to you.	Deze controle met credits betaald? Stuur een verslag en je krijgt ze terug.

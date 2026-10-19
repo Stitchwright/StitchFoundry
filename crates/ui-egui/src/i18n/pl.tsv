@@ -6436,3 +6436,28 @@ machine	Stop	Zatrzymanie
 	A new design: a hoopful of patches, each colour sewn once for all of them	Nowy projekt: tamborek pełen naszywek, każdy kolor haftowany raz dla wszystkich
 	Every hoopful as a machine file, and a list of the names in each	Każdy tamborek jako plik maszyny i lista imion w każdym
 	The open design repeated across its hoop, sorted so each colour is sewn once	Otwarty projekt powtórzony w całym tamborku, posortowany tak, by każdy kolor haftować raz
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Coś do dodania? (opcjonalnie)
+	Claude is writing the report…	Claude pisze raport…
+	Have Claude Write It	Niech Claude to napisze
+	Help make StitchFoundry better	Pomóż ulepszyć StitchFoundry
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Zgadzam się wysłać to do SiteSentrix, twórcy StitchFoundry, aby ulepszyć program. Nie zostanie to udostępnione nikomu innemu.
+	Include a summary of the design	Dołącz podsumowanie projektu
+	Include the conversation with Claude	Dołącz rozmowę z Claude
+	Include the photos ({n})	Dołącz zdjęcia ({n})
+	Report to StitchFoundry	Zgłoś do StitchFoundry
+	Report to StitchFoundry…	Zgłoś do StitchFoundry…
+	Send Report	Wyślij raport
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Wyślij ten haft i pomysł Claude, co StitchFoundry mógłby robić lepiej, jego twórcom
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Wyślij ten haft twórcom StitchFoundry wraz z pomysłem Claude, co program mógłby robić lepiej. Używamy go tylko do ulepszania StitchFoundry: nigdy go nie udostępniamy, nie sprzedajemy ani nie publikujemy, a usunięcia możesz zażądać w każdej chwili (Konto StitchFoundry › Usuń moje udostępnione sprawdzenia).
+	Sign in to StitchFoundry Account to send a report.	Zaloguj się do konta StitchFoundry, aby wysłać raport.
+@msg	Sign in to StitchFoundry Account to send a report.	Zaloguj się do konta StitchFoundry, aby wysłać raport.
+	Thank you: your report was sent.	Dziękujemy: raport został wysłany.
+	Title	Tytuł
+	What went wrong, and what StitchFoundry could do better	Co poszło nie tak i co StitchFoundry mógłby robić lepiej
+	Write a report about this sew-out for the people who make StitchFoundry.	Napisz raport o tym hafcie dla twórców StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Najpierw sprawdź haft: raport idzie z jego zdjęciami i odpowiedzią Claude
+@msg	Tick the box to agree to send it first.	Najpierw zaznacz pole, aby zgodzić się na wysłanie.
+@msg	Write what went wrong first, or have Claude write it.	Najpierw napisz, co poszło nie tak, albo niech Claude to napisze.
+	The {n} credits this check cost are back in your account.	{n} kredytów za to sprawdzenie wróciło na twoje konto.
+	Paid for this check with credits? Send a report and they come back to you.	Zapłacono za to sprawdzenie kredytami? Wyślij raport, a wrócą do ciebie.

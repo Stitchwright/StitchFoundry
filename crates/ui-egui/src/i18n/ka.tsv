@@ -6425,3 +6425,28 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	A new design: a hoopful of patches, each colour sewn once for all of them	ახალი დიზაინი: ნაჭრებით სავსე გარგარა, თითო ფერი ერთხელ იქარგება ყველასთვის
 	Every hoopful as a machine file, and a list of the names in each	თითო გარგარა ცალკე მანქანის ფაილად და თითოეულში მყოფი სახელების სია
 	The open design repeated across its hoop, sorted so each colour is sewn once	ღია დიზაინი გამეორებული მთელ გარგარაზე, დალაგებული ისე, რომ თითო ფერი ერთხელ იქარგოს
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	გსურთ რამის დამატება? (არასავალდებულო)
+	Claude is writing the report…	Claude წერს ანგარიშს…
+	Have Claude Write It	დაწეროს Claude-მა
+	Help make StitchFoundry better	დაგვეხმარეთ StitchFoundry-ის გაუმჯობესებაში
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	ვეთანხმები, რომ ეს გაეგზავნოს SiteSentrix-ს, StitchFoundry-ის შემქმნელს, პროგრამის გასაუმჯობესებლად. ის არავის სხვას არ გაუზიარდება.
+	Include a summary of the design	დიზაინის მოკლე აღწერის დართვა
+	Include the conversation with Claude	Claude-თან საუბრის დართვა
+	Include the photos ({n})	ფოტოების დართვა ({n})
+	Report to StitchFoundry	StitchFoundry-ისთვის შეტყობინება
+	Report to StitchFoundry…	StitchFoundry-ისთვის შეტყობინება…
+	Send Report	ანგარიშის გაგზავნა
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	ეს ნაქარგი და Claude-ის აზრი, რისი უკეთ გაკეთება შეეძლო StitchFoundry-ს, გაუგზავნეთ მის შემქმნელებს
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	გაუგზავნეთ ეს ნაქარგი StitchFoundry-ის შემქმნელებს, Claude-ის აზრით, რისი უკეთ გაკეთება შეეძლო პროგრამას. მას მხოლოდ StitchFoundry-ის გასაუმჯობესებლად ვიყენებთ: არასოდეს ვაზიარებთ, ვყიდით ან ვაქვეყნებთ და ნებისმიერ დროს შეგიძლიათ მოითხოვოთ მისი წაშლა (StitchFoundry-ის ანგარიში › ჩემი გაზიარებული ნაქარგის შემოწმებების წაშლა).
+	Sign in to StitchFoundry Account to send a report.	ანგარიშის გასაგზავნად შედით StitchFoundry-ის ანგარიშში.
+@msg	Sign in to StitchFoundry Account to send a report.	ანგარიშის გასაგზავნად შედით StitchFoundry-ის ანგარიშში.
+	Thank you: your report was sent.	გმადლობთ: თქვენი ანგარიში გაიგზავნა.
+	Title	სათაური
+	What went wrong, and what StitchFoundry could do better	რა მოხდა არასწორად და რისი უკეთ გაკეთება შეეძლო StitchFoundry-ს
+	Write a report about this sew-out for the people who make StitchFoundry.	დაწერე ანგარიში ამ ნაქარგზე StitchFoundry-ის შემქმნელებისთვის.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	ჯერ შეამოწმეთ ნაქარგი: ანგარიში მის ფოტოებთან და Claude-ის პასუხთან ერთად იგზავნება
+@msg	Tick the box to agree to send it first.	ჯერ მონიშნეთ ველი, რომ ეთანხმებით გაგზავნას.
+@msg	Write what went wrong first, or have Claude write it.	ჯერ დაწერეთ, რა მოხდა არასწორად, ან დაწეროს Claude-მა.
+	The {n} credits this check cost are back in your account.	ამ შემოწმების {n} კრედიტი თქვენს ანგარიშს დაუბრუნდა.
+	Paid for this check with credits? Send a report and they come back to you.	ეს შემოწმება კრედიტებით გადაიხადეთ? გაგზავნეთ ანგარიში და ისინი დაგიბრუნდებათ.

@@ -130,6 +130,25 @@ pub struct Approval {
 }
 
 impl AskState {
+    /// Claude's last answer in the conversation.
+    pub fn last_answer(&self) -> Option<&str> {
+        self.entries.iter().rev().find_map(|e| if let Entry::Answer(a) = e { Some(a.as_str()) } else { None })
+    }
+
+    /// The conversation as text (questions, answers and notes), for a report.
+    pub fn transcript(&self) -> String {
+        let lines: Vec<String> = self
+            .entries
+            .iter()
+            .map(|e| match e {
+                Entry::Question(q) => format!("Me: {q}"),
+                Entry::Answer(a) => format!("Claude: {a}"),
+                Entry::Note(n) => format!("({n})"),
+            })
+            .collect();
+        lines.join("\n\n")
+    }
+
     /// Whether a question is being answered (sent, or waiting for the user's Allow).
     pub fn asking(&self) -> bool {
         self.current.is_some()
@@ -433,6 +452,24 @@ pub fn send(app: &mut VectorcraftApp) -> Result<(), String> {
     request(app)
 }
 
+/// Ask `question` in the conversation, shown in it as `shown` (the words typed in the box stay
+/// there).
+pub fn ask_as(app: &mut VectorcraftApp, question: &str, shown: &str) -> Result<(), String> {
+    let typed = std::mem::replace(&mut app.embroidery.ask.input, question.to_string());
+    let r = send(app);
+    let st = &mut app.embroidery.ask;
+    if r.is_ok() {
+        if let Some(Entry::Question(q)) = st.entries.iter_mut().rev().find(|e| matches!(e, Entry::Question(_))) {
+            *q = shown.to_string();
+        }
+        if let Some(c) = st.current.as_mut() {
+            c.question = typed.clone();
+        }
+    }
+    st.input = typed;
+    r
+}
+
 /// Start a sew-out check (Check My Sew-out): a new conversation in [`Mode::SewOut`] whose first
 /// question is `message` ([`sewout::first_message`]), shown as `shown`; paid with credits, shared
 /// to improve StitchFoundry when `share`, following up check `follow_up` → its id.
@@ -658,6 +695,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let mut ask_now = false;
     let mut new_conversation = false;
     let mut decision = None;
+    let mut report = false;
     let title = if app.embroidery.ask.mode == Mode::SewOut { tl!("Check My Sew-out") } else { tl!("Ask About Embroidery") };
     egui::Window::new(title)
         .id(egui::Id::new("ask-about-embroidery"))
@@ -743,6 +781,12 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 if ui.button(tl!("New Conversation")).clicked() {
                     new_conversation = true;
                 }
+                if st.mode == Mode::SewOut
+                    && st.last_answer().is_some()
+                    && ui.button(tl!("Report to StitchFoundry…")).on_hover_text(tl!("Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers")).clicked()
+                {
+                    report = true;
+                }
             });
             ui.checkbox(&mut st.include_design, tl!("Include my design"));
             // paid with StitchFoundry credits: no key asked for
@@ -773,6 +817,10 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     }
     if new_conversation {
         clear(app);
+    }
+    if report {
+        // (a failure is shown in the window)
+        let _ = super::sewout::open_report(app, &json!({}));
     }
     if ask_now && !app.embroidery.ask.asking() {
         // (a failure is shown in the window)

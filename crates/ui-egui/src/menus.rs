@@ -786,6 +786,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "{photos?: [path] (added)} open Check My Sew-out: photos of a finished sew-out, the design that was sewn and a few answers about the sewing, looked at by Claude with your own Anthropic API key, which says what went wrong and offers to fix the design (in the Ask About Embroidery window) → {open, photos, error}",
     ),
     (
+        "ui.reportSewout",
+        "Report to StitchFoundry…",
+        "",
+        "{title?, report?, note?: text (filled in), consent?: bool, draft?: bool (Claude writes it), send?: bool} open Report to StitchFoundry for the sew-out check in the Ask window: the photos, Claude's idea of what StitchFoundry could do better and your note, sent with your leave to StitchFoundry's makers through StitchFoundry Account, only to improve the software, never shared → {open, signedIn, drafting, sending, sent}",
+    ),
+    (
         "ui.account",
         "StitchFoundry Account…",
         "",
@@ -1995,6 +2001,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.askAboutEmbroidery" => crate::embroidery::ask::open(app, p),
         "ui.checkSewout" => crate::embroidery::sewout::open(app, p),
         "ui.account" => crate::embroidery::account::open(app, p),
+        "ui.reportSewout" => crate::embroidery::sewout::open_report(app, p),
         "ui.makeDesign" => crate::guide::open(app),
         "ui.saveForMyMachine" => crate::dialogs::my_machine::save(app, p),
         "help.commandPalette" => {
@@ -2836,6 +2843,11 @@ pub fn enabled(app: &VectorcraftApp, id: &str) -> bool {
         "ui.designFromPrompt" => app.session.active().is_some() && crate::embroidery::prompt::available(app),
         "ui.fontLibrary" => crate::dialogs::font_library::available(app),
         "ui.askAboutEmbroidery" | "ui.checkSewout" | "ui.account" => crate::embroidery::prompt::available(app),
+        "ui.reportSewout" => {
+            crate::embroidery::prompt::available(app)
+                && app.embroidery.ask.mode == crate::embroidery::ask::Mode::SewOut
+                && app.embroidery.ask.last_answer().is_some()
+        }
         "ui.redrawImage" => crate::embroidery::prompt::available(app) && crate::embroidery::prompt::selected_image(app).is_some(),
         "file.export.embroidery" => app.session.embroidery_plan().is_some_and(|p| !p.is_empty()),
         "ui.saveEmbroideryFont" => app.session.active().is_some_and(|st| st.doc.embroidery.as_deref().is_some_and(|e| e.font.is_some())),

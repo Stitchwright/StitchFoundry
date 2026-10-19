@@ -97,6 +97,8 @@ pub enum ArtError {
     LongPrompt,
     #[error("The image is too large to send: crop it, or place a smaller copy.")]
     LargeImage,
+    #[error("Write what went wrong first, or have Claude write it.")]
+    EmptyReport,
     /// The key was refused (401) or may not use the model (403).
     #[error("Anthropic refused the API key: {0}")]
     Key(String),

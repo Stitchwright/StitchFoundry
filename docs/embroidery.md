@@ -1465,6 +1465,22 @@ and what was changed are kept, privately, so the software can learn from real se
 sewing the fix, **This is the sew-out after the fix from my last check** tells it whether the fix
 worked. **Delete My Shared Sew-out Checks** in StitchFoundry Account removes them.
 
+### Report to StitchFoundry
+
+When a check turns up something StitchFoundry itself could do better, **Report to StitchFoundry…**
+(in the Ask window under a check's answer) sends it to the people who make it. **Have Claude Write
+It** asks Claude, in the same conversation, for a short report: a title, what went wrong, whether
+StitchFoundry's stitches, settings or advice were part of the cause or it was the machine, thread,
+fabric or hooping, and what the software could do differently. Edit it as you like, add a note,
+and choose what goes with it: the photos, the conversation with Claude, a summary of the design.
+Nothing is sent until you tick **I agree to send this to SiteSentrix…** and press **Send Report**;
+it needs a StitchFoundry Account (any account, whichever way the check was paid), and an account
+can send five a day (`ui.reportSewout {title?, report?, note?, consent?, draft?, send?}`). A check you report is on us: the credits it cost (the check, its follow-up questions and Claude's draft) come back to your account, once a check.
+
+A report is used only to improve StitchFoundry: it is never shared, sold or published. It is kept
+privately and emailed to StitchFoundry's makers, who may reply to your account's email; **Delete My
+Shared Sew-out Checks** in StitchFoundry Account deletes your reports too.
+
 ## StitchFoundry Account
 
 **Embroidery › StitchFoundry Account…** (also in the Help menu) is the other way to pay for the AI

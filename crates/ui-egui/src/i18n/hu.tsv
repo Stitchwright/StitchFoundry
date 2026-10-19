@@ -6570,3 +6570,28 @@ machine	Stop	Megállás
 	A new design: a hoopful of patches, each colour sewn once for all of them	Új minta: egy keretnyi felvarró, minden szín egyszer hímezve mindegyikhez
 	Every hoopful as a machine file, and a list of the names in each	Minden keretnyi külön gépfájlként, és a bennük lévő nevek listája
 	The open design repeated across its hoop, sorted so each colour is sewn once	A nyitott minta ismételve a kereten, úgy rendezve, hogy minden szín egyszer legyen hímezve
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Szeretne még valamit hozzáfűzni? (nem kötelező)
+	Claude is writing the report…	Claude írja a jelentést…
+	Have Claude Write It	Írja meg Claude
+	Help make StitchFoundry better	Segítsen jobbá tenni a StitchFoundryt
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Hozzájárulok, hogy ezt elküldjem a SiteSentrixnek, a StitchFoundry készítőjének, a program fejlesztéséhez. Senki mással nem osztják meg.
+	Include a summary of the design	A minta összefoglalójának csatolása
+	Include the conversation with Claude	A Claude-dal folytatott beszélgetés csatolása
+	Include the photos ({n})	A fotók csatolása ({n})
+	Report to StitchFoundry	Jelentés a StitchFoundrynek
+	Report to StitchFoundry…	Jelentés a StitchFoundrynek…
+	Send Report	Jelentés küldése
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	A hímzés és Claude ötlete arról, mit csinálhatna jobban a StitchFoundry, elküldése a készítőknek
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Küldje el ezt a hímzést a StitchFoundry készítőinek, Claude ötletével arról, mit csinálhatna jobban a program. Csak a StitchFoundry fejlesztésére használjuk: soha nem osztjuk meg, nem adjuk el és nem tesszük közzé, és bármikor kérheti a törlését (StitchFoundry-fiók › Megosztott ellenőrzéseim törlése).
+	Sign in to StitchFoundry Account to send a report.	Jelentés küldéséhez jelentkezzen be a StitchFoundry-fiókba.
+@msg	Sign in to StitchFoundry Account to send a report.	Jelentés küldéséhez jelentkezzen be a StitchFoundry-fiókba.
+	Thank you: your report was sent.	Köszönjük: a jelentés elment.
+	Title	Cím
+	What went wrong, and what StitchFoundry could do better	Mi romlott el, és mit csinálhatna jobban a StitchFoundry
+	Write a report about this sew-out for the people who make StitchFoundry.	Írj jelentést erről a hímzésről a StitchFoundry készítőinek.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Előbb ellenőrizzen egy hímzést: a jelentés a fotóival és Claude válaszával megy
+@msg	Tick the box to agree to send it first.	Előbb jelölje be a négyzetet, hogy hozzájárul a küldéshez.
+@msg	Write what went wrong first, or have Claude write it.	Előbb írja le, mi romlott el, vagy írja meg Claude.
+	The {n} credits this check cost are back in your account.	Az ellenőrzés {n} kreditje visszakerült a fiókjába.
+	Paid for this check with credits? Send a report and they come back to you.	Kreditekkel fizetett ezért az ellenőrzésért? Küldjön jelentést, és visszakapja őket.

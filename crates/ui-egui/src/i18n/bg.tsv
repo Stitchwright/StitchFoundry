@@ -6557,3 +6557,28 @@ machine	Stop	Спиране
 	A new design: a hoopful of patches, each colour sewn once for all of them	Нов дизайн: гергеф, пълен с емблеми, всеки цвят се бродира веднъж за всички
 	Every hoopful as a machine file, and a list of the names in each	Всеки пълен гергеф като машинен файл и списък с имената във всеки
 	The open design repeated across its hoop, sorted so each colour is sewn once	Отвореният дизайн, повторен по гергефа и подреден така, че всеки цвят да се бродира веднъж
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Искате ли да добавите нещо? (по желание)
+	Claude is writing the report…	Claude пише доклада…
+	Have Claude Write It	Нека Claude го напише
+	Help make StitchFoundry better	Помогнете StitchFoundry да стане по-добър
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Съгласен съм да изпратя това на SiteSentrix, създателя на StitchFoundry, за подобряване на програмата. Няма да бъде споделено с никого другиго.
+	Include a summary of the design	Прилагане на обобщение на дизайна
+	Include the conversation with Claude	Прилагане на разговора с Claude
+	Include the photos ({n})	Прилагане на снимките ({n})
+	Report to StitchFoundry	Доклад до StitchFoundry
+	Report to StitchFoundry…	Доклад до StitchFoundry…
+	Send Report	Изпращане на доклада
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Изпратете тази бродерия и идеята на Claude какво StitchFoundry би могъл да прави по-добре на създателите му
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Изпратете тази бродерия на създателите на StitchFoundry, с идеята на Claude какво програмата би могла да прави по-добре. Използваме я само за подобряване на StitchFoundry: никога не я споделяме, продаваме или публикуваме и можете да поискате изтриването ѝ по всяко време (Акаунт в StitchFoundry › Изтриване на споделените ми проверки).
+	Sign in to StitchFoundry Account to send a report.	Влезте в акаунта в StitchFoundry, за да изпратите доклад.
+@msg	Sign in to StitchFoundry Account to send a report.	Влезте в акаунта в StitchFoundry, за да изпратите доклад.
+	Thank you: your report was sent.	Благодарим: докладът ви е изпратен.
+	Title	Заглавие
+	What went wrong, and what StitchFoundry could do better	Какво се обърка и какво StitchFoundry би могъл да прави по-добре
+	Write a report about this sew-out for the people who make StitchFoundry.	Напиши доклад за тази бродерия за създателите на StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Първо проверете бродерия: докладът се изпраща с нейните снимки и отговора на Claude
+@msg	Tick the box to agree to send it first.	Първо отметнете полето, за да се съгласите с изпращането.
+@msg	Write what went wrong first, or have Claude write it.	Първо напишете какво се обърка или оставете Claude да го напише.
+	The {n} credits this check cost are back in your account.	{n} кредита за тази проверка са върнати в акаунта ви.
+	Paid for this check with credits? Send a report and they come back to you.	Платихте ли тази проверка с кредити? Изпратете доклад и те ще ви бъдат върнати.

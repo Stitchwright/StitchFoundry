@@ -6492,3 +6492,28 @@ swatch	Bright Violet	Violet cerah
 	A new design: a hoopful of patches, each colour sewn once for all of them	Desain baru: satu pembidang penuh emblem, setiap warna dijahit sekali untuk semuanya
 	Every hoopful as a machine file, and a list of the names in each	Setiap pembidang penuh sebagai file mesin, dan daftar nama di masing-masing
 	The open design repeated across its hoop, sorted so each colour is sewn once	Desain yang terbuka diulang di seluruh pembidangnya, diurutkan agar setiap warna dijahit sekali
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Ada yang ingin ditambahkan? (opsional)
+	Claude is writing the report…	Claude sedang menulis laporan…
+	Have Claude Write It	Biar Claude yang Menulis
+	Help make StitchFoundry better	Bantu jadikan StitchFoundry lebih baik
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Saya setuju mengirim ini ke SiteSentrix, pembuat StitchFoundry, untuk memperbaiki perangkat lunaknya. Ini tidak akan dibagikan kepada siapa pun.
+	Include a summary of the design	Sertakan ringkasan desain
+	Include the conversation with Claude	Sertakan percakapan dengan Claude
+	Include the photos ({n})	Sertakan foto ({n})
+	Report to StitchFoundry	Laporkan ke StitchFoundry
+	Report to StitchFoundry…	Laporkan ke StitchFoundry…
+	Send Report	Kirim Laporan
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Kirim hasil jahitan ini dan ide Claude tentang apa yang bisa diperbaiki StitchFoundry kepada pembuatnya
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Kirim hasil jahitan ini kepada pembuat StitchFoundry, beserta ide Claude tentang apa yang bisa diperbaiki perangkat lunaknya. Kami memakainya hanya untuk memperbaiki StitchFoundry: kami tidak pernah membagikan, menjual, atau menerbitkannya, dan Anda bisa meminta untuk menghapusnya kapan saja (Akun StitchFoundry › Hapus pemeriksaan hasil jahitan yang saya bagikan).
+	Sign in to StitchFoundry Account to send a report.	Masuk ke Akun StitchFoundry untuk mengirim laporan.
+@msg	Sign in to StitchFoundry Account to send a report.	Masuk ke Akun StitchFoundry untuk mengirim laporan.
+	Thank you: your report was sent.	Terima kasih: laporan Anda sudah terkirim.
+	Title	Judul
+	What went wrong, and what StitchFoundry could do better	Apa yang salah, dan apa yang bisa diperbaiki StitchFoundry
+	Write a report about this sew-out for the people who make StitchFoundry.	Tulis laporan tentang hasil jahitan ini untuk pembuat StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Periksa hasil jahitan dulu: laporan dikirim bersama fotonya dan jawaban Claude
+@msg	Tick the box to agree to send it first.	Centang kotaknya dulu untuk setuju mengirim.
+@msg	Write what went wrong first, or have Claude write it.	Tulis dulu apa yang salah, atau biar Claude yang menulisnya.
+	The {n} credits this check cost are back in your account.	{n} kredit untuk pemeriksaan ini sudah kembali ke akun Anda.
+	Paid for this check with credits? Send a report and they come back to you.	Membayar pemeriksaan ini dengan kredit? Kirim laporan dan kreditnya kembali kepada Anda.

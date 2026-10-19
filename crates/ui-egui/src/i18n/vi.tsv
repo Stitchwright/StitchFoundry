@@ -6193,3 +6193,28 @@ machine	Stop	Dừng máy
 	A new design: a hoopful of patches, each colour sewn once for all of them	Thiết kế mới: một khung đầy miếng vá, mỗi màu thêu một lần cho tất cả
 	Every hoopful as a machine file, and a list of the names in each	Mỗi khung đầy thành một tệp máy, kèm danh sách tên trong mỗi khung
 	The open design repeated across its hoop, sorted so each colour is sewn once	Thiết kế đang mở được lặp khắp khung, sắp xếp để mỗi màu chỉ thêu một lần
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Bạn có muốn thêm gì không? (không bắt buộc)
+	Claude is writing the report…	Claude đang viết báo cáo…
+	Have Claude Write It	Để Claude viết
+	Help make StitchFoundry better	Giúp StitchFoundry tốt hơn
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Tôi đồng ý gửi nội dung này cho SiteSentrix, nhà phát triển StitchFoundry, để cải thiện phần mềm. Nội dung sẽ không được chia sẻ với ai khác.
+	Include a summary of the design	Kèm bản tóm tắt thiết kế
+	Include the conversation with Claude	Kèm cuộc trò chuyện với Claude
+	Include the photos ({n})	Kèm ảnh ({n})
+	Report to StitchFoundry	Báo cáo cho StitchFoundry
+	Report to StitchFoundry…	Báo cáo cho StitchFoundry…
+	Send Report	Gửi báo cáo
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Gửi bản thêu này và ý tưởng của Claude về điều StitchFoundry có thể làm tốt hơn cho những người làm ra nó
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Gửi bản thêu này cho những người làm ra StitchFoundry, kèm ý tưởng của Claude về điều phần mềm có thể làm tốt hơn. Chúng tôi chỉ dùng nó để cải thiện StitchFoundry: không bao giờ chia sẻ, bán hay công bố, và bạn có thể yêu cầu xóa bất cứ lúc nào (Tài khoản StitchFoundry › Xóa các lần kiểm tra tôi đã chia sẻ).
+	Sign in to StitchFoundry Account to send a report.	Đăng nhập Tài khoản StitchFoundry để gửi báo cáo.
+@msg	Sign in to StitchFoundry Account to send a report.	Đăng nhập Tài khoản StitchFoundry để gửi báo cáo.
+	Thank you: your report was sent.	Cảm ơn: báo cáo của bạn đã được gửi.
+	Title	Tiêu đề
+	What went wrong, and what StitchFoundry could do better	Điều gì đã sai, và StitchFoundry có thể làm tốt hơn ở đâu
+	Write a report about this sew-out for the people who make StitchFoundry.	Hãy viết báo cáo về bản thêu này cho những người làm ra StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Hãy kiểm tra một bản thêu trước: báo cáo được gửi kèm ảnh và câu trả lời của Claude
+@msg	Tick the box to agree to send it first.	Hãy đánh dấu ô để đồng ý gửi trước.
+@msg	Write what went wrong first, or have Claude write it.	Hãy viết điều gì đã sai trước, hoặc để Claude viết.
+	The {n} credits this check cost are back in your account.	{n} tín dụng của lần kiểm tra này đã được trả lại vào tài khoản của bạn.
+	Paid for this check with credits? Send a report and they come back to you.	Bạn đã trả lần kiểm tra này bằng tín dụng? Gửi báo cáo và bạn sẽ được hoàn lại.

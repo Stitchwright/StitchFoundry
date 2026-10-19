@@ -6270,3 +6270,28 @@ machine	Stop	停止
 	A new design: a hoopful of patches, each colour sewn once for all of them	新しいデザイン:枠いっぱいのワッペン。各色は全部まとめて1回で縫います
 	Every hoopful as a machine file, and a list of the names in each	枠ごとのミシンファイルと、各枠の名前の一覧
 	The open design repeated across its hoop, sorted so each colour is sewn once	開いているデザインを枠全体に繰り返し、各色を1回で縫うよう並べ替えます
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	ほかに伝えたいこと(任意)
+	Claude is writing the report…	Claude がレポートを書いています…
+	Have Claude Write It	Claude に書いてもらう
+	Help make StitchFoundry better	StitchFoundry をより良くするために
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	StitchFoundry の開発元 SiteSentrix に、ソフトウェア改善のためにこれを送ることに同意します。ほかの誰とも共有されません。
+	Include a summary of the design	デザインの概要を含める
+	Include the conversation with Claude	Claude との会話を含める
+	Include the photos ({n})	写真を含める({n})
+	Report to StitchFoundry	StitchFoundry に報告
+	Report to StitchFoundry…	StitchFoundry に報告…
+	Send Report	レポートを送信
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	この仕上がりと、StitchFoundry が改善できる点についての Claude の考えを開発者に送る
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	この仕上がりを、ソフトウェアの改善点についての Claude の考えと一緒に、StitchFoundry の開発者に送ります。StitchFoundry の改善にのみ使い、共有・販売・公開することはありません。いつでも削除を依頼できます(StitchFoundry アカウント › 共有したチェックを削除)。
+	Sign in to StitchFoundry Account to send a report.	レポートを送るには StitchFoundry アカウントにサインインしてください。
+@msg	Sign in to StitchFoundry Account to send a report.	レポートを送るには StitchFoundry アカウントにサインインしてください。
+	Thank you: your report was sent.	ありがとうございます。レポートを送信しました。
+	Title	タイトル
+	What went wrong, and what StitchFoundry could do better	何がうまくいかなかったか、StitchFoundry が改善できる点
+	Write a report about this sew-out for the people who make StitchFoundry.	この仕上がりについて、StitchFoundry の開発者向けのレポートを書いてください。
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	先に仕上がりをチェックしてください。レポートは写真と Claude の回答と一緒に送られます
+@msg	Tick the box to agree to send it first.	先にチェックボックスをオンにして送信に同意してください。
+@msg	Write what went wrong first, or have Claude write it.	先に何がうまくいかなかったかを書くか、Claude に書いてもらってください。
+	The {n} credits this check cost are back in your account.	このチェックの {n} クレジットがアカウントに戻りました。
+	Paid for this check with credits? Send a report and they come back to you.	このチェックをクレジットで支払いましたか?レポートを送るとクレジットが戻ります。

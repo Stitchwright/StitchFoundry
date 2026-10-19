@@ -6189,3 +6189,28 @@ machine	Stop	정지
 	A new design: a hoopful of patches, each colour sewn once for all of them	새 디자인: 후프 가득 패치, 각 색상은 전체를 한 번에 수놓습니다
 	Every hoopful as a machine file, and a list of the names in each	후프마다 기계 파일 하나와 각 후프의 이름 목록
 	The open design repeated across its hoop, sorted so each colour is sewn once	열린 디자인을 후프 전체에 반복하고 각 색상을 한 번에 수놓도록 정렬합니다
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	더 하고 싶은 말(선택)
+	Claude is writing the report…	Claude가 보고서를 쓰는 중…
+	Have Claude Write It	Claude에게 쓰게 하기
+	Help make StitchFoundry better	StitchFoundry를 더 좋게 만드는 데 도움 주기
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	소프트웨어 개선을 위해 이 내용을 StitchFoundry 개발사 SiteSentrix에 보내는 데 동의합니다. 다른 누구와도 공유되지 않습니다.
+	Include a summary of the design	디자인 요약 포함
+	Include the conversation with Claude	Claude와의 대화 포함
+	Include the photos ({n})	사진 포함({n})
+	Report to StitchFoundry	StitchFoundry에 보고
+	Report to StitchFoundry…	StitchFoundry에 보고…
+	Send Report	보고서 보내기
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	이 자수 결과와 StitchFoundry가 개선할 점에 대한 Claude의 생각을 개발자에게 보내기
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	이 자수 결과를 소프트웨어가 개선할 점에 대한 Claude의 생각과 함께 StitchFoundry 개발자에게 보냅니다. StitchFoundry 개선에만 사용하며, 공유하거나 판매하거나 공개하지 않습니다. 언제든지 삭제를 요청할 수 있습니다(StitchFoundry 계정 › 공유한 확인 삭제).
+	Sign in to StitchFoundry Account to send a report.	보고서를 보내려면 StitchFoundry 계정에 로그인하세요.
+@msg	Sign in to StitchFoundry Account to send a report.	보고서를 보내려면 StitchFoundry 계정에 로그인하세요.
+	Thank you: your report was sent.	감사합니다. 보고서를 보냈습니다.
+	Title	제목
+	What went wrong, and what StitchFoundry could do better	무엇이 잘못되었고 StitchFoundry가 무엇을 개선할 수 있는지
+	Write a report about this sew-out for the people who make StitchFoundry.	이 자수 결과에 대해 StitchFoundry 개발자를 위한 보고서를 써 주세요.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	먼저 자수 결과를 확인하세요. 보고서는 사진과 Claude의 답변과 함께 보내집니다
+@msg	Tick the box to agree to send it first.	먼저 보내기에 동의하는 상자를 선택하세요.
+@msg	Write what went wrong first, or have Claude write it.	먼저 무엇이 잘못되었는지 쓰거나 Claude에게 쓰게 하세요.
+	The {n} credits this check cost are back in your account.	이 확인에 쓴 {n} 크레딧이 계정으로 돌아왔습니다.
+	Paid for this check with credits? Send a report and they come back to you.	이 확인을 크레딧으로 결제했나요? 보고서를 보내면 돌려드립니다.

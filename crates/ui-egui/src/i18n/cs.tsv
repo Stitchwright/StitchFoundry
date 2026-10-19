@@ -6592,3 +6592,28 @@ mark-style	Japanese	Japonské
 	A new design: a hoopful of patches, each colour sewn once for all of them	Nový návrh: rámeček plný nášivek, každá barva vyšita jednou pro všechny
 	Every hoopful as a machine file, and a list of the names in each	Každý rámeček jako soubor pro stroj a seznam jmen v každém
 	The open design repeated across its hoop, sorted so each colour is sewn once	Otevřený návrh opakovaný přes celý rámeček, seřazený tak, aby se každá barva vyšívala jednou
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Chcete něco doplnit? (nepovinné)
+	Claude is writing the report…	Claude píše zprávu…
+	Have Claude Write It	Ať to napíše Claude
+	Help make StitchFoundry better	Pomozte vylepšit StitchFoundry
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Souhlasím s odesláním tohoto společnosti SiteSentrix, výrobci StitchFoundry, za účelem vylepšení programu. Nebude sdíleno s nikým dalším.
+	Include a summary of the design	Přiložit souhrn návrhu
+	Include the conversation with Claude	Přiložit konverzaci s Claudem
+	Include the photos ({n})	Přiložit fotky ({n})
+	Report to StitchFoundry	Nahlásit StitchFoundry
+	Report to StitchFoundry…	Nahlásit StitchFoundry…
+	Send Report	Odeslat zprávu
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Poslat tuto výšivku a Claudův nápad, co by StitchFoundry mohl dělat lépe, jeho tvůrcům
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Pošlete tuto výšivku tvůrcům StitchFoundry spolu s Claudovým nápadem, co by program mohl dělat lépe. Používáme ji jen ke zlepšení StitchFoundry: nikdy ji nesdílíme, neprodáváme ani nezveřejňujeme a kdykoli můžete požádat o její smazání (Účet StitchFoundry › Smazat mé sdílené kontroly).
+	Sign in to StitchFoundry Account to send a report.	Přihlaste se k účtu StitchFoundry, abyste mohli odeslat zprávu.
+@msg	Sign in to StitchFoundry Account to send a report.	Přihlaste se k účtu StitchFoundry, abyste mohli odeslat zprávu.
+	Thank you: your report was sent.	Děkujeme: vaše zpráva byla odeslána.
+	Title	Název
+	What went wrong, and what StitchFoundry could do better	Co se pokazilo a co by StitchFoundry mohl dělat lépe
+	Write a report about this sew-out for the people who make StitchFoundry.	Napiš zprávu o této výšivce pro tvůrce StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Nejdřív zkontrolujte výšivku: zpráva jde s jejími fotkami a Claudovou odpovědí
+@msg	Tick the box to agree to send it first.	Nejdřív zaškrtněte políčko, že s odesláním souhlasíte.
+@msg	Write what went wrong first, or have Claude write it.	Nejdřív napište, co se pokazilo, nebo to nechte napsat Clauda.
+	The {n} credits this check cost are back in your account.	{n} kreditů za tuto kontrolu je zpět na vašem účtu.
+	Paid for this check with credits? Send a report and they come back to you.	Platili jste tuto kontrolu kredity? Pošlete zprávu a vrátí se vám.

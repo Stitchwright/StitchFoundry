@@ -6416,3 +6416,28 @@ machine	Stop	停止
 	A new design: a hoopful of patches, each colour sewn once for all of them	新设计:一整框布贴,每种颜色为全部布贴只绣一次
 	Every hoopful as a machine file, and a list of the names in each	每一框写成一个机器文件,并列出每框中的姓名
 	The open design repeated across its hoop, sorted so each colour is sewn once	将打开的设计在绣框中重复排列,并排序使每种颜色只绣一次
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	还有什么要补充的?(可选)
+	Claude is writing the report…	Claude 正在写报告…
+	Have Claude Write It	让 Claude 来写
+	Help make StitchFoundry better	帮助改进 StitchFoundry
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	我同意将此内容发送给 StitchFoundry 的开发者 SiteSentrix,用于改进软件。不会与其他任何人共享。
+	Include a summary of the design	附上设计摘要
+	Include the conversation with Claude	附上与 Claude 的对话
+	Include the photos ({n})	附上照片({n})
+	Report to StitchFoundry	报告给 StitchFoundry
+	Report to StitchFoundry…	报告给 StitchFoundry…
+	Send Report	发送报告
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	将这次刺绣成品和 Claude 对 StitchFoundry 可改进之处的看法发给开发者
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	将这次刺绣成品连同 Claude 对软件可改进之处的看法发给 StitchFoundry 的开发者。我们只用它来改进 StitchFoundry:绝不共享、出售或公开,你可以随时要求删除(StitchFoundry 账户 › 删除我共享的检查)。
+	Sign in to StitchFoundry Account to send a report.	请登录 StitchFoundry 账户以发送报告。
+@msg	Sign in to StitchFoundry Account to send a report.	请登录 StitchFoundry 账户以发送报告。
+	Thank you: your report was sent.	谢谢:你的报告已发送。
+	Title	标题
+	What went wrong, and what StitchFoundry could do better	哪里出了问题,以及 StitchFoundry 可以如何改进
+	Write a report about this sew-out for the people who make StitchFoundry.	请为 StitchFoundry 的开发者写一份关于这次刺绣成品的报告。
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	请先检查一次刺绣成品:报告会附上其照片和 Claude 的回答
+@msg	Tick the box to agree to send it first.	请先勾选同意发送。
+@msg	Write what went wrong first, or have Claude write it.	请先写下哪里出了问题,或让 Claude 来写。
+	The {n} credits this check cost are back in your account.	这次检查花费的 {n} 点数已退回你的账户。
+	Paid for this check with credits? Send a report and they come back to you.	这次检查用点数支付了?发送报告即可退回。

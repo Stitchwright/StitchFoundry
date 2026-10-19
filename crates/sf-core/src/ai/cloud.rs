@@ -60,6 +60,12 @@ pub fn delete_shared(server: &str, token: &str) -> Result<HttpRequest, ArtError>
     request(server, "/v1/sewout/delete", Some(token), &json!({}))
 }
 
+/// Report to StitchFoundry: a sew-out and what StitchFoundry could do better, sent with the
+/// user's leave (`body`: [`super::sewout::Report::body`]) → `{report, emailed}`.
+pub fn report(server: &str, token: &str, body: &Value) -> Result<HttpRequest, ArtError> {
+    request(server, REPORT, Some(token), body)
+}
+
 /// The error an answer from the service with HTTP status `status` and body `body` means.
 pub fn status_error(status: u16, body: &str) -> ArtError {
     let message = serde_json::from_str::<Value>(body)
@@ -88,6 +94,7 @@ pub fn parse(status: u16, body: &str) -> Result<Value, ArtError> {
 /// The service's endpoint for AI requests, and for sew-out checks.
 pub const MESSAGES: &str = "/v1/messages";
 pub const SEWOUT: &str = "/v1/sewout";
+pub const REPORT: &str = "/v1/report";
 
 /// `http`, an AI request built for Anthropic with session token `token` in place of an API key
 /// (`x-api-key`), sent instead to `path` ([`MESSAGES`], [`SEWOUT`]) on the service at `server`,

@@ -6231,3 +6231,28 @@ machine	Stop	Arresto
 	A new design: a hoopful of patches, each colour sewn once for all of them	Un nuovo disegno: un telaio pieno di toppe, ogni colore ricamato una volta per tutte
 	Every hoopful as a machine file, and a list of the names in each	Ogni telaio come file macchina, con l’elenco dei nomi di ciascuno
 	The open design repeated across its hoop, sorted so each colour is sewn once	Il disegno aperto ripetuto in tutto il telaio, ordinato in modo che ogni colore sia ricamato una volta
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Qualcosa da aggiungere? (facoltativo)
+	Claude is writing the report…	Claude sta scrivendo il resoconto…
+	Have Claude Write It	Fallo scrivere a Claude
+	Help make StitchFoundry better	Aiuta a migliorare StitchFoundry
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Accetto di inviare questo a SiteSentrix, il produttore di StitchFoundry, per migliorare il programma. Non sarà condiviso con nessun altro.
+	Include a summary of the design	Includi un riepilogo del disegno
+	Include the conversation with Claude	Includi la conversazione con Claude
+	Include the photos ({n})	Includi le foto ({n})
+	Report to StitchFoundry	Segnala a StitchFoundry
+	Report to StitchFoundry…	Segnala a StitchFoundry…
+	Send Report	Invia resoconto
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Invia questo ricamo e l’idea di Claude su cosa StitchFoundry potrebbe fare meglio ai suoi autori
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Invia questo ricamo a chi crea StitchFoundry, con l’idea di Claude su cosa il programma potrebbe fare meglio. Lo usiamo solo per migliorare StitchFoundry: non lo condividiamo, vendiamo né pubblichiamo mai, e puoi farlo eliminare in qualsiasi momento (Account StitchFoundry › Elimina i miei controlli condivisi).
+	Sign in to StitchFoundry Account to send a report.	Accedi all’account StitchFoundry per inviare un resoconto.
+@msg	Sign in to StitchFoundry Account to send a report.	Accedi all’account StitchFoundry per inviare un resoconto.
+	Thank you: your report was sent.	Grazie: il tuo resoconto è stato inviato.
+	Title	Titolo
+	What went wrong, and what StitchFoundry could do better	Cosa è andato storto e cosa StitchFoundry potrebbe fare meglio
+	Write a report about this sew-out for the people who make StitchFoundry.	Scrivi un resoconto su questo ricamo per chi crea StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Controlla prima un ricamo: il resoconto va con le sue foto e la risposta di Claude
+@msg	Tick the box to agree to send it first.	Spunta prima la casella per accettare di inviarlo.
+@msg	Write what went wrong first, or have Claude write it.	Scrivi prima cosa è andato storto, o fallo scrivere a Claude.
+	The {n} credits this check cost are back in your account.	I {n} crediti di questo controllo sono tornati sul tuo account.
+	Paid for this check with credits? Send a report and they come back to you.	Hai pagato questo controllo con i crediti? Invia un resoconto e ti vengono restituiti.

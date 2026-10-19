@@ -61,6 +61,12 @@ pub struct Config {
     pub free_budget_cents: u64,
     /// The Postgres database (`DATABASE_URL`, as Railway sets it); without it the data folder.
     pub database_url: Option<String>,
+    /// Where sew-out reports are emailed (`SF_CLOUD_REPORTS_TO`), through Resend
+    /// (`RESEND_API_KEY`), from `SF_CLOUD_REPORTS_FROM` (an address on a domain Resend has
+    /// verified); without them reports are only kept.
+    pub resend_key: Option<String>,
+    pub reports_to: Option<String>,
+    pub reports_from: String,
 }
 
 /// The default packs, as the owner priced them (2026-10-18): $10, $25 and $50.
@@ -104,6 +110,9 @@ impl Config {
             check_credits: num("SF_CLOUD_CHECK_CREDITS", 10.0)? as u64,
             free_budget_cents: num("SF_CLOUD_FREE_BUDGET_CENTS", 2500.0)? as u64,
             database_url: nonempty("DATABASE_URL"),
+            resend_key: nonempty("RESEND_API_KEY"),
+            reports_to: nonempty("SF_CLOUD_REPORTS_TO"),
+            reports_from: nonempty("SF_CLOUD_REPORTS_FROM").unwrap_or_else(|| "StitchFoundry <reports@stitchfoundry.app>".into()),
         })
     }
 

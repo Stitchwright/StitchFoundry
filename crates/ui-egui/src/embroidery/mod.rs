@@ -393,6 +393,7 @@ pub fn tick(app: &mut crate::VectorcraftApp, ctx: &egui::Context) {
     prompt::poll(app, ctx);
     ask::poll(app, ctx);
     account::poll(app, ctx);
+    sewout::poll_report(app, ctx);
     let tool = app.session.tool_id();
     if tool != app.embroidery.widget.last_tool {
         if tool == widget::TOOL {

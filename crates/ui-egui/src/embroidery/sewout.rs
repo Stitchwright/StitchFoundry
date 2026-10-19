@@ -8,6 +8,8 @@
 //! sent as JPEG ([`prepare`]). On the desktop they are picked in an open dialog; on the web the
 //! browser's picker hands them in through the place inbox ([`take_arrivals`]).
 
+use std::sync::mpsc::TryRecvError;
+
 use egui::RichText;
 use serde_json::{Value, json};
 use vectorcraft_embroidery::sf_core::ai::sewout::{self, Answers};
@@ -55,6 +57,33 @@ pub struct SewOutState {
     pub follow_up: bool,
     /// The web's picker is open for photos: the files it hands in are photos.
     pub waiting: bool,
+    pub error: Option<String>,
+    /// Report to StitchFoundry.
+    pub report: ReportForm,
+}
+
+/// Report to StitchFoundry between frames: the report as typed (or as Claude drafted it), what
+/// goes with it, and the user's leave to send it.
+#[derive(Default)]
+pub struct ReportForm {
+    pub open: bool,
+    /// Whether the choices below were set for this check yet.
+    started: Option<String>,
+    pub title: String,
+    pub text: String,
+    pub note: String,
+    pub photos: bool,
+    pub conversation: bool,
+    pub design: bool,
+    /// The user agrees to send it.
+    pub consent: bool,
+    /// Claude is writing the draft.
+    pub drafting: bool,
+    pending: Option<std::sync::mpsc::Receiver<Result<Value, ai::ArtError>>>,
+    /// Sent: the report's id.
+    pub sent: Option<String>,
+    /// The credits the check cost, given back for the report.
+    pub refunded: u64,
     pub error: Option<String>,
 }
 
@@ -389,5 +418,243 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
         let st = &mut app.embroidery.sewout;
         st.open = false;
         st.waiting = false;
+    }
+}
+
+/// `ui.reportSewout {title?, report?, note?, consent?: bool, draft?: bool, send?: bool}`: opens
+/// Report to StitchFoundry for the check in the Ask window, with what is given filled in; `draft`
+/// has Claude write it, `send` sends it.
+pub fn open_report(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
+    let ask = &app.embroidery.ask;
+    if ask.mode != ask::Mode::SewOut || ask.last_answer().is_none() {
+        return Err("Check a sew-out first: the report goes with its photos and Claude's answer".into());
+    }
+    let check = ask.check.as_ref().map(|c| c.id.clone());
+    super::account::load(app);
+    let f = &mut app.embroidery.sewout.report;
+    if f.started != check || f.started.is_none() {
+        *f = ReportForm { started: check.clone().or(Some(String::new())), photos: true, conversation: true, design: true, ..Default::default() };
+    }
+    f.open = true;
+    for (key, field) in [("title", &mut f.title), ("report", &mut f.text), ("note", &mut f.note)] {
+        if let Some(v) = p.get(key).and_then(Value::as_str) {
+            *field = v.to_string();
+        }
+    }
+    if let Some(c) = p.get("consent").and_then(Value::as_bool) {
+        f.consent = c;
+    }
+    if p.get("draft").and_then(Value::as_bool) == Some(true) {
+        draft(app)?;
+    }
+    if p.get("send").and_then(Value::as_bool) == Some(true) {
+        send_report(app)?;
+    }
+    let f = &app.embroidery.sewout.report;
+    Ok(json!({ "open": true, "signedIn": signed_in(app), "drafting": f.drafting, "sending": f.pending.is_some(), "sent": f.sent }))
+}
+
+/// Whether a report can be sent: signed in to StitchFoundry Account.
+fn signed_in(app: &VectorcraftApp) -> bool {
+    !app.embroidery.account.token.is_empty() && super::account::server(app).is_some()
+}
+
+/// Have Claude Write It: the report question asked in the check's conversation; its answer fills
+/// the report ([`poll_report`]).
+fn draft(app: &mut VectorcraftApp) -> Result<(), String> {
+    ask::ask_as(app, sewout::REPORT_QUESTION, tl!("Write a report about this sew-out for the people who make StitchFoundry."))?;
+    app.embroidery.sewout.report.drafting = true;
+    app.embroidery.sewout.report.error = None;
+    Ok(())
+}
+
+/// Send Report: the report and what the user chose to include go to the StitchFoundry service.
+fn send_report(app: &mut VectorcraftApp) -> Result<(), String> {
+    let fail = |app: &mut VectorcraftApp, m: String| {
+        app.embroidery.sewout.report.error = Some(m.clone());
+        Err(m)
+    };
+    if !app.embroidery.sewout.report.consent {
+        return fail(app, "Tick the box to agree to send it first.".into());
+    }
+    let Some(server) = super::account::server(app).filter(|_| signed_in(app)) else {
+        return fail(app, "Sign in to StitchFoundry Account to send a report.".into());
+    };
+    let design = if app.embroidery.sewout.report.design && app.session.active().is_some() { ask::design_summary(app) } else { None };
+    let st = &app.embroidery.sewout;
+    let f = &st.report;
+    let report = sewout::Report {
+        check: app.embroidery.ask.check.as_ref().map(|c| c.id.clone()),
+        title: f.title.clone(),
+        report: f.text.clone(),
+        note: f.note.clone(),
+        photos: if f.photos { st.photos.iter().map(|p| p.image.clone()).collect() } else { Vec::new() },
+        conversation: f.conversation.then(|| app.embroidery.ask.transcript()),
+        design,
+        app: env!("CARGO_PKG_VERSION").to_string(),
+    };
+    let body = match report.body() {
+        Ok(b) => b,
+        Err(e) => return fail(app, e.to_string()),
+    };
+    let token = app.embroidery.account.token.clone();
+    let http = match vectorcraft_embroidery::sf_core::ai::cloud::report(&server, &token, &body) {
+        Ok(h) => h,
+        Err(e) => return fail(app, e.to_string()),
+    };
+    match prompt::post_plain(app, http, "stitchfoundry-report", vectorcraft_embroidery::sf_core::ai::cloud::parse) {
+        Ok(rx) => {
+            let f = &mut app.embroidery.sewout.report;
+            f.pending = Some(rx);
+            f.error = None;
+            Ok(())
+        }
+        Err(e) => fail(app, e),
+    }
+}
+
+/// Each frame: Claude's draft into the report once it is written, and the service's answer.
+pub fn poll_report(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    if app.embroidery.sewout.report.drafting && !app.embroidery.ask.asking() {
+        let answer = app.embroidery.ask.last_answer().map(str::to_string);
+        let failed = app.embroidery.ask.error.clone();
+        let f = &mut app.embroidery.sewout.report;
+        f.drafting = false;
+        match (failed, answer) {
+            (Some(e), _) => f.error = Some(e),
+            (None, Some(a)) => {
+                let (title, text) = sewout::split_report(&a);
+                if f.title.trim().is_empty() {
+                    f.title = title;
+                }
+                f.text = text;
+            }
+            (None, None) => {}
+        }
+    }
+    let Some(rx) = app.embroidery.sewout.report.pending.as_ref() else { return };
+    let r = match rx.try_recv() {
+        Ok(r) => r,
+        Err(TryRecvError::Empty) => {
+            ctx.request_repaint_after(std::time::Duration::from_millis(250));
+            return;
+        }
+        Err(TryRecvError::Disconnected) => Err(ai::ArtError::Network("the request stopped".into())),
+    };
+    let f = &mut app.embroidery.sewout.report;
+    f.pending = None;
+    match r {
+        Ok(v) => {
+            f.sent = Some(v["report"].as_str().unwrap_or_default().to_string());
+            f.refunded = v["refunded"].as_u64().unwrap_or(0);
+            f.error = None;
+            app.embroidery.account.stale = true;
+        }
+        Err(e) => f.error = Some(e.to_string()),
+    }
+}
+
+/// The Report to StitchFoundry window, while open.
+pub fn report_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    if !app.embroidery.sewout.report.open {
+        return;
+    }
+    let t = Tokens::get(ctx);
+    let mut open = true;
+    let mut write = false;
+    let mut send = false;
+    let mut account = false;
+    let signed = signed_in(app);
+    let asking = app.embroidery.ask.asking();
+    let has_design = app.session.active().is_some();
+    let photos = app.embroidery.sewout.photos.len();
+    let credits = super::account::paying_with_credits(app);
+    egui::Window::new(tl!("Report to StitchFoundry"))
+        .id(egui::Id::new("report-sewout"))
+        .open(&mut open)
+        .collapsible(false)
+        .resizable(false)
+        .default_pos(ctx.content_rect().center() - egui::vec2(240.0, 280.0))
+        .show(ctx, |ui| {
+            ui.set_width(480.0);
+            let f = &mut app.embroidery.sewout.report;
+            ui.label(RichText::new(tl!("Help make StitchFoundry better")).strong().size(15.0));
+            ui.label(
+                RichText::new(tl!("Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks)."))
+                    .size(12.0)
+                    .color(t.text_dim),
+            );
+            if credits {
+                ui.label(RichText::new(tl!("Paid for this check with credits? Send a report and they come back to you.")).size(12.0).color(t.text_dim));
+            }
+            if let Some(id) = &f.sent {
+                ui.add_space(8.0);
+                ui.label(RichText::new(tl!("Thank you: your report was sent.")).strong());
+                if f.refunded > 0 {
+                    ui.label(crate::i18n::fmt(tl!("The {n} credits this check cost are back in your account."), &[("n", &f.refunded.to_string())]));
+                }
+                ui.label(RichText::new(id).size(11.0).color(t.text_dim));
+                return;
+            }
+            ui.add_space(6.0);
+            ui.horizontal(|ui| {
+                if ui.add_enabled(!asking, egui::Button::new(tl!("Have Claude Write It"))).clicked() {
+                    write = true;
+                }
+                if f.drafting {
+                    ui.add(egui::Spinner::new());
+                    ui.label(RichText::new(tl!("Claude is writing the report…")).size(12.0).color(t.text_dim));
+                }
+            });
+            ui.add(egui::TextEdit::singleline(&mut f.title).desired_width(f32::INFINITY).hint_text(tl!("Title")));
+            ui.add(
+                egui::TextEdit::multiline(&mut f.text)
+                    .desired_rows(8)
+                    .desired_width(f32::INFINITY)
+                    .hint_text(tl!("What went wrong, and what StitchFoundry could do better")),
+            );
+            ui.add(egui::TextEdit::multiline(&mut f.note).desired_rows(2).desired_width(f32::INFINITY).hint_text(tl!("Anything you'd like to add (optional)")));
+            ui.add_enabled_ui(photos > 0, |ui| {
+                ui.checkbox(&mut f.photos, crate::i18n::fmt(tl!("Include the photos ({n})"), &[("n", &photos.to_string())]));
+            });
+            ui.checkbox(&mut f.conversation, tl!("Include the conversation with Claude"));
+            ui.add_enabled_ui(has_design, |ui| {
+                ui.checkbox(&mut f.design, tl!("Include a summary of the design"));
+            });
+            ui.checkbox(&mut f.consent, tl!("I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else."));
+            if let Some(e) = &f.error {
+                ui.label(RichText::new(crate::i18n::msg(e)).color(t.error));
+            }
+            if !signed {
+                ui.horizontal_wrapped(|ui| {
+                    ui.label(RichText::new(tl!("Sign in to StitchFoundry Account to send a report.")).size(12.0).color(t.text_dim));
+                    if ui.link(RichText::new(tl!("Account")).size(12.0)).clicked() {
+                        account = true;
+                    }
+                });
+            }
+            let said = !f.text.trim().is_empty() || !f.note.trim().is_empty();
+            let ready = signed && f.consent && said && f.pending.is_none() && !f.drafting;
+            ui.horizontal(|ui| {
+                if ui.add_enabled_ui(ready, |ui| crate::widgets::primary_button(ui, tl!("Send Report"))).inner.clicked() {
+                    send = true;
+                }
+                if f.pending.is_some() {
+                    ui.add(egui::Spinner::new());
+                }
+            });
+        });
+    if write {
+        // (a failure is shown in the window)
+        let _ = draft(app);
+    }
+    if send {
+        let _ = send_report(app);
+    }
+    if account {
+        app.embroidery.account.open = true;
+    }
+    if !open {
+        app.embroidery.sewout.report.open = false;
     }
 }

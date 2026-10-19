@@ -65,6 +65,17 @@ pub struct Check {
     /// The earlier check it follows up ("did the fix work?").
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub follow_up: Option<String>,
+    /// The credits its requests cost, all told (given back when the user reports it).
+    #[serde(default)]
+    pub spent: u64,
+}
+
+/// A sew-out report someone sent (Report to StitchFoundry): whose, and when. Its photos and
+/// text are kept as a shared check's are, under its id.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Report {
+    pub account: u64,
+    pub created: u64,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -84,6 +95,8 @@ struct State {
     /// What the free offers cost the service each month (cents, by `"2026-10"`).
     #[serde(default)]
     free_spent: BTreeMap<String, u64>,
+    #[serde(default)]
+    reports: BTreeMap<String, Report>,
 }
 
 /// The most recent entries kept for an account's history.
@@ -240,9 +253,10 @@ impl Store {
 
     /// A new check, or another request of one (its count up, shared once asked).
     pub fn note_check(&mut self, id: &str, check: Check) -> Result<(), StoreError> {
-        let c = self.state.checks.entry(id.to_string()).or_insert(Check { requests: 0, ..check.clone() });
+        let c = self.state.checks.entry(id.to_string()).or_insert(Check { requests: 0, spent: 0, ..check.clone() });
         c.requests = c.requests.saturating_add(1);
         c.shared |= check.shared;
+        c.spent = c.spent.saturating_add(check.spent);
         self.save()
     }
 
@@ -335,25 +349,61 @@ impl Store {
             let Some(c) = self.state.checks.get_mut(id).filter(|c| c.shared) else { continue };
             c.shared = false;
             n += 1;
-            match &self.backend {
-                Backend::Memory(m) => {
-                    m.lock().unwrap_or_else(std::sync::PoisonError::into_inner).remove(id);
-                }
-                Backend::Dir(dir) => {
-                    let d = dir.join("shared").join(id);
-                    if d.exists() {
-                        std::fs::remove_dir_all(d).map_err(|e| StoreError::Io(e.to_string()))?;
-                    }
-                }
-                Backend::Db(c) => {
-                    let mut c = c.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
-                    c.execute("DELETE FROM sf_shared_files WHERE check_id = $1", &[id]).map_err(db_error)?;
-                    c.execute("DELETE FROM sf_shared_rounds WHERE check_id = $1", &[id]).map_err(db_error)?;
-                }
-            }
+            self.forget_kept(id)?;
         }
         self.save()?;
         Ok(n)
+    }
+
+    /// Remove what was kept under `id` (a shared check's or a report's photos and text).
+    fn forget_kept(&self, id: &str) -> Result<(), StoreError> {
+        match &self.backend {
+            Backend::Memory(m) => {
+                m.lock().unwrap_or_else(std::sync::PoisonError::into_inner).remove(id);
+            }
+            Backend::Dir(dir) => {
+                let d = dir.join("shared").join(id);
+                if d.exists() {
+                    std::fs::remove_dir_all(d).map_err(|e| StoreError::Io(e.to_string()))?;
+                }
+            }
+            Backend::Db(c) => {
+                let mut c = c.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                c.execute("DELETE FROM sf_shared_files WHERE check_id = $1", &[&id]).map_err(db_error)?;
+                c.execute("DELETE FROM sf_shared_rounds WHERE check_id = $1", &[&id]).map_err(db_error)?;
+            }
+        }
+        Ok(())
+    }
+
+    // ---------- sew-out reports ----------
+
+    /// Keep report `id`: its `files` and its `text` (as a shared check's), and whose it is.
+    pub fn keep_report(&mut self, id: &str, report: Report, files: &[(String, Vec<u8>)], text: &str) -> Result<(), StoreError> {
+        self.keep_shared(id, files, text)?;
+        self.state.reports.insert(id.to_string(), report);
+        self.save()
+    }
+
+    /// The ids of `account`'s reports.
+    pub fn reports(&self, account: u64) -> Vec<String> {
+        self.state.reports.iter().filter(|(_, r)| r.account == account).map(|(id, _)| id.clone()).collect()
+    }
+
+    /// How many reports `account` sent since `since`.
+    pub fn reports_since(&self, account: u64, since: u64) -> usize {
+        self.state.reports.values().filter(|r| r.account == account && r.created >= since).count()
+    }
+
+    /// Delete `account`'s reports (their photos and text) → how many there were.
+    pub fn delete_reports(&mut self, account: u64) -> Result<usize, StoreError> {
+        let ids = self.reports(account);
+        for id in &ids {
+            self.forget_kept(id)?;
+            self.state.reports.remove(id);
+        }
+        self.save()?;
+        Ok(ids.len())
     }
 
     pub fn account(&self, id: u64) -> Option<&Account> {
@@ -503,7 +553,8 @@ mod tests {
             let id = s.create("a@b.c", "hash".into(), 100, 1000).unwrap();
             s.add_session("t1".into(), id, 1000).unwrap();
             assert!(s.add_credits(id, 1000, "purchase", "cs_1", "small pack", 1001).unwrap());
-            let check = Check { account: id, month: "2026-10".into(), created: 1000, requests: 0, free: true, shared: true, follow_up: None };
+            let check =
+                Check { account: id, month: "2026-10".into(), created: 1000, requests: 0, free: true, shared: true, follow_up: None, spent: 0 };
             s.note_check("1-aaaaaaaa", check).unwrap();
             s.keep_shared("1-aaaaaaaa", &[("image-1.jpg".into(), b"hello".to_vec())], "{\"said\":[\"overlap\"]}").unwrap();
             s.keep_shared("1-aaaaaaaa", &[("image-1.jpg".into(), b"again".to_vec())], "{}").unwrap();

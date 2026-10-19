@@ -6211,3 +6211,28 @@ machine	Stop	Зупинка
 	A new design: a hoopful of patches, each colour sewn once for all of them	Новий дизайн: п’яльця, повні нашивок, кожен колір вишивається один раз для всіх
 	Every hoopful as a machine file, and a list of the names in each	Кожні п’яльця окремим файлом для машини та список імен у кожних
 	The open design repeated across its hoop, sorted so each colour is sewn once	Відкритий дизайн повторено по п’яльцях і відсортовано, щоб кожен колір вишивався один раз
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Бажаєте щось додати? (необов’язково)
+	Claude is writing the report…	Claude пише звіт…
+	Have Claude Write It	Нехай напише Claude
+	Help make StitchFoundry better	Допоможіть покращити StitchFoundry
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Я погоджуюся надіслати це SiteSentrix, творцеві StitchFoundry, щоб покращити програму. Це не буде передано нікому іншому.
+	Include a summary of the design	Додати зведення дизайну
+	Include the conversation with Claude	Додати розмову з Claude
+	Include the photos ({n})	Додати фото ({n})
+	Report to StitchFoundry	Повідомити StitchFoundry
+	Report to StitchFoundry…	Повідомити StitchFoundry…
+	Send Report	Надіслати звіт
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Надіслати цю вишивку та ідею Claude про те, що StitchFoundry міг би робити краще, його творцям
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Надішліть цю вишивку творцям StitchFoundry разом з ідеєю Claude про те, що програма могла б робити краще. Ми використовуємо її лише для покращення StitchFoundry: ніколи не передаємо, не продаємо й не публікуємо, і ви можете попросити видалити її будь-коли (Обліковий запис StitchFoundry › Видалити мої спільні перевірки).
+	Sign in to StitchFoundry Account to send a report.	Увійдіть в обліковий запис StitchFoundry, щоб надіслати звіт.
+@msg	Sign in to StitchFoundry Account to send a report.	Увійдіть в обліковий запис StitchFoundry, щоб надіслати звіт.
+	Thank you: your report was sent.	Дякуємо: ваш звіт надіслано.
+	Title	Заголовок
+	What went wrong, and what StitchFoundry could do better	Що пішло не так і що StitchFoundry міг би робити краще
+	Write a report about this sew-out for the people who make StitchFoundry.	Напиши звіт про цю вишивку для творців StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Спершу перевірте вишивку: звіт надсилається з її фото та відповіддю Claude
+@msg	Tick the box to agree to send it first.	Спершу позначте прапорець, щоб погодитися на надсилання.
+@msg	Write what went wrong first, or have Claude write it.	Спершу напишіть, що пішло не так, або нехай це напише Claude.
+	The {n} credits this check cost are back in your account.	{n} кредитів за цю перевірку повернулися на ваш рахунок.
+	Paid for this check with credits? Send a report and they come back to you.	Оплатили цю перевірку кредитами? Надішліть звіт, і вони повернуться до вас.

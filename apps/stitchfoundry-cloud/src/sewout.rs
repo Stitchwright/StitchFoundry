@@ -104,6 +104,119 @@ pub fn shared_round(body: &Value, answer: &str, account: u64, follow_up: Option<
     (files, line.to_string())
 }
 
+/// The most reports an account may send a day.
+pub const MAX_REPORTS_A_DAY: usize = 5;
+/// The largest photo a report may hold (bytes, decoded).
+pub const MAX_REPORT_PHOTO: usize = 2 * 1024 * 1024;
+
+/// A sew-out report as sent (`POST /v1/report`, Report to StitchFoundry in the app): what the
+/// user agreed to send, checked and cut to size.
+#[derive(Debug, PartialEq)]
+pub struct Report {
+    pub check: Option<String>,
+    pub title: String,
+    pub report: String,
+    pub note: String,
+    /// (file name, bytes)
+    pub photos: Vec<(String, Vec<u8>)>,
+    pub conversation: String,
+    pub design: String,
+    pub app: String,
+}
+
+/// The report in `v`, or why it isn't one.
+pub fn read_report(v: &Value) -> Result<Report, &'static str> {
+    use sf_core::ai::sewout as limits;
+    if v.get("consent").and_then(Value::as_bool) != Some(true) {
+        return Err("a report is sent only with the user's leave (consent)");
+    }
+    let text = |key: &str, max: usize| -> String { v.get(key).and_then(Value::as_str).unwrap_or_default().trim().chars().take(max).collect() };
+    let report = Report {
+        check: v.get("check").and_then(Value::as_str).filter(|c| good_id(c)).map(str::to_string),
+        title: text("title", limits::MAX_REPORT_TITLE).replace(['\r', '\n'], " "),
+        report: text("report", limits::MAX_REPORT),
+        note: text("note", limits::MAX_REPORT_NOTE),
+        photos: Vec::new(),
+        conversation: text("conversation", limits::MAX_REPORT_CONVERSATION),
+        design: text("design", sf_core::ai::ask::MAX_DESIGN),
+        app: text("app", 64),
+    };
+    if report.report.is_empty() && report.note.is_empty() {
+        return Err("a report needs what went wrong");
+    }
+    let mut photos = Vec::new();
+    for p in v.get("photos").and_then(Value::as_array).into_iter().flatten() {
+        if photos.len() >= limits::MAX_PHOTOS {
+            return Err("too many photos in one report");
+        }
+        let ext = match p.get("mediaType").and_then(Value::as_str) {
+            Some("image/png") => "png",
+            Some("image/jpeg") => "jpg",
+            _ => return Err("a report's photos are JPEG or PNG"),
+        };
+        let bytes = p.get("data").and_then(Value::as_str).and_then(base64_decode).ok_or("a photo can't be read")?;
+        if bytes.is_empty() || bytes.len() > MAX_REPORT_PHOTO {
+            return Err("a photo is too large");
+        }
+        photos.push((format!("photo-{}.{ext}", photos.len() + 1), bytes));
+    }
+    Ok(Report { photos, ..report })
+}
+
+impl Report {
+    /// The title, or one made from the report.
+    pub fn subject(&self) -> String {
+        let t = if self.title.is_empty() { self.report.lines().next().unwrap_or("Sew-out report").to_string() } else { self.title.clone() };
+        let t: String = t.chars().take(120).collect();
+        format!("Sew-out report: {t}")
+    }
+
+    /// What is kept beside the photos: a JSON line.
+    pub fn kept(&self, id: &str, account: u64, email: &str, now: u64) -> String {
+        json!({
+            "id": id, "at": now, "account": account, "email": email, "check": self.check, "app": self.app,
+            "title": self.title, "report": self.report, "note": self.note, "conversation": self.conversation, "design": self.design,
+            "photos": self.photos.iter().map(|(n, _)| n.as_str()).collect::<Vec<_>>(),
+        })
+        .to_string()
+    }
+
+    /// The email to the owner (Resend's `POST /emails` body), the photos attached; replies go to
+    /// the user.
+    pub fn email(&self, from: &str, to: &str, id: &str, email: &str) -> Value {
+        let mut text = format!("Report {id} from {email} (StitchFoundry {})\n\n", if self.app.is_empty() { "?" } else { &self.app });
+        for (heading, body) in
+            [("Report", &self.report), ("Their note", &self.note), ("The check's conversation", &self.conversation), ("The design", &self.design)]
+        {
+            if !body.is_empty() {
+                text.push_str(&format!("== {heading} ==\n{body}\n\n"));
+            }
+        }
+        text.push_str(
+            "Sent with their leave to improve StitchFoundry: keep it private, never share or publish it. They can have it deleted at any time.\n",
+        );
+        let attachments: Vec<Value> = self.photos.iter().map(|(name, bytes)| json!({ "filename": name, "content": base64_encode(bytes) })).collect();
+        json!({ "from": from, "to": [to], "reply_to": email, "subject": self.subject(), "text": text, "attachments": attachments })
+    }
+}
+
+fn base64_encode(bytes: &[u8]) -> String {
+    const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::with_capacity(bytes.len().div_ceil(3) * 4);
+    for chunk in bytes.chunks(3) {
+        let b = [chunk.first().copied().unwrap_or(0), chunk.get(1).copied().unwrap_or(0), chunk.get(2).copied().unwrap_or(0)];
+        let n = (u32::from(b[0]) << 16) | (u32::from(b[1]) << 8) | u32::from(b[2]);
+        for i in 0..4 {
+            if i <= chunk.len() {
+                out.push(char::from(T[((n >> (18 - 6 * i)) & 63) as usize]));
+            } else {
+                out.push('=');
+            }
+        }
+    }
+    out
+}
+
 fn base64_decode(s: &str) -> Option<Vec<u8>> {
     let val = |c: u8| -> Option<u32> {
         Some(match c {
@@ -161,6 +274,24 @@ mod tests {
         let own = with_own_instructions(ok);
         assert!(own["system"].as_str().unwrap().contains("sew-out"));
         assert_eq!(own["tools"].as_array().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn a_report_needs_leave_and_words_and_mails_its_photos() {
+        let photo = json!({"mediaType": "image/jpeg", "data": "aGVsbG8="});
+        let ok = json!({"consent": true, "title": "Gaps\non knit", "report": "The fill pulled in.", "photos": [photo], "app": "0.13.1"});
+        let r = read_report(&ok).unwrap();
+        assert_eq!(r.title, "Gaps on knit");
+        assert_eq!(r.photos, vec![("photo-1.jpg".to_string(), b"hello".to_vec())]);
+        assert!(read_report(&json!({"report": "x"})).is_err(), "no leave");
+        assert!(read_report(&json!({"consent": true})).is_err(), "nothing said");
+        assert!(read_report(&json!({"consent": true, "report": "x", "photos": [{"mediaType": "image/gif", "data": "aGk="}]})).is_err());
+        let mail = r.email("StitchFoundry <reports@stitchfoundry.app>", "support@stitchfoundry.app", "r1", "denise@example.com");
+        assert_eq!(mail["subject"], "Sew-out report: Gaps on knit");
+        assert_eq!(mail["reply_to"], "denise@example.com");
+        assert_eq!(mail["attachments"][0]["content"], "aGVsbG8=");
+        assert!(mail["text"].as_str().unwrap().contains("The fill pulled in."));
+        assert_eq!(base64_encode(b"hi"), "aGk=");
     }
 
     #[test]

@@ -6549,3 +6549,28 @@ machine	Stop	Stopp
 	A new design: a hoopful of patches, each colour sewn once for all of them	En ny design: en ram full av märken, varje färg broderad en gång för alla
 	Every hoopful as a machine file, and a list of the names in each	Varje full ram som maskinfil och en lista över namnen i varje
 	The open design repeated across its hoop, sorted so each colour is sewn once	Den öppna designen upprepad över ramen, sorterad så att varje färg broderas en gång
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Något att lägga till? (valfritt)
+	Claude is writing the report…	Claude skriver rapporten…
+	Have Claude Write It	Låt Claude skriva den
+	Help make StitchFoundry better	Hjälp till att göra StitchFoundry bättre
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Jag godkänner att detta skickas till SiteSentrix, som gör StitchFoundry, för att förbättra programmet. Det delas inte med någon annan.
+	Include a summary of the design	Bifoga en sammanfattning av designen
+	Include the conversation with Claude	Bifoga samtalet med Claude
+	Include the photos ({n})	Bifoga bilderna ({n})
+	Report to StitchFoundry	Rapportera till StitchFoundry
+	Report to StitchFoundry…	Rapportera till StitchFoundry…
+	Send Report	Skicka rapport
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Skicka detta broderi och Claudes idé om vad StitchFoundry kunde göra bättre till dem som gör det
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Skicka detta broderi till dem som gör StitchFoundry, med Claudes idé om vad programmet kunde göra bättre. Vi använder det bara för att förbättra StitchFoundry: vi delar, säljer eller publicerar det aldrig, och du kan få det raderat när som helst (StitchFoundry-konto › Radera mina delade kontroller).
+	Sign in to StitchFoundry Account to send a report.	Logga in på StitchFoundry-kontot för att skicka en rapport.
+@msg	Sign in to StitchFoundry Account to send a report.	Logga in på StitchFoundry-kontot för att skicka en rapport.
+	Thank you: your report was sent.	Tack: din rapport har skickats.
+	Title	Titel
+	What went wrong, and what StitchFoundry could do better	Vad gick fel, och vad kunde StitchFoundry göra bättre
+	Write a report about this sew-out for the people who make StitchFoundry.	Skriv en rapport om detta broderi till dem som gör StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Kontrollera ett broderi först: rapporten skickas med dess bilder och Claudes svar
+@msg	Tick the box to agree to send it first.	Kryssa först i rutan för att godkänna att den skickas.
+@msg	Write what went wrong first, or have Claude write it.	Skriv först vad som gick fel, eller låt Claude skriva det.
+	The {n} credits this check cost are back in your account.	De {n} krediter kontrollen kostade är tillbaka på ditt konto.
+	Paid for this check with credits? Send a report and they come back to you.	Betalat kontrollen med krediter? Skicka en rapport så får du tillbaka dem.

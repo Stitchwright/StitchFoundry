@@ -36,6 +36,8 @@ pub const MIN_TO_START: u64 = 25;
 const SITE_URL: &str = "https://stitchfoundry.app";
 /// The Anthropic Messages API.
 pub const ANTHROPIC_URL: &str = "https://api.anthropic.com/v1/messages";
+/// Where sew-out reports are emailed through (Resend's API).
+pub const RESEND_URL: &str = "https://api.resend.com/emails";
 /// The keys of a Messages request passed on; any others are left out.
 const PASSED: &[&str] = &["model", "max_tokens", "system", "messages", "tools", "tool_choice", "output_config", "fallbacks", "thinking"];
 
@@ -207,6 +209,7 @@ impl Service {
             ("POST", "/v1/messages") => self.messages(req),
             ("POST", "/v1/sewout") => self.sewout(req),
             ("POST", "/v1/sewout/delete") => self.delete_shared(req),
+            ("POST", "/v1/report") => self.report(req),
             ("GET", "/paid") => self.paid(req),
             ("GET", "/cancelled") => {
                 Response::page("The payment was cancelled; nothing was charged.", "You can close this tab and go back to StitchFoundry.")
@@ -237,6 +240,7 @@ impl Service {
             "freeChecks": free_checks,
             "checkCredits": self.cfg.check_credits,
             "sharedChecks": store.shared_checks(id).len(),
+            "reports": store.reports(id).len(),
         })
     }
 
@@ -536,7 +540,9 @@ impl Service {
                     log::error!("free budget: {e}");
                 }
             }
-            let noted = Check { account: id, month: month.clone(), created: now, requests: 0, free, shared: share, follow_up: follow_up.clone() };
+            let spent = resp.headers.iter().find(|(k, _)| k == "x-stitchfoundry-spent").and_then(|(_, v)| v.parse().ok()).unwrap_or(0);
+            let noted =
+                Check { account: id, month: month.clone(), created: now, requests: 0, free, shared: share, follow_up: follow_up.clone(), spent };
             if let Err(e) = store.note_check(&check, noted) {
                 log::error!("sew-out check {check}: {e}");
             }
@@ -569,10 +575,88 @@ impl Service {
             Some(_) => return Response::error(400, "invalid_request_error", "no such check"),
             None => store.shared_checks(id),
         };
-        match store.delete_shared(&ids) {
-            Ok(n) => Response::json(200, &json!({ "deleted": n })),
+        let all = v.get("check").is_none();
+        let deleted = store.delete_shared(&ids).and_then(|n| if all { store.delete_reports(id).map(|r| (n, r)) } else { Ok((n, 0)) });
+        match deleted {
+            Ok((n, r)) => Response::json(200, &json!({ "deleted": n, "reports": r })),
             Err(e) => store_error(e),
         }
+    }
+
+    /// Report to StitchFoundry: a sew-out and what StitchFoundry could do better, sent with the
+    /// user's leave; kept privately (deleted with the shared checks) and emailed to the owner
+    /// when Resend is set up. The check it reports is on the house: the credits it cost come back,
+    /// once → `{report, emailed, refunded}`.
+    fn report(&self, req: &Request) -> Response {
+        let id = match self.signed_in(req) {
+            Ok(id) => id,
+            Err(r) => return r,
+        };
+        let v = match body_json(req) {
+            Ok(v) => v,
+            Err(r) => return r,
+        };
+        let report = match sewout::read_report(&v) {
+            Ok(r) => r,
+            Err(why) => return Response::error(400, "invalid_request_error", why),
+        };
+        let now = (self.clock)();
+        let (rid, email, refunded) = {
+            let mut store = self.store();
+            if store.reports_since(id, now.saturating_sub(24 * 3600)) >= sewout::MAX_REPORTS_A_DAY {
+                return Response::error(
+                    429,
+                    "rate_limit_error",
+                    "you've sent a few reports today: send more tomorrow, or write to support@stitchfoundry.app",
+                );
+            }
+            let email = store.account(id).map(|a| a.email.clone()).unwrap_or_default();
+            let rid = format!("report-{id}-{now}-{}", store.reports(id).len() + 1);
+            let kept = report.kept(&rid, id, &email, now);
+            if let Err(e) = store.keep_report(&rid, crate::store::Report { account: id, created: now }, &report.photos, &kept) {
+                return store_error(e);
+            }
+            // the check it reports is on us: what it cost comes back, once
+            let check = report.check.as_ref().map(|c| format!("{id}-{c}"));
+            let spent = check.as_ref().and_then(|c| store.check(c)).filter(|c| c.account == id).map_or(0, |c| c.spent);
+            let refunded = match check {
+                Some(c) if spent > 0 => {
+                    match store.add_credits(id, spent, "refund", &format!("refund-{c}"), "sew-out report: the check is on us", now) {
+                        Ok(true) => spent,
+                        Ok(false) => 0,
+                        Err(e) => {
+                            log::error!("report {rid}: the refund didn't go: {e}");
+                            0
+                        }
+                    }
+                }
+                _ => 0,
+            };
+            (rid, email, refunded)
+        };
+        // the report is kept; the email is how the owner hears of it
+        let emailed = match (&self.cfg.resend_key, &self.cfg.reports_to) {
+            (Some(key), Some(to)) => {
+                let mail = report.email(&self.cfg.reports_from, to, &rid, &email);
+                match self.upstream.post(
+                    RESEND_URL,
+                    &[("authorization", format!("Bearer {key}")), ("content-type", "application/json".into())],
+                    &mail.to_string(),
+                ) {
+                    Ok((status, _)) if (200..300).contains(&status) => true,
+                    Ok((status, body)) => {
+                        log::error!("report {rid}: the email was refused ({status}): {body}");
+                        false
+                    }
+                    Err(e) => {
+                        log::error!("report {rid}: the email didn't go: {e}");
+                        false
+                    }
+                }
+            }
+            _ => false,
+        };
+        Response::json(200, &json!({ "report": rid, "emailed": emailed, "refunded": refunded }))
     }
 
     /// Send a checked request to Anthropic with the service's key, holding then taking its price:
@@ -864,6 +948,88 @@ mod tests {
         let d = s.handle(&req("POST", "/v1/sewout/delete", Some(&t), json!({})));
         assert_eq!(json_of(&d)["deleted"], 1);
         assert!(s.store().shared("1-aaaaaaaa").0.is_empty());
+    }
+
+    #[test]
+    fn a_report_is_kept_privately_emailed_to_the_owner_and_deleted_on_request() {
+        let calls: Calls = Arc::default();
+        let cfg = Config::from_env(|k| match k {
+            "RESEND_API_KEY" => Some("re_test".into()),
+            "SF_CLOUD_REPORTS_TO" => Some("support@stitchfoundry.app".into()),
+            _ => None,
+        })
+        .unwrap();
+        let s =
+            Service::with_clock(cfg, Store::in_memory(), Box::new(Fake { calls: calls.clone(), reply: (200, "{}".into()) }), Box::new(|| 1_000_000));
+        let t = sign_up(&s);
+        let body = json!({"consent": true, "title": "Gaps on knit", "report": "The fill pulled in; StitchFoundry could add more pull compensation on knits.",
+            "photos": [{"mediaType": "image/jpeg", "data": "aGVsbG8="}], "app": "0.13.1"});
+        // signed in, with leave, and something to say
+        assert_eq!(s.handle(&req("POST", "/v1/report", None, body.clone())).status, 401);
+        let mut no_leave = body.clone();
+        no_leave["consent"] = json!(false);
+        assert_eq!(s.handle(&req("POST", "/v1/report", Some(&t), no_leave)).status, 400);
+        let r = s.handle(&req("POST", "/v1/report", Some(&t), body.clone()));
+        assert_eq!(r.status, 200, "{}", r.body);
+        let v = json_of(&r);
+        assert_eq!(v["emailed"], true);
+        let rid = v["report"].as_str().unwrap().to_string();
+        // kept with its photo, and mailed to the owner with it, replies to the sender
+        let (files, text) = s.store().shared(&rid);
+        assert_eq!(files, ["photo-1.jpg"]);
+        assert!(text[0].contains("pull compensation") && text[0].contains("denise@example.com"), "{text:?}");
+        let sent = calls.lock().unwrap().clone();
+        let (url, headers, mail) = sent.last().unwrap();
+        assert_eq!(url, RESEND_URL);
+        assert!(headers.iter().any(|(k, v)| k == "authorization" && v == "Bearer re_test"));
+        let mail: Value = serde_json::from_str(mail).unwrap();
+        assert_eq!(mail["to"][0], "support@stitchfoundry.app");
+        assert_eq!(mail["reply_to"], "denise@example.com");
+        assert_eq!(mail["attachments"][0]["filename"], "photo-1.jpg");
+        assert_eq!(json_of(&s.handle(&req("POST", "/v1/account", Some(&t), json!({}))))["reports"], 1);
+        // a few a day
+        for _ in 1..sewout::MAX_REPORTS_A_DAY {
+            assert_eq!(s.handle(&req("POST", "/v1/report", Some(&t), body.clone())).status, 200);
+        }
+        assert_eq!(s.handle(&req("POST", "/v1/report", Some(&t), body.clone())).status, 429);
+        // deleting the shared checks deletes the reports too
+        let d = json_of(&s.handle(&req("POST", "/v1/sewout/delete", Some(&t), json!({}))));
+        assert_eq!(d["reports"], sewout::MAX_REPORTS_A_DAY);
+        assert!(s.store().shared(&rid).0.is_empty());
+        assert_eq!(json_of(&s.handle(&req("POST", "/v1/account", Some(&t), json!({}))))["reports"], 0);
+    }
+
+    #[test]
+    fn reporting_a_check_gives_back_what_it_cost_once() {
+        let reply = json!({"type": "message", "model": "claude-opus-5-5", "content": [{"type": "text", "text": "Overlap the shapes."}], "usage": {"input_tokens": 1000, "output_tokens": 100}});
+        let (s, _) = service((200, reply.to_string()), true);
+        let t = sign_up(&s);
+        let credits = |s: &Service| json_of(&s.handle(&req("POST", "/v1/account", Some(&t), json!({}))))["credits"].as_u64().unwrap();
+        // the free checks used up, a check costs the flat price
+        for c in ["aaaaaaaa", "bbbbbbbb", "cccccccc"] {
+            assert_eq!(s.handle(&check(&t, c, "aGVsbG8=", false)).status, 200);
+        }
+        assert_eq!(s.handle(&check(&t, "dddddddd", "aGVsbG8=", false)).status, 200);
+        assert_eq!(credits(&s), 90);
+        let body = json!({"consent": true, "check": "dddddddd", "report": "StitchFoundry could overlap shapes on knit."});
+        let r = json_of(&s.handle(&req("POST", "/v1/report", Some(&t), body.clone())));
+        assert_eq!(r["refunded"], 10);
+        assert_eq!(credits(&s), 100, "the check is on us");
+        assert_eq!(json_of(&s.handle(&req("POST", "/v1/report", Some(&t), body)))["refunded"], 0, "once a check");
+        assert_eq!(credits(&s), 100);
+        // a free check had nothing to give back; someone else's check gives nothing
+        let free = json!({"consent": true, "check": "aaaaaaaa", "report": "x"});
+        assert_eq!(json_of(&s.handle(&req("POST", "/v1/report", Some(&t), free)))["refunded"], 0);
+    }
+
+    #[test]
+    fn without_resend_a_report_is_only_kept() {
+        let (s, calls) = service((200, "{}".into()), false);
+        let t = sign_up(&s);
+        let r = s.handle(&req("POST", "/v1/report", Some(&t), json!({"consent": true, "note": "the letters puckered"})));
+        assert_eq!(r.status, 200, "{}", r.body);
+        assert_eq!(json_of(&r)["emailed"], false);
+        assert!(calls.lock().unwrap().is_empty());
     }
 
     /// The month's free offers stop at the budget: new accounts start without credits, and checks

@@ -6196,3 +6196,28 @@ effect	Soft	Weich
 	A new design: a hoopful of patches, each colour sewn once for all of them	Ein neues Design: ein Rahmen voller Aufnäher, jede Farbe einmal für alle gestickt
 	Every hoopful as a machine file, and a list of the names in each	Jede Rahmenfüllung als Maschinendatei und eine Liste der Namen darin
 	The open design repeated across its hoop, sorted so each colour is sewn once	Das offene Design über seinen Rahmen wiederholt, so sortiert, dass jede Farbe einmal gestickt wird
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Möchten Sie noch etwas ergänzen? (optional)
+	Claude is writing the report…	Claude schreibt den Bericht…
+	Have Claude Write It	Von Claude schreiben lassen
+	Help make StitchFoundry better	Helfen Sie, StitchFoundry zu verbessern
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Ich bin einverstanden, dies an SiteSentrix, den Hersteller von StitchFoundry, zu senden, um die Software zu verbessern. Es wird an niemanden sonst weitergegeben.
+	Include a summary of the design	Eine Zusammenfassung des Designs beifügen
+	Include the conversation with Claude	Das Gespräch mit Claude beifügen
+	Include the photos ({n})	Die Fotos beifügen ({n})
+	Report to StitchFoundry	An StitchFoundry melden
+	Report to StitchFoundry…	An StitchFoundry melden…
+	Send Report	Bericht senden
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Dieses Stickergebnis und Claudes Idee, was StitchFoundry besser machen könnte, an die Entwickler senden
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Senden Sie dieses Stickergebnis an die Entwickler von StitchFoundry, mit Claudes Idee, was die Software besser machen könnte. Wir verwenden es nur, um StitchFoundry zu verbessern: Wir geben es nie weiter, verkaufen oder veröffentlichen es nicht, und Sie können es jederzeit löschen lassen (StitchFoundry-Konto › Meine geteilten Prüfungen löschen).
+	Sign in to StitchFoundry Account to send a report.	Melden Sie sich im StitchFoundry-Konto an, um einen Bericht zu senden.
+@msg	Sign in to StitchFoundry Account to send a report.	Melden Sie sich im StitchFoundry-Konto an, um einen Bericht zu senden.
+	Thank you: your report was sent.	Danke: Ihr Bericht wurde gesendet.
+	Title	Titel
+	What went wrong, and what StitchFoundry could do better	Was ist schiefgelaufen, und was könnte StitchFoundry besser machen?
+	Write a report about this sew-out for the people who make StitchFoundry.	Schreibe einen Bericht über dieses Stickergebnis für die Entwickler von StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Prüfen Sie zuerst ein Stickergebnis: Der Bericht geht mit seinen Fotos und Claudes Antwort mit
+@msg	Tick the box to agree to send it first.	Setzen Sie zuerst das Häkchen, um dem Senden zuzustimmen.
+@msg	Write what went wrong first, or have Claude write it.	Schreiben Sie zuerst, was schiefgelaufen ist, oder lassen Sie es Claude schreiben.
+	The {n} credits this check cost are back in your account.	Die {n} Credits für diese Prüfung sind wieder auf Ihrem Konto.
+	Paid for this check with credits? Send a report and they come back to you.	Diese Prüfung mit Credits bezahlt? Senden Sie einen Bericht, und Sie bekommen sie zurück.

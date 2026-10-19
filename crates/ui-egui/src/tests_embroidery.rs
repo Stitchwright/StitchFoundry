@@ -1132,4 +1132,61 @@ mod ask_about_embroidery {
         ask::clear(&mut app);
         assert_eq!(app.embroidery.ask.mode, ask::Mode::Ask);
     }
+
+    /// SO-02: after a check, Report to StitchFoundry has Claude write what StitchFoundry could do
+    /// better, and sends it with the photos only when the user agrees and is signed in.
+    #[test]
+    fn a_sew_out_report_is_drafted_by_claude_and_sent_with_leave() {
+        use crate::embroidery::sewout;
+        let (mut app, sent, _) = app(vec![
+            answer("The gap above the bumper is the knit pulling in: overlap the shapes 1 mm."),
+            answer(
+                "Title: Gaps where shapes meet on knit\nThe shapes were digitized edge to edge. StitchFoundry could overlap touching shapes on stretchy fabrics.",
+            ),
+            (200, json!({"report": "report-1-1", "emailed": true, "refunded": 10}).to_string()),
+        ]);
+        rectangle(&mut app);
+        assert!(!crate::menus::enabled(&app, "ui.reportSewout"), "a check first");
+        assert!(app.run("ui.reportSewout", json!({})).is_err());
+        app.run("ui.checkSewout", json!({})).unwrap();
+        sewout::add_photo(&mut app, "front.jpg", &jpeg(800, 600));
+        sewout::check(&mut app).unwrap();
+        wait(&mut app);
+        assert!(crate::menus::enabled(&app, "ui.reportSewout"));
+        let r = app.run("ui.reportSewout", json!({"draft": true})).unwrap();
+        assert_eq!(r["drafting"], true);
+        wait(&mut app);
+        sewout::poll_report(&mut app, &egui::Context::default());
+        let f = &app.embroidery.sewout.report;
+        assert_eq!(f.title, "Gaps where shapes meet on knit");
+        assert!(f.text.starts_with("The shapes were digitized") && !f.drafting);
+        let asked = body(&sent, 1);
+        let q = asked["messages"].as_array().unwrap().last().unwrap()["content"].to_string();
+        assert!(q.contains("people who make StitchFoundry"), "{q}");
+        // not without leave, nor signed out
+        assert!(app.run("ui.reportSewout", json!({"send": true})).is_err());
+        assert!(app.run("ui.reportSewout", json!({"consent": true, "send": true})).unwrap_err().contains("Sign in"));
+        assert_eq!(sent.lock().unwrap().len(), 2, "nothing sent");
+        app.embroidery.account.server = "https://cloud.example".into();
+        app.embroidery.account.token = "sfs_0123456789abcdef".into();
+        app.run("ui.reportSewout", json!({"note": "On a cotton T-shirt.", "send": true})).unwrap();
+        let ctx = egui::Context::default();
+        for _ in 0..400 {
+            sewout::poll_report(&mut app, &ctx);
+            if app.embroidery.sewout.report.sent.is_some() {
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert_eq!(app.embroidery.sewout.report.sent.as_deref(), Some("report-1-1"));
+        assert_eq!(app.embroidery.sewout.report.refunded, 10);
+        let r = sent.lock().unwrap()[2].clone();
+        assert_eq!(r.url, "https://cloud.example/v1/report");
+        assert!(r.headers.contains(&("authorization", "Bearer sfs_0123456789abcdef".to_string())));
+        let b: Value = serde_json::from_str(&r.body).unwrap();
+        assert_eq!(b["consent"], true);
+        assert_eq!(b["photos"].as_array().unwrap().len(), 1);
+        assert_eq!(b["note"], "On a cotton T-shirt.");
+        assert!(b["conversation"].as_str().unwrap().contains("overlap the shapes 1 mm"));
+    }
 }

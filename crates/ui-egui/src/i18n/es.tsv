@@ -6545,3 +6545,28 @@ mark-style	Japanese	Japonesas
 	A new design: a hoopful of patches, each colour sewn once for all of them	Un diseño nuevo: un bastidor lleno de parches, cada color bordado una vez para todos
 	Every hoopful as a machine file, and a list of the names in each	Cada bastidor como archivo de máquina, y una lista de los nombres de cada uno
 	The open design repeated across its hoop, sorted so each colour is sewn once	El diseño abierto repetido por todo su bastidor, ordenado para bordar cada color una sola vez
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	¿Algo más que añadir? (opcional)
+	Claude is writing the report…	Claude está escribiendo el informe…
+	Have Claude Write It	Que lo escriba Claude
+	Help make StitchFoundry better	Ayuda a mejorar StitchFoundry
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Acepto enviar esto a SiteSentrix, el creador de StitchFoundry, para mejorar el programa. No se compartirá con nadie más.
+	Include a summary of the design	Incluir un resumen del diseño
+	Include the conversation with Claude	Incluir la conversación con Claude
+	Include the photos ({n})	Incluir las fotos ({n})
+	Report to StitchFoundry	Informar a StitchFoundry
+	Report to StitchFoundry…	Informar a StitchFoundry…
+	Send Report	Enviar informe
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Enviar este bordado y la idea de Claude de lo que StitchFoundry podría hacer mejor a sus creadores
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Envía este bordado a quienes hacen StitchFoundry, con la idea de Claude de lo que el programa podría hacer mejor. Solo lo usamos para mejorar StitchFoundry: nunca lo compartimos, vendemos ni publicamos, y puedes pedir que se borre en cualquier momento (Cuenta de StitchFoundry › Borrar mis revisiones compartidas).
+	Sign in to StitchFoundry Account to send a report.	Inicia sesión en la cuenta de StitchFoundry para enviar un informe.
+@msg	Sign in to StitchFoundry Account to send a report.	Inicia sesión en la cuenta de StitchFoundry para enviar un informe.
+	Thank you: your report was sent.	Gracias: tu informe se ha enviado.
+	Title	Título
+	What went wrong, and what StitchFoundry could do better	Qué salió mal y qué podría hacer mejor StitchFoundry
+	Write a report about this sew-out for the people who make StitchFoundry.	Escribe un informe sobre este bordado para quienes hacen StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Revisa primero un bordado: el informe va con sus fotos y la respuesta de Claude
+@msg	Tick the box to agree to send it first.	Marca primero la casilla para aceptar enviarlo.
+@msg	Write what went wrong first, or have Claude write it.	Escribe primero qué salió mal, o deja que Claude lo escriba.
+	The {n} credits this check cost are back in your account.	Los {n} créditos que costó esta revisión vuelven a tu cuenta.
+	Paid for this check with credits? Send a report and they come back to you.	¿Pagaste esta revisión con créditos? Envía un informe y te los devolvemos.

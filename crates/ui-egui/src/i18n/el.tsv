@@ -6545,3 +6545,28 @@ machine	Stop	Στάση
 	A new design: a hoopful of patches, each colour sewn once for all of them	Νέο σχέδιο: ένα τελάρο γεμάτο σήματα, κάθε χρώμα κεντιέται μία φορά για όλα
 	Every hoopful as a machine file, and a list of the names in each	Κάθε γεμάτο τελάρο ως αρχείο μηχανής, και λίστα με τα ονόματα του καθενός
 	The open design repeated across its hoop, sorted so each colour is sewn once	Το ανοιχτό σχέδιο επαναλαμβάνεται σε όλο το τελάρο, ταξινομημένο ώστε κάθε χρώμα να κεντιέται μία φορά
+# Report to StitchFoundry (ui.reportSewout)
+	Anything you'd like to add (optional)	Θέλετε να προσθέσετε κάτι; (προαιρετικό)
+	Claude is writing the report…	Ο Claude γράφει την αναφορά…
+	Have Claude Write It	Να τη γράψει ο Claude
+	Help make StitchFoundry better	Βοηθήστε να γίνει καλύτερο το StitchFoundry
+	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Συμφωνώ να σταλεί αυτό στη SiteSentrix, τον δημιουργό του StitchFoundry, για τη βελτίωση του προγράμματος. Δεν θα κοινοποιηθεί σε κανέναν άλλο.
+	Include a summary of the design	Συμπερίληψη περίληψης του σχεδίου
+	Include the conversation with Claude	Συμπερίληψη της συνομιλίας με τον Claude
+	Include the photos ({n})	Συμπερίληψη των φωτογραφιών ({n})
+	Report to StitchFoundry	Αναφορά στο StitchFoundry
+	Report to StitchFoundry…	Αναφορά στο StitchFoundry…
+	Send Report	Αποστολή αναφοράς
+	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Στείλτε αυτό το κέντημα και την ιδέα του Claude για το τι θα μπορούσε να κάνει καλύτερα το StitchFoundry στους δημιουργούς του
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Στείλτε αυτό το κέντημα στους δημιουργούς του StitchFoundry, με την ιδέα του Claude για το τι θα μπορούσε να κάνει καλύτερα το πρόγραμμα. Το χρησιμοποιούμε μόνο για να βελτιώσουμε το StitchFoundry: δεν το κοινοποιούμε, δεν το πουλάμε και δεν το δημοσιεύουμε ποτέ, και μπορείτε να ζητήσετε τη διαγραφή του οποιαδήποτε στιγμή (Λογαριασμός StitchFoundry › Διαγραφή των κοινόχρηστων ελέγχων μου).
+	Sign in to StitchFoundry Account to send a report.	Συνδεθείτε στον λογαριασμό StitchFoundry για να στείλετε αναφορά.
+@msg	Sign in to StitchFoundry Account to send a report.	Συνδεθείτε στον λογαριασμό StitchFoundry για να στείλετε αναφορά.
+	Thank you: your report was sent.	Ευχαριστούμε: η αναφορά σας στάλθηκε.
+	Title	Τίτλος
+	What went wrong, and what StitchFoundry could do better	Τι πήγε στραβά και τι θα μπορούσε να κάνει καλύτερα το StitchFoundry
+	Write a report about this sew-out for the people who make StitchFoundry.	Γράψε μια αναφορά για αυτό το κέντημα για τους δημιουργούς του StitchFoundry.
+@msg	Check a sew-out first: the report goes with its photos and Claude's answer	Ελέγξτε πρώτα ένα κέντημα: η αναφορά πηγαίνει με τις φωτογραφίες του και την απάντηση του Claude
+@msg	Tick the box to agree to send it first.	Τσεκάρετε πρώτα το πλαίσιο για να συμφωνήσετε στην αποστολή.
+@msg	Write what went wrong first, or have Claude write it.	Γράψτε πρώτα τι πήγε στραβά ή αφήστε τον Claude να το γράψει.
+	The {n} credits this check cost are back in your account.	Οι {n} μονάδες που κόστισε αυτός ο έλεγχος επέστρεψαν στον λογαριασμό σας.
+	Paid for this check with credits? Send a report and they come back to you.	Πληρώσατε αυτόν τον έλεγχο με μονάδες; Στείλτε αναφορά και σας επιστρέφονται.

@@ -116,6 +116,72 @@ pub fn first_message(photos: &[ArtImage], expected: Option<&ArtImage>, design: O
     Ok(json!({ "role": "user", "content": blocks }))
 }
 
+/// The question that has Claude write a check up for StitchFoundry's makers (Report to
+/// StitchFoundry): sent in the check's conversation, its answer is the report's first draft.
+pub const REPORT_QUESTION: &str = "Please write a short report about this sew-out for the people who make StitchFoundry. \
+Start with a one-line title. Then say what went wrong, whether StitchFoundry's stitches, settings or advice were part of the \
+cause (or whether it was the machine, thread, fabric, stabilizer or hooping), and what StitchFoundry itself could do better so \
+other people don't run into it: a setting it should choose differently, a check it should make, a warning it should give. \
+Plain text, under 250 words. Don't change the design.";
+
+/// The longest report title, report and note sent (characters), and the most conversation kept.
+pub const MAX_REPORT_TITLE: usize = 200;
+pub const MAX_REPORT: usize = 8_000;
+pub const MAX_REPORT_NOTE: usize = 4_000;
+pub const MAX_REPORT_CONVERSATION: usize = 40_000;
+
+/// What Report to StitchFoundry sends: the title, the report (Claude's draft as the user left
+/// it), the user's note, and with them the photos, the check's conversation and the design's
+/// summary when the user includes them.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct Report {
+    pub check: Option<String>,
+    pub title: String,
+    pub report: String,
+    pub note: String,
+    pub photos: Vec<ArtImage>,
+    pub conversation: Option<String>,
+    pub design: Option<String>,
+    /// The app's version.
+    pub app: String,
+}
+
+impl Report {
+    /// The body of `POST /v1/report`, the user having agreed to send it.
+    pub fn body(&self) -> Result<Value, ArtError> {
+        let cut = |s: &str, n: usize| -> String { s.trim().chars().take(n).collect() };
+        let report = cut(&self.report, MAX_REPORT);
+        if report.is_empty() && self.note.trim().is_empty() {
+            return Err(ArtError::EmptyReport);
+        }
+        if self.photos.iter().any(|p| p.data_base64.len() > MAX_IMAGE_BASE64) {
+            return Err(ArtError::LargeImage);
+        }
+        let photos: Vec<Value> = self.photos.iter().take(MAX_PHOTOS).map(|p| json!({ "mediaType": p.media_type, "data": p.data_base64 })).collect();
+        Ok(json!({
+            "consent": true,
+            "check": self.check,
+            "title": cut(&self.title, MAX_REPORT_TITLE),
+            "report": report,
+            "note": cut(&self.note, MAX_REPORT_NOTE),
+            "photos": photos,
+            "conversation": self.conversation.as_deref().map(|c| cut(c, MAX_REPORT_CONVERSATION)),
+            "design": self.design.as_deref().map(|d| cut(d, MAX_DESIGN)),
+            "app": cut(&self.app, 64),
+        }))
+    }
+}
+
+/// A report's draft from Claude's answer to [`REPORT_QUESTION`] → (title, the rest): its first
+/// line is the title (without a "Title:" or heading mark).
+pub fn split_report(answer: &str) -> (String, String) {
+    let answer = answer.trim();
+    let (first, rest) = answer.split_once('\n').unwrap_or((answer, ""));
+    let title = first.trim().trim_start_matches('#').trim();
+    let title = title.strip_prefix("Title:").or_else(|| title.strip_prefix("TITLE:")).unwrap_or(title).trim().trim_matches('*').trim();
+    (title.chars().take(MAX_REPORT_TITLE).collect(), rest.trim().to_string())
+}
+
 /// The HTTP request for a check's conversation `messages`, with API key `key`.
 pub fn request(key: &str, messages: &[Value]) -> Result<HttpRequest, ArtError> {
     request_with(key, system_prompt(), messages)
@@ -127,6 +193,26 @@ mod tests {
 
     fn png() -> ArtImage {
         ArtImage { media_type: "image/jpeg", data_base64: "/9j/4AAQ".into() }
+    }
+
+    #[test]
+    fn a_report_carries_what_the_user_chose_and_no_more() {
+        let r = Report {
+            check: Some("0123abcd".into()),
+            title: "  Gap above the bumper  ".into(),
+            report: "The fill pulled in on knit.".into(),
+            photos: vec![png()],
+            app: "0.13.1".into(),
+            ..Default::default()
+        };
+        let b = r.body().unwrap();
+        assert_eq!(b["consent"], true);
+        assert_eq!(b["title"], "Gap above the bumper");
+        assert_eq!(b["photos"].as_array().unwrap().len(), 1);
+        assert!(b["conversation"].is_null() && b["design"].is_null());
+        assert!(Report::default().body().is_err(), "nothing to report");
+        assert_eq!(split_report("Title: **Gaps on knit**\nThe fill pulled in."), ("Gaps on knit".to_string(), "The fill pulled in.".to_string()));
+        assert_eq!(split_report("# Gaps\n\nMore"), ("Gaps".to_string(), "More".to_string()));
     }
 
     #[test]

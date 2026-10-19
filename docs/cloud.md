@@ -132,6 +132,7 @@ target/release/stitchfoundry-cloud
 | `SF_CLOUD_PACKS` | the packs on sale (see Prices) |
 | `SF_CLOUD_FREE_CHECKS`, `SF_CLOUD_CHECK_CREDITS` | sew-out checks free a month (3) and a check's price after them (10) |
 | `SF_CLOUD_FREE_BUDGET_CENTS` | the most the free offers may cost in AI a month (2500: $25; see Prices) |
+| `RESEND_API_KEY`, `SF_CLOUD_REPORTS_TO`, `SF_CLOUD_REPORTS_FROM` | sew-out reports emailed through Resend to this address (e.g. `support@stitchfoundry.app`), from an address on a domain Resend has verified (`StitchFoundry <reports@stitchfoundry.app>`); without them reports are only kept |
 
 It speaks plain HTTP: put it behind a TLS proxy (Caddy, nginx, or the host's load balancer, as
 Railway's is) so the app reaches it over HTTPS. One small machine is enough to start: it keeps
@@ -163,7 +164,8 @@ cargo test -p stitchfoundry-cloud` (it empties StitchFoundry's tables there).
 | `POST /v1/stripe/webhook` | Stripe's signed events |
 | `POST /v1/messages` | an Anthropic Messages request, paid in credits |
 | `POST /v1/sewout` | a Check My Sew-out request (`x-stitchfoundry-check`, `-share`, `-follow-up`) → as `/v1/messages`, with `x-stitchfoundry-free-checks` |
-| `POST /v1/sewout/delete {check?}` | deletes a shared check, or all of the account's → `{deleted}` |
+| `POST /v1/sewout/delete {check?}` | deletes a shared check, or all of the account's and its reports → `{deleted, reports}` |
+| `POST /v1/report {consent: true, title, report, note, photos: [{mediaType, data}], conversation?, design?, app, check?}` | Report to StitchFoundry: kept privately, emailed to the owner when Resend is set up (five an account a day); the credits the reported check cost are given back, once → `{report, emailed, refunded}` |
 
 Requests other than sign-up and sign-in carry `Authorization: Bearer <token>`. Every answer allows
 the web app to call from a browser (CORS; sessions are bearer tokens, never cookies). Errors come
