@@ -789,7 +789,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 }
             });
             ui.checkbox(&mut st.include_design, tl!("Include my design"));
-            // paid with StitchFoundry credits: no key asked for
+            // paid with Foundry credits: no key asked for
             if super::account::paid_line(app, ui, &t) {
                 return;
             }

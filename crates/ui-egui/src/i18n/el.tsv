@@ -6451,7 +6451,7 @@ machine	Stop	Στάση
 	While it sewed:	Ενώ κεντούσε:
 	e.g. 75/11 ballpoint	π.χ. 75/11 στρογγυλή μύτη
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Ένας έλεγχος κοστίζει {n} μονάδες· οι δωρεάν έλεγχοι επιστρέφουν τον επόμενο μήνα.
 	Account	Λογαριασμός
 	Buy credits	Αγορά μονάδων
@@ -6461,21 +6461,21 @@ machine	Stop	Στάση
 	Email	Email
 	Free sew-out checks left this month: {n}	Δωρεάν έλεγχοι που απομένουν αυτόν τον μήνα: {n}
 	Leave it empty for StitchFoundry's own service.	Αφήστε το κενό για την υπηρεσία του StitchFoundry.
-	Paid with StitchFoundry credits ({n} left).	Πληρωμή με μονάδες StitchFoundry (απομένουν {n}).
-	Paid with StitchFoundry credits.	Πληρωμή με μονάδες StitchFoundry.
-	Pay for the AI features with my StitchFoundry credits	Πληρωμή των λειτουργιών ΤΝ με τις μονάδες StitchFoundry μου
-	Pay with StitchFoundry credits instead	Πληρωμή με μονάδες StitchFoundry αντί γι' αυτό
+	Paid with Foundry credits ({n} left).	Πληρωμή με μονάδες Foundry (απομένουν {n}).
+	Paid with Foundry credits.	Πληρωμή με μονάδες Foundry.
+	Pay for the AI features with my Foundry credits	Πληρωμή των λειτουργιών ΤΝ με τις μονάδες Foundry μου
+	Pay with Foundry credits instead	Πληρωμή με μονάδες Foundry αντί γι' αυτό
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Η πληρωμή γίνεται στην ασφαλή σελίδα της Stripe, στο πρόγραμμα περιήγησής σας· η κάρτα σας δεν φτάνει ποτέ στο StitchFoundry.
 	Reading your credits…	Ανάγνωση των μονάδων σας…
 	Server	Διακομιστής
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Κοινοποίηση αυτού του ελέγχου για να βελτιωθεί το StitchFoundry (μένει ιδιωτικός· διαγράψτε τον όποτε θέλετε στον Λογαριασμό StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Κοινοποίηση αυτού του ελέγχου για να βελτιωθεί το StitchFoundry (μένει ιδιωτικός· διαγράψτε τον όποτε θέλετε στον Λογαριασμό Foundry)
 	Sign In	Σύνδεση
 	Sign Out	Αποσύνδεση
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Συνδεθείτε ή δημιουργήστε λογαριασμό για να πληρώνετε τις λειτουργίες ΤΝ με μονάδες StitchFoundry αντί για το δικό σας κλειδί API της Anthropic. Ένας νέος λογαριασμός ξεκινά με δωρεάν μονάδες.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Συνδεθείτε ή δημιουργήστε λογαριασμό για να πληρώνετε τις λειτουργίες ΤΝ με μονάδες Foundry αντί για το δικό σας κλειδί API της Anthropic. Ένας νέος λογαριασμός ξεκινά με δωρεάν μονάδες.
 	Signed in as {email}	Συνδεδεμένος ως {email}
-	StitchFoundry Account	Λογαριασμός StitchFoundry
-	StitchFoundry Account…	Λογαριασμός StitchFoundry…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Οι λογαριασμοί StitchFoundry δεν έχουν ανοίξει ακόμα. Ως τότε, οι λειτουργίες ΤΝ δουλεύουν με το δικό σας κλειδί API της Anthropic.
+	Foundry Account	Λογαριασμός Foundry
+	Foundry Account…	Λογαριασμός Foundry…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Οι λογαριασμοί Foundry δεν έχουν ανοίξει ακόμα. Ως τότε, οι λειτουργίες ΤΝ δουλεύουν με το δικό σας κλειδί API της Anthropic.
 	This is the sew-out after the fix from my last check	Αυτό είναι το κέντημα μετά τη διόρθωση από τον τελευταίο έλεγχό μου
 	{n} credits for {price}	{n} μονάδες για {price}
 	{n} credits	{n} μονάδες
@@ -6558,9 +6558,9 @@ machine	Stop	Στάση
 	Report to StitchFoundry…	Αναφορά στο StitchFoundry…
 	Send Report	Αποστολή αναφοράς
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Στείλτε αυτό το κέντημα και την ιδέα του Claude για το τι θα μπορούσε να κάνει καλύτερα το StitchFoundry στους δημιουργούς του
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Στείλτε αυτό το κέντημα στους δημιουργούς του StitchFoundry, με την ιδέα του Claude για το τι θα μπορούσε να κάνει καλύτερα το πρόγραμμα. Το χρησιμοποιούμε μόνο για να βελτιώσουμε το StitchFoundry: δεν το κοινοποιούμε, δεν το πουλάμε και δεν το δημοσιεύουμε ποτέ, και μπορείτε να ζητήσετε τη διαγραφή του οποιαδήποτε στιγμή (Λογαριασμός StitchFoundry › Διαγραφή των κοινόχρηστων ελέγχων μου).
-	Sign in to StitchFoundry Account to send a report.	Συνδεθείτε στον λογαριασμό StitchFoundry για να στείλετε αναφορά.
-@msg	Sign in to StitchFoundry Account to send a report.	Συνδεθείτε στον λογαριασμό StitchFoundry για να στείλετε αναφορά.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Στείλτε αυτό το κέντημα στους δημιουργούς του StitchFoundry, με την ιδέα του Claude για το τι θα μπορούσε να κάνει καλύτερα το πρόγραμμα. Το χρησιμοποιούμε μόνο για να βελτιώσουμε το StitchFoundry: δεν το κοινοποιούμε, δεν το πουλάμε και δεν το δημοσιεύουμε ποτέ, και μπορείτε να ζητήσετε τη διαγραφή του οποιαδήποτε στιγμή (Λογαριασμός Foundry › Διαγραφή των κοινόχρηστων ελέγχων μου).
+	Sign in to Foundry Account to send a report.	Συνδεθείτε στον λογαριασμό Foundry για να στείλετε αναφορά.
+@msg	Sign in to Foundry Account to send a report.	Συνδεθείτε στον λογαριασμό Foundry για να στείλετε αναφορά.
 	Thank you: your report was sent.	Ευχαριστούμε: η αναφορά σας στάλθηκε.
 	Title	Τίτλος
 	What went wrong, and what StitchFoundry could do better	Τι πήγε στραβά και τι θα μπορούσε να κάνει καλύτερα το StitchFoundry
@@ -6570,3 +6570,16 @@ machine	Stop	Στάση
 @msg	Write what went wrong first, or have Claude write it.	Γράψτε πρώτα τι πήγε στραβά ή αφήστε τον Claude να το γράψει.
 	The {n} credits this check cost are back in your account.	Οι {n} μονάδες που κόστισε αυτός ο έλεγχος επέστρεψαν στον λογαριασμό σας.
 	Paid for this check with credits? Send a report and they come back to you.	Πληρώσατε αυτόν τον έλεγχο με μονάδες; Στείλτε αναφορά και σας επιστρέφονται.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 δωρεάν μονάδες για τις λειτουργίες AI, χωρίς κλειδί API
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 δωρεάν μονάδες για να δοκιμάσετε την AI: Σχέδιο από περιγραφή, Επανασχεδίαση εικόνας με τον Claude, Ερώτηση για το κέντημα
+	3 free Check My Sew-out photo checks every month	3 δωρεάν έλεγχοι φωτογραφιών (Έλεγχος του κεντήματός μου) κάθε μήνα
+	A password needs at least 8 characters.	Ο κωδικός χρειάζεται τουλάχιστον 8 χαρακτήρες.
+	Buy Credits…	Αγορά μονάδων…
+	Create Free Account	Δημιουργία δωρεάν λογαριασμού
+	Create a free Foundry Account	Δημιουργήστε δωρεάν λογαριασμό Foundry
+	I have an account: Sign In	Έχω λογαριασμό: σύνδεση
+	New here? Create a free account	Νέος εδώ; Δημιουργήστε δωρεάν λογαριασμό
+	No card needed, and no API key to set up	Χωρίς κάρτα και χωρίς κλειδί API για ρύθμιση
+	Sign in to your Foundry Account	Συνδεθείτε στον λογαριασμό σας Foundry
+	{email}: {n} credits	{email}: {n} μονάδες

@@ -97,7 +97,7 @@ pub(crate) fn post<T: Send + 'static>(
 }
 
 /// Sends AI request `http` (built with [`super::account::key_to_send`]): to Anthropic with the
-/// user's own key, or, when paying with StitchFoundry credits, to `path` on the StitchFoundry
+/// user's own key, or, when paying with Foundry credits, to `path` on the StitchFoundry
 /// service with `extra` headers, its refusals read as the service's (sign in, credits).
 pub(crate) fn post_ai<T: Send + 'static>(
     app: &VectorcraftApp,
@@ -321,7 +321,7 @@ fn start_picture(app: &mut VectorcraftApp, d: &Dialog, provider: Provider) -> Re
         Err(m)
     };
     if ai::clean_key(&super::account::key_to_send(app)).is_err() {
-        return fail(app, "Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.".into());
+        return fail(app, "Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to Foundry Account.".into());
     }
     let key = app.embroidery.prompt.picture_keys.get(provider.id()).cloned().unwrap_or_default();
     let colors = d.f64("colors", 6.0).round().clamp(1.0, 12.0) as u32;

@@ -1,4 +1,4 @@
-//! StitchFoundry Account (Embroidery and Help menus): sign in to the StitchFoundry cloud service
+//! Foundry Account (Embroidery and Help menus): sign in to the StitchFoundry cloud service
 //! or make an account, see the credits, buy more (Stripe's checkout page opens in the browser) and
 //! choose to pay for the AI features with them instead of one's own Anthropic API key. With that
 //! on, Design from Prompt, Redraw Image, Ask About Embroidery and Check My Sew-out send their
@@ -42,7 +42,7 @@ pub struct AccountState {
     pub server: String,
     /// The session token; empty while signed out.
     pub token: String,
-    /// Pay for the AI features with StitchFoundry credits.
+    /// Pay for the AI features with Foundry credits.
     pub use_credits: bool,
     pub email: String,
     pub password: String,
@@ -54,6 +54,8 @@ pub struct AccountState {
     pub error: Option<String>,
     /// What just happened, shown under the buttons.
     pub note: Option<String>,
+    /// Signed out: show Sign In (else Create Account, the first choice).
+    pub sign_in_shown: bool,
 }
 
 /// The service's address from the build or the environment.
@@ -117,12 +119,15 @@ pub fn key_to_send(app: &mut VectorcraftApp) -> String {
 }
 
 /// `ui.account`: opens the window and reads the account.
-pub fn open(app: &mut VectorcraftApp, _p: &Value) -> Result<Value, String> {
+pub fn open(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     if !prompt::available(app) {
-        return Err("StitchFoundry Account needs the desktop app for now".into());
+        return Err("Foundry Account needs the desktop app for now".into());
     }
     load(app);
     app.embroidery.account.open = true;
+    if let Some(create) = p.get("create").and_then(Value::as_bool) {
+        app.embroidery.account.sign_in_shown = !create;
+    }
     if !app.embroidery.account.token.is_empty() {
         app.embroidery.account.stale = true;
     }
@@ -141,7 +146,7 @@ fn send(app: &mut VectorcraftApp, http: Result<HttpRequest, ArtError>, action: A
             return;
         }
     };
-    match prompt::post_plain(app, http, "stitchfoundry-account", cloud::parse) {
+    match prompt::post_plain(app, http, "foundry-account", cloud::parse) {
         Ok(rx) => app.embroidery.account.pending = Some((rx, action)),
         Err(e) => app.embroidery.account.error = Some(e),
     }
@@ -268,6 +273,82 @@ fn answered(app: &mut VectorcraftApp, action: Action, r: Result<Value, ArtError>
     }
 }
 
+/// What the title bar's account button says: Sign In, or the credits left; `None` while
+/// accounts aren't open.
+pub fn chip_label(app: &mut VectorcraftApp) -> Option<String> {
+    load(app);
+    server(app)?;
+    let st = &app.embroidery.account;
+    Some(if st.token.is_empty() {
+        tl!("Sign In").to_string()
+    } else {
+        match credits(app) {
+            Some(n) => crate::i18n::fmt(tl!("{n} credits"), &[("n", &n.to_string())]),
+            None => tl!("Account").to_string(),
+        }
+    })
+}
+
+/// Opens the Account window on Create Account (`create`) or Sign In.
+pub fn show(app: &mut VectorcraftApp, create: bool) {
+    load(app);
+    let st = &mut app.embroidery.account;
+    st.open = true;
+    st.sign_in_shown = !create;
+    if !st.token.is_empty() {
+        st.stale = true;
+    }
+}
+
+/// The Home screen's account card: signed out, what a free account gives and the button to
+/// make one; signed in, the credits and a way to buy more. Nothing while accounts aren't open.
+pub fn home_card(app: &mut VectorcraftApp, ui: &mut egui::Ui, t: &Tokens) {
+    load(app);
+    if server(app).is_none() || !prompt::available(app) {
+        return;
+    }
+    let signed_in = !app.embroidery.account.token.is_empty();
+    let mut go = None;
+    egui::Frame::group(ui.style()).fill(t.panel).corner_radius(8.0).inner_margin(14.0).show(ui, |ui| {
+        ui.set_width(ui.available_width().min(560.0));
+        if signed_in {
+            let email = app.embroidery.account.info.as_ref().and_then(|i| i["email"].as_str().map(str::to_string)).unwrap_or_default();
+            ui.label(RichText::new(tl!("Foundry Account")).strong().size(15.0));
+            let line = match credits(app) {
+                Some(n) => crate::i18n::fmt(tl!("{email}: {n} credits"), &[("email", &email), ("n", &n.to_string())]),
+                None => email,
+            };
+            ui.label(RichText::new(line).color(t.text_dim));
+            ui.horizontal(|ui| {
+                if crate::widgets::secondary_button(ui, tl!("Buy Credits…")).clicked() {
+                    go = Some(false);
+                }
+            });
+        } else {
+            ui.label(RichText::new(tl!("Create a free Foundry Account")).strong().size(15.0));
+            for line in [
+                tl!("100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery"),
+                tl!("3 free Check My Sew-out photo checks every month"),
+                tl!("No card needed, and no API key to set up"),
+            ] {
+                ui.label(RichText::new(format!("•  {line}")).color(t.text_dim));
+            }
+            ui.add_space(4.0);
+            ui.horizontal(|ui| {
+                if crate::widgets::primary_button(ui, tl!("Create Free Account")).clicked() {
+                    go = Some(true);
+                }
+                if ui.link(tl!("I have an account: Sign In")).clicked() {
+                    go = Some(false);
+                }
+            });
+        }
+    });
+    if let Some(create) = go {
+        show(app, create);
+    }
+}
+
 /// A line for the AI windows saying how they are paid for, with the Account window a click away;
 /// `true` when paying with credits (then no API key is asked for).
 pub fn paid_line(app: &mut VectorcraftApp, ui: &mut egui::Ui, t: &Tokens) -> bool {
@@ -276,15 +357,25 @@ pub fn paid_line(app: &mut VectorcraftApp, ui: &mut egui::Ui, t: &Tokens) -> boo
     ui.horizontal_wrapped(|ui| {
         if credits_on {
             let line = match credits(app) {
-                Some(n) => crate::i18n::fmt(tl!("Paid with StitchFoundry credits ({n} left)."), &[("n", &n.to_string())]),
-                None => tl!("Paid with StitchFoundry credits.").to_string(),
+                Some(n) => crate::i18n::fmt(tl!("Paid with Foundry credits ({n} left)."), &[("n", &n.to_string())]),
+                None => tl!("Paid with Foundry credits.").to_string(),
             };
             ui.label(RichText::new(line).size(11.0).color(t.text_dim));
             if ui.link(RichText::new(tl!("Account")).size(11.0)).clicked() {
                 app.embroidery.account.open = true;
                 app.embroidery.account.stale = true;
             }
-        } else if server(app).is_some() && ui.link(RichText::new(tl!("Pay with StitchFoundry credits instead")).size(11.0)).clicked() {
+        } else if server(app).is_some() && app.embroidery.account.token.is_empty() {
+            if crate::widgets::primary_button(ui, tl!("Create Free Account"))
+                .on_hover_text(tl!("100 free credits for the AI features, no API key needed"))
+                .clicked()
+            {
+                show(app, true);
+            }
+            if ui.link(RichText::new(tl!("Sign In")).size(11.0)).clicked() {
+                show(app, false);
+            }
+        } else if server(app).is_some() && ui.link(RichText::new(tl!("Pay with Foundry credits instead")).size(11.0)).clicked() {
             app.embroidery.account.open = true;
         }
     });
@@ -304,8 +395,8 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let mut open = true;
     let mut todo: Option<Then> = None;
     let srv = server(app);
-    egui::Window::new(tl!("StitchFoundry Account"))
-        .id(egui::Id::new("stitchfoundry-account"))
+    egui::Window::new(tl!("Foundry Account"))
+        .id(egui::Id::new("foundry-account"))
         .open(&mut open)
         .collapsible(false)
         .resizable(false)
@@ -315,9 +406,21 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
             let busy = app.embroidery.account.pending.is_some();
             let st = &mut app.embroidery.account;
             if srv.is_none() {
-                ui.label(tl!("StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key."));
+                ui.label(tl!("Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key."));
             } else if st.token.is_empty() {
-                ui.label(tl!("Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits."));
+                let create = !st.sign_in_shown;
+                if create {
+                    ui.label(RichText::new(tl!("Create a free Foundry Account")).strong().size(16.0));
+                    for line in [
+                        tl!("100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery"),
+                        tl!("3 free Check My Sew-out photo checks every month"),
+                        tl!("No card needed, and no API key to set up"),
+                    ] {
+                        ui.label(RichText::new(format!("•  {line}")).color(t.text_dim));
+                    }
+                } else {
+                    ui.label(RichText::new(tl!("Sign in to your Foundry Account")).strong().size(16.0));
+                }
                 ui.add_space(6.0);
                 egui::Grid::new("account-sign-in").num_columns(2).spacing([10.0, 6.0]).show(ui, |ui| {
                     ui.label(tl!("Email"));
@@ -326,18 +429,23 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                     ui.label(tl!("Password"));
                     let r = ui.add(egui::TextEdit::singleline(&mut st.password).password(true).desired_width(260.0));
                     if r.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
-                        todo = Some(Box::new(|app| sign_in(app, false)));
+                        todo = Some(Box::new(move |app| sign_in(app, create)));
                     }
                     ui.end_row();
                 });
                 ui.horizontal(|ui| {
-                    if ui.add_enabled_ui(!busy, |ui| crate::widgets::primary_button(ui, tl!("Sign In"))).inner.clicked() {
-                        todo = Some(Box::new(|app| sign_in(app, false)));
+                    let label = if create { tl!("Create Free Account") } else { tl!("Sign In") };
+                    if ui.add_enabled_ui(!busy, |ui| crate::widgets::primary_button(ui, label)).inner.clicked() {
+                        todo = Some(Box::new(move |app| sign_in(app, create)));
                     }
-                    if ui.add_enabled(!busy, egui::Button::new(tl!("Create Account"))).clicked() {
-                        todo = Some(Box::new(|app| sign_in(app, true)));
+                    let other = if create { tl!("I have an account: Sign In") } else { tl!("New here? Create a free account") };
+                    if ui.link(other).clicked() {
+                        todo = Some(Box::new(move |app| app.embroidery.account.sign_in_shown = create));
                     }
                 });
+                if create {
+                    ui.label(RichText::new(tl!("A password needs at least 8 characters.")).size(11.0).color(t.text_dim));
+                }
             } else {
                 let info = st.info.clone().unwrap_or(Value::Null);
                 if let Some(email) = info["email"].as_str() {
@@ -353,14 +461,16 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                     .strong(),
                 );
                 let mut on = st.use_credits;
-                if ui.checkbox(&mut on, tl!("Pay for the AI features with my StitchFoundry credits")).changed() {
+                if ui.checkbox(&mut on, tl!("Pay for the AI features with my Foundry credits")).changed() {
                     todo = Some(Box::new(move |app| {
                         app.embroidery.account.use_credits = on;
                         keep(app, CREDITS_NAME, Some(if on { "1" } else { "0" }));
                     }));
                 }
                 if let Some(f) = info["freeChecks"].as_u64() {
-                    ui.label(RichText::new(crate::i18n::fmt(tl!("Free sew-out checks left this month: {n}"), &[("n", &f.to_string())])).color(t.text_dim));
+                    ui.label(
+                        RichText::new(crate::i18n::fmt(tl!("Free sew-out checks left this month: {n}"), &[("n", &f.to_string())])).color(t.text_dim),
+                    );
                 }
                 if info["sharedChecks"].as_u64().is_some_and(|n| n > 0)
                     && ui.add_enabled(!busy, egui::Button::new(tl!("Delete My Shared Sew-out Checks"))).clicked()
@@ -372,7 +482,11 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 if info["payments"].as_bool() == Some(true) && !packs.is_empty() {
                     ui.label(RichText::new(tl!("Buy credits")).strong());
                     for p in packs {
-                        let (Some(id), Some(credits), Some(cents)) = (p["id"].as_str().map(str::to_string), p["credits"].as_u64(), p["cents"].as_u64()) else { continue };
+                        let (Some(id), Some(credits), Some(cents)) =
+                            (p["id"].as_str().map(str::to_string), p["credits"].as_u64(), p["cents"].as_u64())
+                        else {
+                            continue;
+                        };
                         ui.horizontal(|ui| {
                             let price = format!("${}.{:02}", cents / 100, cents % 100);
                             ui.label(crate::i18n::fmt(tl!("{n} credits for {price}"), &[("n", &credits.to_string()), ("price", &price)]));
@@ -381,7 +495,11 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                             }
                         });
                     }
-                    ui.label(RichText::new(tl!("Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.")).size(11.0).color(t.text_dim));
+                    ui.label(
+                        RichText::new(tl!("Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry."))
+                            .size(11.0)
+                            .color(t.text_dim),
+                    );
                 }
                 ui.horizontal(|ui| {
                     if ui.add_enabled(!busy, egui::Button::new(tl!("Refresh"))).clicked() {

@@ -5917,8 +5917,8 @@ swatch	Bright Violet	Violet cerah
 	Own colour block	Blok warna sendiri
 	PIN	PIN
 	Packing	Pengemasan
-	Paid with StitchFoundry credits ({n} left).	Dibayar dengan kredit StitchFoundry (sisa {n}).
-	Paid with StitchFoundry credits.	Dibayar dengan kredit StitchFoundry.
+	Paid with Foundry credits ({n} left).	Dibayar dengan kredit Foundry (sisa {n}).
+	Paid with Foundry credits.	Dibayar dengan kredit Foundry.
 	Paint	Cat
 	Paint Cross Stitches	Lukis kristik
 	Pair	Pasangan
@@ -5932,8 +5932,8 @@ swatch	Bright Violet	Violet cerah
 	Pause	Jeda
 	Paw	Tapak
 	Paw Print	Jejak tapak
-	Pay for the AI features with my StitchFoundry credits	Bayar fitur AI dengan kredit StitchFoundry saya
-	Pay with StitchFoundry credits instead	Bayar dengan kredit StitchFoundry saja
+	Pay for the AI features with my Foundry credits	Bayar fitur AI dengan kredit Foundry saya
+	Pay with Foundry credits instead	Bayar dengan kredit Foundry saja
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Pembayaran dilakukan di halaman aman Stripe, di peramban Anda; kartu Anda tidak pernah sampai ke StitchFoundry.
 	Pebbles	Kerikil
 	Per 1000 stitches	Per 1000 jahitan
@@ -6136,7 +6136,7 @@ swatch	Bright Violet	Violet cerah
 	Sews well at	Bagus dijahit pada
 	Sews well from	Bagus dijahit mulai
 	Sews well up to	Bagus dijahit hingga
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Bagikan pemeriksaan ini untuk membantu menyempurnakan StitchFoundry (dijaga privat; hapus kapan saja di Akun StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Bagikan pemeriksaan ini untuk membantu menyempurnakan StitchFoundry (dijaga privat; hapus kapan saja di Akun Foundry)
 	Shell	Kerang
 	Shield	Perisai
 	Short fill stitches under	Jahitan isian pendek di bawah
@@ -6156,7 +6156,7 @@ swatch	Bright Violet	Violet cerah
 	Side by Side	Berdampingan
 	Sign In	Masuk
 	Sign Out	Keluar
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Masuk, atau buat akun, untuk membayar fitur AI dengan kredit StitchFoundry alih-alih kunci API Anthropic Anda sendiri. Akun baru dimulai dengan kredit gratis.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Masuk, atau buat akun, untuk membayar fitur AI dengan kredit Foundry alih-alih kunci API Anthropic Anda sendiri. Akun baru dimulai dengan kredit gratis.
 	Signed in as {email}	Masuk sebagai {email}
 	Silk / lightweight	Sutra / kain tipis
 	Simple pictures with a few flat colours and clear edges work best: a cartoon, a logo, clipart.	Gambar sederhana dengan sedikit warna datar dan tepi yang jelas paling cocok: kartun, logo, clipart.
@@ -6224,11 +6224,11 @@ swatch	Bright Violet	Violet cerah
 	Stitch length	Panjang jahitan
 	Stitch type	Jenis jahitan
 	StitchFoundry	StitchFoundry
-	StitchFoundry Account	Akun StitchFoundry
-	StitchFoundry Account…	Akun StitchFoundry…
+	Foundry Account	Akun Foundry
+	Foundry Account…	Akun Foundry…
 	StitchFoundry Help	Bantuan StitchFoundry
 	StitchFoundry Help…	Bantuan StitchFoundry…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Akun StitchFoundry belum dibuka. Sampai saat itu, fitur AI bekerja dengan kunci API Anthropic Anda sendiri.
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Akun Foundry belum dibuka. Sampai saat itu, fitur AI bekerja dengan kunci API Anthropic Anda sendiri.
 	StitchFoundry copies the fonts to {folder}.	StitchFoundry menyalin font ke {folder}.
 	StitchFoundry didn't quit normally last time. These documents had unsaved changes:	StitchFoundry tidak ditutup dengan normal terakhir kali. Dokumen-dokumen ini memiliki perubahan yang belum disimpan:
 	StitchFoundry on GitHub	StitchFoundry di GitHub
@@ -6505,9 +6505,9 @@ swatch	Bright Violet	Violet cerah
 	Report to StitchFoundry…	Laporkan ke StitchFoundry…
 	Send Report	Kirim Laporan
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Kirim hasil jahitan ini dan ide Claude tentang apa yang bisa diperbaiki StitchFoundry kepada pembuatnya
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Kirim hasil jahitan ini kepada pembuat StitchFoundry, beserta ide Claude tentang apa yang bisa diperbaiki perangkat lunaknya. Kami memakainya hanya untuk memperbaiki StitchFoundry: kami tidak pernah membagikan, menjual, atau menerbitkannya, dan Anda bisa meminta untuk menghapusnya kapan saja (Akun StitchFoundry › Hapus pemeriksaan hasil jahitan yang saya bagikan).
-	Sign in to StitchFoundry Account to send a report.	Masuk ke Akun StitchFoundry untuk mengirim laporan.
-@msg	Sign in to StitchFoundry Account to send a report.	Masuk ke Akun StitchFoundry untuk mengirim laporan.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Kirim hasil jahitan ini kepada pembuat StitchFoundry, beserta ide Claude tentang apa yang bisa diperbaiki perangkat lunaknya. Kami memakainya hanya untuk memperbaiki StitchFoundry: kami tidak pernah membagikan, menjual, atau menerbitkannya, dan Anda bisa meminta untuk menghapusnya kapan saja (Akun Foundry › Hapus pemeriksaan hasil jahitan yang saya bagikan).
+	Sign in to Foundry Account to send a report.	Masuk ke Akun Foundry untuk mengirim laporan.
+@msg	Sign in to Foundry Account to send a report.	Masuk ke Akun Foundry untuk mengirim laporan.
 	Thank you: your report was sent.	Terima kasih: laporan Anda sudah terkirim.
 	Title	Judul
 	What went wrong, and what StitchFoundry could do better	Apa yang salah, dan apa yang bisa diperbaiki StitchFoundry
@@ -6517,3 +6517,16 @@ swatch	Bright Violet	Violet cerah
 @msg	Write what went wrong first, or have Claude write it.	Tulis dulu apa yang salah, atau biar Claude yang menulisnya.
 	The {n} credits this check cost are back in your account.	{n} kredit untuk pemeriksaan ini sudah kembali ke akun Anda.
 	Paid for this check with credits? Send a report and they come back to you.	Membayar pemeriksaan ini dengan kredit? Kirim laporan dan kreditnya kembali kepada Anda.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 kredit gratis untuk fitur AI, tanpa kunci API
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 kredit gratis untuk mencoba AI: Desain dari perintah teks, Gambar ulang gambar dengan Claude, Tanya tentang bordir
+	3 free Check My Sew-out photo checks every month	3 pemeriksaan foto gratis (Periksa hasil jahitan saya) setiap bulan
+	A password needs at least 8 characters.	Kata sandi perlu minimal 8 karakter.
+	Buy Credits…	Beli Kredit…
+	Create Free Account	Buat Akun Gratis
+	Create a free Foundry Account	Buat Akun Foundry gratis
+	I have an account: Sign In	Saya punya akun: Masuk
+	New here? Create a free account	Baru di sini? Buat akun gratis
+	No card needed, and no API key to set up	Tanpa kartu dan tanpa kunci API yang perlu diatur
+	Sign in to your Foundry Account	Masuk ke Akun Foundry Anda
+	{email}: {n} credits	{email}: {n} kredit

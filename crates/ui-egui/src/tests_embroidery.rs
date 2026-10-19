@@ -1060,7 +1060,7 @@ mod ask_about_embroidery {
         app.embroidery.ask.input = "And the needle?".into();
         ask::send(&mut app).unwrap();
         wait(&mut app);
-        assert_eq!(app.embroidery.ask.error.as_deref(), Some("Not enough StitchFoundry credits: buy more in StitchFoundry Account."));
+        assert_eq!(app.embroidery.ask.error.as_deref(), Some("Not enough Foundry credits: buy more in Foundry Account."));
         // a shared sew-out check goes to its own endpoint
         let id =
             ask::begin_check(&mut app, json!({"role": "user", "content": [{"type": "text", "text": "photos"}]}), "My sew-out".into(), true, None)

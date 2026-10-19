@@ -6085,7 +6085,7 @@ effect	Soft	Weich
 @msg	At most 6 photos: remove one first.	Höchstens 6 Fotos: Entfernen Sie zuerst eines.
 @msg	no files here	hier gibt es keine Dateien
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Eine Prüfung kostet {n} Credits; die kostenlosen Prüfungen gibt es nächsten Monat wieder.
 	Account	Konto
 	Buy credits	Credits kaufen
@@ -6095,26 +6095,26 @@ effect	Soft	Weich
 	Email	E-Mail
 	Free sew-out checks left this month: {n}	Kostenlose Prüfungen in diesem Monat: {n}
 	Leave it empty for StitchFoundry's own service.	Leer lassen für den eigenen Dienst von StitchFoundry.
-	Paid with StitchFoundry credits ({n} left).	Bezahlt mit StitchFoundry-Credits (noch {n}).
-	Paid with StitchFoundry credits.	Bezahlt mit StitchFoundry-Credits.
-	Pay for the AI features with my StitchFoundry credits	Die KI-Funktionen mit meinen StitchFoundry-Credits bezahlen
-	Pay with StitchFoundry credits instead	Stattdessen mit StitchFoundry-Credits bezahlen
+	Paid with Foundry credits ({n} left).	Bezahlt mit Foundry-Credits (noch {n}).
+	Paid with Foundry credits.	Bezahlt mit Foundry-Credits.
+	Pay for the AI features with my Foundry credits	Die KI-Funktionen mit meinen Foundry-Credits bezahlen
+	Pay with Foundry credits instead	Stattdessen mit Foundry-Credits bezahlen
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Bezahlt wird auf der sicheren Seite von Stripe in Ihrem Browser; Ihre Karte erreicht StitchFoundry nie.
 	Reading your credits…	Credits werden gelesen…
 	Server	Server
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Diese Prüfung teilen, um StitchFoundry zu verbessern (bleibt privat; jederzeit im StitchFoundry-Konto löschbar)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Diese Prüfung teilen, um StitchFoundry zu verbessern (bleibt privat; jederzeit im Foundry-Konto löschbar)
 	Sign In	Anmelden
 	Sign Out	Abmelden
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Melden Sie sich an oder erstellen Sie ein Konto, um die KI-Funktionen mit StitchFoundry-Credits statt mit Ihrem eigenen Anthropic-API-Schlüssel zu bezahlen. Ein neues Konto beginnt mit kostenlosen Credits.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Melden Sie sich an oder erstellen Sie ein Konto, um die KI-Funktionen mit Foundry-Credits statt mit Ihrem eigenen Anthropic-API-Schlüssel zu bezahlen. Ein neues Konto beginnt mit kostenlosen Credits.
 	Signed in as {email}	Angemeldet als {email}
-	StitchFoundry Account	StitchFoundry-Konto
-	StitchFoundry Account…	StitchFoundry-Konto…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-Konten gibt es noch nicht. Bis dahin funktionieren die KI-Funktionen mit Ihrem eigenen Anthropic-API-Schlüssel.
+	Foundry Account	Foundry-Konto
+	Foundry Account…	Foundry-Konto…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Foundry-Konten gibt es noch nicht. Bis dahin funktionieren die KI-Funktionen mit Ihrem eigenen Anthropic-API-Schlüssel.
 	This is the sew-out after the fix from my last check	Dies ist das Stickergebnis nach der Korrektur aus meiner letzten Prüfung
 	{n} credits for {price}	{n} Credits für {price}
 	{n} credits	{n} Credits
 	{n} free checks left this month.	Noch {n} kostenlose Prüfungen in diesem Monat.
-@msg	StitchFoundry Account needs the desktop app for now	„StitchFoundry-Konto“ erfordert vorerst die Desktop-App
+@msg	Foundry Account needs the desktop app for now	„Foundry-Konto“ erfordert vorerst die Desktop-App
 @msg	Type your email address.	Geben Sie Ihre E-Mail-Adresse ein.
 @msg	A password needs at least 8 characters.	Ein Passwort braucht mindestens 8 Zeichen.
 @msg	Account made: welcome to StitchFoundry.	Konto erstellt: Willkommen bei StitchFoundry.
@@ -6122,9 +6122,9 @@ effect	Soft	Weich
 @msg	Pay on the page that opened in your browser, then press Refresh.	Bezahlen Sie auf der Seite, die sich in Ihrem Browser geöffnet hat, und drücken Sie dann „Aktualisieren“.
 @msg	Signed out.	Abgemeldet.
 @msg	Your shared sew-out checks are deleted.	Ihre geteilten Prüfungen sind gelöscht.
-@msg	StitchFoundry accounts aren't open yet.	StitchFoundry-Konten gibt es noch nicht.
-@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Melden Sie sich bei Ihrem StitchFoundry-Konto an (Stickerei › StitchFoundry-Konto…).
-@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Nicht genug StitchFoundry-Credits: Kaufen Sie mehr im StitchFoundry-Konto.
+@msg	Foundry accounts aren't open yet.	Foundry-Konten gibt es noch nicht.
+@msg	Sign in to your Foundry account (Embroidery › Foundry Account…).	Melden Sie sich bei Ihrem Foundry-Konto an (Stickerei › Foundry-Konto…).
+@msg	Not enough Foundry credits: buy more in Foundry Account.	Nicht genug Foundry-Credits: Kaufen Sie mehr im Foundry-Konto.
 @msg	An account with that email already exists: sign in instead.	Es gibt bereits ein Konto mit dieser E-Mail: Melden Sie sich stattdessen an.
 @msg	The StitchFoundry service can't do this yet: try again later.	Der StitchFoundry-Dienst kann das noch nicht: Versuchen Sie es später noch einmal.
 # Links and Attributes: files and URLs handed to other apps.
@@ -6161,7 +6161,7 @@ effect	Soft	Weich
 	{name} API key:	{name}-API-Schlüssel:
 	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Das Bild wird über Ihr Konto bei diesem Dienst abgerechnet. Claude zeichnet es dann als flache Formen in Ihren Garnfarben neu, damit es mit wenigen Farbwechseln gestickt wird.
 	Making the picture…	Das Bild wird erstellt…
-@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	Um das Bild als Stiche neu zu zeichnen, braucht es Claude: Geben Sie Ihren Anthropic-API-Schlüssel ein oder melden Sie sich im StitchFoundry-Konto an.
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to Foundry Account.	Um das Bild als Stiche neu zu zeichnen, braucht es Claude: Geben Sie Ihren Anthropic-API-Schlüssel ein oder melden Sie sich im Foundry-Konto an.
 @msg	the picture didn't come whole: try again	das Bild kam nicht vollständig an: Versuchen Sie es noch einmal
 @msg	The AI service sent no picture: try again, or choose another service.	Der KI-Dienst hat kein Bild geschickt: Versuchen Sie es noch einmal oder wählen Sie einen anderen Dienst.
 	Artboard {n} of {total}	Zeichenfläche {n} von {total}
@@ -6209,9 +6209,9 @@ effect	Soft	Weich
 	Report to StitchFoundry…	An StitchFoundry melden…
 	Send Report	Bericht senden
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Dieses Stickergebnis und Claudes Idee, was StitchFoundry besser machen könnte, an die Entwickler senden
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Senden Sie dieses Stickergebnis an die Entwickler von StitchFoundry, mit Claudes Idee, was die Software besser machen könnte. Wir verwenden es nur, um StitchFoundry zu verbessern: Wir geben es nie weiter, verkaufen oder veröffentlichen es nicht, und Sie können es jederzeit löschen lassen (StitchFoundry-Konto › Meine geteilten Prüfungen löschen).
-	Sign in to StitchFoundry Account to send a report.	Melden Sie sich im StitchFoundry-Konto an, um einen Bericht zu senden.
-@msg	Sign in to StitchFoundry Account to send a report.	Melden Sie sich im StitchFoundry-Konto an, um einen Bericht zu senden.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Senden Sie dieses Stickergebnis an die Entwickler von StitchFoundry, mit Claudes Idee, was die Software besser machen könnte. Wir verwenden es nur, um StitchFoundry zu verbessern: Wir geben es nie weiter, verkaufen oder veröffentlichen es nicht, und Sie können es jederzeit löschen lassen (Foundry-Konto › Meine geteilten Prüfungen löschen).
+	Sign in to Foundry Account to send a report.	Melden Sie sich im Foundry-Konto an, um einen Bericht zu senden.
+@msg	Sign in to Foundry Account to send a report.	Melden Sie sich im Foundry-Konto an, um einen Bericht zu senden.
 	Thank you: your report was sent.	Danke: Ihr Bericht wurde gesendet.
 	Title	Titel
 	What went wrong, and what StitchFoundry could do better	Was ist schiefgelaufen, und was könnte StitchFoundry besser machen?
@@ -6221,3 +6221,16 @@ effect	Soft	Weich
 @msg	Write what went wrong first, or have Claude write it.	Schreiben Sie zuerst, was schiefgelaufen ist, oder lassen Sie es Claude schreiben.
 	The {n} credits this check cost are back in your account.	Die {n} Credits für diese Prüfung sind wieder auf Ihrem Konto.
 	Paid for this check with credits? Send a report and they come back to you.	Diese Prüfung mit Credits bezahlt? Senden Sie einen Bericht, und Sie bekommen sie zurück.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 kostenlose Credits für die KI-Funktionen, kein API-Schlüssel nötig
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 kostenlose Credits zum Ausprobieren der KI: Stickmuster aus Beschreibung, Bild mit Claude neu zeichnen, Fragen zur Stickerei
+	3 free Check My Sew-out photo checks every month	3 kostenlose Fotoprüfungen mit Stickergebnis prüfen jeden Monat
+	A password needs at least 8 characters.	Ein Passwort braucht mindestens 8 Zeichen.
+	Buy Credits…	Credits kaufen…
+	Create Free Account	Kostenloses Konto erstellen
+	Create a free Foundry Account	Kostenloses Foundry-Konto erstellen
+	I have an account: Sign In	Ich habe ein Konto: Anmelden
+	New here? Create a free account	Neu hier? Kostenloses Konto erstellen
+	No card needed, and no API key to set up	Keine Karte nötig, kein API-Schlüssel einzurichten
+	Sign in to your Foundry Account	Bei Ihrem Foundry-Konto anmelden
+	{email}: {n} credits	{email}: {n} Credits

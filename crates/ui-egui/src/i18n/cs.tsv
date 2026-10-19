@@ -6482,7 +6482,7 @@ mark-style	Japanese	Japonské
 @msg	At most 6 photos: remove one first.	Nejvýš 6 fotek: nejdřív jednu odeberte.
 @msg	no files here	tady nejsou žádné soubory
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Kontrola stojí {n} kreditů; bezplatné kontroly se vrátí příští měsíc.
 	Account	Účet
 	Buy credits	Koupit kredity
@@ -6492,26 +6492,26 @@ mark-style	Japanese	Japonské
 	Email	E-mail
 	Free sew-out checks left this month: {n}	Bezplatné kontroly zbývající tento měsíc: {n}
 	Leave it empty for StitchFoundry's own service.	Nechte prázdné pro vlastní službu StitchFoundry.
-	Paid with StitchFoundry credits ({n} left).	Placeno kredity StitchFoundry (zbývá {n}).
-	Paid with StitchFoundry credits.	Placeno kredity StitchFoundry.
-	Pay for the AI features with my StitchFoundry credits	Platit funkce AI mými kredity StitchFoundry
-	Pay with StitchFoundry credits instead	Platit raději kredity StitchFoundry
+	Paid with Foundry credits ({n} left).	Placeno kredity Foundry (zbývá {n}).
+	Paid with Foundry credits.	Placeno kredity Foundry.
+	Pay for the AI features with my Foundry credits	Platit funkce AI mými kredity Foundry
+	Pay with Foundry credits instead	Platit raději kredity Foundry
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Platí se na zabezpečené stránce Stripe ve vašem prohlížeči; vaše karta se do StitchFoundry nikdy nedostane.
 	Reading your credits…	Načítají se kredity…
 	Server	Server
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Sdílet tuto kontrolu a pomoci zlepšit StitchFoundry (zůstane soukromá; kdykoli ji smažete v Účtu StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Sdílet tuto kontrolu a pomoci zlepšit StitchFoundry (zůstane soukromá; kdykoli ji smažete v Účtu Foundry)
 	Sign In	Přihlásit se
 	Sign Out	Odhlásit se
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Přihlaste se nebo si vytvořte účet a plaťte funkce AI kredity StitchFoundry místo vlastního klíče API Anthropic. Nový účet začíná s bezplatnými kredity.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Přihlaste se nebo si vytvořte účet a plaťte funkce AI kredity Foundry místo vlastního klíče API Anthropic. Nový účet začíná s bezplatnými kredity.
 	Signed in as {email}	Přihlášen jako {email}
-	StitchFoundry Account	Účet StitchFoundry
-	StitchFoundry Account…	Účet StitchFoundry…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Účty StitchFoundry zatím nejsou otevřené. Do té doby funkce AI fungují s vaším vlastním klíčem API Anthropic.
+	Foundry Account	Účet Foundry
+	Foundry Account…	Účet Foundry…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Účty Foundry zatím nejsou otevřené. Do té doby funkce AI fungují s vaším vlastním klíčem API Anthropic.
 	This is the sew-out after the fix from my last check	Toto je výšivka po opravě z mé poslední kontroly
 	{n} credits for {price}	{n} kreditů za {price}
 	{n} credits	{n} kreditů
 	{n} free checks left this month.	Tento měsíc zbývá {n} bezplatných kontrol.
-@msg	StitchFoundry Account needs the desktop app for now	Účet StitchFoundry zatím vyžaduje desktopovou aplikaci
+@msg	Foundry Account needs the desktop app for now	Účet Foundry zatím vyžaduje desktopovou aplikaci
 @msg	Type your email address.	Napište svou e-mailovou adresu.
 @msg	A password needs at least 8 characters.	Heslo musí mít aspoň 8 znaků.
 @msg	Account made: welcome to StitchFoundry.	Účet vytvořen: vítejte ve StitchFoundry.
@@ -6519,9 +6519,9 @@ mark-style	Japanese	Japonské
 @msg	Pay on the page that opened in your browser, then press Refresh.	Zaplaťte na stránce otevřené v prohlížeči a pak stiskněte Obnovit.
 @msg	Signed out.	Odhlášeno.
 @msg	Your shared sew-out checks are deleted.	Vaše sdílené kontroly jsou smazány.
-@msg	StitchFoundry accounts aren't open yet.	Účty StitchFoundry zatím nejsou otevřené.
-@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Přihlaste se ke svému účtu StitchFoundry (Výšivka › Účet StitchFoundry…).
-@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Málo kreditů StitchFoundry: kupte další v Účtu StitchFoundry.
+@msg	Foundry accounts aren't open yet.	Účty Foundry zatím nejsou otevřené.
+@msg	Sign in to your Foundry account (Embroidery › Foundry Account…).	Přihlaste se ke svému účtu Foundry (Výšivka › Účet Foundry…).
+@msg	Not enough Foundry credits: buy more in Foundry Account.	Málo kreditů Foundry: kupte další v Účtu Foundry.
 @msg	An account with that email already exists: sign in instead.	Účet s tímto e-mailem už existuje: raději se přihlaste.
 @msg	The StitchFoundry service can't do this yet: try again later.	Služba StitchFoundry to zatím neumí: zkuste to později.
 # Links and Attributes: files and URLs handed to other apps.
@@ -6558,7 +6558,7 @@ mark-style	Japanese	Japonské
 	{name} API key:	Klíč API {name}:
 	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Obrázek se účtuje na váš účet u té služby. Claude ho pak překreslí na ploché tvary ve vašich barvách nití, aby se vyšíval s málo výměnami nití.
 	Making the picture…	Vytváří se obrázek…
-@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	K překreslení obrázku na stehy je potřeba Claude: přidejte klíč API Anthropic, nebo se přihlaste v Účtu StitchFoundry.
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to Foundry Account.	K překreslení obrázku na stehy je potřeba Claude: přidejte klíč API Anthropic, nebo se přihlaste v Účtu Foundry.
 @msg	the picture didn't come whole: try again	obrázek nepřišel celý: zkuste to znovu
 @msg	The AI service sent no picture: try again, or choose another service.	Služba AI neposlala žádný obrázek: zkuste to znovu, nebo zvolte jinou službu.
 	Artboard {n} of {total}	Pracovní plocha {n} z {total}
@@ -6605,9 +6605,9 @@ mark-style	Japanese	Japonské
 	Report to StitchFoundry…	Nahlásit StitchFoundry…
 	Send Report	Odeslat zprávu
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Poslat tuto výšivku a Claudův nápad, co by StitchFoundry mohl dělat lépe, jeho tvůrcům
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Pošlete tuto výšivku tvůrcům StitchFoundry spolu s Claudovým nápadem, co by program mohl dělat lépe. Používáme ji jen ke zlepšení StitchFoundry: nikdy ji nesdílíme, neprodáváme ani nezveřejňujeme a kdykoli můžete požádat o její smazání (Účet StitchFoundry › Smazat mé sdílené kontroly).
-	Sign in to StitchFoundry Account to send a report.	Přihlaste se k účtu StitchFoundry, abyste mohli odeslat zprávu.
-@msg	Sign in to StitchFoundry Account to send a report.	Přihlaste se k účtu StitchFoundry, abyste mohli odeslat zprávu.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Pošlete tuto výšivku tvůrcům StitchFoundry spolu s Claudovým nápadem, co by program mohl dělat lépe. Používáme ji jen ke zlepšení StitchFoundry: nikdy ji nesdílíme, neprodáváme ani nezveřejňujeme a kdykoli můžete požádat o její smazání (Účet Foundry › Smazat mé sdílené kontroly).
+	Sign in to Foundry Account to send a report.	Přihlaste se k účtu Foundry, abyste mohli odeslat zprávu.
+@msg	Sign in to Foundry Account to send a report.	Přihlaste se k účtu Foundry, abyste mohli odeslat zprávu.
 	Thank you: your report was sent.	Děkujeme: vaše zpráva byla odeslána.
 	Title	Název
 	What went wrong, and what StitchFoundry could do better	Co se pokazilo a co by StitchFoundry mohl dělat lépe
@@ -6617,3 +6617,16 @@ mark-style	Japanese	Japonské
 @msg	Write what went wrong first, or have Claude write it.	Nejdřív napište, co se pokazilo, nebo to nechte napsat Clauda.
 	The {n} credits this check cost are back in your account.	{n} kreditů za tuto kontrolu je zpět na vašem účtu.
 	Paid for this check with credits? Send a report and they come back to you.	Platili jste tuto kontrolu kredity? Pošlete zprávu a vrátí se vám.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 kreditů zdarma na funkce AI, bez klíče API
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 kreditů zdarma na vyzkoušení AI: Motiv podle popisu, Překreslit obraz pomocí Claude, Zeptat se na vyšívání
+	3 free Check My Sew-out photo checks every month	3 kontroly fotek zdarma (Zkontrolovat výšivku) každý měsíc
+	A password needs at least 8 characters.	Heslo musí mít alespoň 8 znaků.
+	Buy Credits…	Koupit kredity…
+	Create Free Account	Vytvořit účet zdarma
+	Create a free Foundry Account	Vytvořte si účet Foundry zdarma
+	I have an account: Sign In	Mám účet: přihlásit se
+	New here? Create a free account	Jste tu nově? Vytvořte si účet zdarma
+	No card needed, and no API key to set up	Bez karty a bez nastavování klíče API
+	Sign in to your Foundry Account	Přihlaste se k účtu Foundry
+	{email}: {n} credits	{email}: {n} kreditů

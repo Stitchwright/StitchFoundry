@@ -5917,8 +5917,8 @@ swatch	Bright Violet	Kraftig violet
 	Own colour block	Egen farveblok
 	PIN	PIN-kode
 	Packing	Pakning
-	Paid with StitchFoundry credits ({n} left).	Betalt med StitchFoundry-kreditter ({n} tilbage).
-	Paid with StitchFoundry credits.	Betalt med StitchFoundry-kreditter.
+	Paid with Foundry credits ({n} left).	Betalt med Foundry-kreditter ({n} tilbage).
+	Paid with Foundry credits.	Betalt med Foundry-kreditter.
 	Paint	Mal
 	Paint Cross Stitches	Mal korssting
 	Pair	Par
@@ -5932,8 +5932,8 @@ swatch	Bright Violet	Kraftig violet
 	Pause	Pause
 	Paw	Pote
 	Paw Print	Poteaftryk
-	Pay for the AI features with my StitchFoundry credits	Betal for AI-funktionerne med mine StitchFoundry-kreditter
-	Pay with StitchFoundry credits instead	Betal med StitchFoundry-kreditter i stedet
+	Pay for the AI features with my Foundry credits	Betal for AI-funktionerne med mine Foundry-kreditter
+	Pay with Foundry credits instead	Betal med Foundry-kreditter i stedet
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Betalingen sker på Stripes sikre side i din browser; dit kort når aldrig StitchFoundry.
 	Pebbles	Småsten
 	Per 1000 stitches	Pr. 1000 sting
@@ -6136,7 +6136,7 @@ swatch	Bright Violet	Kraftig violet
 	Sews well at	Syes godt ved
 	Sews well from	Syes godt fra
 	Sews well up to	Syes godt op til
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Del dette tjek for at hjælpe med at forbedre StitchFoundry (holdes privat; slet det når som helst under StitchFoundry-konto)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Del dette tjek for at hjælpe med at forbedre StitchFoundry (holdes privat; slet det når som helst under Foundry-konto)
 	Shell	Muslingeskal
 	Shield	Skjold
 	Short fill stitches under	Korte fyldsting under
@@ -6156,7 +6156,7 @@ swatch	Bright Violet	Kraftig violet
 	Side by Side	Side om side
 	Sign In	Log ind
 	Sign Out	Log ud
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Log ind, eller opret en konto, for at betale for AI-funktionerne med StitchFoundry-kreditter i stedet for din egen Anthropic API-nøgle. En ny konto starter med gratis kreditter.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Log ind, eller opret en konto, for at betale for AI-funktionerne med Foundry-kreditter i stedet for din egen Anthropic API-nøgle. En ny konto starter med gratis kreditter.
 	Signed in as {email}	Logget ind som {email}
 	Silk / lightweight	Silke / let stof
 	Simple pictures with a few flat colours and clear edges work best: a cartoon, a logo, clipart.	Enkle billeder med få flade farver og tydelige kanter virker bedst: en tegneseriefigur, et logo, clipart.
@@ -6224,11 +6224,11 @@ swatch	Bright Violet	Kraftig violet
 	Stitch length	Stinglængde
 	Stitch type	Stingtype
 	StitchFoundry	StitchFoundry
-	StitchFoundry Account	StitchFoundry-konto
-	StitchFoundry Account…	StitchFoundry-konto…
+	Foundry Account	Foundry-konto
+	Foundry Account…	Foundry-konto…
 	StitchFoundry Help	StitchFoundry Hjælp
 	StitchFoundry Help…	StitchFoundry Hjælp…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-konti er ikke åbnet endnu. Indtil da virker AI-funktionerne med din egen Anthropic API-nøgle.
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Foundry-konti er ikke åbnet endnu. Indtil da virker AI-funktionerne med din egen Anthropic API-nøgle.
 	StitchFoundry copies the fonts to {folder}.	StitchFoundry kopierer skrifttyperne til {folder}.
 	StitchFoundry didn't quit normally last time. These documents had unsaved changes:	StitchFoundry blev ikke afsluttet normalt sidste gang. Disse dokumenter havde ændringer, der ikke var gemt:
 	StitchFoundry on GitHub	StitchFoundry på GitHub
@@ -6505,9 +6505,9 @@ swatch	Bright Violet	Kraftig violet
 	Report to StitchFoundry…	Rapportér til StitchFoundry…
 	Send Report	Send rapport
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Send denne syprøve og Claudes idé om, hvad StitchFoundry kunne gøre bedre, til dem, der laver det
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Send denne syprøve til dem, der laver StitchFoundry, med Claudes idé om, hvad programmet kunne gøre bedre. Vi bruger den kun til at forbedre StitchFoundry: vi deler, sælger eller offentliggør den aldrig, og du kan få den slettet når som helst (StitchFoundry-konto › Slet mine delte syprøvetjek).
-	Sign in to StitchFoundry Account to send a report.	Log ind på StitchFoundry-kontoen for at sende en rapport.
-@msg	Sign in to StitchFoundry Account to send a report.	Log ind på StitchFoundry-kontoen for at sende en rapport.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Send denne syprøve til dem, der laver StitchFoundry, med Claudes idé om, hvad programmet kunne gøre bedre. Vi bruger den kun til at forbedre StitchFoundry: vi deler, sælger eller offentliggør den aldrig, og du kan få den slettet når som helst (Foundry-konto › Slet mine delte syprøvetjek).
+	Sign in to Foundry Account to send a report.	Log ind på Foundry-kontoen for at sende en rapport.
+@msg	Sign in to Foundry Account to send a report.	Log ind på Foundry-kontoen for at sende en rapport.
 	Thank you: your report was sent.	Tak: din rapport er sendt.
 	Title	Titel
 	What went wrong, and what StitchFoundry could do better	Hvad gik galt, og hvad kunne StitchFoundry gøre bedre
@@ -6517,3 +6517,16 @@ swatch	Bright Violet	Kraftig violet
 @msg	Write what went wrong first, or have Claude write it.	Skriv først, hvad der gik galt, eller lad Claude skrive det.
 	The {n} credits this check cost are back in your account.	De {n} kreditter, dette tjek kostede, er tilbage på din konto.
 	Paid for this check with credits? Send a report and they come back to you.	Betalt dette tjek med kreditter? Send en rapport, så får du dem tilbage.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 gratis kreditter til AI-funktionerne, ingen API-nøgle nødvendig
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 gratis kreditter til at prøve AI: Design ud fra beskrivelse, Tegn billede om med Claude, Spørg om broderi
+	3 free Check My Sew-out photo checks every month	3 gratis fototjek med Tjek min syprøve hver måned
+	A password needs at least 8 characters.	En adgangskode skal have mindst 8 tegn.
+	Buy Credits…	Køb kreditter…
+	Create Free Account	Opret gratis konto
+	Create a free Foundry Account	Opret en gratis Foundry-konto
+	I have an account: Sign In	Jeg har en konto: log ind
+	New here? Create a free account	Ny her? Opret en gratis konto
+	No card needed, and no API key to set up	Intet kort, og ingen API-nøgle at sætte op
+	Sign in to your Foundry Account	Log ind på din Foundry-konto
+	{email}: {n} credits	{email}: {n} kreditter

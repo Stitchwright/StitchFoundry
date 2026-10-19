@@ -116,7 +116,7 @@ fn embroidery_menu() -> Vec<Item> {
         c("My Machine…", "ui.myMachine"),
         c("Ask About Embroidery…", "ui.askAboutEmbroidery"),
         c("Check My Sew-out…", "ui.checkSewout"),
-        c("StitchFoundry Account…", "ui.account"),
+        c("Foundry Account…", "ui.account"),
         Sep,
         sub(
             "Create",
@@ -357,7 +357,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "ui.designFromPrompt",
         "Design from Prompt…",
         "",
-        "{prompt?, size?: mm (longest side), colors?: 1-12, picture?: google|openai|fal|openrouter (another service paints a picture first, with your key for it; Claude then redraws it as flat shapes), model?: that service's model id} open Design from Prompt: describe a design and Claude draws flat-colour artwork with your own Anthropic API key (or StitchFoundry credits), which embroidery.placeArt places and digitizes → {open}",
+        "{prompt?, size?: mm (longest side), colors?: 1-12, picture?: google|openai|fal|openrouter (another service paints a picture first, with your key for it; Claude then redraws it as flat shapes), model?: that service's model id} open Design from Prompt: describe a design and Claude draws flat-colour artwork with your own Anthropic API key (or Foundry credits), which embroidery.placeArt places and digitizes → {open}",
     ),
     (
         "ui.redrawImage",
@@ -789,13 +789,13 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "ui.reportSewout",
         "Report to StitchFoundry…",
         "",
-        "{title?, report?, note?: text (filled in), consent?: bool, draft?: bool (Claude writes it), send?: bool} open Report to StitchFoundry for the sew-out check in the Ask window: the photos, Claude's idea of what StitchFoundry could do better and your note, sent with your leave to StitchFoundry's makers through StitchFoundry Account, only to improve the software, never shared → {open, signedIn, drafting, sending, sent}",
+        "{title?, report?, note?: text (filled in), consent?: bool, draft?: bool (Claude writes it), send?: bool} open Report to StitchFoundry for the sew-out check in the Ask window: the photos, Claude's idea of what StitchFoundry could do better and your note, sent with your leave to StitchFoundry's makers through Foundry Account, only to improve the software, never shared → {open, signedIn, drafting, sending, sent}",
     ),
     (
         "ui.account",
-        "StitchFoundry Account…",
+        "Foundry Account…",
         "",
-        "{} open StitchFoundry Account: sign in to the StitchFoundry service or make an account, see the credits and buy more (Stripe's page opens in the browser), and choose to pay for the AI features with them instead of your own Anthropic API key (desktop and web) → {open, signedIn, server, credits, payWithCredits}",
+        "{create?: bool (open on Create Account, else Sign In)} open Foundry Account: make an account or sign in to the StitchFoundry service or make an account, see the credits and buy more (Stripe's page opens in the browser), and choose to pay for the AI features with them instead of your own Anthropic API key (desktop and web) → {open, signedIn, server, credits, payWithCredits}",
     ),
     (
         "ui.addWords",
@@ -3593,7 +3593,7 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                 cp("Tips", "help.show", json!({ "tips": true })),
                 c("Ask About Embroidery…", "ui.askAboutEmbroidery"),
                 c("Check My Sew-out…", "ui.checkSewout"),
-                c("StitchFoundry Account…", "ui.account"),
+                c("Foundry Account…", "ui.account"),
                 Sep,
                 c("About StitchFoundry", "help.about"),
             ],

@@ -6159,7 +6159,7 @@ machine	Stop	停止
 @msg	At most 6 photos: remove one first.	写真は 6 枚までです。先に 1 枚削除してください。
 @msg	no files here	ここにはファイルがありません
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	チェック 1 回は {n} クレジットです。無料チェックは来月また使えます。
 	Account	アカウント
 	Buy credits	クレジットを購入
@@ -6169,26 +6169,26 @@ machine	Stop	停止
 	Email	メール
 	Free sew-out checks left this month: {n}	今月の無料チェックの残り：{n}
 	Leave it empty for StitchFoundry's own service.	StitchFoundry 自身のサービスを使うときは空欄のままにします。
-	Paid with StitchFoundry credits ({n} left).	StitchFoundry クレジットで支払い（残り {n}）。
-	Paid with StitchFoundry credits.	StitchFoundry クレジットで支払い。
-	Pay for the AI features with my StitchFoundry credits	AI 機能を StitchFoundry クレジットで支払う
-	Pay with StitchFoundry credits instead	代わりに StitchFoundry クレジットで支払う
+	Paid with Foundry credits ({n} left).	Foundry クレジットで支払い（残り {n}）。
+	Paid with Foundry credits.	Foundry クレジットで支払い。
+	Pay for the AI features with my Foundry credits	AI 機能を Foundry クレジットで支払う
+	Pay with Foundry credits instead	代わりに Foundry クレジットで支払う
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	支払いはブラウザーで開く Stripe の安全なページで行います。カード情報が StitchFoundry に届くことはありません。
 	Reading your credits…	クレジットを読み込み中…
 	Server	サーバー
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	このチェックを共有して StitchFoundry の改善に協力する（非公開。StitchFoundry アカウントでいつでも削除できます）
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	このチェックを共有して StitchFoundry の改善に協力する（非公開。Foundry アカウントでいつでも削除できます）
 	Sign In	サインイン
 	Sign Out	サインアウト
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	サインインまたはアカウントを作成すると、AI 機能をご自分の Anthropic API キーの代わりに StitchFoundry クレジットで支払えます。新しいアカウントには無料クレジットが付きます。
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	サインインまたはアカウントを作成すると、AI 機能をご自分の Anthropic API キーの代わりに Foundry クレジットで支払えます。新しいアカウントには無料クレジットが付きます。
 	Signed in as {email}	{email} でサインイン中
-	StitchFoundry Account	StitchFoundry アカウント
-	StitchFoundry Account…	StitchFoundry アカウント…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry アカウントはまだ始まっていません。それまでは、AI 機能はご自分の Anthropic API キーで使えます。
+	Foundry Account	Foundry アカウント
+	Foundry Account…	Foundry アカウント…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Foundry アカウントはまだ始まっていません。それまでは、AI 機能はご自分の Anthropic API キーで使えます。
 	This is the sew-out after the fix from my last check	前回のチェックの直しを入れて刺しゅうしたものです
 	{n} credits for {price}	{n} クレジット（{price}）
 	{n} credits	{n} クレジット
 	{n} free checks left this month.	今月の無料チェックはあと {n} 回です。
-@msg	StitchFoundry Account needs the desktop app for now	「StitchFoundry アカウント」は今のところデスクトップアプリが必要です
+@msg	Foundry Account needs the desktop app for now	「Foundry アカウント」は今のところデスクトップアプリが必要です
 @msg	Type your email address.	メールアドレスを入力してください。
 @msg	A password needs at least 8 characters.	パスワードは 8 文字以上必要です。
 @msg	Account made: welcome to StitchFoundry.	アカウントを作成しました。StitchFoundry へようこそ。
@@ -6196,9 +6196,9 @@ machine	Stop	停止
 @msg	Pay on the page that opened in your browser, then press Refresh.	ブラウザーで開いたページで支払い、それから「更新」を押してください。
 @msg	Signed out.	サインアウトしました。
 @msg	Your shared sew-out checks are deleted.	共有したチェックを削除しました。
-@msg	StitchFoundry accounts aren't open yet.	StitchFoundry アカウントはまだ始まっていません。
-@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	StitchFoundry アカウントにサインインしてください（刺しゅう › StitchFoundry アカウント…）。
-@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	StitchFoundry クレジットが足りません。StitchFoundry アカウントで購入してください。
+@msg	Foundry accounts aren't open yet.	Foundry アカウントはまだ始まっていません。
+@msg	Sign in to your Foundry account (Embroidery › Foundry Account…).	Foundry アカウントにサインインしてください（刺しゅう › Foundry アカウント…）。
+@msg	Not enough Foundry credits: buy more in Foundry Account.	Foundry クレジットが足りません。Foundry アカウントで購入してください。
 @msg	An account with that email already exists: sign in instead.	そのメールのアカウントはすでにあります。サインインしてください。
 @msg	The StitchFoundry service can't do this yet: try again later.	StitchFoundry のサービスはまだこれに対応していません。後でもう一度お試しください。
 # Links and Attributes: files and URLs handed to other apps.
@@ -6235,7 +6235,7 @@ machine	Stop	停止
 	{name} API key:	{name} の API キー:
 	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	画像の料金はそのサービスのアカウントに請求されます。その後 Claude が糸の色数に合わせて平らな形に描き直すので、糸替えの少ない刺しゅうになります。
 	Making the picture…	画像を作成中…
-@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	画像をステッチに描き直すには Claude が必要です。Anthropic API キーを入れるか、StitchFoundry アカウントにサインインしてください。
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to Foundry Account.	画像をステッチに描き直すには Claude が必要です。Anthropic API キーを入れるか、Foundry アカウントにサインインしてください。
 @msg	the picture didn't come whole: try again	画像が完全に届きませんでした。もう一度お試しください
 @msg	The AI service sent no picture: try again, or choose another service.	AI サービスから画像が届きませんでした。もう一度試すか、別のサービスを選んでください。
 	Artboard {n} of {total}	アートボード {n} / {total}
@@ -6283,9 +6283,9 @@ machine	Stop	停止
 	Report to StitchFoundry…	StitchFoundry に報告…
 	Send Report	レポートを送信
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	この仕上がりと、StitchFoundry が改善できる点についての Claude の考えを開発者に送る
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	この仕上がりを、ソフトウェアの改善点についての Claude の考えと一緒に、StitchFoundry の開発者に送ります。StitchFoundry の改善にのみ使い、共有・販売・公開することはありません。いつでも削除を依頼できます(StitchFoundry アカウント › 共有したチェックを削除)。
-	Sign in to StitchFoundry Account to send a report.	レポートを送るには StitchFoundry アカウントにサインインしてください。
-@msg	Sign in to StitchFoundry Account to send a report.	レポートを送るには StitchFoundry アカウントにサインインしてください。
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	この仕上がりを、ソフトウェアの改善点についての Claude の考えと一緒に、StitchFoundry の開発者に送ります。StitchFoundry の改善にのみ使い、共有・販売・公開することはありません。いつでも削除を依頼できます(Foundry アカウント › 共有したチェックを削除)。
+	Sign in to Foundry Account to send a report.	レポートを送るには Foundry アカウントにサインインしてください。
+@msg	Sign in to Foundry Account to send a report.	レポートを送るには Foundry アカウントにサインインしてください。
 	Thank you: your report was sent.	ありがとうございます。レポートを送信しました。
 	Title	タイトル
 	What went wrong, and what StitchFoundry could do better	何がうまくいかなかったか、StitchFoundry が改善できる点
@@ -6295,3 +6295,16 @@ machine	Stop	停止
 @msg	Write what went wrong first, or have Claude write it.	先に何がうまくいかなかったかを書くか、Claude に書いてもらってください。
 	The {n} credits this check cost are back in your account.	このチェックの {n} クレジットがアカウントに戻りました。
 	Paid for this check with credits? Send a report and they come back to you.	このチェックをクレジットで支払いましたか?レポートを送るとクレジットが戻ります。
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	AI 機能用の無料クレジット 100、API キー不要
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	AI を試せる無料クレジット 100:プロンプトからデザインを作成、Claude で画像を描き直す、刺しゅうについて質問
+	3 free Check My Sew-out photo checks every month	刺しゅうの仕上がりをチェック の写真チェックが毎月 3 回無料
+	A password needs at least 8 characters.	パスワードは 8 文字以上必要です。
+	Buy Credits…	クレジットを購入…
+	Create Free Account	無料アカウントを作成
+	Create a free Foundry Account	無料の Foundry アカウントを作成
+	I have an account: Sign In	アカウントをお持ちの方:サインイン
+	New here? Create a free account	はじめての方は無料アカウントを作成
+	No card needed, and no API key to set up	カード不要、API キーの設定も不要
+	Sign in to your Foundry Account	Foundry アカウントにサインイン
+	{email}: {n} credits	{email}: {n} クレジット

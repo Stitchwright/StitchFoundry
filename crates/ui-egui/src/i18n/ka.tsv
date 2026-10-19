@@ -5863,8 +5863,8 @@ imageTrace	Outline	კონტური
 	Own colour block	საკუთარი ფერის ბლოკი
 	PIN	PIN
 	Packing	შეფუთვა
-	Paid with StitchFoundry credits ({n} left).	გადახდილია StitchFoundry-ის კრედიტებით (დარჩა {n}).
-	Paid with StitchFoundry credits.	გადახდილია StitchFoundry-ის კრედიტებით.
+	Paid with Foundry credits ({n} left).	გადახდილია Foundry-ის კრედიტებით (დარჩა {n}).
+	Paid with Foundry credits.	გადახდილია Foundry-ის კრედიტებით.
 	Paint	შეღებვა
 	Paint Cross Stitches	ჯვარედინი ნაკერების ხატვა
 	Pair	წყვილი
@@ -5878,8 +5878,8 @@ imageTrace	Outline	კონტური
 	Pause	პაუზა
 	Paw	თათი
 	Paw Print	თათის ნაკვალევი
-	Pay for the AI features with my StitchFoundry credits	AI ფუნქციების გადახდა ჩემი StitchFoundry-ის კრედიტებით
-	Pay with StitchFoundry credits instead	ამის ნაცვლად StitchFoundry-ის კრედიტებით გადახდა
+	Pay for the AI features with my Foundry credits	AI ფუნქციების გადახდა ჩემი Foundry-ის კრედიტებით
+	Pay with Foundry credits instead	ამის ნაცვლად Foundry-ის კრედიტებით გადახდა
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	გადახდა ხდება Stripe-ის დაცულ გვერდზე, თქვენს ბრაუზერში; თქვენი ბარათი StitchFoundry-მდე არასოდეს აღწევს.
 	Pebbles	კენჭები
 	Per 1000 stitches	1000 ნაკერზე
@@ -6082,7 +6082,7 @@ imageTrace	Outline	კონტური
 	Sews well at	კარგად იქარგება ზომაზე
 	Sews well from	კარგად იქარგება ზომიდან
 	Sews well up to	კარგად იქარგება ზომამდე
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	ამ შემოწმების გაზიარება StitchFoundry-ის გასაუმჯობესებლად (პირადი რჩება; ნებისმიერ დროს შეგიძლიათ წაშალოთ StitchFoundry-ის ანგარიშში)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	ამ შემოწმების გაზიარება StitchFoundry-ის გასაუმჯობესებლად (პირადი რჩება; ნებისმიერ დროს შეგიძლიათ წაშალოთ Foundry-ის ანგარიშში)
 	Shell	ნიჟარა
 	Shield	ფარი
 	Short fill stitches under	მოკლე შევსების ნაკერის ზღვარი
@@ -6102,7 +6102,7 @@ imageTrace	Outline	კონტური
 	Side by Side	გვერდიგვერდ
 	Sign In	შესვლა
 	Sign Out	გასვლა
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	შედით ან შექმენით ანგარიში, რომ AI ფუნქციები საკუთარი Anthropic API გასაღების ნაცვლად StitchFoundry-ის კრედიტებით გადაიხადოთ. ახალი ანგარიში უფასო კრედიტებით იწყება.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	შედით ან შექმენით ანგარიში, რომ AI ფუნქციები საკუთარი Anthropic API გასაღების ნაცვლად Foundry-ის კრედიტებით გადაიხადოთ. ახალი ანგარიში უფასო კრედიტებით იწყება.
 	Signed in as {email}	შესული ხართ როგორც {email}
 	Silk / lightweight	აბრეშუმი / მსუბუქი ქსოვილი
 	Simple pictures with a few flat colours and clear edges work best: a cartoon, a logo, clipart.	საუკეთესოდ მარტივი სურათები გამოდგება რამდენიმე ერთფეროვანი ფერითა და მკაფიო კიდეებით: მულტფილმის ნახატი, ლოგო, კლიპარტი.
@@ -6169,11 +6169,11 @@ imageTrace	Outline	კონტური
 	Stitch in the Ditch	ნაკერი ნაკერში
 	Stitch length	ნაკერის სიგრძე
 	Stitch type	ნაკერის ტიპი
-	StitchFoundry Account	StitchFoundry-ის ანგარიში
-	StitchFoundry Account…	StitchFoundry-ის ანგარიში…
+	Foundry Account	Foundry-ის ანგარიში
+	Foundry Account…	Foundry-ის ანგარიში…
 	StitchFoundry Help	StitchFoundry-ის დახმარება
 	StitchFoundry Help…	StitchFoundry-ის დახმარება…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-ის ანგარიშები ჯერ არ გახსნილა. მანამდე AI ფუნქციები თქვენი საკუთარი Anthropic API გასაღებით მუშაობს.
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Foundry-ის ანგარიშები ჯერ არ გახსნილა. მანამდე AI ფუნქციები თქვენი საკუთარი Anthropic API გასაღებით მუშაობს.
 	StitchFoundry copies the fonts to {folder}.	StitchFoundry შრიფტებს აკოპირებს აქ: {folder}.
 	StitchFoundry didn't quit normally last time. These documents had unsaved changes:	წინა ჯერზე StitchFoundry ნორმალურად არ დახურულა. ამ დოკუმენტებში შეუნახავი ცვლილებები იყო:
 	StitchFoundry on GitHub	StitchFoundry GitHub-ზე
@@ -6438,9 +6438,9 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	Report to StitchFoundry…	StitchFoundry-ისთვის შეტყობინება…
 	Send Report	ანგარიშის გაგზავნა
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	ეს ნაქარგი და Claude-ის აზრი, რისი უკეთ გაკეთება შეეძლო StitchFoundry-ს, გაუგზავნეთ მის შემქმნელებს
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	გაუგზავნეთ ეს ნაქარგი StitchFoundry-ის შემქმნელებს, Claude-ის აზრით, რისი უკეთ გაკეთება შეეძლო პროგრამას. მას მხოლოდ StitchFoundry-ის გასაუმჯობესებლად ვიყენებთ: არასოდეს ვაზიარებთ, ვყიდით ან ვაქვეყნებთ და ნებისმიერ დროს შეგიძლიათ მოითხოვოთ მისი წაშლა (StitchFoundry-ის ანგარიში › ჩემი გაზიარებული ნაქარგის შემოწმებების წაშლა).
-	Sign in to StitchFoundry Account to send a report.	ანგარიშის გასაგზავნად შედით StitchFoundry-ის ანგარიშში.
-@msg	Sign in to StitchFoundry Account to send a report.	ანგარიშის გასაგზავნად შედით StitchFoundry-ის ანგარიშში.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	გაუგზავნეთ ეს ნაქარგი StitchFoundry-ის შემქმნელებს, Claude-ის აზრით, რისი უკეთ გაკეთება შეეძლო პროგრამას. მას მხოლოდ StitchFoundry-ის გასაუმჯობესებლად ვიყენებთ: არასოდეს ვაზიარებთ, ვყიდით ან ვაქვეყნებთ და ნებისმიერ დროს შეგიძლიათ მოითხოვოთ მისი წაშლა (Foundry-ის ანგარიში › ჩემი გაზიარებული ნაქარგის შემოწმებების წაშლა).
+	Sign in to Foundry Account to send a report.	ანგარიშის გასაგზავნად შედით Foundry-ის ანგარიშში.
+@msg	Sign in to Foundry Account to send a report.	ანგარიშის გასაგზავნად შედით Foundry-ის ანგარიშში.
 	Thank you: your report was sent.	გმადლობთ: თქვენი ანგარიში გაიგზავნა.
 	Title	სათაური
 	What went wrong, and what StitchFoundry could do better	რა მოხდა არასწორად და რისი უკეთ გაკეთება შეეძლო StitchFoundry-ს
@@ -6450,3 +6450,16 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 @msg	Write what went wrong first, or have Claude write it.	ჯერ დაწერეთ, რა მოხდა არასწორად, ან დაწეროს Claude-მა.
 	The {n} credits this check cost are back in your account.	ამ შემოწმების {n} კრედიტი თქვენს ანგარიშს დაუბრუნდა.
 	Paid for this check with credits? Send a report and they come back to you.	ეს შემოწმება კრედიტებით გადაიხადეთ? გაგზავნეთ ანგარიში და ისინი დაგიბრუნდებათ.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 უფასო კრედიტი AI ფუნქციებისთვის, API გასაღების გარეშე
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 უფასო კრედიტი AI-ს მოსასინჯად: დიზაინი აღწერით, გამოსახულების გადახატვა Claude-ით, კითხვა ქარგვის შესახებ
+	3 free Check My Sew-out photo checks every month	ყოველთვიურად 3 უფასო ფოტოშემოწმება (ჩემი ნაქარგის შემოწმება)
+	A password needs at least 8 characters.	პაროლს სჭირდება მინიმუმ 8 სიმბოლო.
+	Buy Credits…	კრედიტების ყიდვა…
+	Create Free Account	უფასო ანგარიშის შექმნა
+	Create a free Foundry Account	შექმენით უფასო Foundry-ის ანგარიში
+	I have an account: Sign In	ანგარიში მაქვს: შესვლა
+	New here? Create a free account	ახალი ხართ? შექმენით უფასო ანგარიში
+	No card needed, and no API key to set up	ბარათი არ არის საჭირო და არც API გასაღების დაყენება
+	Sign in to your Foundry Account	შედით თქვენს Foundry-ის ანგარიშში
+	{email}: {n} credits	{email}: {n} კრედიტი

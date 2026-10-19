@@ -6098,7 +6098,7 @@ machine	Stop	Dừng máy
 	While it sewed:	Trong khi thêu:
 	e.g. 75/11 ballpoint	vd. 75/11 đầu tròn
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Một lần kiểm tra tốn {n} tín dụng; lượt kiểm tra miễn phí sẽ có lại vào tháng sau.
 	Account	Tài khoản
 	Buy credits	Mua tín dụng
@@ -6108,21 +6108,21 @@ machine	Stop	Dừng máy
 	Email	Email
 	Free sew-out checks left this month: {n}	Lượt kiểm tra miễn phí còn lại tháng này: {n}
 	Leave it empty for StitchFoundry's own service.	Để trống để dùng dịch vụ của chính StitchFoundry.
-	Paid with StitchFoundry credits ({n} left).	Trả bằng tín dụng StitchFoundry (còn {n}).
-	Paid with StitchFoundry credits.	Trả bằng tín dụng StitchFoundry.
-	Pay for the AI features with my StitchFoundry credits	Trả tiền tính năng AI bằng tín dụng StitchFoundry của tôi
-	Pay with StitchFoundry credits instead	Trả bằng tín dụng StitchFoundry thay vào đó
+	Paid with Foundry credits ({n} left).	Trả bằng tín dụng Foundry (còn {n}).
+	Paid with Foundry credits.	Trả bằng tín dụng Foundry.
+	Pay for the AI features with my Foundry credits	Trả tiền tính năng AI bằng tín dụng Foundry của tôi
+	Pay with Foundry credits instead	Trả bằng tín dụng Foundry thay vào đó
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Thanh toán diễn ra trên trang bảo mật của Stripe trong trình duyệt; thẻ của bạn không bao giờ đến StitchFoundry.
 	Reading your credits…	Đang đọc tín dụng…
 	Server	Máy chủ
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Chia sẻ lần kiểm tra này để giúp cải thiện StitchFoundry (giữ riêng tư; xóa bất cứ lúc nào trong Tài khoản StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Chia sẻ lần kiểm tra này để giúp cải thiện StitchFoundry (giữ riêng tư; xóa bất cứ lúc nào trong Tài khoản Foundry)
 	Sign In	Đăng nhập
 	Sign Out	Đăng xuất
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Đăng nhập, hoặc tạo tài khoản, để trả tiền tính năng AI bằng tín dụng StitchFoundry thay vì khóa API Anthropic của riêng bạn. Tài khoản mới có sẵn tín dụng miễn phí.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Đăng nhập, hoặc tạo tài khoản, để trả tiền tính năng AI bằng tín dụng Foundry thay vì khóa API Anthropic của riêng bạn. Tài khoản mới có sẵn tín dụng miễn phí.
 	Signed in as {email}	Đã đăng nhập: {email}
-	StitchFoundry Account	Tài khoản StitchFoundry
-	StitchFoundry Account…	Tài khoản StitchFoundry…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Tài khoản StitchFoundry chưa mở. Cho đến lúc đó, tính năng AI dùng khóa API Anthropic của riêng bạn.
+	Foundry Account	Tài khoản Foundry
+	Foundry Account…	Tài khoản Foundry…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Tài khoản Foundry chưa mở. Cho đến lúc đó, tính năng AI dùng khóa API Anthropic của riêng bạn.
 	This is the sew-out after the fix from my last check	Đây là bản thêu sau khi sửa theo lần kiểm tra trước của tôi
 	{n} credits for {price}	{n} tín dụng giá {price}
 	{n} credits	{n} tín dụng
@@ -6206,9 +6206,9 @@ machine	Stop	Dừng máy
 	Report to StitchFoundry…	Báo cáo cho StitchFoundry…
 	Send Report	Gửi báo cáo
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Gửi bản thêu này và ý tưởng của Claude về điều StitchFoundry có thể làm tốt hơn cho những người làm ra nó
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Gửi bản thêu này cho những người làm ra StitchFoundry, kèm ý tưởng của Claude về điều phần mềm có thể làm tốt hơn. Chúng tôi chỉ dùng nó để cải thiện StitchFoundry: không bao giờ chia sẻ, bán hay công bố, và bạn có thể yêu cầu xóa bất cứ lúc nào (Tài khoản StitchFoundry › Xóa các lần kiểm tra tôi đã chia sẻ).
-	Sign in to StitchFoundry Account to send a report.	Đăng nhập Tài khoản StitchFoundry để gửi báo cáo.
-@msg	Sign in to StitchFoundry Account to send a report.	Đăng nhập Tài khoản StitchFoundry để gửi báo cáo.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Gửi bản thêu này cho những người làm ra StitchFoundry, kèm ý tưởng của Claude về điều phần mềm có thể làm tốt hơn. Chúng tôi chỉ dùng nó để cải thiện StitchFoundry: không bao giờ chia sẻ, bán hay công bố, và bạn có thể yêu cầu xóa bất cứ lúc nào (Tài khoản Foundry › Xóa các lần kiểm tra tôi đã chia sẻ).
+	Sign in to Foundry Account to send a report.	Đăng nhập Tài khoản Foundry để gửi báo cáo.
+@msg	Sign in to Foundry Account to send a report.	Đăng nhập Tài khoản Foundry để gửi báo cáo.
 	Thank you: your report was sent.	Cảm ơn: báo cáo của bạn đã được gửi.
 	Title	Tiêu đề
 	What went wrong, and what StitchFoundry could do better	Điều gì đã sai, và StitchFoundry có thể làm tốt hơn ở đâu
@@ -6218,3 +6218,16 @@ machine	Stop	Dừng máy
 @msg	Write what went wrong first, or have Claude write it.	Hãy viết điều gì đã sai trước, hoặc để Claude viết.
 	The {n} credits this check cost are back in your account.	{n} tín dụng của lần kiểm tra này đã được trả lại vào tài khoản của bạn.
 	Paid for this check with credits? Send a report and they come back to you.	Bạn đã trả lần kiểm tra này bằng tín dụng? Gửi báo cáo và bạn sẽ được hoàn lại.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 tín dụng miễn phí cho các tính năng AI, không cần khóa API
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 tín dụng miễn phí để thử AI: Mẫu thêu từ mô tả, Vẽ lại ảnh bằng Claude, Hỏi về thêu
+	3 free Check My Sew-out photo checks every month	3 lần kiểm tra ảnh miễn phí (Kiểm tra bản thêu của tôi) mỗi tháng
+	A password needs at least 8 characters.	Mật khẩu cần ít nhất 8 ký tự.
+	Buy Credits…	Mua tín dụng…
+	Create Free Account	Tạo tài khoản miễn phí
+	Create a free Foundry Account	Tạo tài khoản Foundry miễn phí
+	I have an account: Sign In	Tôi đã có tài khoản: Đăng nhập
+	New here? Create a free account	Mới đến? Tạo tài khoản miễn phí
+	No card needed, and no API key to set up	Không cần thẻ, không cần cài khóa API
+	Sign in to your Foundry Account	Đăng nhập Tài khoản Foundry của bạn
+	{email}: {n} credits	{email}: {n} tín dụng

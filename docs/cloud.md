@@ -1,7 +1,7 @@
 # StitchFoundry cloud service
 
 > **Status:** 2026-10-19. Accounts, credits, Stripe Checkout and AI requests paid in credits
-> (CLOUD-01); StitchFoundry Account in the app, with Design from Prompt, Redraw Image, Ask About
+> (CLOUD-01); Foundry Account in the app, with Design from Prompt, Redraw Image, Ask About
 > Embroidery and Check My Sew-out paid with credits (CLOUD-02); Check My Sew-out's free monthly
 > checks, opt-in sharing and follow-ups (SO-01); a Postgres database and a Railway setup
 > (CLOUD-03); a monthly budget for the free offers (CLOUD-04). Hosted on Railway at `https://cloud.stitchfoundry.app`
@@ -11,7 +11,7 @@
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
-people make a StitchFoundry account, buy credits, and the app sends their AI requests through the
+people make a Foundry account, buy credits, and the app sends their AI requests through the
 service, which pays Anthropic with its own key and takes credits for what each request used. It is
 open source like the app (`apps/stitchfoundry-cloud`, MIT OR Apache-2.0), and whoever runs it sets
 its keys and prices; nothing secret is in the repository.
@@ -19,7 +19,7 @@ its keys and prices; nothing secret is in the repository.
 ## What it does
 
 - **Accounts:** sign up and sign in with an email and a password (in the app: **Embroidery ›
-  StitchFoundry Account…**). Passwords are kept only as Argon2id hashes; a sign-in gives the app a
+  Foundry Account…**). Passwords are kept only as Argon2id hashes; a sign-in gives the app a
   session token (kept by the service only as its SHA-256), which lasts 90 days unused. Five wrong
   passwords in 15 minutes lock that email out for the rest of the 15 minutes. The same account
   signs in to MakerFoundry (owner's decision, 2026-10-19), which keeps its own records under the

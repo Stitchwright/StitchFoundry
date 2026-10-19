@@ -6463,7 +6463,7 @@ machine	Stop	Pysäytys
 	While it sewed:	Kirjonnan aikana:
 	e.g. 75/11 ballpoint	esim. 75/11 pallokärki
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Tarkistus maksaa {n} krediittiä; ilmaiset tarkistukset palaavat ensi kuussa.
 	Account	Tili
 	Buy credits	Osta krediittejä
@@ -6473,21 +6473,21 @@ machine	Stop	Pysäytys
 	Email	Sähköposti
 	Free sew-out checks left this month: {n}	Ilmaisia tarkistuksia jäljellä tässä kuussa: {n}
 	Leave it empty for StitchFoundry's own service.	Jätä tyhjäksi StitchFoundryn omalle palvelulle.
-	Paid with StitchFoundry credits ({n} left).	Maksettu StitchFoundry-krediiteillä ({n} jäljellä).
-	Paid with StitchFoundry credits.	Maksettu StitchFoundry-krediiteillä.
-	Pay for the AI features with my StitchFoundry credits	Maksa tekoälytoiminnot StitchFoundry-krediiteilläni
-	Pay with StitchFoundry credits instead	Maksa sen sijaan StitchFoundry-krediiteillä
+	Paid with Foundry credits ({n} left).	Maksettu Foundry-krediiteillä ({n} jäljellä).
+	Paid with Foundry credits.	Maksettu Foundry-krediiteillä.
+	Pay for the AI features with my Foundry credits	Maksa tekoälytoiminnot Foundry-krediiteilläni
+	Pay with Foundry credits instead	Maksa sen sijaan Foundry-krediiteillä
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Maksu tehdään Stripen suojatulla sivulla selaimessasi; korttisi ei koskaan päädy StitchFoundrylle.
 	Reading your credits…	Luetaan krediittejä…
 	Server	Palvelin
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Jaa tämä tarkistus StitchFoundryn parantamiseksi (pysyy yksityisenä; poista milloin tahansa StitchFoundry-tilillä)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Jaa tämä tarkistus StitchFoundryn parantamiseksi (pysyy yksityisenä; poista milloin tahansa Foundry-tilillä)
 	Sign In	Kirjaudu sisään
 	Sign Out	Kirjaudu ulos
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Kirjaudu sisään tai luo tili, niin voit maksaa tekoälytoiminnot StitchFoundry-krediiteillä oman Anthropic API -avaimesi sijaan. Uusi tili saa ilmaisia krediittejä.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Kirjaudu sisään tai luo tili, niin voit maksaa tekoälytoiminnot Foundry-krediiteillä oman Anthropic API -avaimesi sijaan. Uusi tili saa ilmaisia krediittejä.
 	Signed in as {email}	Kirjautuneena: {email}
-	StitchFoundry Account	StitchFoundry-tili
-	StitchFoundry Account…	StitchFoundry-tili…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-tilit eivät ole vielä auki. Siihen asti tekoälytoiminnot toimivat omalla Anthropic API -avaimellasi.
+	Foundry Account	Foundry-tili
+	Foundry Account…	Foundry-tili…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Foundry-tilit eivät ole vielä auki. Siihen asti tekoälytoiminnot toimivat omalla Anthropic API -avaimellasi.
 	This is the sew-out after the fix from my last check	Tämä on kirjonta viime tarkistuksen korjauksen jälkeen
 	{n} credits for {price}	{n} krediittiä hintaan {price}
 	{n} credits	{n} krediittiä
@@ -6570,9 +6570,9 @@ machine	Stop	Pysäytys
 	Report to StitchFoundry…	Raportoi StitchFoundrylle…
 	Send Report	Lähetä raportti
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Lähetä tämä kirjontatulos ja Clauden ajatus siitä, mitä StitchFoundry voisi tehdä paremmin, sen tekijöille
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Lähetä tämä kirjontatulos StitchFoundryn tekijöille, mukana Clauden ajatus siitä, mitä ohjelma voisi tehdä paremmin. Käytämme sitä vain StitchFoundryn parantamiseen: emme koskaan jaa, myy tai julkaise sitä, ja voit pyytää sen poistamista milloin tahansa (StitchFoundry-tili › Poista jakamani tarkistukset).
-	Sign in to StitchFoundry Account to send a report.	Kirjaudu StitchFoundry-tiliin lähettääksesi raportin.
-@msg	Sign in to StitchFoundry Account to send a report.	Kirjaudu StitchFoundry-tiliin lähettääksesi raportin.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Lähetä tämä kirjontatulos StitchFoundryn tekijöille, mukana Clauden ajatus siitä, mitä ohjelma voisi tehdä paremmin. Käytämme sitä vain StitchFoundryn parantamiseen: emme koskaan jaa, myy tai julkaise sitä, ja voit pyytää sen poistamista milloin tahansa (Foundry-tili › Poista jakamani tarkistukset).
+	Sign in to Foundry Account to send a report.	Kirjaudu Foundry-tiliin lähettääksesi raportin.
+@msg	Sign in to Foundry Account to send a report.	Kirjaudu Foundry-tiliin lähettääksesi raportin.
 	Thank you: your report was sent.	Kiitos: raporttisi lähetettiin.
 	Title	Otsikko
 	What went wrong, and what StitchFoundry could do better	Mikä meni vikaan, ja mitä StitchFoundry voisi tehdä paremmin
@@ -6582,3 +6582,16 @@ machine	Stop	Pysäytys
 @msg	Write what went wrong first, or have Claude write it.	Kirjoita ensin, mikä meni vikaan, tai anna Clauden kirjoittaa se.
 	The {n} credits this check cost are back in your account.	Tämän tarkistuksen {n} krediittiä on palautettu tilillesi.
 	Paid for this check with credits? Send a report and they come back to you.	Maksoitko tämän tarkistuksen krediiteillä? Lähetä raportti, niin saat ne takaisin.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 ilmaista krediittiä tekoälytoimintoihin, ei API-avainta
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 ilmaista krediittiä tekoälyn kokeiluun: Malli kuvauksesta, Piirrä kuva uudelleen Claudella, Kysy kirjonnasta
+	3 free Check My Sew-out photo checks every month	3 ilmaista kuvatarkistusta (Tarkista kirjontani) joka kuukausi
+	A password needs at least 8 characters.	Salasanassa on oltava vähintään 8 merkkiä.
+	Buy Credits…	Osta krediittejä…
+	Create Free Account	Luo ilmainen tili
+	Create a free Foundry Account	Luo ilmainen Foundry-tili
+	I have an account: Sign In	Minulla on tili: kirjaudu
+	New here? Create a free account	Uusi täällä? Luo ilmainen tili
+	No card needed, and no API key to set up	Ei korttia eikä API-avainta asetettavaksi
+	Sign in to your Foundry Account	Kirjaudu Foundry-tiliisi
+	{email}: {n} credits	{email}: {n} krediittiä

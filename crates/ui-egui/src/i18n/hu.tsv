@@ -6476,7 +6476,7 @@ machine	Stop	Megállás
 	While it sewed:	Hímzés közben:
 	e.g. 75/11 ballpoint	pl. 75/11 gömbölyített hegyű
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Egy ellenőrzés {n} kreditbe kerül; az ingyenes ellenőrzések jövő hónapban visszajönnek.
 	Account	Fiók
 	Buy credits	Kredit vásárlása
@@ -6486,21 +6486,21 @@ machine	Stop	Megállás
 	Email	E-mail
 	Free sew-out checks left this month: {n}	Ingyenes ellenőrzések ebben a hónapban: {n}
 	Leave it empty for StitchFoundry's own service.	Hagyja üresen a StitchFoundry saját szolgáltatásához.
-	Paid with StitchFoundry credits ({n} left).	StitchFoundry-kredittel fizetve ({n} maradt).
-	Paid with StitchFoundry credits.	StitchFoundry-kredittel fizetve.
-	Pay for the AI features with my StitchFoundry credits	Az MI-funkciók fizetése a StitchFoundry-kreditjeimmel
-	Pay with StitchFoundry credits instead	Fizetés inkább StitchFoundry-kredittel
+	Paid with Foundry credits ({n} left).	Foundry-kredittel fizetve ({n} maradt).
+	Paid with Foundry credits.	Foundry-kredittel fizetve.
+	Pay for the AI features with my Foundry credits	Az MI-funkciók fizetése a Foundry-kreditjeimmel
+	Pay with Foundry credits instead	Fizetés inkább Foundry-kredittel
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	A fizetés a Stripe biztonságos oldalán történik a böngészőjében; a kártyája sosem jut el a StitchFoundryhez.
 	Reading your credits…	Kreditek beolvasása…
 	Server	Kiszolgáló
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Ennek az ellenőrzésnek a megosztása a StitchFoundry javításáért (privát marad; bármikor törölhető a StitchFoundry-fiókban)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Ennek az ellenőrzésnek a megosztása a StitchFoundry javításáért (privát marad; bármikor törölhető a Foundry-fiókban)
 	Sign In	Bejelentkezés
 	Sign Out	Kijelentkezés
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Jelentkezzen be vagy hozzon létre fiókot, hogy az MI-funkciókat StitchFoundry-kredittel fizesse a saját Anthropic API-kulcsa helyett. Az új fiók ingyenes kreditekkel indul.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Jelentkezzen be vagy hozzon létre fiókot, hogy az MI-funkciókat Foundry-kredittel fizesse a saját Anthropic API-kulcsa helyett. Az új fiók ingyenes kreditekkel indul.
 	Signed in as {email}	Bejelentkezve: {email}
-	StitchFoundry Account	StitchFoundry-fiók
-	StitchFoundry Account…	StitchFoundry-fiók…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	A StitchFoundry-fiókok még nem nyíltak meg. Addig az MI-funkciók a saját Anthropic API-kulcsával működnek.
+	Foundry Account	Foundry-fiók
+	Foundry Account…	Foundry-fiók…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	A Foundry-fiókok még nem nyíltak meg. Addig az MI-funkciók a saját Anthropic API-kulcsával működnek.
 	This is the sew-out after the fix from my last check	Ez a hímzés a legutóbbi ellenőrzésem javítása után
 	{n} credits for {price}	{n} kredit {price} áron
 	{n} credits	{n} kredit
@@ -6583,9 +6583,9 @@ machine	Stop	Megállás
 	Report to StitchFoundry…	Jelentés a StitchFoundrynek…
 	Send Report	Jelentés küldése
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	A hímzés és Claude ötlete arról, mit csinálhatna jobban a StitchFoundry, elküldése a készítőknek
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Küldje el ezt a hímzést a StitchFoundry készítőinek, Claude ötletével arról, mit csinálhatna jobban a program. Csak a StitchFoundry fejlesztésére használjuk: soha nem osztjuk meg, nem adjuk el és nem tesszük közzé, és bármikor kérheti a törlését (StitchFoundry-fiók › Megosztott ellenőrzéseim törlése).
-	Sign in to StitchFoundry Account to send a report.	Jelentés küldéséhez jelentkezzen be a StitchFoundry-fiókba.
-@msg	Sign in to StitchFoundry Account to send a report.	Jelentés küldéséhez jelentkezzen be a StitchFoundry-fiókba.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Küldje el ezt a hímzést a StitchFoundry készítőinek, Claude ötletével arról, mit csinálhatna jobban a program. Csak a StitchFoundry fejlesztésére használjuk: soha nem osztjuk meg, nem adjuk el és nem tesszük közzé, és bármikor kérheti a törlését (Foundry-fiók › Megosztott ellenőrzéseim törlése).
+	Sign in to Foundry Account to send a report.	Jelentés küldéséhez jelentkezzen be a Foundry-fiókba.
+@msg	Sign in to Foundry Account to send a report.	Jelentés küldéséhez jelentkezzen be a Foundry-fiókba.
 	Thank you: your report was sent.	Köszönjük: a jelentés elment.
 	Title	Cím
 	What went wrong, and what StitchFoundry could do better	Mi romlott el, és mit csinálhatna jobban a StitchFoundry
@@ -6595,3 +6595,16 @@ machine	Stop	Megállás
 @msg	Write what went wrong first, or have Claude write it.	Előbb írja le, mi romlott el, vagy írja meg Claude.
 	The {n} credits this check cost are back in your account.	Az ellenőrzés {n} kreditje visszakerült a fiókjába.
 	Paid for this check with credits? Send a report and they come back to you.	Kreditekkel fizetett ezért az ellenőrzésért? Küldjön jelentést, és visszakapja őket.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 ingyenes kredit az MI-funkciókhoz, API-kulcs nélkül
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 ingyenes kredit az MI kipróbálásához: Minta leírásból, Kép újrarajzolása Claude-dal, Kérdezz a hímzésről
+	3 free Check My Sew-out photo checks every month	Havonta 3 ingyenes fotós ellenőrzés (Hímzésem ellenőrzése)
+	A password needs at least 8 characters.	A jelszónak legalább 8 karakterből kell állnia.
+	Buy Credits…	Kredit vásárlása…
+	Create Free Account	Ingyenes fiók létrehozása
+	Create a free Foundry Account	Hozzon létre ingyenes Foundry-fiókot
+	I have an account: Sign In	Van fiókom: bejelentkezés
+	New here? Create a free account	Új itt? Hozzon létre ingyenes fiókot
+	No card needed, and no API key to set up	Nem kell kártya, és API-kulcsot sem kell beállítani
+	Sign in to your Foundry Account	Jelentkezzen be a Foundry-fiókjába
+	{email}: {n} credits	{email}: {n} kredit

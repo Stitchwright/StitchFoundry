@@ -6342,7 +6342,7 @@ machine	Stop	Zatrzymanie
 	While it sewed:	Podczas haftowania:
 	e.g. 75/11 ballpoint	np. 75/11 z kulistym ostrzem
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Sprawdzenie kosztuje {n} kredytów; darmowe sprawdzenia wrócą w przyszłym miesiącu.
 	Account	Konto
 	Buy credits	Kup kredyty
@@ -6352,21 +6352,21 @@ machine	Stop	Zatrzymanie
 	Email	E-mail
 	Free sew-out checks left this month: {n}	Darmowe sprawdzenia pozostałe w tym miesiącu: {n}
 	Leave it empty for StitchFoundry's own service.	Zostaw puste dla własnej usługi StitchFoundry.
-	Paid with StitchFoundry credits ({n} left).	Opłacone kredytami StitchFoundry (zostało {n}).
-	Paid with StitchFoundry credits.	Opłacone kredytami StitchFoundry.
-	Pay for the AI features with my StitchFoundry credits	Płać za funkcje AI moimi kredytami StitchFoundry
-	Pay with StitchFoundry credits instead	Zapłać zamiast tego kredytami StitchFoundry
+	Paid with Foundry credits ({n} left).	Opłacone kredytami Foundry (zostało {n}).
+	Paid with Foundry credits.	Opłacone kredytami Foundry.
+	Pay for the AI features with my Foundry credits	Płać za funkcje AI moimi kredytami Foundry
+	Pay with Foundry credits instead	Zapłać zamiast tego kredytami Foundry
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Płatność odbywa się na bezpiecznej stronie Stripe w Twojej przeglądarce; Twoja karta nigdy nie trafia do StitchFoundry.
 	Reading your credits…	Wczytywanie kredytów…
 	Server	Serwer
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Udostępnij to sprawdzenie, aby pomóc ulepszyć StitchFoundry (pozostaje prywatne; usuniesz je w każdej chwili w Koncie StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Udostępnij to sprawdzenie, aby pomóc ulepszyć StitchFoundry (pozostaje prywatne; usuniesz je w każdej chwili w Koncie Foundry)
 	Sign In	Zaloguj się
 	Sign Out	Wyloguj się
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Zaloguj się lub utwórz konto, aby płacić za funkcje AI kredytami StitchFoundry zamiast własnym kluczem API Anthropic. Nowe konto zaczyna z darmowymi kredytami.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Zaloguj się lub utwórz konto, aby płacić za funkcje AI kredytami Foundry zamiast własnym kluczem API Anthropic. Nowe konto zaczyna z darmowymi kredytami.
 	Signed in as {email}	Zalogowano jako {email}
-	StitchFoundry Account	Konto StitchFoundry
-	StitchFoundry Account…	Konto StitchFoundry…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Konta StitchFoundry nie są jeszcze otwarte. Do tego czasu funkcje AI działają z Twoim własnym kluczem API Anthropic.
+	Foundry Account	Konto Foundry
+	Foundry Account…	Konto Foundry…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Konta Foundry nie są jeszcze otwarte. Do tego czasu funkcje AI działają z Twoim własnym kluczem API Anthropic.
 	This is the sew-out after the fix from my last check	To haft po poprawce z mojego ostatniego sprawdzenia
 	{n} credits for {price}	{n} kredytów za {price}
 	{n} credits	Kredyty: {n}
@@ -6449,9 +6449,9 @@ machine	Stop	Zatrzymanie
 	Report to StitchFoundry…	Zgłoś do StitchFoundry…
 	Send Report	Wyślij raport
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Wyślij ten haft i pomysł Claude, co StitchFoundry mógłby robić lepiej, jego twórcom
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Wyślij ten haft twórcom StitchFoundry wraz z pomysłem Claude, co program mógłby robić lepiej. Używamy go tylko do ulepszania StitchFoundry: nigdy go nie udostępniamy, nie sprzedajemy ani nie publikujemy, a usunięcia możesz zażądać w każdej chwili (Konto StitchFoundry › Usuń moje udostępnione sprawdzenia).
-	Sign in to StitchFoundry Account to send a report.	Zaloguj się do konta StitchFoundry, aby wysłać raport.
-@msg	Sign in to StitchFoundry Account to send a report.	Zaloguj się do konta StitchFoundry, aby wysłać raport.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Wyślij ten haft twórcom StitchFoundry wraz z pomysłem Claude, co program mógłby robić lepiej. Używamy go tylko do ulepszania StitchFoundry: nigdy go nie udostępniamy, nie sprzedajemy ani nie publikujemy, a usunięcia możesz zażądać w każdej chwili (Konto Foundry › Usuń moje udostępnione sprawdzenia).
+	Sign in to Foundry Account to send a report.	Zaloguj się do konta Foundry, aby wysłać raport.
+@msg	Sign in to Foundry Account to send a report.	Zaloguj się do konta Foundry, aby wysłać raport.
 	Thank you: your report was sent.	Dziękujemy: raport został wysłany.
 	Title	Tytuł
 	What went wrong, and what StitchFoundry could do better	Co poszło nie tak i co StitchFoundry mógłby robić lepiej
@@ -6461,3 +6461,16 @@ machine	Stop	Zatrzymanie
 @msg	Write what went wrong first, or have Claude write it.	Najpierw napisz, co poszło nie tak, albo niech Claude to napisze.
 	The {n} credits this check cost are back in your account.	{n} kredytów za to sprawdzenie wróciło na twoje konto.
 	Paid for this check with credits? Send a report and they come back to you.	Zapłacono za to sprawdzenie kredytami? Wyślij raport, a wrócą do ciebie.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 darmowych kredytów na funkcje AI, bez klucza API
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 darmowych kredytów na wypróbowanie AI: Projekt z opisu, Przerysuj obraz za pomocą Claude, Zapytaj o haft
+	3 free Check My Sew-out photo checks every month	3 darmowe sprawdzenia zdjęć (Sprawdź mój haft) co miesiąc
+	A password needs at least 8 characters.	Hasło musi mieć co najmniej 8 znaków.
+	Buy Credits…	Kup kredyty…
+	Create Free Account	Utwórz darmowe konto
+	Create a free Foundry Account	Utwórz darmowe konto Foundry
+	I have an account: Sign In	Mam konto: zaloguj się
+	New here? Create a free account	Nowy? Utwórz darmowe konto
+	No card needed, and no API key to set up	Bez karty i bez klucza API do ustawiania
+	Sign in to your Foundry Account	Zaloguj się do konta Foundry
+	{email}: {n} credits	{email}: Kredyty: {n}

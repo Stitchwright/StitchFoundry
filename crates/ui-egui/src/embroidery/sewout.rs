@@ -372,7 +372,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 ui.checkbox(&mut st.include_design, tl!("Include the design that was sewn (open now), so it can be fixed"));
             });
             if credits {
-                ui.checkbox(&mut st.share, tl!("Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)"));
+                ui.checkbox(&mut st.share, tl!("Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)"));
             }
             if st.last_check.is_some() {
                 ui.checkbox(&mut st.follow_up, tl!("This is the sew-out after the fix from my last check"));
@@ -454,7 +454,7 @@ pub fn open_report(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String>
     Ok(json!({ "open": true, "signedIn": signed_in(app), "drafting": f.drafting, "sending": f.pending.is_some(), "sent": f.sent }))
 }
 
-/// Whether a report can be sent: signed in to StitchFoundry Account.
+/// Whether a report can be sent: signed in to Foundry Account.
 fn signed_in(app: &VectorcraftApp) -> bool {
     !app.embroidery.account.token.is_empty() && super::account::server(app).is_some()
 }
@@ -478,7 +478,7 @@ fn send_report(app: &mut VectorcraftApp) -> Result<(), String> {
         return fail(app, "Tick the box to agree to send it first.".into());
     }
     let Some(server) = super::account::server(app).filter(|_| signed_in(app)) else {
-        return fail(app, "Sign in to StitchFoundry Account to send a report.".into());
+        return fail(app, "Sign in to Foundry Account to send a report.".into());
     };
     let design = if app.embroidery.sewout.report.design && app.session.active().is_some() { ask::design_summary(app) } else { None };
     let st = &app.embroidery.sewout;
@@ -580,7 +580,7 @@ pub fn report_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
             let f = &mut app.embroidery.sewout.report;
             ui.label(RichText::new(tl!("Help make StitchFoundry better")).strong().size(15.0));
             ui.label(
-                RichText::new(tl!("Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks)."))
+                RichText::new(tl!("Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks)."))
                     .size(12.0)
                     .color(t.text_dim),
             );
@@ -627,7 +627,7 @@ pub fn report_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
             }
             if !signed {
                 ui.horizontal_wrapped(|ui| {
-                    ui.label(RichText::new(tl!("Sign in to StitchFoundry Account to send a report.")).size(12.0).color(t.text_dim));
+                    ui.label(RichText::new(tl!("Sign in to Foundry Account to send a report.")).size(12.0).color(t.text_dim));
                     if ui.link(RichText::new(tl!("Account")).size(12.0)).clicked() {
                         account = true;
                     }

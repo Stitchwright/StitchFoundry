@@ -139,13 +139,13 @@ pub enum ArtError {
     #[error("Add a photo of the sew-out first.")]
     NoPhoto,
     /// No StitchFoundry service is set up in this build.
-    #[error("StitchFoundry accounts aren't open yet.")]
+    #[error("Foundry accounts aren't open yet.")]
     NoServer,
     /// The StitchFoundry session ended, or there is none.
-    #[error("Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).")]
+    #[error("Sign in to your Foundry account (Embroidery › Foundry Account…).")]
     SignIn,
-    /// The StitchFoundry account hasn't the credits.
-    #[error("Not enough StitchFoundry credits: buy more in StitchFoundry Account.")]
+    /// The Foundry account hasn't the credits.
+    #[error("Not enough Foundry credits: buy more in Foundry Account.")]
     NoCredits,
     /// An account with the email exists already.
     #[error("An account with that email already exists: sign in instead.")]

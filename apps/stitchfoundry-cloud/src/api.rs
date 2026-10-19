@@ -206,7 +206,7 @@ fn query_value(path: &str, name: &str) -> Option<String> {
 fn reset_form_html(token: &str, problem: &str) -> String {
     let problem = if problem.is_empty() { String::new() } else { format!("<p style=\"color:#b00020\">{problem}</p>") };
     format!(
-        "<p>Choose a new password for your StitchFoundry account: at least {min} characters.</p>{problem}\
+        "<p>Choose a new password for your Foundry account: at least {min} characters.</p>{problem}\
          <form method=\"post\" action=\"/reset\"><input type=\"hidden\" name=\"token\" value=\"{token}\">\
          <p><label>New password<br><input type=\"password\" name=\"password\" autocomplete=\"new-password\" minlength=\"{min}\" maxlength=\"{max}\" required style=\"box-sizing:border-box;width:100%;padding:.5em;font-size:1em\"></label></p>\
          <p><label>The same again<br><input type=\"password\" name=\"again\" autocomplete=\"new-password\" minlength=\"{min}\" maxlength=\"{max}\" required style=\"box-sizing:border-box;width:100%;padding:.5em;font-size:1em\"></label></p>\
@@ -240,7 +240,7 @@ fn store_error(e: StoreError) -> Response {
     match e {
         StoreError::Taken => Response::error(409, "invalid_request_error", "an account with that email already exists: sign in instead"),
         StoreError::NoAccount => Response::error(401, "authentication_error", "sign in again"),
-        StoreError::NotEnough => Response::error(402, "billing_error", "not enough StitchFoundry credits: buy more in Account"),
+        StoreError::NotEnough => Response::error(402, "billing_error", "not enough Foundry credits: buy more in Account"),
         StoreError::Io(e) => {
             log::error!("store: {e}");
             Response::error(500, "api_error", "the service couldn't save: try again later")
@@ -309,7 +309,7 @@ impl Service {
     /// The account the request's token stands for.
     fn signed_in(&self, req: &Request) -> Result<u64, Response> {
         let token = req.header("authorization").and_then(|h| h.strip_prefix("Bearer ")).map(str::trim).filter(|t| t.starts_with("sfs_"));
-        let Some(token) = token else { return Err(Response::error(401, "authentication_error", "sign in to your StitchFoundry account")) };
+        let Some(token) = token else { return Err(Response::error(401, "authentication_error", "sign in to your Foundry account")) };
         let now = (self.clock)();
         self.store()
             .session(&auth::token_hash(token), now)
@@ -450,7 +450,7 @@ impl Service {
             }
             resets.failed(&email, now);
         }
-        let sent = json!({ "sent": true, "message": "If there's a StitchFoundry account with that email, a link to reset its password is on its way. It works for an hour." });
+        let sent = json!({ "sent": true, "message": "If there's a Foundry account with that email, a link to reset its password is on its way. It works for an hour." });
         let Some(id) = self.store().by_email(&email).map(|a| a.id) else { return Response::json(200, &sent) };
         let (token, hash) = match auth::new_reset_token() {
             Ok(t) => t,
@@ -461,7 +461,7 @@ impl Service {
         }
         let link = format!("{}/reset?token={token}", self.cfg.public_url);
         let text = format!(
-            "Someone, hopefully you, asked to reset the password of the StitchFoundry account for {email}.\n\n\
+            "Someone, hopefully you, asked to reset the password of the Foundry account for {email}.\n\n\
              To choose a new password, open this link within an hour:\n{link}\n\n\
              It works once. Setting a new password signs the account out everywhere.\n\n\
              If you didn't ask, ignore this email: your password stays as it is.\n\n\

@@ -151,7 +151,7 @@ pub struct EmbroideryUi {
     pub ask: ask::AskState,
     /// Check My Sew-out: the photos and answers (SO-01).
     pub sewout: sewout::SewOutState,
-    /// StitchFoundry Account: the session and the credits (CLOUD-02).
+    /// Foundry Account: the session and the credits (CLOUD-02).
     pub account: account::AccountState,
     /// Get Embroidery Fonts' window (NEW-20).
     pub font_library: crate::dialogs::font_library::FontLibraryState,

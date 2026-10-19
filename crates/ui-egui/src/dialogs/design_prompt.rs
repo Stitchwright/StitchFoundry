@@ -115,7 +115,7 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
                 .color(t.text_dim),
         );
     }
-    // paid with StitchFoundry credits, or with the user's own key
+    // paid with Foundry credits, or with the user's own key
     if !crate::embroidery::account::paid_line(app, ui, &t) {
         ui.horizontal_wrapped(|ui| {
         let about = if redraw {

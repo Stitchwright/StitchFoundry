@@ -6100,7 +6100,7 @@ machine	Stop	Зупинка
 @msg	At most 6 photos: remove one first.	Не більше 6 фото: спершу приберіть одне.
 @msg	no files here	тут немає файлів
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Перевірка коштує {n} кредитів; безкоштовні перевірки повернуться наступного місяця.
 	Account	Обліковий запис
 	Buy credits	Купити кредити
@@ -6110,26 +6110,26 @@ machine	Stop	Зупинка
 	Email	Ел. пошта
 	Free sew-out checks left this month: {n}	Безкоштовних перевірок цього місяця лишилося: {n}
 	Leave it empty for StitchFoundry's own service.	Залиште порожнім для власного сервісу StitchFoundry.
-	Paid with StitchFoundry credits ({n} left).	Оплачено кредитами StitchFoundry (лишилося {n}).
-	Paid with StitchFoundry credits.	Оплачено кредитами StitchFoundry.
-	Pay for the AI features with my StitchFoundry credits	Оплачувати функції ШІ моїми кредитами StitchFoundry
-	Pay with StitchFoundry credits instead	Платити кредитами StitchFoundry
+	Paid with Foundry credits ({n} left).	Оплачено кредитами Foundry (лишилося {n}).
+	Paid with Foundry credits.	Оплачено кредитами Foundry.
+	Pay for the AI features with my Foundry credits	Оплачувати функції ШІ моїми кредитами Foundry
+	Pay with Foundry credits instead	Платити кредитами Foundry
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Оплата відбувається на захищеній сторінці Stripe у вашому браузері; ваша картка ніколи не потрапляє до StitchFoundry.
 	Reading your credits…	Читаємо ваші кредити…
 	Server	Сервер
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Поділитися цією перевіркою, щоб допомогти покращити StitchFoundry (лишиться приватною; видалити можна будь-коли в обліковому записі StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Поділитися цією перевіркою, щоб допомогти покращити StitchFoundry (лишиться приватною; видалити можна будь-коли в обліковому записі Foundry)
 	Sign In	Увійти
 	Sign Out	Вийти
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Увійдіть або створіть обліковий запис, щоб оплачувати функції ШІ кредитами StitchFoundry замість власного ключа API Anthropic. Новий обліковий запис починається з безкоштовними кредитами.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Увійдіть або створіть обліковий запис, щоб оплачувати функції ШІ кредитами Foundry замість власного ключа API Anthropic. Новий обліковий запис починається з безкоштовними кредитами.
 	Signed in as {email}	Увійшли як {email}
-	StitchFoundry Account	Обліковий запис StitchFoundry
-	StitchFoundry Account…	Обліковий запис StitchFoundry…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Облікові записи StitchFoundry ще не відкриті. Доти функції ШІ працюють з вашим власним ключем API Anthropic.
+	Foundry Account	Обліковий запис Foundry
+	Foundry Account…	Обліковий запис Foundry…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Облікові записи Foundry ще не відкриті. Доти функції ШІ працюють з вашим власним ключем API Anthropic.
 	This is the sew-out after the fix from my last check	Це вишивка після виправлення з моєї минулої перевірки
 	{n} credits for {price}	{n} кредитів за {price}
 	{n} credits	Кредитів: {n}
 	{n} free checks left this month.	Безкоштовних перевірок цього місяця лишилося: {n}.
-@msg	StitchFoundry Account needs the desktop app for now	«Обліковий запис StitchFoundry» поки потребує настільного застосунку
+@msg	Foundry Account needs the desktop app for now	«Обліковий запис Foundry» поки потребує настільного застосунку
 @msg	Type your email address.	Введіть адресу ел. пошти.
 @msg	A password needs at least 8 characters.	У паролі має бути щонайменше 8 символів.
 @msg	Account made: welcome to StitchFoundry.	Обліковий запис створено: ласкаво просимо до StitchFoundry.
@@ -6137,9 +6137,9 @@ machine	Stop	Зупинка
 @msg	Pay on the page that opened in your browser, then press Refresh.	Оплатіть на сторінці, що відкрилася в браузері, потім натисніть «Оновити».
 @msg	Signed out.	Ви вийшли.
 @msg	Your shared sew-out checks are deleted.	Ваші спільні перевірки видалено.
-@msg	StitchFoundry accounts aren't open yet.	Облікові записи StitchFoundry ще не відкриті.
-@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Увійдіть до облікового запису StitchFoundry (Вишивка › Обліковий запис StitchFoundry…).
-@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Недостатньо кредитів StitchFoundry: купіть ще в обліковому записі StitchFoundry.
+@msg	Foundry accounts aren't open yet.	Облікові записи Foundry ще не відкриті.
+@msg	Sign in to your Foundry account (Embroidery › Foundry Account…).	Увійдіть до облікового запису Foundry (Вишивка › Обліковий запис Foundry…).
+@msg	Not enough Foundry credits: buy more in Foundry Account.	Недостатньо кредитів Foundry: купіть ще в обліковому записі Foundry.
 @msg	An account with that email already exists: sign in instead.	Обліковий запис із цією поштою вже існує: увійдіть до нього.
 @msg	The StitchFoundry service can't do this yet: try again later.	Сервіс StitchFoundry поки цього не вміє: спробуйте пізніше.
 # Links and Attributes: files and URLs handed to other apps.
@@ -6176,7 +6176,7 @@ machine	Stop	Зупинка
 	{name} API key:	Ключ API {name}:
 	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Зображення оплачується з вашого облікового запису в цьому сервісі. Потім Claude перемальовує його пласкими фігурами у ваших кольорах ниток, щоб воно вишивалося з небагатьма змінами нитки.
 	Making the picture…	Робимо зображення…
-@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	Щоб перемалювати зображення стібками, потрібен Claude: додайте ключ API Anthropic або увійдіть до облікового запису StitchFoundry.
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to Foundry Account.	Щоб перемалювати зображення стібками, потрібен Claude: додайте ключ API Anthropic або увійдіть до облікового запису Foundry.
 @msg	the picture didn't come whole: try again	зображення прийшло не цілим: спробуйте ще раз
 @msg	The AI service sent no picture: try again, or choose another service.	Сервіс ШІ не надіслав зображення: спробуйте ще раз або виберіть інший сервіс.
 	Artboard {n} of {total}	Монтажна область {n} з {total}
@@ -6224,9 +6224,9 @@ machine	Stop	Зупинка
 	Report to StitchFoundry…	Повідомити StitchFoundry…
 	Send Report	Надіслати звіт
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Надіслати цю вишивку та ідею Claude про те, що StitchFoundry міг би робити краще, його творцям
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Надішліть цю вишивку творцям StitchFoundry разом з ідеєю Claude про те, що програма могла б робити краще. Ми використовуємо її лише для покращення StitchFoundry: ніколи не передаємо, не продаємо й не публікуємо, і ви можете попросити видалити її будь-коли (Обліковий запис StitchFoundry › Видалити мої спільні перевірки).
-	Sign in to StitchFoundry Account to send a report.	Увійдіть в обліковий запис StitchFoundry, щоб надіслати звіт.
-@msg	Sign in to StitchFoundry Account to send a report.	Увійдіть в обліковий запис StitchFoundry, щоб надіслати звіт.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Надішліть цю вишивку творцям StitchFoundry разом з ідеєю Claude про те, що програма могла б робити краще. Ми використовуємо її лише для покращення StitchFoundry: ніколи не передаємо, не продаємо й не публікуємо, і ви можете попросити видалити її будь-коли (Обліковий запис Foundry › Видалити мої спільні перевірки).
+	Sign in to Foundry Account to send a report.	Увійдіть в обліковий запис Foundry, щоб надіслати звіт.
+@msg	Sign in to Foundry Account to send a report.	Увійдіть в обліковий запис Foundry, щоб надіслати звіт.
 	Thank you: your report was sent.	Дякуємо: ваш звіт надіслано.
 	Title	Заголовок
 	What went wrong, and what StitchFoundry could do better	Що пішло не так і що StitchFoundry міг би робити краще
@@ -6236,3 +6236,16 @@ machine	Stop	Зупинка
 @msg	Write what went wrong first, or have Claude write it.	Спершу напишіть, що пішло не так, або нехай це напише Claude.
 	The {n} credits this check cost are back in your account.	{n} кредитів за цю перевірку повернулися на ваш рахунок.
 	Paid for this check with credits? Send a report and they come back to you.	Оплатили цю перевірку кредитами? Надішліть звіт, і вони повернуться до вас.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 безкоштовних кредитів на функції ШІ, без ключа API
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 безкоштовних кредитів, щоб спробувати ШІ: Дизайн за описом, Перемалювати зображення за допомогою Claude, Запитати про вишивку
+	3 free Check My Sew-out photo checks every month	3 безкоштовні перевірки фото (Перевірити вишивку) щомісяця
+	A password needs at least 8 characters.	Пароль має містити щонайменше 8 символів.
+	Buy Credits…	Купити кредити…
+	Create Free Account	Створити безкоштовний обліковий запис
+	Create a free Foundry Account	Створіть безкоштовний обліковий запис Foundry
+	I have an account: Sign In	Маю обліковий запис: увійти
+	New here? Create a free account	Вперше тут? Створіть безкоштовний обліковий запис
+	No card needed, and no API key to set up	Без картки й без налаштування ключа API
+	Sign in to your Foundry Account	Увійдіть в обліковий запис Foundry
+	{email}: {n} credits	{email}: Кредитів: {n}

@@ -5998,7 +5998,7 @@ mark-style	Japanese	Japonesas
 	Replace Cross-Stitch Colour	Substituir cor do ponto cruz
 	Backstitch Lines	Linhas de ponto atrás
 	Check My Sew-out…	Verificar meu bordado…
-	StitchFoundry Account…	Conta StitchFoundry…
+	Foundry Account…	Conta Foundry…
 # Links and Attributes: files and URLs handed to other apps.
 @msg	Edit Original opens image and document files only; “{name}” is not one	Editar Original abre apenas arquivos de imagem e de documento; “{name}” não é um deles
 @msg	only http, https and mailto URLs open in the browser, not “{url}”	apenas URLs http, https e mailto abrem no navegador, não “{url}”
@@ -6250,14 +6250,14 @@ mark-style	Japanese	Japonesas
 	Open or create a document to digitize embroidery.	Abra ou crie um documento para digitalizar bordados.
 	Overlap	Sobreposição
 	Overlap where shapes touch	Sobrepor onde as formas se encostam
-	Paid with StitchFoundry credits ({n} left).	Pago com créditos do StitchFoundry (restam {n}).
-	Paid with StitchFoundry credits.	Pago com créditos do StitchFoundry.
+	Paid with Foundry credits ({n} left).	Pago com créditos do Foundry (restam {n}).
+	Paid with Foundry credits.	Pago com créditos do Foundry.
 	Passes	Passadas
 	Path spacing	Espaçamento do caminho
 	Pattern colours	Cores do padrão
 	Pause	Pausa
-	Pay for the AI features with my StitchFoundry credits	Pagar os recursos de IA com meus créditos do StitchFoundry
-	Pay with StitchFoundry credits instead	Pagar com créditos do StitchFoundry
+	Pay for the AI features with my Foundry credits	Pagar os recursos de IA com meus créditos do Foundry
+	Pay with Foundry credits instead	Pagar com créditos do Foundry
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	O pagamento é feito na página segura da Stripe, no seu navegador; o seu cartão nunca chega ao StitchFoundry.
 	Photos of your finished sew-out	Fotos do seu bordado pronto
 	Pick a brush, width, density and shape from a dial, then draw on the canvas	Escolha pincel, largura, densidade e forma em um seletor giratório e desenhe na tela
@@ -6313,7 +6313,7 @@ mark-style	Japanese	Japonesas
 	Sew later	Bordar depois
 	Sew the objects separately again	Voltar a bordar os objetos separadamente
 	Sewn last	Bordado por último
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Compartilhar esta revisão para ajudar a melhorar o StitchFoundry (fica privada; exclua quando quiser em Conta StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Compartilhar esta revisão para ajudar a melhorar o StitchFoundry (fica privada; exclua quando quiser em Conta Foundry)
 	Short stitches on curves	Pontos curtos nas curvas
 	Shortest stitch	Ponto mais curto
 	Show every stitch	Mostrar todos os pontos
@@ -6321,7 +6321,7 @@ mark-style	Japanese	Japonesas
 	Side by Side	Lado a lado
 	Sign In	Entrar
 	Sign Out	Sair
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Entre, ou crie uma conta, para pagar os recursos de IA com créditos do StitchFoundry em vez da sua própria chave de API da Anthropic. Uma conta nova já começa com créditos grátis.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Entre, ou crie uma conta, para pagar os recursos de IA com créditos do Foundry em vez da sua própria chave de API da Anthropic. Uma conta nova já começa com créditos grátis.
 	Signed in as {email}	Conectado como {email}
 	Silk / lightweight	Seda / tecido leve
 	Small lettering under	Letras pequenas abaixo de
@@ -6339,8 +6339,8 @@ mark-style	Japanese	Japonesas
 	Stitch Plan	Plano de bordado
 	Stitch length	Comprimento do ponto
 	Stitch type	Tipo de ponto
-	StitchFoundry Account	Conta StitchFoundry
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	As contas do StitchFoundry ainda não estão abertas. Até lá, os recursos de IA funcionam com a sua própria chave de API da Anthropic.
+	Foundry Account	Conta Foundry
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	As contas do Foundry ainda não estão abertas. Até lá, os recursos de IA funcionam com a sua própria chave de API da Anthropic.
 	Stitches edited by hand: the shape no longer changes them.	Pontos editados à mão: a forma não os altera mais.
 	Stitches over 7 mm	Pontos acima de 7 mm
 	Stitches per minute	Pontos por minuto
@@ -6464,9 +6464,9 @@ mark-style	Japanese	Japonesas
 	Report to StitchFoundry…	Relatar ao StitchFoundry…
 	Send Report	Enviar relatório
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Enviar este bordado e a ideia do Claude do que o StitchFoundry poderia fazer melhor aos seus criadores
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Envie este bordado para quem faz o StitchFoundry, com a ideia do Claude do que o programa poderia fazer melhor. Usamos só para melhorar o StitchFoundry: nunca compartilhamos, vendemos ou publicamos, e você pode pedir para apagar a qualquer momento (Conta StitchFoundry › Excluir minhas revisões compartilhadas).
-	Sign in to StitchFoundry Account to send a report.	Entre na Conta StitchFoundry para enviar um relatório.
-@msg	Sign in to StitchFoundry Account to send a report.	Entre na Conta StitchFoundry para enviar um relatório.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Envie este bordado para quem faz o StitchFoundry, com a ideia do Claude do que o programa poderia fazer melhor. Usamos só para melhorar o StitchFoundry: nunca compartilhamos, vendemos ou publicamos, e você pode pedir para apagar a qualquer momento (Conta Foundry › Excluir minhas revisões compartilhadas).
+	Sign in to Foundry Account to send a report.	Entre na Conta Foundry para enviar um relatório.
+@msg	Sign in to Foundry Account to send a report.	Entre na Conta Foundry para enviar um relatório.
 	Thank you: your report was sent.	Obrigado: seu relatório foi enviado.
 	Title	Título
 	What went wrong, and what StitchFoundry could do better	O que deu errado e o que o StitchFoundry poderia fazer melhor
@@ -6476,3 +6476,16 @@ mark-style	Japanese	Japonesas
 @msg	Write what went wrong first, or have Claude write it.	Escreva primeiro o que deu errado, ou deixe o Claude escrever.
 	The {n} credits this check cost are back in your account.	Os {n} créditos desta revisão voltaram para sua conta.
 	Paid for this check with credits? Send a report and they come back to you.	Pagou esta revisão com créditos? Envie um relatório e eles voltam para você.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 créditos grátis para os recursos de IA, sem chave de API
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 créditos grátis para experimentar a IA: Desenho a Partir de Descrição, Redesenhar Imagem com o Claude, Perguntar sobre bordado
+	3 free Check My Sew-out photo checks every month	3 verificações de foto grátis com Revisar meu bordado todo mês
+	A password needs at least 8 characters.	A senha precisa ter pelo menos 8 caracteres.
+	Buy Credits…	Comprar créditos…
+	Create Free Account	Criar conta grátis
+	Create a free Foundry Account	Crie uma conta Foundry grátis
+	I have an account: Sign In	Já tenho conta: entrar
+	New here? Create a free account	Novo aqui? Crie uma conta grátis
+	No card needed, and no API key to set up	Sem cartão e sem chave de API para configurar
+	Sign in to your Foundry Account	Entre na sua conta Foundry
+	{email}: {n} credits	{email}: {n} créditos

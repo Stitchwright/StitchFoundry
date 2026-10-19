@@ -6305,7 +6305,7 @@ machine	Stop	停止
 @msg	At most 6 photos: remove one first.	最多 6 张照片：请先移除一张。
 @msg	no files here	这里没有文件
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	一次检查需 {n} 点数；免费检查下个月恢复。
 	Account	账户
 	Buy credits	购买点数
@@ -6315,26 +6315,26 @@ machine	Stop	停止
 	Email	电子邮件
 	Free sew-out checks left this month: {n}	本月剩余免费检查：{n}
 	Leave it empty for StitchFoundry's own service.	留空则使用 StitchFoundry 自己的服务。
-	Paid with StitchFoundry credits ({n} left).	用 StitchFoundry 点数支付（剩余 {n}）。
-	Paid with StitchFoundry credits.	用 StitchFoundry 点数支付。
-	Pay for the AI features with my StitchFoundry credits	用我的 StitchFoundry 点数支付 AI 功能
-	Pay with StitchFoundry credits instead	改用 StitchFoundry 点数支付
+	Paid with Foundry credits ({n} left).	用 Foundry 点数支付（剩余 {n}）。
+	Paid with Foundry credits.	用 Foundry 点数支付。
+	Pay for the AI features with my Foundry credits	用我的 Foundry 点数支付 AI 功能
+	Pay with Foundry credits instead	改用 Foundry 点数支付
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	在浏览器中的 Stripe 安全页面付款；您的银行卡信息绝不会到达 StitchFoundry。
 	Reading your credits…	正在读取点数…
 	Server	服务器
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	共享这次检查以帮助改进 StitchFoundry（保持私密；可随时在 StitchFoundry 账户中删除）
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	共享这次检查以帮助改进 StitchFoundry（保持私密；可随时在 Foundry 账户中删除）
 	Sign In	登录
 	Sign Out	退出登录
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	登录或创建账户，即可用 StitchFoundry 点数代替您自己的 Anthropic API 密钥支付 AI 功能。新账户附带免费点数。
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	登录或创建账户，即可用 Foundry 点数代替您自己的 Anthropic API 密钥支付 AI 功能。新账户附带免费点数。
 	Signed in as {email}	已登录：{email}
-	StitchFoundry Account	StitchFoundry 账户
-	StitchFoundry Account…	StitchFoundry 账户…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry 账户尚未开放。在此之前，AI 功能使用您自己的 Anthropic API 密钥。
+	Foundry Account	Foundry 账户
+	Foundry Account…	Foundry 账户…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Foundry 账户尚未开放。在此之前，AI 功能使用您自己的 Anthropic API 密钥。
 	This is the sew-out after the fix from my last check	这是按上次检查修改后绣的成品
 	{n} credits for {price}	{n} 点数，{price}
 	{n} credits	{n} 点数
 	{n} free checks left this month.	本月还剩 {n} 次免费检查。
-@msg	StitchFoundry Account needs the desktop app for now	“StitchFoundry 账户”目前需要桌面版应用
+@msg	Foundry Account needs the desktop app for now	“Foundry 账户”目前需要桌面版应用
 @msg	Type your email address.	请输入您的电子邮件地址。
 @msg	A password needs at least 8 characters.	密码至少需要 8 个字符。
 @msg	Account made: welcome to StitchFoundry.	账户已创建：欢迎使用 StitchFoundry。
@@ -6342,9 +6342,9 @@ machine	Stop	停止
 @msg	Pay on the page that opened in your browser, then press Refresh.	请在浏览器打开的页面中付款，然后按“刷新”。
 @msg	Signed out.	已退出登录。
 @msg	Your shared sew-out checks are deleted.	您共享的检查已删除。
-@msg	StitchFoundry accounts aren't open yet.	StitchFoundry 账户尚未开放。
-@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	请登录您的 StitchFoundry 账户（刺绣 › StitchFoundry 账户…）。
-@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	StitchFoundry 点数不足：请在 StitchFoundry 账户中购买。
+@msg	Foundry accounts aren't open yet.	Foundry 账户尚未开放。
+@msg	Sign in to your Foundry account (Embroidery › Foundry Account…).	请登录您的 Foundry 账户（刺绣 › Foundry 账户…）。
+@msg	Not enough Foundry credits: buy more in Foundry Account.	Foundry 点数不足：请在 Foundry 账户中购买。
 @msg	An account with that email already exists: sign in instead.	该电子邮件已有账户：请直接登录。
 @msg	The StitchFoundry service can't do this yet: try again later.	StitchFoundry 服务暂时无法完成此操作：请稍后再试。
 	Enable Guides for 9-Slice Scaling	启用 9-slice 缩放参考线
@@ -6429,9 +6429,9 @@ machine	Stop	停止
 	Report to StitchFoundry…	报告给 StitchFoundry…
 	Send Report	发送报告
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	将这次刺绣成品和 Claude 对 StitchFoundry 可改进之处的看法发给开发者
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	将这次刺绣成品连同 Claude 对软件可改进之处的看法发给 StitchFoundry 的开发者。我们只用它来改进 StitchFoundry:绝不共享、出售或公开,你可以随时要求删除(StitchFoundry 账户 › 删除我共享的检查)。
-	Sign in to StitchFoundry Account to send a report.	请登录 StitchFoundry 账户以发送报告。
-@msg	Sign in to StitchFoundry Account to send a report.	请登录 StitchFoundry 账户以发送报告。
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	将这次刺绣成品连同 Claude 对软件可改进之处的看法发给 StitchFoundry 的开发者。我们只用它来改进 StitchFoundry:绝不共享、出售或公开,你可以随时要求删除(Foundry 账户 › 删除我共享的检查)。
+	Sign in to Foundry Account to send a report.	请登录 Foundry 账户以发送报告。
+@msg	Sign in to Foundry Account to send a report.	请登录 Foundry 账户以发送报告。
 	Thank you: your report was sent.	谢谢:你的报告已发送。
 	Title	标题
 	What went wrong, and what StitchFoundry could do better	哪里出了问题,以及 StitchFoundry 可以如何改进
@@ -6441,3 +6441,16 @@ machine	Stop	停止
 @msg	Write what went wrong first, or have Claude write it.	请先写下哪里出了问题,或让 Claude 来写。
 	The {n} credits this check cost are back in your account.	这次检查花费的 {n} 点数已退回你的账户。
 	Paid for this check with credits? Send a report and they come back to you.	这次检查用点数支付了?发送报告即可退回。
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	AI 功能免费点数 100,无需 API 密钥
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	免费 100 点数体验 AI:根据描述生成图案、使用 Claude 重绘图像、询问刺绣问题
+	3 free Check My Sew-out photo checks every month	每月 3 次免费照片检查(检查我的绣品)
+	A password needs at least 8 characters.	密码至少需要 8 个字符。
+	Buy Credits…	购买点数…
+	Create Free Account	创建免费账户
+	Create a free Foundry Account	创建免费 Foundry 账户
+	I have an account: Sign In	已有账户:登录
+	New here? Create a free account	新用户?创建免费账户
+	No card needed, and no API key to set up	无需银行卡,也无需设置 API 密钥
+	Sign in to your Foundry Account	登录你的 Foundry 账户
+	{email}: {n} credits	{email}: {n} 点数

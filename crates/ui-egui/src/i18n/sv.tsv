@@ -6455,7 +6455,7 @@ machine	Stop	Stopp
 	While it sewed:	Medan den broderade:
 	e.g. 75/11 ballpoint	t.ex. 75/11 kulspets
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	En kontroll kostar {n} krediter; gratiskontrollerna kommer tillbaka nästa månad.
 	Account	Konto
 	Buy credits	Köp krediter
@@ -6465,21 +6465,21 @@ machine	Stop	Stopp
 	Email	E-post
 	Free sew-out checks left this month: {n}	Gratiskontroller kvar den här månaden: {n}
 	Leave it empty for StitchFoundry's own service.	Lämna tomt för StitchFoundrys egen tjänst.
-	Paid with StitchFoundry credits ({n} left).	Betalt med StitchFoundry-krediter ({n} kvar).
-	Paid with StitchFoundry credits.	Betalt med StitchFoundry-krediter.
-	Pay for the AI features with my StitchFoundry credits	Betala AI-funktionerna med mina StitchFoundry-krediter
-	Pay with StitchFoundry credits instead	Betala med StitchFoundry-krediter i stället
+	Paid with Foundry credits ({n} left).	Betalt med Foundry-krediter ({n} kvar).
+	Paid with Foundry credits.	Betalt med Foundry-krediter.
+	Pay for the AI features with my Foundry credits	Betala AI-funktionerna med mina Foundry-krediter
+	Pay with Foundry credits instead	Betala med Foundry-krediter i stället
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Betalningen sker på Stripes säkra sida i din webbläsare; ditt kort når aldrig StitchFoundry.
 	Reading your credits…	Läser dina krediter…
 	Server	Server
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Dela den här kontrollen för att hjälpa till att förbättra StitchFoundry (förblir privat; radera den när som helst i StitchFoundry-kontot)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Dela den här kontrollen för att hjälpa till att förbättra StitchFoundry (förblir privat; radera den när som helst i Foundry-kontot)
 	Sign In	Logga in
 	Sign Out	Logga ut
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Logga in, eller skapa ett konto, för att betala AI-funktionerna med StitchFoundry-krediter i stället för din egen API-nyckel från Anthropic. Ett nytt konto börjar med gratiskrediter.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Logga in, eller skapa ett konto, för att betala AI-funktionerna med Foundry-krediter i stället för din egen API-nyckel från Anthropic. Ett nytt konto börjar med gratiskrediter.
 	Signed in as {email}	Inloggad som {email}
-	StitchFoundry Account	StitchFoundry-konto
-	StitchFoundry Account…	StitchFoundry-konto…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-konton har inte öppnat än. Tills dess fungerar AI-funktionerna med din egen API-nyckel från Anthropic.
+	Foundry Account	Foundry-konto
+	Foundry Account…	Foundry-konto…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Foundry-konton har inte öppnat än. Tills dess fungerar AI-funktionerna med din egen API-nyckel från Anthropic.
 	This is the sew-out after the fix from my last check	Det här är broderiet efter rättelsen från min senaste kontroll
 	{n} credits for {price}	{n} krediter för {price}
 	{n} credits	{n} krediter
@@ -6562,9 +6562,9 @@ machine	Stop	Stopp
 	Report to StitchFoundry…	Rapportera till StitchFoundry…
 	Send Report	Skicka rapport
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Skicka detta broderi och Claudes idé om vad StitchFoundry kunde göra bättre till dem som gör det
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Skicka detta broderi till dem som gör StitchFoundry, med Claudes idé om vad programmet kunde göra bättre. Vi använder det bara för att förbättra StitchFoundry: vi delar, säljer eller publicerar det aldrig, och du kan få det raderat när som helst (StitchFoundry-konto › Radera mina delade kontroller).
-	Sign in to StitchFoundry Account to send a report.	Logga in på StitchFoundry-kontot för att skicka en rapport.
-@msg	Sign in to StitchFoundry Account to send a report.	Logga in på StitchFoundry-kontot för att skicka en rapport.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Skicka detta broderi till dem som gör StitchFoundry, med Claudes idé om vad programmet kunde göra bättre. Vi använder det bara för att förbättra StitchFoundry: vi delar, säljer eller publicerar det aldrig, och du kan få det raderat när som helst (Foundry-konto › Radera mina delade kontroller).
+	Sign in to Foundry Account to send a report.	Logga in på Foundry-kontot för att skicka en rapport.
+@msg	Sign in to Foundry Account to send a report.	Logga in på Foundry-kontot för att skicka en rapport.
 	Thank you: your report was sent.	Tack: din rapport har skickats.
 	Title	Titel
 	What went wrong, and what StitchFoundry could do better	Vad gick fel, och vad kunde StitchFoundry göra bättre
@@ -6574,3 +6574,16 @@ machine	Stop	Stopp
 @msg	Write what went wrong first, or have Claude write it.	Skriv först vad som gick fel, eller låt Claude skriva det.
 	The {n} credits this check cost are back in your account.	De {n} krediter kontrollen kostade är tillbaka på ditt konto.
 	Paid for this check with credits? Send a report and they come back to you.	Betalat kontrollen med krediter? Skicka en rapport så får du tillbaka dem.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 gratis krediter för AI-funktionerna, ingen API-nyckel behövs
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 gratis krediter för att prova AI: Design från beskrivning, Rita om bilden med Claude, Fråga om broderi
+	3 free Check My Sew-out photo checks every month	3 gratis fotokontroller med Kontrollera mitt broderi varje månad
+	A password needs at least 8 characters.	Ett lösenord behöver minst 8 tecken.
+	Buy Credits…	Köp krediter…
+	Create Free Account	Skapa gratis konto
+	Create a free Foundry Account	Skapa ett gratis Foundry-konto
+	I have an account: Sign In	Jag har ett konto: logga in
+	New here? Create a free account	Ny här? Skapa ett gratis konto
+	No card needed, and no API key to set up	Inget kort och ingen API-nyckel att ställa in
+	Sign in to your Foundry Account	Logga in på ditt Foundry-konto
+	{email}: {n} credits	{email}: {n} krediter

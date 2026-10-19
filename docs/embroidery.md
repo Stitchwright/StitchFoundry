@@ -26,7 +26,7 @@ the control channel, the CLI and the MCP server.
 - [Redraw Image with Claude](#redraw-image-with-claude)
 - [Ask About Embroidery](#ask-about-embroidery)
 - [Check My Sew-out](#check-my-sew-out)
-- [StitchFoundry Account](#stitchfoundry-account)
+- [Foundry Account](#foundry-account)
 - [Design settings: hoop, fabric, threads](#design-settings-hoop-fabric-threads)
 - [Stitch Sequence and the stitch player](#stitch-sequence-and-the-stitch-player)
 - [Machine files](#machine-files)
@@ -1359,7 +1359,7 @@ secret file, as the Anthropic key is), and **Model** names another of its models
 current one). The picture is never stitched as it is: when it comes, Claude redraws it as flat
 shapes in the thread colours asked for, as Redraw Image does, and that is placed and digitized, so
 even a painterly picture sews with few thread changes. The dialog says "Making the picture…" then
-"Drawing the design…". Redrawing needs Claude, so an Anthropic key (or StitchFoundry credits) is
+"Drawing the design…". Redrawing needs Claude, so an Anthropic key (or Foundry credits) is
 needed too. The picture is billed to your account with that service
 (`ui.designFromPrompt {picture?: google|openai|fal|openrouter, model?}`).
 
@@ -1463,7 +1463,7 @@ the photos and the design go to Anthropic for the check and StitchFoundry keeps 
 credits you can tick **Share this check to help improve StitchFoundry**: the photos, what was found
 and what was changed are kept, privately, so the software can learn from real sew-outs; and after
 sewing the fix, **This is the sew-out after the fix from my last check** tells it whether the fix
-worked. **Delete My Shared Sew-out Checks** in StitchFoundry Account removes them.
+worked. **Delete My Shared Sew-out Checks** in Foundry Account removes them.
 
 ### Report to StitchFoundry
 
@@ -1474,17 +1474,17 @@ StitchFoundry's stitches, settings or advice were part of the cause or it was th
 fabric or hooping, and what the software could do differently. Edit it as you like, add a note,
 and choose what goes with it: the photos, the conversation with Claude, a summary of the design.
 Nothing is sent until you tick **I agree to send this to SiteSentrix…** and press **Send Report**;
-it needs a StitchFoundry Account (any account, whichever way the check was paid), and an account
+it needs a Foundry Account (any account, whichever way the check was paid), and an account
 can send five a day (`ui.reportSewout {title?, report?, note?, consent?, draft?, send?}`). A check you report is on us: the credits it cost (the check, its follow-up questions and Claude's draft) come back to your account, once a check.
 
 A report is used only to improve StitchFoundry: it is never shared, sold or published. It is kept
 privately and emailed to StitchFoundry's makers, who may reply to your account's email; **Delete My
-Shared Sew-out Checks** in StitchFoundry Account deletes your reports too.
+Shared Sew-out Checks** in Foundry Account deletes your reports too.
 
-## StitchFoundry Account
+## Foundry Account
 
-**Embroidery › StitchFoundry Account…** (also in the Help menu) is the other way to pay for the AI
-features: instead of your own Anthropic API key, StitchFoundry credits.
+**Embroidery › Foundry Account…** (also in the Help menu) is the other way to pay for the AI
+features: instead of your own Anthropic API key, Foundry credits.
 
 - **Sign in** with your email and password, or **Create Account** (a new account starts with free
   credits). The password is sent once and forgotten; the app keeps only the sign-in, on this
@@ -1492,11 +1492,11 @@ features: instead of your own Anthropic API key, StitchFoundry credits.
 - The window shows your **credits**, the free sew-out checks left this month, and the packs to
   **Buy…**: the payment page opens in your browser, on Stripe's secure site (your card never
   reaches StitchFoundry); afterwards press **Refresh**.
-- **Pay for the AI features with my StitchFoundry credits**, on once you sign in, sends Design from
+- **Pay for the AI features with my Foundry credits**, on once you sign in, sends Design from
   Prompt, Redraw Image, Ask About Embroidery and Check My Sew-out through StitchFoundry: they
-  stop asking for an API key and say "Paid with StitchFoundry credits (N left)". Turn it off to use
+  stop asking for an API key and say "Paid with Foundry credits (N left)". Turn it off to use
   your own key again. **Sign Out** ends the sign-in here and at the service.
-- Running out says so ("Not enough StitchFoundry credits: buy more in StitchFoundry Account");
+- Running out says so ("Not enough Foundry credits: buy more in Foundry Account");
   nothing is charged for a request that fails.
 
 Until StitchFoundry's service opens, the window says accounts aren't open yet. The **Server** row

@@ -5959,8 +5959,8 @@ swatch	Bright Violet	Felviolet
 	Own colour block	Eigen kleurblok
 	PIN	Pincode
 	Packing	Inpakken
-	Paid with StitchFoundry credits ({n} left).	Betaald met StitchFoundry-credits (nog {n}).
-	Paid with StitchFoundry credits.	Betaald met StitchFoundry-credits.
+	Paid with Foundry credits ({n} left).	Betaald met Foundry-credits (nog {n}).
+	Paid with Foundry credits.	Betaald met Foundry-credits.
 	Paint	Verven
 	Paint Cross Stitches	Kruissteken schilderen
 	Pair	Paar
@@ -5974,8 +5974,8 @@ swatch	Bright Violet	Felviolet
 	Pause	Pauzeren
 	Paw	Poot
 	Paw Print	Pootafdruk
-	Pay for the AI features with my StitchFoundry credits	De AI-functies betalen met mijn StitchFoundry-credits
-	Pay with StitchFoundry credits instead	In plaats daarvan betalen met StitchFoundry-credits
+	Pay for the AI features with my Foundry credits	De AI-functies betalen met mijn Foundry-credits
+	Pay with Foundry credits instead	In plaats daarvan betalen met Foundry-credits
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Betalen gebeurt op de beveiligde pagina van Stripe, in uw browser; uw kaart komt nooit bij StitchFoundry.
 	Pebbles	Kiezels
 	Per 1000 stitches	Per 1000 steken
@@ -6178,7 +6178,7 @@ swatch	Bright Violet	Felviolet
 	Sews well at	Borduurt goed bij
 	Sews well from	Borduurt goed vanaf
 	Sews well up to	Borduurt goed tot
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Deel deze controle om StitchFoundry te helpen verbeteren (blijft privé; verwijder hem wanneer u wilt in StitchFoundry-account)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Deel deze controle om StitchFoundry te helpen verbeteren (blijft privé; verwijder hem wanneer u wilt in Foundry-account)
 	Shell	Schelp
 	Shield	Schild
 	Short fill stitches under	Korte vulsteken onder
@@ -6198,7 +6198,7 @@ swatch	Bright Violet	Felviolet
 	Side by Side	Naast elkaar
 	Sign In	Aanmelden
 	Sign Out	Afmelden
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Meld u aan, of maak een account, om de AI-functies te betalen met StitchFoundry-credits in plaats van uw eigen Anthropic API-sleutel. Een nieuw account begint met gratis credits.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Meld u aan, of maak een account, om de AI-functies te betalen met Foundry-credits in plaats van uw eigen Anthropic API-sleutel. Een nieuw account begint met gratis credits.
 	Signed in as {email}	Aangemeld als {email}
 	Silk / lightweight	Zijde / licht
 	Simple pictures with a few flat colours and clear edges work best: a cartoon, a logo, clipart.	Eenvoudige afbeeldingen met een paar egale kleuren en duidelijke randen werken het best: een cartoon, een logo, clipart.
@@ -6266,11 +6266,11 @@ swatch	Bright Violet	Felviolet
 	Stitch length	Steeklengte
 	Stitch type	Steeksoort
 	StitchFoundry	StitchFoundry
-	StitchFoundry Account	StitchFoundry-account
-	StitchFoundry Account…	StitchFoundry-account…
+	Foundry Account	Foundry-account
+	Foundry Account…	Foundry-account…
 	StitchFoundry Help	StitchFoundry Help
 	StitchFoundry Help…	StitchFoundry Help…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	StitchFoundry-accounts zijn nog niet open. Tot dan werken de AI-functies met uw eigen Anthropic API-sleutel.
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Foundry-accounts zijn nog niet open. Tot dan werken de AI-functies met uw eigen Anthropic API-sleutel.
 	StitchFoundry copies the fonts to {folder}.	StitchFoundry kopieert de lettertypen naar {folder}.
 	StitchFoundry didn't quit normally last time. These documents had unsaved changes:	StitchFoundry is de vorige keer niet normaal afgesloten. Deze documenten hadden niet-opgeslagen wijzigingen:
 	StitchFoundry on GitHub	StitchFoundry op GitHub
@@ -6547,9 +6547,9 @@ swatch	Bright Violet	Felviolet
 	Report to StitchFoundry…	Melden bij StitchFoundry…
 	Send Report	Verslag versturen
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Dit borduurwerk en Claudes idee van wat StitchFoundry beter kan doen naar de makers sturen
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Stuur dit borduurwerk naar de makers van StitchFoundry, met Claudes idee van wat de software beter kan doen. We gebruiken het alleen om StitchFoundry te verbeteren: we delen, verkopen of publiceren het nooit, en je kunt het op elk moment laten verwijderen (StitchFoundry-account › Mijn gedeelde borduurcontroles verwijderen).
-	Sign in to StitchFoundry Account to send a report.	Meld je aan bij het StitchFoundry-account om een verslag te sturen.
-@msg	Sign in to StitchFoundry Account to send a report.	Meld je aan bij het StitchFoundry-account om een verslag te sturen.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Stuur dit borduurwerk naar de makers van StitchFoundry, met Claudes idee van wat de software beter kan doen. We gebruiken het alleen om StitchFoundry te verbeteren: we delen, verkopen of publiceren het nooit, en je kunt het op elk moment laten verwijderen (Foundry-account › Mijn gedeelde borduurcontroles verwijderen).
+	Sign in to Foundry Account to send a report.	Meld je aan bij het Foundry-account om een verslag te sturen.
+@msg	Sign in to Foundry Account to send a report.	Meld je aan bij het Foundry-account om een verslag te sturen.
 	Thank you: your report was sent.	Bedankt: je verslag is verstuurd.
 	Title	Titel
 	What went wrong, and what StitchFoundry could do better	Wat ging er mis, en wat kan StitchFoundry beter doen
@@ -6559,3 +6559,16 @@ swatch	Bright Violet	Felviolet
 @msg	Write what went wrong first, or have Claude write it.	Schrijf eerst wat er misging, of laat Claude het schrijven.
 	The {n} credits this check cost are back in your account.	De {n} credits van deze controle staan weer op je account.
 	Paid for this check with credits? Send a report and they come back to you.	Deze controle met credits betaald? Stuur een verslag en je krijgt ze terug.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 gratis credits voor de AI-functies, geen API-sleutel nodig
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 gratis credits om AI te proberen: Ontwerp vanuit prompt, Afbeelding opnieuw tekenen met Claude, Vraag over borduren
+	3 free Check My Sew-out photo checks every month	Elke maand 3 gratis fotocontroles met Mijn borduurwerk controleren
+	A password needs at least 8 characters.	Een wachtwoord heeft minstens 8 tekens nodig.
+	Buy Credits…	Credits kopen…
+	Create Free Account	Gratis account maken
+	Create a free Foundry Account	Maak een gratis Foundry-account
+	I have an account: Sign In	Ik heb een account: aanmelden
+	New here? Create a free account	Nieuw? Maak een gratis account
+	No card needed, and no API key to set up	Geen kaart nodig en geen API-sleutel in te stellen
+	Sign in to your Foundry Account	Meld je aan bij je Foundry-account
+	{email}: {n} credits	{email}: {n} credits

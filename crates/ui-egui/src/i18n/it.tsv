@@ -6120,7 +6120,7 @@ machine	Stop	Arresto
 @msg	At most 6 photos: remove one first.	Al massimo 6 foto: togline una prima.
 @msg	no files here	qui non ci sono file
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Un controllo costa {n} crediti; i controlli gratuiti tornano il mese prossimo.
 	Account	Account
 	Buy credits	Acquista crediti
@@ -6130,26 +6130,26 @@ machine	Stop	Arresto
 	Email	Email
 	Free sew-out checks left this month: {n}	Controlli gratuiti rimasti questo mese: {n}
 	Leave it empty for StitchFoundry's own service.	Lascia vuoto per il servizio di StitchFoundry.
-	Paid with StitchFoundry credits ({n} left).	Pagato con crediti StitchFoundry ({n} rimasti).
-	Paid with StitchFoundry credits.	Pagato con crediti StitchFoundry.
-	Pay for the AI features with my StitchFoundry credits	Paga le funzioni IA con i miei crediti StitchFoundry
-	Pay with StitchFoundry credits instead	Paga invece con i crediti StitchFoundry
+	Paid with Foundry credits ({n} left).	Pagato con crediti Foundry ({n} rimasti).
+	Paid with Foundry credits.	Pagato con crediti Foundry.
+	Pay for the AI features with my Foundry credits	Paga le funzioni IA con i miei crediti Foundry
+	Pay with Foundry credits instead	Paga invece con i crediti Foundry
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Il pagamento avviene sulla pagina sicura di Stripe, nel tuo browser; la tua carta non arriva mai a StitchFoundry.
 	Reading your credits…	Lettura dei crediti…
 	Server	Server
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Condividi questo controllo per aiutare a migliorare StitchFoundry (resta privato; eliminabile in qualsiasi momento in Account StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Condividi questo controllo per aiutare a migliorare StitchFoundry (resta privato; eliminabile in qualsiasi momento in Account Foundry)
 	Sign In	Accedi
 	Sign Out	Esci
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Accedi, o crea un account, per pagare le funzioni IA con i crediti StitchFoundry invece che con la tua chiave API Anthropic. Un nuovo account parte con crediti gratuiti.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Accedi, o crea un account, per pagare le funzioni IA con i crediti Foundry invece che con la tua chiave API Anthropic. Un nuovo account parte con crediti gratuiti.
 	Signed in as {email}	Accesso come {email}
-	StitchFoundry Account	Account StitchFoundry
-	StitchFoundry Account…	Account StitchFoundry…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Gli account StitchFoundry non sono ancora aperti. Fino ad allora, le funzioni IA usano la tua chiave API Anthropic.
+	Foundry Account	Account Foundry
+	Foundry Account…	Account Foundry…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Gli account Foundry non sono ancora aperti. Fino ad allora, le funzioni IA usano la tua chiave API Anthropic.
 	This is the sew-out after the fix from my last check	Questo è il ricamo dopo la correzione del mio ultimo controllo
 	{n} credits for {price}	{n} crediti per {price}
 	{n} credits	{n} crediti
 	{n} free checks left this month.	Restano {n} controlli gratuiti questo mese.
-@msg	StitchFoundry Account needs the desktop app for now	Account StitchFoundry per ora richiede l’app desktop
+@msg	Foundry Account needs the desktop app for now	Account Foundry per ora richiede l’app desktop
 @msg	Type your email address.	Scrivi il tuo indirizzo email.
 @msg	A password needs at least 8 characters.	Una password deve avere almeno 8 caratteri.
 @msg	Account made: welcome to StitchFoundry.	Account creato: benvenuto in StitchFoundry.
@@ -6157,9 +6157,9 @@ machine	Stop	Arresto
 @msg	Pay on the page that opened in your browser, then press Refresh.	Paga nella pagina aperta nel browser, poi premi Aggiorna.
 @msg	Signed out.	Uscita eseguita.
 @msg	Your shared sew-out checks are deleted.	I tuoi controlli condivisi sono stati eliminati.
-@msg	StitchFoundry accounts aren't open yet.	Gli account StitchFoundry non sono ancora aperti.
-@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Accedi al tuo account StitchFoundry (Ricamo › Account StitchFoundry…).
-@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Crediti StitchFoundry insufficienti: acquistane altri in Account StitchFoundry.
+@msg	Foundry accounts aren't open yet.	Gli account Foundry non sono ancora aperti.
+@msg	Sign in to your Foundry account (Embroidery › Foundry Account…).	Accedi al tuo account Foundry (Ricamo › Account Foundry…).
+@msg	Not enough Foundry credits: buy more in Foundry Account.	Crediti Foundry insufficienti: acquistane altri in Account Foundry.
 @msg	An account with that email already exists: sign in instead.	Esiste già un account con questa email: accedi.
 @msg	The StitchFoundry service can't do this yet: try again later.	Il servizio StitchFoundry non può ancora farlo: riprova più tardi.
 # Links and Attributes: files and URLs handed to other apps.
@@ -6196,7 +6196,7 @@ machine	Stop	Arresto
 	{name} API key:	Chiave API {name}:
 	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	L’immagine è addebitata sul tuo account presso quel servizio. Poi Claude la ridisegna come forme piatte nei tuoi colori di filo, così si ricama con pochi cambi di filo.
 	Making the picture…	Creazione dell’immagine…
-@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	Ridisegnare l’immagine come punti richiede Claude: aggiungi la tua chiave API Anthropic o accedi ad Account StitchFoundry.
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to Foundry Account.	Ridisegnare l’immagine come punti richiede Claude: aggiungi la tua chiave API Anthropic o accedi ad Account Foundry.
 @msg	the picture didn't come whole: try again	l’immagine non è arrivata intera: riprova
 @msg	The AI service sent no picture: try again, or choose another service.	Il servizio IA non ha inviato alcuna immagine: riprova o scegli un altro servizio.
 	Artboard {n} of {total}	Tavola da disegno {n} di {total}
@@ -6244,9 +6244,9 @@ machine	Stop	Arresto
 	Report to StitchFoundry…	Segnala a StitchFoundry…
 	Send Report	Invia resoconto
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Invia questo ricamo e l’idea di Claude su cosa StitchFoundry potrebbe fare meglio ai suoi autori
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Invia questo ricamo a chi crea StitchFoundry, con l’idea di Claude su cosa il programma potrebbe fare meglio. Lo usiamo solo per migliorare StitchFoundry: non lo condividiamo, vendiamo né pubblichiamo mai, e puoi farlo eliminare in qualsiasi momento (Account StitchFoundry › Elimina i miei controlli condivisi).
-	Sign in to StitchFoundry Account to send a report.	Accedi all’account StitchFoundry per inviare un resoconto.
-@msg	Sign in to StitchFoundry Account to send a report.	Accedi all’account StitchFoundry per inviare un resoconto.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Invia questo ricamo a chi crea StitchFoundry, con l’idea di Claude su cosa il programma potrebbe fare meglio. Lo usiamo solo per migliorare StitchFoundry: non lo condividiamo, vendiamo né pubblichiamo mai, e puoi farlo eliminare in qualsiasi momento (Account Foundry › Elimina i miei controlli condivisi).
+	Sign in to Foundry Account to send a report.	Accedi all’account Foundry per inviare un resoconto.
+@msg	Sign in to Foundry Account to send a report.	Accedi all’account Foundry per inviare un resoconto.
 	Thank you: your report was sent.	Grazie: il tuo resoconto è stato inviato.
 	Title	Titolo
 	What went wrong, and what StitchFoundry could do better	Cosa è andato storto e cosa StitchFoundry potrebbe fare meglio
@@ -6256,3 +6256,16 @@ machine	Stop	Arresto
 @msg	Write what went wrong first, or have Claude write it.	Scrivi prima cosa è andato storto, o fallo scrivere a Claude.
 	The {n} credits this check cost are back in your account.	I {n} crediti di questo controllo sono tornati sul tuo account.
 	Paid for this check with credits? Send a report and they come back to you.	Hai pagato questo controllo con i crediti? Invia un resoconto e ti vengono restituiti.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 crediti gratuiti per le funzioni IA, senza chiave API
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 crediti gratuiti per provare l’IA: Disegno da descrizione, Ridisegna immagine con Claude, Domande sul ricamo
+	3 free Check My Sew-out photo checks every month	3 controlli foto gratuiti con Controlla il mio ricamo ogni mese
+	A password needs at least 8 characters.	La password deve avere almeno 8 caratteri.
+	Buy Credits…	Acquista crediti…
+	Create Free Account	Crea account gratuito
+	Create a free Foundry Account	Crea un account Foundry gratuito
+	I have an account: Sign In	Ho un account: accedi
+	New here? Create a free account	Sei nuovo? Crea un account gratuito
+	No card needed, and no API key to set up	Nessuna carta e nessuna chiave API da configurare
+	Sign in to your Foundry Account	Accedi al tuo account Foundry
+	{email}: {n} credits	{email}: {n} crediti

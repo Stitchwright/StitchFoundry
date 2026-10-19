@@ -1,4 +1,4 @@
-//! StitchFoundry accounts: the requests the app sends the StitchFoundry cloud service
+//! Foundry accounts: the requests the app sends the StitchFoundry cloud service
 //! (`apps/stitchfoundry-cloud`, `docs/cloud.md`) to sign in, read the credits and buy more, and
 //! how an AI request is sent through it, paid in credits, instead of to Anthropic with the user's
 //! own key ([`through_cloud`]). As elsewhere in [`super`], no network code lives here.

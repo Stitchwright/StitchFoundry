@@ -6475,7 +6475,7 @@ machine	Stop	Спиране
 	While it sewed:	По време на бродирането:
 	e.g. 75/11 ballpoint	напр. 75/11 със сферичен връх
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Една проверка струва {n} кредита; безплатните проверки се връщат следващия месец.
 	Account	Акаунт
 	Buy credits	Купуване на кредити
@@ -6485,21 +6485,21 @@ machine	Stop	Спиране
 	Email	Имейл
 	Free sew-out checks left this month: {n}	Оставащи безплатни проверки този месец: {n}
 	Leave it empty for StitchFoundry's own service.	Оставете празно за собствената услуга на StitchFoundry.
-	Paid with StitchFoundry credits ({n} left).	Платено с кредити на StitchFoundry (остават {n}).
-	Paid with StitchFoundry credits.	Платено с кредити на StitchFoundry.
-	Pay for the AI features with my StitchFoundry credits	Плащане на функциите с ИИ с моите кредити на StitchFoundry
-	Pay with StitchFoundry credits instead	Плащане с кредити на StitchFoundry вместо това
+	Paid with Foundry credits ({n} left).	Платено с кредити на Foundry (остават {n}).
+	Paid with Foundry credits.	Платено с кредити на Foundry.
+	Pay for the AI features with my Foundry credits	Плащане на функциите с ИИ с моите кредити на Foundry
+	Pay with Foundry credits instead	Плащане с кредити на Foundry вместо това
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Плащането става на защитената страница на Stripe в браузъра ви; картата ви никога не стига до StitchFoundry.
 	Reading your credits…	Четене на кредитите…
 	Server	Сървър
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Споделяне на тази проверка, за да се подобри StitchFoundry (остава лична; изтрийте я по всяко време в акаунта на StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Споделяне на тази проверка, за да се подобри StitchFoundry (остава лична; изтрийте я по всяко време в акаунта на Foundry)
 	Sign In	Вход
 	Sign Out	Изход
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Влезте или създайте акаунт, за да плащате функциите с ИИ с кредити на StitchFoundry вместо със собствения си API ключ на Anthropic. Новият акаунт започва с безплатни кредити.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Влезте или създайте акаунт, за да плащате функциите с ИИ с кредити на Foundry вместо със собствения си API ключ на Anthropic. Новият акаунт започва с безплатни кредити.
 	Signed in as {email}	Влезли сте като {email}
-	StitchFoundry Account	Акаунт в StitchFoundry
-	StitchFoundry Account…	Акаунт в StitchFoundry…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Акаунтите в StitchFoundry още не са отворени. Дотогава функциите с ИИ работят със собствения ви API ключ на Anthropic.
+	Foundry Account	Акаунт в Foundry
+	Foundry Account…	Акаунт в Foundry…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Акаунтите в Foundry още не са отворени. Дотогава функциите с ИИ работят със собствения ви API ключ на Anthropic.
 	This is the sew-out after the fix from my last check	Това е бродерията след поправката от последната ми проверка
 	{n} credits for {price}	{n} кредита за {price}
 	{n} credits	{n} кредита
@@ -6570,9 +6570,9 @@ machine	Stop	Спиране
 	Report to StitchFoundry…	Доклад до StitchFoundry…
 	Send Report	Изпращане на доклада
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Изпратете тази бродерия и идеята на Claude какво StitchFoundry би могъл да прави по-добре на създателите му
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Изпратете тази бродерия на създателите на StitchFoundry, с идеята на Claude какво програмата би могла да прави по-добре. Използваме я само за подобряване на StitchFoundry: никога не я споделяме, продаваме или публикуваме и можете да поискате изтриването ѝ по всяко време (Акаунт в StitchFoundry › Изтриване на споделените ми проверки).
-	Sign in to StitchFoundry Account to send a report.	Влезте в акаунта в StitchFoundry, за да изпратите доклад.
-@msg	Sign in to StitchFoundry Account to send a report.	Влезте в акаунта в StitchFoundry, за да изпратите доклад.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Изпратете тази бродерия на създателите на StitchFoundry, с идеята на Claude какво програмата би могла да прави по-добре. Използваме я само за подобряване на StitchFoundry: никога не я споделяме, продаваме или публикуваме и можете да поискате изтриването ѝ по всяко време (Акаунт в Foundry › Изтриване на споделените ми проверки).
+	Sign in to Foundry Account to send a report.	Влезте в акаунта в Foundry, за да изпратите доклад.
+@msg	Sign in to Foundry Account to send a report.	Влезте в акаунта в Foundry, за да изпратите доклад.
 	Thank you: your report was sent.	Благодарим: докладът ви е изпратен.
 	Title	Заглавие
 	What went wrong, and what StitchFoundry could do better	Какво се обърка и какво StitchFoundry би могъл да прави по-добре
@@ -6582,3 +6582,16 @@ machine	Stop	Спиране
 @msg	Write what went wrong first, or have Claude write it.	Първо напишете какво се обърка или оставете Claude да го напише.
 	The {n} credits this check cost are back in your account.	{n} кредита за тази проверка са върнати в акаунта ви.
 	Paid for this check with credits? Send a report and they come back to you.	Платихте ли тази проверка с кредити? Изпратете доклад и те ще ви бъдат върнати.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 безплатни кредита за функциите с ИИ, без API ключ
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 безплатни кредита, за да опитате ИИ: Дизайн от описание, Прерисуване на изображението с Claude, Питане за бродерия
+	3 free Check My Sew-out photo checks every month	3 безплатни проверки на снимки (Проверка на бродерията) всеки месец
+	A password needs at least 8 characters.	Паролата трябва да е поне 8 знака.
+	Buy Credits…	Купуване на кредити…
+	Create Free Account	Създаване на безплатен акаунт
+	Create a free Foundry Account	Създайте безплатен акаунт в Foundry
+	I have an account: Sign In	Имам акаунт: вход
+	New here? Create a free account	Нови сте тук? Създайте безплатен акаунт
+	No card needed, and no API key to set up	Без карта и без API ключ за настройване
+	Sign in to your Foundry Account	Влезте в акаунта си в Foundry
+	{email}: {n} credits	{email}: {n} кредита

@@ -6116,7 +6116,7 @@ machine	Stop	Остановка
 @msg	At most 6 photos: remove one first.	Не больше 6 фото: сначала уберите одно.
 @msg	no files here	здесь нет файлов
 
-# Embroidery (StitchFoundry): StitchFoundry Account
+# Embroidery (StitchFoundry): Foundry Account
 	A check costs {n} credits; free checks come back next month.	Проверка стоит {n} кредитов; бесплатные проверки вернутся в следующем месяце.
 	Account	Аккаунт
 	Buy credits	Купить кредиты
@@ -6126,26 +6126,26 @@ machine	Stop	Остановка
 	Email	Эл. почта
 	Free sew-out checks left this month: {n}	Бесплатных проверок в этом месяце осталось: {n}
 	Leave it empty for StitchFoundry's own service.	Оставьте пустым для собственного сервиса StitchFoundry.
-	Paid with StitchFoundry credits ({n} left).	Оплачено кредитами StitchFoundry (осталось {n}).
-	Paid with StitchFoundry credits.	Оплачено кредитами StitchFoundry.
-	Pay for the AI features with my StitchFoundry credits	Оплачивать функции ИИ моими кредитами StitchFoundry
-	Pay with StitchFoundry credits instead	Платить кредитами StitchFoundry
+	Paid with Foundry credits ({n} left).	Оплачено кредитами Foundry (осталось {n}).
+	Paid with Foundry credits.	Оплачено кредитами Foundry.
+	Pay for the AI features with my Foundry credits	Оплачивать функции ИИ моими кредитами Foundry
+	Pay with Foundry credits instead	Платить кредитами Foundry
 	Payment is on Stripe's secure page, in your browser; your card never reaches StitchFoundry.	Оплата проходит на защищённой странице Stripe в вашем браузере; ваша карта никогда не попадает в StitchFoundry.
 	Reading your credits…	Читаем ваши кредиты…
 	Server	Сервер
-	Share this check to help improve StitchFoundry (kept private; delete it any time in StitchFoundry Account)	Поделиться этой проверкой, чтобы помочь улучшить StitchFoundry (останется приватной; удалить можно в любое время в аккаунте StitchFoundry)
+	Share this check to help improve StitchFoundry (kept private; delete it any time in Foundry Account)	Поделиться этой проверкой, чтобы помочь улучшить StitchFoundry (останется приватной; удалить можно в любое время в аккаунте Foundry)
 	Sign In	Войти
 	Sign Out	Выйти
-	Sign in, or make an account, to pay for the AI features with StitchFoundry credits instead of your own Anthropic API key. A new account starts with free credits.	Войдите или создайте аккаунт, чтобы оплачивать функции ИИ кредитами StitchFoundry вместо собственного ключа API Anthropic. Новый аккаунт начинается с бесплатными кредитами.
+	Sign in, or make an account, to pay for the AI features with Foundry credits instead of your own Anthropic API key. A new account starts with free credits.	Войдите или создайте аккаунт, чтобы оплачивать функции ИИ кредитами Foundry вместо собственного ключа API Anthropic. Новый аккаунт начинается с бесплатными кредитами.
 	Signed in as {email}	Вход выполнен: {email}
-	StitchFoundry Account	Аккаунт StitchFoundry
-	StitchFoundry Account…	Аккаунт StitchFoundry…
-	StitchFoundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Аккаунты StitchFoundry ещё не открыты. До тех пор функции ИИ работают с вашим собственным ключом API Anthropic.
+	Foundry Account	Аккаунт Foundry
+	Foundry Account…	Аккаунт Foundry…
+	Foundry accounts aren't open yet. Until then, the AI features work with your own Anthropic API key.	Аккаунты Foundry ещё не открыты. До тех пор функции ИИ работают с вашим собственным ключом API Anthropic.
 	This is the sew-out after the fix from my last check	Это вышивка после исправления из моей прошлой проверки
 	{n} credits for {price}	{n} кредитов за {price}
 	{n} credits	Кредитов: {n}
 	{n} free checks left this month.	Бесплатных проверок в этом месяце осталось: {n}.
-@msg	StitchFoundry Account needs the desktop app for now	«Аккаунт StitchFoundry» пока требует настольного приложения
+@msg	Foundry Account needs the desktop app for now	«Аккаунт Foundry» пока требует настольного приложения
 @msg	Type your email address.	Введите адрес эл. почты.
 @msg	A password needs at least 8 characters.	В пароле должно быть не меньше 8 символов.
 @msg	Account made: welcome to StitchFoundry.	Аккаунт создан: добро пожаловать в StitchFoundry.
@@ -6153,9 +6153,9 @@ machine	Stop	Остановка
 @msg	Pay on the page that opened in your browser, then press Refresh.	Оплатите на странице, открывшейся в браузере, затем нажмите «Обновить».
 @msg	Signed out.	Выход выполнен.
 @msg	Your shared sew-out checks are deleted.	Ваши общие проверки удалены.
-@msg	StitchFoundry accounts aren't open yet.	Аккаунты StitchFoundry ещё не открыты.
-@msg	Sign in to your StitchFoundry account (Embroidery › StitchFoundry Account…).	Войдите в аккаунт StitchFoundry (Вышивка › Аккаунт StitchFoundry…).
-@msg	Not enough StitchFoundry credits: buy more in StitchFoundry Account.	Недостаточно кредитов StitchFoundry: купите ещё в аккаунте StitchFoundry.
+@msg	Foundry accounts aren't open yet.	Аккаунты Foundry ещё не открыты.
+@msg	Sign in to your Foundry account (Embroidery › Foundry Account…).	Войдите в аккаунт Foundry (Вышивка › Аккаунт Foundry…).
+@msg	Not enough Foundry credits: buy more in Foundry Account.	Недостаточно кредитов Foundry: купите ещё в аккаунте Foundry.
 @msg	An account with that email already exists: sign in instead.	Аккаунт с этой почтой уже есть: войдите в него.
 @msg	The StitchFoundry service can't do this yet: try again later.	Сервис StitchFoundry пока этого не умеет: попробуйте позже.
 # Links and Attributes: files and URLs handed to other apps.
@@ -6192,7 +6192,7 @@ machine	Stop	Остановка
 	{name} API key:	Ключ API {name}:
 	The picture is billed to your account with that service. Claude then redraws it as flat shapes in your thread colors, so it sews with few thread changes.	Картинка оплачивается с вашего аккаунта в этом сервисе. Затем Claude перерисовывает её плоскими фигурами в ваших цветах нитей, чтобы она вышивалась с немногими сменами нити.
 	Making the picture…	Делаем картинку…
-@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to StitchFoundry Account.	Чтобы перерисовать картинку стежками, нужен Claude: добавьте ключ API Anthropic или войдите в аккаунт StitchFoundry.
+@msg	Redrawing the picture as stitches needs Claude: add your Anthropic API key, or sign in to Foundry Account.	Чтобы перерисовать картинку стежками, нужен Claude: добавьте ключ API Anthropic или войдите в аккаунт Foundry.
 @msg	the picture didn't come whole: try again	картинка пришла не целиком: попробуйте ещё раз
 @msg	The AI service sent no picture: try again, or choose another service.	Сервис ИИ не прислал картинку: попробуйте ещё раз или выберите другой сервис.
 	Artboard {n} of {total}	Монтажная область {n} из {total}
@@ -6240,9 +6240,9 @@ machine	Stop	Остановка
 	Report to StitchFoundry…	Сообщить в StitchFoundry…
 	Send Report	Отправить отчёт
 	Send this sew-out and Claude's idea of what StitchFoundry could do better to its makers	Отправить эту вышивку и идею Claude о том, что StitchFoundry мог бы делать лучше, его создателям
-	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (StitchFoundry Account › Delete My Shared Sew-out Checks).	Отправьте эту вышивку создателям StitchFoundry вместе с идеей Claude о том, что программа могла бы делать лучше. Мы используем её только для улучшения StitchFoundry: никогда не передаём, не продаём и не публикуем, и вы можете попросить удалить её в любое время (Аккаунт StitchFoundry › Удалить мои общие проверки).
-	Sign in to StitchFoundry Account to send a report.	Войдите в аккаунт StitchFoundry, чтобы отправить отчёт.
-@msg	Sign in to StitchFoundry Account to send a report.	Войдите в аккаунт StitchFoundry, чтобы отправить отчёт.
+	Send this sew-out to the people who make StitchFoundry, with Claude's idea of what the software could do better. We use it only to improve StitchFoundry: we never share, sell or publish it, and you can have it deleted at any time (Foundry Account › Delete My Shared Sew-out Checks).	Отправьте эту вышивку создателям StitchFoundry вместе с идеей Claude о том, что программа могла бы делать лучше. Мы используем её только для улучшения StitchFoundry: никогда не передаём, не продаём и не публикуем, и вы можете попросить удалить её в любое время (Аккаунт Foundry › Удалить мои общие проверки).
+	Sign in to Foundry Account to send a report.	Войдите в аккаунт Foundry, чтобы отправить отчёт.
+@msg	Sign in to Foundry Account to send a report.	Войдите в аккаунт Foundry, чтобы отправить отчёт.
 	Thank you: your report was sent.	Спасибо: ваш отчёт отправлен.
 	Title	Заголовок
 	What went wrong, and what StitchFoundry could do better	Что пошло не так и что StitchFoundry мог бы делать лучше
@@ -6252,3 +6252,16 @@ machine	Stop	Остановка
 @msg	Write what went wrong first, or have Claude write it.	Сначала напишите, что пошло не так, или пусть это напишет Claude.
 	The {n} credits this check cost are back in your account.	{n} кредитов за эту проверку вернулись на ваш счёт.
 	Paid for this check with credits? Send a report and they come back to you.	Оплатили эту проверку кредитами? Отправьте отчёт, и они вернутся к вам.
+# Foundry Account, easier to find
+	100 free credits for the AI features, no API key needed	100 бесплатных кредитов на функции ИИ, без ключа API
+	100 free credits to try AI design: Design from Prompt, Redraw Image, Ask About Embroidery	100 бесплатных кредитов, чтобы попробовать ИИ: Дизайн по описанию, Перерисовать изображение с помощью Claude, Вопрос о вышивке
+	3 free Check My Sew-out photo checks every month	3 бесплатные проверки фото (Проверить вышивку) каждый месяц
+	A password needs at least 8 characters.	Пароль должен содержать не менее 8 символов.
+	Buy Credits…	Купить кредиты…
+	Create Free Account	Создать бесплатный аккаунт
+	Create a free Foundry Account	Создайте бесплатный аккаунт Foundry
+	I have an account: Sign In	У меня есть аккаунт: войти
+	New here? Create a free account	Впервые здесь? Создайте бесплатный аккаунт
+	No card needed, and no API key to set up	Без карты и без настройки ключа API
+	Sign in to your Foundry Account	Войдите в свой аккаунт Foundry
+	{email}: {n} credits	{email}: Кредитов: {n}
