@@ -6,7 +6,7 @@
 //! - `GET  /v1/health`: whether AI requests and payments are set up.
 //! - `POST /v1/signup {email, password}`, `POST /v1/signin {email, password}` → `{token, account}`.
 //! - `POST /v1/signout` (with the token).
-//! - `GET  /v1/account` → `{email, credits, packs, history}`.
+//! - `GET  /v1/account` → `{id, email, credits, packs, history}`.
 //! - `POST /v1/checkout {pack}` → `{url}`: Stripe's checkout page for the pack.
 //! - `POST /v1/stripe/webhook`: Stripe's signed word that a checkout was paid.
 //! - `POST /v1/messages`: an Anthropic Messages API request, sent with the service's key and paid
@@ -235,6 +235,9 @@ impl Service {
         // none while the month's free offers are used up
         let free_checks = if self.free_left(store, &month) { self.cfg.free_checks.saturating_sub(used as u64) } else { 0 };
         json!({
+            // the account's lasting number: other SiteSentrix services (MakerFoundry) keep their
+            // own records under it, since it never changes
+            "id": id,
             "email": a.map(|a| a.email.as_str()),
             "credits": a.map_or(0, |a| a.credits.saturating_sub(a.reserved)),
             "freeChecks": free_checks,
@@ -801,6 +804,7 @@ mod tests {
         let t = sign_up(&s);
         let a = s.handle(&req("GET", "/v1/account", Some(&t), json!({})));
         assert_eq!(json_of(&a)["email"], "denise@example.com");
+        assert_eq!(json_of(&a)["id"], 1, "the account's lasting number");
         assert_eq!(json_of(&a)["credits"], 100, "the starting credits");
         assert_eq!(json_of(&a)["history"][0]["kind"], "signup");
         // the same email again is refused; a short password too
@@ -809,6 +813,7 @@ mod tests {
         // signing in gives a new token; a wrong password doesn't
         let r = s.handle(&req("POST", "/v1/signin", None, json!({"email": "denise@example.com", "password": "fire truck 1"})));
         assert_eq!(r.status, 200);
+        assert_eq!(json_of(&r)["account"]["id"], 1, "sign-in names the account too");
         assert_eq!(s.handle(&req("POST", "/v1/signin", None, json!({"email": "denise@example.com", "password": "wrong"}))).status, 401);
         assert_eq!(s.handle(&req("POST", "/v1/signin", None, json!({"email": "nobody@example.com", "password": "fire truck 1"}))).status, 401);
         // signing out ends the token

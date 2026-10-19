@@ -5,7 +5,8 @@
 > Embroidery and Check My Sew-out paid with credits (CLOUD-02); Check My Sew-out's free monthly
 > checks, opt-in sharing and follow-ups (SO-01); a Postgres database and a Railway setup
 > (CLOUD-03); a monthly budget for the free offers (CLOUD-04). Hosted on Railway at `https://cloud.stitchfoundry.app`
-> since 2026-10-19 (Stripe in test mode); the official builds know it (CLOUD-05).
+> since 2026-10-19 (Stripe in test mode); the official builds know it (CLOUD-05); the account's
+> lasting `id` in its answers, for MakerFoundry's records (CLOUD-06).
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
@@ -156,10 +157,10 @@ cargo test -p stitchfoundry-cloud` (it empties StitchFoundry's tables there).
 | | |
 |---|---|
 | `GET /v1/health` | `{ok, ai, payments}`: whether AI requests and payments are set up |
-| `POST /v1/signup {email, password}` | a new account → `{token, account: {email, credits}}` |
+| `POST /v1/signup {email, password}` | a new account → `{token, account: {id, email, credits}}` |
 | `POST /v1/signin {email, password}` | → `{token, account}` |
 | `POST /v1/signout` | ends the session |
-| `GET` or `POST /v1/account` | → `{email, credits, freeChecks, checkCredits, sharedChecks, packs, payments, history}` |
+| `GET` or `POST /v1/account` | → `{id, email, credits, freeChecks, checkCredits, sharedChecks, packs, payments, history}` |
 | `POST /v1/checkout {pack}` | → `{url}`: Stripe's checkout page |
 | `POST /v1/stripe/webhook` | Stripe's signed events |
 | `POST /v1/messages` | an Anthropic Messages request, paid in credits |
