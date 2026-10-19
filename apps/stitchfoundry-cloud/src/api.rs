@@ -133,6 +133,19 @@ fn body_json(req: &Request) -> Result<Value, Response> {
     serde_json::from_slice(&req.body).map_err(|_| Response::error(400, "invalid_request_error", "the body isn't JSON"))
 }
 
+/// `n` with commas between thousands (1000 → "1,000").
+fn thousands(n: u64) -> String {
+    let digits = n.to_string();
+    let mut out = String::new();
+    for (i, c) in digits.chars().enumerate() {
+        if i > 0 && (digits.len() - i).is_multiple_of(3) {
+            out.push(',');
+        }
+        out.push(c);
+    }
+    out
+}
+
 fn store_error(e: StoreError) -> Response {
     match e {
         StoreError::Taken => Response::error(409, "invalid_request_error", "an account with that email already exists: sign in instead"),
@@ -190,9 +203,7 @@ impl Service {
             ("POST", "/v1/messages") => self.messages(req),
             ("POST", "/v1/sewout") => self.sewout(req),
             ("POST", "/v1/sewout/delete") => self.delete_shared(req),
-            ("GET", "/paid") => Response::page(
-                "Thank you. Your credits are added as soon as the payment is through, usually within a minute: go back to StitchFoundry.",
-            ),
+            ("GET", "/paid") => self.paid(req),
             ("GET", "/cancelled") => Response::page("The payment was cancelled; nothing was charged. You can close this page."),
             _ => Response::error(404, "not_found_error", "no such endpoint"),
         }
@@ -344,6 +355,24 @@ impl Service {
             .collect();
         v["history"] = json!(history);
         Response::json(200, &v)
+    }
+
+    /// Stripe's return page after a payment (`/paid?pack=…`): the pack's credits when the pack is
+    /// one on sale (only the service's own numbers are shown, nothing from the address).
+    fn paid(&self, req: &Request) -> Response {
+        let query = req.path.split_once('?').map(|(_, q)| q).unwrap_or_default();
+        let pack_id = query.split('&').find_map(|kv| kv.strip_prefix("pack="));
+        match pack_id.and_then(|id| self.cfg.packs.iter().find(|p| p.id == id)) {
+            Some(p) => Response::page(&format!(
+                "Thank you. Your {} credits (${}.{:02}) are added as soon as the payment is through, usually within a minute: go back to StitchFoundry.",
+                thousands(p.credits),
+                p.cents / 100,
+                p.cents % 100
+            )),
+            None => Response::page(
+                "Thank you. Your credits are added as soon as the payment is through, usually within a minute: go back to StitchFoundry.",
+            ),
+        }
     }
 
     fn checkout(&self, req: &Request) -> Response {
@@ -887,5 +916,20 @@ mod tests {
         assert_eq!(s.handle(&req("POST", "/v1/checkout", Some(&t), json!({"pack": "small"}))).status, 503);
         assert_eq!(s.handle(&req("GET", "/nope", None, json!({}))).status, 404);
         assert_eq!(s.handle(&req("GET", "/paid", None, json!({}))).content_type, "text/html; charset=utf-8");
+    }
+
+    #[test]
+    fn the_paid_page_shows_the_packs_credits() {
+        let (s, _) = service((200, String::new()), true);
+        let page = |path: &str| s.handle(&req("GET", path, None, json!({}))).body;
+        assert!(page("/paid?pack=small").contains("Your 1,000 credits ($10.00)"));
+        assert!(page("/paid?pack=large&x=1").contains("Your 6,000 credits ($50.00)"));
+        // an unknown pack, or none: the general thanks, nothing from the address
+        let unknown = page("/paid?pack=%3Cscript%3E");
+        assert!(unknown.contains("Your credits are added") && !unknown.contains("script"));
+        assert!(page("/paid").contains("Your credits are added"));
+        assert_eq!(thousands(0), "0");
+        assert_eq!(thousands(999), "999");
+        assert_eq!(thousands(1_234_567), "1,234,567");
     }
 }
