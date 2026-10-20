@@ -55,6 +55,8 @@ struct Host {
     locks: Option<WebLocks>,
     /// Graphics restarts so far.
     restarts: u32,
+    /// A message for the status bar from work done outside a frame (`?open=`, `crate::open_link`).
+    note: Rc<RefCell<Option<String>>>,
 }
 
 pub fn start() {
@@ -79,6 +81,7 @@ pub fn start() {
             pointers: SharedPointers::default(),
             locks,
             restarts: 0,
+            note: Rc::default(),
         };
         track_paste(&host.pasted);
         run(host, canvas, None).await;
@@ -134,6 +137,16 @@ async fn run(host: Host, canvas: web_sys::HtmlCanvasElement, moving: Option<Movi
                         }
                         let mut app = VectorcraftApp::new(Session::new(), services).with_control(control_rx);
                         tablet_start(&mut app);
+                        // Open in StitchFoundry: `?open=` names a design on MakerFoundry, opened once
+                        if let Some(raw) = query_param("open") {
+                            match crate::open_link::allowed(&raw) {
+                                Ok(url) => {
+                                    app.status("Opening the design from MakerFoundry…");
+                                    crate::open_link::start(url, host.inbox.clone(), host.note.clone(), ctx.clone());
+                                }
+                                Err(why) => app.status(format!("Couldn't open the design: {why}")),
+                            }
+                        }
                         app
                     }
                 };
@@ -367,6 +380,10 @@ impl eframe::App for WebShell {
             self.restart(&why);
         }
         let Some(app) = &mut self.app else { return };
+        let note = self.host.note.borrow_mut().take();
+        if let Some(note) = note {
+            app.status(note);
+        }
         let pasted = self.host.pasted.borrow_mut().flavour.take();
         if let Some((f, held)) = pasted {
             app.paste_from_host(ctx, f, held);

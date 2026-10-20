@@ -1537,6 +1537,19 @@ variable; anything else must be an `https://` address. From the control channel 
 once) → `{open, signedIn, format, photos, server, sending, url, error}`. The web app sends from the
 browser, which MakerFoundry allows for stitchfoundry.app.
 
+### Open in StitchFoundry
+
+A design page on MakerFoundry can open its embroidery file straight in StitchFoundry's web app:
+the link is the web app's address with `?open=` and the file's address on MakerFoundry, for example
+`https://stitchwright.github.io/StitchFoundry/?open=https%3A%2F%2Fmakerfoundry.app%2Fapi%2Fv1%2Fdesigns%2F42%2Ffile%2Frose.pes`.
+The design opens as a new document, as if the file had been dropped on the window; the status bar
+says so while it loads, and says why when it can't ("Couldn't open the design from MakerFoundry: …").
+Only files on makerfoundry.app (or www.makerfoundry.app) over `https://` are fetched, without
+cookies, up to 32 MB; any other address is refused before anything is fetched. The file's name
+comes from the end of its address (or the `Content-Disposition` header when the site shares it),
+and its extension says how it's read, so the address should end in the file's name (`…/rose.pes`).
+MakerFoundry has to allow the web app's site (`https://stitchwright.github.io`) to fetch the file.
+
 ## Design settings: hoop, fabric, threads
 
 The Embroidery panel's **Design** section shows the stitch count, size, colours, trims, sewing
