@@ -99,7 +99,8 @@ pub(crate) fn turning_fill(
         let zz: Vec<Point> = ins.iter().step_by(zz_step).enumerate().map(|(k, (a, b))| if k % 2 == 0 { *a } else { *b }).collect();
         if let Some(&z0) = zz.first() {
             out.run_to(z0, 2.5);
-            out.stitches(zz);
+            // each leg crosses the whole strip: split, so a wide strip makes no long stitches
+            out.stitches(polyline::resample(&zz, u.stitch_length.max(0.5), CORNER_ANGLE));
         }
         let _ = back;
     }
@@ -228,6 +229,7 @@ fn satin_column(strip: &Strip, sp: &SatinParams, out: &mut Out, ends: (Option<Po
 mod tests {
     use super::*;
     use crate::direction::{Guide, strip_from_guides};
+    use crate::pattern::Cmd;
 
     fn band() -> (Polygon, Vec<Guide>) {
         let mut ring = Vec::new();
@@ -313,6 +315,37 @@ mod tests {
         let left = embossed.iter().filter(|s| s.pos().x < -5.0 && mid(s.pos().length())).count();
         let right = embossed.iter().filter(|s| s.pos().x > 5.0 && mid(s.pos().length())).count();
         assert!(left > 50 && right > 50, "{left} {right}");
+    }
+
+    /// A wide turning tatami's sparse zigzag underlay crosses the strip from edge to edge: on a
+    /// 12 mm band each leg was one 12 mm stitch, which snags. Its legs are split like the rest of
+    /// the underlay.
+    #[test]
+    fn a_wide_turning_fills_underlay_has_no_long_stitches() {
+        let mut ring = Vec::new();
+        for i in 0..=24 {
+            let a = std::f64::consts::PI * i as f64 / 24.0;
+            ring.push(Point::new(26.0 * a.cos(), -26.0 * a.sin()));
+        }
+        for i in (0..=24).rev() {
+            let a = std::f64::consts::PI * i as f64 / 24.0;
+            ring.push(Point::new(14.0 * a.cos(), -14.0 * a.sin()));
+        }
+        let g = |deg: f64| {
+            let a: f64 = deg.to_radians();
+            Guide::new(Point::new(12.0 * a.cos(), -12.0 * a.sin()), Point::new(28.0 * a.cos(), -28.0 * a.sin()))
+        };
+        let poly = Polygon::from_ring(ring);
+        let strip = strip_from_guides(&poly.outer, &[g(30.0), g(90.0), g(150.0)]).expect("strip");
+        let params = FillParams { kind: FillKind::Tatami, pull_comp: 0.0, ..FillParams::default() };
+        assert!(params.underlay.tatami, "the default underlay");
+        let mut out = Out::new();
+        turning_fill(&poly, &strip, &params, &mut out, (None, None), 2.0, 12.0);
+        let st = out.finish();
+        let longest =
+            st.windows(2).filter(|w| w[0].cmd == Cmd::Stitch && w[1].cmd == Cmd::Stitch).map(|w| w[0].pos().distance(w[1].pos())).fold(0.0, f64::max);
+        // under the 7 mm Check Design warns of on clothing
+        assert!(longest < 7.0, "a {longest:.1} mm stitch");
     }
 
     #[test]
