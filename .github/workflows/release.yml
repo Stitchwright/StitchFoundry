@@ -196,8 +196,10 @@ jobs:
         if: always()
         shell: pwsh
         run: |
+          # the installer, and the programs as shipped: package.ps1 signs its staged copies
+          # (target/windows-package/<arch>), which go into the MSI and the portable zip
           $files = @(Get-ChildItem -Path dist/release -Recurse -Include *.msi, *.exe -ErrorAction SilentlyContinue) +
-            @(Get-ChildItem -Path "target/${{ matrix.target }}/release" -Filter *.exe -ErrorAction SilentlyContinue)
+            @(Get-ChildItem -Path "target/windows-package/${{ matrix.arch }}" -Filter *.exe -ErrorAction SilentlyContinue)
           $rows = @("### Windows ${{ matrix.arch }}", '', '| File | Status | Signer |', '|---|---|---|')
           foreach ($f in $files) {
             $sig = Get-AuthenticodeSignature $f.FullName

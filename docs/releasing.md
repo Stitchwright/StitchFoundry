@@ -281,6 +281,13 @@ Azure for Windows (`packaging/windows/sign.ps1` uses the `.pfx` when it is set);
 3. Delete the test's draft release (*Releases › the draft › Delete*). A draft has no tag, so
    nothing else is left behind.
 
+If notarization fails with `HTTP status code: 401. Invalid credentials`, the certificate is fine
+(the app was signed before notarizing); Apple refused `APPLE_ID` / `APPLE_PASSWORD` /
+`APPLE_TEAM_ID`. Usually `APPLE_PASSWORD` is the Apple ID's own password instead of an
+app-specific one, or that app-specific password was revoked (changing the Apple ID password revokes
+them all), or `APPLE_ID` isn't the Apple ID of a member of team `APPLE_TEAM_ID`. Make a new
+app-specific password, set the secret again (no spaces or line breaks), and re-run the failed jobs.
+
 ## Revision history
 
 | Date | Change | Summary |
