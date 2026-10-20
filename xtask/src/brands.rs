@@ -49,7 +49,7 @@ const CURSOR_MANIFEST: &str = "crates/tools/src/cursors.toml";
 
 /// Packaging files whose comments take whole lines (a desktop entry has no end-of-line comments):
 /// in these, a `#` line marked `brand-ok` also covers the line just below it.
-const MARK_ABOVE: &[&str] = &["packaging/linux/ai.storyteller.vectorcraft.desktop"];
+const MARK_ABOVE: &[&str] = &["packaging/linux/com.stitchwright.stitchfoundry.desktop"];
 
 /// A denied name found in a file.
 #[derive(Debug, PartialEq)]

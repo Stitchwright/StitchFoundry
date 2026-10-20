@@ -5434,7 +5434,6 @@ machine	Stop	Pysäytys
 	commercial machines	teollisuuskoneet
 	home machines	kotikoneet
 	Remove underlying stitching	Poista alla oleva ompelu
-	Overlap	Limitys
 	Turn	Käännös
 	Capped	Suljettu pää
 	Backstitch	Jälkipisto
@@ -6643,20 +6642,6 @@ machine	Stop	Pysäytys
 	Sending to MakerFoundry…	Lähetetään MakerFoundryyn…
 	Sign in to your Foundry Account to publish.	Kirjaudu Foundry-tiliisi julkaistaksesi.
 	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Luonnoksesi on auki MakerFoundryssa: lisää siellä otsikko, hinta ja lisenssi ja julkaise se.
-	Angular	Kulma
-	Away from the Line	Irti viivasta
-	Between Line and Object	Viivan ja objektin väliin
-	Drag out from a segment, or click two points, then click to place.	Vedä segmentistä tai napsauta kahta pistettä ja sijoita napsauttamalla.
-	Drag out from a corner, or click two straight lines, then click to place.	Vedä kulmasta tai napsauta kahta suoraa viivaa ja sijoita napsauttamalla.
-	Drag out from a circle or arc for its radius, inwards for its diameter.	Vedä ympyrästä tai kaaresta ulospäin säteelle, sisäänpäin halkaisijalle.
-	Display	Näyttö
-@msg	Unknown dimension style	Tuntematon mittatyyli
-@msg	Unknown unit	Tuntematon yksikkö
-	Mode	Tila
-	Blur Mode	Sumennustila
-	Edge Only	Vain reunat
-	Overlay Edge	Reunat päällä
-	Path Length	Polun pituus
 swatch	[None]	[Ei mitään]
 swatch	[Registration]	[Kohdistus]
 swatch	White	Valkoinen
