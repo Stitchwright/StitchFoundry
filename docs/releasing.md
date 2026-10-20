@@ -1,6 +1,6 @@
 # Releasing VectorCraft
 
-> **Last updated:** 2026-10-12 · **Change:** minor (RPM runtime capabilities and metadata checks, #1275)
+> **Last updated:** 2026-10-20 · **Change:** minor (the `release` environment and its 12 secrets, how to test signing)
 
 Every push to the `release` branch runs `.github/workflows/release.yml`. The workflow builds
 installers for macOS, Windows, Linux (including Flatpak bundles and a RISC-V tarball) and FreeBSD, plus the web build, and creates or updates a
@@ -242,22 +242,50 @@ the job fails and asks for a version bump (`cargo xtask version set`).
 
 ## Secrets
 
-The jobs that sign (macOS, Windows) and the draft-release job run in the `release` environment,
-which only the `release` branch can use and which holds the signing secrets. The other jobs get no
-secrets. Every secret is optional: a missing one produces unsigned artifacts and a
+The jobs that sign (macOS, Windows) and the draft-release job run in the **`release` environment**
+(*Settings › Environments › release*), which only the `release` branch can use and which holds the
+signing secrets. The other jobs get no secrets. A missing secret produces unsigned artifacts and a
 warning, never a failed build.
+
+`release` is the standard environment for **every SiteSentrix and Stitchwright repository that
+signs** (StitchFoundry, LaserFoundry, PatternFoundry, …): the same name, limited to the `release`
+branch, with these same 12 secrets, so one signing setup serves them all. Set up 2026-10-20:
 
 | Secret | Used for |
 |---|---|
-| `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `KEYCHAIN_PASSWORD` | the Developer ID certificate (base64 `.p12`), imported into a temporary keychain by `packaging/macos/import-cert.sh` |
-| `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` | notarization (`APPLE_PASSWORD` is an app-specific password) |
-| `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD` | Windows signing with a `.pfx` |
-| `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_SIGNING_ENDPOINT`, `AZURE_SIGNING_ACCOUNT`, `AZURE_CERT_PROFILE` | Windows signing with Azure Trusted Signing |
+| `APPLE_CERTIFICATE` | the Developer ID Application certificate and its key, as a base64 `.p12`, imported into a temporary keychain by `packaging/macos/import-cert.sh` |
+| `APPLE_CERTIFICATE_PASSWORD` | the `.p12`'s export password |
+| `KEYCHAIN_PASSWORD` | any long random text: the temporary keychain's password |
+| `APPLE_ID` | the Apple ID notarization signs in with |
+| `APPLE_PASSWORD` | an app-specific password for that Apple ID (account.apple.com), never the account password |
+| `APPLE_TEAM_ID` | the Apple developer team (10 characters, Membership details) |
+| `AZURE_TENANT_ID` | the Microsoft Entra tenant of the app registration below |
+| `AZURE_CLIENT_ID` | the app registration `github-signing`, which has the *Certificate Profile Signer* role on the signing account |
+| `AZURE_CLIENT_SECRET` | that app registration's client secret (it expires: renew it before then) |
+| `AZURE_SIGNING_ENDPOINT` | the signing account's URI, e.g. `https://eus.codesigning.azure.net/` |
+| `AZURE_SIGNING_ACCOUNT` | the Azure Artifact Signing (formerly Trusted Signing) account: `sitesentrix` |
+| `AZURE_CERT_PROFILE` | its public-trust certificate profile: `sitesentrix-public` (validated as Bruce Wattendorf) |
+
+`WINDOWS_CERTIFICATE` and `WINDOWS_CERTIFICATE_PASSWORD` (a base64 `.pfx`) remain an alternative to
+Azure for Windows (`packaging/windows/sign.ps1` uses the `.pfx` when it is set); they are not set.
+
+### Testing the signing
+
+1. *Actions › Release › Run workflow*, branch **`release`** (create it from `main` first if it
+   doesn't exist), with a `version` such as `0.13.1-rc.1` so a test never takes a real version.
+2. When it finishes, read the run's summary:
+   - **Windows** (each architecture): the *Signature check* table lists every `.msi` and `.exe` with
+     status `Valid` and signer **Bruce Wattendorf**; the build log has `signtool verify /pa` for each.
+   - **macOS**: the *Gatekeeper check* shows `spctl -a -vv` for the DMG and the app: `accepted`,
+     `source=Notarized Developer ID`, `origin=Developer ID Application: …`.
+3. Delete the test's draft release (*Releases › the draft › Delete*). A draft has no tag, so
+   nothing else is left behind.
 
 ## Revision history
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-20 | minor | The `release` environment is the standard for every signing SiteSentrix/Stitchwright repo; its 12 secrets; how to test signing (the Release run's Signature check and Gatekeeper check); macOS releases on the standard `macos-15` runner |
 | 2026-10-14 | minor | RPM glibc floor names libm's `GLIBC_2.35`: RHEL 9's glibc 2.34 provides libc's through backports |
 | 2026-10-12 | minor | RPM dependencies use 64-bit runtime capabilities and enforce glibc 2.35 (#1275); real distro install/start-up checks remain pending |
 | 2026-10-12 | minor | Portable mode (#1366): the Windows portable zip ships `portable.txt`; where the marker goes on macOS and Linux, and what Flatpak can't do |

@@ -69,7 +69,8 @@ jobs:
     timeout-minutes: 90
     name: macOS universal
     needs: version
-    runs-on: macos-15-xlarge  # M2 Pro larger runner; use only in release.yml (actions_macos_xl budget caps spend)
+    # Standard runner: free for a public repository (the larger macos-15-xlarge is billed by the minute).
+    runs-on: macos-15
     environment: release
     env:
       VECTORCRAFT_VERSION: ${{ needs.version.outputs.version }}
@@ -106,6 +107,24 @@ jobs:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
         run: packaging/macos/package.sh --arch universal
+      # Gatekeeper's verdict on what was built, in the run's summary: "source=Notarized Developer
+      # ID" and the signer, or why not.
+      - name: Gatekeeper check
+        if: always()
+        run: |
+          for dmg in dist/release/*.dmg; do
+            [ -f "$dmg" ] || continue
+            mnt="$(mktemp -d)"
+            hdiutil attach -nobrowse -readonly -mountpoint "$mnt" "$dmg" >/dev/null
+            {
+              echo "### $(basename "$dmg")"
+              echo '```'
+              spctl -a -vv -t open --context context:primary-signature "$dmg" 2>&1 || true
+              for app in "$mnt"/*.app; do spctl -a -vv "$app" 2>&1 || true; done
+              echo '```'
+            } | tee -a "$GITHUB_STEP_SUMMARY"
+            hdiutil detach "$mnt" >/dev/null || true
+          done
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-macos
@@ -172,6 +191,20 @@ jobs:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
         run: ./packaging/windows/package.ps1 -Arch ${{ matrix.arch }}
+      # Who signed each installer and program, in the run's summary.
+      - name: Signature check
+        if: always()
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem -Path dist/release -Recurse -Include *.msi, *.exe -ErrorAction SilentlyContinue) +
+            @(Get-ChildItem -Path "target/${{ matrix.target }}/release" -Filter *.exe -ErrorAction SilentlyContinue)
+          $rows = @("### Windows ${{ matrix.arch }}", '', '| File | Status | Signer |', '|---|---|---|')
+          foreach ($f in $files) {
+            $sig = Get-AuthenticodeSignature $f.FullName
+            $who = if ($sig.SignerCertificate) { $sig.SignerCertificate.GetNameInfo('SimpleName', $false) } else { '(none)' }
+            $rows += "| $($f.Name) | $($sig.Status) | $who |"
+          }
+          $rows | Tee-Object -FilePath $env:GITHUB_STEP_SUMMARY -Append
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-windows-${{ matrix.arch }}

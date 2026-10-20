@@ -1,0 +1,3 @@
+# Text files are stored and checked out with LF, on Windows too, so a Windows checkout never
+# changes line endings (PowerShell, WiX and the Rust tools all read LF). Binary files are left alone.
+* text=auto eol=lf
