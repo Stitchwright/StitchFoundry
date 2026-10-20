@@ -355,7 +355,7 @@ pub fn plan<'a>(doc: &'a Document, opts: &PrintOptions) -> Result<PrintPlan<'a>,
     let set = &opts.settings;
     let job = Job::new(doc, set, opts.postscript)?;
     let title = opts.title.clone().unwrap_or_else(|| job.doc.title.clone());
-    let created = opts.created.or_else(vectorcraft_doc::metadata::now_unix);
+    let created = opts.created.or_else(vectorcraft_doc::metadata::output_time);
     let sep = Separator::new(&job.doc, set);
     let plates: Vec<Document> = (0..job.plates.len()).filter_map(|p| job.ink(Some(p))).map(|i| sep.plate(&i.name)).collect();
     let marks = set.marks.printer_marks();
@@ -422,11 +422,12 @@ fn print_inner(doc: &Document, opts: &PrintOptions, left_out: &mut HashSet<Strin
         w.page(ex, &s.sheet())?;
     }
     let overprinted = exporters.iter().any(|ex| ex.overprinted);
+    let invisible = exporters.iter().any(|ex| ex.invisible);
     for ex in exporters {
         w.absorb(ex);
     }
     let (bytes, more) = w.finish(left_out)?;
-    let bytes = crate::forms::finish(bytes, doc, &pdf, false, overprinted)?;
+    let bytes = crate::forms::finish(bytes, doc, &pdf, false, overprinted, invisible)?;
     let mut warnings = plan.warnings;
     for m in more {
         if !warnings.contains(&m) {

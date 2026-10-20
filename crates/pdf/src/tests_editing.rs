@@ -53,9 +53,9 @@ fn the_native_document_comes_back_intact() {
 fn the_native_documents_modification_date_is_the_time_of_writing() {
     // Created in 1970: the information dictionary's dates say so, the embedded file's doesn't.
     let year = |t: Option<i64>| vectorcraft_doc::metadata::civil(t.unwrap())[0];
-    let before = year(vectorcraft_doc::metadata::now_unix());
+    let before = year(vectorcraft_doc::metadata::output_time());
     let text = String::from_utf8_lossy(&pdf_with(Some(b"native"), false).bytes).into_owned();
-    let after = year(vectorcraft_doc::metadata::now_unix());
+    let after = year(vectorcraft_doc::metadata::output_time());
     assert!(text.contains("/CreationDate(D:1970"), "the file's creation date");
     assert!([before, after].iter().any(|y| text.contains(&format!("/ModDate(D:{y:04}"))), "the embedded file is dated when it is written");
 }

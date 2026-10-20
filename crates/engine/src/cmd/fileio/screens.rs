@@ -387,7 +387,7 @@ impl<'a> Naming<'a> {
         let prefix = file_part(o.prefix.as_deref().unwrap_or(""));
         let when = match o.date.as_deref() {
             Some(d) => naming::parse_date(d).ok_or_else(|| bad(C, format!("date `{d}`: YYYY-MM-DD")))?,
-            None => vectorcraft_doc::metadata::now_unix().map_or([1970, 1, 1, 0, 0, 0], vectorcraft_doc::metadata::civil),
+            None => vectorcraft_doc::metadata::output_time().map_or([1970, 1, 1, 0, 0, 0], vectorcraft_doc::metadata::civil),
         };
         let per_file = match o.counter_per.as_deref() {
             None | Some("item") => false,

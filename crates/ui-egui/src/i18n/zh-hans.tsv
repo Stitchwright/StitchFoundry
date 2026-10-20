@@ -1022,6 +1022,7 @@
 	Fill (X), double-click for the Color Picker	填色 (X)，双击打开拾色器
 	Fill and Stroke	填色和描边
 	Fill new strokes	为新描边应用填色
+	Alt key toggles to Smooth Tool	Alt 键切换为平滑工具
 	Keep selected	保持选择状态
 	Merge only with selection	仅与所选对象合并
 	Fill Color	填色
@@ -1151,6 +1152,8 @@ file-filter	Templates	模板
 	Large Gaps	大间隙
 	Gap Preview Color:	间隙预览颜色：
 	Close Gaps With Paths	用路径封闭间隙
+	Select Fills	选择填色
+	Select Strokes	选择描边
 	Gaussian Blur…	高斯模糊…
 	General	常规
 	General › Placement › X	一般 › 位置 › X
@@ -1348,6 +1351,12 @@ file-filter	Templates	模板
 	Release Blend	释放混合
 	Release Envelope	释放封套
 	Release Intertwine	释放交织
+	Objects on Path	路径上的对象
+	Attach	附加
+	Objects on Path Options	路径上的对象选项
+	Objects on Path Tool	路径上的对象工具
+	Attach Objects on Path	附加路径上的对象
+	Expand Objects on Path	扩展路径上的对象
 	Release Live Paint	释放实时上色
 	Release Repeat	释放重复
 	Release Slice	释放切片
@@ -1466,6 +1475,7 @@ file-filter	Templates	模板
 	Inspect Object	检查对象
 	Install Plug-in	安装插件
 	Install Plug-in…	安装增效工具…
+	Open this setting's help page	打开此设置的帮助页面
 	Installed plug-in {}	已安装增效工具 {}
 	Intensity:	强度：
 	Intent:	意图：
@@ -1623,6 +1633,7 @@ file-filter	Templates	模板
 	Load Text into Clipboard	将文本载入剪贴板
 	Local Libraries	本地库
 	Locate Object	查找对象
+	Locate Selected Objects	查找所选对象
 	Location	位置
 	Location:	位置：
 	Lock	锁定
@@ -2053,6 +2064,7 @@ file-filter	Templates	模板
 	Output White	输出白色
 	Output › Mode	输出 › 模式
 	Output:	输出：
+	Overlap	重叠
 	Overlap:	重叠：
 	Overlapping	重叠
 	Overlay	叠加
@@ -2237,6 +2249,7 @@ diagnostics	ui	界面
 	Printer mark type:	打印机标记类型：
 	Roman	西式
 mark-style	Japanese	日式
+font-script	Japanese	汉字
 	Printer profile:	打印机配置文件：
 	Printer Setup…	打印机设置…
 	Printer:	打印机：
@@ -2787,6 +2800,8 @@ mark-style	Japanese	日式
 	Show Note	显示注解
 	Show Options	显示选项
 	Show Original Path	显示原始路径
+	Open this dialog with these settings next time	下次以这些设置打开此对话框
+	Auto-Simplify	自动简化
 	Color Panel Options	颜色面板选项
 	Show Package	显示打包
 	Show Panel	显示面板
@@ -2883,6 +2898,7 @@ mark-style	Japanese	日式
 	Snap to Pixel	对齐像素
 	Precise Cursors	精确光标
 	Snap to Point	对齐点
+	Snap to Unit	对齐单位
 	Snapping Tolerance	吸附容差
 	Social Square Post 1080×1080	社交方形帖子 1080×1080
 	Soft Light	柔光
@@ -3010,7 +3026,7 @@ mark-style	Japanese	日式
 	Delete Library Item	删除库项目
 	No results	无结果
 	No items in this library match “{query}”.	此库中没有与“{query}”匹配的项目。
-	Right-click an item to move it into this group.	右键单击项目可将其移到此组。
+	Drag an item here, or right-click one, to put it in this group.	将项目拖到此处，或右键单击项目，即可将其放入此组。
 	New Group	新建组
 	New Group…	新建组…
 	Move to Group	移到组
@@ -3070,6 +3086,7 @@ mark-style	Japanese	日式
 	Text Wrap Options	文字绕图选项
 	Text Wrap Options…	文本绕排选项…
 	The bounds of the visible art.	可见图稿的边界。
+	The plug-in writes the whole document.	增效工具会导出整个文档。
 	The cell shows the type object's text as HTML.	该单元格以 HTML 显示文字对象的内容。
 	The document has no colour swatches.	文档没有颜色色板。
 	The edge of the paper the printer can't reach: the art goes inside it, and the preview shows it dashed.	打印机无法触及的纸张边缘：图稿会放在其内侧，预览中会以虚线显示。
@@ -3750,6 +3767,7 @@ imageTrace	Outline	轮廓
 @msg	pattern missing	缺少图案
 @msg	select a repeat	请选择一个重复对象
 @msg	select an Intertwine group	请选择一个交织组
+@msg	select an Objects on Path group	请选择一个路径上的对象组
 @msg	select the art to repeat	请选择要重复的图稿
 @msg	the document has no patterns	文档中没有图案
 @msg	no artboard	没有画板
@@ -3938,6 +3956,7 @@ imageTrace	Outline	轮廓
 @msg	no blend options	没有混合选项
 @msg	bad color {v}	颜色 {v} 无效
 @msg	the Color Picker is not open	拾色器未打开
+@msg	the Simplify slider is not open	简化滑块未打开
 @msg	the screen color sampler is already open	屏幕取色器已打开
 @msg	this system has no screen color sampler	此系统没有屏幕取色器
 @msg	Corners edits the corners of a path	转角用于编辑路径的转角
@@ -3977,6 +3996,7 @@ imageTrace	Outline	轮廓
 @msg	missing `id` (see plugin.list)	缺少 `id` (请参阅 plugin.list)
 @msg	no plug-in {id} is installed	未安装增效工具 {id}
 @msg	{_1} is a live effect (Effect › Plug-ins)	{_1} 是实时效果 (效果 › 增效工具)
+@msg	{_1} is an exporter (File › Export › Export As…)	{_1} 是导出增效工具 (文件 › 导出 › 导出为…)
 @msg	a preset named `{_1}` exists	名为 `{_1}` 的预设已存在
 @msg	a swatch or color group named `{n}` exists	名为 `{n}` 的色板或颜色组已存在
 @msg	no print preset named `{base}`	没有名为 `{base}` 的打印预设
@@ -4228,6 +4248,7 @@ imageTrace	Outline	轮廓
 @msg	choose a destination folder	请选择目标文件夹
 @msg	choose a source folder	请选择源文件夹
 @msg	open a document with data sets	请打开包含数据集的文档
+@msg	nothing in data set {name} was applied: no object is bound to a variable it has a value for	数据集 {name} 未应用任何内容：没有对象绑定到该数据集中有值的变量
 @msg	the action has no steps	该动作没有步骤
 # Import Shortcut Set (Keyboard Shortcuts › Import…, File › Open of a .kys file) and its commands.
 	Import Shortcut Set	导入快捷键组
@@ -6347,6 +6368,27 @@ machine	Stop	停止
 @msg	Not enough Foundry credits: buy more in Foundry Account.	Foundry 点数不足：请在 Foundry 账户中购买。
 @msg	An account with that email already exists: sign in instead.	该电子邮件已有账户：请直接登录。
 @msg	The StitchFoundry service can't do this yet: try again later.	StitchFoundry 服务暂时无法完成此操作：请稍后再试。
+	Smudge Stick…	涂抹棒…
+	Smudge Stick	涂抹棒
+	Sponge…	海绵…
+	Sponge	海绵
+	Watercolor…	水彩…
+	Watercolor	水彩
+	Brush Size	画笔大小
+	Definition	清晰度
+	Brush Detail	画笔细节
+	Shadow Intensity	阴影强度
+	Bas Relief…	浅浮雕…
+	Bas Relief	浅浮雕
+	Charcoal…	炭笔…
+	Charcoal	炭笔
+	Photocopy…	影印…
+	Photocopy	影印
+	Stamp…	图章…
+	Stamp	图章
+	Thickness	粗细
+	Detail	细节
+	Light/Dark Balance	明暗平衡
 	Enable Guides for 9-Slice Scaling	启用 9-slice 缩放参考线
 @msg	cancelled; nothing was changed	已取消；未做任何更改
 @msg	Save writes {_1}, not {_2}: use file.saveAsTemplate to write it	保存会写入 {_1}，而不是 {_2}：要写入该格式请使用 file.saveAsTemplate
@@ -6461,3 +6503,21 @@ machine	Stop	停止
 	Sending to MakerFoundry…	正在发送到 MakerFoundry…
 	Sign in to your Foundry Account to publish.	登录你的 Foundry 账户才能发布。
 	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	你的草稿已在 MakerFoundry 打开：在那里添加标题、价格和许可，然后发布。
+	Move Anchor Point	移动锚点
+@msg	{label} keeps 1 of the document's {n} artboards: the file reopens with one. Turn on Preserve Editing Capabilities to keep them all.	{label} 只保留文档 {n} 个画板中的 1 个：文件重新打开时只有一个。打开“保留编辑功能”可全部保留。
+	Chalk & Charcoal…	粉笔和炭笔…
+	Chalk & Charcoal	粉笔和炭笔
+	Graphic Pen…	绘图笔…
+	Graphic Pen	绘图笔
+	Reticulation…	网状…
+	Reticulation	网状
+	Plastic Wrap…	塑料包装…
+	Plastic Wrap	塑料包装
+	Chrome…	铬黄…
+	Chrome	铬黄
+	Drop here to take it out of its group	放到此处可将其移出所在组
+	Move Library Group	移动库组
+	Plaster…	塑料效果…
+	Plaster	塑料效果
+	Note Paper…	便条纸…
+	Note Paper	便条纸

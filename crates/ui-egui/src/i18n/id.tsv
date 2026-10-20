@@ -269,6 +269,7 @@
 	Plug-ins	Plug-in
 	No filter plug-ins installed	Tidak ada plug-in filter yang terinstal
 	Install Plug-in…	Instal plug-in…
+	Open this setting's help page	Buka halaman bantuan pengaturan ini
 	Reload Plug-ins	Muat ulang plug-in
 	Type	Teks
 	Font	Font
@@ -1487,7 +1488,7 @@ lighting	Light	Cahaya
 	This library is empty	Pustaka ini kosong
 	No results	Tidak ada hasil
 	No items in this library match “{query}”.	Tidak ada item di pustaka ini yang cocok dengan “{query}”.
-	Right-click an item to move it into this group.	Klik kanan item untuk memindahkannya ke grup ini.
+	Drag an item here, or right-click one, to put it in this group.	Seret item ke sini, atau klik kanan item, untuk memasukkannya ke grup ini.
 	New Group	Grup baru
 	New Group…	Grup baru…
 	Move to Group	Pindahkan ke grup
@@ -1605,6 +1606,7 @@ lighting	Light	Cahaya
 	Left in Front	Kiri di depan
 	No document	Tidak ada dokumen
 	Open a document to edit its patterns.	Buka dokumen untuk mengedit polanya.
+	Overlap	Tumpang tindih
 	Overlap:	Tumpang tindih:
 	Pattern options are available in pattern editing mode.	Opsi pola tersedia dalam mode pengeditan pola.
 	Right in Front	Kanan di depan
@@ -1732,6 +1734,7 @@ lighting	Light	Cahaya
 	Right-Justified Tab	Tab rata kanan
 	Select a text object to set its tab stops.	Pilih objek teks untuk mengatur tab stop-nya.
 	Select text	Pilih teks
+	Snap to Unit	Snap ke satuan
 	+ Add Scale	+ Tambah skala
 	Add Selected Artwork as One Asset	Tambahkan karya seni terpilih sebagai satu aset
 	Export Settings	Pengaturan ekspor
@@ -1974,6 +1977,7 @@ lighting	Light	Cahaya
 	One file per artboard: <name>-<artboard>.{ext}	Satu file per artboard: <name>-<artboard>.{ext}
 	One page per artboard.	Satu halaman per artboard.
 	The bounds of the visible art.	Batas karya seni yang terlihat.
+	The plug-in writes the whole document.	Plug-in mengekspor seluruh dokumen.
 	Use Artboards	Gunakan artboard
 	Choose a folder	Pilih folder
 	Create Sub-folders	Buat subfolder
@@ -2059,6 +2063,7 @@ lighting	Light	Cahaya
 	Edit selected paths within:	Edit jalur terpilih dalam jarak:
 	Fidelity:	Fidelitas:
 	Fill new strokes	Isi stroke baru
+	Alt key toggles to Smooth Tool	Tombol Alt beralih ke Alat penghalus
 	The document has no colour swatches.	Dokumen tidak memiliki swatch warna.
 	Style Name:	Nama gaya:
 	Crop To	Pangkas ke
@@ -2076,6 +2081,7 @@ lighting	Light	Cahaya
 	Layers Panel Options	Opsi panel lapisan
 	Row Size:	Ukuran baris:
 	Show Layers Only	Tampilkan lapisan saja
+	Locate Selected Objects	Temukan objek terpilih
 	Thumbnails:	Miniatur:
 	Anchor Points	Titik jangkar
 	Brush Affects:	Kuas memengaruhi:
@@ -5043,6 +5049,8 @@ swatch	Bright Violet	Violet cerah
 	Outline Object	Kerangka objek
 	Update Selection	Perbarui seleksi
 	Show Original Path	Tampilkan jalur asli
+	Open this dialog with these settings next time	Buka dialog ini dengan pengaturan ini lain kali
+	Auto-Simplify	Sederhanakan otomatis
 @msg	check a layer to export	centang lapisan yang akan diekspor
 @msg	select the art to export first	pilih dulu karya yang akan diekspor
 @msg	no saved selection recalled	tidak ada seleksi tersimpan yang dipanggil
@@ -5068,6 +5076,8 @@ swatch	Bright Violet	Violet cerah
 	Chop Design	Potong desain
 	Clear Events	Hapus peristiwa
 	Close Gaps With Paths	Tutup celah dengan jalur
+	Select Fills	Pilih isian
+	Select Strokes	Pilih stroke
 	Column Type:	Jenis kolom:
 	Each Design Represents:	Setiap desain mewakili:
 	Event:	Peristiwa:
@@ -5145,6 +5155,12 @@ swatch	Bright Violet	Violet cerah
 	Release Blend	Lepaskan blend
 	Release Envelope	Lepaskan amplop
 	Release Intertwine	Lepaskan jalinan
+	Objects on Path	Objek pada jalur
+	Attach	Tempelkan
+	Objects on Path Options	Opsi objek pada jalur
+	Objects on Path Tool	Alat objek pada jalur
+	Attach Objects on Path	Tempelkan objek pada jalur
+	Expand Objects on Path	Perluas objek pada jalur
 	Release Live Paint	Lepaskan Live Paint
 	Release Repeat	Lepaskan perulangan
 	Release Slice	Lepaskan slice
@@ -6537,3 +6553,41 @@ swatch	Bright Violet	Violet cerah
 	Sending to MakerFoundry…	Mengirim ke MakerFoundry…
 	Sign in to your Foundry Account to publish.	Masuk ke Akun Foundry Anda untuk menerbitkan.
 	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Draf Anda terbuka di MakerFoundry: tambahkan judul, harga, dan lisensi di sana, lalu terbitkan.
+	Smudge Stick…	Tongkat olesan…
+	Smudge Stick	Tongkat olesan
+	Sponge…	Spons…
+	Sponge	Spons
+	Watercolor…	Cat air…
+	Watercolor	Cat air
+	Brush Size	Ukuran kuas
+	Definition	Definisi
+	Brush Detail	Detail kuas
+	Shadow Intensity	Intensitas bayangan
+	Bas Relief…	Relief dangkal…
+	Bas Relief	Relief dangkal
+	Charcoal…	Arang…
+	Charcoal	Arang
+	Photocopy…	Fotokopi…
+	Photocopy	Fotokopi
+	Stamp…	Stempel…
+	Stamp	Stempel
+	Thickness	Ketebalan
+	Detail	Detail
+	Light/Dark Balance	Keseimbangan terang/gelap
+	Move Anchor Point	Pindahkan titik jangkar
+	Chalk & Charcoal…	Kapur dan arang…
+	Chalk & Charcoal	Kapur dan arang
+	Graphic Pen…	Pena grafis…
+	Graphic Pen	Pena grafis
+	Reticulation…	Retikulasi…
+	Reticulation	Retikulasi
+	Plastic Wrap…	Pembungkus plastik…
+	Plastic Wrap	Pembungkus plastik
+	Chrome…	Krom…
+	Chrome	Krom
+	Drop here to take it out of its group	Lepaskan di sini untuk mengeluarkannya dari grupnya
+	Move Library Group	Pindahkan grup pustaka
+	Plaster…	Plester…
+	Plaster	Plester
+	Note Paper…	Kertas Catatan…
+	Note Paper	Kertas Catatan

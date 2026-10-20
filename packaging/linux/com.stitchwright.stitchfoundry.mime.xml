@@ -1,3 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- This package declares the types shared-mime-info lacks for the formats in the desktop entry's
+     MimeType line. The desktop entry lists these types with the shared ones; a test in
+     apps/vectorcraft/src/main.rs checks both files. -->
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-stitchfoundry">
+    <comment>StitchFoundry document</comment>
+    <icon name="com.stitchwright.stitchfoundry"/>
+    <glob pattern="*.stitchfoundry"/>
+  </mime-type>
+  <mime-type type="application/x-vectorcraft">
+    <comment>VectorCraft document</comment>
+    <icon name="com.stitchwright.stitchfoundry"/>
+    <glob pattern="*.vectorcraft"/>
+    <glob pattern="*.drawcraft"/>
+  </mime-type>
+  <mime-type type="application/x-vectorcraft-template">
+    <comment>VectorCraft template</comment>
+    <sub-class-of type="application/x-vectorcraft"/>
+    <glob pattern="*.vctemplate"/>
+  </mime-type>
+  <mime-type type="application/x-ai-template">
+    <comment>PDF-compatible .ait template</comment>
+    <sub-class-of type="application/pdf"/>
+    <glob pattern="*.ait"/>
+  </mime-type>
+  <!-- An .af file gets this type only when it starts with the Affinity container signature and
+       the document kind. -->
+  <mime-type type="application/x-affinity">
+    <comment>Affinity document</comment>
+    <glob pattern="*.afdesign"/>
+    <glob pattern="*.afpub"/>
+    <magic>
+      <match type="string" offset="0" value="\x00\xff\x4b\x41">
+        <match type="string" offset="8" value="nsrP"/>
+      </match>
+    </magic>
+  </mime-type>
+  <!-- Embroidery machine files: one type per format (shared-mime-info has none). -->
+  <mime-type type="application/x-embroidery-dst">
+    <comment>DST embroidery file</comment>
+    <glob pattern="*.dst"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-exp">
+    <comment>EXP embroidery file</comment>
+    <glob pattern="*.exp"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-jef">
+    <comment>JEF embroidery file</comment>
+    <glob pattern="*.jef"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-pes">
+    <comment>PES embroidery file</comment>
+    <glob pattern="*.pes"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-pec">
+    <comment>PEC embroidery file</comment>
+    <glob pattern="*.pec"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-vp3">
+    <comment>VP3 embroidery file</comment>
+    <glob pattern="*.vp3"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-xxx">
+    <comment>XXX embroidery file</comment>
+    <glob pattern="*.xxx"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-u01">
+    <comment>U01 embroidery file</comment>
+    <glob pattern="*.u01"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-pcs">
+    <comment>PCS embroidery file</comment>
+    <glob pattern="*.pcs"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-tap">
+    <comment>TAP embroidery file</comment>
+    <glob pattern="*.tap"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-dsb">
+    <comment>DSB embroidery file</comment>
+    <glob pattern="*.dsb"/>
+  </mime-type>
+  <mime-type type="application/x-embroidery-dsz">
+    <comment>DSZ embroidery file</comment>
+    <glob pattern="*.dsz"/>
+  </mime-type>
 </mime-info>

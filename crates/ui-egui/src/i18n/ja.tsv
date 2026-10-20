@@ -259,6 +259,8 @@
 	Large Gaps	大きい間隔
 	Gap Preview Color:	間隔のプレビューカラー:
 	Close Gaps With Paths	パスで間隔を閉じる
+	Select Fills	塗りを選択
+	Select Strokes	線を選択
 	Image Trace	画像トレース
 	Image Tracing	画像トレースオブジェクト
 	Tracing Presets	トレースプリセット
@@ -284,6 +286,7 @@
 	Plug-ins	プラグイン
 	No filter plug-ins installed	フィルタープラグインはインストールされていません
 	Install Plug-in…	プラグインをインストール…
+	Open this setting's help page	この設定のヘルプページを開く
 	Reload Plug-ins	プラグインを再読み込み
 	Type	書式
 	Font	フォント
@@ -1469,6 +1472,7 @@
 	Fill Rule	塗りのルール
 	Fill and Stroke	塗りと線
 	Fill new strokes	新しいストロークに塗りを適用
+	Alt key toggles to Smooth Tool	Alt キーでスムーズツールに切り替え
 	Keep selected	選択を保持
 	Merge only with selection	選択範囲とのみ結合
 	Fill:	塗り:
@@ -1651,6 +1655,12 @@
 	Release Envelope	エンベロープを解除
 	Release Image Trace	画像トレースを解除
 	Release Intertwine	織り交ぜを解除
+	Objects on Path	パス上のオブジェクト
+	Attach	アタッチ
+	Objects on Path Options	パス上のオブジェクトオプション
+	Objects on Path Tool	パス上のオブジェクトツール
+	Attach Objects on Path	パス上のオブジェクトをアタッチ
+	Expand Objects on Path	パス上のオブジェクトを拡張
 	Release Live Paint	ライブペイントを解除
 	Release Repeat	リピートを解除
 	Release Slice	スライスを解除
@@ -1900,6 +1910,7 @@
 	Load Text into Clipboard	テキストをクリップボードに読み込む
 	Local Libraries	ローカルライブラリ
 	Locate Object	オブジェクトを検索
+	Locate Selected Objects	選択したオブジェクトを検索
 	Location	場所
 	Location:	位置:
 	Lock (⌘2)	ロック (⌘2)
@@ -2224,6 +2235,7 @@
 	Output condition:	出力条件:
 	Output intent profile:	出力インテントプロファイル:
 	Output:	出力:
+	Overlap	重なり
 	Overlap:	重なり:
 	Overlapping	重なり
 	Overlay	オーバーレイ
@@ -2743,6 +2755,8 @@ mark-style	Japanese	日本式
 	Show Note	メモを表示
 	Show Options	オプションを表示
 	Show Original Path	元のパスを表示
+	Open this dialog with these settings next time	次回はこの設定でこのダイアログを開く
+	Auto-Simplify	自動単純化
 	Color Panel Options	カラーパネルオプション
 	Show Package	パッケージを表示
 	Show Panel	パネルを表示
@@ -2808,6 +2822,7 @@ mark-style	Japanese	日本式
 	Source Image	元画像
 	Image Trace View	画像トレースの表示
 	Snap Options	スナップオプション
+	Snap to Unit	単位にスナップ
 	Snapping Tolerance	スナップ許容値
 	Soft Light	ソフトライト
 	Solid	実線
@@ -2890,7 +2905,7 @@ mark-style	Japanese	日本式
 	Delete Library Item	ライブラリ項目を削除
 	No results	結果はありません
 	No items in this library match “{query}”.	このライブラリには「{query}」に一致する項目がありません。
-	Right-click an item to move it into this group.	項目を右クリックすると、このグループに移動できます。
+	Drag an item here, or right-click one, to put it in this group.	項目をここにドラッグするか、項目を右クリックすると、このグループに入れられます。
 	New Group	新規グループ
 	New Group…	新規グループ…
 	Move to Group	グループに移動
@@ -2933,6 +2948,7 @@ mark-style	Japanese	日本式
 	Text Import Options	テキスト読み込みオプション
 	The Print Tiling tool placed the pages.	プリント分割ツールでページが配置されています。
 	The bounds of the visible art.	表示されているアートの範囲。
+	The plug-in writes the whole document.	プラグインがドキュメント全体を書き出します。
 	The cell shows the type object's text as HTML.	セルには文字オブジェクトのテキストが HTML として表示されます。
 	The document has no colour swatches.	ドキュメントにカラースウォッチがありません。
 	The edge of the paper the printer can't reach: the art goes inside it, and the preview shows it dashed.	プリンターが印刷できない用紙の端の部分です。アートはこの内側に配置され、プレビューでは破線で表示されます。
@@ -3997,6 +4013,7 @@ swatch	Bright Violet	ビビッドバイオレット
 @msg	pattern missing	パターンが見つかりません
 @msg	select a repeat	リピートを選択してください
 @msg	select an Intertwine group	織り交ぜグループを選択してください
+@msg	select an Objects on Path group	パス上のオブジェクトグループを選択してください
 @msg	select the art to repeat	リピートするアートを選択してください
 @msg	the document has no patterns	ドキュメントにパターンがありません
 @msg	no artboard	アートボードがありません
@@ -4184,6 +4201,7 @@ swatch	Bright Violet	ビビッドバイオレット
 @msg	no blend options	ブレンドオプションがありません
 @msg	bad color {v}	カラー {v} が正しくありません
 @msg	the Color Picker is not open	カラーピッカーが開いていません
+@msg	the Simplify slider is not open	単純化スライダーが開いていません
 @msg	the screen color sampler is already open	画面のカラーサンプラーはすでに開いています
 @msg	this system has no screen color sampler	このシステムには画面のカラーサンプラーがありません
 @msg	Corners edits the corners of a path	「コーナー」で編集できるのはパスの角だけです
@@ -4226,6 +4244,7 @@ swatch	Bright Violet	ビビッドバイオレット
 @msg	missing `id` (see plugin.list)	`id` が指定されていません (plugin.list を参照)
 @msg	no plug-in {id} is installed	プラグイン {id} はインストールされていません
 @msg	{_1} is a live effect (Effect › Plug-ins)	{_1} はライブ効果です (「効果 › プラグイン」から使用してください)
+@msg	{_1} is an exporter (File › Export › Export As…)	{_1} は書き出しプラグインです (「ファイル › 書き出し › 形式を指定して書き出し…」から使用してください)
 @msg	a preset named `{_1}` exists	`{_1}` という名前のプリセットはすでに存在します
 @msg	a swatch or color group named `{n}` exists	`{n}` という名前のスウォッチまたはカラーグループはすでに存在します
 @msg	no print preset named `{base}`	`{base}` という名前のプリントプリセットが見つかりません
@@ -6040,6 +6059,7 @@ machine	Stop	停止
 @msg	choose a destination folder	出力先フォルダーを選択してください
 @msg	choose a source folder	ソースフォルダーを選択してください
 @msg	open a document with data sets	データセットのあるドキュメントを開いてください
+@msg	nothing in data set {name} was applied: no object is bound to a variable it has a value for	データセット {name} から何も適用されませんでした: 値のある変数にバインドされたオブジェクトがありません
 @msg	the action has no steps	アクションにステップがありません
 	Along the selected line	選択した線に沿って
 	Add to Design	デザインに追加
@@ -6201,6 +6221,27 @@ machine	Stop	停止
 @msg	Not enough Foundry credits: buy more in Foundry Account.	Foundry クレジットが足りません。Foundry アカウントで購入してください。
 @msg	An account with that email already exists: sign in instead.	そのメールのアカウントはすでにあります。サインインしてください。
 @msg	The StitchFoundry service can't do this yet: try again later.	StitchFoundry のサービスはまだこれに対応していません。後でもう一度お試しください。
+	Smudge Stick…	スマッジスティック…
+	Smudge Stick	スマッジスティック
+	Sponge…	スポンジ…
+	Sponge	スポンジ
+	Watercolor…	水彩…
+	Watercolor	水彩
+	Brush Size	ブラシサイズ
+	Definition	精細度
+	Brush Detail	ブラシの細かさ
+	Shadow Intensity	シャドウの強さ
+	Bas Relief…	レリーフ…
+	Bas Relief	レリーフ
+	Charcoal…	木炭…
+	Charcoal	木炭
+	Photocopy…	コピー…
+	Photocopy	コピー
+	Stamp…	スタンプ…
+	Stamp	スタンプ
+	Thickness	太さ
+	Detail	ディテール
+	Light/Dark Balance	明暗のバランス
 # Links and Attributes: files and URLs handed to other apps.
 @msg	Edit Original opens image and document files only; “{name}” is not one	「オリジナルを編集」で開けるのは画像ファイルとドキュメントファイルだけです: 「{name}」はどちらでもありません
 @msg	only http, https and mailto URLs open in the browser, not “{url}”	ブラウザーで開けるのは http、https、mailto の URL だけです: 「{url}」は開けません
@@ -6318,3 +6359,21 @@ machine	Stop	停止
 @msg	`format` is one of {_1}	`format` は {_1} のいずれかです
 @msg	The design is too big for MakerFoundry.	デザインが大きすぎて MakerFoundry に送れません。
 @msg	MakerFoundry's address isn't valid: use an https:// address.	MakerFoundry のアドレスが正しくありません。https:// のアドレスを使ってください。
+	Move Anchor Point	アンカーポイントを移動
+@msg	{label} keeps 1 of the document's {n} artboards: the file reopens with one. Turn on Preserve Editing Capabilities to keep them all.	{label} ではドキュメントの {n} 個のアートボードのうち 1 個だけが保持され、ファイルは 1 個で開き直されます。すべて保持するには「編集機能を保持」をオンにしてください。
+	Chalk & Charcoal…	チョーク・木炭画…
+	Chalk & Charcoal	チョーク・木炭画
+	Graphic Pen…	グラフィックペン…
+	Graphic Pen	グラフィックペン
+	Reticulation…	網目…
+	Reticulation	網目
+	Plastic Wrap…	ラップ…
+	Plastic Wrap	ラップ
+	Chrome…	クロム…
+	Chrome	クロム
+	Drop here to take it out of its group	ここにドロップするとグループから外れます
+	Move Library Group	ライブラリグループを移動
+	Plaster…	石膏…
+	Plaster	石膏
+	Note Paper…	ノート用紙…
+	Note Paper	ノート用紙

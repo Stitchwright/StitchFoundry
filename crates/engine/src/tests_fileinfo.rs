@@ -175,9 +175,9 @@ fn assert_dated(bytes: &[u8], created: std::ops::RangeInclusive<i64>, modified: 
 
 /// Run `f` → (its result, the time of writing: the Unix seconds before and after it).
 fn written<T>(f: impl FnOnce() -> T) -> (T, std::ops::RangeInclusive<i64>) {
-    let before = vectorcraft_doc::metadata::now_unix().unwrap();
+    let before = vectorcraft_doc::metadata::output_time().unwrap();
     let out = f();
-    (out, before..=vectorcraft_doc::metadata::now_unix().unwrap())
+    (out, before..=vectorcraft_doc::metadata::output_time().unwrap())
 }
 
 #[test]

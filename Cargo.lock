@@ -4049,9 +4049,9 @@ checksum = "eec689c0bc40ff2458a5977b6619cb718087084a18e02a131c599b62d05e1a5f"
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.15"
+version = "0.103.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2"
+checksum = "4443b1b6d39d7c663139942cc4558262562d2c84123bb6282ef177009ca8b281"
 dependencies = [
  "ring",
  "rustls-pki-types",
@@ -4138,6 +4138,17 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
+
+[[package]]
+name = "sctk-adwaita"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6277f0217056f77f1d8f49f2950ac6c278c0d607c45f5ee99328d792ede24ec"
+dependencies = [
+ "log",
+ "smithay-client-toolkit 0.19.2",
+ "tiny-skia",
+]
 
 [[package]]
 name = "security-framework"
@@ -4239,7 +4250,7 @@ dependencies = [
 
 [[package]]
 name = "sf-core"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "base64 0.23.1",
  "i_overlay",
@@ -4250,7 +4261,7 @@ dependencies = [
 
 [[package]]
 name = "sf-formats"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "serde_json",
  "sf-core",
@@ -4497,7 +4508,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stitchfoundry-cloud"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "argon2",
  "getrandom 0.3.4",
@@ -5151,7 +5162,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "arboard",
  "block2 0.6.2",
@@ -5189,7 +5200,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-affinity"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "crc32fast",
  "flate2",
@@ -5200,7 +5211,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-brush"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "kurbo 0.13.1",
  "serde",
@@ -5212,7 +5223,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-cad"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "image",
  "kurbo 0.13.1",
@@ -5228,7 +5239,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-cli"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "log",
  "objc2-core-foundation",
@@ -5250,7 +5261,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-color"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "kurbo 0.13.1",
  "moxcms",
@@ -5262,7 +5273,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-doc"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "hayro-ccitt",
  "image",
@@ -5281,7 +5292,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-effects"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "image",
  "kurbo 0.13.1",
@@ -5297,7 +5308,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-embroidery"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "kurbo 0.13.1",
  "serde",
@@ -5311,7 +5322,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-engine"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "craft-docpath",
  "crc32fast",
@@ -5352,7 +5363,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-eps"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "fax",
  "flate2",
@@ -5375,7 +5386,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-format"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "flate2",
  "proptest",
@@ -5390,7 +5401,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-geom"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "kurbo 0.13.1",
  "proptest",
@@ -5402,7 +5413,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-mcp"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "image",
  "log",
@@ -5421,7 +5432,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-metafile"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "image",
  "kurbo 0.13.1",
@@ -5435,7 +5446,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-pathops"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "kurbo 0.13.1",
  "linesweeper",
@@ -5447,7 +5458,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-pdf"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "aes",
  "craft-pdf",
@@ -5477,7 +5488,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-plugins"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -5491,7 +5502,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-render"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "flate2",
  "gif",
@@ -5518,14 +5529,14 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-scriptcheck"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "proptest",
 ]
 
 [[package]]
 name = "vectorcraft-svg"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "craft-docpath",
  "flate2",
@@ -5550,7 +5561,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-testkit"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "fax",
  "image",
@@ -5568,7 +5579,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-text"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "harfrust 0.13.3",
  "icu_segmenter",
@@ -5588,7 +5599,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-three-d"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "vectorcraft-geom",
  "vectorcraft-pathops",
@@ -5596,7 +5607,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-tools"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "image",
  "kurbo 0.13.1",
@@ -5613,7 +5624,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-trace"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "image",
  "kurbo 0.13.1",
@@ -5625,7 +5636,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-ui-egui"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "craft-ui",
  "egui",
@@ -5660,7 +5671,7 @@ dependencies = [
 
 [[package]]
 name = "vectorcraft-web"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "eframe",
  "egui",
@@ -6117,18 +6128,18 @@ dependencies = [
 
 [[package]]
 name = "webpki-root-certs"
-version = "1.0.9"
+version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b96554aa2acc8ccdb7e1c9a58a7a68dd5d13bccc69cd124cb09406db612a1c9b"
+checksum = "58ec80e73fd8baf57bf0d9615554c75348bda990d6d5bbeab964dd068319fecb"
 dependencies = [
  "rustls-pki-types",
 ]
 
 [[package]]
 name = "webpki-roots"
-version = "1.0.9"
+version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a"
+checksum = "1c1c8e20c8a38fc7d65abfe74eb7280e4aa667e8eec8bc84996d2874810748d9"
 dependencies = [
  "rustls-pki-types",
 ]
@@ -6663,6 +6674,7 @@ dependencies = [
  "raw-window-handle",
  "redox_syscall 0.4.1",
  "rustix 0.38.44",
+ "sctk-adwaita",
  "smithay-client-toolkit 0.19.2",
  "smol_str",
  "tracing",
@@ -6826,7 +6838,7 @@ checksum = "9440ea3e5aeabb0ac63af70daf835274065238cdd0cec83418f417eae38bacee"
 
 [[package]]
 name = "xtask"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "serde_json",
 ]

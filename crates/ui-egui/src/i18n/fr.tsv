@@ -1073,6 +1073,7 @@
 	Fill (X), double-click for the Color Picker	Fond (X), double-cliquez pour ouvrir le Sélecteur de couleurs
 	Fill and Stroke	Fond et contour
 	Fill new strokes	Remplir les nouveaux contours
+	Alt key toggles to Smooth Tool	La touche Alt bascule sur l’outil Arrondi
 	Keep selected	Garder sélectionné
 	Merge only with selection	Fusionner uniquement avec la sélection
 	Fill Color	Couleur de fond
@@ -1193,6 +1194,8 @@
 	Large Gaps	Grands espaces
 	Gap Preview Color:	Couleur d’aperçu des espaces :
 	Close Gaps With Paths	Fermer les espaces avec des tracés
+	Select Fills	Sélectionner les fonds
+	Select Strokes	Sélectionner les contours
 	Gaussian Blur…	Flou gaussien…
 	General	Général
 	General › Placement › X	Général › Placement › X
@@ -1390,6 +1393,12 @@
 	Release Blend	Annuler le dégradé de formes
 	Release Envelope	Annuler l’enveloppe
 	Release Intertwine	Annuler l’entrelacement
+	Objects on Path	Objets sur tracé
+	Attach	Attacher
+	Objects on Path Options	Options d’objets sur tracé
+	Objects on Path Tool	Outil Objets sur tracé
+	Attach Objects on Path	Attacher des objets au tracé
+	Expand Objects on Path	Décomposer les objets sur tracé
 	Release Live Paint	Annuler la peinture dynamique
 	Release Repeat	Annuler la répétition
 	Release Slice	Annuler la tranche
@@ -1505,6 +1514,7 @@
 	Inspect Object	Inspecter l’objet
 	Install Plug-in	Installer un module externe
 	Install Plug-in…	Installer un module externe…
+	Open this setting's help page	Ouvrir la page d’aide de ce réglage
 	Installed plug-in {}	Module externe {} installé
 	Intensity:	Intensité :
 	Intent:	Mode de rendu :
@@ -1704,6 +1714,7 @@
 	Load Text into Clipboard	Charger du texte dans le presse-papiers
 	Local Libraries	Bibliothèques locales
 	Locate Object	Localiser l’objet
+	Locate Selected Objects	Localiser les objets sélectionnés
 	Location	Emplacement
 	Location:	Emplacement :
 	Lock	Verrouiller
@@ -2134,6 +2145,7 @@
 	Output White	Blanc de sortie
 	Output › Mode	Sortie › Mode
 	Output:	Sortie :
+	Overlap	Chevauchement
 	Overlap:	Chevauchement :
 	Overlapping	Superposés
 	Overlay	Incrustation
@@ -2900,6 +2912,8 @@
 	Show Note	Afficher la note
 	Show Options	Afficher les options
 	Show Original Path	Afficher le tracé d’origine
+	Open this dialog with these settings next time	Ouvrir cette boîte de dialogue avec ces réglages la prochaine fois
+	Auto-Simplify	Simplifier automatiquement
 	Color Panel Options	Options du panneau Couleur
 	Show Package	Afficher le dossier d’assemblage
 	Show Panel	Afficher le panneau
@@ -2996,6 +3010,7 @@
 	Snap to Pixel	Magnétisme du pixel
 	Precise Cursors	Pointeurs précis
 	Snap to Point	Magnétisme du point
+	Snap to Unit	Magnétisme de l’unité
 	Snapping Tolerance	Tolérance du magnétisme
 	Social Square Post 1080×1080	Publication carrée pour réseaux sociaux 1080×1080
 	Soft Light	Lumière tamisée
@@ -3123,7 +3138,7 @@
 	Delete Library Item	Supprimer l’élément de la bibliothèque
 	No results	Aucun résultat
 	No items in this library match “{query}”.	Aucun élément de cette bibliothèque ne correspond à « {query} ».
-	Right-click an item to move it into this group.	Cliquez avec le bouton droit sur un élément pour le placer dans ce groupe.
+	Drag an item here, or right-click one, to put it in this group.	Faites glisser un élément ici, ou cliquez dessus avec le bouton droit, pour le placer dans ce groupe.
 	New Group	Nouveau groupe
 	New Group…	Nouveau groupe…
 	Move to Group	Déplacer vers le groupe
@@ -3183,6 +3198,7 @@
 	Text Wrap Options	Options d’habillage de texte
 	Text Wrap Options…	Options d’habillage de texte…
 	The bounds of the visible art.	Les limites de l’illustration visible.
+	The plug-in writes the whole document.	Le module externe exporte le document entier.
 	The cell shows the type object's text as HTML.	La cellule affiche le texte de l’objet texte au format HTML.
 	The document has no colour swatches.	Le document ne contient aucune nuance de couleur.
 	The edge of the paper the printer can't reach: the art goes inside it, and the preview shows it dashed.	Le bord du papier que l’imprimante ne peut pas atteindre : l’illustration reste à l’intérieur, et l’aperçu l’affiche en pointillés.
@@ -3838,6 +3854,7 @@ axis	Both	Les deux
 @msg	background {other}: transparent, white, black or a colour such as "#ff8800"	arrière-plan {other} : transparent, white, black ou une couleur comme "#ff8800"
 @msg	bad color {v}	couleur non valide {v}
 @msg	the Color Picker is not open	le Sélecteur de couleurs n’est pas ouvert
+@msg	the Simplify slider is not open	le curseur Simplifier n’est pas ouvert
 @msg	the screen color sampler is already open	l’outil de prélèvement de couleur à l’écran est déjà ouvert
 @msg	this system has no screen color sampler	ce système n’a pas d’outil de prélèvement de couleur à l’écran
 @msg	bad colour `{hex}` (#rrggbb)	couleur non valide `{hex}` (#rrggbb)
@@ -4070,6 +4087,7 @@ axis	Both	Les deux
 @msg	select a linked image: an embedded one has no file	sélectionnez une image liée : une image incorporée n’a pas de fichier
 @msg	select a repeat	sélectionnez une répétition
 @msg	select an Intertwine group	sélectionnez un groupe entrelacé
+@msg	select an Objects on Path group	sélectionnez un groupe d’objets sur tracé
 @msg	select a stroke with a variable width	sélectionnez un contour de largeur variable
 @msg	select a symbol instance	sélectionnez une instance de symbole
 @msg	select an Image Trace object	sélectionnez un objet de vectorisation de l’image
@@ -4199,6 +4217,7 @@ axis	Both	Les deux
 @msg	{_1} files are written by file.saveAsTemplate	les fichiers {_1} sont écrits par file.saveAsTemplate
 @msg	{_1} font families available	{_1} familles de polices disponibles
 @msg	{_1} is a live effect (Effect › Plug-ins)	{_1} est un effet dynamique (Effet › Plug-ins)
+@msg	{_1} is an exporter (File › Export › Export As…)	{_1} est un module externe d’exportation (Fichier › Exporter › Exporter sous…)
 @msg	{_1} is already used by {_2}	{_1} est déjà utilisé par {_2}
 @msg	{_1} linked file(s) can't be read here: their previews show	{_1} fichier(s) lié(s) illisible(s) ici : leurs aperçus sont affichés
 @msg	{_1} linked image(s) changed on disk: Update Links shows the new versions	{_1} image(s) liée(s) modifiée(s) sur le disque : Mettre à jour les liens affiche les nouvelles versions
@@ -6375,6 +6394,7 @@ theme	Appearance	Apparence
 @msg	choose a destination folder	choisissez un dossier de destination
 @msg	choose a source folder	choisissez un dossier source
 @msg	open a document with data sets	ouvrez un document avec des jeux de données
+@msg	nothing in data set {name} was applied: no object is bound to a variable it has a value for	rien du jeu de données {name} n’a été appliqué, car aucun objet n’est lié à une variable pour laquelle il a une valeur
 @msg	the action has no steps	l'action n'a aucune étape
 	Direction	Direction
 	Along the selected line	Le long de la ligne sélectionnée
@@ -6536,6 +6556,27 @@ theme	Appearance	Apparence
 @msg	Not enough Foundry credits: buy more in Foundry Account.	Pas assez de crédits Foundry : achetez-en dans Compte Foundry.
 @msg	An account with that email already exists: sign in instead.	Un compte existe déjà avec cet e-mail : connectez-vous plutôt.
 @msg	The StitchFoundry service can't do this yet: try again later.	Le service StitchFoundry ne peut pas encore faire cela : réessayez plus tard.
+	Smudge Stick…	Estompe…
+	Smudge Stick	Estompe
+	Sponge…	Éponge…
+	Sponge	Éponge
+	Watercolor…	Aquarelle…
+	Watercolor	Aquarelle
+	Brush Size	Taille du pinceau
+	Definition	Définition
+	Brush Detail	Détail du pinceau
+	Shadow Intensity	Intensité des ombres
+	Bas Relief…	Bas-relief…
+	Bas Relief	Bas-relief
+	Charcoal…	Fusain…
+	Charcoal	Fusain
+	Photocopy…	Photocopie…
+	Photocopy	Photocopie
+	Stamp…	Tampon…
+	Stamp	Tampon
+	Thickness	Épaisseur
+	Detail	Détail
+	Light/Dark Balance	Équilibre clair/foncé
 # Links and Attributes: files and URLs handed to other apps.
 @msg	Edit Original opens image and document files only; “{name}” is not one	Modifier l’original n’ouvre que les fichiers d’image et de document ; « {name} » n’en est pas un
 @msg	only http, https and mailto URLs open in the browser, not “{url}”	seules les URL http, https et mailto s’ouvrent dans le navigateur, pas « {url} »
@@ -6652,3 +6693,21 @@ theme	Appearance	Apparence
 @msg	`format` is one of {_1}	`format` est l’un de {_1}
 @msg	The design is too big for MakerFoundry.	Le motif est trop grand pour MakerFoundry.
 @msg	MakerFoundry's address isn't valid: use an https:// address.	L’adresse de MakerFoundry n’est pas valide : utilisez une adresse https://.
+	Move Anchor Point	Déplacer le point d’ancrage
+@msg	{label} keeps 1 of the document's {n} artboards: the file reopens with one. Turn on Preserve Editing Capabilities to keep them all.	{label} conserve 1 des {n} plans de travail du document : le fichier se rouvre avec un seul. Activez Conserver les fonctions d’édition pour les conserver tous.
+	Chalk & Charcoal…	Craie et fusain…
+	Chalk & Charcoal	Craie et fusain
+	Graphic Pen…	Plume graphique…
+	Graphic Pen	Plume graphique
+	Reticulation…	Réticulation…
+	Reticulation	Réticulation
+	Plastic Wrap…	Emballage plastique…
+	Plastic Wrap	Emballage plastique
+	Chrome…	Chrome…
+	Chrome	Chrome
+	Drop here to take it out of its group	Déposez ici pour le sortir de son groupe
+	Move Library Group	Déplacer le groupe de bibliothèque
+	Plaster…	Plâtre…
+	Plaster	Plâtre
+	Note Paper…	Papier gaufré…
+	Note Paper	Papier gaufré

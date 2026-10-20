@@ -283,6 +283,7 @@
 	Plug-ins	Plug-ins
 	No filter plug-ins installed	Geen filterplug-ins geïnstalleerd
 	Install Plug-in…	Plug-in installeren…
+	Open this setting's help page	Helppagina van deze instelling openen
 	Reload Plug-ins	Plug-ins opnieuw laden
 	Type	Type
 	Font	Lettertype
@@ -1501,7 +1502,7 @@ lighting	Light	Licht
 	This library is empty	Deze bibliotheek is leeg
 	No results	Geen resultaten
 	No items in this library match “{query}”.	Geen items in deze bibliotheek komen overeen met „{query}”.
-	Right-click an item to move it into this group.	Klik met de rechtermuisknop op een item om het naar deze groep te verplaatsen.
+	Drag an item here, or right-click one, to put it in this group.	Sleep een item hierheen, of klik er met de rechtermuisknop op, om het in deze groep te zetten.
 	New Group	Nieuwe groep
 	New Group…	Nieuwe groep…
 	Move to Group	Verplaatsen naar groep
@@ -1619,6 +1620,7 @@ lighting	Light	Licht
 	Left in Front	Linkerkant vooraan
 	No document	Geen document
 	Open a document to edit its patterns.	Open een document om de patronen te bewerken.
+	Overlap	Overlap
 	Overlap:	Overlap:
 	Pattern options are available in pattern editing mode.	Patroonopties zijn beschikbaar in de patroonbewerkingsmodus.
 	Right in Front	Rechterkant vooraan
@@ -1746,6 +1748,7 @@ lighting	Light	Licht
 	Right-Justified Tab	Rechts uitgelijnde tabstop
 	Select a text object to set its tab stops.	Selecteer een tekstobject om de tabstops in te stellen.
 	Select text	Selecteer tekst
+	Snap to Unit	Uitlijnen op eenheid
 	+ Add Scale	+ Schaal toevoegen
 	Add Selected Artwork as One Asset	Geselecteerde artwork als één asset toevoegen
 	Export Settings	Exportinstellingen
@@ -1988,6 +1991,7 @@ lighting	Light	Licht
 	One file per artboard: <name>-<artboard>.{ext}	Eén bestand per tekenbord: <name>-<artboard>.{ext}
 	One page per artboard.	Eén pagina per tekenbord.
 	The bounds of the visible art.	De grenzen van de zichtbare artwork.
+	The plug-in writes the whole document.	De plug-in exporteert het hele document.
 	Use Artboards	Tekenborden gebruiken
 	Choose a folder	Kies een map
 	Create Sub-folders	Submappen maken
@@ -2073,6 +2077,7 @@ lighting	Light	Licht
 	Edit selected paths within:	Geselecteerde paden bewerken binnen:
 	Fidelity:	Nauwkeurigheid:
 	Fill new strokes	Nieuwe lijnen vullen
+	Alt key toggles to Smooth Tool	Alt-toets schakelt over naar Gladmaken-gereedschap
 	The document has no colour swatches.	Het document heeft geen kleurstalen.
 	Style Name:	Stijlnaam:
 	Crop To	Bijsnijden tot
@@ -2090,6 +2095,7 @@ lighting	Light	Licht
 	Layers Panel Options	Opties voor het paneel Lagen
 	Row Size:	Rijgrootte:
 	Show Layers Only	Alleen lagen weergeven
+	Locate Selected Objects	Geselecteerde objecten lokaliseren
 	Thumbnails:	Miniaturen:
 	Anchor Points	Ankerpunten
 	Brush Affects:	Penseel beïnvloedt:
@@ -5055,6 +5061,8 @@ swatch	Bright Violet	Felviolet
 	Outline Object	Object omtrekken
 	Update Selection	Selectie bijwerken
 	Show Original Path	Oorspronkelijk pad tonen
+	Open this dialog with these settings next time	Dit dialoogvenster de volgende keer met deze instellingen openen
+	Auto-Simplify	Automatisch vereenvoudigen
 @msg	check a layer to export	vink een laag aan om te exporteren
 @msg	select the art to export first	selecteer eerst de illustratie die je wilt exporteren
 @msg	no saved selection recalled	geen opgeslagen selectie opgeroepen
@@ -5080,6 +5088,8 @@ swatch	Bright Violet	Felviolet
 	Chop Design	Ontwerp afknippen
 	Clear Events	Gebeurtenissen wissen
 	Close Gaps With Paths	Openingen sluiten met paden
+	Select Fills	Vullingen selecteren
+	Select Strokes	Lijnen selecteren
 	Column Type:	Kolomtype:
 	Each Design Represents:	Elk ontwerp staat voor:
 	Event:	Gebeurtenis:
@@ -5157,6 +5167,12 @@ swatch	Bright Violet	Felviolet
 	Release Blend	Vermenging vrijgeven
 	Release Envelope	Omvorming vrijgeven
 	Release Intertwine	Verstrengeling vrijgeven
+	Objects on Path	Objecten op pad
+	Attach	Koppelen
+	Objects on Path Options	Opties voor objecten op pad
+	Objects on Path Tool	Objecten-op-pad-gereedschap
+	Attach Objects on Path	Objecten aan pad koppelen
+	Expand Objects on Path	Objecten op pad uitbreiden
 	Release Live Paint	Live Paint vrijgeven
 	Release Repeat	Herhaling vrijgeven
 	Release Slice	Slice vrijgeven
@@ -6579,3 +6595,41 @@ swatch	Bright Violet	Felviolet
 	Sending to MakerFoundry…	Versturen naar MakerFoundry…
 	Sign in to your Foundry Account to publish.	Meld je aan bij je Foundry-account om te publiceren.
 	Your draft is open on MakerFoundry: add its title, price and licence there, and publish it.	Je concept staat open op MakerFoundry: voeg daar de titel, prijs en licentie toe en publiceer het.
+	Smudge Stick…	Uitsmeerstift…
+	Smudge Stick	Uitsmeerstift
+	Sponge…	Spons…
+	Sponge	Spons
+	Watercolor…	Aquarel…
+	Watercolor	Aquarel
+	Brush Size	Penseelgrootte
+	Definition	Definitie
+	Brush Detail	Penseeldetail
+	Shadow Intensity	Schaduwintensiteit
+	Bas Relief…	Basreliëf…
+	Bas Relief	Basreliëf
+	Charcoal…	Houtskool…
+	Charcoal	Houtskool
+	Photocopy…	Fotokopie…
+	Photocopy	Fotokopie
+	Stamp…	Stempel…
+	Stamp	Stempel
+	Thickness	Dikte
+	Detail	Detail
+	Light/Dark Balance	Licht/donker-balans
+	Move Anchor Point	Ankerpunt verplaatsen
+	Chalk & Charcoal…	Krijt en houtskool…
+	Chalk & Charcoal	Krijt en houtskool
+	Graphic Pen…	Grafische pen…
+	Graphic Pen	Grafische pen
+	Reticulation…	Reticulatie…
+	Reticulation	Reticulatie
+	Plastic Wrap…	Plasticfolie…
+	Plastic Wrap	Plasticfolie
+	Chrome…	Chroom…
+	Chrome	Chroom
+	Drop here to take it out of its group	Zet het hier neer om het uit de groep te halen
+	Move Library Group	Bibliotheekgroep verplaatsen
+	Plaster…	Gips…
+	Plaster	Gips
+	Note Paper…	Notitiepapier…
+	Note Paper	Notitiepapier

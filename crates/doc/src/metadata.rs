@@ -82,6 +82,31 @@ impl DocMetadata {
     }
 }
 
+/// The time exported files record: PDF `CreationDate` and `ModDate`, the PNG `Creation Time`
+/// entry, a zip entry's date, and a saved document's `created` and `modified`. It is the clock,
+/// unless `SOURCE_DATE_EPOCH` is set, which replaces it so that the same commands produce the same
+/// bytes twice (#2880).
+///
+/// The raw clock stays in [`now_unix`], which is what a heartbeat is judged by and what seeds
+/// encryption: neither may be pinned by the environment.
+pub fn output_time() -> Option<i64> {
+    pinned_or(|n| std::env::var(n).ok(), now_unix)
+}
+
+/// [`output_time`] with the environment and the clock supplied, so a test can show that the
+/// variable is preferred and that the clock answers whenever it does not.
+fn pinned_or(get: impl Fn(&str) -> Option<String>, clock: impl Fn() -> Option<i64>) -> Option<i64> {
+    stamp_from_env(get).or_else(clock)
+}
+
+/// `SOURCE_DATE_EPOCH` as Unix seconds: the reproducible-builds variable
+/// (<https://reproducible-builds.org/specs/source-date-epoch/>), a non-negative decimal integer of
+/// seconds since the epoch. `None` when it is unset, blank, negative or not an integer, and then
+/// the clock decides — an export is never refused over the environment.
+fn stamp_from_env(get: impl Fn(&str) -> Option<String>) -> Option<i64> {
+    get("SOURCE_DATE_EPOCH")?.trim().parse::<i64>().ok().filter(|t| *t >= 0)
+}
+
 /// The current time as Unix seconds (UTC); `None` where the platform has no clock (the web build).
 #[cfg(not(target_arch = "wasm32"))]
 pub fn now_unix() -> Option<i64> {
@@ -147,5 +172,39 @@ mod tests {
             ]
         );
         assert!(DocMetadata::default().png_text("").is_empty());
+    }
+
+    /// `SOURCE_DATE_EPOCH` replaces the clock in exported output only when it is a non-negative
+    /// decimal integer; anything else leaves the clock to decide, so an export is never refused.
+    #[test]
+    fn source_date_epoch_is_read_only_as_a_non_negative_integer() {
+        let env = |v: Option<&'static str>| move |n: &str| v.filter(|_| n == "SOURCE_DATE_EPOCH").map(str::to_owned);
+        assert_eq!(stamp_from_env(env(Some("1791208980"))), Some(1_791_208_980));
+        assert_eq!(stamp_from_env(env(Some("0"))), Some(0));
+        assert_eq!(stamp_from_env(env(Some("  1791208980  "))), Some(1_791_208_980));
+        for bad in ["", "   ", "-1", "later", "1791208980.5", "1e9", "99999999999999999999"] {
+            assert_eq!(stamp_from_env(env(Some(bad))), None, "{bad:?}");
+        }
+        assert_eq!(stamp_from_env(env(None)), None, "unset");
+        // Another variable never stands in for it.
+        assert_eq!(stamp_from_env(|_| Some("1791208980".to_owned())), Some(1_791_208_980));
+        assert_eq!(stamp_from_env(|n: &str| (n == "TZ").then(|| "1791208980".to_owned())), None);
+    }
+
+    /// What a file records: the variable when it is usable, the clock whenever it is not. The
+    /// environment and the clock are passed in, so no test changes this process's environment --
+    /// that is `unsafe` under edition 2024 and would reach every other test running beside it.
+    #[test]
+    fn a_pinned_epoch_is_preferred_and_the_clock_answers_otherwise() {
+        let env = |v: Option<&'static str>| move |_: &str| v.map(str::to_owned);
+        let clock = || Some(1_000_000);
+        assert_eq!(pinned_or(env(Some("1791208980")), clock), Some(1_791_208_980), "the variable wins over the clock");
+        assert_eq!(pinned_or(env(Some("0")), clock), Some(0), "including the epoch itself");
+        for ignored in [None, Some(""), Some("-1"), Some("later")] {
+            assert_eq!(pinned_or(env(ignored), clock), Some(1_000_000), "{ignored:?} leaves it to the clock");
+        }
+        // A platform with no clock and no variable has no date to record.
+        assert_eq!(pinned_or(env(None), || None), None);
+        assert_eq!(pinned_or(env(Some("1791208980")), || None), Some(1_791_208_980), "the variable needs no clock");
     }
 }

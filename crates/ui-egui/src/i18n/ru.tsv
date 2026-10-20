@@ -1071,6 +1071,7 @@
 	Fill (X), double-click for the Color Picker	Заливка (X), дважды щёлкните для палитры цветов
 	Fill and Stroke	Заливка и обводка
 	Fill new strokes	Заполнять новые обводки
+	Alt key toggles to Smooth Tool	Клавиша Alt переключает на инструмент «Сглаживание»
 	Keep selected	Оставлять выбранным
 	Merge only with selection	Объединять только с выделенным
 	Fill Color	Цвет заливки
@@ -1201,6 +1202,8 @@ file-filter	Templates	Шаблоны
 	Large Gaps	Большие зазоры
 	Gap Preview Color:	Цвет просмотра зазоров:
 	Close Gaps With Paths	Закрыть зазоры контурами
+	Select Fills	Выделять заливки
+	Select Strokes	Выделять обводки
 	Gaussian Blur…	Размытие по Гауссу…
 	General	Общие
 	General › Placement › X	Общие › Размещение › X
@@ -1408,6 +1411,12 @@ file-filter	Templates	Шаблоны
 	Release Envelope	Освободить оболочку
 	Release Image Trace	Освободить трассировку изображения
 	Release Intertwine	Освободить переплетение
+	Objects on Path	Объекты на контуре
+	Attach	Прикрепить
+	Objects on Path Options	Параметры объектов на контуре
+	Objects on Path Tool	Инструмент «Объекты на контуре»
+	Attach Objects on Path	Прикрепить объекты к контуру
+	Expand Objects on Path	Разобрать объекты на контуре
 	Release Live Paint	Освободить быструю заливку
 	Release Repeat	Освободить повтор
 	Release Slice	Освободить фрагмент
@@ -1528,6 +1537,7 @@ file-filter	Templates	Шаблоны
 	Inspect Object	Проверить объект
 	Install Plug-in	Установить модуль
 	Install Plug-in…	Установить модуль…
+	Open this setting's help page	Открыть страницу справки по этому параметру
 	Installed plug-in {}	Установлен модуль {}
 	Intensity:	Интенсивность:
 	Intent:	Назначение:
@@ -1729,6 +1739,7 @@ file-filter	Templates	Шаблоны
 	Load Text into Clipboard	Загрузить текст в буфер обмена
 	Local Libraries	Локальные библиотеки
 	Locate Object	Найти объект
+	Locate Selected Objects	Находить выделенные объекты
 	Location	Расположение
 	Location:	Расположение:
 	Lock	Заблокировать
@@ -2159,6 +2170,7 @@ file-filter	Templates	Шаблоны
 	Output White	Выходной белый
 	Output › Mode	Вывод › Режим
 	Output:	Вывод:
+	Overlap	Перекрытие
 	Overlap:	Перекрытие:
 	Overlapping	Перекрывающийся
 	Overlay	Перекрытие
@@ -2932,6 +2944,8 @@ mark-style	Japanese	Японский
 	Show Note	Показать примечание
 	Show Options	Показать параметры
 	Show Original Path	Показать исходный контур
+	Open this dialog with these settings next time	Открывать это диалоговое окно с этими параметрами в следующий раз
+	Auto-Simplify	Автоматическое упрощение
 	Color Panel Options	Параметры панели «Цвет»
 	Show Package	Показать пакет
 	Show Panel	Показать панель
@@ -3028,6 +3042,7 @@ mark-style	Japanese	Японский
 	Snap to Pixel	Привязать к пикселю
 	Precise Cursors	Точные курсоры
 	Snap to Point	Привязать к точке
+	Snap to Unit	Привязать к единицам
 	Snapping Tolerance	Допуск привязки
 	Social Square Post 1080×1080	Квадратный пост для соцсетей 1080×1080
 	Soft Light	Мягкий свет
@@ -3155,7 +3170,7 @@ mark-style	Japanese	Японский
 	Delete Library Item	Удалить элемент библиотеки
 	No results	Ничего не найдено
 	No items in this library match “{query}”.	В этой библиотеке нет элементов, соответствующих «{query}».
-	Right-click an item to move it into this group.	Щёлкните элемент правой кнопкой мыши, чтобы переместить его в эту группу.
+	Drag an item here, or right-click one, to put it in this group.	Перетащите сюда элемент или щёлкните его правой кнопкой мыши, чтобы поместить его в эту группу.
 	New Group	Новая группа
 	New Group…	Новая группа…
 	Move to Group	Переместить в группу
@@ -3215,6 +3230,7 @@ mark-style	Japanese	Японский
 	Text Wrap Options	Параметры обтекания текстом
 	Text Wrap Options…	Параметры обтекания текстом…
 	The bounds of the visible art.	Границы видимого рисунка.
+	The plug-in writes the whole document.	Модуль экспортирует весь документ.
 	The cell shows the type object's text as HTML.	Ячейка показывает текст текстового объекта как HTML.
 	The document has no colour swatches.	В документе нет цветовых образцов.
 	The edge of the paper the printer can't reach: the art goes inside it, and the preview shows it dashed.	Край бумаги, до которого не доходит принтер: рисунок остаётся внутри него, а просмотр показывает его пунктиром.
@@ -3876,6 +3892,7 @@ axis	Both	Оба
 @msg	background {other}: transparent, white, black or a colour such as "#ff8800"	фон {other}: transparent, white, black или цвет, например "#ff8800"
 @msg	bad color {v}	недопустимый цвет {v}
 @msg	the Color Picker is not open	палитра цветов не открыта
+@msg	the Simplify slider is not open	ползунок «Упростить» не открыт
 @msg	the screen color sampler is already open	средство выбора цвета с экрана уже открыто
 @msg	this system has no screen color sampler	в этой системе нет средства выбора цвета с экрана
 @msg	bad colour `{hex}` (#rrggbb)	недопустимый цвет `{hex}` (#rrggbb)
@@ -4108,6 +4125,7 @@ axis	Both	Оба
 @msg	select a linked image: an embedded one has no file	выделите связанное изображение: у внедрённого нет файла
 @msg	select a repeat	выделите повтор
 @msg	select an Intertwine group	выделите группу переплетения
+@msg	select an Objects on Path group	выделите группу объектов на контуре
 @msg	select a stroke with a variable width	выделите обводку с переменной шириной
 @msg	select a symbol instance	выделите экземпляр символа
 @msg	select an Image Trace object	выделите объект трассировки изображения
@@ -4237,6 +4255,7 @@ axis	Both	Оба
 @msg	{_1} files are written by file.saveAsTemplate	файлы {_1} записывает file.saveAsTemplate
 @msg	{_1} font families available	доступно семейств шрифтов: {_1}
 @msg	{_1} is a live effect (Effect › Plug-ins)	{_1} — динамический эффект (Эффект › Модули)
+@msg	{_1} is an exporter (File › Export › Export As…)	{_1} — модуль экспорта (Файл › Экспорт › Экспортировать как…)
 @msg	{_1} is already used by {_2}	{_1} уже используется {_2}
 @msg	{_1} linked file(s) can't be read here: their previews show	здесь невозможно прочитать связанных файлов: {_1}: отображаются их предварительные просмотры
 @msg	{_1} linked image(s) changed on disk: Update Links shows the new versions	связанных изображений ({_1}) изменились на диске: «Обновить связи» покажет новые версии
@@ -5996,6 +6015,7 @@ machine	Stop	Остановка
 @msg	choose a destination folder	выберите папку назначения
 @msg	choose a source folder	выберите исходную папку
 @msg	open a document with data sets	откройте документ с наборами данных
+@msg	nothing in data set {name} was applied: no object is bound to a variable it has a value for	из набора данных {name} ничего не применено: ни один объект не привязан к переменной, для которой в нём есть значение
 @msg	the action has no steps	в действии нет шагов
 	Direction	Направление
 	Along the selected line	Вдоль выбранной линии
@@ -6158,6 +6178,27 @@ machine	Stop	Остановка
 @msg	Not enough Foundry credits: buy more in Foundry Account.	Недостаточно кредитов Foundry: купите ещё в аккаунте Foundry.
 @msg	An account with that email already exists: sign in instead.	Аккаунт с этой почтой уже есть: войдите в него.
 @msg	The StitchFoundry service can't do this yet: try again later.	Сервис StitchFoundry пока этого не умеет: попробуйте позже.
+	Smudge Stick…	Растушёвка…
+	Smudge Stick	Растушёвка
+	Sponge…	Губка…
+	Sponge	Губка
+	Watercolor…	Акварель…
+	Watercolor	Акварель
+	Brush Size	Размер кисти
+	Definition	Чёткость
+	Brush Detail	Детализация кисти
+	Shadow Intensity	Интенсивность теней
+	Bas Relief…	Барельеф…
+	Bas Relief	Барельеф
+	Charcoal…	Уголь…
+	Charcoal	Уголь
+	Photocopy…	Фотокопия…
+	Photocopy	Фотокопия
+	Stamp…	Штамп…
+	Stamp	Штамп
+	Thickness	Толщина
+	Detail	Детали
+	Light/Dark Balance	Баланс светлого и тёмного
 # Links and Attributes: files and URLs handed to other apps.
 @msg	Edit Original opens image and document files only; “{name}” is not one	«Редактировать оригинал» открывает только файлы изображений и документов; «{name}» к ним не относится
 @msg	only http, https and mailto URLs open in the browser, not “{url}”	в браузере открываются только URL с http, https и mailto, а не «{url}»
@@ -6275,3 +6316,21 @@ machine	Stop	Остановка
 @msg	`format` is one of {_1}	`format` — одно из: {_1}
 @msg	The design is too big for MakerFoundry.	Дизайн слишком велик для MakerFoundry.
 @msg	MakerFoundry's address isn't valid: use an https:// address.	Адрес MakerFoundry недействителен: используйте адрес https://.
+	Move Anchor Point	Переместить опорную точку
+@msg	{label} keeps 1 of the document's {n} artboards: the file reopens with one. Turn on Preserve Editing Capabilities to keep them all.	{label} сохраняет 1 из {n} монтажных областей документа: файл откроется снова с одной. Включите «Сохранять возможности редактирования», чтобы сохранить все.
+	Chalk & Charcoal…	Мел и уголь…
+	Chalk & Charcoal	Мел и уголь
+	Graphic Pen…	Графическое перо…
+	Graphic Pen	Графическое перо
+	Reticulation…	Ретикуляция…
+	Reticulation	Ретикуляция
+	Plastic Wrap…	Целлофановая упаковка…
+	Plastic Wrap	Целлофановая упаковка
+	Chrome…	Хром…
+	Chrome	Хром
+	Drop here to take it out of its group	Отпустите здесь, чтобы вынуть его из группы
+	Move Library Group	Переместить группу библиотеки
+	Plaster…	Гипс…
+	Plaster	Гипс
+	Note Paper…	Почтовая бумага…
+	Note Paper	Почтовая бумага

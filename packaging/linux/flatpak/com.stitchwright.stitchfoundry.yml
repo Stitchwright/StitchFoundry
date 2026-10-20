@@ -44,6 +44,7 @@ modules:
     build-commands:
       - cargo --offline build --release --locked -p vectorcraft
       - install -Dm755 target/release/stitchfoundry /app/bin/stitchfoundry
+      - install -Dm644 NOTICE /app/share/doc/stitchfoundry/NOTICE
       - install -Dm644 packaging/linux/com.stitchwright.stitchfoundry.desktop /app/share/applications/com.stitchwright.stitchfoundry.desktop
       - install -Dm644 packaging/linux/com.stitchwright.stitchfoundry.mime.xml /app/share/mime/packages/com.stitchwright.stitchfoundry.xml
       - mkdir -p /app/share/icons && cp -R assets/app-icon/hicolor /app/share/icons/

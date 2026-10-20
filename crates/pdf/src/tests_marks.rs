@@ -229,7 +229,7 @@ fn page_information_prints_the_time_of_the_export_not_the_creation_date() {
         });
         out
     };
-    let now = || vectorcraft_doc::metadata::now_unix().unwrap();
+    let now = || vectorcraft_doc::metadata::output_time().unwrap();
     // Both print the minute they are written in: try again when the minute turns between them.
     for _ in 0..3 {
         let minute = now() / 60;

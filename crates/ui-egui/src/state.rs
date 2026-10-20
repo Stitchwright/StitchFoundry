@@ -281,6 +281,9 @@ pub struct ViewFlags {
     pub corner_widgets: bool,
     /// View → Snap to Pixel.
     pub snap_to_pixel: bool,
+    /// View → Snap to Glyph.
+    #[serde(default)]
+    pub snap_to_glyph: bool,
     /// View → Show/Hide Text Threads.
     pub text_threads: bool,
     /// View → Show/Hide Gradient Annotator.
@@ -309,6 +312,7 @@ impl Default for ViewFlags {
             trim_view: false,
             corner_widgets: true,
             snap_to_pixel: false,
+            snap_to_glyph: false,
             text_threads: true,
             gradient_annotator: true,
             hidden_chars: false,
@@ -415,6 +419,12 @@ pub struct UiState {
     /// Invalidates in-flight gestures when a workspace is replaced.
     #[serde(skip)]
     pub docking_generation: u64,
+    /// The main dock column's outer width in screen points (legacy or shared docking).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dock_width: Option<f32>,
+    /// Next frame should seed egui [`PanelState`] from [`Self::dock_width`] (workspace switch).
+    #[serde(skip)]
+    pub dock_width_pending: bool,
     /// The Tools panel floats with its top-left corner here (dragged out by its title bar); `None`:
     /// docked at the window's left edge.
     #[serde(default)]
@@ -555,6 +565,11 @@ pub struct UiState {
     /// dialog opens on them (#1152).
     #[serde(default)]
     pub offset_path: Value,
+    /// The Simplify dialog's fields confirmed last with "Open this dialog with these settings next
+    /// time" ticked (null: not ticked): Object › Path › Simplify opens the dialog on them instead
+    /// of the Simplify slider.
+    #[serde(default)]
+    pub simplify: Value,
     /// The Move dialog's checkboxes as it was last confirmed with (copy, objects, preview; null:
     /// never used): it opens with them.
     #[serde(default)]
@@ -568,7 +583,7 @@ pub struct UiState {
     /// becoming active, leaves it.
     #[serde(skip)]
     pub home: Option<(Option<u64>, usize)>,
-    /// Layers panel › Panel Options… (row size, thumbnails, Show Layers Only).
+    /// Layers panel › Panel Options… (row size, thumbnails, Show Layers Only, Locate Selected Objects).
     #[serde(default)]
     pub layers_panel: crate::panels::layers::PanelOptions,
     /// The Layers panel's Filter (`ui.layersFilter`). It is not saved and lasts the session, as the
@@ -846,6 +861,8 @@ impl Default for UiState {
             docking_hidden: Default::default(),
             docking_icons: Default::default(),
             docking_generation: 0,
+            dock_width: None,
+            dock_width_pending: false,
             toolbar_pos: None,
             status_bar: true,
             dock: true,
@@ -893,6 +910,7 @@ impl Default for UiState {
             dxf_options: Value::Null,
             eps_options: Value::Null,
             offset_path: Value::Null,
+            simplify: Value::Null,
             move_options: Value::Null,
             dxf_import: Value::Null,
             home: None,

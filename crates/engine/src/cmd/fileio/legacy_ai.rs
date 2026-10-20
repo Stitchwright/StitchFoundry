@@ -110,7 +110,7 @@ pub(super) fn encode(cmd: &str, f: &Format, doc: &Document, p: &Value) -> Result
     if boards.len() > 1 {
         enc.warnings.push(SEPARATE.to_string());
     }
-    let created = vectorcraft_doc::metadata::now_unix();
+    let created = vectorcraft_doc::metadata::output_time();
     let failed = vectorcraft_render::decode_failures();
     for b in boards {
         let one = super::save::artboard_doc(doc, b);

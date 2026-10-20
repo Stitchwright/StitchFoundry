@@ -242,7 +242,7 @@ pub fn expand_preset<'a>(s: &Session, cmd: &str, p: &'a Value) -> Result<Cow<'a,
 pub fn options(cmd: &str, doc: &Document, p: &Value) -> Result<PdfOptions> {
     let pick = if p.is_object() { ArtboardPick::deserialize(p).map_err(|e| bad(cmd, format!("PDF options: {e}")))? } else { ArtboardPick::default() };
     let artboards = pick.resolve(doc.artboards.len()).map_err(|e| bad(cmd, e))?;
-    let now = vectorcraft_doc::metadata::now_unix();
+    let now = vectorcraft_doc::metadata::output_time();
     Ok(PdfOptions { settings: settings(cmd, p)?, artboards, created: doc.metadata.created.or(now), modified: now, ..Default::default() })
 }
 
