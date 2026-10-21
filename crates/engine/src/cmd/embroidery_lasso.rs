@@ -28,7 +28,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Magnetic Lasso",
         [],
         None,
-        "{points: [[x, y]] the fastening points (document points, 3 or more; the shape closes back to the first), guide?: [[[x, y]]] the pointer's path after each point (one list per point; the border keeps near it), width?: px 1–256 (10: how far from the pointer's path an edge is looked for, in the photo's pixels), contrast?: 0–100 (10: how strong a step in colour has to be to count as an edge), as?: fill, satin, outline or none (fill; none: a plain path), id?: an image (the topmost under the first point, else the selected one)} a closed shape round part of a photo whose border snaps to the edges in it (live wire), stitched in the photo's colour inside it; the shape is selected → {id, points: the border's points, color}",
+        "{points: [[x, y]] the fastening points (document points, 3 or more; the shape closes back to the first), guide?: [[[x, y]]] the pointer's path after each point (one list per point; the border keeps near it), width?: px 1–256 (10: how far from the pointer's path an edge is looked for, in the photo's pixels), contrast?: 0–100 (10: how strong a step in colour has to be to count as an edge), as?: fill|satin|outline|none (fill; none: a plain path), id?: an image (the topmost under the first point, else the selected one)} a closed shape round part of a photo whose border snaps to the edges in it (live wire), stitched in the photo's colour inside it; the shape is selected → {id, points: the border's points, color}",
         has_doc,
         magnetic_lasso
     )]
