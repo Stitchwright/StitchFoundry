@@ -437,9 +437,12 @@ mod tests {
             zbus::blocking::connection::Builder::address(address.as_str()).ok()?.name("org.freedesktop.portal.Desktop").ok()?.build().ok()?;
         let seen = Seen::default();
         let log = seen.clone();
+        // Listening starts here, before the thread does: a call that came before the thread got
+        // round to listening would be lost, and the test would wait for its answer for ever.
+        let calls = zbus::blocking::MessageIterator::from(&server);
         std::thread::spawn(move || {
             let mut script = script.into_iter();
-            for msg in zbus::blocking::MessageIterator::from(&server) {
+            for msg in calls {
                 let Ok(msg) = msg else { break };
                 let header = msg.header();
                 if header.message_type() != zbus::message::Type::MethodCall || header.member().map(|m| m.as_str()) != Some("SaveFile") {
