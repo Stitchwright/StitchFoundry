@@ -6539,3 +6539,6 @@ machine	Stop	Zatrzymanie
 	Plaster	Gips
 	Note Paper…	Papier listowy…
 	Note Paper	Papier listowy
+# Remove Background
+	Remove Background	Usuń tło
+	Cut the subject out of the photo, so only it is digitized	Wycina obiekt ze zdjęcia, aby digitalizować tylko jego

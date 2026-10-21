@@ -6520,3 +6520,6 @@ machine	Stop	停止
 	Plaster	塑料效果
 	Note Paper…	便条纸…
 	Note Paper	便条纸
+# Remove Background
+	Remove Background	移除背景
+	Cut the subject out of the photo, so only it is digitized	从照片中抠出主体，只对主体进行数字化

@@ -6652,3 +6652,6 @@ machine	Stop	Stopp
 	Plaster	Gips
 	Note Paper…	Anteckningspapper…
 	Note Paper	Anteckningspapper
+# Remove Background
+	Remove Background	Ta bort bakgrund
+	Cut the subject out of the photo, so only it is digitized	Klipper ut motivet ur fotot, så att bara det digitaliseras

@@ -6292,3 +6292,6 @@ machine	Stop	정지
 	Plaster	석고
 	Note Paper…	메모지…
 	Note Paper	메모지
+# Remove Background
+	Remove Background	배경 제거
+	Cut the subject out of the photo, so only it is digitized	사진에서 피사체를 잘라내어 피사체만 디지타이징합니다

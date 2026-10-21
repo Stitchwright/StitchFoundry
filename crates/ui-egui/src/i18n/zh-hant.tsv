@@ -6300,3 +6300,6 @@ machine	Stop	停止
 	Plaster	塑膠效果
 	Note Paper…	便條紙…
 	Note Paper	便條紙
+# Remove Background
+	Remove Background	移除背景
+	Cut the subject out of the photo, so only it is digitized	從照片中去背主體，只對主體進行數位化

@@ -6673,3 +6673,6 @@ machine	Stop	Megállás
 	Plaster	Gipsz
 	Note Paper…	Jegyzetpapír…
 	Note Paper	Jegyzetpapír
+# Remove Background
+	Remove Background	Háttér eltávolítása
+	Cut the subject out of the photo, so only it is digitized	Kivágja a témát a fényképből, hogy csak az legyen digitalizálva

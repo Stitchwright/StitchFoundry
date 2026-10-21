@@ -6317,3 +6317,6 @@ machine	Stop	Зупинка
 	Plaster	Гіпс
 	Note Paper…	Поштовий папір…
 	Note Paper	Поштовий папір
+# Remove Background
+	Remove Background	Видалити фон
+	Cut the subject out of the photo, so only it is digitized	Вирізає об’єкт із фотографії, щоб оцифрувати лише його

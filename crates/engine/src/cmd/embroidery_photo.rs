@@ -443,13 +443,21 @@ fn prepare(s: &mut Session, p: &Value) -> Result<Value> {
     if png.is_empty() {
         return Err(bad(CMD, "the prepared image couldn't be written"));
     }
-    let source = pic.id;
-    let id = s.edit("Prepare Image", |d, sel| {
+    let id = add_image_copy(s, pic.id, png, "sf-prepared", "Prepared Image", "Prepare Image", replace)?;
+    let colors: Vec<String> = palette.iter().map(|c| c.to_hex()).collect();
+    Ok(json!({ "id": id.0, "colors": colors, "width": w, "height": h }))
+}
+
+/// A copy of the image `source` showing the PNG `png` (kept under a new key starting `key`), named
+/// `name`, put over it (or in its place with `replace`) and selected, as the undo step `label`.
+pub(super) fn add_image_copy(s: &mut Session, source: NodeId, png: Vec<u8>, key: &str, name: &str, label: &str, replace: bool) -> Result<NodeId> {
+    s.edit(label, |d, sel| {
         let node = d.node(source).cloned().ok_or(EngineError::NoNode(source))?;
-        let NodeKind::Image(mut im) = node.kind.clone() else { return Err(bad("embroidery.image.prepare", "that isn't an image")) };
+        // (the caller read it as an image already)
+        let NodeKind::Image(mut im) = node.kind.clone() else { return Err(EngineError::NoNode(source)) };
         let mut k = 1;
         let key = loop {
-            let key = format!("sf-prepared-{k}");
+            let key = format!("{key}-{k}");
             if !d.images.contains_key(&key) {
                 break key;
             }
@@ -461,7 +469,7 @@ fn prepare(s: &mut Session, p: &Value) -> Result<Value> {
         let mut copy = node.clone();
         copy.id = d.alloc_id();
         copy.kind = NodeKind::Image(im);
-        copy.name = Some("Prepared Image".into());
+        copy.name = Some(name.into());
         let id = copy.id;
         let (parent, idx, _) = d.position(source).ok_or(EngineError::NoNode(source))?;
         d.insert(parent, idx + 1, copy)?;
@@ -470,9 +478,7 @@ fn prepare(s: &mut Session, p: &Value) -> Result<Value> {
         }
         sel.set([id]);
         Ok(id)
-    })?;
-    let colors: Vec<String> = palette.iter().map(|c| c.to_hex()).collect();
-    Ok(json!({ "id": id.0, "colors": colors, "width": w, "height": h }))
+    })
 }
 
 /// A path of needle points (document points), sewn as manual stitches in `color`, named `name`.

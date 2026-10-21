@@ -33,6 +33,7 @@ pub mod embroidery_compare;
 pub mod embroidery_crosschart;
 pub mod embroidery_crossstitch;
 pub mod embroidery_cutfile;
+pub mod embroidery_cutout;
 pub mod embroidery_cutwork;
 pub mod embroidery_decor;
 pub mod embroidery_edit;
@@ -316,6 +317,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(embroidery_queue::specs());
         v.extend(embroidery_kiosk::specs());
         v.extend(embroidery_photo::specs());
+        v.extend(embroidery_cutout::specs());
         v.extend(embroidery_recognise::specs());
         v.extend(embroidery_applique::specs());
         v.extend(embroidery_cutfile::specs());

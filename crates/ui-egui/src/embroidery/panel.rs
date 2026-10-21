@@ -1912,6 +1912,11 @@ pub(crate) fn auto_digitize_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
         app.run("embroidery.autoDigitize", params).ok();
     }
     ui.horizontal(|ui| {
+        if button(ui, tl!("Remove Background")).on_hover_text(tl!("Cut the subject out of the photo, so only it is digitized")).clicked()
+            && let Err(e) = app.run("embroidery.image.removeBackground", json!({}))
+        {
+            app.status(e);
+        }
         if button(ui, tl!("Prepare Image"))
             .on_hover_text(tl!("A smoothed copy of the image in these colours, its specks cleaned, to digitize or click to stitch"))
             .clicked()

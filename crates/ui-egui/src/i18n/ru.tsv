@@ -6333,3 +6333,6 @@ machine	Stop	Остановка
 	Plaster	Гипс
 	Note Paper…	Почтовая бумага…
 	Note Paper	Почтовая бумага
+# Remove Background
+	Remove Background	Удалить фон
+	Cut the subject out of the photo, so only it is digitized	Вырезает объект из фотографии, чтобы оцифровать только его

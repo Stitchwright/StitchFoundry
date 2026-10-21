@@ -6337,3 +6337,6 @@ machine	Stop	Arresto
 	Plaster	Gesso
 	Note Paper…	Carta da lettere…
 	Note Paper	Carta da lettere
+# Remove Background
+	Remove Background	Rimuovi sfondo
+	Cut the subject out of the photo, so only it is digitized	Scontorna il soggetto dalla foto, così viene digitalizzato solo lui

@@ -6296,3 +6296,6 @@ machine	Stop	Dừng máy
 	Plaster	Thạch cao
 	Note Paper…	Giấy ghi chú…
 	Note Paper	Giấy ghi chú
+# Remove Background
+	Remove Background	Xóa nền
+	Cut the subject out of the photo, so only it is digitized	Cắt chủ thể ra khỏi ảnh để chỉ số hóa chủ thể

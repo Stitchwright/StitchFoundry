@@ -6656,3 +6656,6 @@ machine	Stop	Спиране
 	Plaster	Гипс
 	Note Paper…	Хартия за писма…
 	Note Paper	Хартия за писма
+# Remove Background
+	Remove Background	Премахване на фона
+	Cut the subject out of the photo, so only it is digitized	Изрязва обекта от снимката, така че да се дигитализира само той

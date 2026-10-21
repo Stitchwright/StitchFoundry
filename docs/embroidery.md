@@ -1309,6 +1309,18 @@ default; 0 keeps them all), and specks and ragged edges take their neighbours' c
 how many passes). The prepared copy goes over the original and is selected, ready for
 Auto-Digitize or Click to Stitch; `replace` swaps the original for it.
 
+**Remove Background** (Embroidery menu, or the button beside Prepare Image;
+`embroidery.image.removeBackground {box?, keep?, remove?, replace?}`) cuts the subject of a photo
+out from what is behind it: a pet, a person, a bird in front of leaves. It needs no colour to pick:
+it learns the colours of the subject and of the background and splits the picture between them
+along its edges (the GrabCut method Rother, Kolmogorov and Blake published in 2004, written for
+StitchFoundry). The box round the subject is the whole photo less a thin border, or `box` (fractions
+of the image); `keep` and `remove` mark spots it got wrong (`[[x, y, radius]]`, fractions of the
+image) and run it again. The cut-out copy goes over the photo with the background transparent, so
+Auto-Digitize, Prepare Image and Photo Stitch leave it out; `replace` swaps the photo for it. It
+works on a copy of the photo 240 pixels across and smooths the edge when it scales back up, so a
+photo of any size takes a second or two.
+
 **Image Colours** (`embroidery.image.colors {colors?, chart?}`) lists an image's main colours,
 the most used first, each with how much of the image it covers and the nearest thread in the
 design's chart (or the one named).

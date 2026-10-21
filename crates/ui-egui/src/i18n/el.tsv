@@ -6648,3 +6648,6 @@ machine	Stop	Στάση
 	Plaster	Γύψος
 	Note Paper…	Χαρτί σημειώσεων…
 	Note Paper	Χαρτί σημειώσεων
+# Remove Background
+	Remove Background	Αφαίρεση φόντου
+	Cut the subject out of the photo, so only it is digitized	Αποκόπτει το θέμα από τη φωτογραφία, ώστε να ψηφιοποιηθεί μόνο αυτό

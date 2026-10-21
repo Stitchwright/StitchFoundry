@@ -2045,6 +2045,49 @@ fn auto_digitize_sews_thin_lines_as_runs_on_top() {
     assert_eq!(holes, 0, "no gap is left under the stripe");
 }
 
+/// BG-01: Remove Background cuts a red disc out of a noisy green and blue background: the copy
+/// over the photo is transparent round it, and Auto-Digitize then sews only the disc.
+#[test]
+fn remove_background_cuts_out_the_subject() {
+    let mut s = session();
+    let r = vectorcraft_trace::Raster::from_fn(160, 120, |x, y| {
+        let (dx, dy) = (x as f64 - 80.0, y as f64 - 60.0);
+        let n = ((x * 7 + y * 13) % 23) as u8;
+        if dx * dx + dy * dy <= 35.0 * 35.0 {
+            [210 + n / 2, 40 + n, 30, 255]
+        } else if x < 80 {
+            [40 + n, 150 + n, 60, 255]
+        } else {
+            [30, 60 + n, 170 + n, 255]
+        }
+    });
+    s.execute("file.place", &json!({"name": "photo.png", "dataBase64": vectorcraft_format::base64_encode(&r.encode_png())})).unwrap();
+    let res = s.execute("embroidery.image.removeBackground", &json!({"box": [0.15, 0.1, 0.7, 0.8]})).unwrap();
+    let kept = res["kept"].as_f64().unwrap();
+    let disc = std::f64::consts::PI * 35.0 * 35.0 / (160.0 * 120.0);
+    assert!((kept - disc).abs() < disc / 6.0, "kept {kept}, the disc is {disc}");
+    let d = &s.doc().unwrap().doc;
+    let id = NodeId(res["id"].as_u64().unwrap());
+    let NodeKind::Image(im) = &d.node(id).unwrap().kind else { panic!("not an image") };
+    let cut = vectorcraft_trace::Raster::decode(&d.images[&im.key].bytes).unwrap();
+    let alpha = |x: u32, y: u32| cut.rgba[((y * cut.width + x) * 4 + 3) as usize];
+    assert_eq!((alpha(80, 60), alpha(5, 5), alpha(30, 60), alpha(130, 60)), (255, 0, 0, 0));
+    assert_eq!(s.doc().unwrap().selection.objects, vec![id], "the copy is selected");
+    // digitized: only the disc's red
+    s.execute("embroidery.autoDigitize", &json!({"colors": 4})).unwrap();
+    for t in &s.embroidery_plan().unwrap().pattern().threads {
+        assert!(t.color.r > t.color.g && t.color.r > t.color.b, "only red is sewn, not {t:?}");
+    }
+    // bad parameters are refused
+    s.execute("edit.undo", &json!({})).unwrap();
+    s.execute("select.set", &json!({"ids": [id.0]})).unwrap();
+    for bad in
+        [json!({"box": [0, 0, 2, 1]}), json!({"box": [0, 0]}), json!({"keep": [[0.5]]}), json!({"remove": [[0.5, 0.5, 0]]}), json!({"keep": "x"})]
+    {
+        assert!(s.execute("embroidery.image.removeBackground", &bad).is_err(), "{bad}");
+    }
+}
+
 #[test]
 fn smart_auto_digitize_sews_details_as_runs_outlines_and_matches_a_chart() {
     let mut s = session();

@@ -6376,3 +6376,6 @@ machine	Stop	停止
 	Plaster	石膏
 	Note Paper…	ノート用紙…
 	Note Paper	ノート用紙
+# Remove Background
+	Remove Background	背景を削除
+	Cut the subject out of the photo, so only it is digitized	写真から被写体を切り抜き、被写体だけをデジタイズします
