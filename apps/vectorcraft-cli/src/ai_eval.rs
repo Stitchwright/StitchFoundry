@@ -5,15 +5,17 @@
 //! A job is a JSON file (`evals/ai/jobs/*.json`): `{id, title, prompt, sizeMm, colors, hoop:
 //! {width, height}, reference?: a photo under the references folder, lookFor: [what a good
 //! result shows]}`. References are the owner's own photos and stay on this computer
-//! (`evals/ai/references/` is ignored by git). Every run spends money on the Anthropic account
-//! of the key in `ANTHROPIC_API_KEY`: the estimate is shown and confirmed first.
+//! (`evals/ai/references/` is ignored by git). Every run spends money: on the Anthropic account of
+//! the key in `ANTHROPIC_API_KEY`, or, without one (or with `--credits`), in credits on the
+//! StitchFoundry account the app is signed in to, through the hosted service that holds the key.
+//! The estimate is shown and confirmed first.
 
 use std::io::{BufRead, Write};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
-use sf_core::ai::{self, ArtRequest, Effort, Usage};
+use sf_core::ai::{self, ArtRequest, Effort, Usage, cloud};
 use vectorcraft_mcp::{Backend, Headless};
 
 /// The most jobs read, and the largest job file.
@@ -21,11 +23,16 @@ const MAX_JOBS: usize = 200;
 const MAX_JOB_BYTES: u64 = 64 * 1024;
 /// How long a drawing may take, answer included.
 const TIMEOUT: Duration = Duration::from_secs(300);
+/// The hosted service official builds use, when no other is set.
+const DEFAULT_SERVER: &str = "https://cloud.stitchfoundry.app";
 
 pub const USAGE: &str = "  stitchfoundry-cli ai-eval [--jobs DIR] [--references DIR] [--effort quick,normal,thorough|all]
-                          [--only ID,…] [--out DIR] [--dry-run] [--yes]
+                          [--only ID,…] [--out DIR] [--credits] [--server URL] [--dry-run] [--yes]
       Run Design from Prompt's test jobs (default evals/ai/jobs) at each effort (default normal)
-      with the Anthropic key in ANTHROPIC_API_KEY, and write OUT/report.html (default
+      with the Anthropic key in ANTHROPIC_API_KEY or, without one (or with --credits), paid in
+      credits on the StitchFoundry account the app is signed in to (STITCHFOUNDRY_TOKEN, else the
+      app's saved sign-in; the service is --server, else the app's, else
+      https://cloud.stitchfoundry.app), and write OUT/report.html (default
       target/ai-eval/<time>): each drawing's stitches beside its reference photo (default
       evals/ai/references), with its tokens, cost, time and what to look for, plus
       results.json. Shows the estimated cost and asks before spending anything (--yes doesn't
@@ -79,6 +86,73 @@ impl Job {
     }
 }
 
+/// Who pays for the drawings: the user's own Anthropic key, or credits on their StitchFoundry
+/// account through the hosted service.
+enum Payer {
+    Key(String),
+    Credits { server: String, token: String },
+}
+
+impl Payer {
+    /// The key or session token the requests are built with.
+    fn secret(&self) -> &str {
+        match self {
+            Payer::Key(k) => k,
+            Payer::Credits { token, .. } => token,
+        }
+    }
+
+    /// Send AI request `http` (built for Anthropic) the way this payer pays → (status, body).
+    fn send(&self, http: ai::HttpRequest) -> Result<(u16, String), String> {
+        match self {
+            Payer::Key(_) => post(&http),
+            Payer::Credits { server, .. } => {
+                let http = cloud::through_cloud(http, server, cloud::MESSAGES, Vec::new()).map_err(|e| e.to_string())?;
+                let (status, body) = post(&http)?;
+                // the service's own refusals: sign in again, no credits left, closed
+                if matches!(status, 401 | 402 | 403 | 503) { Err(cloud::status_error(status, &body).to_string()) } else { Ok((status, body)) }
+            }
+        }
+    }
+}
+
+/// The app's settings folder, where it keeps its sign-in.
+fn secrets_dir() -> Option<PathBuf> {
+    Some(crate::prefs_dir::prefs_path_for("StitchFoundry", "stitchfoundry")?.parent()?.to_path_buf())
+}
+
+/// A secret the app keeps as a file of its own, trimmed; `None` when there is none.
+fn saved(name: &str) -> Option<String> {
+    let text = std::fs::read_to_string(secrets_dir()?.join(name)).ok()?;
+    Some(text.trim().to_string()).filter(|t| !t.is_empty())
+}
+
+fn payer(credits: bool, server: Option<String>) -> Result<Payer, String> {
+    let env = |k: &str| std::env::var(k).ok().map(|v| v.trim().to_string()).filter(|v| !v.is_empty());
+    if !credits && let Some(key) = env("ANTHROPIC_API_KEY") {
+        return Ok(Payer::Key(key));
+    }
+    let token = env("STITCHFOUNDRY_TOKEN").or_else(|| saved(cloud::TOKEN_NAME)).ok_or(
+        "sign in to your StitchFoundry account in the app (Embroidery › Foundry Account) first, or set ANTHROPIC_API_KEY to an Anthropic key",
+    )?;
+    let server = server
+        .or_else(|| saved("stitchfoundry-server"))
+        .or_else(|| env("SF_CLOUD_URL"))
+        .or_else(|| option_env!("SF_CLOUD_URL").map(str::to_string))
+        .unwrap_or_else(|| DEFAULT_SERVER.to_string());
+    let server = cloud::clean_server(&server).ok_or_else(|| format!("`{server}` isn't a service address (https://…)"))?;
+    Ok(Payer::Credits { server, token })
+}
+
+/// The account's credits left and what a dollar of AI use costs in credits (`None` from a
+/// service that doesn't say).
+fn account(server: &str, token: &str) -> Result<(u64, Option<f64>), String> {
+    let http = cloud::account(server, token).map_err(|e| e.to_string())?;
+    let (status, body) = post(&http)?;
+    let v = cloud::parse(status, &body).map_err(|e| e.to_string())?;
+    Ok((v["credits"].as_u64().unwrap_or(0), v["creditsPerDollar"].as_f64().filter(|r| r.is_finite() && *r > 0.0)))
+}
+
 /// What one drawing came to.
 struct Outcome {
     job: usize,
@@ -100,7 +174,8 @@ pub fn run(args: &[String]) -> Result<(), String> {
     let mut efforts = vec![Effort::Normal];
     let mut only: Vec<String> = vec![];
     let mut out: Option<PathBuf> = None;
-    let (mut dry, mut yes) = (false, false);
+    let (mut dry, mut yes, mut credits) = (false, false, false);
+    let mut server: Option<String> = None;
     let mut it = args.iter();
     while let Some(a) = it.next() {
         let mut val = |what: &str| it.next().cloned().ok_or_else(|| format!("{a} needs {what}"));
@@ -120,6 +195,8 @@ pub fn run(args: &[String]) -> Result<(), String> {
                 };
             }
             "--dry-run" => dry = true,
+            "--credits" => credits = true,
+            "--server" => server = Some(val("an address")?),
             "--yes" | "-y" => yes = true,
             other => return Err(format!("unknown ai-eval option `{other}`")),
         }
@@ -137,11 +214,34 @@ pub fn run(args: &[String]) -> Result<(), String> {
             eprintln!("  {:<20} {:<9} about ${:.2} (at most ${:.2})", j.id, e.id(), est.typical, est.most);
         }
     }
-    eprintln!("In all about ${typical:.2}, at most ${most:.2}, on the Anthropic account of ANTHROPIC_API_KEY.");
+    let payer = payer(credits, server);
+    match &payer {
+        Ok(Payer::Key(_)) => eprintln!("In all about ${typical:.2}, at most ${most:.2}, on the Anthropic account of ANTHROPIC_API_KEY."),
+        Err(e) => eprintln!("In all about ${typical:.2} of AI use, at most ${most:.2}. To run it: {e}."),
+        Ok(Payer::Credits { server, token }) => match account(server, token) {
+            Ok((left, Some(rate))) => {
+                let c = |usd: f64| (usd * rate).ceil() as u64;
+                eprintln!(
+                    "In all about {} credits, at most {}, on your StitchFoundry account through {server}: {left} credits left.",
+                    c(typical),
+                    c(most)
+                );
+                if c(most) > left {
+                    eprintln!(
+                        "That may be more than you have: buy more in the app (Embroidery › Foundry Account), or run fewer jobs (--only, --effort)."
+                    );
+                }
+            }
+            Ok((left, None)) => eprintln!(
+                "In all about ${typical:.2} of AI use (at most ${most:.2}) before the service's markup, paid in credits through {server}: {left} credits left."
+            ),
+            Err(e) => eprintln!("The account at {server} couldn't be read: {e}"),
+        },
+    }
     if dry {
         return Ok(());
     }
-    let key = std::env::var("ANTHROPIC_API_KEY").map_err(|_| "set ANTHROPIC_API_KEY to the Anthropic API key to spend".to_string())?;
+    let payer = payer?;
     if !yes && !confirm()? {
         eprintln!("Nothing was sent.");
         return Ok(());
@@ -149,16 +249,28 @@ pub fn run(args: &[String]) -> Result<(), String> {
     let out = out.unwrap_or_else(|| PathBuf::from(format!("target/ai-eval/{}", stamp())));
     std::fs::create_dir_all(&out).map_err(|e| format!("{}: {e}", out.display()))?;
     let mut outcomes = vec![];
+    let mut stopped = false;
     for (ji, j) in jobs.iter().enumerate() {
         for e in &efforts {
             eprint!("{} at {}… ", j.id, e.id());
             let _ = std::io::stderr().flush(); // (progress only)
-            let o = draw(&key, ji, j, *e, &out);
+            let o = draw(&payer, ji, j, *e, &out);
             match &o.error {
                 Some(err) => eprintln!("failed: {err}"),
                 None => eprintln!("{:.0} s, {} tokens, ${:.2}", o.seconds, o.usage.total(), o.usage.usd()),
             }
+            // the account turned away (signed out, no credits left): the other jobs would be too
+            let refused = [ai::ArtError::SignIn, ai::ArtError::NoCredits, ai::ArtError::CloudClosed].map(|e| e.to_string());
+            let stop = o.error.as_ref().is_some_and(|e| refused.contains(e));
             outcomes.push(o);
+            if stop {
+                eprintln!("Stopped: nothing more was sent.");
+                stopped = true;
+                break;
+            }
+        }
+        if stopped {
+            break;
         }
     }
     let refs = copy_references(&jobs, &refs_dir, &out);
@@ -202,7 +314,7 @@ fn write(path: &Path, text: &str) -> Result<(), String> {
 }
 
 /// Send one job at one effort, then digitize the art as the app does and draw its stitches.
-fn draw(key: &str, job: usize, j: &Job, effort: Effort, out: &Path) -> Outcome {
+fn draw(payer: &Payer, job: usize, j: &Job, effort: Effort, out: &Path) -> Outcome {
     let mut o = Outcome {
         job,
         effort,
@@ -217,9 +329,9 @@ fn draw(key: &str, job: usize, j: &Job, effort: Effort, out: &Path) -> Outcome {
     let started = Instant::now();
     let art = j
         .request(effort)
-        .http(key)
+        .http(payer.secret())
         .map_err(|e| e.to_string())
-        .and_then(|http| post(&http))
+        .and_then(|http| payer.send(http))
         .and_then(|(status, body)| ai::parse_reply(status, &body).map_err(|e| e.to_string()));
     o.seconds = started.elapsed().as_secs_f64();
     let art = match art {
@@ -238,8 +350,8 @@ fn draw(key: &str, job: usize, j: &Job, effort: Effort, out: &Path) -> Outcome {
         };
         let checked = preview.and_then(|p| {
             let stitched = ai::ArtImage { media_type: "image/png", data_base64: p["dataBase64"].as_str().unwrap_or_default().to_string() };
-            let http = request.check_http(key, &art, &stitched).map_err(|e| e.to_string())?;
-            let (status, body) = post(&http)?;
+            let http = request.check_http(payer.secret(), &art, &stitched).map_err(|e| e.to_string())?;
+            let (status, body) = payer.send(http)?;
             ai::parse_check(status, &body).map_err(|e| e.to_string())
         });
         o.seconds = started.elapsed().as_secs_f64();

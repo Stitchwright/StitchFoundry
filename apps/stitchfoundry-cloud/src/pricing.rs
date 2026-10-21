@@ -10,6 +10,8 @@ use crate::config::{Config, ModelPrice};
 const IMAGE_TOKENS: u64 = 3_300;
 /// Tokens added for the request's framing, tools and the like.
 const OVERHEAD_TOKENS: u64 = 2_000;
+/// What one web search costs (dollars: Anthropic's $10 a thousand), on top of its tokens.
+const SEARCH_USD: f64 = 0.01;
 
 /// Credits for `usd` dollars of AI use.
 fn credits(cfg: &Config, usd: f64) -> u64 {
@@ -42,7 +44,11 @@ pub fn estimate(cfg: &Config, price: &ModelPrice, body: &Value, max_tokens: u64)
         + OVERHEAD_TOKENS;
     // the dearest way the input could be billed
     let per_input = price.input.max(price.cache_write);
-    credits(cfg, (input as f64 * per_input + max_tokens as f64 * price.output) / 1e6)
+    // every search a web search tool may make
+    let searches: u64 = body.get("tools").and_then(Value::as_array).map_or(0, |t| {
+        t.iter().filter(|t| t["type"].as_str().is_some_and(|k| k.starts_with("web_search"))).map(|t| t["max_uses"].as_u64().unwrap_or(10)).sum()
+    });
+    credits(cfg, (input as f64 * per_input + max_tokens as f64 * price.output) / 1e6 + searches as f64 * SEARCH_USD)
 }
 
 /// What a reply's `usage` cost the service (cents, rounded up, without the markup).
@@ -65,6 +71,7 @@ fn usd(price: &ModelPrice, usage: &Value) -> f64 {
         + n("cache_read_input_tokens") * price.cache_read
         + n("cache_creation_input_tokens") * price.cache_write)
         / 1e6
+        + usage.pointer("/server_tool_use/web_search_requests").and_then(Value::as_u64).unwrap_or(0) as f64 * SEARCH_USD
 }
 
 /// What a reply's `usage` cost (credits).
@@ -90,6 +97,13 @@ mod tests {
         // a tiny reply still costs a credit; nothing used costs nothing
         assert_eq!(charge(&c, &p, &json!({"input_tokens": 10, "output_tokens": 1})), 1);
         assert_eq!(charge(&c, &p, &json!({})), 0);
+        // web searches cost on top of their tokens, and are held for before the request goes
+        let searched = json!({"input_tokens": 10_000, "output_tokens": 2_000, "server_tool_use": {"web_search_requests": 3}});
+        assert!(charge(&c, &p, &searched) > charge(&c, &p, &json!({"input_tokens": 10_000, "output_tokens": 2_000})));
+        let body = json!({"messages": [{"role": "user", "content": "a truck"}]});
+        let mut with_search = body.clone();
+        with_search["tools"] = json!([{"type": "web_search_20260209", "name": "web_search", "max_uses": 3}]);
+        assert!(estimate(&c, &p, &with_search, 16_000) > estimate(&c, &p, &body, 16_000));
     }
 
     #[test]

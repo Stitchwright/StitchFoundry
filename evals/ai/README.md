@@ -10,11 +10,13 @@ model or the effort, so the results can be compared side by side with photos of 
   `rv.jpg`, `truck-and-rv.jpg`). They are personal and stay on this computer: the folder is
   ignored by git. A job without its photo still runs.
 
-Run them (it spends money on the Anthropic account of the key; the estimate is shown first and
-nothing is sent until you type `yes`):
+Run them. It spends money, either in credits on your StitchFoundry account (sign in in the app
+first, under Embroidery › Foundry Account; the hosted service holds the Anthropic key, as when
+the app pays with credits) or, with `ANTHROPIC_API_KEY` set, on that Anthropic account. The
+estimate is shown first, in credits with what you have left, and nothing is sent until you type
+`yes`; if the account is turned away (signed out, out of credits) it stops at once:
 
 ```sh
-export ANTHROPIC_API_KEY=sk-ant-…
 stitchfoundry-cli ai-eval --dry-run              # the plan and its estimated cost only
 stitchfoundry-cli ai-eval --effort all           # every job at Quick, Normal and Thorough
 stitchfoundry-cli ai-eval --only havanese-smiling --effort thorough
