@@ -45,6 +45,7 @@ vectorcraft-scriptcheck = { path = "crates/scriptcheck" }
 
 # StitchFoundry embroidery crates
 sf-core = { path = "crates/sf-core" }
+sf-photo = { path = "crates/sf-photo" }
 sf-formats = { path = "crates/sf-formats" }
 vectorcraft-embroidery = { path = "crates/embroidery" }
 

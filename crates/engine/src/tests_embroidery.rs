@@ -2088,6 +2088,26 @@ fn remove_background_cuts_out_the_subject() {
     }
 }
 
+/// PC-01: with no box and no marks Remove Background finds the subject itself (Select Subject),
+/// here a red disc off the photo's centre on a plain backdrop.
+#[test]
+fn remove_background_finds_the_subject_without_a_box() {
+    let mut s = session();
+    let r = vectorcraft_trace::Raster::from_fn(200, 150, |x, y| {
+        let (dx, dy) = (x as f64 - 120.0, y as f64 - 70.0);
+        let n = ((x * 5 + y * 11) % 13) as u8;
+        if dx * dx + dy * dy <= 40.0 * 40.0 { [200 + n, 40, 30, 255] } else { [225 + n, 228 + n, 222, 255] }
+    });
+    s.execute("file.place", &json!({"name": "photo.png", "dataBase64": vectorcraft_format::base64_encode(&r.encode_png())})).unwrap();
+    let res = s.execute("embroidery.image.removeBackground", &json!({})).unwrap();
+    assert_eq!(res["subject"], true, "Select Subject found it: {res}");
+    let d = &s.doc().unwrap().doc;
+    let NodeKind::Image(im) = &d.node(NodeId(res["id"].as_u64().unwrap())).unwrap().kind else { panic!("not an image") };
+    let cut = vectorcraft_trace::Raster::decode(&d.images[&im.key].bytes).unwrap();
+    let alpha = |x: u32, y: u32| cut.rgba[((y * cut.width + x) * 4 + 3) as usize];
+    assert_eq!((alpha(120, 70), alpha(140, 90), alpha(20, 20), alpha(30, 130)), (255, 255, 0, 0), "{res}");
+}
+
 #[test]
 fn smart_auto_digitize_sews_details_as_runs_outlines_and_matches_a_chart() {
     let mut s = session();

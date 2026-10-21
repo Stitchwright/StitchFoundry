@@ -36,6 +36,7 @@ vectorcraft-plugins = { workspace = true }
 vectorcraft-affinity = { workspace = true }
 vectorcraft-embroidery = { workspace = true }
 sf-core = { workspace = true }
+sf-photo.workspace = true
 sf-formats = { workspace = true }
 vectorcraft-scriptcheck = { workspace = true }
 image = { workspace = true }

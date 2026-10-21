@@ -24,10 +24,34 @@ pub fn specs() -> Vec<CommandSpec> {
         "Remove Background",
         ["Embroidery"],
         None,
-        "{id?: an image (the selected one), box?: [x, y, width, height] round the subject in fractions of the image (the whole image less 2 % round the edge; that edge is then only taken for background at first, as the subject may run off it), keep?: [[x, y, radius?]] parts that are the subject, remove?: [[x, y, radius?]] parts that are background (fractions of the image; the radius of the image's shorter side, 0.03), replace?: bool (false: the cut-out copy goes over the photo, which stays)} the subject of a photo cut out from its background (GrabCut: colour models of the subject and the background and a graph cut between them), the background made transparent so Auto-Digitize sews only the subject; the copy is selected → {id, kept: the share of the image kept, width, height}",
+        "{id?: an image (the selected one), box?: [x, y, width, height] round the subject in fractions of the image (the whole image less 2 % round the edge; that edge is then only taken for background at first, as the subject may run off it), keep?: [[x, y, radius?]] parts that are the subject, remove?: [[x, y, radius?]] parts that are background (fractions of the image; the radius of the image's shorter side, 0.03), replace?: bool (false: the cut-out copy goes over the photo, which stays)} the subject of a photo cut out from its background (GrabCut: colour models of the subject and the background and a graph cut between them), the background made transparent so Auto-Digitize sews only the subject; the copy is selected → {id, kept: the share of the image kept, subject: whether Select Subject found it, width, height}",
         has_doc,
         remove_background
     )]
+}
+
+/// The subject's coverage per pixel (0–255, times the photo's own alpha) by Select Subject:
+/// saliency seeding a GrabCut and the edge re-cut at full size (`sf_photo`, adapted from
+/// PhotoCraft); `None` when it finds no subject.
+fn select_subject(raster: &Raster) -> Option<Vec<u8>> {
+    use sf_photo::segment::{ImageSampler, RgbImage};
+    let (w, h) = (raster.width as usize, raster.height as usize);
+    let rgba: Vec<[f32; 4]> = raster.rgba.chunks_exact(4).map(|p| [p[0], p[1], p[2], p[3]].map(|c| f32::from(c) / 255.0)).collect();
+    if rgba.len() != w * h || w == 0 || h == 0 {
+        return None;
+    }
+    let img = RgbImage::from_rgba(&rgba, w, h);
+    let canvas = sf_photo::Rect::new(0, 0, i32::try_from(w).ok()?, i32::try_from(h).ok()?);
+    let region = sf_photo::segment::subject::select_subject(&ImageSampler { img: &img, origin: (0, 0) }, canvas)?;
+    let mut alpha = vec![0u8; w * h];
+    for (y, a_row) in alpha.chunks_exact_mut(w).enumerate() {
+        for (x, a) in a_row.iter_mut().enumerate() {
+            let cover = region.at(i32::try_from(x).ok()?, i32::try_from(y).ok()?);
+            let opaque = raster.rgba.get((y * w + x) * 4 + 3).copied().unwrap_or(0);
+            *a = (cover.clamp(0.0, 1.0) * f32::from(opaque)).round() as u8;
+        }
+    }
+    alpha.iter().any(|a| *a >= 128).then_some(alpha)
 }
 
 /// A box as fractions of the image, `[x, y, width, height]`.
@@ -94,7 +118,17 @@ fn remove_background(s: &mut Session, p: &Value) -> Result<Value> {
             outside
         }
     };
-    let alpha = subject_alpha(&pic.raster.rgba, w, h, &hint).ok_or_else(|| bad(CMD, "the image is empty"))?;
+    let cut = subject_alpha(&pic.raster.rgba, w, h, &hint).ok_or_else(|| bad(CMD, "the image is empty"))?;
+    // given nothing to go on, Select Subject looks for the subject too, and the cut-out keeps what
+    // either finds: Select Subject keeps parts that look like the backdrop (a dark beak against
+    // dark leaves), the cut from the photo's edge keeps a subject running off it (a body off the
+    // bottom), and each mostly errs by leaving parts out
+    let found = if given.is_none() && keep.is_empty() && remove.is_empty() { select_subject(&pic.raster) } else { None };
+    let subject = found.is_some();
+    let alpha: Vec<u8> = match found {
+        Some(a) => a.iter().zip(&cut).map(|(a, b)| (*a).max(*b)).collect(),
+        None => cut,
+    };
     let kept = alpha.iter().filter(|a| **a >= 128).count() as f64 / alpha.len().max(1) as f64;
     if kept <= 0.0 {
         return Err(bad(CMD, "nothing in the box looks different from the background: draw the box round the subject, or mark it to keep"));
@@ -110,7 +144,7 @@ fn remove_background(s: &mut Session, p: &Value) -> Result<Value> {
         return Err(bad(CMD, "the cut-out image couldn't be written"));
     }
     let id = add_image_copy(s, pic.id, png, "sf-cutout", "Cut-Out Image", "Remove Background", replace)?;
-    Ok(json!({ "id": id.0, "kept": kept, "width": w, "height": h }))
+    Ok(json!({ "id": id.0, "kept": kept, "subject": subject, "width": w, "height": h }))
 }
 
 /// The longest side the cut is worked out at (pixels): finer is slower and changes little.

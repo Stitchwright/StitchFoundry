@@ -67,6 +67,8 @@ pub const TABLE: &[(&str, Class)] = &[
     ("embroidery", Class::Layer(2)),
     ("sf-formats", Class::Layer(1)),
     ("scriptcheck", Class::Standalone),
+    // Photo cut-out (Select Subject, edge refinement, live-wire), adapted from PhotoCraft.
+    ("sf-photo", Class::Standalone),
     // StitchFoundry's cloud service (a server binary, never in the app or the web build).
     ("stitchfoundry-cloud", Class::Exempt),
 ];

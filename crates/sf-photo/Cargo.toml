@@ -1,0 +1,19 @@
+[package]
+name = "sf-photo"
+description = "Photo subject cut-out for embroidery digitizing: saliency-seeded GrabCut, guided-filter edge refinement, distance transform and live-wire, on plain pixel buffers (adapted from PhotoCraft)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+serde.workspace = true
+
+# Parallel rows and tiles on native; wasm builds stay single-threaded.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+rayon = "1"
+
+[lints]
+workspace = true

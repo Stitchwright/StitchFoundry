@@ -4269,6 +4269,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sf-photo"
+version = "0.14.0"
+dependencies = [
+ "rayon",
+ "serde",
+]
+
+[[package]]
 name = "sha2"
 version = "0.10.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5337,6 +5345,7 @@ dependencies = [
  "serde_json",
  "sf-core",
  "sf-formats",
+ "sf-photo",
  "thiserror 2.0.21",
  "vectorcraft-affinity",
  "vectorcraft-brush",

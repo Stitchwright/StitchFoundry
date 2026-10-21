@@ -23,6 +23,11 @@ list (author, source, license) is in ASSETS.md.
   (Ubuntu Font Licence 1.0), Hack (MIT), Noto Emoji (SIL Open Font License 1.1) and emoji-icon-font
   (MIT). Their license texts ship with that crate.
 
+The photo cut-out code in crates/sf-photo (Select Subject, GrabCut, maximum flow, Gaussian mixtures,
+SLIC superpixels, guided-filter edge refinement, distance transform, live-wire) is adapted from
+PhotoCraft (https://github.com/storytold/photocraft, commit 04d0212) by the ArtCraft Team, under the MIT
+License or the Apache License, Version 2.0, the same as this product.
+
 Rust dependencies (vello_cpu, kurbo, peniko, skrifa, harfrust, usvg, linesweeper, egui, eframe, …) are
 fetched through crates.io under their own permissive licenses (mostly MIT and/or Apache-2.0; also
 BSD, ISC, Zlib, BSL-1.0 and Unicode-3.0).

@@ -1314,8 +1314,11 @@ Auto-Digitize or Click to Stitch; `replace` swaps the original for it.
 out from what is behind it: a pet, a person, a bird in front of leaves. It needs no colour to pick:
 it learns the colours of the subject and of the background and splits the picture between them
 along its edges (the GrabCut method Rother, Kolmogorov and Blake published in 2004, written for
-StitchFoundry). The box round the subject is the whole photo less a thin border, or `box` (fractions
-of the image); `keep` and `remove` mark spots it got wrong (`[[x, y, radius]]`, fractions of the
+StitchFoundry). Given no box and no marks it also looks for the subject itself (Select Subject: the
+parts of the picture that stand out from its edges seed the cut, and the edge is cut again at full
+size; adapted from PhotoCraft's, which follows published saliency methods) and keeps what either
+finds. The box round the subject is the whole photo less a thin border, or `box` (fractions of the
+image); `keep` and `remove` mark spots it got wrong (`[[x, y, radius]]`, fractions of the
 image) and run it again. The cut-out copy goes over the photo with the background transparent, so
 Auto-Digitize, Prepare Image and Photo Stitch leave it out; `replace` swaps the photo for it. It
 works on a copy of the photo 240 pixels across and smooths the edge when it scales back up, so a
