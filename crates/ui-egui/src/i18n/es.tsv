@@ -6675,3 +6675,13 @@ mark-style	Japanese	Japonesas
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Haga clic alrededor de una parte de una foto: el borde se ajusta a sus contornos; haga clic en el primer punto, doble clic o pulse Intro para cerrarlo y bordarlo.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	También sirven las fotos. Con Quitar fondo activado, primero se recorta el motivo de su fondo; desactívelo para bordar la foto entera.
+# AI effort and cost
+	AI Effort	Esfuerzo de la IA
+	Effort	Esfuerzo
+	Quick	Rápido
+	Thorough	A fondo
+	About {typical} credits a drawing, at most {most}.	Unos {typical} créditos por dibujo, como máximo {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Unos {typical} por dibujo en su cuenta de Anthropic, como máximo {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	A fondo piensa más tiempo y cuesta alrededor del doble que Normal: úselo para diseños con mucho detalle.
+	{tokens} tokens	{tokens} tokens
+	{tokens} tokens, about {cost}	{tokens} tokens, unos {cost}

@@ -6611,3 +6611,13 @@ swatch	Bright Violet	Violet cerah
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klik mengelilingi bagian foto: batasnya menempel pada tepinya; klik titik pertama, klik dua kali, atau tekan Enter untuk menutup dan menyulamnya.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Foto juga bisa. Dengan Hapus Latar Belakang aktif, subjek dipotong dari latarnya terlebih dahulu; matikan untuk menyulam seluruh foto.
+# AI effort and cost
+	AI Effort	Upaya AI
+	Effort	Upaya
+	Quick	Cepat
+	Thorough	Teliti
+	About {typical} credits a drawing, at most {most}.	Sekitar {typical} kredit per gambar, paling banyak {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Sekitar {typical} per gambar di akun Anthropic Anda, paling banyak {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Teliti berpikir paling lama dan biayanya sekitar dua kali Normal: gunakan untuk desain yang sangat detail.
+	{tokens} tokens	{tokens} token
+	{tokens} tokens, about {cost}	{tokens} token, sekitar {cost}

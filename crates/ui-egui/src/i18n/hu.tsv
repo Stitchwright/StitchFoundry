@@ -6694,3 +6694,13 @@ machine	Stop	Megállás
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Kattintson körbe egy fénykép egy részét: a körvonal a széleihez tapad; az első pontra kattintva, dupla kattintással vagy Enterrel zárja le és hímezze ki.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Fényképek is jók. Ha a Háttér eltávolítása be van kapcsolva, a témát először kivágjuk a hátteréből; kapcsolja ki, és az egész fénykép kihímződik.
+# AI effort and cost
+	AI Effort	MI-ráfordítás
+	Effort	Ráfordítás
+	Quick	Gyors
+	Thorough	Alapos
+	About {typical} credits a drawing, at most {most}.	Rajzonként kb. {typical} kredit, legfeljebb {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Rajzonként kb. {typical} az Anthropic-fiókjában, legfeljebb {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Az Alapos gondolkodik a legtovább, és nagyjából kétszer annyiba kerül, mint a Normál: sok részletet tartalmazó mintákhoz használja.
+	{tokens} tokens	{tokens} token
+	{tokens} tokens, about {cost}	{tokens} token, kb. {cost}

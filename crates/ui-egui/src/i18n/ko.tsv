@@ -6313,3 +6313,13 @@ machine	Stop	정지
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	사진의 일부를 둘러 클릭하세요. 경계선이 가장자리에 달라붙습니다. 첫 점을 클릭하거나 두 번 클릭하거나 Enter 키를 누르면 닫히고 자수가 됩니다.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	사진도 됩니다. 배경 제거를 켜면 먼저 피사체를 배경에서 오려 내고, 끄면 사진 전체를 자수로 만듭니다.
+# AI effort and cost
+	AI Effort	AI 노력 수준
+	Effort	노력 수준
+	Quick	빠르게
+	Thorough	꼼꼼하게
+	About {typical} credits a drawing, at most {most}.	그림 한 번에 약 {typical}크레딧, 최대 {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	그림 한 번에 Anthropic 계정으로 약 {typical}, 최대 {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	꼼꼼하게는 가장 오래 생각하며 비용이 보통의 약 두 배입니다. 세부가 많은 디자인에 사용하세요.
+	{tokens} tokens	토큰 {tokens}개
+	{tokens} tokens, about {cost}	토큰 {tokens}개, 약 {cost}

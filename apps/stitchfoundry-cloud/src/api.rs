@@ -330,6 +330,8 @@ impl Service {
             "credits": a.map_or(0, |a| a.credits.saturating_sub(a.reserved)),
             "freeChecks": free_checks,
             "checkCredits": self.cfg.check_credits,
+            // what a dollar of AI use costs in credits, for the app's estimates
+            "creditsPerDollar": 100.0 * self.cfg.markup / self.cfg.cents_per_credit,
             "sharedChecks": store.shared_checks(id).len(),
             "reports": store.reports(id).len(),
         })

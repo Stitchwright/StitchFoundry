@@ -6734,3 +6734,13 @@ theme	Appearance	Apparence
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Cliquez autour d’une partie d’une photo : le contour s’accroche à ses bords ; cliquez sur le premier point, double-cliquez ou appuyez sur Entrée pour le fermer et le broder.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Les photos aussi. Avec Supprimer l’arrière-plan activé, le sujet est d’abord détouré ; désactivez-le pour broder toute la photo.
+# AI effort and cost
+	AI Effort	Effort de l’IA
+	Effort	Effort
+	Quick	Rapide
+	Thorough	Approfondi
+	About {typical} credits a drawing, at most {most}.	Environ {typical} crédits par dessin, au plus {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Environ {typical} par dessin sur votre compte Anthropic, au plus {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Approfondi réfléchit le plus longtemps et coûte environ deux fois plus que Normal : à réserver aux motifs très détaillés.
+	{tokens} tokens	{tokens} jetons
+	{tokens} tokens, about {cost}	{tokens} jetons, environ {cost}

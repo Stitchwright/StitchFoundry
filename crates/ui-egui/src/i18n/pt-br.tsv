@@ -6575,3 +6575,13 @@ mark-style	Japanese	Japonesas
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Clique ao redor de uma parte da foto: a borda se prende às bordas dela; clique no primeiro ponto, clique duas vezes ou pressione Enter para fechá-la e bordá-la.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Fotos também funcionam. Com Remover fundo ligado, o motivo é recortado do fundo primeiro; desligue para bordar a foto inteira.
+# AI effort and cost
+	AI Effort	Esforço da IA
+	Effort	Esforço
+	Quick	Rápido
+	Thorough	Minucioso
+	About {typical} credits a drawing, at most {most}.	Cerca de {typical} créditos por desenho, no máximo {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Cerca de {typical} por desenho na sua conta Anthropic, no máximo {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Minucioso pensa por mais tempo e custa cerca do dobro do Normal: use-o em desenhos com muitos detalhes.
+	{tokens} tokens	{tokens} tokens
+	{tokens} tokens, about {cost}	{tokens} tokens, cerca de {cost}

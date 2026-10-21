@@ -6317,3 +6317,13 @@ machine	Stop	Dừng máy
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Bấm quanh một phần của ảnh: đường viền bám vào các cạnh của nó; bấm vào điểm đầu tiên, bấm đúp hoặc nhấn Enter để khép lại và thêu.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Ảnh chụp cũng được. Khi bật Xóa nền, chủ thể được cắt khỏi nền trước; tắt đi để thêu cả bức ảnh.
+# AI effort and cost
+	AI Effort	Mức nỗ lực của AI
+	Effort	Mức nỗ lực
+	Quick	Nhanh
+	Thorough	Kỹ lưỡng
+	About {typical} credits a drawing, at most {most}.	Khoảng {typical} tín dụng mỗi bản vẽ, tối đa {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Khoảng {typical} mỗi bản vẽ trên tài khoản Anthropic của bạn, tối đa {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Kỹ lưỡng suy nghĩ lâu nhất và tốn khoảng gấp đôi Bình thường: dùng cho thiết kế nhiều chi tiết.
+	{tokens} tokens	{tokens} token
+	{tokens} tokens, about {cost}	{tokens} token, khoảng {cost}

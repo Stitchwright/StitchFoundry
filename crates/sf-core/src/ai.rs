@@ -12,8 +12,11 @@
 
 use serde_json::{Value, json};
 
+pub use effort::{Effort, Usage};
+
 pub mod ask;
 pub mod cloud;
+pub mod effort;
 pub mod makerfoundry;
 pub mod picture;
 pub mod sewout;
@@ -54,6 +57,8 @@ pub struct ArtRequest {
     pub colors: u32,
     /// An image to redraw (then `prompt` holds optional notes on what to change).
     pub image: Option<ArtImage>,
+    /// How hard the model works on it.
+    pub effort: Effort,
 }
 
 /// An image to redraw: PNG or JPEG bytes in base64.
@@ -79,6 +84,8 @@ pub struct Art {
     pub svg: String,
     /// The model that drew it (another one when the request fell back).
     pub model: String,
+    /// The tokens it took.
+    pub usage: Usage,
 }
 
 /// Why no artwork came back. The messages are for the user; the UI shows them translated.
@@ -197,7 +204,18 @@ impl ArtRequest {
     /// The request with its size and colours brought into range and the description trimmed.
     pub fn new(prompt: &str, size_mm: f64, colors: u32) -> Self {
         let size_mm = if size_mm.is_finite() { size_mm.clamp(SIZE_RANGE.0, SIZE_RANGE.1) } else { 100.0 };
-        Self { prompt: prompt.trim().to_string(), size_mm, colors: colors.clamp(COLOR_RANGE.0, COLOR_RANGE.1), image: None }
+        Self { prompt: prompt.trim().to_string(), size_mm, colors: colors.clamp(COLOR_RANGE.0, COLOR_RANGE.1), image: None, effort: Effort::Normal }
+    }
+
+    /// The request made with `effort`.
+    pub fn with_effort(mut self, effort: Effort) -> Self {
+        self.effort = effort;
+        self
+    }
+
+    /// What it should cost (dollars, at Anthropic's prices).
+    pub fn estimate(&self) -> effort::Estimate {
+        effort::estimate(&self.body(), self.effort)
     }
 
     /// The request redrawing `image` (its prompt: notes on what to change, if any).
@@ -283,7 +301,7 @@ that starts with \"DECLINED:\" followed by a short reason, instead of the SVG."
             "model": MODEL,
             "max_tokens": MAX_TOKENS,
             "fallbacks": "default",
-            "output_config": { "effort": "medium" },
+            "output_config": { "effort": self.effort.api() },
             "system": self.system_prompt(),
             "messages": [{ "role": "user", "content": content }],
         })
@@ -369,7 +387,7 @@ pub fn parse_reply(status: u16, body: &str) -> Result<Art, ArtError> {
     }
     let svg = extract_svg(&text).ok_or(ArtError::NoArt)?;
     let model = v.get("model").and_then(Value::as_str).unwrap_or(MODEL).to_string();
-    Ok(Art { svg: svg.to_string(), model })
+    Ok(Art { svg: svg.to_string(), model, usage: Usage::of_reply(&v) })
 }
 
 /// The SVG document in `text`: from its first `<svg` to its last `</svg>` (prose or a code fence
@@ -407,6 +425,11 @@ mod tests {
         assert_eq!(body["max_tokens"], MAX_TOKENS);
         assert_eq!(body["fallbacks"], "default");
         assert_eq!(body["output_config"]["effort"], "medium");
+        // AI-05: the effort chosen is sent, and the estimate grows with it
+        let quick = ArtRequest::new("a fox", 80.0, 5).with_effort(Effort::Quick);
+        let quick_body: Value = serde_json::from_str(&quick.http("sk-ant-test").unwrap().body).unwrap();
+        assert_eq!(quick_body["output_config"]["effort"], "low");
+        assert!(quick.estimate().typical < quick.clone().with_effort(Effort::Thorough).estimate().typical);
         assert!(body.get("thinking").is_none(), "thinking is always on: not sent");
         assert!(body["messages"][0]["content"].as_str().unwrap().ends_with("a cartoon fox head"));
         let system = body["system"].as_str().unwrap();

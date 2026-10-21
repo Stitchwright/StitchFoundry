@@ -1418,6 +1418,17 @@ even a painterly picture sews with few thread changes. The dialog says "Making t
 needed too. The picture is billed to your account with that service
 (`ui.designFromPrompt {picture?: google|openai|fal|openrouter, model?}`).
 
+**Effort and what it costs.** **Effort** chooses how hard Claude works on a drawing: **Quick**
+thinks briefly and costs least, **Normal** is the model's own default and **Thorough** thinks
+longest. The choice is kept for next time (`embroidery.aiEffort {effort?: quick|normal|thorough}`)
+and goes to the Messages API as its `effort` (low, medium, high). Before anything is sent the
+dialog shows what a drawing should cost: in dollars on your own key, at Anthropic's published
+prices for the model ($4 a million tokens sent, $20 a million back), or in credits when you pay
+with them, with the most it could cost if the reply ran to its limit; Thorough carries a warning.
+The typical figures are estimates until the AI test jobs (`evals/ai/README.md`) measure them. Once
+the design is placed, the status line says what it took, from the reply itself: its tokens, and
+their cost on your own key.
+
 **Your own API key.** Design from Prompt uses your Anthropic API key, and each design is billed to
 your Anthropic account; get a key in the [Anthropic Console](https://console.anthropic.com/settings/keys).
 Paste it into the dialog. With **Remember the key on this computer**, once Anthropic accepts the

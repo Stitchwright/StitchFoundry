@@ -6673,3 +6673,13 @@ machine	Stop	Stopp
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klicka runt en del av ett foto: kanten fäster vid dess kanter; klicka på den första punkten, dubbelklicka eller tryck på Retur för att stänga och brodera den.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Foton går också bra. Med Ta bort bakgrund på klipps motivet först ut ur bakgrunden; stäng av det för att brodera hela fotot.
+# AI effort and cost
+	AI Effort	AI-insats
+	Effort	Insats
+	Quick	Snabb
+	Thorough	Grundlig
+	About {typical} credits a drawing, at most {most}.	Ungefär {typical} krediter per teckning, högst {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Ungefär {typical} per teckning på ditt Anthropic-konto, högst {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Grundlig tänker längst och kostar ungefär dubbelt så mycket som Normal: använd den för motiv med många detaljer.
+	{tokens} tokens	{tokens} tokens
+	{tokens} tokens, about {cost}	{tokens} tokens, ungefär {cost}

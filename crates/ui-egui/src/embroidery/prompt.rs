@@ -40,6 +40,8 @@ pub struct PromptState {
     pub error: Option<String>,
     /// The time of the last frame drawn (egui time, seconds).
     pub now: f64,
+    /// The tokens the last drawing took.
+    pub last_usage: Option<ai::Usage>,
 }
 
 struct Pending {
@@ -277,7 +279,7 @@ pub fn start(app: &mut VectorcraftApp, d: &Dialog) -> Result<Value, String> {
     }
     let now = app.embroidery.prompt.now;
     let size = d.f64("size", 100.0);
-    let mut request = ArtRequest::new(&d.str("prompt"), size, d.f64("colors", 6.0).round().clamp(0.0, 99.0) as u32);
+    let mut request = ArtRequest::new(&d.str("prompt"), size, d.f64("colors", 6.0).round().clamp(0.0, 99.0) as u32).with_effort(effort(app));
     // Why nothing was sent, also shown in the dialog.
     let fail = |app: &mut VectorcraftApp, m: String| {
         app.embroidery.prompt.error = Some(m.clone());
@@ -364,7 +366,7 @@ fn redraw_picture(app: &mut VectorcraftApp, p: PicturePending, picture: ArtImage
     // as a photo is sent: upright, the size Claude looks at
     let (image, _, _) = super::sewout::prepare(&bytes)?;
     let notes = format!("The picture shows: {}", p.description);
-    let request = ArtRequest::new(&notes, p.size, p.colors).with_image(image);
+    let request = ArtRequest::new(&notes, p.size, p.colors).with_image(image).with_effort(effort(app));
     let key = super::account::key_to_send(app);
     let http = request.http(&key).map_err(|e| e.to_string())?;
     let credits = super::account::paying_with_credits(app);
@@ -374,6 +376,31 @@ fn redraw_picture(app: &mut VectorcraftApp, p: PicturePending, picture: ArtImage
     let now = app.embroidery.prompt.now;
     app.embroidery.prompt.pending = Some(Pending { rx, keep, name, size: p.size, frame: None, since: now });
     Ok(())
+}
+
+/// How hard the AI works, as set (`embroidery.aiEffort`).
+pub fn effort(app: &VectorcraftApp) -> ai::Effort {
+    vectorcraft_engine::cmd::embroidery_ai::effort(&app.session.prefs)
+}
+
+/// What a request should cost, in words: dollars on the user's own key, credits when paying
+/// with them (`creditsPerDollar` from the account), `None` when that isn't known.
+pub fn cost_line(app: &VectorcraftApp, e: ai::effort::Estimate) -> Option<String> {
+    if super::account::paying_with_credits(app) {
+        let rate = app.embroidery.account.info.as_ref().and_then(|i| i["creditsPerDollar"].as_f64()).filter(|r| r.is_finite() && *r > 0.0)?;
+        let c = |usd: f64| ((usd * rate).ceil().max(1.0) as u64).to_string();
+        Some(crate::i18n::fmt(tl!("About {typical} credits a drawing, at most {most}."), &[("typical", &c(e.typical)), ("most", &c(e.most))]))
+    } else {
+        Some(crate::i18n::fmt(
+            tl!("About {typical} a drawing on your Anthropic account, at most {most}."),
+            &[("typical", &dollars(e.typical)), ("most", &dollars(e.most))],
+        ))
+    }
+}
+
+/// `usd` as dollars and cents, at least a cent.
+fn dollars(usd: f64) -> String {
+    format!("${:.2}", usd.max(0.01))
 }
 
 /// Keep `key` as the API key (`None`: forget it). A store that can't only costs the convenience.
@@ -435,6 +462,10 @@ pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
         keep_key(app.services.secrets.as_deref(), Some(key));
     }
     let open = app.ui.dialog.as_ref().is_some_and(|d| d.kind == KIND);
+    if let Ok(art) = &r {
+        app.embroidery.prompt.last_usage = Some(art.usage);
+    }
+    let usage = r.as_ref().ok().map(|art| art.usage);
     let placed = r.map_err(|e| e.to_string()).and_then(|art| {
         if app.session.active().is_none() {
             return Err("no document".to_string());
@@ -451,7 +482,18 @@ pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 app.ui.dialog = None;
             }
             let n = v.get("objects").and_then(Value::as_u64).unwrap_or(0);
-            app.status(crate::i18n::tn(n, "Design placed: {n} stitched object", "Design placed: {n} stitched objects"));
+            let mut line = crate::i18n::tn(n, "Design placed: {n} stitched object", "Design placed: {n} stitched objects");
+            // what it took: tokens, and dollars when paid with the user's own key
+            if let Some(u) = usage.filter(|u| u.total() > 0) {
+                let tokens = u.total().to_string();
+                line.push_str(" · ");
+                line.push_str(&if super::account::paying_with_credits(app) {
+                    crate::i18n::fmt(tl!("{tokens} tokens"), &[("tokens", &tokens)])
+                } else {
+                    crate::i18n::fmt(tl!("{tokens} tokens, about {cost}"), &[("tokens", &tokens), ("cost", &dollars(u.usd()))])
+                });
+            }
+            app.status(line);
         }
         Err(e) => {
             if !open {

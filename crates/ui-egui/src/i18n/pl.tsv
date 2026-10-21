@@ -6560,3 +6560,13 @@ machine	Stop	Zatrzymanie
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klikaj wokół fragmentu zdjęcia: obrys przylega do jego krawędzi; kliknij pierwszy punkt, kliknij dwukrotnie lub naciśnij Enter, aby go zamknąć i wyhaftować.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Zdjęcia też się nadają. Z włączonym Usuń tło obiekt jest najpierw wycinany z tła; wyłącz je, aby wyhaftować całe zdjęcie.
+# AI effort and cost
+	AI Effort	Wysiłek AI
+	Effort	Wysiłek
+	Quick	Szybki
+	Thorough	Dokładny
+	About {typical} credits a drawing, at most {most}.	Około {typical} kredytów za rysunek, najwyżej {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Około {typical} za rysunek na Twoim koncie Anthropic, najwyżej {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Dokładny myśli najdłużej i kosztuje mniej więcej dwa razy tyle co Normalny: używaj go do projektów z wieloma szczegółami.
+	{tokens} tokens	{tokens} tokenów
+	{tokens} tokens, about {cost}	{tokens} tokenów, około {cost}

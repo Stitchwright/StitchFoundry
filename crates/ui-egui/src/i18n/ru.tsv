@@ -6357,3 +6357,13 @@ machine	Stop	Остановка
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Щёлкайте вокруг части фото: контур прилипает к её краям; щёлкните первую точку, дважды щёлкните или нажмите Enter, чтобы замкнуть и вышить его.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Подойдут и фотографии. С включённым «Удалить фон» объект сначала вырезается из фона; выключите его, чтобы вышить всё фото.
+# AI effort and cost
+	AI Effort	Усилия ИИ
+	Effort	Усилия
+	Quick	Быстро
+	Thorough	Тщательно
+	About {typical} credits a drawing, at most {most}.	Около {typical} кредитов за рисунок, не больше {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Около {typical} за рисунок с вашего аккаунта Anthropic, не больше {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	«Тщательно» думает дольше всего и стоит примерно вдвое дороже «Обычного»: используйте для дизайнов с множеством деталей.
+	{tokens} tokens	{tokens} токенов
+	{tokens} tokens, about {cost}	{tokens} токенов, около {cost}

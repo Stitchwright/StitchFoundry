@@ -6341,3 +6341,13 @@ machine	Stop	Зупинка
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Клацайте навколо частини фото: контур прилипає до її країв; клацніть першу точку, двічі клацніть або натисніть Enter, щоб замкнути й вишити його.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Підійдуть і фотографії. З увімкненим «Видалити фон» об’єкт спершу вирізається з тла; вимкніть його, щоб вишити все фото.
+# AI effort and cost
+	AI Effort	Зусилля ШІ
+	Effort	Зусилля
+	Quick	Швидко
+	Thorough	Ретельно
+	About {typical} credits a drawing, at most {most}.	Близько {typical} кредитів за малюнок, не більше {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Близько {typical} за малюнок з вашого облікового запису Anthropic, не більше {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	«Ретельно» думає найдовше й коштує приблизно вдвічі дорожче за «Звичайне»: використовуйте для дизайнів з багатьма деталями.
+	{tokens} tokens	{tokens} токенів
+	{tokens} tokens, about {cost}	{tokens} токенів, близько {cost}

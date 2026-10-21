@@ -6541,3 +6541,13 @@ machine	Stop	停止
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	围绕照片的一部分点击：边界会吸附到照片的边缘；点击第一个点、双击或按 Enter 键即可闭合并刺绣。
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	照片也可以。开启“移除背景”时会先把主体从背景中抠出来；关闭它则刺绣整张照片。
+# AI effort and cost
+	AI Effort	AI 投入程度
+	Effort	投入程度
+	Quick	快速
+	Thorough	深入
+	About {typical} credits a drawing, at most {most}.	每次绘制约 {typical} 点数，最多 {most}。
+	About {typical} a drawing on your Anthropic account, at most {most}.	每次绘制约从你的 Anthropic 账户扣 {typical}，最多 {most}。
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	“深入”思考时间最长，费用约为“普通”的两倍：适合细节很多的设计。
+	{tokens} tokens	{tokens} 个词元
+	{tokens} tokens, about {cost}	{tokens} 个词元，约 {cost}

@@ -6361,3 +6361,13 @@ machine	Stop	Arresto
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Fai clic attorno a una parte di una foto: il bordo si aggancia ai suoi contorni; fai clic sul primo punto, doppio clic o premi Invio per chiuderlo e ricamarlo.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Vanno bene anche le foto. Con Rimuovi sfondo attivo, il soggetto viene prima scontornato; disattivalo per ricamare tutta la foto.
+# AI effort and cost
+	AI Effort	Impegno dell’IA
+	Effort	Impegno
+	Quick	Rapido
+	Thorough	Accurato
+	About {typical} credits a drawing, at most {most}.	Circa {typical} crediti a disegno, al massimo {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Circa {typical} a disegno sul tuo account Anthropic, al massimo {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Accurato riflette più a lungo e costa circa il doppio di Normale: usalo per disegni con molti dettagli.
+	{tokens} tokens	{tokens} token
+	{tokens} tokens, about {cost}	{tokens} token, circa {cost}

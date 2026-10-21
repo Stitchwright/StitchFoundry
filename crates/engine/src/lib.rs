@@ -1071,6 +1071,10 @@ pub struct Prefs {
     /// the ones sent. Kept across sessions; not a Preferences dialog field.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub embroidery_queue: Vec<cmd::embroidery_queue::QueueItem>,
+    /// How hard the AI features work (`embroidery.aiEffort`): quick, normal or thorough; empty
+    /// for normal. Not a Preferences dialog field: it is chosen where the AI is asked.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub embroidery_ai_effort: String,
     /// The lettering kiosk (`embroidery.kiosk`): on or off, its PIN, and what it offers.
     #[serde(default, skip_serializing_if = "crate::cmd::embroidery_kiosk::KioskSetup::is_empty")]
     pub embroidery_kiosk: cmd::embroidery_kiosk::KioskSetup,
@@ -1294,6 +1298,7 @@ impl Default for Prefs {
             embroidery_queue: vec![],
             embroidery_sheet_setup: Default::default(),
             embroidery_kiosk: Default::default(),
+            embroidery_ai_effort: String::new(),
             embroidery_send_dirs: vec![],
             my_machine: String::new(),
             my_designs_folder: String::new(),

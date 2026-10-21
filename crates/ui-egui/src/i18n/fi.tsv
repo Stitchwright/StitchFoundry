@@ -6734,3 +6734,13 @@ swatch	Bright Violet	Kirkas violetti
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Napsauta valokuvan osan ympäri: reuna tarttuu sen reunoihin; sulje ja kirjo se napsauttamalla ensimmäistä pistettä, kaksoisnapsauttamalla tai painamalla Enter.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Myös valokuvat käyvät. Kun Poista tausta on päällä, kohde rajataan ensin irti taustastaan; ota se pois päältä, niin koko kuva kirjotaan.
+# AI effort and cost
+	AI Effort	Tekoälyn vaivannäkö
+	Effort	Vaivannäkö
+	Quick	Nopea
+	Thorough	Perusteellinen
+	About {typical} credits a drawing, at most {most}.	Noin {typical} krediittiä piirrokselta, enintään {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Noin {typical} piirrokselta Anthropic-tililläsi, enintään {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Perusteellinen miettii pisimpään ja maksaa noin kaksi kertaa niin paljon kuin Normaali: käytä sitä paljon yksityiskohtia sisältäviin malleihin.
+	{tokens} tokens	{tokens} tokenia
+	{tokens} tokens, about {cost}	{tokens} tokenia, noin {cost}

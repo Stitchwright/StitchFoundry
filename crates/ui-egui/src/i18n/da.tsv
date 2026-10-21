@@ -6611,3 +6611,13 @@ swatch	Bright Violet	Kraftig violet
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klik rundt om en del af et foto: kanten klæber til fotoets kanter; klik på det første punkt, dobbeltklik eller tryk på Enter for at lukke og brodere den.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Fotos virker også. Med Fjern baggrund slået til skæres motivet først ud af baggrunden; slå det fra for at brodere hele fotoet.
+# AI effort and cost
+	AI Effort	AI-indsats
+	Effort	Indsats
+	Quick	Hurtig
+	Thorough	Grundig
+	About {typical} credits a drawing, at most {most}.	Omkring {typical} kreditter pr. tegning, højst {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Omkring {typical} pr. tegning på din Anthropic-konto, højst {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Grundig tænker længst og koster omkring dobbelt så meget som Normal: brug den til design med mange detaljer.
+	{tokens} tokens	{tokens} tokens
+	{tokens} tokens, about {cost}	{tokens} tokens, omkring {cost}

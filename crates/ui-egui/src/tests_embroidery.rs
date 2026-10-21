@@ -515,6 +515,34 @@ mod design_from_prompt {
         assert_eq!(objects(&app), 0);
     }
 
+    /// AI-05: the Effort chosen is kept and sent, the dialog shows what a drawing should cost
+    /// before it is sent (and warns at Thorough), and the status what it took.
+    #[test]
+    fn the_effort_is_chosen_with_its_cost_shown_and_sent() {
+        let used = json!({"type": "message", "model": "claude-opus-5-5", "content": [{"type": "text", "text": ART}], "stop_reason": "end_turn", "usage": {"input_tokens": 1800, "output_tokens": 4200}});
+        let (mut app, sent, _) = app(200, used.to_string(), Duration::ZERO);
+        app.run("ui.designFromPrompt", json!({"prompt": "a cartoon fox head", "size": 60, "colors": 4})).unwrap();
+        let texts = dialog_text(&mut app);
+        assert!(texts.iter().any(|t| t == "Effort") && texts.iter().any(|t| t == "Normal"), "{texts:?}");
+        let cost = texts.iter().find(|t| t.starts_with("About $")).cloned().unwrap_or_else(|| panic!("no cost line in {texts:?}"));
+        assert!(cost.contains("on your Anthropic account, at most $"), "{cost}");
+        assert!(!texts.iter().any(|t| t.starts_with("Thorough thinks")), "no warning at Normal");
+        app.run("embroidery.aiEffort", json!({"effort": "thorough"})).unwrap();
+        let texts = dialog_text(&mut app);
+        assert!(texts.iter().any(|t| t.starts_with("Thorough thinks longest")), "{texts:?}");
+        let thorough = texts.iter().find(|t| t.starts_with("About $")).cloned().unwrap_or_default();
+        assert_ne!(thorough, cost, "the estimate follows the effort");
+        app.run("embroidery.aiEffort", json!({"effort": "quick"})).unwrap();
+        app.embroidery.prompt.key = "sk-ant-test".into();
+        crate::dialogs::confirm(&mut app).unwrap();
+        wait(&mut app);
+        let body: Value = serde_json::from_str(&sent.lock().unwrap()[0].body).unwrap();
+        assert_eq!(body["output_config"]["effort"], "low");
+        // the reply's usage: tokens and dollars on the user's own key
+        // 1 800 in and 4 200 out: 6 000 tokens, $0.0072 + $0.084
+        assert!(app.ui.status.ends_with("6000 tokens, about $0.09"), "{}", app.ui.status);
+    }
+
     #[test]
     fn what_goes_wrong_is_shown_in_the_dialog() {
         let err = json!({"type": "error", "error": {"type": "authentication_error", "message": "invalid x-api-key"}}).to_string();

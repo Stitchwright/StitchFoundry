@@ -6677,3 +6677,13 @@ machine	Stop	Спиране
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Щракайте около част от снимка: контурът залепва за ръбовете ѝ; щракнете първата точка, щракнете двукратно или натиснете Enter, за да го затворите и избродирате.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Става и със снимки. С включено „Премахване на фона“ обектът първо се изрязва от фона си; изключете го, за да избродирате цялата снимка.
+# AI effort and cost
+	AI Effort	Усилие на ИИ
+	Effort	Усилие
+	Quick	Бързо
+	Thorough	Задълбочено
+	About {typical} credits a drawing, at most {most}.	Около {typical} кредита на рисунка, най-много {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Около {typical} на рисунка от вашия акаунт в Anthropic, най-много {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	„Задълбочено“ мисли най-дълго и струва около два пъти повече от „Нормално“: ползвайте го за дизайни с много детайли.
+	{tokens} tokens	{tokens} токена
+	{tokens} tokens, about {cost}	{tokens} токена, около {cost}

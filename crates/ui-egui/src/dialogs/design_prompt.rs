@@ -16,6 +16,7 @@ use crate::state::Dialog;
 use crate::theme::Tokens;
 use crate::{VectorcraftApp, widgets};
 use vectorcraft_embroidery::sf_core::ai::picture::Provider;
+use vectorcraft_embroidery::sf_core::ai::{ArtImage, ArtRequest, Effort};
 
 pub(super) const SPEC: DialogSpec = DialogSpec {
     heading: |d| if redraw(d) { tl!("Redraw Image with Claude").into() } else { tl!("Design from Prompt").into() },
@@ -64,6 +65,17 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
         label(ui, tl!("Thread colors"));
         number(ui, d, "colors", (1.0, 12.0), "");
         ui.end_row();
+        // how hard Claude works: kept for next time
+        label(ui, tl!("Effort"));
+        let names = [tl!("Quick"), tl!("Normal"), tl!("Thorough")];
+        let cur = prompt::effort(app);
+        let at = Effort::ALL.iter().position(|e| *e == cur).unwrap_or(1);
+        if let Some(i) = widgets::dropdown_names(ui, "design-prompt-effort", names.get(at).copied().unwrap_or_default(), &names, 160.0)
+            && let Some(e) = Effort::ALL.get(i)
+        {
+            app.run("embroidery.aiEffort", json!({ "effort": e.id() })).ok();
+        }
+        ui.end_row();
         if !redraw {
             // who makes the picture: Claude draws the shapes itself; another service paints a
             // picture, which Claude then redraws as shapes
@@ -106,6 +118,25 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
         }
     });
     ui.add_space(6.0);
+    // what it should cost, before anything is sent
+    let effort = prompt::effort(app);
+    let request = ArtRequest::new(&d.str("prompt"), d.f64("size", 100.0), d.f64("colors", 6.0) as u32).with_effort(effort);
+    let mut estimate = request.estimate();
+    if redraw || Provider::from_id(&d.str("maker")).is_some() {
+        // the image Claude redraws counts too
+        let image = ArtImage { media_type: "image/png", data_base64: String::from("AAAA") };
+        estimate = request.with_image(image).estimate();
+    }
+    if let Some(line) = prompt::cost_line(app, estimate) {
+        ui.label(egui::RichText::new(line).size(11.0).color(t.text_dim));
+    }
+    if effort == Effort::Thorough {
+        ui.label(
+            egui::RichText::new(tl!("Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail."))
+                .size(11.0)
+                .color(t.warning),
+        );
+    }
     if redraw {
         ui.label(egui::RichText::new(tl!("Only redraw artwork you own or have permission to use.")).size(11.0).color(t.text));
     } else if Provider::from_id(&d.str("maker")).is_some() {

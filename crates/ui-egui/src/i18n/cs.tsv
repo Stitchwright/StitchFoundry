@@ -6722,3 +6722,13 @@ mark-style	Japanese	Japonské
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klepejte kolem části fotografie: okraj se přichytí k jejím hranám; klepnutím na první bod, dvojklikem nebo klávesou Enter jej uzavřete a vyšijete.
 # Make a Design: photos
 	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Fungují i fotografie. Se zapnutým Odstranit pozadí se objekt nejprve vyřízne z pozadí; vypněte ho a vyšije se celá fotografie.
+# AI effort and cost
+	AI Effort	Úsilí AI
+	Effort	Úsilí
+	Quick	Rychlé
+	Thorough	Důkladné
+	About {typical} credits a drawing, at most {most}.	Asi {typical} kreditů za kresbu, nejvýše {most}.
+	About {typical} a drawing on your Anthropic account, at most {most}.	Asi {typical} za kresbu na vašem účtu Anthropic, nejvýše {most}.
+	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Důkladné přemýšlí nejdéle a stojí asi dvakrát tolik co Normální: použijte je pro návrhy s mnoha detaily.
+	{tokens} tokens	{tokens} tokenů
+	{tokens} tokens, about {cost}	{tokens} tokenů, asi {cost}
