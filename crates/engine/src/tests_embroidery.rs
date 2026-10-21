@@ -2009,6 +2009,42 @@ fn auto_digitize_leaves_no_gaps_between_colours() {
     assert!(holes.is_empty(), "fabric shows between the colours: {holes:?} ({res})");
 }
 
+/// AD-03: thin lines (a dark stripe across a shape, a short dash) are sewn as runs after the
+/// shapes, on top; the dash is kept although its area is under `minArea`, and the shape under the
+/// stripe has no gap left for it.
+#[test]
+fn auto_digitize_sews_thin_lines_as_runs_on_top() {
+    let mut s = session();
+    let r = vectorcraft_trace::Raster::from_fn(300, 200, |x, y| {
+        let (dx, dy) = (x as f64 - 100.0, y as f64 - 100.0);
+        if ((60..140).contains(&x) || (230..238).contains(&x)) && (99..102).contains(&y) {
+            [15, 15, 15, 255]
+        } else if dx * dx + dy * dy <= 80.0 * 80.0 {
+            [20, 40, 200, 255]
+        } else {
+            [255, 255, 255, 255]
+        }
+    });
+    s.execute("file.place", &json!({"name": "lines.png", "dataBase64": vectorcraft_format::base64_encode(&r.encode_png())})).unwrap();
+    let res = s.execute("embroidery.autoDigitize", &json!({"colors": 3, "noise": 2, "minArea": 5})).unwrap();
+    assert_eq!(res["run"], 2, "the stripe and the dash are runs: {res}");
+    let d = &s.doc().unwrap().doc;
+    let g = d.node(NodeId(res["id"].as_u64().unwrap())).unwrap();
+    let kinds: Vec<bool> =
+        g.children().unwrap().iter().map(|n| matches!(n.embroidery.as_deref().map(|e| &e.stitch), Some(sf_core::attr::StitchType::Run(_)))).collect();
+    assert_eq!(kinds, [false, true, true], "the runs are sewn last");
+    // the dark stripe is sewn down its middle, three times over, not round its outline
+    for n in &g.children().unwrap()[1..] {
+        assert!(n.path_data().unwrap().subpaths.iter().all(|sp| !sp.closed), "a line, not a loop");
+        let Some(sf_core::attr::StitchType::Run(r)) = n.embroidery.as_deref().map(|e| &e.stitch) else { panic!() };
+        assert_eq!(r.kind, sf_core::model::RunKind::Triple);
+    }
+    // the disc under the stripe is whole
+    let disc = &g.children().unwrap()[0];
+    let holes: usize = vectorcraft_embroidery::regions_mm(disc).iter().map(|r| r.holes.len()).sum();
+    assert_eq!(holes, 0, "no gap is left under the stripe");
+}
+
 #[test]
 fn smart_auto_digitize_sews_details_as_runs_outlines_and_matches_a_chart() {
     let mut s = session();

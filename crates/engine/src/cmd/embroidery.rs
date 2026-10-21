@@ -201,7 +201,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Auto-Digitize Image",
             ["Embroidery"],
             None,
-            "{colors?: 2-32 (6), detail?: 0-100 (60), noise?: px (16), removeBackground?: bool (true), minArea?: mm² (1), size?: mm (longest side), keepImage?: bool (true), details?: mm (0.8: shapes no thicker sewn as a run round them, fine lines and details; 0 none), outline?: none|design|shapes (none: a satin outline round the whole design, or round each filled shape), outlineWidth?: mm (1.5), outlineColor?: \"#rrggbb\" (the design's darkest thread), chart?: a thread chart to match the threads to (none)} trace the selected image into flat colour shapes and give each a stitch type: satin for narrow parts, tatami at its best angle for the rest, details as runs, specks and the background dropped, sewn colour by colour, outlined and matched to a chart if asked, small holes and gaps where nothing is sewn closed in the colour round them → {id, objects, satin, fill, run, outlines, removed, holesClosed, gapsFilled, colors, scale}",
+            "{colors?: 2-32 (6), detail?: 0-100 (60), noise?: px (16), removeBackground?: bool (true), minArea?: mm² (1), size?: mm (longest side), keepImage?: bool (true), details?: mm (1.2: shapes no thicker, fine lines and details, sewn as a run round them on top of the rest, kept however small when they are lines; 0 none), outline?: none|design|shapes (none: a satin outline round the whole design, or round each filled shape), outlineWidth?: mm (1.5), outlineColor?: \"#rrggbb\" (the design's darkest thread), chart?: a thread chart to match the threads to (none)} trace the selected image into flat colour shapes and give each a stitch type: satin for narrow parts, tatami at its best angle for the rest, details as runs, specks and the background dropped, sewn colour by colour, outlined and matched to a chart if asked, small holes and gaps where nothing is sewn closed in the colour round them → {id, objects, satin, fill, run, outlines, removed, holesClosed, gapsFilled, colors, scale}",
             has_selection,
             auto_digitize
         ),
@@ -1714,7 +1714,7 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
     let remove_bg = bool_or(p, "removeBackground", true);
     let min_area = f64_or(p, "minArea", 1.0).max(0.0);
     let keep_image = bool_or(p, "keepImage", true);
-    let details = f64_or(p, "details", 0.8).clamp(0.0, 5.0);
+    let details = f64_or(p, "details", DETAILS).clamp(0.0, 5.0);
     let outline = str_param(p, "outline").unwrap_or("none");
     if !["none", "design", "shapes"].contains(&outline) {
         return Err(bad(CMD, "`outline` is none, design or shapes"));
@@ -1780,13 +1780,47 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
         }
         let regions = regions_mm(&n);
         let area: f64 = regions.iter().map(sf_core::geom::Polygon::area).sum();
-        if area < min_area || (remove_bg && k == 0 && is_backdrop(&n, image_rect)) {
+        // fine lines and details, too thin for satin: a run round them; a line is kept however
+        // small its area (a stripe on a face, a whisker)
+        let thin = details > 0.0 && regions.iter().all(|r| r.thickness() <= details);
+        // a line: long for its width (a dark one sooner, as it is usually a drawn line); a thin
+        // sliver that isn't one is left to the shapes round it, which close up over it
+        let dark = match n.appearance.fill_paint() {
+            Paint::Solid { color, .. } => rgb_of(&color).to_lab()[0] < DARK_LINE,
+            _ => false,
+        };
+        let length = regions.iter().map(sf_core::geom::Polygon::perimeter).sum::<f64>() / 2.0;
+        let line = thin && length >= if dark { MIN_LINE } else { MIN_COLOUR_LINE };
+        if (area < min_area && !line) || (thin && !line) || (remove_bg && k == 0 && is_backdrop(&n, image_rect)) {
             removed += 1;
             continue;
         }
-        // fine lines and details, too thin for satin: a run round them
-        let thin = details > 0.0 && regions.iter().all(|r| r.thickness() <= details);
-        let e = if thin { Embroidery::run() } else { vectorcraft_embroidery::suggest(&n) };
+        // a dark line is sewn down its middle, three times over so it reads (a bean stitch);
+        // other thin shapes are run round
+        let middles: Vec<Vec<sf_core::Point>> = if thin && dark { regions.iter().filter_map(centreline).collect() } else { Vec::new() };
+        let e = if !middles.is_empty() {
+            let color = match n.appearance.fill_paint() {
+                Paint::Solid { color, .. } => color,
+                _ => Color::rgb8(0, 0, 0),
+            };
+            let pt = |l: &Vec<sf_core::Point>| {
+                let pts: Vec<kurbo::Point> = l.iter().map(|p| kurbo::Point::new(p.x * PT_PER_MM, p.y * PT_PER_MM)).collect();
+                vectorcraft_geom::path::SubPath::polyline(&pts, false)
+            };
+            n.kind = NodeKind::Path {
+                path: vectorcraft_geom::PathData::new(middles.iter().map(pt).collect()),
+                rule: vectorcraft_geom::FillRule::NonZero,
+                live: None,
+                clipping: false,
+                guide: false,
+            };
+            n.appearance = Appearance::basic(Paint::None, Paint::solid(color), 0.35 * PT_PER_MM).into();
+            Embroidery::new(StitchType::Run(RunParams { kind: RunKind::Triple, stitch_length: DETAIL_STITCH, ..RunParams::default() }))
+        } else if thin {
+            Embroidery::run()
+        } else {
+            vectorcraft_embroidery::suggest(&n)
+        };
         if thin {
             run += 1;
         } else if matches!(e.stitch, StitchType::Satin(_)) {
@@ -1800,12 +1834,16 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
     if keep.is_empty() {
         return Err(EngineError::Other("Auto-Digitize found no shapes to stitch: lower Noise or raise Colors".into()));
     }
+    // the details' runs are sewn last, on top: the shapes under them don't leave room for them
+    let is_run = |n: &vectorcraft_doc::Node| n.embroidery.as_deref().is_some_and(|e| matches!(e.stitch, StitchType::Run(_)));
+    let (mut lines, mut areas): (Vec<_>, Vec<_>) = keep.into_iter().partition(is_run);
     // the specks dropped (and the light ones the trace left out) leave no holes for the fabric to
     // show through: the shape round them covers them
-    let holes_closed = close_small_holes(&mut keep, (3.0 * min_area).max(3.0) / (MM_PER_PT * MM_PER_PT));
+    let holes_closed = close_small_holes(&mut areas, (3.0 * min_area).max(3.0) / (MM_PER_PT * MM_PER_PT));
     // and the gaps between neighbouring colours (a seam the trace left, a speck dropped where
-    // colours meet) are sewn by the neighbour sharing most of their edge
-    let gaps_filled = fill_gaps(&mut keep, (3.0 * min_area).max(3.0));
+    // colours meet, a detail sewn on top) are sewn by the neighbour sharing most of their edge
+    let gaps_filled = fill_gaps(&mut areas, (3.0 * min_area).max(3.0), MAX_SEAM_WIDTH.max(details));
+    let mut keep = areas;
     // Abutting shapes don't overlap, so they can be sewn colour by colour (in the order the colours
     // first appear), each colour nearest-first.
     let colour = |n: &vectorcraft_doc::Node| match n.appearance.fill_paint() {
@@ -1814,26 +1852,30 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let centre = |n: &vectorcraft_doc::Node| n.geometric_bounds().map_or(kurbo::Point::ZERO, |b| b.center());
     let mut order: Vec<u32> = Vec::new();
-    for n in &keep {
+    for n in keep.iter().chain(&lines) {
         let c = colour(n);
         if !order.contains(&c) {
             order.push(c);
         }
     }
-    let mut sorted = Vec::with_capacity(keep.len());
+    let mut sorted = Vec::with_capacity(keep.len() + lines.len());
     let mut here = image_rect.origin();
-    for c in &order {
-        let mut todo: Vec<vectorcraft_doc::Node> = Vec::new();
-        let mut rest = Vec::new();
-        for n in keep.drain(..) {
-            if colour(&n) == *c { todo.push(n) } else { rest.push(n) }
-        }
-        keep = rest;
-        while !todo.is_empty() {
-            let i = todo.iter().enumerate().min_by(|a, b| centre(a.1).distance(here).total_cmp(&centre(b.1).distance(here))).map_or(0, |(i, _)| i);
-            let n = todo.swap_remove(i);
-            here = centre(&n);
-            sorted.push(n);
+    // the shapes, then the details over them, each colour by colour
+    for group in [&mut keep, &mut lines] {
+        for c in &order {
+            let mut todo: Vec<vectorcraft_doc::Node> = Vec::new();
+            let mut rest = Vec::new();
+            for n in group.drain(..) {
+                if colour(&n) == *c { todo.push(n) } else { rest.push(n) }
+            }
+            *group = rest;
+            while !todo.is_empty() {
+                let i =
+                    todo.iter().enumerate().min_by(|a, b| centre(a.1).distance(here).total_cmp(&centre(b.1).distance(here))).map_or(0, |(i, _)| i);
+                let n = todo.swap_remove(i);
+                here = centre(&n);
+                sorted.push(n);
+            }
         }
     }
     let objects = sorted.len();
@@ -1888,6 +1930,72 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
     }))
 }
 
+/// Auto-Digitize's details: shapes no thicker than this (mm) are sewn as runs, on top.
+const DETAILS: f64 = 1.2;
+/// A dark detail at least this long (mm) is a line, kept however small its area; a detail of
+/// another colour is a line from the longer length. Shorter ones are slivers, left out.
+const MIN_LINE: f64 = 1.5;
+const MIN_COLOUR_LINE: f64 = 3.0;
+/// A dark line's stitch length (mm): short, to follow its curves.
+const DETAIL_STITCH: f64 = 1.5;
+
+/// The line down the middle of a thin region (mm) without holes: its outline split at its two
+/// ends (the points farthest apart) into two sides, and the points halfway between them.
+fn centreline(region: &sf_core::geom::Polygon) -> Option<Vec<sf_core::Point>> {
+    use sf_core::Point;
+    if !region.holes.is_empty() {
+        return None;
+    }
+    // at most 400 points, to keep the search for the ends quick
+    let step = region.outer.len().div_ceil(400).max(1);
+    let ring: Vec<Point> = region.outer.iter().step_by(step).copied().collect();
+    let n = ring.len();
+    if n < 4 {
+        return None;
+    }
+    let (mut a, mut b, mut far) = (0, 0, 0.0);
+    for (i, p) in ring.iter().enumerate() {
+        for (j, q) in ring.iter().enumerate().skip(i + 1) {
+            let d = (p.x - q.x).hypot(p.y - q.y);
+            if d > far {
+                (a, b, far) = (i, j, d);
+            }
+        }
+    }
+    if far <= 0.0 {
+        return None;
+    }
+    // the two sides from end `a` to end `b`
+    let one: Vec<Point> = (a..=b).filter_map(|i| ring.get(i).copied()).collect();
+    let other: Vec<Point> = (b..n + a + 1).rev().filter_map(|i| ring.get(i % n).copied()).collect();
+    let length = |l: &[Point]| l.windows(2).map(|w| (w[1].x - w[0].x).hypot(w[1].y - w[0].y)).sum::<f64>();
+    let along = |l: &[Point], t: f64| -> Option<Point> {
+        let total = length(l);
+        let mut left = t * total;
+        for w in l.windows(2) {
+            let d = (w[1].x - w[0].x).hypot(w[1].y - w[0].y);
+            if left <= d && d > 0.0 {
+                let k = left / d;
+                return Some(Point::new(w[0].x + (w[1].x - w[0].x) * k, w[0].y + (w[1].y - w[0].y) * k));
+            }
+            left -= d;
+        }
+        l.last().copied()
+    };
+    let steps = ((length(&one).max(length(&other)) / 0.4).ceil() as usize).clamp(2, 2000);
+    let mid: Vec<Point> = (0..=steps)
+        .filter_map(|k| {
+            let t = k as f64 / steps as f64;
+            let (p, q) = (along(&one, t)?, along(&other, t)?);
+            Some(Point::new((p.x + q.x) / 2.0, (p.y + q.y) / 2.0))
+        })
+        .collect();
+    (mid.len() >= 2).then_some(mid)
+}
+
+/// The lightness (CIELAB L*) below which a detail is dark.
+const DARK_LINE: f64 = 40.0;
+
 /// How far a shape reaches into the gap it fills, past its edge (mm), so no seam is left.
 const GAP_REACH: f64 = 0.15;
 
@@ -1895,9 +2003,9 @@ const GAP_REACH: f64 = 0.15;
 const MAX_SEAM_WIDTH: f64 = 1.0;
 const MAX_SEAM_AREA: f64 = 200.0;
 
-/// Fill the gaps smaller than `cap` (mm²), and the thin seams, that the shapes in `nodes` leave between them: each
+/// Fill the gaps smaller than `cap` (mm²), and the seams no wider than `seam` (mm), that the shapes in `nodes` leave between them: each
 /// is given to the shape sharing most of its edge, which then covers it. → how many were filled.
-fn fill_gaps(nodes: &mut [vectorcraft_doc::Node], cap: f64) -> usize {
+fn fill_gaps(nodes: &mut [vectorcraft_doc::Node], cap: f64, seam: f64) -> usize {
     use sf_core::geom::{Polygon, poly};
     let regions: Vec<Vec<Polygon>> = nodes.iter().map(regions_mm).collect();
     let all: Vec<Polygon> = regions.iter().flatten().cloned().collect();
@@ -1908,7 +2016,7 @@ fn fill_gaps(nodes: &mut [vectorcraft_doc::Node], cap: f64) -> usize {
         .iter()
         .flat_map(|p| p.holes.iter())
         .map(|h| Polygon::from_ring(h.clone()))
-        .filter(|g| g.area() < cap || (g.area() < MAX_SEAM_AREA && g.thickness() <= MAX_SEAM_WIDTH))
+        .filter(|g| g.area() < cap || (g.area() < MAX_SEAM_AREA && g.thickness() <= seam))
         .collect();
     let mut given: Vec<Vec<Polygon>> = vec![Vec::new(); nodes.len()];
     let mut filled = 0;
