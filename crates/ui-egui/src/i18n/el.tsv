@@ -6663,3 +6663,7 @@ machine	Stop	Στάση
 # Click to Stitch: colour range
 	Contiguous	Συνεχόμενα
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Κάντε κλικ σε μια περιοχή της εικόνας για να την κεντήσετε· χωρίς Συνεχόμενα, κάθε κηλίδα του χρώματός της
+# Magnetic Lasso
+	Magnetic Lasso	Μαγνητικό λάσο
+	Magnetic Lasso Tool	Εργαλείο μαγνητικού λάσου
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Κάντε κλικ γύρω από ένα μέρος μιας φωτογραφίας: το περίγραμμα κολλάει στις ακμές της· κάντε κλικ στο πρώτο σημείο, διπλό κλικ ή πατήστε Enter για να το κλείσετε και να το κεντήσετε.

@@ -2100,6 +2100,7 @@ fn chenille_rows(app: &mut VectorcraftApp, ui: &mut Ui, id: u64, e: &Embroidery)
 const MOTIF_TOOL: &str = "embroideryMotif";
 /// The Click-to-Stitch tool's id.
 const CLICK_TOOL: &str = "embroideryClick";
+const LASSO_TOOL: &str = "embroideryLasso";
 /// The Cross Stitch tool's id.
 const CROSS_TOOL: &str = "embroideryCrossStitch";
 
@@ -2282,6 +2283,27 @@ fn digitize_row(app: &mut VectorcraftApp, ui: &mut Ui) {
             app.run("tool.setOption", json!({ "tool": CLICK_TOOL, "values": { "contiguous": v } })).ok();
         }
         ui.label(tl!("Click a region of an image to stitch it; with Contiguous off, every patch of its colour"));
+    }
+    // the Magnetic Lasso: how the shape is stitched, and how edges are found
+    if app.session.tool_id() == LASSO_TOOL {
+        let opts = app.session.tool_options_of(LASSO_TOOL);
+        let kinds = ["fill", "satin", "outline", "none"];
+        let labels = [tl!("Fill"), tl!("Satin"), tl!("Outline"), tl!("None")];
+        let cur = kinds.iter().position(|k| opts["as"].as_str() == Some(*k)).unwrap_or(0);
+        if let Some(i) = pick(ui, tl!("Stitch as"), "lasso-as", cur, &labels)
+            && let Some(k) = kinds.get(i)
+        {
+            app.run("tool.setOption", json!({ "tool": LASSO_TOOL, "values": { "as": k } })).ok();
+        }
+        if let Some(v) = num(ui, tl!("Width"), "lasso-width", opts["width"].as_f64().unwrap_or(10.0), " px", 0) {
+            app.run("tool.setOption", json!({ "tool": LASSO_TOOL, "values": { "width": v.clamp(1.0, 256.0).round() } })).ok();
+        }
+        if let Some(v) = num(ui, tl!("Contrast"), "lasso-contrast", opts["contrast"].as_f64().unwrap_or(10.0), " %", 0) {
+            app.run("tool.setOption", json!({ "tool": LASSO_TOOL, "values": { "contrast": v.clamp(0.0, 100.0).round() } })).ok();
+        }
+        ui.label(tl!(
+            "Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it."
+        ));
     }
     if app.session.tool_id() == CROSS_TOOL {
         cross_stitch_tool_rows(app, ui);

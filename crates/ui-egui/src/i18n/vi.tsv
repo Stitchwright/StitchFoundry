@@ -6311,3 +6311,7 @@ machine	Stop	Dừng máy
 # Click to Stitch: colour range
 	Contiguous	Liền kề
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Bấm vào một vùng của ảnh để thêu; khi tắt Liền kề, mọi mảng cùng màu
+# Magnetic Lasso
+	Magnetic Lasso	Dây thòng lọng từ tính
+	Magnetic Lasso Tool	Công cụ Dây thòng lọng từ tính
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Bấm quanh một phần của ảnh: đường viền bám vào các cạnh của nó; bấm vào điểm đầu tiên, bấm đúp hoặc nhấn Enter để khép lại và thêu.

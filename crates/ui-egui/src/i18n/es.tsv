@@ -6669,3 +6669,7 @@ mark-style	Japanese	Japonesas
 # Click to Stitch: colour range
 	Contiguous	Contiguo
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Haga clic en una zona de una imagen para bordarla; sin Contiguo, todas las manchas de su color
+# Magnetic Lasso
+	Magnetic Lasso	Lazo magnético
+	Magnetic Lasso Tool	Herramienta Lazo magnético
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Haga clic alrededor de una parte de una foto: el borde se ajusta a sus contornos; haga clic en el primer punto, doble clic o pulse Intro para cerrarlo y bordarlo.

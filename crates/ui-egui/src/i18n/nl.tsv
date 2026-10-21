@@ -6647,3 +6647,7 @@ swatch	Bright Violet	Felviolet
 # Click to Stitch: colour range
 	Contiguous	Aaneengesloten
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Klik op een gebied van een afbeelding om het te borduren; zonder Aaneengesloten elke vlek in die kleur
+# Magnetic Lasso
+	Magnetic Lasso	Magnetische lasso
+	Magnetic Lasso Tool	Gereedschap Magnetische lasso
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klik rond een deel van een foto: de rand klikt vast aan de randen ervan; klik op het eerste punt, dubbelklik of druk op Enter om hem te sluiten en te borduren.

@@ -28,6 +28,7 @@ pub fn tool_icon(name: &str) -> &'static str {
         "tool-embroidery-cross" => "grid-3x3",
         "tool-embroidery-click" => "pipette",
         "tool-embroidery-cutout" => "scissors",
+        "tool-embroidery-lasso" => "lasso",
         "tool-direct" => "dc-direct",
         "tool-group-select" => "dc-group-select",
         "tool-magic-wand" => "wand-sparkles",

@@ -6728,3 +6728,7 @@ swatch	Bright Violet	Kirkas violetti
 # Click to Stitch: colour range
 	Contiguous	Yhtenäinen
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Napsauta kuvan aluetta kirjoaksesi sen; ilman Yhtenäinen-valintaa kaikki sen väriset läiskät
+# Magnetic Lasso
+	Magnetic Lasso	Magneettinen lasso
+	Magnetic Lasso Tool	Magneettinen lasso -työkalu
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Napsauta valokuvan osan ympäri: reuna tarttuu sen reunoihin; sulje ja kirjo se napsauttamalla ensimmäistä pistettä, kaksoisnapsauttamalla tai painamalla Enter.

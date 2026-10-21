@@ -41,6 +41,12 @@ pub fn tips() -> Vec<(&'static str, &'static str)> {
             "embroideryCutout",
             tl!("Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept."),
         ),
+        (
+            "embroideryLasso",
+            tl!(
+                "Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it."
+            ),
+        ),
         ("embroideryStitches", tl!("Drag picked needle points to move them, Alt-click a stitch to add one, Delete removes them.")),
         ("embroideryColumn", tl!("Click on one side of the column, then the other, in turn; Enter or Escape ends it.")),
         ("embroideryBrush", tl!("The dial in the lower-left corner sets the brush, width, density, length and shape.")),

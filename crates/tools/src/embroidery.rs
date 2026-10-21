@@ -32,6 +32,7 @@ pub fn create(id: &str) -> Option<Box<dyn Tool>> {
         "embroideryMotif" => Some(Box::new(MotifTool::default())),
         "embroideryClick" => Some(Box::new(ClickStitchTool::default())),
         "embroideryCutout" => Some(Box::new(CutoutBrushTool::default())),
+        "embroideryLasso" => Some(Box::new(MagneticLassoTool::default())),
         "embroideryCrossStitch" => Some(Box::new(CrossStitchTool::default())),
         _ => None,
     }
@@ -943,6 +944,160 @@ impl Tool for CutoutBrushTool {
     }
 }
 
+/// Magnetic Lasso tool: click round part of a photo to fasten points; between them the border
+/// snaps to the edges in the photo, near the path the pointer took. Click the first point again,
+/// double-click or press Enter to close the shape (`embroidery.magneticLasso`), which is then
+/// stitched in the photo's colour; Backspace takes the last point away, Escape starts over.
+/// Options: `width` (px of the photo: how far from the pointer an edge is looked for),
+/// `contrast` (0–100) and `as` (`fill`, `satin`, `outline` or `none`).
+pub struct MagneticLassoTool {
+    pub width: f64,
+    pub contrast: f64,
+    pub stitch_as: String,
+    anchors: Vec<Point>,
+    /// The pointer's path after each fastening point.
+    guides: Vec<Vec<Point>>,
+    hover: Option<Point>,
+}
+
+impl Default for MagneticLassoTool {
+    fn default() -> Self {
+        MagneticLassoTool { width: 10.0, contrast: 10.0, stitch_as: "fill".into(), anchors: Vec::new(), guides: Vec::new(), hover: None }
+    }
+}
+
+/// Screen pixels within which a click on the first point closes the shape.
+const CLOSE_PX: f64 = 8.0;
+
+impl MagneticLassoTool {
+    fn near_start(&self, cx: &ToolContext, p: Point) -> bool {
+        self.anchors.len() >= 3 && self.anchors.first().is_some_and(|a| a.distance(p) <= cx.tol(CLOSE_PX))
+    }
+
+    fn close(&mut self) -> Vec<Action> {
+        let anchors = std::mem::take(&mut self.anchors);
+        let guides = std::mem::take(&mut self.guides);
+        self.hover = None;
+        if anchors.len() < 3 {
+            return vec![];
+        }
+        let xy = |l: &[Point]| -> Vec<[f64; 2]> { l.iter().map(|q| [q.x, q.y]).collect() };
+        let guide: Vec<Vec<[f64; 2]>> = guides.iter().map(|g| xy(g)).collect();
+        vec![Action::Exec(
+            "embroidery.magneticLasso".into(),
+            json!({ "points": xy(&anchors), "guide": guide, "width": self.width, "contrast": self.contrast, "as": self.stitch_as }),
+        )]
+    }
+}
+
+impl Tool for MagneticLassoTool {
+    fn id(&self) -> &'static str {
+        "embroideryLasso"
+    }
+
+    fn pointer(&mut self, cx: &ToolContext, ev: &PointerEvent) -> Vec<Action> {
+        let p = ev.pos;
+        match ev.kind {
+            PointerKind::Move | PointerKind::Drag => {
+                self.hover = Some(p);
+                // a point every two screen pixels is enough to follow the pointer
+                if let Some(g) = self.guides.last_mut()
+                    && g.last().or(self.anchors.last()).is_none_or(|q| q.distance(p) >= cx.tol(2.0))
+                {
+                    g.push(p);
+                }
+                vec![]
+            }
+            PointerKind::Down => {
+                if self.near_start(cx, p) {
+                    return self.close();
+                }
+                // a second click on the same spot (half of a double-click) adds nothing
+                if self.anchors.last().is_some_and(|a| a.distance(p) <= cx.tol(3.0)) {
+                    return vec![];
+                }
+                self.anchors.push(p);
+                self.guides.push(Vec::new());
+                vec![]
+            }
+            PointerKind::DoubleClick => self.close(),
+            PointerKind::Up => vec![],
+        }
+    }
+
+    fn key(&mut self, _cx: &ToolContext, key: ToolKey, _mods: Mods) -> Vec<Action> {
+        match key {
+            ToolKey::Enter => self.close(),
+            ToolKey::Escape => {
+                self.anchors.clear();
+                self.guides.clear();
+                vec![]
+            }
+            ToolKey::Backspace | ToolKey::Delete => {
+                self.anchors.pop();
+                self.guides.pop();
+                vec![]
+            }
+            _ => vec![],
+        }
+    }
+
+    fn claims_key(&self, _cx: &ToolContext, key: ToolKey) -> bool {
+        !self.anchors.is_empty() && matches!(key, ToolKey::Enter | ToolKey::Escape | ToolKey::Backspace | ToolKey::Delete)
+    }
+
+    fn overlays(&self, _cx: &ToolContext) -> Vec<Overlay> {
+        let Some(first) = self.anchors.first() else { return vec![] };
+        const COLOR: [u8; 3] = [40, 120, 220];
+        let mut path = vectorcraft_geom::BezPath::new();
+        path.move_to(*first);
+        for (i, a) in self.anchors.iter().enumerate() {
+            if i > 0 {
+                path.line_to(*a);
+            }
+            for q in self.guides.get(i).map(Vec::as_slice).unwrap_or(&[]) {
+                path.line_to(*q);
+            }
+        }
+        let mut out = vec![Overlay::Path { path, color: COLOR, width: 1.5, dashed: false }];
+        out.extend(self.anchors.iter().map(|a| Overlay::Anchor { p: *a, color: COLOR, filled: true, size: 5.0 }));
+        out
+    }
+
+    fn cursor(&self, cx: &ToolContext, p: Point, _mods: Mods) -> Cursor {
+        if self.near_start(cx, p) { Cursor::PenClose } else { Cursor::Crosshair }
+    }
+
+    fn busy(&self) -> bool {
+        !self.anchors.is_empty()
+    }
+
+    fn options(&self) -> Value {
+        json!({ "width": self.width, "contrast": self.contrast, "as": self.stitch_as })
+    }
+
+    fn set_option(&mut self, key: &str, value: &Value) {
+        match key {
+            "width" => {
+                if let Some(v) = value.as_f64().filter(|v| v.is_finite() && (1.0..=256.0).contains(v)) {
+                    self.width = v;
+                }
+            }
+            "contrast" => {
+                if let Some(v) = value.as_f64().filter(|v| v.is_finite() && (0.0..=100.0).contains(v)) {
+                    self.contrast = v;
+                }
+            }
+            "as" => {
+                if let Some(v) = value.as_str().filter(|v| ["fill", "satin", "outline", "none"].contains(v)) {
+                    self.stitch_as = v.into();
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
 /// Cross Stitch tool: paint a cross-stitch pattern's cells by clicking or dragging over its grid
 /// (`embroidery.crossStitch.paint`), in the tool's colour; with `erase` on, or Alt held, the
 /// cells are cleared instead. A whole stroke is one step (Undo takes it back). With `fill` on, a
@@ -1354,6 +1509,45 @@ mod tests {
         t.set_option("mode", &json!("remove"));
         t.set_option("size", &json!(20));
         assert_eq!(t.options(), json!({"mode": "remove", "size": 20.0}));
+    }
+
+    /// PC-05: clicks fasten points, the pointer's path between them goes along, and a click on
+    /// the first point closes the shape into `embroidery.magneticLasso`.
+    #[test]
+    fn the_magnetic_lasso_sends_its_points_and_path() {
+        let d = Document::new(400.0, 300.0);
+        let s = Selection::default();
+        let p = crate::PaintDefaults::default();
+        let c = cx(&d, &s, &p);
+        let mut t = MagneticLassoTool::default();
+        let ev = |kind, x: f64, y: f64| PointerEvent::new(kind, x, y);
+        assert!(!t.busy());
+        for (x, y) in [(10.0, 10.0), (100.0, 10.0), (100.0, 100.0)] {
+            assert!(t.pointer(&c, &ev(PointerKind::Down, x, y)).is_empty());
+            t.pointer(&c, &ev(PointerKind::Up, x, y));
+            t.pointer(&c, &ev(PointerKind::Move, x + 20.0, y + 5.0));
+        }
+        assert!(t.busy() && t.claims_key(&c, ToolKey::Enter));
+        assert_eq!(t.overlays(&c).len(), 4, "the path and three points show");
+        // half of a double-click on the last point adds nothing
+        assert!(t.pointer(&c, &ev(PointerKind::Down, 100.5, 100.0)).is_empty());
+        assert_eq!(t.cursor(&c, Point::new(11.0, 10.0), Mods::default()), Cursor::PenClose);
+        let done = t.pointer(&c, &ev(PointerKind::Down, 11.0, 10.0));
+        let [Action::Exec(cmd, v)] = done.as_slice() else { panic!("{done:?}") };
+        assert_eq!(cmd, "embroidery.magneticLasso");
+        assert_eq!(v["points"], json!([[10.0, 10.0], [100.0, 10.0], [100.0, 100.0]]));
+        assert_eq!(v["guide"][0], json!([[30.0, 15.0]]));
+        assert_eq!((v["width"].as_f64(), v["contrast"].as_f64(), v["as"].as_str()), (Some(10.0), Some(10.0), Some("fill")));
+        assert!(!t.busy());
+        // Backspace takes a point back, Enter closes, too few points send nothing
+        t.pointer(&c, &ev(PointerKind::Down, 0.0, 0.0));
+        t.pointer(&c, &ev(PointerKind::Down, 50.0, 0.0));
+        t.key(&c, ToolKey::Backspace, Mods::default());
+        assert!(t.key(&c, ToolKey::Enter, Mods::default()).is_empty());
+        t.set_option("width", &json!(30));
+        t.set_option("contrast", &json!(500));
+        t.set_option("as", &json!("satin"));
+        assert_eq!(t.options(), json!({"width": 30.0, "contrast": 10.0, "as": "satin"}));
     }
 
     #[test]

@@ -144,6 +144,7 @@ pub const TOOL_GROUPS: &[&[ToolInfo]] = &[
         t("embroideryCrossStitch", "Cross Stitch Tool", None, "tool-embroidery-cross"),
         t("embroideryClick", "Click-to-Stitch Tool", None, "tool-embroidery-click"),
         t("embroideryCutout", "Cut-Out Brush Tool", None, "tool-embroidery-cutout"),
+        t("embroideryLasso", "Magnetic Lasso Tool", None, "tool-embroidery-lasso"),
     ],
 ];
 

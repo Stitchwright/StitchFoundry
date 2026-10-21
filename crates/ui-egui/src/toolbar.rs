@@ -61,6 +61,7 @@ pub const BASIC: &[(&str, &[&[&str]])] = &[
             &["embroideryCrossStitch"],
             &["embroideryClick"],
             &["embroideryCutout"],
+            &["embroideryLasso"],
             &["embroideryDirection"],
             &["embroideryStitches"],
         ],

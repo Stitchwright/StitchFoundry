@@ -6355,3 +6355,7 @@ machine	Stop	Arresto
 # Click to Stitch: colour range
 	Contiguous	Contiguo
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Fai clic su un’area dell’immagine per ricamarla; senza Contiguo, ogni macchia del suo colore
+# Magnetic Lasso
+	Magnetic Lasso	Lazo magnetico
+	Magnetic Lasso Tool	Strumento Lazo magnetico
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Fai clic attorno a una parte di una foto: il bordo si aggancia ai suoi contorni; fai clic sul primo punto, doppio clic o premi Invio per chiuderlo e ricamarlo.

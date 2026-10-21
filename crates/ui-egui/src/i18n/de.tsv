@@ -6321,3 +6321,7 @@ effect	Soft	Weich
 # Click to Stitch: colour range
 	Contiguous	Zusammenhängend
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Klicken Sie auf einen Bildbereich, um ihn zu sticken; ohne Zusammenhängend jede Fläche seiner Farbe
+# Magnetic Lasso
+	Magnetic Lasso	Magnetisches Lasso
+	Magnetic Lasso Tool	Magnetisches-Lasso-Werkzeug
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klicken Sie um einen Teil eines Fotos: Die Kontur rastet an dessen Kanten ein; klicken Sie auf den ersten Punkt, doppelklicken Sie oder drücken Sie die Eingabetaste, um sie zu schließen und zu sticken.

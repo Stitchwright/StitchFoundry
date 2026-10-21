@@ -6688,3 +6688,7 @@ machine	Stop	Megállás
 # Click to Stitch: colour range
 	Contiguous	Összefüggő
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Kattintson a kép egy területére a kihímzéséhez; Összefüggő nélkül a színének minden foltja
+# Magnetic Lasso
+	Magnetic Lasso	Mágneses lasszó
+	Magnetic Lasso Tool	Mágneses lasszó eszköz
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Kattintson körbe egy fénykép egy részét: a körvonal a széleihez tapad; az első pontra kattintva, dupla kattintással vagy Enterrel zárja le és hímezze ki.

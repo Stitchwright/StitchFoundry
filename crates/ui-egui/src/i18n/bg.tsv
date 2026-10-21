@@ -6671,3 +6671,7 @@ machine	Stop	Спиране
 # Click to Stitch: colour range
 	Contiguous	Свързани
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Щракнете върху област от изображение, за да я избродирате; без „Свързани“ — всички петна в нейния цвят
+# Magnetic Lasso
+	Magnetic Lasso	Магнитно ласо
+	Magnetic Lasso Tool	Инструмент „Магнитно ласо“
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Щракайте около част от снимка: контурът залепва за ръбовете ѝ; щракнете първата точка, щракнете двукратно или натиснете Enter, за да го затворите и избродирате.

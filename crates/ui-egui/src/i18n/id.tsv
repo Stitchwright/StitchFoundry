@@ -6605,3 +6605,7 @@ swatch	Bright Violet	Violet cerah
 # Click to Stitch: colour range
 	Contiguous	Bersambung
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Klik area gambar untuk menyulamnya; tanpa Bersambung, setiap bercak warnanya
+# Magnetic Lasso
+	Magnetic Lasso	Laso Magnetik
+	Magnetic Lasso Tool	Alat Laso Magnetik
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klik mengelilingi bagian foto: batasnya menempel pada tepinya; klik titik pertama, klik dua kali, atau tekan Enter untuk menutup dan menyulamnya.

@@ -6716,3 +6716,7 @@ mark-style	Japanese	Japonské
 # Click to Stitch: colour range
 	Contiguous	Souvislé
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Klepněte na oblast obrázku a vyšijte ji; bez Souvislé všechny skvrny její barvy
+# Magnetic Lasso
+	Magnetic Lasso	Magnetické laso
+	Magnetic Lasso Tool	Nástroj Magnetické laso
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klepejte kolem části fotografie: okraj se přichytí k jejím hranám; klepnutím na první bod, dvojklikem nebo klávesou Enter jej uzavřete a vyšijete.

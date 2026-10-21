@@ -6335,3 +6335,7 @@ machine	Stop	Зупинка
 # Click to Stitch: colour range
 	Contiguous	Суміжні
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Клацніть ділянку зображення, щоб вишити її; без «Суміжні» — всі плями її кольору
+# Magnetic Lasso
+	Magnetic Lasso	Магнітне ласо
+	Magnetic Lasso Tool	Інструмент «Магнітне ласо»
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Клацайте навколо частини фото: контур прилипає до її країв; клацніть першу точку, двічі клацніть або натисніть Enter, щоб замкнути й вишити його.

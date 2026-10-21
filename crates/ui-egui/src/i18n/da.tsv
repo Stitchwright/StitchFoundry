@@ -6605,3 +6605,7 @@ swatch	Bright Violet	Kraftig violet
 # Click to Stitch: colour range
 	Contiguous	Sammenhængende
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Klik på et område af et billede for at brodere det; uden Sammenhængende alle pletter i dets farve
+# Magnetic Lasso
+	Magnetic Lasso	Magnetisk lasso
+	Magnetic Lasso Tool	Værktøjet Magnetisk lasso
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klik rundt om en del af et foto: kanten klæber til fotoets kanter; klik på det første punkt, dobbeltklik eller tryk på Enter for at lukke og brodere den.

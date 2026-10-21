@@ -6554,3 +6554,7 @@ machine	Stop	Zatrzymanie
 # Click to Stitch: colour range
 	Contiguous	Ciągły
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Kliknij obszar obrazu, aby go wyhaftować; bez Ciągły — każdą plamę w jego kolorze
+# Magnetic Lasso
+	Magnetic Lasso	Lasso magnetyczne
+	Magnetic Lasso Tool	Narzędzie Lasso magnetyczne
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klikaj wokół fragmentu zdjęcia: obrys przylega do jego krawędzi; kliknij pierwszy punkt, kliknij dwukrotnie lub naciśnij Enter, aby go zamknąć i wyhaftować.

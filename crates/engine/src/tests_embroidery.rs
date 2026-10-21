@@ -376,6 +376,73 @@ fn a_photo_is_stitched_as_lines_coral_or_colours() {
     }
 }
 
+/// PC-05: a lasso drawn loosely round a red disc on white closes on the disc's edge, in its colour.
+#[test]
+fn the_magnetic_lasso_snaps_to_the_edge_round_a_disc() {
+    use sf_core::attr::StitchType;
+    let mut s = session();
+    let r = vectorcraft_trace::Raster::from_fn(200, 200, |x, y| {
+        let (dx, dy) = (f64::from(x) - 100.0, f64::from(y) - 100.0);
+        if dx.hypot(dy) <= 50.0 { [200, 30, 30, 255] } else { [250, 250, 250, 255] }
+    });
+    let png = r.encode_png();
+    s.execute("file.place", &json!({"name": "disc.png", "dataBase64": vectorcraft_format::base64_encode(&png)})).unwrap();
+    let xf = {
+        let st = s.doc().unwrap();
+        let mut xf = None;
+        st.doc.walk(|n| {
+            if let NodeKind::Image(im) = &n.kind {
+                xf = Some(im.xf);
+            }
+        });
+        xf.unwrap()
+    };
+    let spot = |x: f64, y: f64| {
+        let p = xf * kurbo::Point::new(x, y);
+        json!([p.x, p.y])
+    };
+    // eight points a few pixels off the disc's edge, in and out
+    let pts: Vec<Value> = (0..8)
+        .map(|i| {
+            let a = f64::from(i) * std::f64::consts::FRAC_PI_4;
+            let r = if i % 2 == 0 { 54.0 } else { 47.0 };
+            spot(100.0 + r * a.cos(), 100.0 + r * a.sin())
+        })
+        .collect();
+    let res = s.execute("embroidery.magneticLasso", &json!({"points": pts})).unwrap();
+    assert_eq!(res["color"], "#c81e1e");
+    let id = NodeId(res["id"].as_u64().unwrap());
+    let st = s.doc().unwrap();
+    let n = st.doc.node(id).unwrap();
+    assert!(matches!(n.embroidery.as_deref().map(|e| &e.stitch), Some(StitchType::Fill(_))));
+    assert_eq!(st.selection.objects, vec![id]);
+    // every point of the border is on the disc's edge, within two pixels
+    let NodeKind::Path { path, .. } = &n.kind else { panic!() };
+    let inv = xf.inverse();
+    let bez = path.to_bezpath();
+    let mut far = 0.0f64;
+    for el in bez.elements() {
+        if let Some(p) = el.end_point() {
+            let q = inv * p;
+            far = far.max(((q.x - 100.0).hypot(q.y - 100.0) - 50.0).abs());
+        }
+    }
+    assert!(far <= 2.0, "the border strays {far} px from the edge");
+    // a plain path; bad requests
+    let res = s.execute("embroidery.magneticLasso", &json!({"points": pts, "as": "none"})).unwrap();
+    assert!(s.doc().unwrap().doc.node(NodeId(res["id"].as_u64().unwrap())).unwrap().embroidery.is_none());
+    for bad in [
+        json!({"points": [spot(0.0, 0.0), spot(1.0, 1.0)]}),
+        json!({"points": pts, "width": 0}),
+        json!({"points": pts, "contrast": 101}),
+        json!({"points": pts, "as": "cross"}),
+        json!({"points": pts, "guide": "x"}),
+        json!({"points": [[1.0, "a"], [2, 2], [3, 3]]}),
+    ] {
+        assert!(s.execute("embroidery.magneticLasso", &bad).is_err(), "{bad}");
+    }
+}
+
 #[test]
 fn a_click_on_an_image_stitches_its_region() {
     use sf_core::attr::StitchType;

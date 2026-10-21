@@ -6667,3 +6667,7 @@ machine	Stop	Stopp
 # Click to Stitch: colour range
 	Contiguous	Sammanhängande
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Klicka på ett område i en bild för att brodera det; utan Sammanhängande varje fläck i dess färg
+# Magnetic Lasso
+	Magnetic Lasso	Magnetisk lasso
+	Magnetic Lasso Tool	Verktyget Magnetisk lasso
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klicka runt en del av ett foto: kanten fäster vid dess kanter; klicka på den första punkten, dubbelklicka eller tryck på Retur för att stänga och brodera den.

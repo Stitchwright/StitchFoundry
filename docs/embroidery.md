@@ -511,6 +511,17 @@ the image, joined to the spot or not (a colour range): all of a parrot's yellow 
 The same is `embroidery.clickStitch {at, as?, tolerance?, contiguous?, minHole?, id?}`. Each click is
 one undo step; the image stays under the stitches.
 
+Where a region's colour runs into its neighbours, draw round it with the **Magnetic Lasso tool**
+instead: click round the part of the photo you want, and between the clicks the border snaps to
+the edges in the photo near the path the pointer took (the "live wire" of Mortensen and Barrett's
+*Intelligent Scissors*, 1995). Click the first point again, double-click or press **Enter** to
+close the shape; **Backspace** takes the last point back and **Escape** starts over. The shape
+gets the photo's average colour inside it and is stitched as *Stitch as* says (Fill, Satin,
+Outline, or None for a plain path to work on). *Width* is how far from the pointer's path, in the
+photo's pixels, an edge is looked for (10), and *Contrast* how strong a step in colour has to be
+to count as one (10 %). The same is `embroidery.magneticLasso {points, guide?, width?, contrast?,
+as?, id?}`, one undo step.
+
 ## Outlines round art
 
 **Embroidery › Outline Around** (`embroidery.outlineAround {gap?, width?, kind?, color?}`)

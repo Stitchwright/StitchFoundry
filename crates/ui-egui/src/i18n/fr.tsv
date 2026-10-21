@@ -6728,3 +6728,7 @@ theme	Appearance	Apparence
 # Click to Stitch: colour range
 	Contiguous	Contigu
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Cliquez sur une zone d’image pour la broder ; sans Contigu, toutes les taches de sa couleur
+# Magnetic Lasso
+	Magnetic Lasso	Lasso magnétique
+	Magnetic Lasso Tool	Outil Lasso magnétique
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Cliquez autour d’une partie d’une photo : le contour s’accroche à ses bords ; cliquez sur le premier point, double-cliquez ou appuyez sur Entrée pour le fermer et le broder.

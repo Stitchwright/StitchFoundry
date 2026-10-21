@@ -6535,3 +6535,7 @@ machine	Stop	停止
 # Click to Stitch: colour range
 	Contiguous	连续
 	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	点击图像的一个区域来刺绣；关闭“连续”时取图中所有同色区域
+# Magnetic Lasso
+	Magnetic Lasso	磁性套索
+	Magnetic Lasso Tool	磁性套索工具
+	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	围绕照片的一部分点击：边界会吸附到照片的边缘；点击第一个点、双击或按 Enter 键即可闭合并刺绣。
