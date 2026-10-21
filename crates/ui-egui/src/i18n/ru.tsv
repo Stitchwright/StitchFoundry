@@ -6364,6 +6364,10 @@ machine	Stop	Остановка
 	Thorough	Тщательно
 	About {typical} credits a drawing, at most {most}.	Около {typical} кредитов за рисунок, не больше {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Около {typical} за рисунок с вашего аккаунта Anthropic, не больше {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	«Тщательно» думает дольше всего и стоит примерно вдвое дороже «Обычного»: используйте для дизайнов с множеством деталей.
 	{tokens} tokens	{tokens} токенов
 	{tokens} tokens, about {cost}	{tokens} токенов, около {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	«Тщательно» изучает, что рисует, думает дольше всего и один раз проверяет свои стежки: стоит в несколько раз дороже «Обычного». Используйте для реальных вещей, вроде породы собаки или модели грузовика, и для детальных дизайнов.
+	Checking the stitches…	Проверка стежков…
+	improved after checking its stitches	улучшено после проверки стежков
+	Art Stitch Preview	Предпросмотр стежков рисунка

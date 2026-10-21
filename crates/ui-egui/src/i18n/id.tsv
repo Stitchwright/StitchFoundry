@@ -6618,6 +6618,10 @@ swatch	Bright Violet	Violet cerah
 	Thorough	Teliti
 	About {typical} credits a drawing, at most {most}.	Sekitar {typical} kredit per gambar, paling banyak {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Sekitar {typical} per gambar di akun Anthropic Anda, paling banyak {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Teliti berpikir paling lama dan biayanya sekitar dua kali Normal: gunakan untuk desain yang sangat detail.
 	{tokens} tokens	{tokens} token
 	{tokens} tokens, about {cost}	{tokens} token, sekitar {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Teliti mencari tahu apa yang digambarnya, berpikir paling lama, dan memeriksa jahitannya sekali: biayanya beberapa kali Normal. Gunakan untuk benda nyata, seperti ras anjing atau model truk, dan untuk desain yang detail.
+	Checking the stitches…	Memeriksa jahitan…
+	improved after checking its stitches	diperbaiki setelah memeriksa jahitannya
+	Art Stitch Preview	Pratinjau Jahitan Gambar

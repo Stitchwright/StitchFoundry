@@ -6680,6 +6680,10 @@ machine	Stop	Stopp
 	Thorough	Grundlig
 	About {typical} credits a drawing, at most {most}.	Ungefär {typical} krediter per teckning, högst {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Ungefär {typical} per teckning på ditt Anthropic-konto, högst {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Grundlig tänker längst och kostar ungefär dubbelt så mycket som Normal: använd den för motiv med många detaljer.
 	{tokens} tokens	{tokens} tokens
 	{tokens} tokens, about {cost}	{tokens} tokens, ungefär {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Grundlig tar reda på vad den tecknar, tänker längst och kontrollerar sina stygn en gång: den kostar flera gånger så mycket som Normal. Använd den för verkliga saker, som en hundras eller en lastbilsmodell, och för detaljerade motiv.
+	Checking the stitches…	Kontrollerar stygnen…
+	improved after checking its stitches	förbättrad efter kontroll av stygnen
+	Art Stitch Preview	Stygnförhandsvisning av teckning

@@ -6348,6 +6348,10 @@ machine	Stop	Зупинка
 	Thorough	Ретельно
 	About {typical} credits a drawing, at most {most}.	Близько {typical} кредитів за малюнок, не більше {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Близько {typical} за малюнок з вашого облікового запису Anthropic, не більше {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	«Ретельно» думає найдовше й коштує приблизно вдвічі дорожче за «Звичайне»: використовуйте для дизайнів з багатьма деталями.
 	{tokens} tokens	{tokens} токенів
 	{tokens} tokens, about {cost}	{tokens} токенів, близько {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	«Ретельно» з’ясовує, що малює, думає найдовше й один раз перевіряє свої стібки: коштує в кілька разів дорожче за «Звичайне». Використовуйте для справжніх речей, як-от породи собаки чи моделі вантажівки, і для детальних дизайнів.
+	Checking the stitches…	Перевірка стібків…
+	improved after checking its stitches	покращено після перевірки стібків
+	Art Stitch Preview	Попередній перегляд стібків малюнка

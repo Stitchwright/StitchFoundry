@@ -6729,6 +6729,10 @@ mark-style	Japanese	Japonské
 	Thorough	Důkladné
 	About {typical} credits a drawing, at most {most}.	Asi {typical} kreditů za kresbu, nejvýše {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Asi {typical} za kresbu na vašem účtu Anthropic, nejvýše {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Důkladné přemýšlí nejdéle a stojí asi dvakrát tolik co Normální: použijte je pro návrhy s mnoha detaily.
 	{tokens} tokens	{tokens} tokenů
 	{tokens} tokens, about {cost}	{tokens} tokenů, asi {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Důkladné si vyhledá, co kreslí, přemýšlí nejdéle a jednou zkontroluje své stehy: stojí několikrát víc než Normální. Použijte je pro skutečné věci, jako je psí plemeno nebo model nákladního auta, a pro detailní návrhy.
+	Checking the stitches…	Kontrola stehů…
+	improved after checking its stitches	vylepšeno po kontrole stehů
+	Art Stitch Preview	Náhled stehů kresby

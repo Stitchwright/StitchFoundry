@@ -6660,6 +6660,10 @@ swatch	Bright Violet	Felviolet
 	Thorough	Grondig
 	About {typical} credits a drawing, at most {most}.	Ongeveer {typical} credits per tekening, hoogstens {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Ongeveer {typical} per tekening op uw Anthropic-account, hoogstens {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Grondig denkt het langst na en kost ongeveer twee keer zoveel als Normaal: gebruik het voor ontwerpen met veel details.
 	{tokens} tokens	{tokens} tokens
 	{tokens} tokens, about {cost}	{tokens} tokens, ongeveer {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Grondig zoekt op wat het tekent, denkt het langst na en controleert zijn steken één keer: het kost een paar keer zoveel als Normaal. Gebruik het voor echte dingen, zoals een hondenras of een vrachtwagenmodel, en voor gedetailleerde ontwerpen.
+	Checking the stitches…	Steken controleren…
+	improved after checking its stitches	verbeterd na controle van de steken
+	Art Stitch Preview	Steekvoorbeeld van tekening

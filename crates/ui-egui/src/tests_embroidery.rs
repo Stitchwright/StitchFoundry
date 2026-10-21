@@ -526,10 +526,10 @@ mod design_from_prompt {
         assert!(texts.iter().any(|t| t == "Effort") && texts.iter().any(|t| t == "Normal"), "{texts:?}");
         let cost = texts.iter().find(|t| t.starts_with("About $")).cloned().unwrap_or_else(|| panic!("no cost line in {texts:?}"));
         assert!(cost.contains("on your Anthropic account, at most $"), "{cost}");
-        assert!(!texts.iter().any(|t| t.starts_with("Thorough thinks")), "no warning at Normal");
+        assert!(!texts.iter().any(|t| t.starts_with("Thorough looks up")), "no warning at Normal");
         app.run("embroidery.aiEffort", json!({"effort": "thorough"})).unwrap();
         let texts = dialog_text(&mut app);
-        assert!(texts.iter().any(|t| t.starts_with("Thorough thinks longest")), "{texts:?}");
+        assert!(texts.iter().any(|t| t.starts_with("Thorough looks up what it draws")), "{texts:?}");
         let thorough = texts.iter().find(|t| t.starts_with("About $")).cloned().unwrap_or_default();
         assert_ne!(thorough, cost, "the estimate follows the effort");
         app.run("embroidery.aiEffort", json!({"effort": "quick"})).unwrap();
@@ -541,6 +541,30 @@ mod design_from_prompt {
         // the reply's usage: tokens and dollars on the user's own key
         // 1 800 in and 4 200 out: 6 000 tokens, $0.0072 + $0.084
         assert!(app.ui.status.ends_with("6000 tokens, about $0.09"), "{}", app.ui.status);
+    }
+
+    /// AI-04: at Thorough the drawing may be researched and goes back as it stitches to be
+    /// checked; the better drawing that comes back is placed.
+    #[test]
+    fn a_thorough_drawing_is_checked_as_it_stitches() {
+        // the service answers every request with a drawing, so the check redraws it
+        let (mut app, sent, _) = app(200, reply(ART), Duration::ZERO);
+        app.run("embroidery.aiEffort", json!({"effort": "thorough"})).unwrap();
+        app.run("ui.designFromPrompt", json!({"prompt": "a 2023 Ford F-350 crew cab", "size": 60, "colors": 4})).unwrap();
+        app.embroidery.prompt.key = "sk-ant-test".into();
+        crate::dialogs::confirm(&mut app).unwrap();
+        wait(&mut app);
+        let sent = sent.lock().unwrap();
+        assert_eq!(sent.len(), 2, "the drawing, then its check");
+        let first: Value = serde_json::from_str(&sent[0].body).unwrap();
+        assert_eq!((first["output_config"]["effort"].as_str(), first["tools"][0]["name"].as_str()), (Some("high"), Some("web_search")));
+        let check: Value = serde_json::from_str(&sent[1].body).unwrap();
+        let m = check["messages"].as_array().unwrap();
+        assert_eq!((m.len(), m[1]["role"].as_str(), m[2]["content"][0]["type"].as_str()), (3, Some("assistant"), Some("image")));
+        drop(sent);
+        assert!(app.ui.dialog.is_none(), "placed: the dialog closes");
+        assert!(app.ui.status.contains("improved after checking its stitches"), "{}", app.ui.status);
+        assert_eq!(objects(&app), 1, "one drawing placed, the better one");
     }
 
     #[test]

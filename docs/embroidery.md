@@ -1420,7 +1420,14 @@ needed too. The picture is billed to your account with that service
 
 **Effort and what it costs.** **Effort** chooses how hard Claude works on a drawing: **Quick**
 thinks briefly and costs least, **Normal** is the model's own default and **Thorough** thinks
-longest. The choice is kept for next time (`embroidery.aiEffort {effort?: quick|normal|thorough}`)
+longest and does two things more. It may search the web (up to three searches) for what the
+description names, when it is a real thing (a dog breed, a truck or RV model, a building), so its
+shape, proportions and markings are right; real things are drawn without their makers' badges or
+logos. And before the drawing is placed it goes back to Claude as it will stitch
+(`embroidery.artPreview`, a picture of the stitches drawn in a scratch document), to be checked
+against the description once: Claude answers OK, or with a corrected drawing, which is placed
+instead (the status line says so). Only the drawing and its stitches go back, nothing else from
+your design. Thorough costs several times what Normal does. The choice is kept for next time (`embroidery.aiEffort {effort?: quick|normal|thorough}`)
 and goes to the Messages API as its `effort` (low, medium, high). Before anything is sent the
 dialog shows what a drawing should cost: in dollars on your own key, at Anthropic's published
 prices for the model ($4 a million tokens sent, $20 a million back), or in credits when you pay

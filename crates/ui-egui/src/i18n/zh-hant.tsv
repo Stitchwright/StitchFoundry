@@ -6328,6 +6328,10 @@ machine	Stop	停止
 	Thorough	深入
 	About {typical} credits a drawing, at most {most}.	每次繪製約 {typical} 點數，最多 {most}。
 	About {typical} a drawing on your Anthropic account, at most {most}.	每次繪製約從你的 Anthropic 帳戶扣 {typical}，最多 {most}。
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	「深入」思考時間最長，費用約為「一般」的兩倍：適合細節很多的設計。
 	{tokens} tokens	{tokens} 個詞元
 	{tokens} tokens, about {cost}	{tokens} 個詞元，約 {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	「深入」會先查閱要畫的東西，思考時間最長，並檢查一次針跡：費用是「一般」的好幾倍。適合真實的事物（如某個犬種或卡車型號）和細節很多的設計。
+	Checking the stitches…	正在檢查針跡…
+	improved after checking its stitches	檢查針跡後已改進
+	Art Stitch Preview	圖稿針跡預覽

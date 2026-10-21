@@ -6682,6 +6682,10 @@ mark-style	Japanese	Japonesas
 	Thorough	A fondo
 	About {typical} credits a drawing, at most {most}.	Unos {typical} créditos por dibujo, como máximo {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Unos {typical} por dibujo en su cuenta de Anthropic, como máximo {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	A fondo piensa más tiempo y cuesta alrededor del doble que Normal: úselo para diseños con mucho detalle.
 	{tokens} tokens	{tokens} tokens
 	{tokens} tokens, about {cost}	{tokens} tokens, unos {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	A fondo investiga lo que dibuja, piensa más tiempo y revisa sus puntadas una vez: cuesta varias veces más que Normal. Úselo para cosas reales, como una raza de perro o un modelo de camioneta, y para diseños detallados.
+	Checking the stitches…	Revisando las puntadas…
+	improved after checking its stitches	mejorado tras revisar sus puntadas
+	Art Stitch Preview	Vista previa de puntadas del dibujo

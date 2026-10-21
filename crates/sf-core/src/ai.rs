@@ -30,6 +30,10 @@ pub const MODEL: &str = "claude-opus-5-5";
 /// The beta that lets a request the model declines run again on the model Anthropic recommends
 /// (`"fallbacks": "default"`).
 pub const FALLBACK_BETA: &str = "server-side-fallback-2026-07-01";
+/// The web search tool a Thorough drawing may use to look up what it draws, and how many
+/// searches it may make.
+pub const WEB_SEARCH: &str = "web_search_20260209";
+pub const MAX_SEARCHES: u32 = 3;
 /// The most tokens the reply (thinking included) may use.
 pub const MAX_TOKENS: u32 = 16_000;
 /// The longest description sent, in characters.
@@ -86,6 +90,16 @@ pub struct Art {
     pub model: String,
     /// The tokens it took.
     pub usage: Usage,
+    /// The reply's content blocks as they came (thinking and searches included), sent back
+    /// unchanged with the check ([`ArtRequest::check_http`]).
+    pub content: Value,
+}
+
+/// What the check of a drawing said: it is right, or here is a better one.
+#[derive(Clone, Debug, PartialEq)]
+pub enum Checked {
+    Good,
+    Redrawn(Art),
 }
 
 /// Why no artwork came back. The messages are for the user; the UI shows them translated.
@@ -260,6 +274,13 @@ stitched can't be read: make them larger where there is room, else leave them ou
 place on it, absolute coordinates and no transforms on the root element."
             );
         }
+        let research = if self.effort.researches() {
+            "\n\nWhen the description names a real thing (an animal breed, a vehicle or building model, a \
+plant, a place) and you aren't sure what sets it apart, search the web first, so that its shape, \
+proportions, colours and markings are right. Then reply with the SVG alone."
+        } else {
+            ""
+        };
         format!(
             "You draw artwork that will be stitched by an embroidery machine. {reply}\n\
 \n\
@@ -276,8 +297,10 @@ hatching, texture or tiny details. Every part is at least {min} units wide (abou
 coordinates, no transforms on the root element.\n\
 \n\
 Never reproduce a logo, trademark, mascot or character that belongs to someone else (a team, \
-company, brand, film, show or game). If the description asks for one, reply with a single line \
-that starts with \"DECLINED:\" followed by a short reason, instead of the SVG."
+company, brand, film, show or game). Real things are fine (an animal breed, a car or truck model, a \
+building): draw them without their makers' badges or logos. If the description asks for a logo or \
+a character, reply with a single line that starts with \"DECLINED:\" followed by a short reason, \
+instead of the SVG.{research}"
         )
     }
 
@@ -297,14 +320,50 @@ that starts with \"DECLINED:\" followed by a short reason, instead of the SVG."
             }
             None => json!(format!("Draw this as embroidery artwork: {}", self.prompt)),
         };
-        json!({
+        let mut body = json!({
             "model": MODEL,
             "max_tokens": MAX_TOKENS,
             "fallbacks": "default",
             "output_config": { "effort": self.effort.api() },
             "system": self.system_prompt(),
             "messages": [{ "role": "user", "content": content }],
-        })
+        });
+        // a drawing from a description may look up what it draws
+        if self.effort.researches() && self.image.is_none() {
+            body["tools"] = json!([{ "type": WEB_SEARCH, "name": "web_search", "max_uses": MAX_SEARCHES }]);
+        }
+        body
+    }
+
+    /// The check's request body: the conversation so far (the request and `first`, the drawing
+    /// as it came), and `stitched`, a picture of it as the machine will sew it.
+    pub fn check_body(&self, first: &Art, stitched: &ArtImage) -> Value {
+        let size = self.size_mm.round();
+        let text = format!(
+            "This picture shows your artwork as the machine will stitch it, about {size} mm across. Check it \
+against the request: is the subject right and recognisable (what sets it apart, every detail asked for), \
+are the colours right, has any part gone missing, merged or come out too thin to stitch? If it is good, \
+reply with the single word OK. Otherwise reply with a corrected SVG document alone, keeping to the same rules."
+        );
+        let mut body = self.body();
+        if let Some(m) = body.get_mut("messages").and_then(Value::as_array_mut) {
+            m.push(json!({ "role": "assistant", "content": first.content }));
+            m.push(json!({ "role": "user", "content": [
+                { "type": "image", "source": { "type": "base64", "media_type": stitched.media_type, "data": stitched.data_base64 } },
+                { "type": "text", "text": text },
+            ] }));
+        }
+        body
+    }
+
+    /// The check's HTTP request with API key `key`.
+    pub fn check_http(&self, key: &str, first: &Art, stitched: &ArtImage) -> Result<HttpRequest, ArtError> {
+        if stitched.data_base64.len() > MAX_IMAGE_BASE64 {
+            return Err(ArtError::LargeImage);
+        }
+        let mut http = self.http(key)?;
+        http.body = self.check_body(first, stitched).to_string();
+        Ok(http)
     }
 
     /// The HTTP request to send with API key `key`.
@@ -387,7 +446,29 @@ pub fn parse_reply(status: u16, body: &str) -> Result<Art, ArtError> {
     }
     let svg = extract_svg(&text).ok_or(ArtError::NoArt)?;
     let model = v.get("model").and_then(Value::as_str).unwrap_or(MODEL).to_string();
-    Ok(Art { svg: svg.to_string(), model, usage: Usage::of_reply(&v) })
+    Ok(Art { svg: svg.to_string(), model, usage: Usage::of_reply(&v), content: v.get("content").cloned().unwrap_or(Value::Null) })
+}
+
+/// What the check said ([`ArtRequest::check_http`]), and the tokens it took: a reply with an SVG
+/// in it is a better drawing; one without (\"OK\") passes the first.
+pub fn parse_check(status: u16, body: &str) -> Result<(Checked, Usage), ArtError> {
+    check_status(status, body)?;
+    let v: Value = serde_json::from_str(body).map_err(|_| ArtError::NoArt)?;
+    let usage = Usage::of_reply(&v);
+    match v.get("stop_reason").and_then(Value::as_str) {
+        // a check that was declined or cut off leaves the first drawing as it is
+        Some("refusal" | "max_tokens") => return Ok((Checked::Good, usage)),
+        _ => {}
+    }
+    let text = reply_text(&v);
+    let checked = match extract_svg(&text) {
+        Some(svg) => {
+            let model = v.get("model").and_then(Value::as_str).unwrap_or(MODEL).to_string();
+            Checked::Redrawn(Art { svg: svg.to_string(), model, usage, content: v.get("content").cloned().unwrap_or(Value::Null) })
+        }
+        None => Checked::Good,
+    };
+    Ok((checked, usage))
 }
 
 /// The SVG document in `text`: from its first `<svg` to its last `</svg>` (prose or a code fence
@@ -402,6 +483,35 @@ pub fn extract_svg(text: &str) -> Option<&str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// AI-04: the check sends the conversation back with the stitched picture, and reads OK or a
+    /// better drawing.
+    #[test]
+    fn the_check_goes_back_with_the_stitches_and_reads_the_answer() {
+        let r = ArtRequest::new("a fox", 80.0, 4).with_effort(Effort::Thorough);
+        let first_reply = json!({"model": MODEL, "stop_reason": "end_turn", "content": [
+            {"type": "thinking", "thinking": "", "signature": "sig"},
+            {"type": "text", "text": "<svg viewBox=\"0 0 10 10\"><rect width=\"10\" height=\"10\" fill=\"#ff8800\"/></svg>"}
+        ], "usage": {"input_tokens": 1200, "output_tokens": 5000}});
+        let first = parse_reply(200, &first_reply.to_string()).unwrap();
+        assert_eq!(first.usage, Usage { input: 1200, output: 5000 });
+        let png = ArtImage { media_type: "image/png", data_base64: "iVBORw0KGgo=".into() };
+        let http = r.check_http("sk-ant-test", &first, &png).unwrap();
+        let body: Value = serde_json::from_str(&http.body).unwrap();
+        let m = body["messages"].as_array().unwrap();
+        assert_eq!(m.len(), 3);
+        assert_eq!(m[1]["content"], first_reply["content"], "the reply goes back unchanged, thinking included");
+        assert_eq!(m[2]["content"][0]["type"], "image");
+        assert!(m[2]["content"][1]["text"].as_str().unwrap().contains("single word OK"));
+        let ok =
+            json!({"stop_reason": "end_turn", "content": [{"type": "text", "text": "OK"}], "usage": {"input_tokens": 9000, "output_tokens": 40}});
+        assert_eq!(parse_check(200, &ok.to_string()).unwrap(), (Checked::Good, Usage { input: 9000, output: 40 }));
+        let better = json!({"stop_reason": "end_turn", "content": [{"type": "text", "text": "<svg viewBox=\"0 0 10 10\"></svg>"}]});
+        assert!(matches!(parse_check(200, &better.to_string()).unwrap().0, Checked::Redrawn(a) if a.svg.starts_with("<svg")));
+        let cut = json!({"stop_reason": "max_tokens", "content": [{"type": "text", "text": "<svg"}]});
+        assert_eq!(parse_check(200, &cut.to_string()).unwrap().0, Checked::Good, "a cut-off check keeps the first drawing");
+        assert!(parse_check(529, "{}").is_err());
+    }
 
     const SVG: &str = r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="500" cy="500" r="400" fill="#e07020"/></svg>"##;
 
@@ -430,6 +540,14 @@ mod tests {
         let quick_body: Value = serde_json::from_str(&quick.http("sk-ant-test").unwrap().body).unwrap();
         assert_eq!(quick_body["output_config"]["effort"], "low");
         assert!(quick.estimate().typical < quick.clone().with_effort(Effort::Thorough).estimate().typical);
+        assert!(body.get("tools").is_none(), "only Thorough looks things up");
+        // AI-04: Thorough may search the web, a little, and is told when to
+        let thorough = ArtRequest::new("a 2023 Ford F-350 crew cab", 100.0, 6).with_effort(Effort::Thorough);
+        let thorough_body = thorough.body();
+        assert_eq!(thorough_body["tools"][0]["type"], WEB_SEARCH);
+        assert_eq!(thorough_body["tools"][0]["max_uses"], MAX_SEARCHES);
+        assert!(thorough_body["system"].as_str().unwrap().contains("search the web first"));
+        assert!(thorough_body["system"].as_str().unwrap().contains("without their makers' badges"));
         assert!(body.get("thinking").is_none(), "thinking is always on: not sent");
         assert!(body["messages"][0]["content"].as_str().unwrap().ends_with("a cartoon fox head"));
         let system = body["system"].as_str().unwrap();

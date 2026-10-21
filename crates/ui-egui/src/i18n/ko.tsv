@@ -6320,6 +6320,10 @@ machine	Stop	정지
 	Thorough	꼼꼼하게
 	About {typical} credits a drawing, at most {most}.	그림 한 번에 약 {typical}크레딧, 최대 {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	그림 한 번에 Anthropic 계정으로 약 {typical}, 최대 {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	꼼꼼하게는 가장 오래 생각하며 비용이 보통의 약 두 배입니다. 세부가 많은 디자인에 사용하세요.
 	{tokens} tokens	토큰 {tokens}개
 	{tokens} tokens, about {cost}	토큰 {tokens}개, 약 {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	꼼꼼하게는 그릴 대상을 찾아보고, 가장 오래 생각하며, 땀을 한 번 확인합니다. 비용은 보통의 몇 배입니다. 개 품종이나 트럭 모델 같은 실제 대상과 세부가 많은 디자인에 사용하세요.
+	Checking the stitches…	땀을 확인하는 중…
+	improved after checking its stitches	땀 확인 후 개선됨
+	Art Stitch Preview	그림 땀 미리 보기

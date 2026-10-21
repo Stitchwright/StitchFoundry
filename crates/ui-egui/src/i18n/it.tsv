@@ -6368,6 +6368,10 @@ machine	Stop	Arresto
 	Thorough	Accurato
 	About {typical} credits a drawing, at most {most}.	Circa {typical} crediti a disegno, al massimo {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Circa {typical} a disegno sul tuo account Anthropic, al massimo {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Accurato riflette più a lungo e costa circa il doppio di Normale: usalo per disegni con molti dettagli.
 	{tokens} tokens	{tokens} token
 	{tokens} tokens, about {cost}	{tokens} token, circa {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Accurato si documenta su ciò che disegna, riflette più a lungo e controlla una volta i suoi punti: costa diverse volte più di Normale. Usalo per cose reali, come una razza di cane o un modello di camion, e per disegni dettagliati.
+	Checking the stitches…	Controllo dei punti…
+	improved after checking its stitches	migliorato dopo il controllo dei punti
+	Art Stitch Preview	Anteprima dei punti del disegno

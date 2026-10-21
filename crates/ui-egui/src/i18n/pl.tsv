@@ -6567,6 +6567,10 @@ machine	Stop	Zatrzymanie
 	Thorough	Dokładny
 	About {typical} credits a drawing, at most {most}.	Około {typical} kredytów za rysunek, najwyżej {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Około {typical} za rysunek na Twoim koncie Anthropic, najwyżej {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Dokładny myśli najdłużej i kosztuje mniej więcej dwa razy tyle co Normalny: używaj go do projektów z wieloma szczegółami.
 	{tokens} tokens	{tokens} tokenów
 	{tokens} tokens, about {cost}	{tokens} tokenów, około {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Dokładny sprawdza, co rysuje, myśli najdłużej i raz sprawdza swoje ściegi: kosztuje kilka razy więcej niż Normalny. Używaj go do prawdziwych rzeczy, jak rasa psa czy model ciężarówki, i do szczegółowych projektów.
+	Checking the stitches…	Sprawdzanie ściegów…
+	improved after checking its stitches	poprawione po sprawdzeniu ściegów
+	Art Stitch Preview	Podgląd ściegów rysunku

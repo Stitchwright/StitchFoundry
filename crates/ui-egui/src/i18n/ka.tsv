@@ -6556,6 +6556,10 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	Thorough	საფუძვლიანი
 	About {typical} credits a drawing, at most {most}.	დაახლოებით {typical} კრედიტი ერთ ნახატზე, მაქსიმუმ {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	დაახლოებით {typical} ერთ ნახატზე თქვენს Anthropic-ის ანგარიშზე, მაქსიმუმ {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	„საფუძვლიანი“ ყველაზე დიდხანს ფიქრობს და „ჩვეულებრივზე“ დაახლოებით ორჯერ ძვირია: გამოიყენეთ ბევრი დეტალის მქონე დიზაინისთვის.
 	{tokens} tokens	{tokens} ტოკენი
 	{tokens} tokens, about {cost}	{tokens} ტოკენი, დაახლოებით {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	„საფუძვლიანი“ იკვლევს, რას ხატავს, ყველაზე დიდხანს ფიქრობს და ერთხელ ამოწმებს ნაკერებს: რამდენჯერმე ძვირია „ჩვეულებრივზე“. გამოიყენეთ რეალური საგნებისთვის, როგორიცაა ძაღლის ჯიში ან სატვირთოს მოდელი, და დეტალური დიზაინისთვის.
+	Checking the stitches…	ნაკერების შემოწმება…
+	improved after checking its stitches	გაუმჯობესდა ნაკერების შემოწმების შემდეგ
+	Art Stitch Preview	ნახატის ნაკერების გადახედვა

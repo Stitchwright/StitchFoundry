@@ -6701,6 +6701,10 @@ machine	Stop	Megállás
 	Thorough	Alapos
 	About {typical} credits a drawing, at most {most}.	Rajzonként kb. {typical} kredit, legfeljebb {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Rajzonként kb. {typical} az Anthropic-fiókjában, legfeljebb {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Az Alapos gondolkodik a legtovább, és nagyjából kétszer annyiba kerül, mint a Normál: sok részletet tartalmazó mintákhoz használja.
 	{tokens} tokens	{tokens} token
 	{tokens} tokens, about {cost}	{tokens} token, kb. {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Az Alapos utánanéz, mit rajzol, a legtovább gondolkodik, és egyszer ellenőrzi az öltéseit: többszörösébe kerül, mint a Normál. Valódi dolgokhoz használja, például kutyafajtához vagy teherautó-típushoz, és részletes mintákhoz.
+	Checking the stitches…	Az öltések ellenőrzése…
+	improved after checking its stitches	az öltések ellenőrzése után javítva
+	Art Stitch Preview	Rajz öltésképe

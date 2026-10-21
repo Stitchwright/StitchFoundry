@@ -16,6 +16,12 @@ pub const OUTPUT_PRICE: f64 = 20.0;
 const IMAGE_TOKENS: u64 = 3_300;
 /// Tokens added for the request's framing.
 const OVERHEAD_TOKENS: u64 = 500;
+/// Input tokens the search results of a researched drawing typically add, and what each search
+/// costs on top (dollars: $10 a thousand).
+const RESEARCH_TOKENS: u64 = 12_000;
+const SEARCH_USD: f64 = 0.01;
+/// Searches a researched drawing typically makes.
+const TYPICAL_SEARCHES: u64 = 2;
 
 /// How hard the AI works on a request.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -25,7 +31,8 @@ pub enum Effort {
     /// The model's own default.
     #[default]
     Normal,
-    /// Thinks longest: for designs with much detail, at about twice Normal's cost.
+    /// Thinks longest, looks up what it draws ([`Effort::researches`]) and checks its drawing
+    /// once more as it stitches ([`Effort::checks`]): for real things and detailed designs.
     Thorough,
 }
 
@@ -52,6 +59,17 @@ impl Effort {
             Effort::Normal => "medium",
             Effort::Thorough => "high",
         }
+    }
+
+    /// Whether the model may search the web for what it draws before drawing (AI-04).
+    pub fn researches(self) -> bool {
+        self == Effort::Thorough
+    }
+
+    /// Whether the drawing goes back to the model as it stitches, to be checked and corrected
+    /// once (AI-04).
+    pub fn checks(self) -> bool {
+        self == Effort::Thorough
     }
 
     /// The output tokens (thinking included) a drawing typically takes at this effort: an estimate,
@@ -116,10 +134,25 @@ pub struct Estimate {
 }
 
 pub fn estimate(body: &Value, effort: Effort) -> Estimate {
-    let input = input_tokens(body);
+    let mut input = input_tokens(body);
     let max = body.get("max_tokens").and_then(Value::as_u64).unwrap_or(u64::from(super::MAX_TOKENS));
-    let at = |output: u64| Usage { input, output }.usd();
-    Estimate { typical: at(effort.typical_output().min(max)), most: at(max) }
+    let searches = body.pointer("/tools/0/max_uses").and_then(Value::as_u64).unwrap_or(0);
+    let (mut typical, mut most) = (0.0, 0.0);
+    if searches > 0 {
+        input += RESEARCH_TOKENS;
+        typical += TYPICAL_SEARCHES.min(searches) as f64 * SEARCH_USD;
+        most += searches as f64 * SEARCH_USD;
+    }
+    let output = effort.typical_output().min(max);
+    typical += Usage { input, output }.usd();
+    most += Usage { input, output: max }.usd();
+    if effort.checks() {
+        // the check: everything again as input, with the stitched picture, and a reply that is a
+        // word or a corrected drawing
+        typical += Usage { input: input + output + IMAGE_TOKENS, output: output / 2 }.usd();
+        most += Usage { input: input + max + IMAGE_TOKENS, output: max }.usd();
+    }
+    Estimate { typical, most }
 }
 
 #[cfg(test)]
@@ -147,9 +180,13 @@ mod tests {
         let body = json!({"max_tokens": 16000, "system": "x".repeat(3500), "messages": [{"role": "user", "content": "a fox"}]});
         let (quick, thorough) = (estimate(&body, Effort::Quick), estimate(&body, Effort::Thorough));
         assert!(quick.typical < estimate(&body, Effort::Normal).typical && estimate(&body, Effort::Normal).typical < thorough.typical);
-        assert_eq!(quick.most, thorough.most, "the most a reply can cost doesn't depend on effort");
+        assert!(thorough.most > quick.most, "Thorough's check is a second reply");
         // 16 000 output tokens at $20 a million, plus the input
-        assert!(thorough.most > 0.32 && thorough.most < 0.34, "{}", thorough.most);
+        assert!(quick.most > 0.32 && quick.most < 0.34, "{}", quick.most);
+        // searches add their results and their fee
+        let mut searched = body.clone();
+        searched["tools"] = json!([{"type": "web_search_20260209", "name": "web_search", "max_uses": 3}]);
+        assert!(estimate(&searched, Effort::Thorough).typical > thorough.typical + 0.05);
         // an image counts at its most
         let image = json!({"messages": [{"content": [{"type": "image", "source": {"type": "base64", "data": "AAAA"}}]}]});
         assert!(input_tokens(&image) >= IMAGE_TOKENS);

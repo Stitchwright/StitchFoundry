@@ -6407,6 +6407,10 @@ machine	Stop	停止
 	Thorough	じっくり
 	About {typical} credits a drawing, at most {most}.	1 回の描画で約 {typical} クレジット、最大 {most}。
 	About {typical} a drawing on your Anthropic account, at most {most}.	1 回の描画で Anthropic アカウントに約 {typical}、最大 {most}。
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	「じっくり」は最も長く考え、費用は「標準」の約 2 倍です。細部の多いデザインに使ってください。
 	{tokens} tokens	{tokens} トークン
 	{tokens} tokens, about {cost}	{tokens} トークン、約 {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	「じっくり」は描くものを調べ、最も長く考え、ステッチを一度確認します。費用は「標準」の数倍です。犬種やトラックの車種のような実在のものや、細部の多いデザインに使ってください。
+	Checking the stitches…	ステッチを確認しています…
+	improved after checking its stitches	ステッチの確認後に改善
+	Art Stitch Preview	アートのステッチプレビュー

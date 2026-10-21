@@ -6334,6 +6334,10 @@ effect	Soft	Weich
 	Thorough	Gründlich
 	About {typical} credits a drawing, at most {most}.	Etwa {typical} Credits pro Zeichnung, höchstens {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Etwa {typical} pro Zeichnung auf Ihrem Anthropic-Konto, höchstens {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Gründlich denkt am längsten und kostet etwa doppelt so viel wie Normal: für Designs mit vielen Details.
 	{tokens} tokens	{tokens} Tokens
 	{tokens} tokens, about {cost}	{tokens} Tokens, etwa {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Gründlich recherchiert, was es zeichnet, denkt am längsten und prüft seine Stiche einmal: Es kostet ein Mehrfaches von Normal. Für echte Dinge wie eine Hunderasse oder ein Lkw-Modell und für detailreiche Designs.
+	Checking the stitches…	Stiche werden geprüft…
+	improved after checking its stitches	nach Prüfung der Stiche verbessert
+	Art Stitch Preview	Stichvorschau der Grafik

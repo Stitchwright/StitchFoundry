@@ -6676,6 +6676,10 @@ machine	Stop	Στάση
 	Thorough	Ενδελεχής
 	About {typical} credits a drawing, at most {most}.	Περίπου {typical} μονάδες ανά σχέδιο, το πολύ {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Περίπου {typical} ανά σχέδιο στον λογαριασμό σας Anthropic, το πολύ {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Η Ενδελεχής σκέφτεται περισσότερο και κοστίζει περίπου διπλάσια από την Κανονική: χρησιμοποιήστε τη για σχέδια με πολλές λεπτομέρειες.
 	{tokens} tokens	{tokens} tokens
 	{tokens} tokens, about {cost}	{tokens} tokens, περίπου {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Η Ενδελεχής ψάχνει τι σχεδιάζει, σκέφτεται περισσότερο και ελέγχει μία φορά τις βελονιές της: κοστίζει πολλαπλάσια από την Κανονική. Χρησιμοποιήστε τη για πραγματικά πράγματα, όπως μια ράτσα σκύλου ή ένα μοντέλο φορτηγού, και για λεπτομερή σχέδια.
+	Checking the stitches…	Έλεγχος των βελονιών…
+	improved after checking its stitches	βελτιώθηκε μετά τον έλεγχο των βελονιών
+	Art Stitch Preview	Προεπισκόπηση βελονιών σχεδίου

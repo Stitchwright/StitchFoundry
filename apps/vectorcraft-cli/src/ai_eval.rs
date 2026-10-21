@@ -86,6 +86,8 @@ struct Outcome {
     seconds: f64,
     usage: Usage,
     model: String,
+    /// Whether the check redrew it (Thorough), when it was checked.
+    redrawn: Option<bool>,
     /// The stitches image (relative to the report), and the design's numbers.
     image: Option<String>,
     design: Value,
@@ -201,7 +203,17 @@ fn write(path: &Path, text: &str) -> Result<(), String> {
 
 /// Send one job at one effort, then digitize the art as the app does and draw its stitches.
 fn draw(key: &str, job: usize, j: &Job, effort: Effort, out: &Path) -> Outcome {
-    let mut o = Outcome { job, effort, seconds: 0.0, usage: Usage::default(), model: String::new(), image: None, design: Value::Null, error: None };
+    let mut o = Outcome {
+        job,
+        effort,
+        seconds: 0.0,
+        usage: Usage::default(),
+        model: String::new(),
+        redrawn: None,
+        image: None,
+        design: Value::Null,
+        error: None,
+    };
     let started = Instant::now();
     let art = j
         .request(effort)
@@ -216,6 +228,39 @@ fn draw(key: &str, job: usize, j: &Job, effort: Effort, out: &Path) -> Outcome {
             o.error = Some(e);
             return o;
         }
+    };
+    let request = j.request(effort);
+    // Thorough: the drawing goes back as it stitches, to be checked once
+    let art = if effort.checks() {
+        let preview = {
+            let mut h = crate::with_stores(Headless::new());
+            h.call("engine.execute", json!({"command": "embroidery.artPreview", "params": {"svg": art.svg, "size": j.size_mm}}))
+        };
+        let checked = preview.and_then(|p| {
+            let stitched = ai::ArtImage { media_type: "image/png", data_base64: p["dataBase64"].as_str().unwrap_or_default().to_string() };
+            let http = request.check_http(key, &art, &stitched).map_err(|e| e.to_string())?;
+            let (status, body) = post(&http)?;
+            ai::parse_check(status, &body).map_err(|e| e.to_string())
+        });
+        o.seconds = started.elapsed().as_secs_f64();
+        match checked {
+            Ok((ai::Checked::Redrawn(better), u)) => {
+                o.redrawn = Some(true);
+                let first = art.usage;
+                ai::Art { usage: Usage { input: first.input + u.input, output: first.output + u.output }, ..better }
+            }
+            Ok((ai::Checked::Good, u)) => {
+                o.redrawn = Some(false);
+                let first = art.usage;
+                ai::Art { usage: Usage { input: first.input + u.input, output: first.output + u.output }, ..art }
+            }
+            Err(e) => {
+                eprint!("(check failed: {e}) ");
+                art
+            }
+        }
+    } else {
+        art
     };
     o.usage = art.usage;
     o.model = art.model.clone();
@@ -282,6 +327,7 @@ fn results_json(jobs: &[Job], outcomes: &[Outcome]) -> Value {
                 "usd": o.usage.usd(),
                 "model": o.model,
                 "image": o.image,
+                "redrawnByCheck": o.redrawn,
                 "stitches": o.design.get("stitches"),
                 "colorChanges": o.design.get("colorChanges"),
                 "error": o.error,
@@ -350,8 +396,13 @@ img{max-width:100%;border:1px solid #ddd;border-radius:6px;background:#f4f1ea}.m
             match &o.error {
                 Some(e) => h.push_str(&format!("<div class=\"err\">{}: {}</div>", o.effort.id(), esc(e))),
                 None => h.push_str(&format!(
-                    "<div class=\"meta\"><b>{}</b>: {:.0} s, {} + {} tokens, ${:.2}; {} stitches, {} colour changes</div>",
+                    "<div class=\"meta\"><b>{}</b>{}: {:.0} s, {} + {} tokens, ${:.2}; {} stitches, {} colour changes</div>",
                     o.effort.id(),
+                    match o.redrawn {
+                        Some(true) => " (redrawn after its check)",
+                        Some(false) => " (passed its check)",
+                        None => "",
+                    },
                     o.seconds,
                     o.usage.input,
                     o.usage.output,
@@ -419,6 +470,7 @@ mod tests {
             seconds: 20.0,
             usage: Usage { input: 1000, output },
             model: ai::MODEL.into(),
+            redrawn: None,
             image: Some("dog.png".into()),
             design: json!({"stitches": 9000, "colorChanges": 4}),
             error: None,

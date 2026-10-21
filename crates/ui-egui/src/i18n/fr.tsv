@@ -6741,6 +6741,10 @@ theme	Appearance	Apparence
 	Thorough	Approfondi
 	About {typical} credits a drawing, at most {most}.	Environ {typical} crédits par dessin, au plus {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Environ {typical} par dessin sur votre compte Anthropic, au plus {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Approfondi réfléchit le plus longtemps et coûte environ deux fois plus que Normal : à réserver aux motifs très détaillés.
 	{tokens} tokens	{tokens} jetons
 	{tokens} tokens, about {cost}	{tokens} jetons, environ {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Approfondi se renseigne sur ce qu’il dessine, réfléchit le plus longtemps et vérifie ses points une fois : il coûte plusieurs fois plus que Normal. À utiliser pour des choses réelles, comme une race de chien ou un modèle de camion, et pour les motifs détaillés.
+	Checking the stitches…	Vérification des points…
+	improved after checking its stitches	amélioré après vérification des points
+	Art Stitch Preview	Aperçu des points du dessin

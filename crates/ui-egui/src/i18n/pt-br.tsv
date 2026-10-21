@@ -6582,6 +6582,10 @@ mark-style	Japanese	Japonesas
 	Thorough	Minucioso
 	About {typical} credits a drawing, at most {most}.	Cerca de {typical} créditos por desenho, no máximo {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Cerca de {typical} por desenho na sua conta Anthropic, no máximo {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Minucioso pensa por mais tempo e custa cerca do dobro do Normal: use-o em desenhos com muitos detalhes.
 	{tokens} tokens	{tokens} tokens
 	{tokens} tokens, about {cost}	{tokens} tokens, cerca de {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Minucioso pesquisa o que desenha, pensa por mais tempo e confere seus pontos uma vez: custa várias vezes mais que o Normal. Use-o para coisas reais, como uma raça de cachorro ou um modelo de caminhonete, e para desenhos detalhados.
+	Checking the stitches…	Conferindo os pontos…
+	improved after checking its stitches	melhorado após conferir os pontos
+	Art Stitch Preview	Prévia dos pontos do desenho

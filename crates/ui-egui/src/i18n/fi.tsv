@@ -6741,6 +6741,10 @@ swatch	Bright Violet	Kirkas violetti
 	Thorough	Perusteellinen
 	About {typical} credits a drawing, at most {most}.	Noin {typical} krediittiä piirrokselta, enintään {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Noin {typical} piirrokselta Anthropic-tililläsi, enintään {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Perusteellinen miettii pisimpään ja maksaa noin kaksi kertaa niin paljon kuin Normaali: käytä sitä paljon yksityiskohtia sisältäviin malleihin.
 	{tokens} tokens	{tokens} tokenia
 	{tokens} tokens, about {cost}	{tokens} tokenia, noin {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Perusteellinen selvittää, mitä se piirtää, miettii pisimpään ja tarkistaa pistonsa kerran: se maksaa moninkertaisesti Normaaliin verrattuna. Käytä sitä todellisiin asioihin, kuten koirarotuun tai kuorma-automalliin, ja yksityiskohtaisiin malleihin.
+	Checking the stitches…	Tarkistetaan pistoja…
+	improved after checking its stitches	parannettu pistojen tarkistuksen jälkeen
+	Art Stitch Preview	Piirroksen pistojen esikatselu

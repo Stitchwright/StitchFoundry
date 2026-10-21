@@ -42,10 +42,29 @@ pub struct PromptState {
     pub now: f64,
     /// The tokens the last drawing took.
     pub last_usage: Option<ai::Usage>,
+    /// A Thorough drawing being checked: the check on its way, and the drawing it checks.
+    checking: Option<Checking>,
+}
+
+struct Checking {
+    rx: Receiver<Result<(ai::Checked, ai::Usage), ArtError>>,
+    first: Art,
+    name: String,
+    size: f64,
+    frame: Option<[f64; 4]>,
+}
+
+impl PromptState {
+    /// Whether a drawing is being checked (Thorough).
+    pub fn checking(&self) -> bool {
+        self.checking.is_some()
+    }
 }
 
 struct Pending {
     rx: Receiver<Result<Art, ArtError>>,
+    /// The request, kept for the check of what it drew (Thorough).
+    request: Option<ArtRequest>,
     /// The key sent, kept once Anthropic takes it (Remember the key).
     keep: Option<String>,
     /// The placed art's name (the description) and size (mm).
@@ -73,6 +92,9 @@ struct PicturePending {
 impl PromptState {
     /// Seconds since the request on its way was sent (the picture, then the drawing).
     pub fn drawing_for(&self, now: f64) -> Option<f64> {
+        if self.checking.is_some() {
+            return Some(0.0);
+        }
         let since = self.picture.as_ref().map(|p| p.since).or(self.pending.as_ref().map(|p| p.since))?;
         Some((now - since).max(0.0))
     }
@@ -311,7 +333,7 @@ pub fn start(app: &mut VectorcraftApp, d: &Dialog) -> Result<Value, String> {
     let name: String = if frame.is_some() { "Redrawn image".to_string() } else { request.prompt.chars().take(60).collect() };
     let st = &mut app.embroidery.prompt;
     st.error = None;
-    st.pending = Some(Pending { rx, keep, name, size: request.size_mm, frame, since: now });
+    st.pending = Some(Pending { rx, keep, name, size: request.size_mm, frame, since: now, request: Some(request) });
     Ok(json!({ "drawing": true }))
 }
 
@@ -374,7 +396,7 @@ fn redraw_picture(app: &mut VectorcraftApp, p: PicturePending, picture: ArtImage
     let rx = post(app, http, "design-from-prompt", ai::parse_reply)?;
     let name: String = p.description.chars().take(60).collect();
     let now = app.embroidery.prompt.now;
-    app.embroidery.prompt.pending = Some(Pending { rx, keep, name, size: p.size, frame: None, since: now });
+    app.embroidery.prompt.pending = Some(Pending { rx, keep, name, size: p.size, frame: None, since: now, request: Some(request) });
     Ok(())
 }
 
@@ -414,6 +436,43 @@ pub(crate) fn keep_key(store: Option<&dyn crate::SecretStore>, key: Option<&str>
 pub fn cancel(app: &mut VectorcraftApp) {
     app.embroidery.prompt.pending = None;
     app.embroidery.prompt.picture = None;
+    app.embroidery.prompt.checking = None;
+}
+
+/// Send Thorough drawing `art` back to be checked as it stitches; `false` when it can't be (then
+/// it is placed as it is).
+fn start_check(app: &mut VectorcraftApp, request: &ArtRequest, art: &Art, name: &str, size: f64, frame: Option<[f64; 4]>) -> bool {
+    let Ok(preview) = app.session.execute("embroidery.artPreview", &json!({ "svg": art.svg, "size": request.size_mm })) else { return false };
+    let Some(data) = preview["dataBase64"].as_str() else { return false };
+    let stitched = ArtImage { media_type: "image/png", data_base64: data.to_string() };
+    let key = super::account::key_to_send(app);
+    let Ok(http) = request.check_http(&key, art, &stitched) else { return false };
+    let Ok(rx) = post(app, http, "design-from-prompt-check", ai::parse_check) else { return false };
+    app.embroidery.prompt.checking = Some(Checking { rx, first: art.clone(), name: name.to_string(), size, frame });
+    true
+}
+
+/// The check that arrived: the better drawing, or the first one, placed.
+fn poll_check(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    let Some(c) = app.embroidery.prompt.checking.as_ref() else { return };
+    let r = match c.rx.try_recv() {
+        Ok(r) => r,
+        Err(TryRecvError::Empty) => {
+            ctx.request_repaint_after(std::time::Duration::from_millis(250));
+            return;
+        }
+        Err(TryRecvError::Disconnected) => Err(ArtError::Network("the request stopped".into())),
+    };
+    let Some(c) = app.embroidery.prompt.checking.take() else { return };
+    app.embroidery.account.stale |= super::account::paying_with_credits(app);
+    // a check that failed leaves the first drawing, which is placed all the same
+    let (art, extra, redrawn) = match r {
+        Ok((ai::Checked::Redrawn(better), u)) => (better, u, true),
+        Ok((ai::Checked::Good, u)) => (c.first.clone(), u, false),
+        Err(_) => (c.first.clone(), ai::Usage::default(), false),
+    };
+    let usage = ai::Usage { input: c.first.usage.input + extra.input, output: c.first.usage.output + extra.output };
+    place(app, art, usage, &c.name, c.size, c.frame, Some(redrawn));
 }
 
 /// A picture from another service that arrived: its key kept, and it goes to Claude to redraw.
@@ -444,6 +503,7 @@ fn poll_picture(app: &mut VectorcraftApp, ctx: &egui::Context) {
 pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
     app.embroidery.prompt.now = ctx.input(|i| i.time);
     poll_picture(app, ctx);
+    poll_check(app, ctx);
     let Some(p) = app.embroidery.prompt.pending.as_ref() else { return };
     let r = match p.rx.try_recv() {
         Ok(r) => r,
@@ -465,17 +525,41 @@ pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
     if let Ok(art) = &r {
         app.embroidery.prompt.last_usage = Some(art.usage);
     }
-    let usage = r.as_ref().ok().map(|art| art.usage);
-    let placed = r.map_err(|e| e.to_string()).and_then(|art| {
+    let art = match r {
+        Ok(art) => art,
+        Err(e) => {
+            if !open {
+                app.status(crate::i18n::msg(&e.to_string()));
+            }
+            app.embroidery.prompt.error = Some(e.to_string());
+            return;
+        }
+    };
+    // Thorough: checked as it stitches before it is placed
+    if let Some(request) = p.request.as_ref().filter(|r| r.effort.checks())
+        && start_check(app, request, &art, &p.name, p.size, p.frame)
+    {
+        return;
+    }
+    let usage = art.usage;
+    place(app, art, usage, &p.name, p.size, p.frame, None);
+}
+
+/// Place drawing `art` (it took `usage`): on its frame, else at `size`. `checked`: whether the
+/// check redrew it (`None`: it wasn't checked).
+fn place(app: &mut VectorcraftApp, art: Art, usage: ai::Usage, name: &str, size: f64, frame: Option<[f64; 4]>, checked: Option<bool>) {
+    let open = app.ui.dialog.as_ref().is_some_and(|d| d.kind == KIND);
+    let usage = Some(usage);
+    let placed = (|| {
         if app.session.active().is_none() {
             return Err("no document".to_string());
         }
-        let params = match p.frame {
-            Some(frame) => json!({ "svg": art.svg, "frame": frame, "name": p.name }),
-            None => json!({ "svg": art.svg, "size": p.size, "name": p.name }),
+        let params = match frame {
+            Some(frame) => json!({ "svg": art.svg, "frame": frame, "name": name }),
+            None => json!({ "svg": art.svg, "size": size, "name": name }),
         };
         app.run("embroidery.placeArt", params)
-    });
+    })();
     match placed {
         Ok(v) => {
             if open {
@@ -492,6 +576,10 @@ pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 } else {
                     crate::i18n::fmt(tl!("{tokens} tokens, about {cost}"), &[("tokens", &tokens), ("cost", &dollars(u.usd()))])
                 });
+            }
+            if checked == Some(true) {
+                line.push_str(" · ");
+                line.push_str(tl!("improved after checking its stitches"));
             }
             app.status(line);
         }

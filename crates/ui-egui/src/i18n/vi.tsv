@@ -6324,6 +6324,10 @@ machine	Stop	Dừng máy
 	Thorough	Kỹ lưỡng
 	About {typical} credits a drawing, at most {most}.	Khoảng {typical} tín dụng mỗi bản vẽ, tối đa {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Khoảng {typical} mỗi bản vẽ trên tài khoản Anthropic của bạn, tối đa {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Kỹ lưỡng suy nghĩ lâu nhất và tốn khoảng gấp đôi Bình thường: dùng cho thiết kế nhiều chi tiết.
 	{tokens} tokens	{tokens} token
 	{tokens} tokens, about {cost}	{tokens} token, khoảng {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Kỹ lưỡng tìm hiểu thứ nó vẽ, suy nghĩ lâu nhất và kiểm tra mũi thêu một lần: tốn gấp vài lần Bình thường. Dùng cho vật có thật, như một giống chó hay một mẫu xe tải, và cho thiết kế nhiều chi tiết.
+	Checking the stitches…	Đang kiểm tra mũi thêu…
+	improved after checking its stitches	đã cải thiện sau khi kiểm tra mũi thêu
+	Art Stitch Preview	Xem trước mũi thêu của bản vẽ

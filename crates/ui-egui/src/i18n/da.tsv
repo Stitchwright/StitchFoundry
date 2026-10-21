@@ -6618,6 +6618,10 @@ swatch	Bright Violet	Kraftig violet
 	Thorough	Grundig
 	About {typical} credits a drawing, at most {most}.	Omkring {typical} kreditter pr. tegning, højst {most}.
 	About {typical} a drawing on your Anthropic account, at most {most}.	Omkring {typical} pr. tegning på din Anthropic-konto, højst {most}.
-	Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail.	Grundig tænker længst og koster omkring dobbelt så meget som Normal: brug den til design med mange detaljer.
 	{tokens} tokens	{tokens} tokens
 	{tokens} tokens, about {cost}	{tokens} tokens, omkring {cost}
+# AI research and check
+	Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs.	Grundig slår op, hvad den tegner, tænker længst og tjekker sine sting én gang: den koster flere gange så meget som Normal. Brug den til virkelige ting, som en hunderace eller en lastbilmodel, og til detaljerede design.
+	Checking the stitches…	Tjekker stingene…
+	improved after checking its stitches	forbedret efter tjek af stingene
+	Art Stitch Preview	Stingvisning af tegning

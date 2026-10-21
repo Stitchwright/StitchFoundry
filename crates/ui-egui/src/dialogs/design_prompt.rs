@@ -132,7 +132,7 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
     }
     if effort == Effort::Thorough {
         ui.label(
-            egui::RichText::new(tl!("Thorough thinks longest and costs about twice as much as Normal: use it for designs with a lot of detail."))
+            egui::RichText::new(tl!("Thorough looks up what it draws, thinks longest and checks its stitches once: it costs several times as much as Normal. Use it for real things, like a dog breed or a truck model, and for detailed designs."))
                 .size(11.0)
                 .color(t.warning),
         );
@@ -164,7 +164,13 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
     if let Some(secs) = drawing {
         ui.horizontal(|ui| {
             ui.add(egui::Spinner::new());
-            let what = if app.embroidery.prompt.picturing() { tl!("Making the picture…") } else { tl!("Drawing the design…") };
+            let what = if app.embroidery.prompt.checking() {
+                tl!("Checking the stitches…")
+            } else if app.embroidery.prompt.picturing() {
+                tl!("Making the picture…")
+            } else {
+                tl!("Drawing the design…")
+            };
             ui.label(format!("{} {:.0} s", what, secs));
         });
     } else if let Some(e) = app.embroidery.prompt.error.clone() {
