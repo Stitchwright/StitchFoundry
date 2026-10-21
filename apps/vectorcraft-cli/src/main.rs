@@ -37,6 +37,7 @@ macro_rules! out {
     }};
 }
 
+mod ai_eval;
 /// The desktop app's CoreText font lister, shared: exports and MCP find the same fonts.
 #[cfg(target_os = "macos")]
 #[path = "../../vectorcraft/src/mac_fonts.rs"]
@@ -125,7 +126,7 @@ USAGE:
 /// The usage text plus the formats `document.open` reads and `document.export` writes.
 fn usage() -> String {
     use vectorcraft_engine::cmd::fileio::{OPEN_EXTS, export_extensions};
-    format!("{USAGE}\nReadable formats: .{}\nWritable formats: .{}\n", OPEN_EXTS.join(", ."), export_extensions().join(", ."))
+    format!("{USAGE}\n{}\nReadable formats: .{}\nWritable formats: .{}\n", ai_eval::USAGE, OPEN_EXTS.join(", ."), export_extensions().join(", ."))
 }
 
 fn main() -> ExitCode {
@@ -144,6 +145,7 @@ fn main() -> ExitCode {
         Some("info") => info(&args[1..]),
         Some("bench") => bench(&args[1..]),
         Some("perf") => perf::run(&args[1..]),
+        Some("ai-eval") => ai_eval::run(&args[1..]),
         Some("-h" | "--help" | "help") | None => {
             out!("{}", usage());
             Ok(())

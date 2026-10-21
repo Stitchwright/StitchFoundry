@@ -5269,6 +5269,8 @@ dependencies = [
  "objc2-core-foundation",
  "objc2-core-text",
  "serde_json",
+ "sf-core",
+ "ureq",
  "vectorcraft-color",
  "vectorcraft-doc",
  "vectorcraft-engine",

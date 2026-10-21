@@ -29,6 +29,10 @@ vectorcraft-render = { workspace = true }
 vectorcraft-text = { workspace = true }
 serde_json = { workspace = true }
 log = { workspace = true }
+# `ai-eval` (src/ai_eval.rs): Design from Prompt's requests and the HTTPS client the desktop app
+# sends them with (rustls, the system's certificates).
+sf-core = { workspace = true }
+ureq = { version = "3.4", default-features = false, features = ["rustls", "platform-verifier"] }
 
 # `perf` on Windows (src/perf.rs) reads how busy the processors are (GetSystemTimes) and this
 # process's working set (GetProcessMemoryInfo) through winsafe's safe wrappers over Win32 (MIT),
