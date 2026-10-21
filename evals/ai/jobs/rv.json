@@ -4,7 +4,16 @@
   "prompt": "A 2025 Keystone Cougar 23MLE fifth-wheel travel trailer, about 27 feet long, seen from the right front corner (three-quarter view from the front, passenger side): the raised front cap that rides over a truck bed, the front windows in the cap, the entry door and slide-out on the side, two axles. White sides with dark gray and black swoosh graphics along them. No logos, badges or lettering.",
   "sizeMm": 180,
   "colors": 8,
-  "hoop": { "width": 300, "height": 200 },
-  "reference": "references/rv.jpg",
-  "lookFor": ["a fifth-wheel trailer with a raised front cap, not a motorhome or bumper-pull trailer", "seen from the right front corner", "white with dark swoosh graphics", "two axles", "no logos or lettering"]
+  "hoop": {
+    "width": 300,
+    "height": 200
+  },
+  "reference": "references/truck-and-rv.jpg",
+  "lookFor": [
+    "a fifth-wheel trailer with a raised front cap, not a motorhome or bumper-pull trailer",
+    "seen from the right front corner",
+    "white with dark swoosh graphics",
+    "two axles",
+    "no logos or lettering"
+  ]
 }

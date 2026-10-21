@@ -1,10 +1,20 @@
 {
   "id": "havanese-smiling",
   "title": "Havanese dog face, smiling",
-  "prompt": "The face of a Havanese dog with short, groomed hair (a puppy cut, not a long coat), smiling the way a happy dog does: mouth open, a little pink tongue showing, dark round eyes, a black nose. White fur all over, with a light dusting of light brown on his left ear (the ear on the viewer's right).",
+  "prompt": "The face of a Havanese dog with a short, groomed puppy cut (the face trimmed short, the ears hanging soft and a little longer), smiling the way a happy dog does: a gentle smile, the mouth slightly open with a little pink tongue showing. Warm amber-brown round eyes and a liver-brown (pinkish brown) nose, not a black one. White fur all over, with a faint dusting of cream to light brown on his left ear (the ear on the viewer's right).",
   "sizeMm": 100,
   "colors": 6,
-  "hoop": { "width": 130, "height": 180 },
+  "hoop": {
+    "width": 130,
+    "height": 180
+  },
   "reference": "references/cashew.jpg",
-  "lookFor": ["Havanese, not another breed", "short hair", "a smile, mouth open", "white coat", "light brown dusting on the left ear only"]
+  "lookFor": [
+    "Havanese, not another breed",
+    "short trimmed face, softer longer ears",
+    "a gentle smile, mouth slightly open",
+    "white coat",
+    "amber-brown eyes and a liver-brown nose, not black",
+    "light brown dusting on the left ear only"
+  ]
 }

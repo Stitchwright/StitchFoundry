@@ -1,10 +1,20 @@
 {
   "id": "truck-and-rv",
   "title": "The F-350 towing the Cougar 23MLE",
-  "prompt": "A gray 2023 Ford F-350 Super Duty crew cab 4x4 pickup towing a 2025 Keystone Cougar 23MLE fifth-wheel travel trailer, hitched with a fifth-wheel hitch in the truck bed, the trailer's raised front cap riding over the bed. Seen from the right front corner of the truck (three-quarter view from the front, passenger side), the trailer stretching back behind it. The truck: tall wide grille, squared hood, four doors, chunky tires. The trailer: white sides with dark gray and black swoosh graphics, two axles. No logos, badges or lettering.",
+  "prompt": "A gray 2023 Ford F-350 Super Duty crew cab 4x4 pickup towing a 2025 Keystone Cougar 23MLE fifth-wheel travel trailer, seen straight from the driver's side (the left side), the truck on the left facing left and the trailer stretching to the right behind it. The trailer is hitched with a fifth-wheel hitch in the truck bed, its tall rounded front cap riding over the bed. The truck: medium-dark metallic gray, black grille and black wheels, big towing mirrors, four doors, single rear wheels. The trailer: white sides with gray and black swoosh graphics, a dark window near the rear, the entry door and storage doors low on its side, front landing jacks, two axles with silver and black wheels. No logos, badges or lettering.",
   "sizeMm": 260,
   "colors": 10,
-  "hoop": { "width": 300, "height": 200 },
+  "hoop": {
+    "width": 300,
+    "height": 200
+  },
   "reference": "references/truck-and-rv.jpg",
-  "lookFor": ["the truck in front, the trailer behind", "the trailer's front cap over the truck bed (fifth-wheel hitch), not a ball hitch at the bumper", "seen from the truck's right front corner", "gray truck, white trailer", "no logos or lettering"]
+  "lookFor": [
+    "the truck in front (left), the trailer behind (right)",
+    "the trailer's front cap over the truck bed (fifth-wheel hitch), not a ball hitch at the bumper",
+    "seen from the driver's side",
+    "gray truck with black wheels, white trailer with gray and black swooshes",
+    "two trailer axles",
+    "no logos or lettering"
+  ]
 }

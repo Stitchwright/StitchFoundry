@@ -1,10 +1,21 @@
 {
   "id": "truck-f350",
   "title": "Gray 2023 Ford F-350 crew cab 4x4",
-  "prompt": "A gray 2023 Ford F-350 Super Duty crew cab pickup with four-wheel drive, seen from the right front corner (three-quarter view from the passenger side, front), with its tall, wide grille and squared hood, four full doors, the bed behind, and chunky off-road tires. No logos, badges or lettering.",
+  "prompt": "A gray 2023 Ford F-350 Super Duty crew cab pickup with four-wheel drive, seen from the right front corner (three-quarter view from the passenger side, front). Medium-dark metallic gray body; a tall, wide black honeycomb grille between C-shaped LED headlights; a squared hood; big towing mirrors; four full doors with running boards below; the bed behind with a flat cover over it; single rear wheels (not a dually); black wheels on chunky all-terrain tires. No logos, badges or lettering.",
   "sizeMm": 160,
   "colors": 8,
-  "hoop": { "width": 300, "height": 200 },
+  "hoop": {
+    "width": 300,
+    "height": 200
+  },
   "reference": "references/truck.jpg",
-  "lookFor": ["a heavy-duty pickup, not a car or SUV", "crew cab: four doors", "seen from the right front corner", "gray body", "no logos or badges"]
+  "lookFor": [
+    "a heavy-duty pickup, not a car or SUV",
+    "crew cab: four doors",
+    "seen from the right front corner",
+    "gray body, black grille and black wheels",
+    "tow mirrors and running boards",
+    "single rear wheels, not a dually",
+    "no logos or badges"
+  ]
 }
