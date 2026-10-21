@@ -1,0 +1,73 @@
+# AI test jobs (AI-EVAL-01, evals/ai/README.md): run by hand only. Design from Prompt draws each job
+# in evals/ai/jobs from its description with the repository's ANTHROPIC_API_KEY secret (billed to
+# that Anthropic account), and the report (stitches, tokens, cost, time) is kept as an artifact for
+# 30 days. The owner's reference photos are never here: compare the report with them locally.
+name: AI test jobs
+
+on:
+  workflow_dispatch:
+    inputs:
+      effort:
+        description: "quick, normal, thorough (comma-separated) or all"
+        default: all
+      only:
+        description: "job ids to run (comma-separated); empty: every job"
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-eval
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_DEV_DEBUG: 0
+
+jobs:
+  ai-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libxkbcommon-dev libwayland-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.0
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ai-eval
+      - name: Build stitchfoundry-cli
+        run: cargo build -p vectorcraft-cli
+      - name: Run the jobs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EFFORT: ${{ inputs.effort }}
+          ONLY: ${{ inputs.only }}
+        run: |
+          set -o pipefail
+          args=(--effort "$EFFORT" --out target/ai-eval/report --yes)
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          target/debug/stitchfoundry-cli ai-eval "${args[@]}" 2>&1 | tee target/ai-eval-log.txt
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo '## AI test jobs'
+            echo '```'
+            cat target/ai-eval-log.txt 2>/dev/null || echo "no log"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-eval-report
+          path: target/ai-eval/report
+          retention-days: 30
+          if-no-files-found: warn
