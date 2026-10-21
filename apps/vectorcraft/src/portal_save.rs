@@ -467,14 +467,29 @@ mod tests {
                     std::thread::sleep(std::time::Duration::from_millis(300));
                 }
                 let (code, pick) = script.next().unwrap_or((2, None));
-                let mut results: HashMap<&str, Value<'_>> = HashMap::new();
-                if let Some((uri, label)) = pick {
-                    results.insert("uris", Value::from(vec![uri.to_string()]));
-                    results.insert("current_filter", Value::from((label.to_string(), vec![(0u32, "*.x".to_string())])));
-                }
-                let to = header.sender().cloned().map(zbus::names::BusName::from);
-                if server.emit_signal(to, path.as_str(), "org.freedesktop.portal.Request", "Response", &(code, results)).is_err() {
+                let to = header.sender().map(|s| zbus::names::BusName::from(s.to_owned()));
+                let answer = move |server: &zbus::blocking::Connection| {
+                    let mut results: HashMap<&str, Value<'_>> = HashMap::new();
+                    if let Some((uri, label)) = pick {
+                        results.insert("uris", Value::from(vec![uri.to_string()]));
+                        results.insert("current_filter", Value::from((label.to_string(), vec![(0u32, "*.x".to_string())])));
+                    }
+                    server.emit_signal(to.clone(), path.as_str(), "org.freedesktop.portal.Request", "Response", &(code, results)).is_ok()
+                };
+                if !answer(&server) {
                     break;
+                }
+                if own_paths {
+                    // On a busy machine the caller may start listening on the path returned only
+                    // after that answer: it is said again for a few seconds (the caller takes the
+                    // first it hears), or the test would wait for ever.
+                    let server = server.clone();
+                    std::thread::spawn(move || {
+                        for _ in 0..20 {
+                            std::thread::sleep(std::time::Duration::from_millis(250));
+                            answer(&server);
+                        }
+                    });
                 }
             }
         });
