@@ -455,10 +455,9 @@ pub fn parse_check(status: u16, body: &str) -> Result<(Checked, Usage), ArtError
     check_status(status, body)?;
     let v: Value = serde_json::from_str(body).map_err(|_| ArtError::NoArt)?;
     let usage = Usage::of_reply(&v);
-    match v.get("stop_reason").and_then(Value::as_str) {
-        // a check that was declined or cut off leaves the first drawing as it is
-        Some("refusal" | "max_tokens") => return Ok((Checked::Good, usage)),
-        _ => {}
+    // a check that was declined or cut off leaves the first drawing as it is
+    if let Some("refusal" | "max_tokens") = v.get("stop_reason").and_then(Value::as_str) {
+        return Ok((Checked::Good, usage));
     }
     let text = reply_text(&v);
     let checked = match extract_svg(&text) {
