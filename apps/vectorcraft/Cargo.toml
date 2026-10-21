@@ -21,6 +21,9 @@ wgpu = ["eframe/wgpu", "dep:winsafe"]
 accessibility = ["eframe/accesskit"]
 # Build with --no-default-features --features windows7 and the win7 Rust target.
 windows7 = ["eframe/glow"]
+# HEIC/HEIF photos (`cargo build -p vectorcraft --features heif`): off in official builds for now,
+# HEVC being patent-encumbered in some countries (the engine's `heif` feature).
+heif = ["vectorcraft-engine/heif"]
 
 [dependencies]
 vectorcraft-engine = { workspace = true }

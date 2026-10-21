@@ -678,6 +678,8 @@ pub const FORMATS: &[Format] = &[
     reader("tap", "Happy TAP", &["tap"], "application/x-tap", false),
     reader("dsb", "Barudan DSB", &["dsb"], "application/x-dsb", false),
     reader("dsz", "ZSK DSZ", &["dsz"], "application/x-dsz", false),
+    // iPhone and Mac photos: decoded only in builds with the engine's `heif` feature.
+    reader("heic", "HEIC", &["heic", "heif"], "image/heic", true),
 ];
 
 /// Every extension `document.open` reads (the "All readable files" filter of open dialogs).
@@ -702,6 +704,8 @@ pub const OPEN_EXTS: &[&str] = &[
     "vda",
     "icb",
     "vst",
+    "heic",
+    "heif",
     "psd",
     "psb",
     "vctemplate",
@@ -733,7 +737,7 @@ pub const OPEN_EXTS: &[&str] = &[
 /// `.epsf`, `.ps` or Targa type (File › Open and Place still read them all). On Linux the desktop
 /// entry's EPS type (shared-mime-info's) also covers `.epsf`, so file managers offer VectorCraft
 /// for it.
-pub const UNASSOCIATED_EXTS: &[&str] = &["psd", "psb", "epsf", "ps", "tga", "vda", "icb", "vst"];
+pub const UNASSOCIATED_EXTS: &[&str] = &["psd", "psb", "epsf", "ps", "tga", "vda", "icb", "vst", "heic", "heif"];
 
 /// The extension that picks each writable format when exporting (the format's first; PNG-8 shares
 /// `.png` with PNG, so `.png` comes once), in [`FORMATS`] order.
@@ -780,6 +784,8 @@ pub const PLACE_EXTS: &[&str] = &[
     "vda",
     "icb",
     "vst",
+    "heic",
+    "heif",
     "psd",
     "psb",
     "vctemplate",

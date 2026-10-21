@@ -6345,3 +6345,6 @@ machine	Stop	Остановка
 	Refine Cut-Out	Уточнить вырезание
 	Cut-Out Brush Tool	Кисть вырезания
 	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Проведите по вырезанному фото, чтобы вернуть то, что пропустило «Удалить фон»; с Alt уберёте оставшийся фон.
+# HEIC photos
+@msg	HEIC photos can't be opened in this build of StitchFoundry: save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes photos as JPEG)	В этой сборке StitchFoundry фото HEIC не открываются: сохраните фото как JPEG (на iPhone: Настройки › Камера › Форматы › Наиболее совместимый — снимки в JPEG)
+@msg	the HEIC photo is cut short	фото HEIC обрезано

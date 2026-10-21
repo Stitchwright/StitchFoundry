@@ -2000,6 +2000,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "heic-rs"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8883c3bfa6b4ff19a40e52a6dc051c5612cbe21bf408fc6d4875e8dfd777cb66"
+dependencies = [
+ "rayon",
+]
+
+[[package]]
 name = "hermit-abi"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4269,6 +4278,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "sf-heif"
+version = "0.14.0"
+dependencies = [
+ "heic-rs",
+]
+
+[[package]]
 name = "sf-photo"
 version = "0.14.0"
 dependencies = [
@@ -5345,6 +5361,7 @@ dependencies = [
  "serde_json",
  "sf-core",
  "sf-formats",
+ "sf-heif",
  "sf-photo",
  "thiserror 2.0.21",
  "vectorcraft-affinity",

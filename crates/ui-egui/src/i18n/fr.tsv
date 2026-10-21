@@ -6722,3 +6722,6 @@ theme	Appearance	Apparence
 	Refine Cut-Out	Affiner le détourage
 	Cut-Out Brush Tool	Pinceau de détourage
 	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Peignez sur la photo détourée pour rétablir ce que Supprimer l’arrière-plan a laissé de côté ; maintenez Alt pour retirer le fond qu’il a gardé.
+# HEIC photos
+@msg	HEIC photos can't be opened in this build of StitchFoundry: save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes photos as JPEG)	Cette version de StitchFoundry n’ouvre pas les photos HEIC : enregistrez la photo en JPEG (sur un iPhone, Réglages › Appareil photo › Formats › Le plus compatible prend les photos en JPEG)
+@msg	the HEIC photo is cut short	la photo HEIC est tronquée

@@ -28,6 +28,11 @@ SLIC superpixels, guided-filter edge refinement, distance transform, live-wire) 
 PhotoCraft (https://github.com/storytold/photocraft, commit 04d0212) by the ArtCraft Team, under the MIT
 License or the Apache License, Version 2.0, the same as this product.
 
+Builds made with the `heif` feature (not the official ones, for now) decode HEIC photos with heic-rs
+(https://github.com/tbraun96/heic-rs, MIT OR Apache-2.0), through crates/sf-heif, adapted from
+PhotoCraft's HEIF wrapper (MIT OR Apache-2.0). HEVC, the compression HEIC uses, is covered by patents
+in some countries; whoever distributes such a build is responsible for any licence they need.
+
 Rust dependencies (vello_cpu, kurbo, peniko, skrifa, harfrust, usvg, linesweeper, egui, eframe, …) are
 fetched through crates.io under their own permissive licenses (mostly MIT and/or Apache-2.0; also
 BSD, ISC, Zlib, BSL-1.0 and Unicode-3.0).

@@ -13,6 +13,10 @@ path = "src/main.rs"
 [lints]
 workspace = true
 
+[features]
+# HEIC/HEIF photos (the engine's `heif` feature; off by default).
+heif = ["vectorcraft-engine/heif"]
+
 [dependencies]
 vectorcraft-color = { workspace = true }
 vectorcraft-doc = { workspace = true }

@@ -1,0 +1,20 @@
+[package]
+name = "sf-heif"
+description = "HEIF/HEIC (iPhone and Mac photo) decoding for StitchFoundry, a panic-guarded wrapper round heic-rs (adapted from PhotoCraft); optional: the engine uses it only with its `heif` feature"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+# Pure Rust, no unsafe. Pinned exactly: a young crate that parses untrusted files.
+heic-rs = { version = "=0.1.4", default-features = false, features = ["std"] }
+
+# The tiles of a HEIC photo decode in parallel on native; wasm stays single-threaded.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+heic-rs = { version = "=0.1.4", default-features = false, features = ["std", "parallel"] }
+
+[lints]
+workspace = true

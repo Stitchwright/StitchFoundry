@@ -97,6 +97,9 @@ pub fn detect(name: &str, bytes: &[u8]) -> Option<&'static Format> {
     if psdread::is_psd(bytes) {
         return format(if psdread::is_psb(bytes) { "psb" } else { "psd" });
     }
+    if is_heif(bytes) {
+        return format("heic");
+    }
     if let Some(f) = image::guess_format(bytes).ok().and_then(image_format) {
         return Some(f);
     }
@@ -527,6 +530,9 @@ pub fn raster_image(bytes: &[u8]) -> Result<RasterImage> {
     if let Some((w, h)) = vectorcraft_doc::cmyk::oversized_tiff(bytes) {
         return Err(err(format!("an image of {w} × {h} pixels is too large to draw")));
     }
+    if is_heif(bytes) {
+        return as_png(heif_image(bytes)?, ppi);
+    }
     if psdread::is_psd(bytes) {
         let cms = vectorcraft_color::cms::active();
         return as_png(psdread::decode(bytes, MAX_RASTER_ALLOC, |c| cms.cmyk_to_srgb(c, false)).map_err(err)?, ppi);
@@ -576,6 +582,52 @@ pub fn raster_image(bytes: &[u8]) -> Result<RasterImage> {
 }
 
 /// `img` stored as a PNG that keeps the file's resolution.
+/// The brands of an ISO base-media `ftyp` box that mark a HEIF still image (an iPhone or Mac photo).
+const HEIF_BRANDS: [&[u8]; 9] = [b"heic", b"heix", b"hevc", b"hevx", b"heim", b"heis", b"mif1", b"msf1", b"heif"];
+
+/// Whether `bytes` is a HEIF/HEIC file (by its `ftyp` box, whatever the file is called).
+pub(super) fn is_heif(bytes: &[u8]) -> bool {
+    bytes.get(4..8) == Some(b"ftyp".as_slice()) && bytes.get(8..12).is_some_and(|b| HEIF_BRANDS.contains(&b))
+}
+
+/// Why a HEIC photo doesn't open in a build without the `heif` feature.
+#[cfg(not(feature = "heif"))]
+const HEIF_MISSING: &str = "HEIC photos can't be opened in this build of StitchFoundry: save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes photos as JPEG)";
+
+/// A HEIC photo's pixels (8 bits a sample; 10-bit photos are scaled down), its rotation applied.
+#[cfg(feature = "heif")]
+fn heif_image(bytes: &[u8]) -> Result<image::RgbaImage> {
+    let options = sf_heif::Options { max_pixels: MAX_RASTER_ALLOC / 4, apply_transforms: true };
+    let d = sf_heif::decode(bytes, &options).map_err(err)?;
+    let channels = if d.has_alpha { 4 } else { 3 };
+    let step = if d.sixteen_bit { 2 } else { 1 };
+    let (w, h) = (d.width as usize, d.height as usize);
+    if d.data.len() < w * h * channels * step {
+        return Err(err("the HEIC photo is cut short"));
+    }
+    let sample = |i: usize| -> u8 {
+        if d.sixteen_bit {
+            let at = i * 2;
+            match (d.data.get(at), d.data.get(at + 1)) {
+                (Some(a), Some(b)) => (u16::from_ne_bytes([*a, *b]) >> 8) as u8,
+                _ => 0,
+            }
+        } else {
+            d.data.get(i).copied().unwrap_or(0)
+        }
+    };
+    Ok(image::RgbaImage::from_fn(d.width, d.height, |x, y| {
+        let i = (y as usize * w + x as usize) * channels;
+        let alpha = if channels == 4 { sample(i + 3) } else { 255 };
+        image::Rgba([sample(i), sample(i + 1), sample(i + 2), alpha])
+    }))
+}
+
+#[cfg(not(feature = "heif"))]
+fn heif_image(_bytes: &[u8]) -> Result<image::RgbaImage> {
+    Err(err(HEIF_MISSING))
+}
+
 fn as_png(img: image::RgbaImage, ppi: Option<(f64, f64)>) -> Result<RasterImage> {
     let size = img.dimensions();
     let mut png = Vec::new();

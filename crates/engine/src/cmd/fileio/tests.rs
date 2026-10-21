@@ -777,3 +777,25 @@ fn a_failed_save_does_not_stamp_the_documents_dates() {
     s.execute("edit.undo", &json!({})).unwrap();
     assert!(!s.doc().unwrap().is_dirty());
 }
+
+/// PC-03: a HEIC photo is known by its `ftyp` box whatever it is called; in a build without the
+/// `heif` feature placing or opening one says to save it as JPEG, and with it a malformed one is a
+/// plain error. Neither crashes.
+#[test]
+fn heic_photos_are_recognised() {
+    let heic = b"\0\0\0\x18ftypheic\0\0\0\0mif1heic".to_vec();
+    assert!(load::is_heif(&heic));
+    assert!(!load::is_heif(b"\0\0\0\x18ftypisom\0\0\0\0isommp41"), "a video isn't a photo");
+    assert!(!load::is_heif(b"\x89PNG\r\n\x1a\n"));
+    assert!(!load::is_heif(b"\0\0"));
+    assert_eq!(format("heic").map(|f| f.id), Some("heic"));
+    assert_eq!(format("heif").map(|f| f.id), Some("heic"));
+    let mut s = session(200.0, 200.0, 1);
+    let e =
+        s.execute("file.place", &json!({"name": "IMG_0042.jpg", "dataBase64": vectorcraft_format::base64_encode(&heic)})).unwrap_err().to_string();
+    if cfg!(feature = "heif") {
+        assert!(!e.is_empty());
+    } else {
+        assert!(e.contains("HEIC") && e.contains("JPEG"), "{e}");
+    }
+}

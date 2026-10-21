@@ -13,6 +13,11 @@ default = ["bundled-fonts"]
 # The fonts vectorcraft-text bundles (see its `bundled-fonts`). Embedders that supply every font at
 # run time (`vectorcraft_text::FontDb::add_font`) build with `default-features = false`.
 bundled-fonts = ["vectorcraft-text/bundled-fonts"]
+# HEIC/HEIF (iPhone) photos, decoded by sf-heif (heic-rs, pure Rust). Off by default: HEVC is
+# patent-encumbered in some countries, so including a decoder is the distributor's choice (owner's
+# decision, 2026-10-21: off in official builds for now). Without it HEIC files are recognised and
+# refused with a message saying to save them as JPEG.
+heif = ["dep:sf-heif"]
 
 [dependencies]
 # Which paths stored in documents may be opened.
@@ -37,6 +42,7 @@ vectorcraft-affinity = { workspace = true }
 vectorcraft-embroidery = { workspace = true }
 sf-core = { workspace = true }
 sf-photo.workspace = true
+sf-heif = { workspace = true, optional = true }
 sf-formats = { workspace = true }
 vectorcraft-scriptcheck = { workspace = true }
 image = { workspace = true }

@@ -1302,6 +1302,11 @@ image's edge) and `minArea` (specks).
 
 ### Preparing an image
 
+Photos from a phone or camera place like any image (JPEG, PNG, WebP, TIFF and the rest). HEIC
+photos (an iPhone's default) open only in builds made with the `heif` feature: elsewhere StitchFoundry
+says to save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes
+photos as JPEG).
+
 **Embroidery › Prepare Image** (`embroidery.image.prepare {colors?, smooth?, clean?, replace?}`)
 makes a photo or a scanned logo ready to digitize: a median filter smooths it while keeping its
 edges (`smooth`, a radius in pixels), its colours are reduced to the main ones (`colors`, 8 by

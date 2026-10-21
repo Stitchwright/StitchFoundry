@@ -6349,3 +6349,6 @@ machine	Stop	Arresto
 	Refine Cut-Out	Rifinisci scontorno
 	Cut-Out Brush Tool	Pennello di scontorno
 	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Dipingi sulla foto scontornata per recuperare ciò che Rimuovi sfondo ha tralasciato; tieni premuto Alt per togliere lo sfondo rimasto.
+# HEIC photos
+@msg	HEIC photos can't be opened in this build of StitchFoundry: save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes photos as JPEG)	Questa versione di StitchFoundry non apre le foto HEIC: salva la foto come JPEG (su un iPhone, Impostazioni › Fotocamera › Formati › Più compatibile scatta le foto in JPEG)
+@msg	the HEIC photo is cut short	la foto HEIC è troncata
