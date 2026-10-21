@@ -91,9 +91,11 @@ When a task lands, update in the same PR: the area row in `docs/target-app-parit
 
 ## Commit authorship
 
-Commits in this repository are authored by **Bruce Wattendorf**, so the work shows on his GitHub profile. AI assistance is credited with a trailer, not as the author.
+Commits in this repository are made by **Claude**, with Bruce Wattendorf credited as co-author
+(owner's decision, 2026-10-21; it replaces the earlier rule that commits were authored as Bruce).
 
-- Before the first commit in a session, set the identity: `git config user.name "Bruce Wattendorf"` and `git config user.email "bwattendorf@gmail.com"`. If you can't change the config, pass `--author="Bruce Wattendorf <bwattendorf@gmail.com>"` on every `git commit`.
-- Never author or commit as `Claude <noreply@anthropic.com>`.
+- Commit as `Claude <noreply@anthropic.com>`: `git config user.name "Claude"` and
+  `git config user.email "noreply@anthropic.com"` before the first commit in a session.
 - End every commit message with this trailer as its last line:
-  `Co-Authored-By: Claude <noreply@anthropic.com>`
+  `Co-Authored-By: Bruce Wattendorf <bwattendorf@gmail.com>`
+- Never rewrite commits already pushed to change their author.
