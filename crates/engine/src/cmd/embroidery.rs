@@ -201,7 +201,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Auto-Digitize Image",
             ["Embroidery"],
             None,
-            "{colors?: 2-32 (6), detail?: 0-100 (60), noise?: px (16), removeBackground?: bool (true), minArea?: mm² (1), size?: mm (longest side), keepImage?: bool (true), details?: mm (0.8: shapes no thicker sewn as a run round them, fine lines and details; 0 none), outline?: none|design|shapes (none: a satin outline round the whole design, or round each filled shape), outlineWidth?: mm (1.5), outlineColor?: \"#rrggbb\" (the design's darkest thread), chart?: a thread chart to match the threads to (none)} trace the selected image into flat colour shapes and give each a stitch type: satin for narrow parts, tatami at its best angle for the rest, details as runs, specks and the background dropped, sewn colour by colour, outlined and matched to a chart if asked → {id, objects, satin, fill, run, outlines, removed, colors, scale}",
+            "{colors?: 2-32 (6), detail?: 0-100 (60), noise?: px (16), removeBackground?: bool (true), minArea?: mm² (1), size?: mm (longest side), keepImage?: bool (true), details?: mm (0.8: shapes no thicker sewn as a run round them, fine lines and details; 0 none), outline?: none|design|shapes (none: a satin outline round the whole design, or round each filled shape), outlineWidth?: mm (1.5), outlineColor?: \"#rrggbb\" (the design's darkest thread), chart?: a thread chart to match the threads to (none)} trace the selected image into flat colour shapes and give each a stitch type: satin for narrow parts, tatami at its best angle for the rest, details as runs, specks and the background dropped, sewn colour by colour, outlined and matched to a chart if asked, small holes and gaps where nothing is sewn closed in the colour round them → {id, objects, satin, fill, run, outlines, removed, holesClosed, gapsFilled, colors, scale}",
             has_selection,
             auto_digitize
         ),
@@ -1800,6 +1800,12 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
     if keep.is_empty() {
         return Err(EngineError::Other("Auto-Digitize found no shapes to stitch: lower Noise or raise Colors".into()));
     }
+    // the specks dropped (and the light ones the trace left out) leave no holes for the fabric to
+    // show through: the shape round them covers them
+    let holes_closed = close_small_holes(&mut keep, (3.0 * min_area).max(3.0) / (MM_PER_PT * MM_PER_PT));
+    // and the gaps between neighbouring colours (a seam the trace left, a speck dropped where
+    // colours meet) are sewn by the neighbour sharing most of their edge
+    let gaps_filled = fill_gaps(&mut keep, (3.0 * min_area).max(3.0));
     // Abutting shapes don't overlap, so they can be sewn colour by colour (in the order the colours
     // first appear), each colour nearest-first.
     let colour = |n: &vectorcraft_doc::Node| match n.appearance.fill_paint() {
@@ -1878,8 +1884,192 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
     }
     Ok(json!({
         "id": gid.0, "objects": objects, "satin": satin, "fill": fill, "run": run, "outlines": outlines,
-        "removed": removed, "colors": order.len(), "scale": scale,
+        "removed": removed, "holesClosed": holes_closed, "gapsFilled": gaps_filled, "colors": order.len(), "scale": scale,
     }))
+}
+
+/// How far a shape reaches into the gap it fills, past its edge (mm), so no seam is left.
+const GAP_REACH: f64 = 0.15;
+
+/// The widest seam between colours that is filled whatever its length (mm), and the largest (mm²).
+const MAX_SEAM_WIDTH: f64 = 1.0;
+const MAX_SEAM_AREA: f64 = 200.0;
+
+/// Fill the gaps smaller than `cap` (mm²), and the thin seams, that the shapes in `nodes` leave between them: each
+/// is given to the shape sharing most of its edge, which then covers it. → how many were filled.
+fn fill_gaps(nodes: &mut [vectorcraft_doc::Node], cap: f64) -> usize {
+    use sf_core::geom::{Polygon, poly};
+    let regions: Vec<Vec<Polygon>> = nodes.iter().map(regions_mm).collect();
+    let all: Vec<Polygon> = regions.iter().flatten().cloned().collect();
+    if all.is_empty() {
+        return 0;
+    }
+    let gaps: Vec<Polygon> = poly::union(&all)
+        .iter()
+        .flat_map(|p| p.holes.iter())
+        .map(|h| Polygon::from_ring(h.clone()))
+        .filter(|g| g.area() < cap || (g.area() < MAX_SEAM_AREA && g.thickness() <= MAX_SEAM_WIDTH))
+        .collect();
+    let mut given: Vec<Vec<Polygon>> = vec![Vec::new(); nodes.len()];
+    let mut filled = 0;
+    for g in gaps {
+        let gb = g.bbox().expanded(0.5);
+        let near = poly::offset(std::slice::from_ref(&g), 0.3);
+        let best = regions
+            .iter()
+            .enumerate()
+            .filter(|(_, r)| r.iter().any(|p| p.bbox().intersects(&gb)))
+            .map(|(i, r)| (i, poly::intersection(&near, r).iter().map(Polygon::area).sum::<f64>()))
+            .max_by(|a, b| a.1.total_cmp(&b.1));
+        if let Some((i, shared)) = best
+            && shared > 1e-4
+            && let Some(v) = given.get_mut(i)
+        {
+            v.push(g);
+            filled += 1;
+        }
+    }
+    for (i, gaps) in given.into_iter().enumerate() {
+        let (Some(node), Some(mine)) = (nodes.get_mut(i), regions.get(i)) else { continue };
+        if gaps.is_empty() {
+            continue;
+        }
+        let grown = poly::union2(mine, &poly::offset(&gaps, GAP_REACH));
+        let pt = |p: &sf_core::Point| vectorcraft_geom::path::Anchor::corner(kurbo::Point::new(p.x * PT_PER_MM, p.y * PT_PER_MM));
+        let subpaths = grown
+            .iter()
+            .flat_map(|p| p.rings())
+            .filter(|r| r.len() >= 3)
+            .map(|r| vectorcraft_geom::path::SubPath::new(r.iter().map(pt).collect(), true))
+            .collect();
+        node.kind = NodeKind::Path {
+            path: vectorcraft_geom::PathData { subpaths },
+            rule: vectorcraft_geom::FillRule::EvenOdd,
+            live: None,
+            clipping: false,
+            guide: false,
+        };
+    }
+    filled
+}
+
+/// Whether a path's or compound path's fill covers `at` (document points), by its fill rule.
+fn paints(n: &vectorcraft_doc::Node, at: kurbo::Point) -> bool {
+    use kurbo::Shape;
+    let rule = match &n.kind {
+        NodeKind::Path { rule, .. } | NodeKind::Compound { rule, .. } => *rule,
+        _ => return false,
+    };
+    let Some(path) = n.stroke_path() else { return false };
+    let w = path.winding(at);
+    match rule {
+        vectorcraft_geom::FillRule::EvenOdd => w % 2 != 0,
+        vectorcraft_geom::FillRule::NonZero => w != 0,
+    }
+}
+
+/// A point inside a closed subpath: the centroid of its outline, when that is inside it.
+fn inside_point(sp: &vectorcraft_geom::path::SubPath) -> Option<kurbo::Point> {
+    use kurbo::Shape;
+    let mut bp = kurbo::BezPath::new();
+    sp.to_bezpath_into(&mut bp);
+    let mut pts = Vec::new();
+    kurbo::flatten(&bp, 0.05, |e| match e {
+        kurbo::PathEl::MoveTo(p) | kurbo::PathEl::LineTo(p) => pts.push(p),
+        _ => {}
+    });
+    let (mut a, mut cx, mut cy) = (0.0, 0.0, 0.0);
+    for (i, p) in pts.iter().enumerate() {
+        let q = pts.get((i + 1) % pts.len())?;
+        let k = p.x * q.y - q.x * p.y;
+        a += k;
+        cx += (p.x + q.x) * k;
+        cy += (p.y + q.y) * k;
+    }
+    if a.abs() < 1e-12 {
+        return None;
+    }
+    let c = kurbo::Point::new(cx / (3.0 * a), cy / (3.0 * a));
+    (c.is_finite() && bp.winding(c) != 0).then_some(c)
+}
+
+/// Remove the holes smaller than `cap` (square points) from the shapes in `nodes` where no shape
+/// is painted: a hole left by a dropped speck is sewn in the colour round it. A hole with
+/// another part of its shape inside it stays. → how many holes were closed.
+fn close_small_holes(nodes: &mut [vectorcraft_doc::Node], cap: f64) -> usize {
+    use kurbo::Shape;
+    use vectorcraft_geom::path::SubPath;
+    let mut closed = 0;
+    for i in 0..nodes.len() {
+        let Some(node) = nodes.get(i) else { continue };
+        // every ring of the shape: (its compound member, its subpath index, the subpath)
+        let rings: Vec<(Option<usize>, usize, &SubPath)> = match &node.kind {
+            NodeKind::Path { path, .. } => path.subpaths.iter().enumerate().map(|(j, sp)| (None, j, sp)).collect(),
+            NodeKind::Compound { children, .. } => children
+                .iter()
+                .enumerate()
+                .flat_map(|(c, ch)| {
+                    ch.path_data().map(|pd| pd.subpaths.iter().enumerate().map(|(j, sp)| (Some(c), j, sp)).collect::<Vec<_>>()).unwrap_or_default()
+                })
+                .collect(),
+            _ => continue,
+        };
+        if rings.len() < 2 {
+            continue;
+        }
+        let shapes: Vec<kurbo::BezPath> = rings
+            .iter()
+            .map(|r| {
+                let mut bp = kurbo::BezPath::new();
+                r.2.to_bezpath_into(&mut bp);
+                bp
+            })
+            .collect();
+        let areas: Vec<f64> = shapes.iter().map(|b| b.area().abs()).collect();
+        let points: Vec<Option<kurbo::Point>> = rings.iter().map(|r| if r.2.closed { inside_point(r.2) } else { None }).collect();
+        let mut drop = Vec::new();
+        for (k, ring) in rings.iter().enumerate() {
+            let (Some(&area), Some(Some(at)), Some(shape)) = (areas.get(k), points.get(k), shapes.get(k)) else { continue };
+            if area >= cap || paints(node, *at) {
+                continue;
+            }
+            let enclosed = shapes.iter().zip(&areas).enumerate().any(|(m, (o, a))| m != k && *a > area && o.winding(*at) != 0);
+            let has_island = points.iter().zip(&areas).enumerate().any(|(m, (p, a))| m != k && *a < area && p.is_some_and(|p| shape.winding(p) != 0));
+            let covered = nodes.iter().enumerate().any(|(m, o)| m != i && paints(o, *at));
+            if enclosed && !has_island && !covered {
+                drop.push((ring.0, ring.1));
+            }
+        }
+        if drop.is_empty() {
+            continue;
+        }
+        closed += drop.len();
+        // the subpaths removed from the last, so the indices stay right
+        drop.sort_unstable_by(|a, b| b.cmp(a));
+        let Some(node) = nodes.get_mut(i) else { continue };
+        match &mut node.kind {
+            NodeKind::Path { path, .. } => {
+                for (_, j) in &drop {
+                    if *j < path.subpaths.len() {
+                        path.subpaths.remove(*j);
+                    }
+                }
+            }
+            NodeKind::Compound { children, .. } => {
+                for (c, j) in &drop {
+                    if let Some(ch) = c.and_then(|c| children.get_mut(c))
+                        && let Some(pd) = Arc::make_mut(ch).path_data_mut()
+                        && *j < pd.subpaths.len()
+                    {
+                        pd.subpaths.remove(*j);
+                    }
+                }
+                children.retain(|ch| ch.path_data().is_none_or(|pd| !pd.subpaths.is_empty()));
+            }
+            _ => {}
+        }
+    }
+    closed
 }
 
 fn stamp_named(name: &str) -> Option<Stamp> {

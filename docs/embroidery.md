@@ -1285,7 +1285,7 @@ swatch for its name, code and how much of the image it covers) and how many thre
 means, so you can compare counts before digitizing (`embroidery.image.preview {colors,
 removeBackground}`). The same count is used by Prepare Image and colour Photo Stitch, both a
 button away. The image is traced into flat colour shapes with the given number of
-thread colours, the background and specks under 1 mm² are dropped, and each shape gets a stitch
+thread colours, the background and specks under 1 mm² are dropped (the shape round a dropped speck closes over it, so no fabric shows through), and each shape gets a stitch
 type: satin for narrow parts, tatami at its best angle for the rest. The design is sewn colour by
 colour, nearest shape first. It is scaled to fit the hoop if one is set (or to 100 mm if it is
 larger than 200 mm). The image stays underneath as a reference. One undo step undoes it all.

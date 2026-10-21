@@ -1950,6 +1950,65 @@ fn auto_digitize_traces_an_image_into_satin_and_fill() {
     assert!(s.execute("embroidery.autoDigitize", &json!({})).is_err());
 }
 
+/// AD-FIX-01: a speck dropped as too small, or a highlight left out, leaves no hole in the shape
+/// round it: the fabric doesn't show through.
+#[test]
+fn auto_digitize_leaves_no_holes_where_specks_are_dropped() {
+    let mut s = session();
+    // a blue disc with a small red speck and a white highlight in it
+    let r = vectorcraft_trace::Raster::from_fn(300, 200, |x, y| {
+        let (dx, dy) = (x as f64 - 100.0, y as f64 - 100.0);
+        if (97..103).contains(&x) && (97..103).contains(&y) {
+            [220, 30, 30, 255]
+        } else if (130..137).contains(&x) && (97..104).contains(&y) {
+            [255, 255, 255, 255]
+        } else if dx * dx + dy * dy <= 80.0 * 80.0 {
+            [20, 40, 200, 255]
+        } else {
+            [255, 255, 255, 255]
+        }
+    });
+    s.execute("file.place", &json!({"name": "disc.png", "dataBase64": vectorcraft_format::base64_encode(&r.encode_png())})).unwrap();
+    let res = s.execute("embroidery.autoDigitize", &json!({"colors": 3, "minArea": 10, "noise": 4})).unwrap();
+    assert_eq!(res["objects"], 1, "only the disc is kept: {res}");
+    let d = &s.doc().unwrap().doc;
+    let g = d.node(NodeId(res["id"].as_u64().unwrap())).unwrap();
+    let disc = &g.children().unwrap()[0];
+    let regions = vectorcraft_embroidery::regions_mm(disc);
+    let whole: Vec<_> = regions.iter().map(|r| sf_core::geom::Polygon::from_ring(r.outer.clone())).collect();
+    let b = whole.iter().map(|p| p.bbox()).reduce(|a, b| a.union(b)).unwrap();
+    let mm = (b.max.x - b.min.x) / 160.0; // a pixel, in mm
+    let centre = sf_core::Point::new((b.min.x + b.max.x) / 2.0, (b.min.y + b.max.y) / 2.0);
+    for at in [centre, sf_core::Point::new(centre.x + 33.0 * mm, centre.y)] {
+        assert!(regions.iter().any(|r| r.contains(at)), "a hole at {at:?}: {:?}", regions.iter().map(|r| r.holes.len()).collect::<Vec<_>>());
+    }
+}
+
+/// AD-FIX-02: where two colours meet, a seam the trace left between them (here a thin white
+/// line) is sewn by one of them: no fabric shows between neighbouring colours.
+#[test]
+fn auto_digitize_leaves_no_gaps_between_colours() {
+    let mut s = session();
+    let r = vectorcraft_trace::Raster::from_fn(300, 200, |x, y| {
+        if !(20..180).contains(&y) || !(20..280).contains(&x) || (x == 150 && (50..150).contains(&y)) {
+            [255, 255, 255, 255]
+        } else if x < 150 {
+            [20, 40, 200, 255]
+        } else {
+            [220, 30, 30, 255]
+        }
+    });
+    s.execute("file.place", &json!({"name": "two.png", "dataBase64": vectorcraft_format::base64_encode(&r.encode_png())})).unwrap();
+    let res = s.execute("embroidery.autoDigitize", &json!({"colors": 3, "noise": 1, "minArea": 0.1})).unwrap();
+    assert_eq!(res["objects"], 2, "{res}");
+    let d = &s.doc().unwrap().doc;
+    let g = d.node(NodeId(res["id"].as_u64().unwrap())).unwrap();
+    let all: Vec<_> = g.children().unwrap().iter().flat_map(|n| vectorcraft_embroidery::regions_mm(n)).collect();
+    let union = sf_core::geom::poly::union(&all);
+    let holes: Vec<f64> = union.iter().flat_map(|p| p.holes.iter()).map(|h| sf_core::geom::Polygon::from_ring(h.clone()).area()).collect();
+    assert!(holes.is_empty(), "fabric shows between the colours: {holes:?} ({res})");
+}
+
 #[test]
 fn smart_auto_digitize_sews_details_as_runs_outlines_and_matches_a_chart() {
     let mut s = session();
