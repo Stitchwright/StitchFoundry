@@ -6398,3 +6398,5 @@ machine	Stop	停止
 	Magnetic Lasso	マグネット投げなわ
 	Magnetic Lasso Tool	マグネット投げなわツール
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	写真の一部を囲むようにクリックします。境界線は写真の輪郭に吸着します。最初の点をクリックするか、ダブルクリックするか、Enter キーを押すと閉じて刺しゅうになります。
+# Make a Design: photos
+	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	写真も使えます。「背景を削除」がオンなら、まず被写体を背景から切り抜きます。オフにすると写真全体を刺しゅうにします。

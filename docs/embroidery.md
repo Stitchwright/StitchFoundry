@@ -695,8 +695,13 @@ steps, with Back to change an answer:
    letters are (20–30 mm suits a towel, 10–15 mm a shirt). A shape or an appliqué: pick one; an
    appliqué piece stops for the fabric, tacks it down, stops to trim and sews the edge. A
    picture: choose one, and it is turned into stitches at most four fifths of the hoop (simple
-   pictures with a few flat colours work best). **Make It** builds the design
-   (`embroidery.makeDesign {what, hoop?, text?, height?, shape?, path?, colors?, sample?}`); a
+   pictures with a few flat colours work best). A photo (told from a drawing by its many colours)
+   is prepared first: with **Remove Background** on (the default) its subject is cut out of the
+   background, the way **Remove Background** does it, then its colours are made flat (8 unless
+   asked) and it is digitized in fewer, larger shapes than a drawing. Turn **Remove Background**
+   off to stitch the whole photo, its background too (a landscape, a garden). **Make It** builds
+   the design (`embroidery.makeDesign {what, hoop?, text?, height?, shape?, path?, colors?,
+   photo?, removeBackground?, sample?}`; `photo` overrides the guess); a
    mistake (no words typed, a picture that can't be read) shows on the step.
 4. **What fabric will you sew it on?** Woven, piqué (polo shirt), jersey (T-shirt), fleece or
    sweatshirt, towel, denim or canvas, leather or vinyl, a structured cap, or silk: the stitches'

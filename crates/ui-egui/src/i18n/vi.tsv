@@ -6315,3 +6315,5 @@ machine	Stop	Dừng máy
 	Magnetic Lasso	Dây thòng lọng từ tính
 	Magnetic Lasso Tool	Công cụ Dây thòng lọng từ tính
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Bấm quanh một phần của ảnh: đường viền bám vào các cạnh của nó; bấm vào điểm đầu tiên, bấm đúp hoặc nhấn Enter để khép lại và thêu.
+# Make a Design: photos
+	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Ảnh chụp cũng được. Khi bật Xóa nền, chủ thể được cắt khỏi nền trước; tắt đi để thêu cả bức ảnh.

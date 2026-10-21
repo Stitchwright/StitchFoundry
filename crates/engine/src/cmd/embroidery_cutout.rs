@@ -278,8 +278,14 @@ fn cut_out(raster: &Raster, given: Option<[f64; 4]>, keep: &[(f64, f64, f64)], r
     // dark leaves), the cut from the photo's edge keeps a subject running off it (a body off the
     // bottom), and each mostly errs by leaving parts out
     let found = if given.is_none() && keep.is_empty() && remove.is_empty() { select_subject(raster) } else { None };
+    // a "subject" that fills nearly the whole frame, or next to none of it, is no subject found
+    let share = |a: &[u8]| a.iter().filter(|v| **v >= 128).count() as f64 / a.len().max(1) as f64;
+    let found = found.filter(|a| (0.005..=0.9).contains(&share(a)));
     let subject = found.is_some();
     let alpha: Vec<u8> = match found {
+        // the cut from the edge that kept nearly everything found no background: the subject alone
+        // (a shaded ball on a soft gradient); unless a low sensitivity asked to keep more
+        Some(a) if share(&cut) > 0.9 && bias <= 0.0 => a,
         Some(a) => a.iter().zip(&cut).map(|(a, b)| (*a).max(*b)).collect(),
         None => cut,
     };

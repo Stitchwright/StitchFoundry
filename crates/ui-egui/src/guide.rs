@@ -50,6 +50,8 @@ pub struct GuideState {
     pub shape: Option<&'static str>,
     pub sample: Option<String>,
     pub picture: Option<String>,
+    /// A photo's subject cut out of its background before it is digitized.
+    pub remove_background: bool,
     /// The in-the-hoop project chosen (`embroidery.ith.projects`).
     pub project: Option<String>,
     /// The in-the-hoop project's shape, if any.
@@ -89,6 +91,7 @@ impl Default for GuideState {
             shape: None,
             sample: None,
             picture: None,
+            remove_background: true,
             project: None,
             ith_shape: None,
             ribbon: false,
@@ -303,12 +306,14 @@ fn details(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
                     .size(13.0)
                     .color(t.text_dim),
             );
+            ui.label(RichText::new(tl!("Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.")).size(13.0).color(t.text_dim));
+            ui.checkbox(&mut app.guide.remove_background, tl!("Remove Background"));
             if crate::widgets::primary_button(ui, tl!("Choose a Picture…")).clicked() {
                 crate::picks::button(app, |app| {
                     let pick = crate::FilePick { filters: vec![("Pictures", PICTURES)], ..Default::default() };
                     if let Some(path) = crate::picks::open(app, &pick) {
                         app.guide.picture = Some(path.clone());
-                        let q = json!({ "what": "picture", "path": path, "hoop": app.guide.hoop });
+                        let q = json!({ "what": "picture", "path": path, "hoop": app.guide.hoop, "removeBackground": app.guide.remove_background });
                         make_it(app, q);
                     }
                 });

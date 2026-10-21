@@ -6325,3 +6325,5 @@ effect	Soft	Weich
 	Magnetic Lasso	Magnetisches Lasso
 	Magnetic Lasso Tool	Magnetisches-Lasso-Werkzeug
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klicken Sie um einen Teil eines Fotos: Die Kontur rastet an dessen Kanten ein; klicken Sie auf den ersten Punkt, doppelklicken Sie oder drücken Sie die Eingabetaste, um sie zu schließen und zu sticken.
+# Make a Design: photos
+	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Fotos gehen auch. Mit Hintergrund entfernen wird das Motiv zuerst vom Hintergrund freigestellt; schalten Sie es aus, um das ganze Foto zu sticken.

@@ -6692,3 +6692,5 @@ machine	Stop	Megállás
 	Magnetic Lasso	Mágneses lasszó
 	Magnetic Lasso Tool	Mágneses lasszó eszköz
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Kattintson körbe egy fénykép egy részét: a körvonal a széleihez tapad; az első pontra kattintva, dupla kattintással vagy Enterrel zárja le és hímezze ki.
+# Make a Design: photos
+	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Fényképek is jók. Ha a Háttér eltávolítása be van kapcsolva, a témát először kivágjuk a hátteréből; kapcsolja ki, és az egész fénykép kihímződik.

@@ -6732,3 +6732,5 @@ swatch	Bright Violet	Kirkas violetti
 	Magnetic Lasso	Magneettinen lasso
 	Magnetic Lasso Tool	Magneettinen lasso -työkalu
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Napsauta valokuvan osan ympäri: reuna tarttuu sen reunoihin; sulje ja kirjo se napsauttamalla ensimmäistä pistettä, kaksoisnapsauttamalla tai painamalla Enter.
+# Make a Design: photos
+	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Myös valokuvat käyvät. Kun Poista tausta on päällä, kohde rajataan ensin irti taustastaan; ota se pois päältä, niin koko kuva kirjotaan.

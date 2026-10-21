@@ -63,6 +63,24 @@ pub fn specs() -> Vec<CommandSpec> {
     ]
 }
 
+/// Whether `raster` looks like a photo rather than art in flat colours: more than
+/// [`PHOTO_COLORS`] colours at 4 bits a channel among its opaque pixels (a sample of at most
+/// 65 536), which a drawing, even saved as a JPEG, doesn't reach.
+pub(super) fn looks_like_photo(raster: &Raster) -> bool {
+    // measured: a photo (the macaw) has about 1 000, a flat cartoon saved as a JPEG under 150
+    const PHOTO_COLORS: usize = 300;
+    let step = (raster.rgba.len() / 4 / 65_536).max(1);
+    let mut seen = std::collections::HashSet::new();
+    for px in raster.rgba.chunks_exact(4).step_by(step) {
+        if let [r, g, b, a] = *px
+            && a >= 128
+        {
+            seen.insert((r >> 4, g >> 4, b >> 4));
+        }
+    }
+    seen.len() > PHOTO_COLORS
+}
+
 /// An image, its pixels and the map from pixel space to the document.
 pub(super) struct Picture {
     pub(super) id: NodeId,

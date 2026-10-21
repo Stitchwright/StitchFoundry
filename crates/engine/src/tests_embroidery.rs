@@ -2179,6 +2179,30 @@ fn remove_background_finds_the_subject_without_a_box() {
     assert_eq!((alpha(120, 70), alpha(140, 90), alpha(20, 20), alpha(30, 130)), (255, 255, 0, 0), "{res}");
 }
 
+/// PH-01: when the cut from the photo's edge keeps the whole frame (a shaded ball on a soft
+/// gradient), Select Subject's answer alone is the cut-out, not the two together.
+#[test]
+fn remove_background_ignores_a_subject_that_fills_the_frame() {
+    let mut s = session();
+    let r = vectorcraft_trace::Raster::from_fn(240, 200, |x, y| {
+        let (fx, fy) = (f64::from(x), f64::from(y));
+        let (dx, dy) = (fx - 120.0, fy - 100.0);
+        let c = if dx.hypot(dy) < 60.0 {
+            let shade = 1.1 - 0.6 * (dx + dy + 85.0) / 170.0;
+            [230.0 * shade, 120.0 * shade, 30.0 * shade]
+        } else {
+            [200.0 + fx * 0.1, 215.0 - fy * 0.05, 235.0]
+        };
+        let [r, g, b] = c.map(|v| v.clamp(0.0, 255.0) as u8);
+        [r, g, b, 255]
+    });
+    s.execute("file.place", &json!({"name": "ball.png", "dataBase64": vectorcraft_format::base64_encode(&r.encode_png())})).unwrap();
+    let res = s.execute("embroidery.image.removeBackground", &json!({})).unwrap();
+    // the ball is π·60² of 240 × 200 pixels: about 24 %
+    let kept = res["kept"].as_f64().unwrap();
+    assert!((0.18..0.32).contains(&kept), "kept {kept}: {res}");
+}
+
 /// PC-02: a stroke of the Cut-Out Brush puts back a part the cut left out, and an Alt stroke
 /// (`remove`) takes away a part it kept; each is one step.
 #[test]

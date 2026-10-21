@@ -4,6 +4,7 @@
 
 use serde_json::{Value, json};
 
+use super::embroidery_photo::{Picture, looks_like_photo};
 use super::*;
 
 pub fn specs() -> Vec<CommandSpec> {
@@ -12,7 +13,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Make a Design",
         [],
         None,
-        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6), sample?: heart-patch|sun-and-moon|applique-star} a new design made in one step: words or a shape in the middle of the hoop, an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits}",
+        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6; 8 for a photo), photo?: bool (picture: whether it is a photo, guessed from its colours; a photo's colours are made flat before it is digitized), removeBackground?: bool (picture, a photo: true; its subject cut out of its background first, false: the whole photo stitched), sample?: heart-patch|sun-and-moon|applique-star} a new design made in one step: words or a shape in the middle of the hoop, an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits, photo (picture)}",
         always,
         make_design
     )]
@@ -25,6 +26,7 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
         Some(h) if !h.is_null() => json!({ "hoop": h }),
         _ => json!({}),
     };
+    let mut photo = None;
     let ids: Vec<Value> = match what {
         "sample" => {
             let id = str_param(p, "sample").ok_or_else(|| bad(CMD, "missing `sample`: see embroidery.samples"))?;
@@ -58,15 +60,42 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
                 _ => return Err(bad(CMD, "missing `path` (or `name` and `dataBase64`): the picture")),
             }
             let colors = match p.get("colors") {
-                None | Some(Value::Null) => 6,
-                Some(v) => v.as_u64().filter(|n| (2..=12).contains(n)).ok_or_else(|| bad(CMD, "`colors` is 2 to 12"))?,
+                None | Some(Value::Null) => None,
+                Some(v) => Some(v.as_u64().filter(|n| (2..=12).contains(n)).ok_or_else(|| bad(CMD, "`colors` is 2 to 12"))?),
+            };
+            let given = match p.get("photo") {
+                None | Some(Value::Null) => None,
+                Some(v) => Some(v.as_bool().ok_or_else(|| bad(CMD, "`photo` is true or false"))?),
+            };
+            let cut_out = match p.get("removeBackground") {
+                None | Some(Value::Null) => true,
+                Some(v) => v.as_bool().ok_or_else(|| bad(CMD, "`removeBackground` is true or false"))?,
             };
             let made = s.execute("embroidery.newDesign", &hoop())?;
             let (w, h) = (made["width"].as_f64().unwrap_or(100.0), made["height"].as_f64().unwrap_or(100.0));
             s.execute("file.place", &place)?;
+            // the placed picture is selected
+            let is_photo = match given {
+                Some(v) => v,
+                None => Picture::get(s, &json!({}), CMD).is_ok_and(|pic| looks_like_photo(&pic.raster)),
+            };
+            photo = Some(is_photo);
             // four fifths of the hoop's shorter side, so it fits whichever way the picture is
             let size = (w.min(h) * 0.8).clamp(10.0, 400.0);
-            let r = s.execute("embroidery.autoDigitize", &json!({ "colors": colors, "size": size, "keepImage": false }))?;
+            let r = if is_photo {
+                let colors = colors.unwrap_or(8);
+                if cut_out {
+                    // A photo with no subject to cut out (a landscape, a texture) is digitized whole.
+                    let _ = s.execute("embroidery.image.removeBackground", &json!({ "replace": true }));
+                }
+                s.execute("embroidery.image.prepare", &json!({ "colors": colors, "smooth": 4, "clean": 3, "replace": true }))?;
+                // a photo's many small patches: fewer, larger shapes than for a drawing
+                // without the cut-out the whole photo is sewn, its background too
+                let q = json!({ "colors": colors, "size": size, "keepImage": false, "detail": 35, "noise": 30, "minArea": 4, "removeBackground": cut_out });
+                s.execute("embroidery.autoDigitize", &q)?
+            } else {
+                s.execute("embroidery.autoDigitize", &json!({ "colors": colors.unwrap_or(6), "size": size, "keepImage": false }))?
+            };
             vec![r["id"].clone()]
         }
         "ith" => {
@@ -93,7 +122,7 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
         other => return Err(bad(CMD, format!("`what` is words, shape, applique, picture, sample, ith or quilt, not `{other}`"))),
     };
     let info = s.execute("embroidery.info", &json!({}))?;
-    Ok(json!({
+    let mut out = json!({
         "what": what,
         "ids": ids,
         "stitches": info["stitches"],
@@ -101,7 +130,11 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
         "widthMm": info["widthMm"],
         "heightMm": info["heightMm"],
         "fits": info["fits"],
-    }))
+    });
+    if let Some(v) = photo {
+        out["photo"] = json!(v);
+    }
+    Ok(out)
 }
 
 #[cfg(test)]
@@ -153,5 +186,83 @@ mod tests {
         {
             assert!(s.execute("embroidery.makeDesign", &bad).is_err(), "{bad}");
         }
+    }
+
+    /// PH-01: a photo is told from a drawing by its colours, even a drawing saved as a JPEG, and
+    /// its subject is cut out of the background before it is digitized.
+    #[test]
+    fn a_photo_is_cut_out_and_a_drawing_is_not() {
+        let encode = |img: image::RgbImage, format| {
+            let mut out = vec![];
+            img.write_to(&mut std::io::Cursor::new(&mut out), format).unwrap();
+            vectorcraft_format::base64_encode(&out)
+        };
+        // a shaded orange ball in front of a green-to-blue background, with grain in each channel
+        let photo = image::RgbImage::from_fn(240, 200, |x, y| {
+            let grain = [(x * 7919 + y * 104_729) % 51, (x * 104_729 + y * 7919) % 47, (x * 31 + y * 17 * x) % 53].map(|g| f64::from(g) - 25.0);
+            let (fx, fy) = (f64::from(x), f64::from(y));
+            let (dx, dy) = (fx - 120.0, fy - 100.0);
+            let c = if dx.hypot(dy) < 60.0 {
+                let shade = 1.1 - 0.8 * (dx + dy + 85.0) / 170.0;
+                [235.0 * shade, 140.0 * shade, 40.0 * shade]
+            } else {
+                [40.0 + fx * 0.8, 180.0 - fy * 0.6, 60.0 + (fx + fy) * 0.4]
+            };
+            image::Rgb([0, 1, 2].map(|i| (c[i] + grain[i]).clamp(0.0, 255.0) as u8))
+        });
+        // flat blocks, JPEG compressed
+        let drawing = image::RgbImage::from_fn(240, 200, |x, y| {
+            if (30..110).contains(&x) && (40..160).contains(&y) {
+                image::Rgb([200, 30, 40])
+            } else if (130..210).contains(&x) && (40..160).contains(&y) {
+                image::Rgb([20, 60, 160])
+            } else {
+                image::Rgb([255, 255, 255])
+            }
+        });
+        // a shaded orange ball on a soft blue gradient: a photo whose subject cuts out cleanly
+        let ball = image::RgbImage::from_fn(240, 200, |x, y| {
+            let (fx, fy) = (f64::from(x), f64::from(y));
+            let (dx, dy) = (fx - 120.0, fy - 100.0);
+            let c = if dx.hypot(dy) < 60.0 {
+                let shade = 1.1 - 0.6 * (dx + dy + 85.0) / 170.0;
+                [230.0 * shade, 120.0 * shade, 30.0 * shade]
+            } else {
+                [200.0 + fx * 0.1, 215.0 - fy * 0.05, 235.0]
+            };
+            image::Rgb(c.map(|v| v.clamp(0.0, 255.0) as u8))
+        });
+        let mut s = Session::new();
+        let make = |s: &mut Session, data: &str, extra: Value| {
+            let mut q = json!({"what": "picture", "name": "pic.jpg", "dataBase64": data, "hoop": "Brother 130 × 180 (5×7)"});
+            if let (Some(q), Some(e)) = (q.as_object_mut(), extra.as_object()) {
+                q.extend(e.clone());
+            }
+            s.execute("embroidery.makeDesign", &q).unwrap()
+        };
+        let size = |r: &Value| (r["widthMm"].as_f64().unwrap(), r["heightMm"].as_f64().unwrap());
+        // told from a drawing by its colours
+        let photo = encode(photo, image::ImageFormat::Jpeg);
+        let r = make(&mut s, &photo, json!({"removeBackground": false}));
+        assert_eq!(r["photo"], true, "{r}");
+        assert!(r["stitches"].as_u64().unwrap() > 100 && r["fits"] == true, "{r}");
+        assert_eq!(make(&mut s, &encode(drawing, image::ImageFormat::Jpeg), json!({}))["photo"], false);
+        assert_eq!(make(&mut s, &photo, json!({"photo": false}))["photo"], false, "told otherwise");
+        // the background cut away: the design is the round ball (it is scaled to the size asked, so
+        // its shape tells), not the 6:5 picture
+        let ball = encode(ball, image::ImageFormat::Png);
+        let (w, h) = size(&make(&mut s, &ball, json!({"photo": true})));
+        assert!((w / h - 1.0).abs() < 0.08, "{w} × {h} mm");
+        // with Remove Background off the whole photo is stitched, the picture's shape
+        let (w2, h2) = size(&make(&mut s, &ball, json!({"photo": true, "removeBackground": false})));
+        assert!((w2 / h2 - 1.2).abs() < 0.08, "{w2} × {h2} mm");
+        assert!(
+            s.execute("embroidery.makeDesign", &json!({"what": "picture", "dataBase64": photo, "name": "p.jpg", "removeBackground": 1})).is_err()
+        );
+        let mut q = json!({"what": "picture", "name": "pic.jpg", "dataBase64": photo, "photo": "yes"});
+        assert!(s.execute("embroidery.makeDesign", &q).is_err());
+        q["photo"] = json!(null);
+        q["colors"] = json!(20);
+        assert!(s.execute("embroidery.makeDesign", &q).is_err());
     }
 }

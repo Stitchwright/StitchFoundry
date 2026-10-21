@@ -6311,3 +6311,5 @@ machine	Stop	정지
 	Magnetic Lasso	자석 올가미
 	Magnetic Lasso Tool	자석 올가미 도구
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	사진의 일부를 둘러 클릭하세요. 경계선이 가장자리에 달라붙습니다. 첫 점을 클릭하거나 두 번 클릭하거나 Enter 키를 누르면 닫히고 자수가 됩니다.
+# Make a Design: photos
+	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	사진도 됩니다. 배경 제거를 켜면 먼저 피사체를 배경에서 오려 내고, 끄면 사진 전체를 자수로 만듭니다.

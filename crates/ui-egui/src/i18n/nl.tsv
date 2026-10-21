@@ -6651,3 +6651,5 @@ swatch	Bright Violet	Felviolet
 	Magnetic Lasso	Magnetische lasso
 	Magnetic Lasso Tool	Gereedschap Magnetische lasso
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Klik rond een deel van een foto: de rand klikt vast aan de randen ervan; klik op het eerste punt, dubbelklik of druk op Enter om hem te sluiten en te borduren.
+# Make a Design: photos
+	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Foto’s kunnen ook. Met Achtergrond verwijderen aan wordt het onderwerp eerst uit de achtergrond gesneden; zet het uit om de hele foto te borduren.

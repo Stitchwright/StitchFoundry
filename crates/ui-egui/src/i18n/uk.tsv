@@ -6339,3 +6339,5 @@ machine	Stop	Зупинка
 	Magnetic Lasso	Магнітне ласо
 	Magnetic Lasso Tool	Інструмент «Магнітне ласо»
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	Клацайте навколо частини фото: контур прилипає до її країв; клацніть першу точку, двічі клацніть або натисніть Enter, щоб замкнути й вишити його.
+# Make a Design: photos
+	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	Підійдуть і фотографії. З увімкненим «Видалити фон» об’єкт спершу вирізається з тла; вимкніть його, щоб вишити все фото.

@@ -6539,3 +6539,5 @@ machine	Stop	停止
 	Magnetic Lasso	磁性套索
 	Magnetic Lasso Tool	磁性套索工具
 	Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it.	围绕照片的一部分点击：边界会吸附到照片的边缘；点击第一个点、双击或按 Enter 键即可闭合并刺绣。
+# Make a Design: photos
+	Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.	照片也可以。开启“移除背景”时会先把主体从背景中抠出来；关闭它则刺绣整张照片。
