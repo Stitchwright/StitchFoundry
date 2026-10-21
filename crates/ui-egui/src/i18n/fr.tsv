@@ -6725,3 +6725,6 @@ theme	Appearance	Apparence
 # HEIC photos
 @msg	HEIC photos can't be opened in this build of StitchFoundry: save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes photos as JPEG)	Cette version de StitchFoundry n’ouvre pas les photos HEIC : enregistrez la photo en JPEG (sur un iPhone, Réglages › Appareil photo › Formats › Le plus compatible prend les photos en JPEG)
 @msg	the HEIC photo is cut short	la photo HEIC est tronquée
+# Click to Stitch: colour range
+	Contiguous	Contigu
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Cliquez sur une zone d’image pour la broder ; sans Contigu, toutes les taches de sa couleur

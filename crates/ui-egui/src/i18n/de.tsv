@@ -6318,3 +6318,6 @@ effect	Soft	Weich
 # HEIC photos
 @msg	HEIC photos can't be opened in this build of StitchFoundry: save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes photos as JPEG)	HEIC-Fotos lassen sich in dieser StitchFoundry-Version nicht öffnen: Speichern Sie das Foto als JPEG (auf dem iPhone nimmt Einstellungen › Kamera › Formate › Maximale Kompatibilität Fotos als JPEG auf)
 @msg	the HEIC photo is cut short	das HEIC-Foto ist unvollständig
+# Click to Stitch: colour range
+	Contiguous	Zusammenhängend
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Klicken Sie auf einen Bildbereich, um ihn zu sticken; ohne Zusammenhängend jede Fläche seiner Farbe

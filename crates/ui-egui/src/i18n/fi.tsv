@@ -6725,3 +6725,6 @@ swatch	Bright Violet	Kirkas violetti
 	Refine Cut-Out	Tarkenna rajausta
 	Cut-Out Brush Tool	Rajaussivellin
 	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Maalaa rajatun kuvan päälle palauttaaksesi sen, minkä Poista tausta jätti pois; pidä Alt painettuna poistaaksesi jäljelle jääneen taustan.
+# Click to Stitch: colour range
+	Contiguous	Yhtenäinen
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Napsauta kuvan aluetta kirjoaksesi sen; ilman Yhtenäinen-valintaa kaikki sen väriset läiskät

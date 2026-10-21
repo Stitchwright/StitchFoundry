@@ -505,8 +505,11 @@ tool's *Stitch as* setting says (in the Embroidery panel while the tool is chose
 - **Outline**: a running stitch round its edge;
 - **Centre line**: running stitches along its middle, for lines and lettering drawn in the image.
 
-The same is `embroidery.clickStitch {at, as?, tolerance?, minHole?, id?}`. Each click is one undo
-step; the image stays under the stitches.
+With **Contiguous** off (`contiguous: false`) a click takes every patch of about that colour across
+the image, joined to the spot or not (a colour range): all of a parrot's yellow in one object.
+
+The same is `embroidery.clickStitch {at, as?, tolerance?, contiguous?, minHole?, id?}`. Each click is
+one undo step; the image stays under the stitches.
 
 ## Outlines round art
 

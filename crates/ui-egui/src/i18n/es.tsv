@@ -6666,3 +6666,6 @@ mark-style	Japanese	Japonesas
 # HEIC photos
 @msg	HEIC photos can't be opened in this build of StitchFoundry: save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes photos as JPEG)	Esta versión de StitchFoundry no abre fotos HEIC: guarde la foto como JPEG (en un iPhone, Ajustes › Cámara › Formatos › Más compatible hace las fotos en JPEG)
 @msg	the HEIC photo is cut short	la foto HEIC está incompleta
+# Click to Stitch: colour range
+	Contiguous	Contiguo
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Haga clic en una zona de una imagen para bordarla; sin Contiguo, todas las manchas de su color

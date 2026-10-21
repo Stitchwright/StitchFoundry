@@ -2278,7 +2278,10 @@ fn digitize_row(app: &mut VectorcraftApp, ui: &mut Ui) {
         if let Some(v) = num(ui, tl!("Tolerance"), "click-tol", tol, "", 0) {
             app.run("tool.setOption", json!({ "tool": CLICK_TOOL, "values": { "tolerance": v.clamp(0.0, 255.0).round() as u64 } })).ok();
         }
-        ui.label(tl!("Click a region of an image to stitch it"));
+        if let Some(v) = check(ui, tl!("Contiguous"), opts["contiguous"].as_bool().unwrap_or(true)) {
+            app.run("tool.setOption", json!({ "tool": CLICK_TOOL, "values": { "contiguous": v } })).ok();
+        }
+        ui.label(tl!("Click a region of an image to stitch it; with Contiguous off, every patch of its colour"));
     }
     if app.session.tool_id() == CROSS_TOOL {
         cross_stitch_tool_rows(app, ui);

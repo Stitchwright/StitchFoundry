@@ -6304,3 +6304,6 @@ machine	Stop	정지
 	Refine Cut-Out	오려내기 다듬기
 	Cut-Out Brush Tool	오려내기 브러시 도구
 	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	오려낸 사진 위에 칠하면 배경 제거가 빠뜨린 부분이 돌아옵니다. Alt를 누른 채 칠하면 남은 배경을 지웁니다.
+# Click to Stitch: colour range
+	Contiguous	인접
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	이미지의 영역을 클릭해 자수로 만듭니다. 인접을 끄면 같은 색 부분을 모두 가져옵니다

@@ -6308,3 +6308,6 @@ machine	Stop	Dừng máy
 	Refine Cut-Out	Tinh chỉnh vùng cắt
 	Cut-Out Brush Tool	Cọ cắt
 	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Tô lên ảnh đã cắt để lấy lại phần Xóa nền bỏ sót; giữ Alt để bỏ phần nền còn sót.
+# Click to Stitch: colour range
+	Contiguous	Liền kề
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Bấm vào một vùng của ảnh để thêu; khi tắt Liền kề, mọi mảng cùng màu

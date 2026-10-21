@@ -6602,3 +6602,6 @@ swatch	Bright Violet	Kraftig violet
 	Refine Cut-Out	Finjuster udskæring
 	Cut-Out Brush Tool	Udskæringspensel
 	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Mal over det udskårne billede for at få det tilbage, som Fjern baggrund udelod; hold Alt nede for at fjerne baggrund, der blev tilbage.
+# Click to Stitch: colour range
+	Contiguous	Sammenhængende
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Klik på et område af et billede for at brodere det; uden Sammenhængende alle pletter i dets farve

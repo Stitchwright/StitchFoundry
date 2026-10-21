@@ -380,11 +380,11 @@ fn a_photo_is_stitched_as_lines_coral_or_colours() {
 fn a_click_on_an_image_stitches_its_region() {
     use sf_core::attr::StitchType;
     let mut s = session();
-    // a red ring and a blue bar on white
+    // a red ring and a blue bar on white, and a blue square apart from the bar
     let r = vectorcraft_trace::Raster::from_fn(200, 120, |x, y| {
         if (20..100).contains(&x) && (20..100).contains(&y) && !((50..70).contains(&x) && (50..70).contains(&y)) {
             [210, 20, 20, 255]
-        } else if (120..190).contains(&x) && (56..64).contains(&y) {
+        } else if ((120..190).contains(&x) && (56..64).contains(&y)) || ((150..160).contains(&x) && (95..105).contains(&y)) {
             [20, 20, 200, 255]
         } else {
             [255, 255, 255, 255]
@@ -435,6 +435,10 @@ fn a_click_on_an_image_stitches_its_region() {
     assert!(s.execute("embroidery.clickStitch", &json!({"at": spot(-50.0, -50.0)})).is_err());
     assert!(s.execute("embroidery.clickStitch", &json!({"at": spot(25.5, 25.5), "as": "cross"})).is_err());
     assert!(s.execute("embroidery.clickStitch", &json!({"at": spot(25.5, 25.5), "tolerance": 300})).is_err());
+    // PC-04: with contiguous off, the click takes every patch of the bar's colour, not only the bar
+    let joined = s.execute("embroidery.clickStitch", &json!({"at": spot(150.5, 60.5)})).unwrap()["pixels"].as_u64().unwrap();
+    let all = s.execute("embroidery.clickStitch", &json!({"at": spot(150.5, 60.5), "contiguous": false})).unwrap()["pixels"].as_u64().unwrap();
+    assert!(all > joined, "{all} pixels of its colour, {joined} joined to the spot");
 }
 
 #[test]

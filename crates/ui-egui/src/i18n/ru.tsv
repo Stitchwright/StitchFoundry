@@ -6348,3 +6348,6 @@ machine	Stop	Остановка
 # HEIC photos
 @msg	HEIC photos can't be opened in this build of StitchFoundry: save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes photos as JPEG)	В этой сборке StitchFoundry фото HEIC не открываются: сохраните фото как JPEG (на iPhone: Настройки › Камера › Форматы › Наиболее совместимый — снимки в JPEG)
 @msg	the HEIC photo is cut short	фото HEIC обрезано
+# Click to Stitch: colour range
+	Contiguous	Смежные
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Щёлкните область изображения, чтобы вышить её; без «Смежные» — все пятна её цвета

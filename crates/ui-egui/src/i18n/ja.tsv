@@ -6391,3 +6391,6 @@ machine	Stop	停止
 # HEIC photos
 @msg	HEIC photos can't be opened in this build of StitchFoundry: save the photo as JPEG (on an iPhone, Settings › Camera › Formats › Most Compatible takes photos as JPEG)	このビルドの StitchFoundry では HEIC 写真を開けません。写真を JPEG で保存してください（iPhone では「設定 › カメラ › フォーマット › 互換性優先」で JPEG で撮影されます）
 @msg	the HEIC photo is cut short	HEIC 写真が途中で切れています
+# Click to Stitch: colour range
+	Contiguous	隣接
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	画像の領域をクリックして刺しゅうにします。隣接をオフにすると、その色の部分をすべて取り込みます

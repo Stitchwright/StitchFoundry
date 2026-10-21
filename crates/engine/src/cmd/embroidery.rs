@@ -264,7 +264,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Click to Stitch",
             [],
             None,
-            "{at: [x, y] (points) a spot on an image, as?: fill|fillNoHoles|satin|outline|centerline (fill), tolerance?: 0–255 how far a colour may be from the spot's and still join the region (32), minHole?: px holes smaller than this are filled (16), id?: the image (default: the topmost one under the spot)} click-to-stitch: the region of the image round the spot (its pixels joined to it in about its colour) becomes a stitched object in its colour: tatami with or without its holes, satin across it, a running outline, or running centre lines; added over the image and selected → {id, as, pixels, color}",
+            "{at: [x, y] (points) a spot on an image, as?: fill|fillNoHoles|satin|outline|centerline (fill), tolerance?: 0–255 how far a colour may be from the spot's and still join the region (32), contiguous?: bool (true: only the pixels joined to the spot; false: every pixel of about its colour across the image), minHole?: px holes smaller than this are filled (16), id?: the image (default: the topmost one under the spot)} click-to-stitch: the region of the image round the spot (its pixels joined to it in about its colour) becomes a stitched object in its colour: tatami with or without its holes, satin across it, a running outline, or running centre lines; added over the image and selected → {id, as, pixels, color}",
             has_doc,
             click_stitch
         ),
@@ -1614,6 +1614,38 @@ fn hooping_sheets(
 /// The ways click-to-stitch can stitch a region.
 const CLICK_AS: [&str; 5] = ["fill", "fillNoHoles", "satin", "outline", "centerline"];
 
+/// Every pixel of `img` whose colour is within `tolerance` of the one at `(x, y)` (on every
+/// channel, alpha too), joined to it or not: a colour range; none on a (half) transparent pixel.
+fn pick_everywhere(img: &vectorcraft_trace::Raster, x: u32, y: u32, tolerance: u8) -> Option<vectorcraft_trace::region::Region> {
+    let (w, h) = (img.width as usize, img.height as usize);
+    if x as usize >= w || y as usize >= h || img.rgba.len() != w.checked_mul(h)?.checked_mul(4)? {
+        return None;
+    }
+    let at = (y as usize * w + x as usize) * 4;
+    let c0: [u8; 4] = img.rgba.get(at..at + 4)?.try_into().ok()?;
+    if c0[3] < 128 {
+        return None;
+    }
+    let mut sum = [0u64; 4];
+    let mut pixels = 0usize;
+    let mask: Vec<bool> = img
+        .rgba
+        .chunks_exact(4)
+        .map(|c| {
+            let near = c[3] >= 128 && c.iter().zip(c0).all(|(a, b)| a.abs_diff(b) <= tolerance);
+            if near {
+                pixels += 1;
+                for (s, v) in sum.iter_mut().zip(c) {
+                    *s += u64::from(*v);
+                }
+            }
+            near
+        })
+        .collect();
+    let n = pixels.max(1) as u64;
+    Some(vectorcraft_trace::region::Region { mask, pixels, color: sum.map(|s| u8::try_from(s / n).unwrap_or(u8::MAX)) })
+}
+
 fn click_stitch(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "embroidery.clickStitch";
     let at = point_param(p, "at").filter(|q| q.x.is_finite() && q.y.is_finite()).ok_or_else(|| bad(CMD, "`at` is [x, y], a spot on an image"))?;
@@ -1630,6 +1662,7 @@ fn click_stitch(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let tolerance = u8::try_from(whole("tolerance", 255, 32)?).unwrap_or(32);
     let min_hole = usize::try_from(whole("minHole", 1_000_000, 16)?).unwrap_or(16);
+    let contiguous = bool_or(p, "contiguous", true);
     // the image: the one given, else the topmost under the spot
     let (im, bytes) = {
         let d = &s.doc()?.doc;
@@ -1660,8 +1693,12 @@ fn click_stitch(s: &mut Session, p: &Value) -> Result<Value> {
     if !(q.x.is_finite() && q.y.is_finite() && q.x >= 0.0 && q.y >= 0.0 && q.x < f64::from(raster.width) && q.y < f64::from(raster.height)) {
         return Err(bad(CMD, "the spot isn't on the image"));
     }
-    let region = vectorcraft_trace::region::pick(&raster, q.x as u32, q.y as u32, tolerance)
-        .ok_or_else(|| bad(CMD, "nothing to stitch there: the spot is transparent"))?;
+    let picked = if contiguous {
+        vectorcraft_trace::region::pick(&raster, q.x as u32, q.y as u32, tolerance)
+    } else {
+        pick_everywhere(&raster, q.x as u32, q.y as u32, tolerance)
+    };
+    let region = picked.ok_or_else(|| bad(CMD, "nothing to stitch there: the spot is transparent"))?;
     let (w, h) = (raster.width as usize, raster.height as usize);
     let path = match kind {
         "centerline" => {

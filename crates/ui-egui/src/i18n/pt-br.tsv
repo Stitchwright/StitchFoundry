@@ -6566,3 +6566,6 @@ mark-style	Japanese	Japonesas
 	Refine Cut-Out	Refinar recorte
 	Cut-Out Brush Tool	Pincel de recorte
 	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Pinte sobre a foto recortada para trazer de volta o que Remover fundo deixou de fora; segure Alt para tirar o fundo que ficou.
+# Click to Stitch: colour range
+	Contiguous	Contíguo
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Clique numa área da imagem para bordá-la; sem Contíguo, todas as manchas da cor dela

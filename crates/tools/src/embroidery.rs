@@ -799,11 +799,13 @@ impl Tool for MotifTool {
 pub struct ClickStitchTool {
     pub stitch_as: String,
     pub tolerance: u8,
+    /// Only the region joined to the spot (else every patch of its colour across the image).
+    pub contiguous: bool,
 }
 
 impl Default for ClickStitchTool {
     fn default() -> Self {
-        ClickStitchTool { stitch_as: "fill".into(), tolerance: 32 }
+        ClickStitchTool { stitch_as: "fill".into(), tolerance: 32, contiguous: true }
     }
 }
 
@@ -816,7 +818,7 @@ impl Tool for ClickStitchTool {
         match ev.kind {
             PointerKind::Up => vec![Action::Exec(
                 "embroidery.clickStitch".into(),
-                json!({ "at": [ev.pos.x, ev.pos.y], "as": self.stitch_as, "tolerance": self.tolerance }),
+                json!({ "at": [ev.pos.x, ev.pos.y], "as": self.stitch_as, "tolerance": self.tolerance, "contiguous": self.contiguous }),
             )],
             _ => vec![],
         }
@@ -827,7 +829,7 @@ impl Tool for ClickStitchTool {
     }
 
     fn options(&self) -> Value {
-        json!({ "as": self.stitch_as, "tolerance": self.tolerance })
+        json!({ "as": self.stitch_as, "tolerance": self.tolerance, "contiguous": self.contiguous })
     }
 
     fn set_option(&mut self, key: &str, value: &Value) {
@@ -840,6 +842,11 @@ impl Tool for ClickStitchTool {
             "tolerance" => {
                 if let Some(v) = value.as_u64().and_then(|v| u8::try_from(v).ok()) {
                     self.tolerance = v;
+                }
+            }
+            "contiguous" => {
+                if let Some(v) = value.as_bool() {
+                    self.contiguous = v;
                 }
             }
             _ => {}

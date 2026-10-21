@@ -6664,3 +6664,6 @@ machine	Stop	Stopp
 	Refine Cut-Out	Förfina urklipp
 	Cut-Out Brush Tool	Urklippspensel
 	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Måla över det urklippta fotot för att få tillbaka det som Ta bort bakgrund missade; håll ned Alt för att ta bort bakgrund som blev kvar.
+# Click to Stitch: colour range
+	Contiguous	Sammanhängande
+	Click a region of an image to stitch it; with Contiguous off, every patch of its colour	Klicka på ett område i en bild för att brodera det; utan Sammanhängande varje fläck i dess färg
