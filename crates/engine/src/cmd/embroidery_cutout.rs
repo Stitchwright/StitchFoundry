@@ -19,15 +19,176 @@ const MARGIN: f64 = 0.02;
 const MAX_MARKS: usize = 2000;
 
 pub fn specs() -> Vec<CommandSpec> {
-    vec![cmd!(
-        "embroidery.image.removeBackground",
-        "Remove Background",
-        ["Embroidery"],
-        None,
-        "{id?: an image (the selected one), box?: [x, y, width, height] round the subject in fractions of the image (the whole image less 2 % round the edge; that edge is then only taken for background at first, as the subject may run off it), keep?: [[x, y, radius?]] parts that are the subject, remove?: [[x, y, radius?]] parts that are background (fractions of the image; the radius of the image's shorter side, 0.03), replace?: bool (false: the cut-out copy goes over the photo, which stays)} the subject of a photo cut out from its background (GrabCut: colour models of the subject and the background and a graph cut between them), the background made transparent so Auto-Digitize sews only the subject; the copy is selected → {id, kept: the share of the image kept, subject: whether Select Subject found it, width, height}",
-        has_doc,
-        remove_background
-    )]
+    vec![
+        cmd!(
+            "embroidery.image.removeBackground",
+            "Remove Background",
+            ["Embroidery"],
+            None,
+            "{id?: an image (the selected one), box?: [x, y, width, height] round the subject in fractions of the image (the whole image less 2 % round the edge; that edge is then only taken for background at first, as the subject may run off it), keep?: [[x, y, radius?]] parts that are the subject, remove?: [[x, y, radius?]] parts that are background (fractions of the image; the radius of the image's shorter side, 0.03), replace?: bool (false: the cut-out copy goes over the photo, which stays), sensitivity?: 0–100 (50: below keeps more of the subject, above takes more of the background away)} the subject of a photo cut out from its background (GrabCut: colour models of the subject and the background and a graph cut between them), the background made transparent so Auto-Digitize sews only the subject; the copy is selected → {id, kept: the share of the image kept, subject: whether Select Subject found it, width, height}",
+            has_doc,
+            remove_background
+        ),
+        cmd!(
+            "embroidery.image.refineCutout",
+            "Refine Cut-Out",
+            [],
+            None,
+            "{id?: a cut-out image (the selected one), keep?: [[x, y]] points of a stroke over parts to keep, remove?: [[x, y]] points of a stroke over parts to take away (document points), radius?: pt (6: the brush's half width), sensitivity?: 0–100 (50)} a cut-out made again with the strokes: what they cover is the subject or the background for certain, the rest is cut again from its colours (the cut-out's background is still there, only transparent); the image is replaced, as one step → {id, kept}",
+            has_doc,
+            refine_cutout
+        ),
+        cmd!(
+            query "embroidery.image.cutoutPreview",
+            "Cut-Out Preview",
+            [],
+            None,
+            "{id?: an image (the selected one), sensitivity?: 0–100 (50), size?: px 64–512 (240)} what Remove Background would keep, on a small copy of the photo, to compare before and after while choosing the sensitivity → {dataBase64: the cut-out (PNG with its background transparent), beforeBase64: the photo (PNG), width, height, kept, subject}",
+            has_doc,
+            cutout_preview
+        ),
+    ]
+}
+
+/// `raster` scaled down to at most `side` pixels across (box average; transparency kept).
+fn shrunk(raster: &Raster, side: u32) -> Raster {
+    let (w, h) = (raster.width.max(1), raster.height.max(1));
+    let k = (f64::from(w.max(h)) / f64::from(side.max(1))).max(1.0);
+    let (sw, sh) = (((f64::from(w) / k).round() as u32).max(1), ((f64::from(h) / k).round() as u32).max(1));
+    Raster::from_fn(sw, sh, |x, y| {
+        let (x0, y0) = ((f64::from(x) * k) as u32, (f64::from(y) * k) as u32);
+        let (x1, y1) = ((((f64::from(x) + 1.0) * k) as u32).clamp(x0 + 1, w), (((f64::from(y) + 1.0) * k) as u32).clamp(y0 + 1, h));
+        let (mut sum, mut n) = ([0u32; 4], 0u32);
+        for yy in y0..y1 {
+            for xx in x0..x1 {
+                let at = ((yy * w + xx) * 4) as usize;
+                if let Some(px) = raster.rgba.get(at..at + 4) {
+                    for (s, v) in sum.iter_mut().zip(px) {
+                        *s += u32::from(*v);
+                    }
+                    n += 1;
+                }
+            }
+        }
+        sum.map(|s| u8::try_from(s / n.max(1)).unwrap_or(255))
+    })
+}
+
+fn cutout_preview(s: &mut Session, p: &Value) -> Result<Value> {
+    const CMD: &str = "embroidery.image.cutoutPreview";
+    let bias = keep_bias(p, CMD)?;
+    let side = p.get("size").and_then(Value::as_u64).unwrap_or(240);
+    if !(64..=512).contains(&side) {
+        return Err(bad(CMD, "`size` is 64 to 512 px"));
+    }
+    let pic = Picture::get(s, p, CMD)?;
+    if u64::from(pic.raster.width) * u64::from(pic.raster.height) > 16 << 20 {
+        return Err(bad(CMD, "the image is larger than 16 megapixels: scale it down first"));
+    }
+    let small = shrunk(&pic.raster, u32::try_from(side).unwrap_or(240));
+    let (alpha, subject) = cut_out(&small, None, &[], &[], bias).ok_or_else(|| bad(CMD, "the image is empty"))?;
+    let kept = alpha.iter().filter(|a| **a >= 128).count() as f64 / alpha.len().max(1) as f64;
+    let mut rgba = small.rgba.clone();
+    for (px, a) in rgba.chunks_exact_mut(4).zip(&alpha) {
+        if let Some(v) = px.get_mut(3) {
+            *v = *a;
+        }
+    }
+    let after = Raster { width: small.width, height: small.height, rgba }.encode_png();
+    Ok(json!({
+        "dataBase64": vectorcraft_format::base64_encode(&after),
+        "beforeBase64": vectorcraft_format::base64_encode(&small.encode_png()),
+        "width": small.width, "height": small.height, "kept": kept, "subject": subject,
+    }))
+}
+
+/// The most points a refining stroke takes.
+const MAX_STROKE: usize = 20_000;
+
+/// A stroke's points (document points) from `key`.
+fn stroke(p: &Value, key: &str, cmd: &str) -> Result<Vec<kurbo::Point>> {
+    let Some(v) = p.get(key).filter(|v| !v.is_null()) else { return Ok(Vec::new()) };
+    let list = v.as_array().ok_or_else(|| bad(cmd, format!("`{key}` is a list of [x, y] points")))?;
+    if list.len() > MAX_STROKE {
+        return Err(bad(cmd, format!("`{key}` has more than {MAX_STROKE} points")));
+    }
+    list.iter()
+        .map(|q| match q.as_array().map(|a| a.iter().filter_map(Value::as_f64).collect::<Vec<_>>()).as_deref() {
+            Some([x, y]) if x.is_finite() && y.is_finite() => Ok(kurbo::Point::new(*x, *y)),
+            _ => Err(bad(cmd, format!("each of `{key}` is [x, y]"))),
+        })
+        .collect()
+}
+
+fn refine_cutout(s: &mut Session, p: &Value) -> Result<Value> {
+    use kurbo::ParamCurveNearest;
+    const CMD: &str = "embroidery.image.refineCutout";
+    let keep = stroke(p, "keep", CMD)?;
+    let remove = stroke(p, "remove", CMD)?;
+    if keep.is_empty() && remove.is_empty() {
+        return Err(bad(CMD, "paint over what to keep or take away"));
+    }
+    let radius = f64_or(p, "radius", 6.0);
+    if !(radius.is_finite() && radius > 0.0 && radius <= 1000.0) {
+        return Err(bad(CMD, "`radius` is 0 to 1000 pt"));
+    }
+    let pic = Picture::get(s, p, CMD)?;
+    let (w, h) = (pic.raster.width, pic.raster.height);
+    if u64::from(w) * u64::from(h) > 16 << 20 {
+        return Err(bad(CMD, "the image is larger than 16 megapixels: scale it down first"));
+    }
+    // the strokes in the image's pixels: the points, and the brush's radius
+    let inv = pic.to_doc.inverse();
+    let px = |l: &[kurbo::Point]| -> Vec<kurbo::Point> { l.iter().map(|q| inv * *q).collect() };
+    let (keep, remove) = (px(&keep), px(&remove));
+    let scale = pic.to_doc.determinant().abs().sqrt();
+    let r = radius / scale.max(1e-9);
+    // a point is under a stroke when it is within the radius of one of its segments
+    let under = |l: &[kurbo::Point], q: kurbo::Point| -> bool {
+        match l {
+            [one] => one.distance(q) <= r,
+            _ => l.windows(2).any(|w| kurbo::Line::new(w[0], w[1]).nearest(q, 1e-6).distance_sq <= r * r),
+        }
+    };
+    let (fw, fh) = (f64::from(w), f64::from(h));
+    let (wu, hu) = (w as usize, h as usize);
+    let alpha_at = |x: usize, y: usize| pic.raster.rgba.get((y * wu + x) * 4 + 3).copied().unwrap_or(0);
+    let hint = |fx: f64, fy: f64| {
+        let q = kurbo::Point::new(fx * fw, fy * fh);
+        if under(&remove, q) {
+            Hint::Background
+        } else if under(&keep, q) {
+            Hint::Subject
+        } else if alpha_at(((fx * fw) as usize).min(wu.saturating_sub(1)), ((fy * fh) as usize).min(hu.saturating_sub(1))) >= 128 {
+            Hint::Unknown
+        } else {
+            Hint::LikelyBackground
+        }
+    };
+    // the whole picture, its background (transparent in the cut-out) seen again
+    let mut opaque = pic.raster.rgba.clone();
+    for px in opaque.chunks_exact_mut(4) {
+        if let Some(a) = px.get_mut(3) {
+            *a = 255;
+        }
+    }
+    let alpha = subject_alpha(&opaque, w, h, &hint, keep_bias(p, CMD)?).ok_or_else(|| bad(CMD, "the image is empty"))?;
+    let kept = alpha.iter().filter(|a| **a >= 128).count() as f64 / alpha.len().max(1) as f64;
+    if kept <= 0.0 {
+        return Err(bad(CMD, "that would take everything away"));
+    }
+    let mut rgba = pic.raster.rgba.clone();
+    for (px, a) in rgba.chunks_exact_mut(4).zip(&alpha) {
+        if let Some(v) = px.get_mut(3) {
+            *v = *a;
+        }
+    }
+    let png = Raster { width: w, height: h, rgba }.encode_png();
+    if png.is_empty() {
+        return Err(bad(CMD, "the cut-out image couldn't be written"));
+    }
+    let id = add_image_copy(s, pic.id, png, "sf-cutout", "Cut-Out Image", "Refine Cut-Out", true)?;
+    Ok(json!({ "id": id.0, "kept": kept }))
 }
 
 /// The subject's coverage per pixel (0–255, times the photo's own alpha) by Select Subject:
@@ -89,12 +250,58 @@ fn marks(p: &Value, key: &str, cmd: &str) -> Result<Vec<(f64, f64, f64)>> {
         .collect()
 }
 
+/// The cut-out's alpha for `raster` and whether Select Subject found the subject: from the box
+/// (`None`: the whole image, its edge only taken for background at first, and Select Subject
+/// helping), the keep and remove marks, and `bias` (see [`subject_alpha`]).
+fn cut_out(raster: &Raster, given: Option<[f64; 4]>, keep: &[(f64, f64, f64)], remove: &[(f64, f64, f64)], bias: f64) -> Option<(Vec<u8>, bool)> {
+    let (w, h) = (raster.width, raster.height);
+    let [bx, by, bw, bh] = given.unwrap_or([MARGIN, MARGIN, 1.0 - 2.0 * MARGIN, 1.0 - 2.0 * MARGIN]);
+    let outside = if given.is_some() { Hint::Background } else { Hint::LikelyBackground };
+    // a mark is round on the image, its radius a fraction of the image's shorter side
+    let (fw, fh) = (f64::from(w), f64::from(h));
+    let side = fw.min(fh);
+    let near = |list: &[(f64, f64, f64)], fx: f64, fy: f64| list.iter().any(|(x, y, r)| ((fx - x) * fw).hypot((fy - y) * fh) <= r * side);
+    let hint = |fx: f64, fy: f64| {
+        if near(remove, fx, fy) {
+            Hint::Background
+        } else if near(keep, fx, fy) {
+            Hint::Subject
+        } else if fx >= bx && fx <= bx + bw && fy >= by && fy <= by + bh {
+            Hint::Unknown
+        } else {
+            outside
+        }
+    };
+    let cut = subject_alpha(&raster.rgba, w, h, &hint, bias)?;
+    // given nothing to go on, Select Subject looks for the subject too, and the cut-out keeps what
+    // either finds: Select Subject keeps parts that look like the backdrop (a dark beak against
+    // dark leaves), the cut from the photo's edge keeps a subject running off it (a body off the
+    // bottom), and each mostly errs by leaving parts out
+    let found = if given.is_none() && keep.is_empty() && remove.is_empty() { select_subject(raster) } else { None };
+    let subject = found.is_some();
+    let alpha: Vec<u8> = match found {
+        Some(a) => a.iter().zip(&cut).map(|(a, b)| (*a).max(*b)).collect(),
+        None => cut,
+    };
+    Some((alpha, subject))
+}
+
+/// The most a sensitivity of 0 or 100 tips a pixel towards the subject or the background.
+const MAX_BIAS: f64 = 4.0;
+
+/// `sensitivity` (0–100, 50 even) as a keep bias: below 50 keeps more, above takes more away.
+fn keep_bias(p: &Value, cmd: &str) -> Result<f64> {
+    let s = f64_or(p, "sensitivity", 50.0);
+    if !(0.0..=100.0).contains(&s) {
+        return Err(bad(cmd, "`sensitivity` is 0 to 100"));
+    }
+    Ok((50.0 - s) / 50.0 * MAX_BIAS)
+}
+
 fn remove_background(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "embroidery.image.removeBackground";
     // without a box, the edge of the photo is taken for background at first, but not for certain
     let given = fraction_box(p, CMD)?;
-    let [bx, by, bw, bh] = given.unwrap_or([MARGIN, MARGIN, 1.0 - 2.0 * MARGIN, 1.0 - 2.0 * MARGIN]);
-    let outside = if given.is_some() { Hint::Background } else { Hint::LikelyBackground };
     let keep = marks(p, "keep", CMD)?;
     let remove = marks(p, "remove", CMD)?;
     let replace = bool_or(p, "replace", false);
@@ -103,32 +310,7 @@ fn remove_background(s: &mut Session, p: &Value) -> Result<Value> {
     if u64::from(w) * u64::from(h) > 16 << 20 {
         return Err(bad(CMD, "the image is larger than 16 megapixels: scale it down first"));
     }
-    // a mark is round on the image, its radius a fraction of the image's shorter side
-    let (fw, fh) = (f64::from(w), f64::from(h));
-    let side = fw.min(fh);
-    let near = |list: &[(f64, f64, f64)], fx: f64, fy: f64| list.iter().any(|(x, y, r)| ((fx - x) * fw).hypot((fy - y) * fh) <= r * side);
-    let hint = |fx: f64, fy: f64| {
-        if near(&remove, fx, fy) {
-            Hint::Background
-        } else if near(&keep, fx, fy) {
-            Hint::Subject
-        } else if fx >= bx && fx <= bx + bw && fy >= by && fy <= by + bh {
-            Hint::Unknown
-        } else {
-            outside
-        }
-    };
-    let cut = subject_alpha(&pic.raster.rgba, w, h, &hint).ok_or_else(|| bad(CMD, "the image is empty"))?;
-    // given nothing to go on, Select Subject looks for the subject too, and the cut-out keeps what
-    // either finds: Select Subject keeps parts that look like the backdrop (a dark beak against
-    // dark leaves), the cut from the photo's edge keeps a subject running off it (a body off the
-    // bottom), and each mostly errs by leaving parts out
-    let found = if given.is_none() && keep.is_empty() && remove.is_empty() { select_subject(&pic.raster) } else { None };
-    let subject = found.is_some();
-    let alpha: Vec<u8> = match found {
-        Some(a) => a.iter().zip(&cut).map(|(a, b)| (*a).max(*b)).collect(),
-        None => cut,
-    };
+    let (alpha, subject) = cut_out(&pic.raster, given, &keep, &remove, keep_bias(p, CMD)?).ok_or_else(|| bad(CMD, "the image is empty"))?;
     let kept = alpha.iter().filter(|a| **a >= 128).count() as f64 / alpha.len().max(1) as f64;
     if kept <= 0.0 {
         return Err(bad(CMD, "nothing in the box looks different from the background: draw the box round the subject, or mark it to keep"));
@@ -426,11 +608,12 @@ fn level_dead(iter: &mut [usize], u: usize) {
 /// with their distance.
 const AHEAD: [(i64, i64, f64); 4] = [(1, 0, 1.0), (0, 1, 1.0), (1, 1, std::f64::consts::SQRT_2), (-1, 1, std::f64::consts::SQRT_2)];
 
-/// The subject of an RGBA image `w`×`h` cut out from its background: an alpha value per pixel
+/// The subject of an RGBA image `w`×`h` cut out from its background (`keep_bias`: how much more a
+/// pixel's colour must look like the background's to be taken for it, 0 even, more keeps more): an alpha value per pixel
 /// (255 the subject, 0 the background, between them along the edge). `hint` tells what a point
 /// is known to be, at (x, y) as fractions of the image's width and height. Pixels already
 /// transparent are background. `None` when the image is empty or its size doesn't match.
-pub fn subject_alpha(rgba: &[u8], w: u32, h: u32, hint: &dyn Fn(f64, f64) -> Hint) -> Option<Vec<u8>> {
+pub fn subject_alpha(rgba: &[u8], w: u32, h: u32, hint: &dyn Fn(f64, f64) -> Hint, keep_bias: f64) -> Option<Vec<u8>> {
     let (wu, hu) = (w as usize, h as usize);
     if w == 0 || h == 0 || rgba.len() != wu * hu * 4 {
         return None;
@@ -466,7 +649,7 @@ pub fn subject_alpha(rgba: &[u8], w: u32, h: u32, hint: &dyn Fn(f64, f64) -> Hin
                 if n == 0.0 || clear as f64 > n { Hint::Background } else { hint((sx as f64 + 0.5) / sw as f64, (sy as f64 + 0.5) / sh as f64) };
         }
     }
-    let small = cut(&colors, &hints, sw, sh);
+    let small = cut(&colors, &hints, sw, sh, keep_bias);
     let small = tidy(small, sw, sh);
     // scaled back up, the edge smoothed over about a working pixel
     let mut alpha = vec![0u8; wu * hu];
@@ -492,7 +675,7 @@ pub fn subject_alpha(rgba: &[u8], w: u32, h: u32, hint: &dyn Fn(f64, f64) -> Hin
 }
 
 /// The cut of the working copy: which pixels are the subject.
-fn cut(colors: &[[f64; 3]], hints: &[Hint], w: usize, h: usize) -> Vec<bool> {
+fn cut(colors: &[[f64; 3]], hints: &[Hint], w: usize, h: usize, keep_bias: f64) -> Vec<bool> {
     let mut subject: Vec<bool> = hints.iter().map(|h| !matches!(h, Hint::Background | Hint::LikelyBackground)).collect();
     if !hints.iter().any(|h| matches!(h, Hint::Unknown | Hint::LikelyBackground)) || !subject.contains(&true) || subject.iter().all(|s| *s) {
         return subject;
@@ -548,7 +731,7 @@ fn cut(colors: &[[f64; 3]], hints: &[Hint], w: usize, h: usize) -> Vec<bool> {
             let (to_bg, to_fg) = match hnt {
                 Hint::Subject => (FIXED, 0.0),
                 Hint::Background => (0.0, FIXED),
-                Hint::Unknown | Hint::LikelyBackground => (bg.cost(c), fg.cost(c)),
+                Hint::Unknown | Hint::LikelyBackground => (bg.cost(c) + keep_bias, fg.cost(c)),
             };
             let lo = to_bg.min(to_fg);
             net.add(0, i + 2, to_bg - lo, 0.0);
@@ -654,7 +837,7 @@ mod tests {
             }
         }
         let boxed = |fx: f64, fy: f64| if (0.15..0.85).contains(&fx) && (0.1..0.9).contains(&fy) { Hint::Unknown } else { Hint::Background };
-        let a = subject_alpha(&rgba, w, h, &boxed).unwrap();
+        let a = subject_alpha(&rgba, w, h, &boxed, 0.0).unwrap();
         let at = |x: u32, y: u32| a[(y * w + x) as usize];
         assert_eq!(at(60, 50), 255, "the disc's middle is kept");
         assert_eq!(at(70, 60), 255);
@@ -667,11 +850,11 @@ mod tests {
         // the green patch on the disc is a hole in it, filled (it is small and inside)
         assert_eq!(at(60, 28), 255, "the patch on the disc is the disc's");
         // empty and mismatched images are refused
-        assert!(subject_alpha(&[], 0, 0, &boxed).is_none());
-        assert!(subject_alpha(&rgba[4..], w, h, &boxed).is_none());
+        assert!(subject_alpha(&[], 0, 0, &boxed, 0.0).is_none());
+        assert!(subject_alpha(&rgba[4..], w, h, &boxed, 0.0).is_none());
         // a transparent image is all background
         let clear = vec![0u8; (w * h * 4) as usize];
-        assert!(subject_alpha(&clear, w, h, &boxed).unwrap().iter().all(|v| *v == 0));
+        assert!(subject_alpha(&clear, w, h, &boxed, 0.0).unwrap().iter().all(|v| *v == 0));
     }
 
     #[test]
@@ -700,7 +883,7 @@ mod tests {
                 Hint::Unknown
             }
         };
-        let a = subject_alpha(&rgba, w, h, &hint).unwrap();
+        let a = subject_alpha(&rgba, w, h, &hint, 0.0).unwrap();
         let at = |x: u32, y: u32| a[(y * w + x) as usize];
         assert_eq!(at(20, 20), 255, "the kept square");
         assert_eq!(at(55, 20), 0, "the square marked remove goes, all of it");

@@ -2108,6 +2108,77 @@ fn remove_background_finds_the_subject_without_a_box() {
     assert_eq!((alpha(120, 70), alpha(140, 90), alpha(20, 20), alpha(30, 130)), (255, 255, 0, 0), "{res}");
 }
 
+/// PC-02: a stroke of the Cut-Out Brush puts back a part the cut left out, and an Alt stroke
+/// (`remove`) takes away a part it kept; each is one step.
+#[test]
+fn refining_a_cutout_puts_back_and_takes_away() {
+    let mut s = session();
+    // a red disc (left) and a blue square (right) on noisy grey
+    let r = vectorcraft_trace::Raster::from_fn(200, 100, |x, y| {
+        let n = ((x * 7 + y * 13) % 17) as u8;
+        let (dx, dy) = (x as f64 - 50.0, y as f64 - 50.0);
+        if dx * dx + dy * dy <= 25.0 * 25.0 {
+            [210 + n / 2, 40, 30, 255]
+        } else if (125..175).contains(&x) && (25..75).contains(&y) {
+            [30, 60, 200 + n / 2, 255]
+        } else {
+            [120 + n, 120 + n, 118 + n, 255]
+        }
+    });
+    s.execute("file.place", &json!({"name": "two.png", "rect": [0, 0, 200, 100], "dataBase64": vectorcraft_format::base64_encode(&r.encode_png())}))
+        .unwrap();
+    // the box takes in only the disc
+    let res = s.execute("embroidery.image.removeBackground", &json!({"box": [0.05, 0.1, 0.45, 0.8], "replace": true})).unwrap();
+    let alpha = |s: &Session, id: u64, x: u32, y: u32| {
+        let d = &s.doc().unwrap().doc;
+        let NodeKind::Image(im) = &d.node(NodeId(id)).unwrap().kind else { panic!("not an image") };
+        let cut = vectorcraft_trace::Raster::decode(&d.images[&im.key].bytes).unwrap();
+        cut.rgba[((y * cut.width + x) * 4 + 3) as usize]
+    };
+    let id = res["id"].as_u64().unwrap();
+    assert_eq!((alpha(&s, id, 50, 50), alpha(&s, id, 150, 50)), (255, 0), "the square is left out");
+    // the image's box in the document: the pixel (x, y) is at the same point
+    let res = s.execute("embroidery.image.refineCutout", &json!({"keep": [[140, 50], [160, 50]], "radius": 6})).unwrap();
+    let id = res["id"].as_u64().unwrap();
+    assert_eq!((alpha(&s, id, 150, 50), alpha(&s, id, 130, 30), alpha(&s, id, 50, 50)), (255, 255, 255), "the square is back: {res}");
+    assert_eq!(alpha(&s, id, 100, 50), 0, "the backdrop between them stays out");
+    let res = s.execute("embroidery.image.refineCutout", &json!({"remove": [[40, 50], [60, 50]], "radius": 6})).unwrap();
+    let id = res["id"].as_u64().unwrap();
+    assert_eq!((alpha(&s, id, 50, 50), alpha(&s, id, 150, 50)), (0, 255), "the disc is taken away");
+    // one step each
+    s.execute("edit.undo", &json!({})).unwrap();
+    let back = s.doc().unwrap().selection.objects.clone();
+    assert_eq!(back.len(), 1);
+    for bad in [json!({}), json!({"keep": [[1]]}), json!({"keep": [[1, 2]], "radius": 0}), json!({"keep": "x"})] {
+        assert!(s.execute("embroidery.image.refineCutout", &bad).is_err(), "{bad}");
+    }
+}
+
+/// PC-02: the before-and-after preview is a small photo and its cut-out; a lower sensitivity
+/// keeps at least as much, a higher one takes at least as much away.
+#[test]
+fn the_cutout_preview_follows_the_sensitivity() {
+    let mut s = session();
+    let r = vectorcraft_trace::Raster::from_fn(400, 300, |x, y| {
+        let n = ((x * 7 + y * 13) % 29) as u8;
+        let (dx, dy) = (x as f64 - 200.0, y as f64 - 150.0);
+        if dx * dx + dy * dy <= 80.0 * 80.0 { [190 + n / 2, 60 + n, 40, 255] } else { [90 + n, 140 + n, 80 + n, 255] }
+    });
+    s.execute("file.place", &json!({"name": "p.png", "dataBase64": vectorcraft_format::base64_encode(&r.encode_png())})).unwrap();
+    let at = |sens: u32, s: &mut Session| s.execute("embroidery.image.cutoutPreview", &json!({"sensitivity": sens, "size": 120})).unwrap();
+    let mid = at(50, &mut s);
+    assert_eq!((mid["width"].as_u64(), mid["height"].as_u64()), (Some(120), Some(90)));
+    for key in ["dataBase64", "beforeBase64"] {
+        let png = vectorcraft_format::base64_decode(mid[key].as_str().unwrap()).unwrap();
+        assert!(vectorcraft_trace::Raster::decode(&png).is_ok(), "{key}");
+    }
+    let (low, high) = (at(0, &mut s)["kept"].as_f64().unwrap(), at(100, &mut s)["kept"].as_f64().unwrap());
+    let mid = mid["kept"].as_f64().unwrap();
+    assert!(low >= mid && mid >= high && mid > 0.1, "{low} {mid} {high}");
+    assert!(s.execute("embroidery.image.cutoutPreview", &json!({"sensitivity": 101})).is_err());
+    assert!(s.execute("embroidery.image.cutoutPreview", &json!({"size": 10})).is_err());
+}
+
 #[test]
 fn smart_auto_digitize_sews_details_as_runs_outlines_and_matches_a_chart() {
     let mut s = session();

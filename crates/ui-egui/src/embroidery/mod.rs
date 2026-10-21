@@ -140,6 +140,11 @@ pub struct EmbroideryUi {
     pub digitize_background: bool,
     /// The colour preview of the selected image (Auto-Digitize's colours, before digitizing).
     pub colour_preview: Option<ColourPreview>,
+    /// Remove Background's sensitivity (0–100, 50 even), its before-and-after preview of the
+    /// selected image, and where the preview's split line is (0 all after, 1 all before).
+    pub cutout_sensitivity: u32,
+    pub cutout_preview: Option<CutoutPreview>,
+    pub cutout_split: f32,
     /// Photo Stitch's mode: lines, coral or colour.
     pub photo_mode: usize,
     /// The last Check Design results (`embroidery.check` findings); `None` until run.
@@ -328,6 +333,9 @@ impl Default for EmbroideryUi {
             digitize_colors: 6,
             digitize_background: true,
             colour_preview: None,
+            cutout_sensitivity: 50,
+            cutout_preview: None,
+            cutout_split: 0.5,
             photo_mode: 0,
             checks: None,
             new_type: "fill".into(),
@@ -420,6 +428,16 @@ pub fn tick(app: &mut crate::VectorcraftApp, ctx: &egui::Context) {
 }
 
 /// An image reduced to a number of thread colours, as Auto-Digitize sees it.
+/// Remove Background's preview of an image: the photo and its cut-out, small.
+pub struct CutoutPreview {
+    /// The image and the sensitivity it was made at.
+    pub key: (u64, u32),
+    pub before: egui::TextureHandle,
+    pub after: egui::TextureHandle,
+    /// The share of the image kept.
+    pub kept: f64,
+}
+
 pub struct ColourPreview {
     /// The image, the colours asked for and whether the background is left out.
     pub key: (u64, u32, bool),

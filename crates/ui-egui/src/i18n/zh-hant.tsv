@@ -6303,3 +6303,12 @@ machine	Stop	停止
 # Remove Background
 	Remove Background	移除背景
 	Cut the subject out of the photo, so only it is digitized	從照片中去背主體，只對主體進行數位化
+# Cut-Out Brush
+	Cut-Out Preview	去背預覽
+	Sensitivity	靈敏度
+	Higher takes more of the background away; lower keeps more of the subject	調高會去掉更多背景，調低會保留更多主體
+	Drag across the picture to compare the photo with its cut-out	在圖片上拖曳，比較原照片與去背結果
+	Before | After: {n} % kept	之前 | 之後：保留 {n} %
+	Refine Cut-Out	細修去背
+	Cut-Out Brush Tool	去背筆刷工具
+	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	在去背的照片上塗抹，找回「移除背景」漏掉的部分；按住 Alt 塗抹可去掉殘留的背景。

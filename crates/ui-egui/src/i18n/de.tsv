@@ -6306,3 +6306,12 @@ effect	Soft	Weich
 # Remove Background
 	Remove Background	Hintergrund entfernen
 	Cut the subject out of the photo, so only it is digitized	Schneidet das Motiv aus dem Foto aus, damit nur es digitalisiert wird
+# Cut-Out Brush
+	Cut-Out Preview	Freistellungsvorschau
+	Sensitivity	Empfindlichkeit
+	Higher takes more of the background away; lower keeps more of the subject	Höher entfernt mehr vom Hintergrund, niedriger behält mehr vom Motiv
+	Drag across the picture to compare the photo with its cut-out	Ziehen Sie über das Bild, um das Foto mit der Freistellung zu vergleichen
+	Before | After: {n} % kept	Vorher | Nachher: {n} % behalten
+	Refine Cut-Out	Freistellung verfeinern
+	Cut-Out Brush Tool	Freistellungspinsel
+	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Malen Sie über das freigestellte Foto, um zurückzuholen, was Hintergrund entfernen ausgelassen hat; mit gedrückter Alt-Taste entfernen Sie übrig gebliebenen Hintergrund.

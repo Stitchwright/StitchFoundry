@@ -31,6 +31,7 @@ pub fn create(id: &str) -> Option<Box<dyn Tool>> {
         "embroideryColumn" => Some(Box::new(ColumnTool::default())),
         "embroideryMotif" => Some(Box::new(MotifTool::default())),
         "embroideryClick" => Some(Box::new(ClickStitchTool::default())),
+        "embroideryCutout" => Some(Box::new(CutoutBrushTool::default())),
         "embroideryCrossStitch" => Some(Box::new(CrossStitchTool::default())),
         _ => None,
     }
@@ -846,6 +847,95 @@ impl Tool for ClickStitchTool {
     }
 }
 
+/// Cut-Out Brush tool: paint over a cut-out photo (made by Remove Background) to put back what it
+/// left out, or with Alt held (or `mode: remove`) to take away background it kept; on release the
+/// cut-out is made again with the stroke (`embroidery.image.refineCutout`), one step per stroke.
+/// Option `size`: the brush's width (pt).
+pub struct CutoutBrushTool {
+    pub remove: bool,
+    pub size: f64,
+    points: Vec<Point>,
+    erasing: bool,
+}
+
+impl Default for CutoutBrushTool {
+    fn default() -> Self {
+        CutoutBrushTool { remove: false, size: 12.0, points: Vec::new(), erasing: false }
+    }
+}
+
+impl Tool for CutoutBrushTool {
+    fn id(&self) -> &'static str {
+        "embroideryCutout"
+    }
+
+    fn pointer(&mut self, _cx: &ToolContext, ev: &PointerEvent) -> Vec<Action> {
+        match ev.kind {
+            PointerKind::Down => {
+                self.points = vec![ev.pos];
+                self.erasing = self.remove != ev.mods.alt;
+                vec![]
+            }
+            PointerKind::Drag => {
+                // a point every third of the brush's radius is enough to follow the stroke
+                if self.points.last().is_some_and(|q| q.distance(ev.pos) >= self.size / 6.0) {
+                    self.points.push(ev.pos);
+                }
+                vec![]
+            }
+            PointerKind::Up => {
+                if self.points.is_empty() {
+                    return vec![];
+                }
+                self.points.push(ev.pos);
+                let pts: Vec<[f64; 2]> = std::mem::take(&mut self.points).into_iter().map(|q| [q.x, q.y]).collect();
+                let key = if self.erasing { "remove" } else { "keep" };
+                vec![Action::Exec("embroidery.image.refineCutout".into(), json!({ key: pts, "radius": self.size / 2.0 }))]
+            }
+            _ => vec![],
+        }
+    }
+
+    fn overlays(&self, _cx: &ToolContext) -> Vec<Overlay> {
+        let Some((first, rest)) = self.points.split_first() else { return vec![] };
+        let mut path = vectorcraft_geom::BezPath::new();
+        path.move_to(*first);
+        for q in rest {
+            path.line_to(*q);
+        }
+        let color = if self.erasing { [220, 50, 50] } else { [40, 170, 80] };
+        vec![Overlay::Path { path, color, width: 3.0, dashed: false }]
+    }
+
+    fn cursor(&self, _cx: &ToolContext, _p: Point, _mods: Mods) -> Cursor {
+        Cursor::Crosshair
+    }
+
+    fn busy(&self) -> bool {
+        !self.points.is_empty()
+    }
+
+    fn options(&self) -> Value {
+        json!({ "mode": if self.remove { "remove" } else { "keep" }, "size": self.size })
+    }
+
+    fn set_option(&mut self, key: &str, value: &Value) {
+        match key {
+            "mode" => {
+                if let Some(v) = value.as_str().filter(|v| ["keep", "remove"].contains(v)) {
+                    self.remove = v == "remove";
+                }
+            }
+            "size" => {
+                if let Some(v) = value.as_f64().filter(|v| v.is_finite() && *v >= 1.0 && *v <= 500.0) {
+                    self.size = v;
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
 /// Cross Stitch tool: paint a cross-stitch pattern's cells by clicking or dragging over its grid
 /// (`embroidery.crossStitch.paint`), in the tool's colour; with `erase` on, or Alt held, the
 /// cells are cleared instead. A whole stroke is one step (Undo takes it back). With `fill` on, a
@@ -1226,6 +1316,38 @@ mod tests {
     use super::*;
     use crate::testutil::cx;
     use vectorcraft_doc::{Document, Selection};
+
+    /// PC-02: a stroke sends its points to `embroidery.image.refineCutout`, as `keep`, or as
+    /// `remove` with Alt held.
+    #[test]
+    fn the_cutout_brush_sends_its_stroke() {
+        let d = Document::new(400.0, 300.0);
+        let s = Selection::default();
+        let p = crate::PaintDefaults::default();
+        let c = cx(&d, &s, &p);
+        let mut t = CutoutBrushTool::default();
+        let ev = |kind, x: f64, alt| {
+            let mut e = PointerEvent::new(kind, x, 10.0);
+            e.mods.alt = alt;
+            e
+        };
+        assert!(t.pointer(&c, &ev(PointerKind::Down, 0.0, false)).is_empty());
+        assert!(t.busy());
+        t.pointer(&c, &ev(PointerKind::Drag, 5.0, false));
+        assert_eq!(t.overlays(&c).len(), 1, "the stroke shows");
+        let up = t.pointer(&c, &ev(PointerKind::Up, 10.0, false));
+        let [Action::Exec(cmd, v)] = up.as_slice() else { panic!("{up:?}") };
+        assert_eq!(cmd, "embroidery.image.refineCutout");
+        assert_eq!(v["keep"], json!([[0.0, 10.0], [5.0, 10.0], [10.0, 10.0]]));
+        assert_eq!(v["radius"], 6.0);
+        assert!(!t.busy());
+        t.pointer(&c, &ev(PointerKind::Down, 0.0, true));
+        let up = t.pointer(&c, &ev(PointerKind::Up, 3.0, true));
+        assert!(matches!(up.as_slice(), [Action::Exec(_, v)] if v.get("remove").is_some()), "Alt takes away");
+        t.set_option("mode", &json!("remove"));
+        t.set_option("size", &json!(20));
+        assert_eq!(t.options(), json!({"mode": "remove", "size": 20.0}));
+    }
 
     #[test]
     fn brush_draws_with_a_preview_and_commits() {

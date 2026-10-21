@@ -6531,3 +6531,12 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 # Remove Background
 	Remove Background	ფონის წაშლა
 	Cut the subject out of the photo, so only it is digitized	ამოჭრის ობიექტს ფოტოდან, რომ მხოლოდ ის გაციფრდეს
+# Cut-Out Brush
+	Cut-Out Preview	ამოჭრის გადახედვა
+	Sensitivity	მგრძნობელობა
+	Higher takes more of the background away; lower keeps more of the subject	მაღალი უფრო მეტ ფონს აშორებს, დაბალი ობიექტს უფრო მეტს ტოვებს
+	Drag across the picture to compare the photo with its cut-out	გადაათრიეთ სურათზე, რომ ფოტო ამოჭრილს შეადაროთ
+	Before | After: {n} % kept	მანამდე | შემდეგ: დარჩა {n} %
+	Refine Cut-Out	ამოჭრის დახვეწა
+	Cut-Out Brush Tool	ამოჭრის ფუნჯი
+	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	გადაუსვით ამოჭრილ ფოტოს, რომ დააბრუნოთ ის, რაც ფონის წაშლამ გამოტოვა; Alt-ით მოაშორებთ დარჩენილ ფონს.

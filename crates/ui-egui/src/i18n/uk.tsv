@@ -6320,3 +6320,12 @@ machine	Stop	Зупинка
 # Remove Background
 	Remove Background	Видалити фон
 	Cut the subject out of the photo, so only it is digitized	Вирізає об’єкт із фотографії, щоб оцифрувати лише його
+# Cut-Out Brush
+	Cut-Out Preview	Попередній перегляд вирізання
+	Sensitivity	Чутливість
+	Higher takes more of the background away; lower keeps more of the subject	Вища прибирає більше фону, нижча зберігає більше об’єкта
+	Drag across the picture to compare the photo with its cut-out	Проведіть по зображенню, щоб порівняти фото з вирізаним
+	Before | After: {n} % kept	До | Після: збережено {n} %
+	Refine Cut-Out	Уточнити вирізання
+	Cut-Out Brush Tool	Пензель вирізання
+	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Проведіть по вирізаному фото, щоб повернути те, що пропустило «Видалити фон»; з Alt приберете залишений фон.

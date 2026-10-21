@@ -6713,3 +6713,12 @@ theme	Appearance	Apparence
 # Remove Background
 	Remove Background	Supprimer l’arrière-plan
 	Cut the subject out of the photo, so only it is digitized	Détoure le sujet de la photo, pour que lui seul soit numérisé
+# Cut-Out Brush
+	Cut-Out Preview	Aperçu du détourage
+	Sensitivity	Sensibilité
+	Higher takes more of the background away; lower keeps more of the subject	Plus haut retire davantage le fond ; plus bas garde davantage le sujet
+	Drag across the picture to compare the photo with its cut-out	Faites glisser sur l’image pour comparer la photo à son détourage
+	Before | After: {n} % kept	Avant | Après : {n} % gardés
+	Refine Cut-Out	Affiner le détourage
+	Cut-Out Brush Tool	Pinceau de détourage
+	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Peignez sur la photo détourée pour rétablir ce que Supprimer l’arrière-plan a laissé de côté ; maintenez Alt pour retirer le fond qu’il a gardé.

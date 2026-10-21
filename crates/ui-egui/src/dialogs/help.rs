@@ -37,6 +37,10 @@ pub fn tips() -> Vec<(&'static str, &'static str)> {
     vec![
         ("embroideryDirection", tl!("Draw an inclination line across a shape to set its stitch angle; two or more lines make the stitches turn.")),
         ("embroideryClick", tl!("Click a region of a placed image to stitch it; raise Tolerance to take in more of its shades.")),
+        (
+            "embroideryCutout",
+            tl!("Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept."),
+        ),
         ("embroideryStitches", tl!("Drag picked needle points to move them, Alt-click a stitch to add one, Delete removes them.")),
         ("embroideryColumn", tl!("Click on one side of the column, then the other, in turn; Enter or Escape ends it.")),
         ("embroideryBrush", tl!("The dial in the lower-left corner sets the brush, width, density, length and shape.")),

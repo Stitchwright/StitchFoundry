@@ -6651,3 +6651,12 @@ machine	Stop	Στάση
 # Remove Background
 	Remove Background	Αφαίρεση φόντου
 	Cut the subject out of the photo, so only it is digitized	Αποκόπτει το θέμα από τη φωτογραφία, ώστε να ψηφιοποιηθεί μόνο αυτό
+# Cut-Out Brush
+	Cut-Out Preview	Προεπισκόπηση αποκοπής
+	Sensitivity	Ευαισθησία
+	Higher takes more of the background away; lower keeps more of the subject	Υψηλότερη αφαιρεί περισσότερο φόντο· χαμηλότερη κρατά περισσότερο από το θέμα
+	Drag across the picture to compare the photo with its cut-out	Σύρετε πάνω στην εικόνα για να συγκρίνετε τη φωτογραφία με την αποκοπή
+	Before | After: {n} % kept	Πριν | Μετά: κρατήθηκε {n} %
+	Refine Cut-Out	Βελτίωση αποκοπής
+	Cut-Out Brush Tool	Πινέλο αποκοπής
+	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Βάψτε πάνω στην αποκομμένη φωτογραφία για να επαναφέρετε ό,τι παρέλειψε η Αφαίρεση φόντου· κρατήστε το Alt για να αφαιρέσετε φόντο που έμεινε.

@@ -12,7 +12,7 @@ use vectorcraft_embroidery::sf_core::model::{
 };
 use vectorcraft_embroidery::sf_core::threads::Rgb;
 
-use super::{ArtView, ColourPreview, StitchView};
+use super::{ArtView, ColourPreview, CutoutPreview, StitchView};
 use crate::VectorcraftApp;
 use crate::theme::Tokens;
 use crate::widgets::{dropdown, flat_button, label_row, plain_field, section_header};
@@ -1855,6 +1855,81 @@ fn colour_preview(app: &mut VectorcraftApp, ui: &Ui) {
     app.embroidery.colour_preview = Some(ColourPreview { key, texture, info });
 }
 
+/// Remove Background's sensitivity and its before-and-after preview: the photo on one side of a
+/// line dragged across it, its cut-out (on a checkerboard) on the other.
+fn cutout_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
+    let Some(id) = selected_image_id(app) else { return };
+    let t = Tokens::get(ui.ctx());
+    let mut settled = true;
+    ui.horizontal(|ui| {
+        ui.label(tl!("Sensitivity"));
+        ui.visuals_mut().widgets.inactive.bg_fill = t.input_border;
+        ui.visuals_mut().selection.bg_fill = t.accent;
+        let mut v = app.embroidery.cutout_sensitivity.min(100);
+        let r = ui
+            .add(egui::Slider::new(&mut v, 0..=100).integer().trailing_fill(true))
+            .on_hover_text(tl!("Higher takes more of the background away; lower keeps more of the subject"));
+        if r.changed() {
+            app.embroidery.cutout_sensitivity = v;
+        }
+        // the preview waits for the slider to be let go
+        settled = !r.dragged();
+    });
+    let key = (id, app.embroidery.cutout_sensitivity);
+    if settled && app.embroidery.cutout_preview.as_ref().is_none_or(|p| p.key != key) {
+        let made =
+            app.session.execute("embroidery.image.cutoutPreview", &json!({ "id": id, "sensitivity": key.1, "size": 240 })).ok().and_then(|r| {
+                let texture = |field: &str, name: &str| -> Option<egui::TextureHandle> {
+                    let bytes = r[field].as_str().and_then(vectorcraft_format::base64_decode)?;
+                    let img = image::load_from_memory_with_format(&bytes, image::ImageFormat::Png).ok()?.to_rgba8();
+                    let color = egui::ColorImage::from_rgba_unmultiplied([img.width() as usize, img.height() as usize], img.as_raw());
+                    Some(ui.ctx().load_texture(format!("emb-cutout-{name}-{id}"), color, egui::TextureOptions::LINEAR))
+                };
+                Some(CutoutPreview {
+                    key,
+                    before: texture("beforeBase64", "before")?,
+                    after: texture("dataBase64", "after")?,
+                    kept: r["kept"].as_f64().unwrap_or(0.0),
+                })
+            });
+        app.embroidery.cutout_preview = made;
+    }
+    let Some(p) = &app.embroidery.cutout_preview else { return };
+    let size = p.before.size_vec2();
+    let k = (ui.available_width().min(260.0) / size.x.max(1.0)).min(2.0);
+    let (rect, r) = ui.allocate_exact_size(size * k, egui::Sense::click_and_drag());
+    if let Some(at) = r.interact_pointer_pos() {
+        app.embroidery.cutout_split = ((at.x - rect.left()) / rect.width().max(1.0)).clamp(0.0, 1.0);
+    }
+    let split = rect.left() + rect.width() * app.embroidery.cutout_split;
+    let uv = egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0));
+    let painter = ui.painter_at(rect);
+    // before, left of the line
+    let left = egui::Rect::from_min_max(rect.min, egui::pos2(split, rect.bottom()));
+    ui.painter_at(left).image(p.before.id(), rect, uv, Color32::WHITE);
+    // after, right of it, over a checkerboard where the background went
+    let right = egui::Rect::from_min_max(egui::pos2(split, rect.top()), rect.max);
+    let after = ui.painter_at(right);
+    let cell = 8.0;
+    let (cols, rows) = ((rect.width() / cell).ceil() as i32, (rect.height() / cell).ceil() as i32);
+    for y in 0..rows {
+        for x in 0..cols {
+            let c = if (x + y) % 2 == 0 { Color32::from_gray(235) } else { Color32::from_gray(205) };
+            let at = rect.min + egui::vec2(x as f32 * cell, y as f32 * cell);
+            after.rect_filled(egui::Rect::from_min_size(at, egui::vec2(cell, cell)), 0.0, c);
+        }
+    }
+    after.image(p.after.id(), rect, uv, Color32::WHITE);
+    painter.line_segment([egui::pos2(split, rect.top()), egui::pos2(split, rect.bottom())], egui::Stroke::new(2.0, t.accent));
+    painter.circle_filled(egui::pos2(split, rect.center().y), 6.0, t.accent);
+    r.on_hover_text(tl!("Drag across the picture to compare the photo with its cut-out"));
+    ui.label(
+        egui::RichText::new(crate::i18n::fmt(tl!("Before | After: {n} % kept"), &[("n", &format!("{:.0}", p.kept * 100.0))]))
+            .small()
+            .color(t.text_dim),
+    );
+}
+
 /// Auto-Digitize for a selected image: how many thread colours (seen at once in a preview with
 /// the threads they become), then trace and stitch, prepare it, or sew it as a photo.
 pub(crate) fn auto_digitize_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
@@ -1913,7 +1988,7 @@ pub(crate) fn auto_digitize_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
     }
     ui.horizontal(|ui| {
         if button(ui, tl!("Remove Background")).on_hover_text(tl!("Cut the subject out of the photo, so only it is digitized")).clicked()
-            && let Err(e) = app.run("embroidery.image.removeBackground", json!({}))
+            && let Err(e) = app.run("embroidery.image.removeBackground", json!({ "sensitivity": app.embroidery.cutout_sensitivity }))
         {
             app.status(e);
         }
@@ -1925,6 +2000,7 @@ pub(crate) fn auto_digitize_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
             app.status(e);
         }
     });
+    cutout_rows(app, ui);
     // photo stitch: lines, coral or these colours
     let modes = ["lines", "coral", "color"];
     let names = [tl!("Lines"), tl!("Coral"), tl!("Colours")];

@@ -6593,3 +6593,12 @@ swatch	Bright Violet	Kraftig violet
 # Remove Background
 	Remove Background	Fjern baggrund
 	Cut the subject out of the photo, so only it is digitized	Skær motivet ud af billedet, så kun det digitaliseres
+# Cut-Out Brush
+	Cut-Out Preview	Forhåndsvisning af udskæring
+	Sensitivity	Følsomhed
+	Higher takes more of the background away; lower keeps more of the subject	Højere fjerner mere af baggrunden; lavere beholder mere af motivet
+	Drag across the picture to compare the photo with its cut-out	Træk hen over billedet for at sammenligne fotoet med udskæringen
+	Before | After: {n} % kept	Før | Efter: {n} % beholdt
+	Refine Cut-Out	Finjuster udskæring
+	Cut-Out Brush Tool	Udskæringspensel
+	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	Mal over det udskårne billede for at få det tilbage, som Fjern baggrund udelod; hold Alt nede for at fjerne baggrund, der blev tilbage.

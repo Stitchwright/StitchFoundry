@@ -6295,3 +6295,12 @@ machine	Stop	정지
 # Remove Background
 	Remove Background	배경 제거
 	Cut the subject out of the photo, so only it is digitized	사진에서 피사체를 잘라내어 피사체만 디지타이징합니다
+# Cut-Out Brush
+	Cut-Out Preview	오려내기 미리 보기
+	Sensitivity	민감도
+	Higher takes more of the background away; lower keeps more of the subject	높이면 배경을 더 많이 지우고, 낮추면 피사체를 더 많이 남깁니다
+	Drag across the picture to compare the photo with its cut-out	그림 위를 드래그해 사진과 오려낸 결과를 비교합니다
+	Before | After: {n} % kept	이전 | 이후: {n} % 남김
+	Refine Cut-Out	오려내기 다듬기
+	Cut-Out Brush Tool	오려내기 브러시 도구
+	Paint over a cut-out photo to put back what Remove Background left out; hold Alt to take away background it kept.	오려낸 사진 위에 칠하면 배경 제거가 빠뜨린 부분이 돌아옵니다. Alt를 누른 채 칠하면 남은 배경을 지웁니다.

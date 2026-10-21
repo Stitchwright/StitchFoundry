@@ -1324,6 +1324,18 @@ Auto-Digitize, Prepare Image and Photo Stitch leave it out; `replace` swaps the 
 works on a copy of the photo 240 pixels across and smooths the edge when it scales back up, so a
 photo of any size takes a second or two.
 
+Below the button, **Sensitivity** (0 to 100, `sensitivity`) chooses how readily a part is taken for
+background: higher takes more away, lower keeps more of the subject. The picture under it shows the
+photo and its cut-out side by side: drag the line across it to compare before and after; it is
+made again, small, when you let go of the slider (`embroidery.image.cutoutPreview`).
+
+The **Cut-Out Brush** tool (Embroidery toolbar) mends a cut-out: paint over a part it left out (the
+feathers above a parrot's beak, the same green as the leaves behind them) to put it back, or hold
+Alt (or set its mode to Remove) and paint over background it kept to take it away. When you let go
+the cut-out is made again round the stroke, one undo step per stroke
+(`embroidery.image.refineCutout {keep?, remove?, radius?, sensitivity?}`, points in the document);
+the cut-out still holds the whole photo, its background only transparent, so nothing is lost.
+
 **Image Colours** (`embroidery.image.colors {colors?, chart?}`) lists an image's main colours,
 the most used first, each with how much of the image it covers and the nearest thread in the
 design's chart (or the one named).
