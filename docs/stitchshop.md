@@ -1,6 +1,7 @@
 # Send to StitchShop (SHOP-01): the plan
 
-Status: planned, 2026-10-22. StitchHub's side is built (the "StitchFoundry inbox": `src/inbox.mjs` and
+Status: planned, 2026-10-22; the hub's preview slot and the extra `meta` keys added the same day
+(a value out of range is dropped by the hub, not refused). StitchHub's side is built (the "StitchFoundry inbox": `src/inbox.mjs` and
 the README's section of that name in [Stitchwright/stitchhub](https://github.com/Stitchwright/stitchhub),
 on the branch `claude/happy-einstein-mmdl83` at the time of writing), tested against stand-ins only.
 This page is StitchFoundry's side: what it sends, from where, and its answers to the hub's questions.
@@ -10,7 +11,7 @@ This page is StitchFoundry's side: what it sends, from where, and its answers to
 **File › Send to StitchShop…**, and **Send to StitchShop** on a job order (Embroidery › Job Orders):
 pick the shop (when the account has more than one), check the format and what goes with it, send.
 The design is sent as DST unless the job or the user chooses another format, with what StitchFoundry
-knows about it (the `meta` below) and, once the hub has a slot for it, a preview picture. The status
+knows about it (the `meta` below) and a preview picture. The status
 says it arrived, with **Take It Back** while no shop has taken it.
 
 ## How it works
@@ -20,9 +21,14 @@ holds after signing in to cloud.stitchfoundry.app. The hub asks the Foundry Acco
 is (`POST /v1/account`, its numeric `id`) and keeps nothing of it.
 
 1. `GET {hub}/v1/inbox/shops` → the account's shops, for the picker (left out with one shop).
-2. `POST {hub}/v1/inbox/put {fileName, size, sha256, meta, toShopId?}` → `{id, url, headers}`.
-3. `PUT` the bytes to `url` with exactly those headers and `Content-Length: size`.
-4. `POST {hub}/v1/inbox/done {id}`: only then does the file appear to the shop.
+2. `POST {hub}/v1/inbox/put {fileName, size, sha256, meta, toShopId?, preview?: {size, sha256, type}}`
+   → `{id, url, headers, preview?: {url, method, headers}}`. The preview is a PNG or JPEG
+   (`image/png`, `image/jpeg`) of at most 2 MB, and counts against the account's 100 MB.
+3. `PUT` the bytes to `url` with exactly those headers and `Content-Length: size`; the same for the
+   preview, to its own address.
+4. `POST {hub}/v1/inbox/done {id}`: only then does the file appear to the shop (refused until the
+   file and the preview are both in). The shop uses the preview as the order's mock-up when the order
+   has none.
 5. `POST {hub}/v1/inbox/retract {id}` for Take It Back (409: a shop has taken it already).
 
 - **The hub's address** is a setting (Preferences › StitchFoundry, `stitchshop-hub`), by default
@@ -50,7 +56,10 @@ All of these, from the design (`embroidery.info`) and, when sent from a job orde
 | `customer`, `garment`, `placement`, `due` (yyyy-mm-dd), `quantity` | the job order |
 | `notes` (500 characters) | the job order's notes, else the design's notes |
 | `program`, `version` | "StitchFoundry" and the app's version |
-| `stitches`, `colors`, `widthMm`, `heightMm` | the design: always sent, whatever the format |
+| `stitches`, `colors`, `widthMm`, `heightMm` | the design: always sent, whatever the format. `stitches` counts needle stitches only (no jumps, trims or colour changes), as StitchShop counts a DST's records with the stitch flag, so the numbers match |
+| `design`, `format`, `hoop`, `fabric` | the design's name, the format sent (2–8 letters or digits, lowercase), the hoop's and the fabric preset's names (120 characters each) |
+| `trims`, `colorChanges` | trims (0–100 000) and colour changes with stops (0–1 000) |
+| `threadM`, `bobbinM` | thread and bobbin used, metres, one decimal (0–1 000 000) |
 | `runMinutes` | the design's sewing time, rounded up |
 | `threads` | the threads in sewing order, by name and code |
 
