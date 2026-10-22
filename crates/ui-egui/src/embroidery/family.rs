@@ -114,10 +114,10 @@ fn make(app: &mut VectorcraftApp) -> Result<(), String> {
     let kept = st.people.clone();
     account::keep(app, KEPT, Some(kept.as_str()));
     if app.session.active().is_none() {
-        app.run("embroidery.newDesign", json!({})).map_err(|e| {
+        if let Err(e) = app.run("embroidery.newDesign", json!({})) {
             app.embroidery.family.error = Some(e.clone());
-            e
-        })?;
+            return Err(e);
+        }
     }
     match app.run("embroidery.familyTree", q) {
         Ok(r) => {
