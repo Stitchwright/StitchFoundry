@@ -10,7 +10,7 @@
 use std::sync::Arc;
 
 use serde_json::{Value, json};
-use vectorcraft_doc::{Node, NodeKind};
+use vectorcraft_doc::{Document, Node};
 use vectorcraft_embroidery::PT_PER_MM;
 use vectorcraft_geom::{Affine, Point, Vec2};
 
@@ -26,7 +26,7 @@ const LEG: f64 = 5.0;
 
 /// The threads the marks are sewn in, named for what to do: the machine stops at each.
 const START: (&str, &str) = ("#d0342c", "Start marks: line the needle up with the last hooping's end marks");
-const END: (&str, &str) = ("#d0342c", "End marks: re-hoop with these where the start marks go");
+const END: (&str, &str) = ("#2a7de1", "End marks: re-hoop with these where the start marks go");
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![cmd!(
@@ -131,7 +131,7 @@ fn endless(s: &mut Session, p: &Value) -> Result<Value> {
     }
     let done = (|| -> Result<u64> {
         // the marks, each a stitched line in its own thread
-        let mut mark = |s: &mut Session, pts: &[Point], thread: (&str, &str)| -> Result<u64> {
+        let mark = |s: &mut Session, pts: &[Point], thread: (&str, &str)| -> Result<u64> {
             let mut d = String::new();
             for (i, q) in pts.iter().enumerate() {
                 d.push_str(&format!("{}{:.3} {:.3} ", if i == 0 { "M" } else { "L" }, q.x, q.y));
@@ -193,8 +193,13 @@ fn endless(s: &mut Session, p: &Value) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use vectorcraft_doc::NodeKind;
 
     fn with_heart(hoop: &str) -> (Session, u64) {
+        with_heart_in(json!(hoop))
+    }
+
+    fn with_heart_in(hoop: Value) -> (Session, u64) {
         let mut s = Session::new();
         s.execute("embroidery.newDesign", &json!({ "hoop": hoop })).unwrap();
         let id = s.execute("embroidery.addShape", &json!({"name": "Heart", "size": 30})).unwrap()["id"].as_u64().unwrap();
@@ -240,7 +245,7 @@ mod tests {
     /// A wide hoop runs left; one side, one repeat, each kind of mark; bad params refused.
     #[test]
     fn a_wide_hoop_one_side_and_each_mark() {
-        let (mut s, heart) = with_heart("Brother 260 × 160 (10×6)");
+        let (mut s, heart) = with_heart_in(json!({"width": 260, "height": 160}));
         let r = s.execute("embroidery.endless", &json!({"ids": [heart], "sides": "one", "repeat": false, "marker": "line"})).unwrap();
         assert_eq!(r["repeats"], 1);
         let kids = children(&s, r["id"].as_u64().unwrap());
