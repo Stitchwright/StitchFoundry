@@ -305,7 +305,7 @@ not started · **Out** out of scope (reason given). **Phase** points to [§8](#8
 | MF-01 | Machine format profiles (max stitch, max jump, trim method, tie-in/off, colour change codes) | Done | Seven built-in profiles, one per format (commercial: DST, EXP, U01; home: PES, JEF, VP3, XXX), set the design's longest stitch and jump, speed and trim time; `embroidery.settings {machine}`, Machine settings in the panel | 1 |
 | MF-02 | Edit standard profiles, advanced settings | Done | Save to Machine keeps the design's machine settings in its profile: limits, speed and trim time, and the advanced ones (shortest stitch, trim length, ties, colour change time); Reset Machine puts a standard profile back; `embroidery.machine.save` / `delete` | 1 |
 | MF-03 | Custom machine formats | Done | Profiles of your own (a name and one of the formats) kept in the preferences; Save as New Machine, rename, change format, delete; a design keeps its machine's name and format | 1 |
-| MF-04 | More file formats | Partial | Pfaff PCS (experimental), Happy TAP and Barudan DSB read and written, ZSK DSZ read (D1); HUS and VIP need a compression writer and SEW uncertain header fields (public descriptions only); open text exports written (CSV and JSON stitch lists, G-code for CNC-driven machines); add ZSK Z00, Barudan FDR/U00, Toyota 100, Tajima TBF; CSD, JPX, PHB/PHC, ZHS, EMD are not publicly described | 6 |
+| MF-04 | More file formats | Partial | Pfaff PCS and Husqvarna HUS (experimental: HUS read with pyembroidery's decompression, written in stored blocks, its 29-colour palette), Happy TAP and Barudan DSB read and written, ZSK DSZ read (D1); VIP needs a compression writer and SEW uncertain header fields (public descriptions only); open text exports written (CSV and JSON stitch lists, G-code for CNC-driven machines); add ZSK Z00, Barudan FDR/U00, Toyota 100, Tajima TBF; CSD, JPX, PHB/PHC, ZHS, EMD are not publicly described | 6 |
 
 ### 6.4 Stitch types and digitizing input
 
@@ -865,9 +865,8 @@ appliqué, satin-heavy badge, large fill) as `.vectorcraft` files in `crates/eng
 4. **Priorities:** which phase matters most to your work (for example lettering and team
    names for a shop, multi-decoration for fashion, photo stitch for gifts)?
 5. **AI assistant:** do you want an in-app "Ask" panel that calls Claude (needs an API key)?
-6. **HUS (MF-04):** Husqvarna's older HUS format can be written from its public description, but
-   its compression has no public test files to check against. Add it marked "experimental", or
-   leave it out until a HUS file sewn on a machine can confirm it?
+6. **HUS (MF-04) — answered 2026-10-21:** add it marked experimental; the owner tests a file on
+   the Husqvarna Viking Designer Diamond.
 7. **VIP (MF-04):** the only public description of VIP's colour key is on a page marked "All
    Rights Reserved"; it is not copied without your approval. Leave VIP out, or find another
    source?

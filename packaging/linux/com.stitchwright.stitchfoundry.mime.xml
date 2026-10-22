@@ -69,6 +69,10 @@
     <comment>U01 embroidery file</comment>
     <glob pattern="*.u01"/>
   </mime-type>
+  <mime-type type="application/x-embroidery-hus">
+    <comment>HUS embroidery file</comment>
+    <glob pattern="*.hus"/>
+  </mime-type>
   <mime-type type="application/x-embroidery-pcs">
     <comment>PCS embroidery file</comment>
     <glob pattern="*.pcs"/>

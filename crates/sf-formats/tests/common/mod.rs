@@ -2,11 +2,11 @@
 //! small deterministic random generator.
 #![allow(dead_code)]
 
-use sf_core::threads::{jef_chart, pec_chart};
+use sf_core::threads::{hus_chart, jef_chart, pec_chart};
 use sf_core::{Cmd, Pattern, Point, Rgb, Thread};
 use sf_formats::{Format, Timestamp, WriteOptions};
 
-/// Four threads the format can store exactly: palette colours for PES/PEC/JEF,
+/// Four threads the format can store exactly: palette colours for PES/PEC/JEF/HUS,
 /// arbitrary RGB with catalogue data elsewhere.
 pub fn threads_for(format: Format) -> Vec<Thread> {
     match format {
@@ -17,6 +17,10 @@ pub fn threads_for(format: Format) -> Vec<Thread> {
         Format::Jef => {
             let c = jef_chart();
             [10, 3, 12, 6].iter().map(|&i| c.threads[i].clone()).collect()
+        }
+        Format::Hus => {
+            let c = hus_chart();
+            [3, 1, 12, 9].iter().map(|&i| c.threads[i].clone()).collect()
         }
         _ => vec![
             Thread::with_code(Rgb::new(0x12, 0x34, 0x56), "Midnight", "1234", "Madeira"),

@@ -2390,9 +2390,11 @@ fn machine_files_export_and_open_as_manual_stitches() {
         assert!(after * 10 >= before * 9 && after * 10 <= before * 13, "{ext}: {after} stitches from {before}");
         let colors: Vec<Rgb> = paths.iter().filter_map(|n| n.embroidery.as_ref()?.thread.as_ref().map(|t| t.color)).collect();
         assert_eq!(colors.len(), 2, "{ext}: one stitch path per thread");
+        // HUS's palette has 29 colours: the nearest of them is further off
+        let near = if ext == "hus" { 45.0 } else { 25.0 };
         if !["dst", "exp", "u01", "tap", "dsb"].contains(&ext) {
-            assert!(colors[0].delta_e(Rgb::new(0xd6, 0x28, 0x28)) < 25.0, "{ext}: {colors:?}");
-            assert!(colors[1].delta_e(Rgb::new(0x1a, 0x3e, 0x8c)) < 25.0, "{ext}: {colors:?}");
+            assert!(colors[0].delta_e(Rgb::new(0xd6, 0x28, 0x28)) < near, "{ext}: {colors:?}");
+            assert!(colors[1].delta_e(Rgb::new(0x1a, 0x3e, 0x8c)) < near, "{ext}: {colors:?}");
         }
     }
     // File › Place brings a machine file in as stitches too.

@@ -1845,6 +1845,7 @@ a design; export machine files with **Export Machine File**.
 | Singer | .xxx | RGB | yes | yes |
 | Barudan | .u01 | no (needle numbers) | yes | yes |
 | Pfaff (older machines; experimental) | .pcs | RGB, 16 at most | yes | yes |
+| Husqvarna Viking (experimental) | .hus | HUS palette (nearest) | yes | yes |
 | Happy | .tap | no (DST records) | yes | yes |
 
 - Opening or placing a machine file turns each thread into a path of **Manual** stitches (one
@@ -1858,6 +1859,11 @@ a design; export machine files with **Export Machine File**.
   place (one undo step), so a design whose source is lost can be resized and sewn again with its
   stitches made afresh. Underlay is recognised as runs or fills of its own; delete those you
   don't want, since the new objects make their own.
+- HUS is **experimental**. Reading follows the MIT-licensed pyembroidery project's reader,
+  which reads real Husqvarna files, decompression included. Writing has no public reference: the
+  three streams are stored in blocks that code every byte as itself, which the format's own
+  decoding reads, but no machine has sewn one yet. Colours are the nearest of the 29 in the HUS
+  palette.
 - PCS is **experimental**: its layout comes from public descriptions of the format, and no
   machine has sewn one yet. It holds 16 colours at most, positions in 1/6 mm, and no trim (a
   trim is written as a move to where the needle is). TAP is DST's records without the header.

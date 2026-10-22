@@ -130,9 +130,16 @@ impl Plan {
     /// Maps every thread to the nearest colour of `chart` (whose entry 0 is a
     /// placeholder and never chosen); returns the chart indices.
     pub fn map_to_chart(&mut self, chart: &ThreadChart) -> Vec<usize> {
+        self.map_to_chart_from(chart, 1)
+    }
+
+    /// As [`Plan::map_to_chart`], choosing from the chart's threads from index `first` on (1 for
+    /// the PEC and JEF palettes, whose index 0 is a placeholder; 0 for HUS's, which starts with
+    /// black).
+    pub fn map_to_chart_from(&mut self, chart: &ThreadChart, first: usize) -> Vec<usize> {
         let mut indices = Vec::with_capacity(self.threads.len());
         for t in &mut self.threads {
-            let i = nearest_index(chart.threads.iter().skip(1).map(|t| t.color), t.color).map_or(1, |i| i + 1);
+            let i = nearest_index(chart.threads.iter().skip(first).map(|t| t.color), t.color).map_or(first, |i| i + first);
             if let Some(c) = chart.threads.get(i) {
                 *t = c.clone();
             }

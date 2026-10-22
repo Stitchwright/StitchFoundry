@@ -28,7 +28,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Design Library",
             [],
             None,
-            "{folder, query?: text in the name or folder (any case), recursive?: bool (true: subfolders too, 6 deep), sort?: name|date|stitches|size (name)} the machine embroidery files in a folder (dst, exp, jef, pes, pec, vp3, xxx, u01, pcs, tap, dsb, dsz; 2000 at most) → {folder, designs: [{path, name, folder, format, bytes, modified: ms since 1970, widthMm, heightMm, stitches, colors, threads: [\"#rrggbb\"], preview: [{color, runs: [[[x, y], …]]}] (mm from the design's top left, simplified)}], failed: [{path, error}], truncated}",
+            "{folder, query?: text in the name or folder (any case), recursive?: bool (true: subfolders too, 6 deep), sort?: name|date|stitches|size (name)} the machine embroidery files in a folder (dst, exp, jef, pes, pec, vp3, xxx, u01, pcs, tap, dsb, dsz, hus; 2000 at most) → {folder, designs: [{path, name, folder, format, bytes, modified: ms since 1970, widthMm, heightMm, stitches, colors, threads: [\"#rrggbb\"], preview: [{color, runs: [[[x, y], …]]}] (mm from the design's top left, simplified)}], failed: [{path, error}], truncated}",
             always,
             scan
         ),

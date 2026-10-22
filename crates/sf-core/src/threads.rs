@@ -511,7 +511,45 @@ pub fn jef_chart() -> ThreadChart {
 
 /// All built-in thread charts.
 pub fn charts() -> Vec<ThreadChart> {
-    vec![generic_chart(), pec_chart(), jef_chart()]
+    vec![generic_chart(), pec_chart(), jef_chart(), hus_chart()]
+}
+
+/// Husqvarna Viking's HUS palette (index 0 first), from pyembroidery (MIT).
+pub fn hus_chart() -> ThreadChart {
+    chart(
+        "Husqvarna",
+        &[
+            (0x000000, "Black", "026"),
+            (0x0000e7, "Blue", "005"),
+            (0x00c600, "Green", "002"),
+            (0xff0000, "Red", "014"),
+            (0x840084, "Purple", "008"),
+            (0xffff00, "Yellow", "020"),
+            (0x848484, "Grey", "024"),
+            (0x8484e7, "Light Blue", "006"),
+            (0x00ff84, "Light Green", "003"),
+            (0xff7b31, "Orange", "017"),
+            (0xff8ca5, "Pink", "011"),
+            (0x845200, "Brown", "028"),
+            (0xffffff, "White", "022"),
+            (0x000084, "Dark Blue", "004"),
+            (0x008400, "Dark Green", "001"),
+            (0x7b0000, "Dark Red", "013"),
+            (0xff6384, "Light Red", "015"),
+            (0x522952, "Dark Purple", "007"),
+            (0xff00ff, "Light Purple", "009"),
+            (0xffde00, "Dark Yellow", "019"),
+            (0xffff9c, "Light Yellow", "021"),
+            (0x525252, "Dark Grey", "025"),
+            (0xd6d6d6, "Light Grey", "023"),
+            (0xff5208, "Dark Orange", "016"),
+            (0xff9c5a, "Light Orange", "018"),
+            (0xff52b5, "Dark Pink", "010"),
+            (0xffc6de, "Light Pink", "012"),
+            (0x523100, "Dark Brown", "027"),
+            (0xb5a584, "Light Brown", "029"),
+        ],
+    )
 }
 
 #[cfg(test)]
@@ -571,5 +609,6 @@ mod tests {
         assert_eq!(pec.threads.len(), 65);
         assert_eq!(pec.threads[pec.nearest(Rgb::new(250, 250, 0))].name, "Yellow");
         assert_eq!(jef_chart().threads.len(), 79);
+        assert_eq!(hus_chart().threads.len(), 29);
     }
 }

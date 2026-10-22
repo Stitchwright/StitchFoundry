@@ -42,6 +42,8 @@ fn random_bytes_behind_a_valid_header() {
             Format::Exp | Format::Tap => 0,
             // the hoop, the colours and the record count
             Format::Pcs => 22,
+            // the header and the colour table
+            Format::Hus => 0x2A + 2 * 4,
             Format::Dsz => 0,
         };
         for _ in 0..2000 {

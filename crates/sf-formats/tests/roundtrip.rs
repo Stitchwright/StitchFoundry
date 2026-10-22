@@ -49,7 +49,7 @@ fn uncentred_files_give_the_original_design_back() {
         }
         match format {
             // Palette formats give back the palette thread (the sample uses palette colours).
-            Format::Pes | Format::Pec | Format::Jef | Format::Vp3 => assert_eq!(back.threads, original.threads, "{what}: threads"),
+            Format::Pes | Format::Pec | Format::Jef | Format::Hus | Format::Vp3 => assert_eq!(back.threads, original.threads, "{what}: threads"),
             _ => {}
         }
         if matches!(format, Format::Dst | Format::Pes | Format::Pec) {
@@ -125,6 +125,7 @@ fn long_moves_are_split_within_each_formats_limit() {
         (Format::Pcs, 12.0, 12.0),
         (Format::Tap, 12.1, 12.1),
         (Format::Dsb, 12.7, 12.7),
+        (Format::Hus, 12.7, 12.7),
     ];
     for (format, max_stitch, max_jump) in limits {
         let back = read(format, &write(format, &p, &options(false)).unwrap()).unwrap();
