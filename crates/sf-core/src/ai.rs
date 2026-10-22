@@ -31,9 +31,12 @@ pub const MODEL: &str = "claude-opus-5-5";
 /// (`"fallbacks": "default"`).
 pub const FALLBACK_BETA: &str = "server-side-fallback-2026-07-01";
 /// The web search tool a Thorough drawing may use to look up what it draws, and how many
-/// searches it may make.
-pub const WEB_SEARCH: &str = "web_search_20260209";
-pub const MAX_SEARCHES: u32 = 3;
+/// searches it may make. The basic search, not the one that filters its results with code: that
+/// one runs up to ten rounds in a request, each reading everything again, and one drawing in the
+/// AI test jobs read 928 000 tokens so ($4.30). Each search is a round, so this one stays near
+/// [`effort::research_input_most`].
+pub const WEB_SEARCH: &str = "web_search_20250305";
+pub const MAX_SEARCHES: u32 = 2;
 /// The most tokens the reply (thinking included) may use.
 pub const MAX_TOKENS: u32 = 16_000;
 /// The longest description sent, in characters.
@@ -90,8 +93,8 @@ pub struct Art {
     pub model: String,
     /// The tokens it took.
     pub usage: Usage,
-    /// The reply's content blocks as they came (thinking and searches included), sent back
-    /// unchanged with the check ([`ArtRequest::check_http`]).
+    /// The reply's content blocks as they came (thinking and searches included). The check
+    /// ([`ArtRequest::check_http`]) doesn't send them back: it sends the SVG alone.
     pub content: Value,
 }
 
@@ -240,6 +243,10 @@ impl ArtRequest {
 
     /// The instructions that make the model draw stitchable art.
     pub fn system_prompt(&self) -> String {
+        self.system_prompt_for(self.effort.researches())
+    }
+
+    fn system_prompt_for(&self, may_search: bool) -> String {
         let unit = 1000.0 / self.size_mm; // viewBox units per millimetre
         let min = (MIN_FEATURE_MM * unit).ceil();
         let gap = unit.ceil();
@@ -274,7 +281,7 @@ stitched can't be read: make them larger where there is room, else leave them ou
 place on it, absolute coordinates and no transforms on the root element."
             );
         }
-        let research = if self.effort.researches() {
+        let research = if may_search {
             "\n\nWhen the description names a real thing (an animal breed, a vehicle or building model, a \
 plant, a place) and you aren't sure what sets it apart, search the web first, so that its shape, \
 proportions, colours and markings are right. Then reply with the SVG alone."
@@ -335,23 +342,37 @@ instead of the SVG.{research}"
         body
     }
 
-    /// The check's request body: the conversation so far (the request and `first`, the drawing
-    /// as it came), and `stitched`, a picture of it as the machine will sew it.
+    /// The check's request body: a conversation of its own, so the search results that went into
+    /// the drawing aren't read (and paid for) again, and no tools: the request, `first`'s SVG and
+    /// `stitched`, a picture of it as the machine will sew it.
     pub fn check_body(&self, first: &Art, stitched: &ArtImage) -> Value {
         let size = self.size_mm.round();
+        let asked = match (&self.image, self.prompt.is_empty()) {
+            (Some(_), true) => "the first picture".to_string(),
+            (Some(_), false) => format!("the first picture, with this change: \"{}\"", self.prompt),
+            (None, _) => format!("\"{}\"", self.prompt),
+        };
         let text = format!(
-            "This picture shows your artwork as the machine will stitch it, about {size} mm across. Check it \
-against the request: is the subject right and recognisable (what sets it apart, every detail asked for), \
-are the colours right, has any part gone missing, merged or come out too thin to stitch? If it is good, \
-reply with the single word OK. Otherwise reply with a corrected SVG document alone, keeping to the same rules."
+            "You drew this SVG for {asked}:\n\n{svg}\n\nThe last picture shows it as the machine will stitch it, about \
+{size} mm across. Check it against the request: is the subject right and recognisable (what sets it \
+apart, every detail asked for), are the colours right, has any part gone missing, merged or come out \
+too thin to stitch? If it is good, reply with the single word OK. Otherwise reply with a corrected SVG \
+document alone, keeping to the same rules.",
+            svg = first.svg
         );
         let mut body = self.body();
-        if let Some(m) = body.get_mut("messages").and_then(Value::as_array_mut) {
-            m.push(json!({ "role": "assistant", "content": first.content }));
-            m.push(json!({ "role": "user", "content": [
-                { "type": "image", "source": { "type": "base64", "media_type": stitched.media_type, "data": stitched.data_base64 } },
-                { "type": "text", "text": text },
-            ] }));
+        if let Some(o) = body.as_object_mut() {
+            o.remove("tools");
+            o.insert("system".into(), json!(self.system_prompt_for(false)));
+            // a redrawn picture: the one it was drawn from, then the stitched one
+            let mut content: Vec<Value> = self
+                .image
+                .iter()
+                .map(|img| json!({ "type": "image", "source": { "type": "base64", "media_type": img.media_type, "data": img.data_base64 } }))
+                .collect();
+            content.push(json!({ "type": "image", "source": { "type": "base64", "media_type": stitched.media_type, "data": stitched.data_base64 } }));
+            content.push(json!({ "type": "text", "text": text }));
+            o.insert("messages".into(), json!([{ "role": "user", "content": content }]));
         }
         body
     }
@@ -483,8 +504,8 @@ pub fn extract_svg(text: &str) -> Option<&str> {
 mod tests {
     use super::*;
 
-    /// AI-04: the check sends the conversation back with the stitched picture, and reads OK or a
-    /// better drawing.
+    /// AI-04: the check is a conversation of its own: the request, the SVG and the stitched
+    /// picture, no tools and no search results; it reads OK or a better drawing.
     #[test]
     fn the_check_goes_back_with_the_stitches_and_reads_the_answer() {
         let r = ArtRequest::new("a fox", 80.0, 4).with_effort(Effort::Thorough);
@@ -498,10 +519,13 @@ mod tests {
         let http = r.check_http("sk-ant-test", &first, &png).unwrap();
         let body: Value = serde_json::from_str(&http.body).unwrap();
         let m = body["messages"].as_array().unwrap();
-        assert_eq!(m.len(), 3);
-        assert_eq!(m[1]["content"], first_reply["content"], "the reply goes back unchanged, thinking included");
-        assert_eq!(m[2]["content"][0]["type"], "image");
-        assert!(m[2]["content"][1]["text"].as_str().unwrap().contains("single word OK"));
+        assert_eq!(m.len(), 1, "the first reply's blocks (its searches) aren't read again");
+        assert_eq!(m[0]["content"][0]["type"], "image");
+        let text = m[0]["content"][1]["text"].as_str().unwrap();
+        assert!(text.contains("single word OK") && text.contains(&first.svg) && text.contains("a fox"), "{text}");
+        assert!(body.get("tools").is_none(), "the check doesn't search");
+        assert!(!body["system"].as_str().unwrap().contains("search the web"));
+        assert_eq!(body["output_config"]["effort"], "high");
         let ok =
             json!({"stop_reason": "end_turn", "content": [{"type": "text", "text": "OK"}], "usage": {"input_tokens": 9000, "output_tokens": 40}});
         assert_eq!(parse_check(200, &ok.to_string()).unwrap(), (Checked::Good, Usage { input: 9000, output: 40, searches: 0 }));

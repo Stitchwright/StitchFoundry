@@ -16,12 +16,24 @@ pub const OUTPUT_PRICE: f64 = 20.0;
 const IMAGE_TOKENS: u64 = 3_300;
 /// Tokens added for the request's framing.
 const OVERHEAD_TOKENS: u64 = 500;
-/// Input tokens the search results of a researched drawing typically add, and what each search
-/// costs on top (dollars: $10 a thousand).
-const RESEARCH_TOKENS: u64 = 12_000;
-const SEARCH_USD: f64 = 0.01;
+/// Input tokens the search results of a researched drawing typically add (the AI test jobs of
+/// 2026-10-22: 10 000 to 25 000), and what each search costs on top (dollars: $10 a thousand).
+const RESEARCH_TOKENS: u64 = 15_000;
+pub const SEARCH_USD: f64 = 0.01;
 /// Searches a researched drawing typically makes.
-const TYPICAL_SEARCHES: u64 = 2;
+const TYPICAL_SEARCHES: u64 = 1;
+/// The most input tokens one search's results are taken to add. Not a limit the API keeps: a
+/// generous figure, so that what is held before a request (the hosted service's credits) covers it.
+pub const SEARCH_RESULT_TOKENS: u64 = 40_000;
+
+/// The most input tokens a request of `base` input tokens is billed when it may search `searches`
+/// times and write `max_output` tokens. Each search is a round on Anthropic's side that reads the
+/// whole conversation again: the request, the results so far and what was written so far.
+pub fn research_input_most(base: u64, searches: u64, max_output: u64) -> u64 {
+    let rounds = searches.saturating_add(1);
+    let results = SEARCH_RESULT_TOKENS.saturating_mul(searches).saturating_mul(rounds) / 2;
+    base.saturating_mul(rounds).saturating_add(results).saturating_add(max_output.saturating_mul(searches))
+}
 
 /// How hard the AI works on a request.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -72,13 +84,15 @@ impl Effort {
         self == Effort::Thorough
     }
 
-    /// The output tokens (thinking included) a drawing typically takes at this effort: an estimate,
-    /// to be replaced by what the AI test jobs measure (AI-EVAL-01).
+    /// The output tokens (thinking included) a drawing typically takes at this effort, rounded up
+    /// from what the AI test jobs measured on 2026-10-22 (AI-EVAL-01): Quick 977 on average,
+    /// Normal 2 818, Thorough 6 300 to 17 800 for the drawing and its check together (the check's
+    /// share is counted in [`estimate`]).
     pub fn typical_output(self) -> u64 {
         match self {
-            Effort::Quick => 3_500,
-            Effort::Normal => 6_000,
-            Effort::Thorough => 11_000,
+            Effort::Quick => 1_200,
+            Effort::Normal => 3_200,
+            Effort::Thorough => 8_000,
         }
     }
 }
@@ -147,23 +161,19 @@ pub struct Estimate {
 }
 
 pub fn estimate(body: &Value, effort: Effort) -> Estimate {
-    let mut input = input_tokens(body);
+    let input = input_tokens(body);
     let max = body.get("max_tokens").and_then(Value::as_u64).unwrap_or(u64::from(super::MAX_TOKENS));
     let searches = body.pointer("/tools/0/max_uses").and_then(Value::as_u64).unwrap_or(0);
-    let (mut typical, mut most) = (0.0, 0.0);
-    if searches > 0 {
-        input += RESEARCH_TOKENS;
-        typical += TYPICAL_SEARCHES.min(searches) as f64 * SEARCH_USD;
-        most += searches as f64 * SEARCH_USD;
-    }
     let output = effort.typical_output().min(max);
-    typical += Usage { input, output, searches: 0 }.usd();
-    most += Usage { input, output: max, searches: 0 }.usd();
+    let typical_searches = TYPICAL_SEARCHES.min(searches);
+    let mut typical = Usage { input: input + if searches > 0 { RESEARCH_TOKENS } else { 0 }, output, searches: typical_searches }.usd();
+    let mut most = Usage { input: research_input_most(input, searches, max), output: max, searches }.usd();
     if effort.checks() {
-        // the check: everything again as input, with the stitched picture, and a reply that is a
-        // word or a corrected drawing
-        typical += Usage { input: input + output + IMAGE_TOKENS, output: output / 2, searches: 0 }.usd();
-        most += Usage { input: input + max + IMAGE_TOKENS, output: max, searches: 0 }.usd();
+        // the check, a conversation of its own: the request and the drawing again with the
+        // stitched picture, and a reply that is a word or a corrected drawing
+        let svg = max.min(output);
+        typical += Usage { input: input + svg + IMAGE_TOKENS, output: output / 2, searches: 0 }.usd();
+        most += Usage { input: input + max + 2 * IMAGE_TOKENS, output: max, searches: 0 }.usd();
     }
     Estimate { typical, most }
 }
@@ -204,8 +214,14 @@ mod tests {
         assert!(quick.most > 0.32 && quick.most < 0.34, "{}", quick.most);
         // searches add their results and their fee
         let mut searched = body.clone();
-        searched["tools"] = json!([{"type": "web_search_20260209", "name": "web_search", "max_uses": 3}]);
-        assert!(estimate(&searched, Effort::Thorough).typical > thorough.typical + 0.05);
+        searched["tools"] = json!([{"type": "web_search_20250305", "name": "web_search", "max_uses": 2}]);
+        let researched = estimate(&searched, Effort::Thorough);
+        assert!(researched.typical > thorough.typical + 0.05);
+        // at most: every round reads everything again (the 2026-10-22 jobs' worst ran to $4.30
+        // with ten rounds; two searches are three rounds)
+        assert!(researched.most > thorough.most + 0.4 && researched.most < 1.5, "{}", researched.most);
+        assert_eq!(research_input_most(1000, 0, 16_000), 1000);
+        assert_eq!(research_input_most(1000, 2, 16_000), 3000 + 120_000 + 32_000);
         // an image counts at its most
         let image = json!({"messages": [{"content": [{"type": "image", "source": {"type": "base64", "data": "AAAA"}}]}]});
         assert!(input_tokens(&image) >= IMAGE_TOKENS);

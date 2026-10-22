@@ -25,3 +25,26 @@ stitchfoundry-cli ai-eval --only havanese-smiling --effort thorough
 The report is `target/ai-eval/<time>/report.html`: each drawing's stitches beside the reference
 photo, with its tokens, cost, time, stitches and colour changes. `results.json` holds the same
 numbers; its `byEffort` means are what `sf_core::ai::Effort::typical_output` should be set from.
+
+## Results
+
+**2026-10-22**, all four jobs at each effort, on GitHub Actions (`ai-eval.yml`), Claude Opus 5.5:
+
+| Effort | Drawings | Mean output tokens | Cost | Time each |
+|---|---|---|---|---|
+| Quick | 4 of 4 | 977 | $0.09 in all | 10–12 s |
+| Normal | 3 of 4 (the RV's reply had no artwork) | 2,818 | $0.18 in all | 19–37 s |
+| Thorough | 3 of 4 (the truck timed out at 5 minutes) | 17,899 | $4.97 in all | 67–324 s |
+
+- Thorough drew the best of every job: the truck towing the fifth wheel and the fifth wheel alone
+  were recognisable as what was asked (crew cab, landing legs, slide-out, door, two axles); the
+  dog came out with the right brown eyes and nose. Quick and Normal drew the truck alone as a boxy
+  SUV, and gave the dog tan ears and yellow eyes.
+- Thorough's cost came almost all from one drawing: the fifth wheel alone read 927,711 input
+  tokens ($4.30). It searched with `web_search_20260209`, which filters its results by running
+  code, in up to ten rounds a request, each reading everything again; then the check sent all of
+  it back, with the search tool. Fixed the same day: the basic `web_search_20250305`, at most two
+  searches, and a check that is a request of its own with no tools (`sf_core::ai`). The hosted
+  service refuses the looping tools and holds for every round (`docs/cloud.md`).
+- `Effort::typical_output` was set from these means (Thorough's from its drawings without the
+  outlier). The next run should measure Thorough again with the fix.

@@ -44,6 +44,28 @@ pub const RESEND_URL: &str = "https://api.resend.com/emails";
 /// The keys of a Messages request passed on; any others are left out.
 const PASSED: &[&str] = &["model", "max_tokens", "system", "messages", "tools", "tool_choice", "output_config", "fallbacks", "thinking"];
 
+/// Why `tools` can't be passed on, if it can't. The app's own tools (`type` absent: they come back
+/// to the app to run) pass, and the basic web search, at most [`sf_core::ai::MAX_SEARCHES`]
+/// searches, so that what is held before a request covers it ([`pricing::estimate`]). Every other
+/// tool that runs on Anthropic's side (code, search that filters with code, fetching pages) can
+/// run up to ten rounds in one request, each reading everything again, past any hold.
+fn tools_refused(tools: &Value) -> Option<String> {
+    let Some(list) = tools.as_array() else { return Some("tools is a list".into()) };
+    for t in list {
+        match t.get("type").and_then(Value::as_str) {
+            None | Some("custom") => {}
+            Some(k) if k == sf_core::ai::WEB_SEARCH => {
+                let uses = t.get("max_uses").and_then(Value::as_u64).unwrap_or(0);
+                if uses == 0 || uses > u64::from(sf_core::ai::MAX_SEARCHES) {
+                    return Some(format!("web search needs max_uses of 1 to {}", sf_core::ai::MAX_SEARCHES));
+                }
+            }
+            Some(k) => return Some(format!("the tool {k:?} isn't offered")),
+        }
+    }
+    None
+}
+
 /// The headers that let the web app call from a browser.
 const CORS: &[(&str, &str)] = &[
     ("Access-Control-Allow-Origin", "*"),
@@ -684,6 +706,9 @@ impl Service {
         if max_tokens == 0 || max_tokens > self.cfg.max_tokens {
             return Err(Response::error(400, "invalid_request_error", format!("max_tokens is 1 to {}", self.cfg.max_tokens)));
         }
+        if let Some(e) = o.get("tools").and_then(|t| tools_refused(t)) {
+            return Err(Response::error(400, "invalid_request_error", e));
+        }
         let body: serde_json::Map<String, Value> =
             o.iter().filter(|(k, _)| PASSED.contains(&k.as_str())).map(|(k, v)| (k.clone(), v.clone())).collect();
         Ok((Value::Object(body), max_tokens))
@@ -1194,6 +1219,25 @@ mod tests {
         let a = json_of(&s.handle(&req("GET", "/v1/account", Some(&t), json!({}))));
         assert_eq!(a["credits"], 76);
         assert_eq!(a["history"][0]["credits"], -24);
+    }
+
+    /// The app's own tools and the basic web search (two searches at most) are passed on; tools
+    /// that run rounds of their own on Anthropic's side are refused, since no hold covers them.
+    #[test]
+    fn only_tools_a_hold_covers_are_passed_on() {
+        let search = |kind: &str, uses: u64| json!([{"type": kind, "name": "web_search", "max_uses": uses}]);
+        assert_eq!(tools_refused(&search(sf_core::ai::WEB_SEARCH, 2)), None);
+        assert_eq!(tools_refused(&sf_core::ai::ask::tools()), None);
+        for bad in [
+            search(sf_core::ai::WEB_SEARCH, 3),
+            search(sf_core::ai::WEB_SEARCH, 0),
+            search("web_search_20260209", 1),
+            json!([{"type": "code_execution_20260521", "name": "code_execution"}]),
+            json!([{"type": "web_fetch_20260209", "name": "web_fetch"}]),
+            json!({"type": "custom"}),
+        ] {
+            assert!(tools_refused(&bad).is_some(), "{bad}");
+        }
     }
 
     #[test]

@@ -560,7 +560,8 @@ mod design_from_prompt {
         assert_eq!((first["output_config"]["effort"].as_str(), first["tools"][0]["name"].as_str()), (Some("high"), Some("web_search")));
         let check: Value = serde_json::from_str(&sent[1].body).unwrap();
         let m = check["messages"].as_array().unwrap();
-        assert_eq!((m.len(), m[1]["role"].as_str(), m[2]["content"][0]["type"].as_str()), (3, Some("assistant"), Some("image")));
+        assert_eq!((m.len(), m[0]["content"][0]["type"].as_str()), (1, Some("image")), "a conversation of its own");
+        assert!(check.get("tools").is_none(), "the check doesn't search");
         drop(sent);
         assert!(app.ui.dialog.is_none(), "placed: the dialog closes");
         assert!(app.ui.status.contains("improved after checking its stitches"), "{}", app.ui.status);

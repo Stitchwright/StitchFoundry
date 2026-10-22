@@ -44,10 +44,11 @@ pub fn estimate(cfg: &Config, price: &ModelPrice, body: &Value, max_tokens: u64)
         + OVERHEAD_TOKENS;
     // the dearest way the input could be billed
     let per_input = price.input.max(price.cache_write);
-    // every search a web search tool may make
+    // every search a web search tool may make, each a round that reads everything again
     let searches: u64 = body.get("tools").and_then(Value::as_array).map_or(0, |t| {
         t.iter().filter(|t| t["type"].as_str().is_some_and(|k| k.starts_with("web_search"))).map(|t| t["max_uses"].as_u64().unwrap_or(10)).sum()
     });
+    let input = sf_core::ai::effort::research_input_most(input, searches, max_tokens);
     credits(cfg, (input as f64 * per_input + max_tokens as f64 * price.output) / 1e6 + searches as f64 * SEARCH_USD)
 }
 
@@ -102,8 +103,13 @@ mod tests {
         assert!(charge(&c, &p, &searched) > charge(&c, &p, &json!({"input_tokens": 10_000, "output_tokens": 2_000})));
         let body = json!({"messages": [{"role": "user", "content": "a truck"}]});
         let mut with_search = body.clone();
-        with_search["tools"] = json!([{"type": "web_search_20260209", "name": "web_search", "max_uses": 3}]);
+        with_search["tools"] = json!([{"type": "web_search_20250305", "name": "web_search", "max_uses": 2}]);
         assert!(estimate(&c, &p, &with_search, 16_000) > estimate(&c, &p, &body, 16_000));
+        // the hold covers three rounds that each read 40 000 tokens of results more than the
+        // last (the 2026-10-22 test jobs' researched drawings read 10 000 to 25 000 in all)
+        let three_rounds =
+            charge(&c, &p, &json!({"input_tokens": 3 * 3_000 + 120_000, "output_tokens": 16_000, "server_tool_use": {"web_search_requests": 2}}));
+        assert!(estimate(&c, &p, &with_search, 16_000) >= three_rounds);
     }
 
     #[test]

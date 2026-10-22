@@ -38,7 +38,12 @@ its keys and prices; nothing secret is in the repository.
   adds the credits once (even if Stripe sends it twice). Card details never reach the service.
 - **AI requests:** `POST /v1/messages` takes the same request the app sends Anthropic, checks it
   (the offered model, at most 16,000 tokens a reply, no streaming, at most three at once an
-  account), and sends it with the service's key. The answer comes back as Anthropic gave it, with
+  account; tools only the app's own and the basic web search, `web_search_20250305` with at most
+  two searches), and sends it with the service's key. Tools that run rounds of their own on
+  Anthropic's side (code, the search that filters with code, fetching pages) are refused: they
+  can run up to ten rounds in one request, each reading everything again, and in the AI test jobs
+  of 2026-10-22 one drawing so read 928,000 tokens ($4.30), more than any hold. A web search's hold
+  counts each search as a round that reads everything again, with 40,000 tokens of results each. The answer comes back as Anthropic gave it, with
   `x-stitchfoundry-credits` (what is left) and `x-stitchfoundry-spent`.
 - **Check My Sew-out:** `POST /v1/sewout` takes a check's requests (its first message must hold the
   photos) and sends them with the service's own sew-out instructions and tools, whatever the app

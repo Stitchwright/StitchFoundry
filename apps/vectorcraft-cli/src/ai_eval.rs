@@ -21,8 +21,9 @@ use vectorcraft_mcp::{Backend, Headless};
 /// The most jobs read, and the largest job file.
 const MAX_JOBS: usize = 200;
 const MAX_JOB_BYTES: u64 = 64 * 1024;
-/// How long a drawing may take, answer included.
-const TIMEOUT: Duration = Duration::from_secs(300);
+/// How long a drawing may take, answer included: as long as the hosted service waits for it, since
+/// a request given up on here is still billed when it finishes.
+const TIMEOUT: Duration = Duration::from_secs(600);
 /// The hosted service official builds use, when no other is set.
 const DEFAULT_SERVER: &str = "https://cloud.stitchfoundry.app";
 

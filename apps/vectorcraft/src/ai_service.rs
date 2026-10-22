@@ -7,8 +7,9 @@ use std::time::Duration;
 
 use vectorcraft_ui_egui::{HttpRequest, SecretStore};
 
-/// How long a drawing may take, answer included.
-const TIMEOUT: Duration = Duration::from_secs(300);
+/// How long a drawing may take, answer included: as long as the hosted service waits for it, since
+/// a request given up on here is still billed when it finishes.
+const TIMEOUT: Duration = Duration::from_secs(600);
 
 /// Send `req` and wait for the answer → (HTTP status, body). Proxies come from `HTTPS_PROXY` and
 /// friends; certificates are checked against the system's trusted ones.
