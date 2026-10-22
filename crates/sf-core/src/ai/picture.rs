@@ -1,5 +1,6 @@
 //! Pictures from other AI services for Design from Prompt: Google's Nano Banana, OpenAI's GPT
-//! Image, Flux through fal, or any image model through OpenRouter, each with the user's own key
+//! Image, Flux through fal, xAI's Grok Imagine, or any image model through OpenRouter, each with
+//! the user's own key
 //! for that service. A picture is never stitched as it is: the app redraws it with Claude as flat
 //! shapes in the thread colours asked for ([`super::ArtRequest::with_image`]), then digitizes it,
 //! so a beautiful picture with shading and fine detail still sews with few thread changes. As in
@@ -20,10 +21,12 @@ pub enum Provider {
     OpenAi,
     Fal,
     OpenRouter,
+    /// xAI's Grok Imagine (<https://docs.x.ai/developers/model-capabilities/images/generation>).
+    Grok,
 }
 
 impl Provider {
-    pub const ALL: [Provider; 4] = [Provider::Google, Provider::OpenAi, Provider::Fal, Provider::OpenRouter];
+    pub const ALL: [Provider; 5] = [Provider::Google, Provider::OpenAi, Provider::Fal, Provider::Grok, Provider::OpenRouter];
 
     pub fn id(self) -> &'static str {
         match self {
@@ -31,6 +34,7 @@ impl Provider {
             Provider::OpenAi => "openai",
             Provider::Fal => "fal",
             Provider::OpenRouter => "openrouter",
+            Provider::Grok => "grok",
         }
     }
 
@@ -45,6 +49,7 @@ impl Provider {
             Provider::OpenAi => "OpenAI GPT Image",
             Provider::Fal => "Flux (fal)",
             Provider::OpenRouter => "OpenRouter",
+            Provider::Grok => "Grok Imagine",
         }
     }
 
@@ -55,6 +60,7 @@ impl Provider {
             Provider::OpenAi => "openai-api-key",
             Provider::Fal => "fal-api-key",
             Provider::OpenRouter => "openrouter-api-key",
+            Provider::Grok => "xai-api-key",
         }
     }
 
@@ -65,6 +71,7 @@ impl Provider {
             Provider::OpenAi => "https://platform.openai.com/api-keys",
             Provider::Fal => "https://fal.ai/dashboard/keys",
             Provider::OpenRouter => "https://openrouter.ai/settings/keys",
+            Provider::Grok => "https://console.x.ai",
         }
     }
 
@@ -75,6 +82,7 @@ impl Provider {
             Provider::OpenAi => "gpt-image-2",
             Provider::Fal => "fal-ai/flux/schnell",
             Provider::OpenRouter => "openai/gpt-image-2",
+            Provider::Grok => "grok-imagine-image-quality",
         }
     }
 }
@@ -124,6 +132,11 @@ pub fn request(provider: Provider, key: &str, model: &str, description: &str, co
             format!("https://fal.run/{model}"),
             vec![json, ("authorization", format!("Key {key}"))],
             json!({ "prompt": prompt, "image_size": "square_hd", "num_images": 1, "output_format": "png", "sync_mode": true }),
+        ),
+        Provider::Grok => (
+            "https://api.x.ai/v1/images/generations".to_string(),
+            vec![json, ("authorization", format!("Bearer {key}"))],
+            json!({ "model": model, "prompt": prompt, "n": 1, "response_format": "b64_json", "aspect_ratio": "1:1" }),
         ),
         Provider::OpenRouter => (
             "https://openrouter.ai/api/v1/images".to_string(),
@@ -236,12 +249,16 @@ mod tests {
         assert_eq!(request(Provider::OpenAi, "k", "", "  ", 3), Err(ArtError::NoPrompt));
         assert!(request(Provider::Fal, "k", "../../evil", "a heart", 3).is_err(), "a model id can't leave its path");
         assert_eq!(Provider::from_id("fal"), Some(Provider::Fal));
+        let x = request(Provider::Grok, "xk", "", "a heart", 3).unwrap();
+        assert_eq!((x.url.as_str(), header(&x, "authorization").as_deref()), ("https://api.x.ai/v1/images/generations", Some("Bearer xk")));
+        assert_eq!((body(&x)["model"].as_str(), body(&x)["response_format"].as_str()), (Some("grok-imagine-image-quality"), Some("b64_json")));
+        assert_eq!(Provider::from_id("grok"), Some(Provider::Grok));
     }
 
     #[test]
     fn the_picture_is_found_in_every_services_answer() {
         let png = |v: Value| parse_reply(200, &v.to_string()).unwrap();
-        // OpenAI and OpenRouter
+        // OpenAI, OpenRouter and Grok
         assert_eq!(png(json!({"data": [{"b64_json": PNG}]})).media_type, "image/png");
         assert_eq!(png(json!({"data": [{"b64_json": PNG, "media_type": "image/png"}]})).data_base64, PNG);
         // Google: the interaction's output image, or its steps

@@ -33,6 +33,8 @@ log = { workspace = true }
 # sends them with (rustls, the system's certificates).
 sf-core = { workspace = true }
 ureq = { version = "3.4", default-features = false, features = ["rustls", "platform-verifier"] }
+# `ai-eval --pictures`: the picture services' pictures, read and made into the JPEG Claude is sent.
+image = { workspace = true }
 
 # `perf` on Windows (src/perf.rs) reads how busy the processors are (GetSystemTimes) and this
 # process's working set (GetProcessMemoryInfo) through winsafe's safe wrappers over Win32 (MIT),

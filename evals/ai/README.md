@@ -26,6 +26,16 @@ The report is `target/ai-eval/<time>/report.html`: each drawing's stitches besid
 photo, with its tokens, cost, time, stitches and colour changes. `results.json` holds the same
 numbers; its `byEffort` means are what `sf_core::ai::Effort::typical_output` should be set from.
 
+## Other picture services
+
+`--pictures` (the workflow's **pictures** box) also has other image models paint each job, and
+Claude redraw the picture as stitches, as Design from Prompt does when another service is chosen:
+`google`, `openai`, `fal`, `grok`, or `openrouter:MODEL` for any image model OpenRouter offers
+(its model id from openrouter.ai/models). Each needs its key: `GOOGLE_API_KEY`, `OPENAI_API_KEY`,
+`FAL_API_KEY`, `GROK_API_KEY` or `OPENROUTER_API_KEY` (in the workflow, repository secrets of those
+names), billed to that service. The report shows each picture above its stitches. Use one effort
+(`normal`) when comparing pictures: each service adds a drawing per job and effort.
+
 ## Results
 
 **2026-10-22**, all four jobs at each effort, on GitHub Actions (`ai-eval.yml`), Claude Opus 5.5:

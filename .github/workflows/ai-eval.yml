@@ -2,6 +2,10 @@
 # in evals/ai/jobs from its description with the repository's ANTHROPIC_API_KEY secret (billed to
 # that Anthropic account), and the report (stitches, tokens, cost, time) is kept as an artifact for
 # 30 days. The owner's reference photos are never here: compare the report with them locally.
+# `pictures` also has other image models paint each job (google, openai, grok, or
+# openrouter:MODEL for any model OpenRouter offers, with the GOOGLE_API_KEY, OPENAI_API_KEY,
+# GROK_API_KEY or OPENROUTER_API_KEY secret, billed to that account) and Claude redraw it as
+# stitches.
 name: AI test jobs
 
 on:
@@ -12,6 +16,9 @@ on:
         default: all
       only:
         description: "job ids to run (comma-separated); empty: every job"
+        default: ""
+      pictures:
+        description: "picture services to compare too (google, openai, grok, openrouter:MODEL; comma-separated); empty: Claude alone"
         default: ""
 
 permissions:
@@ -48,8 +55,13 @@ jobs:
       - name: Run the jobs
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           EFFORT: ${{ inputs.effort }}
           ONLY: ${{ inputs.only }}
+          PICTURES: ${{ inputs.pictures }}
         run: |
           set -o pipefail
           if [ -z "$ANTHROPIC_API_KEY" ]; then
@@ -58,6 +70,7 @@ jobs:
           fi
           args=(--effort "$EFFORT" --out target/ai-eval/report --yes)
           if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          if [ -n "$PICTURES" ]; then args+=(--pictures "$PICTURES"); fi
           target/debug/stitchfoundry-cli ai-eval "${args[@]}" 2>&1 | tee target/ai-eval-log.txt
       - name: Summary
         if: always()

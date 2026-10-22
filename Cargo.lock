@@ -5265,6 +5265,7 @@ dependencies = [
 name = "vectorcraft-cli"
 version = "0.14.0"
 dependencies = [
+ "image",
  "log",
  "objc2-core-foundation",
  "objc2-core-text",

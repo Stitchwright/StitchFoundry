@@ -1425,7 +1425,8 @@ in your own words draws fine.
 
 **A picture from another AI.** **Picture made by** chooses who makes the picture: **Claude**
 (the default) draws the flat shapes itself; **Google Nano Banana**, **OpenAI GPT Image**, **Flux
-(fal)** or **OpenRouter** (one key for many image models) paint a picture first, with your own key
+(fal)**, **Grok Imagine** (xAI, `grok-imagine-image-quality`) or **OpenRouter** (one key for many
+image models) paint a picture first, with your own key
 for that service (its row shows when it is chosen, with **Get a key**; kept as that service's own
 secret file, as the Anthropic key is), and **Model** names another of its models (empty: its
 current one). The picture is never stitched as it is: when it comes, Claude redraws it as flat
