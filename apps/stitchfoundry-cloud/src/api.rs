@@ -706,7 +706,7 @@ impl Service {
         if max_tokens == 0 || max_tokens > self.cfg.max_tokens {
             return Err(Response::error(400, "invalid_request_error", format!("max_tokens is 1 to {}", self.cfg.max_tokens)));
         }
-        if let Some(e) = o.get("tools").and_then(|t| tools_refused(t)) {
+        if let Some(e) = o.get("tools").and_then(tools_refused) {
             return Err(Response::error(400, "invalid_request_error", e));
         }
         let body: serde_json::Map<String, Value> =
