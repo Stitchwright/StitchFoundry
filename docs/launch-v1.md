@@ -26,8 +26,10 @@ judged only from their public pages (never by running their software). The ranke
 
 From mySewnet, apart from in-the-hoop: split and multi-hoop, QuickFont, photo stitch, Encore's
 repeats (Repeat Design: round a circle, in a row, round the hoop, along a shape), Spiro and Endless
-(Endless Border: repeats re-hooped along start and end marks) are in. Missing: Name Changer, Quilt Block, Family Tree and
-Background wizards, and more photo stitch styles (sepia, black and white, colour tile) (HV-01).
+(Endless Border: repeats re-hooped along start and end marks), the Quilt Block wizard's quilting
+round a design (Quilt Background: stipple or echo, a margin kept clear) are in, and Name Changer's
+job is Team Names' (one file per name, the lettering's place, size and arc kept). Missing: the
+Family Tree wizard and more photo stitch styles (sepia, black and white, colour tile) (HV-01).
 
 ## The owner's decisions
 
@@ -48,7 +50,7 @@ Background wizards, and more photo stitch styles (sepia, black and white, colour
 5. Thread charts, as permission comes.
 
 Done since the list was drawn up: the one-step photo to embroidery (PH-01), Effort and the AI's
-cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case and book cover, Repeat Design, Spiro and Endless Border (HV-01), the web viewer
+cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case and book cover, Repeat Design, Spiro, Endless Border and Quilt Background (HV-01), the web viewer
 (VIEW-01), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
 
 ## Sources

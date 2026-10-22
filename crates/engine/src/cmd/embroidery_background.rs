@@ -37,39 +37,90 @@ fn rect(x0: f64, y0: f64, x1: f64, y1: f64) -> Polygon {
 }
 
 /// Echo quilting in `block` round `keep_out`: rings `spacing` apart following the design outward
-/// while they stay inside the block, then rings following the block's edge inward while they stay
-/// outside the design's last ring; joined into one line.
-fn echo_round(block: &Polygon, keep_out: &[Polygon], spacing: f64) -> Vec<MmPoint> {
-    let mut rings: Vec<Vec<MmPoint>> = Vec::new();
-    let inside = |ring: &[Polygon]| poly::difference(ring, std::slice::from_ref(block)).iter().all(|p| p.area().abs() < 0.01);
+/// while they stay inside the block, then rings following the block's edge inward while they still
+/// hold the design's last ring half a spacing clear. Each family is one line (its rings joined
+/// where they are closest, a short way); the two are sewn apart, the machine jumping between
+/// them, so no stitch runs across the background from one to the other.
+fn echo_round(block: &Polygon, keep_out: &[Polygon], spacing: f64) -> Vec<Vec<MmPoint>> {
+    let tiny = |ps: &[Polygon]| ps.iter().all(|p| p.area().abs() < 0.01);
+    let mut outward: Vec<Vec<MmPoint>> = Vec::new();
     let mut outermost = keep_out.to_vec();
     for k in 1..MAX_RINGS {
         let ring = poly::offset_round(keep_out, spacing * k as f64);
-        if ring.is_empty() || !inside(&ring) {
+        if ring.is_empty() || !tiny(&poly::difference(&ring, std::slice::from_ref(block))) {
             break;
         }
-        rings.extend(ring.iter().map(|p| polyline::closed(&p.outer)));
+        outward.extend(ring.iter().map(|p| polyline::closed(&p.outer)));
         outermost = ring;
     }
-    // the block's edge inward, while it stays clear of the design's last ring by half a spacing
+    // the block's edge inward: each ring's parts clear of the design's last ring, so the corners
+    // and the bands beyond the design's rings fill too
     let clear = poly::offset_round(&outermost, spacing * 0.5);
+    let mut inward: Vec<Vec<MmPoint>> = Vec::new();
     for k in 0..MAX_RINGS {
         let inset = poly::offset(std::slice::from_ref(block), -(spacing * k as f64));
         let Some(r) = inset.into_iter().max_by(|a, b| a.area().abs().total_cmp(&b.area().abs())) else { break };
-        let hits = !poly::intersection(std::slice::from_ref(&r_outline(&r)), &clear).is_empty();
-        if r.area().abs() < 1.0 || hits {
+        if r.area().abs() < 1.0 {
             break;
         }
-        rings.push(polyline::closed(&r.outer));
+        let ring = densify(&polyline::closed(&r.outer), 1.0);
+        let outside = |q: &MmPoint| !clear.iter().any(|c| c.contains(*q));
+        // the ring cut where it enters the clear zone; a ring wholly clear stays whole
+        let mut run: Vec<MmPoint> = Vec::new();
+        let mut pieces: Vec<Vec<MmPoint>> = Vec::new();
+        for q in &ring {
+            if outside(q) {
+                run.push(*q);
+            } else if run.len() >= 2 {
+                pieces.push(std::mem::take(&mut run));
+            } else {
+                run.clear();
+            }
+        }
+        if run.len() >= 2 {
+            pieces.push(run);
+        }
+        if pieces.is_empty() {
+            break;
+        }
+        inward.extend(pieces);
     }
-    sf_core::quilt::join(&rings, 1e-6).map(|j| j.line).unwrap_or_default()
+    // each family joined where its pieces come close; a join longer than a spacing and a half
+    // would cross open background, so the line is cut there and the machine jumps
+    [outward, inward]
+        .iter()
+        .filter_map(|rings| sf_core::quilt::join(rings, 1e-6).map(|j| j.line))
+        .flat_map(|l| split_long(&l, spacing * 1.5))
+        // and no specks: a piece shorter than a spacing isn't worth its jump
+        .filter(|l| l.windows(2).map(|w| w[0].distance(w[1])).sum::<f64>() >= spacing)
+        .collect()
 }
 
-/// A ring's thin band (for testing whether the ring itself crosses a shape): the ring's outline
-/// as a sliver half a millimetre wide.
-fn r_outline(r: &Polygon) -> Polygon {
-    let inner = poly::offset(std::slice::from_ref(r), -0.5);
-    Polygon::new(r.outer.clone(), inner.into_iter().map(|p| p.outer).collect())
+/// `line` cut wherever a step is longer than `max` mm.
+fn split_long(line: &[MmPoint], max: f64) -> Vec<Vec<MmPoint>> {
+    let mut out: Vec<Vec<MmPoint>> = vec![Vec::new()];
+    for (i, q) in line.iter().enumerate() {
+        if i > 0 && line.get(i - 1).is_some_and(|prev| prev.distance(*q) > max) {
+            out.push(Vec::new());
+        }
+        if let Some(last) = out.last_mut() {
+            last.push(*q);
+        }
+    }
+    out
+}
+
+/// `line` with points at most `step` mm apart.
+fn densify(line: &[MmPoint], step: f64) -> Vec<MmPoint> {
+    let mut out = Vec::with_capacity(line.len() * 2);
+    for w in line.windows(2) {
+        let n = ((w[0].distance(w[1]) / step).ceil() as usize).clamp(1, 10_000);
+        for i in 0..n {
+            out.push(w[0].lerp(w[1], i as f64 / n as f64));
+        }
+    }
+    out.extend(line.last());
+    out
 }
 
 fn quilt_background(s: &mut Session, p: &Value) -> Result<Value> {
@@ -123,22 +174,22 @@ fn quilt_background(s: &mut Session, p: &Value) -> Result<Value> {
         (None, None) => rect(mm(field.x0) + 3.0, mm(field.y0) + 3.0, mm(field.x1) - 3.0, mm(field.y1) - 3.0),
         _ => return Err(bad(CMD, "give both `width` and `height`, or neither")),
     };
-    let line: Vec<MmPoint> = if echo {
+    let lines: Vec<Vec<MmPoint>> = if echo {
         echo_round(&block, &keep_out, spacing)
     } else {
         // the block with the design (and its margin) cut out, stippled piece by piece
         let area = poly::difference(std::slice::from_ref(&block), &keep_out);
         let pieces: Vec<Vec<MmPoint>> =
             area.iter().filter(|a| a.area().abs() > spacing * spacing).map(|a| sf_core::quilt::meander(a, spacing, 1.0)).collect();
-        sf_core::quilt::join(&pieces, 1e-6).map(|j| j.line).unwrap_or_default()
+        sf_core::quilt::join(&pieces, 1e-6).map(|j| j.line).into_iter().filter(|l| l.len() >= 2).collect()
     };
-    if line.len() < 2 {
+    if lines.is_empty() {
         return Err(bad(CMD, "there's no room round the design to quilt: a larger block, or a narrower margin"));
     }
-    if line.len() > sf_core::quilt::MAX_POINTS {
+    if lines.iter().map(Vec::len).sum::<usize>() > sf_core::quilt::MAX_POINTS {
         return Err(bad(CMD, "too much quilting: a wider spacing, or a smaller block"));
     }
-    let length: f64 = line.windows(2).map(|w| w[0].distance(w[1])).sum();
+    let length: f64 = lines.iter().flat_map(|l| l.windows(2)).map(|w| w[0].distance(w[1])).sum();
     let thread = match color {
         Some(c) => c,
         None => s.execute("embroidery.info", &json!({}))?["colors"].get(0).and_then(|c| c["color"].as_str()).unwrap_or("#1f2933").to_string(),
@@ -148,9 +199,11 @@ fn quilt_background(s: &mut Session, p: &Value) -> Result<Value> {
         s.begin_named_undo_group(Some("Quilt Background".into()));
     }
     let done = (|| -> Result<u64> {
-        let mut d = String::with_capacity(line.len() * 18);
-        for (i, q) in line.iter().enumerate() {
-            d.push_str(&format!("{}{:.2} {:.2} ", if i == 0 { "M" } else { "L" }, q.x * PT_PER_MM, q.y * PT_PER_MM));
+        let mut d = String::new();
+        for line in &lines {
+            for (i, q) in line.iter().enumerate() {
+                d.push_str(&format!("{}{:.2} {:.2} ", if i == 0 { "M" } else { "L" }, q.x * PT_PER_MM, q.y * PT_PER_MM));
+            }
         }
         let id = s.execute("path.create", &json!({ "d": d }))?["id"].as_u64().ok_or_else(|| bad(CMD, "the quilting wasn't made"))?;
         s.execute("select.set", &json!({ "ids": [id] }))?;
@@ -202,7 +255,8 @@ mod tests {
         let heart_regions = vectorcraft_embroidery::regions_mm(d.node(NodeId(heart)).unwrap());
         let near = poly::offset_round(&heart_regions, 3.0);
         let NodeKind::Path { path, .. } = &d.node(NodeId(id)).unwrap().kind else { panic!("a path") };
-        let pts: Vec<MmPoint> = path.subpaths.iter().flat_map(|sp| sp.anchors().map(|a| MmPoint::new(a.x * MM_PER_PT, a.y * MM_PER_PT))).collect();
+        let pts: Vec<MmPoint> =
+            path.subpaths.iter().flat_map(|sp| sp.anchors.iter().map(|a| MmPoint::new(a.p.x * MM_PER_PT, a.p.y * MM_PER_PT))).collect();
         assert!(pts.len() > 50);
         assert!(pts.iter().all(|q| !near.iter().any(|n| n.contains(*q))), "the margin is kept clear");
         s.execute("edit.undo", &json!({})).unwrap();
@@ -217,6 +271,17 @@ mod tests {
         let (mut s, heart) = with_heart();
         let r = s.execute("embroidery.quiltBackground", &json!({"ids": [heart], "fill": "echo", "width": 100, "height": 100, "spacing": 5})).unwrap();
         assert_eq!(r["fill"], "echo");
+        // both families of rings: round the heart, and in from the block's edge, sewn apart
+        let d = &s.doc().unwrap().doc;
+        let NodeKind::Path { path, .. } = &d.node(NodeId(r["id"].as_u64().unwrap())).unwrap().kind else { panic!("a path") };
+        assert!(path.subpaths.len() >= 2, "the two families sewn apart");
+        // no stitch crosses open background: every step within a line is short
+        for sp in &path.subpaths {
+            for w in sp.anchors.windows(2) {
+                assert!(w[0].p.distance(w[1].p) * MM_PER_PT <= 5.0 * 1.5 + 0.01, "a long step: {:?}", (w[0].p, w[1].p));
+            }
+        }
+        assert!(path.subpaths.iter().all(|sp| sp.anchors.len() >= 4) && path.subpaths.iter().any(|sp| sp.anchors.len() > 20));
         let info = s.execute("embroidery.info", &json!({})).unwrap();
         assert!(info["widthMm"].as_f64().unwrap() <= 101.0 && info["widthMm"].as_f64().unwrap() > 90.0, "the 100 mm block: {info}");
         let (mut s, heart) = with_heart();
