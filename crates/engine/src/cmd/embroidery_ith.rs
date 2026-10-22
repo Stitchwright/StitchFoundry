@@ -3,9 +3,10 @@
 //! seasonal bench pillows (an 8″ square or 5½ × 9½″ form, the embroidered panel from a 5×7 hoop
 //! with borders sewn on after), and pieces finished in the hoop: a mug rug, a coaster, an
 //! ornament, a key fob, a luggage tag and a bookmark (placement, batting and top fabric tacked
-//! down, the design, the backing, a satin edge; the key fob and the tag with a loop), and a zipper
-//! pouch (front and top strip tacked either side of the zipper line, the design, the zipper sewn
-//! over their edges, the back sewn on face down and the pouch turned out through the zipper). The
+//! down, the design, the backing, a satin edge; the key fob and the tag with a loop; the card
+//! holder with a slip pocket folded over its lower half), and a zipper pouch and a pencil case
+//! (front and top strip tacked either side of the zipper line, the design, the zipper sewn over
+//! their edges, the back sewn on face down and the piece turned out through the zipper). The
 //! supplies with their cut sizes and the steps are kept as the design's notes, so its worksheet is
 //! the step sheet. Original work: shapes, sizes and wording are our own.
 
@@ -85,12 +86,35 @@ const PROJECTS: &[Project] = &[
         extra: "Thin batting (or none) keeps it flat enough to close the book on",
     },
     Project {
-        id: ZIPPER_POUCH, name: "Zipper pouch, 6 × 4½″", finished: (6.0 * IN, 4.5 * IN), round: false, panel: false, looped: false, extra: ""
+                id: ZIPPER_POUCH, name: "Zipper pouch, 6 × 4½″", finished: (6.0 * IN, 4.5 * IN), round: false, panel: false, looped: false, extra: ""
+    },
+    Project {
+        id: "pencil-case",
+        name: "Pencil case, 8 × 3½″",
+        finished: (8.0 * IN, 3.5 * IN),
+        round: false,
+        panel: false,
+        looped: false,
+        extra: "",
+    },
+    Project {
+        id: "card-holder",
+        name: "Card holder, 4 × 3″",
+        finished: (4.0 * IN, 3.0 * IN),
+        round: false,
+        panel: false,
+        looped: false,
+        extra: "Thin batting, or fusible fleece, keeps the pocket from bulging with cards in it",
     },
 ];
 
-/// The zipper pouch: sewn face down and turned out, so it has its own steps.
+/// The zipper pouch: sewn face down and turned out, so it has its own steps, as the pencil case
+/// has.
 const ZIPPER_POUCH: &str = "zipper-pouch";
+const ZIPPERED: &[&str] = &[ZIPPER_POUCH, "pencil-case"];
+/// Pieces with a slip pocket over their lower part, and the share of the height it covers: the
+/// design goes above it (sewn through the pocket it would close it).
+const POCKETS: &[(&str, f64)] = &[("card-holder", 0.55)];
 /// How far the zipper's middle is below the pouch's top edge (mm).
 const ZIPPER_DOWN: f64 = 25.0;
 
@@ -109,6 +133,8 @@ const POUCH_FRONT: (&str, &str) = ("#9aa5b1", "Front: lay the front fabric below
 const POUCH_TOP: (&str, &str) = ("#9aa5b1", "Top strip: lay it above the zipper line");
 const ZIPPER: (&str, &str) = ("#c9a227", "Zipper: lay it face up on the line and tape it");
 const POUCH_BACK: (&str, &str) = ("#7b8794", "Back: open the zipper, lay the back face down");
+const POCKET_MARK: (&str, &str) = ("#c9a227", "Pocket: lay its fold on the line");
+const POCKET_TACK: (&str, &str) = ("#a8862a", "Pocket: tacked down");
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![
@@ -126,7 +152,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Make In-the-Hoop Project",
             [],
             None,
-            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament|key-fob|luggage-tag|bookmark|zipper-pouch, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop, on by default for the key fob and the luggage tag; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], design: [ids of the shape and words], notes}",
+            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament|key-fob|luggage-tag|bookmark|zipper-pouch|pencil-case|card-holder, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop, on by default for the key fob and the luggage tag; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], design: [ids of the shape and words], notes}",
             always,
             make
         ),
@@ -231,9 +257,10 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     if vinyl && pr.panel {
         return Err(bad(CMD, "vinyl is for the pieces finished in the hoop, not the pillow fronts"));
     }
-    let zipper = pr.id == ZIPPER_POUCH;
+        let zipper = ZIPPERED.contains(&pr.id);
+    let pocket = POCKETS.iter().find(|x| x.0 == pr.id).map(|x| x.1);
     if zipper && (vinyl || ribbon) {
-        return Err(bad(CMD, "the zipper pouch is sewn inside out and turned, so it takes no ribbon or vinyl"));
+        return Err(bad(CMD, "a zippered piece is sewn inside out and turned, so it takes no ribbon or vinyl"));
     }
     // a panel needs a 5×7-class hoop; a finished piece its own size
     let need = if pr.panel { (118.0 + 2.0 * MARGIN, 160.0 + 2.0 * MARGIN) } else { (pr.finished.0 + 2.0 * MARGIN, pr.finished.1 + 2.0 * MARGIN) };
@@ -306,9 +333,21 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     // 2: the design in the middle (above the words when both). A narrow piece (a key fob, a
     // bookmark) is sized by its width, its words turned to run along it.
     let narrow = pw < ph * 0.5;
-    // a pouch's design goes on the front, below the zipper
+        // where the design goes (mm from the middle, down is +): a pouch's on the front below the
+    // zipper, a pocketed piece's above the pocket
     let front_h = ph / 2.0 - zip_y;
-    let inner = if zipper { (pw.min(front_h) - 20.0).max(10.0) } else { (pw.min(ph) - 24.0).max(10.0) };
+    let fold_y = pocket.map(|share| ph / 2.0 - ph * share);
+    let (area_top, area_bottom) = match (zipper, fold_y) {
+        (true, _) => (zip_y, ph / 2.0),
+        (false, Some(f)) => (-ph / 2.0, f),
+        (false, None) => (-ph / 2.0, ph / 2.0),
+    };
+    let area_h = area_bottom - area_top;
+    let inner = match (zipper, fold_y) {
+        (true, _) => (pw.min(front_h) - 20.0).max(10.0),
+        (false, Some(_)) => (pw.min(area_h) - 12.0).max(10.0),
+        (false, None) => (pw.min(ph) - 24.0).max(10.0),
+    };
     let mut design: Vec<u64> = Vec::new();
     let both = text.is_some() && shape.is_some();
     if let Some(name) = &shape {
@@ -355,9 +394,10 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         }
         add_step("The words", "Sew the words.");
     }
-    if zipper && !design.is_empty() {
+        let area_mid = (area_top + area_bottom) / 2.0;
+    if area_mid.abs() > 0.5 && !design.is_empty() {
         s.execute("select.set", &json!({ "ids": design }))?;
-        s.execute("object.move", &json!({ "dx": 0.0, "dy": (zip_y + front_h / 2.0) * PT_PER_MM }))?;
+        s.execute("object.move", &json!({ "dx": 0.0, "dy": area_mid * PT_PER_MM }))?;
     }
     // the extras: a ribbon band across a panel, vinyl over a finished piece, a button mark
     let line = |s: &mut Session, pts: &[(f64, f64)]| -> Result<u64> {
@@ -367,7 +407,21 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         }
         s.execute("path.create", &json!({ "d": d }))?["id"].as_u64().ok_or_else(|| bad(CMD, "a step wasn't made"))
     };
-    const RIBBON_W: f64 = 16.0;
+        const RIBBON_W: f64 = 16.0;
+    if let Some(f) = fold_y {
+        // the pocket: its fold on the line, its raw edges at the bottom; tacked on three sides,
+        // the backing and the satin edge close them
+        let mark = line(s, &[(-pw / 2.0, f), (pw / 2.0, f)])?;
+        step(s, mark, "run", json!({}), POCKET_MARK)?;
+        add_step(
+            POCKET_MARK.1,
+            "Fold the pocket fabric in half, wrong sides together, and press. Lay it with the fold on the line and the raw edges past the bottom of the piece; tape it.",
+        );
+        let (x0, x1, b) = (-pw / 2.0 + 1.5, pw / 2.0 - 1.5, ph / 2.0 - 1.5);
+        let tack = line(s, &[(x0, f), (x0, b), (x1, b), (x1, f)])?;
+        step(s, tack, "run", json!({}), POCKET_TACK)?;
+        add_step(POCKET_TACK.1, "The machine tacks the pocket's sides and bottom; its fold stays open for cards.");
+    }
     if zipper {
         // both tapes sewn down, over the fabrics' edges: two lines, a jump between
         let (x0, x1) = (c.x - pw / 2.0 * PT_PER_MM, c.x + pw / 2.0 * PT_PER_MM);
@@ -509,6 +563,11 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         if ribbon {
             supplies.push("Ribbon ⅜″ wide, 6″ long, for the hanging loop".into());
         }
+                if let Some(share) = pocket {
+            let folded = (pw + IN, 2.0 * ph * share + IN / 2.0);
+            supplies.push(format!("Pocket fabric {}, folded in half to {}", size(folded.0, folded.1), size(folded.0, folded.1 / 2.0)));
+            pieces.push(("Pocket (fold in half)".into(), folded.0, folded.1));
+        }
         if !pr.extra.is_empty() {
             supplies.push(pr.extra.into());
         }
@@ -642,6 +701,35 @@ mod tests {
         assert!(s.execute("embroidery.ith.templates", &json!({"project": "nope"})).is_err());
     }
 
+        /// HV-01: the card holder: its pocket marked and tacked after the design, the design above
+    /// the fold (not sewn through the pocket), the pocket in the supplies; the pencil case is a
+    /// longer zipper pouch, in a 6×10-class hoop.
+    #[test]
+    fn the_card_holder_has_a_pocket_below_its_design_and_the_pencil_case_a_zipper() {
+        let mut s = Session::new();
+        let r = s.execute("embroidery.ith.make", &json!({"project": "card-holder", "text": "Sam"})).unwrap();
+        let threads: Vec<String> = r["steps"].as_array().unwrap().iter().map(|x| x["thread"].as_str().unwrap().to_string()).collect();
+        let pos = |t: &str| threads.iter().position(|x| x == t).unwrap_or_else(|| panic!("{t} in {threads:?}"));
+        assert!(pos(PLACEMENT.1) < pos("The words") && pos("The words") < pos(POCKET_MARK.1), "{threads:?}");
+        assert!(pos(POCKET_MARK.1) < pos(POCKET_TACK.1) && pos(POCKET_TACK.1) < pos(BACKING.1) && pos(BACKING.1) < pos(EDGE.1), "{threads:?}");
+        let d = &s.doc().unwrap().doc;
+        let page = d.artboards[0].rect;
+        let words = d.node(NodeId(r["design"][0].as_u64().unwrap())).and_then(|n| n.geometric_bounds()).unwrap();
+        let fold = page.center().y + (3.0 * IN / 2.0 - 3.0 * IN * 0.55) * PT_PER_MM;
+        assert!(words.y1 < fold, "the words {words:?} above the pocket's fold at {fold}");
+        assert!(r["supplies"].to_string().contains("Pocket fabric"), "{r}");
+        assert!(r["pieces"].as_array().unwrap().iter().any(|p| p["name"] == "Pocket (fold in half)"), "{r}");
+        let info = s.execute("embroidery.info", &json!({})).unwrap();
+        assert_eq!(info["fits"], true, "{info}");
+        // the pencil case
+        let r = s.execute("embroidery.ith.make", &json!({"project": "pencil-case", "text": "Pens"})).unwrap();
+        let threads: Vec<&str> = r["steps"].as_array().unwrap().iter().filter_map(|x| x["thread"].as_str()).collect();
+        assert!(threads.contains(&ZIPPER.1) && threads.last() == Some(&"Turn it out"), "{threads:?}");
+        assert!(r["supplies"].to_string().contains("at least 10″ long"), "{r}");
+        assert_eq!(s.execute("embroidery.info", &json!({})).unwrap()["fits"], true);
+        assert!(s.execute("embroidery.ith.make", &json!({"project": "pencil-case", "ribbon": true})).is_err());
+    }
+
     /// HV-01: the zipper pouch: outline and zipper line, front and top strip, the design on the
     /// front below the zipper, the zipper over their edges, the back face down; no ribbon or vinyl.
     #[test]
@@ -689,7 +777,7 @@ mod tests {
             let info = s.execute("embroidery.info", &json!({})).unwrap();
             assert_eq!(info["fits"], true, "{}: {info}", pr.id);
             let threads: Vec<String> = info["colors"].as_array().unwrap().iter().map(|c| c["name"].as_str().unwrap_or("").to_string()).collect();
-            if pr.id == ZIPPER_POUCH {
+                        if ZIPPERED.contains(&pr.id) {
                 assert_eq!(threads.first().map(String::as_str), Some(POUCH_PLACEMENT.1), "{}: {threads:?}", pr.id);
                 assert_eq!(threads.last().map(String::as_str), Some(POUCH_BACK.1), "{}: {threads:?}", pr.id);
             } else if pr.panel {

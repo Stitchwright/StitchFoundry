@@ -17,7 +17,7 @@ judged only from their public pages (never by running their software). The ranke
 | Hoops | Done | About 60 hoops by maker, chosen by My Machine. |
 | Fabric presets | Done | 9 presets setting density, underlay and pull compensation. |
 | AI photo-to-stitch | Done | Design from Prompt with Effort (Quick, Normal, Thorough; the cost shown before and after), Thorough's research and stitch check, Redraw Image, Auto-Digitize, Remove Background with the Cut-Out Brush, Magnetic Lasso, Photo Stitch. Make a Design turns a photo into stitches in one step, its background cut away (a setting). The AI test jobs (`evals/ai`) measure it against the owner's photos. |
-| Appliqué / in-the-hoop | Partial | Appliqué is complete. In-the-hoop has 9 projects (pillow fronts, mug rug, coaster, ornament, key fob, luggage tag, bookmark, zipper pouch). Missing: **more items** (card holders, phone cases, passport holders, book covers, pencil cases), each with styles, a blank and printable steps. |
+| Appliqué / in-the-hoop | Partial | Appliqué is complete. In-the-hoop has 11 projects (pillow fronts, mug rug, coaster, ornament, key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder). Missing: **more items** (phone cases, passport holders, book covers), each with styles, a blank and printable steps. |
 | Batch personalization | Done | Team Names from CSV, layouts, worksheets, patches. |
 | Job estimator | Done | Stitch count, time, thread and bobbin, quotes, job orders, worksheets. Barcodes still to be checked with a real scanner. |
 | Free web viewer | Done (VIEW-01) | A link with `?view` opens the design read-only: its size, stitches, threads and sewing time, with **Get StitchFoundry Free** and **Edit It Here**. |
@@ -48,7 +48,7 @@ and white, colour tile) (HV-01).
 5. Thread charts, as permission comes.
 
 Done since the list was drawn up: the one-step photo to embroidery (PH-01), Effort and the AI's
-cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark and zipper pouch (HV-01), the web viewer
+cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case and card holder (HV-01), the web viewer
 (VIEW-01), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
 
 ## Sources

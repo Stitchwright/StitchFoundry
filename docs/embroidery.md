@@ -784,6 +784,13 @@ way round:
   fabrics' edges; then, with the zipper open halfway, the back laid face down and sewn all round.
   Trim ¼″ outside, turn it out through the zipper. It needs a nylon coil zipper (the needle sews
   over its ends), and takes no ribbon or vinyl.
+- **Pencil case, 8 × 3½″** (from a 6×10-class hoop): the zipper pouch made long, for a 10″ zipper
+  or longer.
+- **Card holder, 4 × 3″**: finished in the hoop like the coaster, with a slip pocket over its
+  lower half. After the design (in the upper part, since sewing through the pocket would close
+  it), a line marks where the pocket's fold goes; the pocket fabric, folded in half, is laid with
+  its fold on the line and tacked along its sides and bottom; the backing and the satin edge close
+  them, and the fold stays open for cards.
 
 Each step is its own thread, named for what to do ("Placement: lay batting, then top fabric over
 the line", "Backing: tape the backing fabric under the hoop", "Edge: satin all round"), so the
