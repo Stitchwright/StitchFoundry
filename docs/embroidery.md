@@ -611,6 +611,29 @@ is one closed line), `spacing` how far the loops swing in (1: they meet in the m
 (2) repeats it turned between the petals, a thread colour each (`colors`, or six of our own in
 turn). `random: true` chooses the petals, shape and spacing for you, the same for the same `seed`.
 
+## StumpWork
+
+**Embroidery › Make StumpWork** (`embroidery.stumpwork {ids?, gauge?, cover?, coverWidth?, color?,
+fill?}`) turns the selected closed shapes into stumpwork pieces: raised, free-standing petals,
+leaves or wings with a wire round their edge, sewn on organza over water-soluble stabilizer, cut
+out and bent to shape. Each piece sews in four steps, each its own thread named for what to do,
+so the machine stops before it:
+
+1. **Wire track**: a double run along the edge, where the wire goes (its thread also says to hoop
+   organza over water-soluble stabilizer).
+2. **Wire**: lay the wire on the track with its tails at the start and hold it; a zigzag just
+   wider than the wire tacks it down. The wire is given by its gauge (`gauge`, AWG 28 by default,
+   24 to 34; a bigger number a thinner wire).
+3. **The piece's fill** (a tatami fill if it had none; `fill: false` leaves it open).
+4. **Cover**: a satin (or blanket, `cover`) over the wire, 2.5 mm wide (`coverWidth`, at least the
+   wire's width and a bit), in the piece's colour or `color`. In the fill's colour it follows the
+   fill with no stop.
+
+The finishing goes in the design's notes, which the worksheet prints: cut each piece out close to
+its edge, rinse the stabilizer away, let it dry, bend the wire to shape, and push the tails through
+the fabric where the piece goes. One undo takes a piece back to its shape. Behaviour from
+BERNINA's public help on its stumpwork tools.
+
 ## Family Tree
 
 **Embroidery › Create › Family Tree…** makes a family chart: each name lettered in satin, framed

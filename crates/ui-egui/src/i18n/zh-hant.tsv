@@ -6402,3 +6402,5 @@ machine	Stop	停止
 	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	每行一人。先寫第一個人（夫妻寫作「名字 + 伴侶」），再在其下縮排寫子女，每人之下再寫他們的子女。
 	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	家譜樹比繡框大：請選更大的繡框，或減少世代。
 	Janome SEW (.sew)…	Janome SEW (.sew)…
+	Make StumpWork	製作 StumpWork
+@msg	`chart` is descendants or ancestors	`chart` 為 descendants 或 ancestors

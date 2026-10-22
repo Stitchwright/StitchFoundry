@@ -6775,3 +6775,5 @@ machine	Stop	Megállás
 	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Soronként egy személy. Kezdje az első személlyel („Név + Társ” egy párnál), alatta behúzva a gyerekei, és mindegyik alatt az ő gyerekei.
 	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	A családfa nagyobb a hímzőkeretnél: válasszon nagyobb keretet vagy kevesebb nemzedéket.
 	Janome SEW (.sew)…	Janome SEW (.sew)…
+	Make StumpWork	StumpWork készítése
+@msg	`chart` is descendants or ancestors	a `chart` értéke descendants vagy ancestors

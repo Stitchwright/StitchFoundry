@@ -6408,3 +6408,5 @@ effect	Soft	Weich
 	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Eine Person pro Zeile. Beginnen Sie mit der ersten Person („Name + Partner“ für ein Paar), dann darunter eingerückt die Kinder und unter jedem dessen Kinder.
 	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Der Stammbaum ist größer als der Rahmen: Wählen Sie einen größeren Stickrahmen oder weniger Generationen.
 	Janome SEW (.sew)…	Janome SEW (.sew)…
+	Make StumpWork	StumpWork erstellen
+@msg	`chart` is descendants or ancestors	`chart` ist descendants oder ancestors

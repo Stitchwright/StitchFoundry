@@ -6750,3 +6750,5 @@ machine	Stop	Στάση
 	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Ένα άτομο ανά γραμμή. Ξεκινήστε με το πρώτο άτομο («Όνομα + Σύντροφος» για ζευγάρι), από κάτω με εσοχή τα παιδιά και κάτω από το καθένα τα δικά του.
 	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Το οικογενειακό δέντρο είναι μεγαλύτερο από το τελάρο: διαλέξτε μεγαλύτερο τελάρο ή λιγότερες γενιές.
 	Janome SEW (.sew)…	Janome SEW (.sew)…
+	Make StumpWork	Δημιουργία StumpWork
+@msg	`chart` is descendants or ancestors	το `chart` είναι descendants ή ancestors

@@ -6754,3 +6754,5 @@ machine	Stop	Stopp
 	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	En person per rad. Börja med den första personen ("Namn + Partner" för ett par), sedan barnen indragna under, och under vart och ett deras barn.
 	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Släktträdet är större än bågen: välj en större båge eller färre generationer.
 	Janome SEW (.sew)…	Janome SEW (.sew)…
+	Make StumpWork	Gör StumpWork
+@msg	`chart` is descendants or ancestors	`chart` är descendants eller ancestors

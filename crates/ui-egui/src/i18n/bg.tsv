@@ -6758,3 +6758,5 @@ machine	Stop	Спиране
 	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	По един човек на ред. Започнете с първия човек („Име + Партньор“ за двойка), под него с отстъп децата, а под всяко — неговите деца.
 	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Родословното дърво е по-голямо от гергефа: изберете по-голям гергеф или по-малко поколения.
 	Janome SEW (.sew)…	Janome SEW (.sew)…
+	Make StumpWork	Създаване на StumpWork
+@msg	`chart` is descendants or ancestors	`chart` е descendants или ancestors

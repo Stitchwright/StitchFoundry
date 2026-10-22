@@ -6803,3 +6803,5 @@ mark-style	Japanese	Japonské
 	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Jedna osoba na řádek. Začněte první osobou („Jméno + Partner“ pro pár), pod ní odsazeně děti a pod každým jeho děti.
 	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Rodokmen je větší než rámeček: zvolte větší rámeček nebo méně generací.
 	Janome SEW (.sew)…	Janome SEW (.sew)…
+	Make StumpWork	Vytvořit StumpWork
+@msg	`chart` is descendants or ancestors	`chart` je descendants nebo ancestors

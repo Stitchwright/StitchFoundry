@@ -6641,3 +6641,5 @@ machine	Stop	Zatrzymanie
 	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Jedna osoba w wierszu. Zacznij od pierwszej osoby („Imię + Partner” dla pary), pod nią z wcięciem dzieci, a pod każdym jego dzieci.
 	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Drzewo genealogiczne jest większe niż tamborek: wybierz większy tamborek lub mniej pokoleń.
 	Janome SEW (.sew)…	Janome SEW (.sew)…
+	Make StumpWork	Utwórz StumpWork
+@msg	`chart` is descendants or ancestors	`chart` to descendants lub ancestors
