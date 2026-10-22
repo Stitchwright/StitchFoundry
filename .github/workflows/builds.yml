@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Stitchwright/stitchfoundry-fonts
-          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          ref: 185c21230b75a44c74f0adab233ced525e89f6e1
           path: stitchfoundry-fonts
           sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@stable
@@ -95,7 +95,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Stitchwright/stitchfoundry-fonts
-          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          ref: 185c21230b75a44c74f0adab233ced525e89f6e1
           path: stitchfoundry-fonts
           sparse-checkout: fonts
       - name: Install build and packaging tools
@@ -145,7 +145,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Stitchwright/stitchfoundry-fonts
-          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          ref: 185c21230b75a44c74f0adab233ced525e89f6e1
           path: stitchfoundry-fonts
           sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@stable
@@ -182,7 +182,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Stitchwright/stitchfoundry-fonts
-          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          ref: 185c21230b75a44c74f0adab233ced525e89f6e1
           path: stitchfoundry-fonts
           sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@stable
