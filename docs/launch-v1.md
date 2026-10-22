@@ -11,13 +11,13 @@ judged only from their public pages (never by running their software). The ranke
 | Launch item | State | What's missing |
 |---|---|---|
 | Lettering and monograms | Mostly done | TrueType/OpenType fonts sew as satin; monograms, words on arcs and circles, per-letter editing and kerning. Built-in embroidery fonts (FONT-01) done 2026-10-22: the Foundry fonts are bundled from Stitchwright/stitchfoundry-fonts. |
-| File formats | Mostly done | Reads and writes PES, DST, JEF, EXP, VP3, XXX, PEC, U01, PCS, TAP, DSB; reads DSZ. Missing: **HUS** (MF-04), VIP, SEW, ART. |
+| File formats | Mostly done | Reads and writes PES, DST, JEF, EXP, VP3, XXX, PEC, U01, PCS, TAP, DSB and HUS (experimental, MF-04); reads DSZ. Missing: VIP, SEW, ART. |
 | Stitch simulator | Done | 3D thread view, playback with speed, fabric colour, garment previews. |
 | Thread charts | Partial | Generic, Brother, Janome; nearest-colour matching; CSV import. Missing: **Isacord, Madeira, Robison-Anton, Sulky** (waiting on the makers' permission). |
 | Hoops | Done | About 60 hoops by maker, chosen by My Machine. |
 | Fabric presets | Done | 9 presets setting density, underlay and pull compensation. |
 | AI photo-to-stitch | Done | Design from Prompt with Effort (Quick, Normal, Thorough; the cost shown before and after), Thorough's research and stitch check, Redraw Image, Auto-Digitize, Remove Background with the Cut-Out Brush, Magnetic Lasso, Photo Stitch. Make a Design turns a photo into stitches in one step, its background cut away (a setting). The AI test jobs (`evals/ai`) measure it against the owner's photos. |
-| Appliqué / in-the-hoop | Partial | Appliqué is complete. In-the-hoop has 13 projects (pillow fronts, mug rug, coaster, ornament, key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case, book cover). Missing: **more items** (passport holders), more sizes of each, and styles, each with styles, a blank and printable steps. |
+| Appliqué / in-the-hoop | Partial | Appliqué is complete. In-the-hoop has 14 projects (pillow fronts, mug rug, coaster, ornament, key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case, passport holder, book cover). Missing: more sizes and styles of each. |
 | Batch personalization | Done | Team Names from CSV, layouts, worksheets, patches. |
 | Job estimator | Done | Stitch count, time, thread and bobbin, quotes, job orders, worksheets. Barcodes still to be checked with a real scanner. |
 | Free web viewer | Done (VIEW-01) | A link with `?view` opens the design read-only: its size, stitches, threads and sewing time, with **Get StitchFoundry Free** and **Edit It Here**. |
@@ -43,12 +43,12 @@ job is Team Names' (one file per name, the lettering's place, size and arc kept)
 
 ## The v1 order
 
-1. The rest of in-the-hoop (HV-01): Family Tree and the passport holder.
+1. Family Tree (HV-01), the last of mySewnet's wizards.
 2. The web viewer's call to action.
 3. Thread charts, as permission comes.
 
 Done since the list was drawn up: Send to StitchShop (SHOP-01), built-in fonts (FONT-01), the one-step photo to embroidery (PH-01), Effort and the AI's
-cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case and book cover, Repeat Design, Spiro, Endless Border, Quilt Background and the sepia, black and white and colour tile photo stitches (HV-01), the web viewer
+cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case, passport holder and book cover, Repeat Design, Spiro, Endless Border, Quilt Background and the sepia, black and white and colour tile photo stitches (HV-01), the web viewer
 (VIEW-01), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
 
 ## Sources

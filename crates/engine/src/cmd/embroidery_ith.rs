@@ -4,8 +4,8 @@
 //! with borders sewn on after), and pieces finished in the hoop: a mug rug, a coaster, an
 //! ornament, a key fob, a luggage tag and a bookmark (placement, batting and top fabric tacked
 //! down, the design, the backing, a satin edge; the key fob and the tag with a loop; the card
-//! holder with a slip pocket folded over its lower half), a phone case (front and back sewn face
-//! to face on three sides, turned out through its open top), a book cover (its front panel from the
+//! holder with a slip pocket folded over its lower half), a phone case and a passport holder (front and
+//! back sewn face to face on three sides, turned out through its open top), a book cover (its front panel from the
 //! hoop, made up with a back, a lining and flaps), and a zipper pouch and a pencil case
 //! (front and top strip tacked either side of the zipper line, the design, the zipper sewn over
 //! their edges, the back sewn on face down and the piece turned out through the zipper). The
@@ -112,6 +112,15 @@ const PROJECTS: &[Project] = &[
         extra: "Measure the phone in its case: the finished case wants about ¼″ more than its width and ½″ more than its height",
     },
     Project {
+        id: PASSPORT,
+        name: "Passport holder, 4 × 5¾″",
+        finished: (4.0 * IN, 5.75 * IN),
+        round: false,
+        panel: false,
+        looped: false,
+        extra: "For a passport of the usual size (125 × 88 mm, about 5 × 3½″), slid in closed through the open top: the holder is ½″ wider and ¾″ taller to leave room for its thickness. Leave out the fleece if the passport fits tight",
+    },
+    Project {
         id: BOOK_COVER,
         name: "Book cover, for a 5½ × 8½″ book",
         finished: (5.5 * IN, 8.5 * IN),
@@ -129,6 +138,10 @@ const ZIPPERED: &[&str] = &[ZIPPER_POUCH, "pencil-case"];
 /// The phone case: front and back face to face, sewn on three sides and turned out through its
 /// open top, whose edges are folded under before they are laid.
 const PHONE_CASE: &str = "phone-case";
+/// The passport holder: a sleeve made as the phone case is, its size the passport's.
+const PASSPORT: &str = "passport-holder";
+/// The pieces sewn as the phone case is.
+const SLEEVES: &[&str] = &[PHONE_CASE, PASSPORT];
 /// The book cover: a panel, like the pillow fronts, made up into a cover with flaps.
 const BOOK_COVER: &str = "book-cover";
 /// The book cover's spine (mm): a book about ¾″ thick.
@@ -176,7 +189,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Make In-the-Hoop Project",
             [],
             None,
-            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament|key-fob|luggage-tag|bookmark|zipper-pouch|pencil-case|card-holder|phone-case|book-cover, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop, on by default for the key fob and the luggage tag; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], design: [ids of the shape and words], notes}",
+            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament|key-fob|luggage-tag|bookmark|zipper-pouch|pencil-case|card-holder|phone-case|passport-holder|book-cover, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop, on by default for the key fob and the luggage tag; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], design: [ids of the shape and words], notes}",
             always,
             make
         ),
@@ -283,7 +296,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     }
     let zipper = ZIPPERED.contains(&pr.id);
     let pocket = POCKETS.iter().find(|x| x.0 == pr.id).map(|x| x.1);
-    let case = pr.id == PHONE_CASE;
+    let case = SLEEVES.contains(&pr.id);
     if (zipper || case) && (vinyl || ribbon) {
         return Err(bad(CMD, "this piece is sewn inside out and turned, so it takes no ribbon or vinyl"));
     }
@@ -823,6 +836,15 @@ mod tests {
         assert_eq!(info["fits"], true, "{info}");
         assert_eq!(r["pieces"].as_array().unwrap().len(), 2, "{r}");
         assert!(s.execute("embroidery.ith.make", &json!({"project": "phone-case", "vinyl": true})).is_err());
+        // the passport holder: sewn as the phone case is, roomy enough for a passport, from a 5×7
+        let r = s.execute("embroidery.ith.make", &json!({"project": "passport-holder", "text": "Ana", "shape": "Star"})).unwrap();
+        let threads: Vec<&str> = r["steps"].as_array().unwrap().iter().filter_map(|x| x["thread"].as_str()).collect();
+        assert_eq!((threads.first(), &threads[threads.len() - 2..]), (Some(&CASE_PLACEMENT.1), &[CASE_BACK.1, "Turn it out"][..]), "{threads:?}");
+        assert!(r["hoop"].to_string().contains("130 × 180"), "{}", r["hoop"]);
+        assert!(r["supplies"].to_string().contains("Finished size 4″ × 5¾″"), "{}", r["supplies"]);
+        let b = s.execute("embroidery.info", &json!({})).unwrap();
+        assert!(b["fits"] == true && b["widthMm"].as_f64().unwrap() >= 88.0 + 12.0 && b["heightMm"].as_f64().unwrap() >= 125.0 + 18.0, "{b}");
+        assert!(s.execute("embroidery.ith.make", &json!({"project": "passport-holder", "ribbon": true})).is_err());
         // the book cover
         let r = s.execute("embroidery.ith.make", &json!({"project": "book-cover", "text": "Notes", "hoop": "Brother 130 × 180 (5×7)"})).unwrap();
         let sup = r["supplies"].to_string();
@@ -919,7 +941,7 @@ mod tests {
             let info = s.execute("embroidery.info", &json!({})).unwrap();
             assert_eq!(info["fits"], true, "{}: {info}", pr.id);
             let threads: Vec<String> = info["colors"].as_array().unwrap().iter().map(|c| c["name"].as_str().unwrap_or("").to_string()).collect();
-            if pr.id == PHONE_CASE {
+            if SLEEVES.contains(&pr.id) {
                 assert_eq!(threads.first().map(String::as_str), Some(CASE_PLACEMENT.1), "{}: {threads:?}", pr.id);
                 assert_eq!(threads.last().map(String::as_str), Some(CASE_BACK.1), "{}: {threads:?}", pr.id);
             } else if ZIPPERED.contains(&pr.id) {
