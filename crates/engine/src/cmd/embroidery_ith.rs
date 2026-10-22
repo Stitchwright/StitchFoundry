@@ -4,7 +4,9 @@
 //! with borders sewn on after), and pieces finished in the hoop: a mug rug, a coaster, an
 //! ornament, a key fob, a luggage tag and a bookmark (placement, batting and top fabric tacked
 //! down, the design, the backing, a satin edge; the key fob and the tag with a loop; the card
-//! holder with a slip pocket folded over its lower half), and a zipper pouch and a pencil case
+//! holder with a slip pocket folded over its lower half), a phone case (front and back sewn face
+//! to face on three sides, turned out through its open top), a book cover (its front panel from the
+//! hoop, made up with a back, a lining and flaps), and a zipper pouch and a pencil case
 //! (front and top strip tacked either side of the zipper line, the design, the zipper sewn over
 //! their edges, the back sewn on face down and the piece turned out through the zipper). The
 //! supplies with their cut sizes and the steps are kept as the design's notes, so its worksheet is
@@ -86,16 +88,10 @@ const PROJECTS: &[Project] = &[
         extra: "Thin batting (or none) keeps it flat enough to close the book on",
     },
     Project {
-                id: ZIPPER_POUCH, name: "Zipper pouch, 6 × 4½″", finished: (6.0 * IN, 4.5 * IN), round: false, panel: false, looped: false, extra: ""
+        id: ZIPPER_POUCH, name: "Zipper pouch, 6 × 4½″", finished: (6.0 * IN, 4.5 * IN), round: false, panel: false, looped: false, extra: ""
     },
     Project {
-        id: "pencil-case",
-        name: "Pencil case, 8 × 3½″",
-        finished: (8.0 * IN, 3.5 * IN),
-        round: false,
-        panel: false,
-        looped: false,
-        extra: "",
+        id: "pencil-case", name: "Pencil case, 8 × 3½″", finished: (8.0 * IN, 3.5 * IN), round: false, panel: false, looped: false, extra: ""
     },
     Project {
         id: "card-holder",
@@ -106,12 +102,37 @@ const PROJECTS: &[Project] = &[
         looped: false,
         extra: "Thin batting, or fusible fleece, keeps the pocket from bulging with cards in it",
     },
+    Project {
+        id: PHONE_CASE,
+        name: "Phone case, 3½ × 6½″",
+        finished: (3.5 * IN, 6.5 * IN),
+        round: false,
+        panel: false,
+        looped: false,
+        extra: "Measure the phone in its case: the finished case wants about ¼″ more than its width and ½″ more than its height",
+    },
+    Project {
+        id: BOOK_COVER,
+        name: "Book cover, for a 5½ × 8½″ book",
+        finished: (5.5 * IN, 8.5 * IN),
+        round: false,
+        panel: true,
+        looped: false,
+        extra: "",
+    },
 ];
 
 /// The zipper pouch: sewn face down and turned out, so it has its own steps, as the pencil case
 /// has.
 const ZIPPER_POUCH: &str = "zipper-pouch";
 const ZIPPERED: &[&str] = &[ZIPPER_POUCH, "pencil-case"];
+/// The phone case: front and back face to face, sewn on three sides and turned out through its
+/// open top, whose edges are folded under before they are laid.
+const PHONE_CASE: &str = "phone-case";
+/// The book cover: a panel, like the pillow fronts, made up into a cover with flaps.
+const BOOK_COVER: &str = "book-cover";
+/// The book cover's spine (mm): a book about ¾″ thick.
+const SPINE: f64 = 0.75 * IN;
 /// Pieces with a slip pocket over their lower part, and the share of the height it covers: the
 /// design goes above it (sewn through the pocket it would close it).
 const POCKETS: &[(&str, f64)] = &[("card-holder", 0.55)];
@@ -135,6 +156,9 @@ const ZIPPER: (&str, &str) = ("#c9a227", "Zipper: lay it face up on the line and
 const POUCH_BACK: (&str, &str) = ("#7b8794", "Back: open the zipper, lay the back face down");
 const POCKET_MARK: (&str, &str) = ("#c9a227", "Pocket: lay its fold on the line");
 const POCKET_TACK: (&str, &str) = ("#a8862a", "Pocket: tacked down");
+const CASE_PLACEMENT: (&str, &str) = ("#9aa5b1", "Placement: the case's outline");
+const CASE_FRONT: (&str, &str) = ("#9aa5b1", "Front: fold its top under, lay it on the outline");
+const CASE_BACK: (&str, &str) = ("#7b8794", "Back: fold its top under, lay it face down");
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![
@@ -152,7 +176,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Make In-the-Hoop Project",
             [],
             None,
-            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament|key-fob|luggage-tag|bookmark|zipper-pouch|pencil-case|card-holder, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop, on by default for the key fob and the luggage tag; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], design: [ids of the shape and words], notes}",
+            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament|key-fob|luggage-tag|bookmark|zipper-pouch|pencil-case|card-holder|phone-case|book-cover, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop, on by default for the key fob and the luggage tag; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], design: [ids of the shape and words], notes}",
             always,
             make
         ),
@@ -257,10 +281,11 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     if vinyl && pr.panel {
         return Err(bad(CMD, "vinyl is for the pieces finished in the hoop, not the pillow fronts"));
     }
-        let zipper = ZIPPERED.contains(&pr.id);
+    let zipper = ZIPPERED.contains(&pr.id);
     let pocket = POCKETS.iter().find(|x| x.0 == pr.id).map(|x| x.1);
-    if zipper && (vinyl || ribbon) {
-        return Err(bad(CMD, "a zippered piece is sewn inside out and turned, so it takes no ribbon or vinyl"));
+    let case = pr.id == PHONE_CASE;
+    if (zipper || case) && (vinyl || ribbon) {
+        return Err(bad(CMD, "this piece is sewn inside out and turned, so it takes no ribbon or vinyl"));
     }
     // a panel needs a 5×7-class hoop; a finished piece its own size
     let need = if pr.panel { (118.0 + 2.0 * MARGIN, 160.0 + 2.0 * MARGIN) } else { (pr.finished.0 + 2.0 * MARGIN, pr.finished.1 + 2.0 * MARGIN) };
@@ -318,6 +343,16 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
             POUCH_TOP.1,
             "Lay the top strip right side up with its bottom edge on the zipper line, covering the outline above it; the machine tacks it down.",
         );
+    } else if case {
+        let o = outline(s, c, pw, ph, false)?;
+        step(s, o, "run", json!({}), CASE_PLACEMENT)?;
+        add_step(CASE_PLACEMENT.1, "Hoop tear-away stabilizer and sew the case's outline.");
+        let o = outline(s, c, pw - 3.0, ph - 3.0, false)?;
+        step(s, o, "run", json!({}), CASE_FRONT)?;
+        add_step(
+            CASE_FRONT.1,
+            "Fold the front fabric's top edge ½″ to the wrong side and press. Lay it right side up, the fold on the outline's top and the rest past the outline (fusible fleece under it, if you like); the machine tacks it down.",
+        );
     } else if pr.panel {
         let o = outline(s, c, pw, ph, pr.round)?;
         step(s, o, "run", json!({}), TRIM_LINE)?;
@@ -333,7 +368,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     // 2: the design in the middle (above the words when both). A narrow piece (a key fob, a
     // bookmark) is sized by its width, its words turned to run along it.
     let narrow = pw < ph * 0.5;
-        // where the design goes (mm from the middle, down is +): a pouch's on the front below the
+    // where the design goes (mm from the middle, down is +): a pouch's on the front below the
     // zipper, a pocketed piece's above the pocket
     let front_h = ph / 2.0 - zip_y;
     let fold_y = pocket.map(|share| ph / 2.0 - ph * share);
@@ -394,7 +429,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         }
         add_step("The words", "Sew the words.");
     }
-        let area_mid = (area_top + area_bottom) / 2.0;
+    let area_mid = (area_top + area_bottom) / 2.0;
     if area_mid.abs() > 0.5 && !design.is_empty() {
         s.execute("select.set", &json!({ "ids": design }))?;
         s.execute("object.move", &json!({ "dx": 0.0, "dy": area_mid * PT_PER_MM }))?;
@@ -407,7 +442,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         }
         s.execute("path.create", &json!({ "d": d }))?["id"].as_u64().ok_or_else(|| bad(CMD, "a step wasn't made"))
     };
-        const RIBBON_W: f64 = 16.0;
+    const RIBBON_W: f64 = 16.0;
     if let Some(f) = fold_y {
         // the pocket: its fold on the line, its raw edges at the bottom; tacked on three sides,
         // the backing and the satin edge close them
@@ -472,7 +507,20 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         add_step(BUTTON.1, "The machine marks the spot with a small cross; sew a button over it by hand when the piece is done.");
     }
     // 3: finishing in the hoop
-    if zipper {
+    if case {
+        // sides and bottom, the top left open
+        let (x0, x1, t, b) = (-pw / 2.0, pw / 2.0, -ph / 2.0, ph / 2.0);
+        let seam = line(s, &[(x0, t), (x0, b), (x1, b), (x1, t)])?;
+        step(s, seam, "run", json!({ "stitch_length": 2.0, "passes": 3 }), CASE_BACK)?;
+        add_step(
+            CASE_BACK.1,
+            "Fold the back fabric's top edge ½″ to the wrong side and press. Lay it right side down over the front, the folds together at the top; tape it. The machine sews the sides and the bottom, leaving the top open.",
+        );
+        add_step(
+            "Turn it out",
+            "Take it out of the hoop and tear the stabilizer away. Trim ¼″ outside the stitching, clip the bottom corners, turn the case out through the top and press. Topstitch the top closed by machine or slipstitch it by hand.",
+        );
+    } else if zipper {
         let back = outline(s, c, pw, ph, false)?;
         step(s, back, "run", json!({ "stitch_length": 2.0, "passes": 3 }), POUCH_BACK)?;
         add_step(
@@ -517,21 +565,55 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
             supplies.push(format!("Top and bottom borders: 2 strips {}", size(w + 2.0 * SEAM, topb + 2.0 * SEAM)));
             pieces.push(("Top and bottom border (cut 2)".into(), w + 2.0 * SEAM, topb + 2.0 * SEAM));
         }
-        let back_h = (h * 0.65 + IN).round();
-        supplies.push(format!("Envelope back: 2 pieces {} (hem one long edge of each, overlap them)", size(w + 2.0 * SEAM, back_h)));
-        pieces.push(("Envelope back (cut 2)".into(), w + 2.0 * SEAM, back_h));
         if ribbon {
             supplies.push(format!("Ribbon ⅝″ wide, {} long", inches(pw + 2.0 * IN)));
         }
-        supplies.push(format!("Pillow form {} finished", size(w, h)));
-        add_step(
-            "Sew the front",
-            "Sew the side borders on, then the top and bottom ones, ¼″ seams; press. The front measures the pillow's size plus ¼″ all round.",
-        );
-        add_step(
-            "Sew the cover",
-            "Lay the two hemmed back pieces right side down on the front, overlapping; sew all round with a ¼″ seam, clip the corners, turn out and put the form in.",
-        );
+        if pr.id == BOOK_COVER {
+            // the front, then the spine and back, side by side; a lining as big; a flap folded
+            // in half at each end
+            let (flat_w, cut_h) = (2.0 * w + SPINE + 2.0 * SEAM, h + 2.0 * SEAM);
+            let flap = 3.0 * IN;
+            supplies.push(format!("Back and spine: 1 piece {}", size(w + SPINE + 2.0 * SEAM, cut_h)));
+            supplies.push(format!("Lining: 1 piece {}", size(flat_w, cut_h)));
+            supplies.push(format!("Flaps: 2 pieces {}, folded in half to {}", size(2.0 * flap, cut_h), size(flap, cut_h)));
+            supplies.push(format!("For a book {} with a {} spine; the cover lies flat at {}", size(w, h), inches(SPINE), size(2.0 * w + SPINE, h)));
+            pieces.push(("Back and spine".into(), w + SPINE + 2.0 * SEAM, cut_h));
+            pieces.push(("Lining".into(), flat_w, cut_h));
+            pieces.push(("Flap (cut 2, fold in half)".into(), 2.0 * flap, cut_h));
+            add_step(
+                "Sew the front",
+                "Sew the side borders on, then the top and bottom ones, ¼″ seams; press. The front measures the book's cover plus ¼″ all round.",
+            );
+            add_step("Join the back", "Sew the back and spine piece to the front's left edge, ¼″ seam; press the seam open.");
+            add_step(
+                "Sew the cover",
+                "Fold the flaps in half, wrong sides together, and lay one at each end of the cover, raw edges together. Lay the lining right side down over them; sew all round with a ¼″ seam, leaving 4″ open at the bottom. Clip the corners, turn out, press, and topstitch the opening closed. Slide the book's covers into the flaps.",
+            );
+        } else {
+            let back_h = (h * 0.65 + IN).round();
+            supplies.push(format!("Envelope back: 2 pieces {} (hem one long edge of each, overlap them)", size(w + 2.0 * SEAM, back_h)));
+            pieces.push(("Envelope back (cut 2)".into(), w + 2.0 * SEAM, back_h));
+            supplies.push(format!("Pillow form {} finished", size(w, h)));
+            add_step(
+                "Sew the front",
+                "Sew the side borders on, then the top and bottom ones, ¼″ seams; press. The front measures the pillow's size plus ¼″ all round.",
+            );
+            add_step(
+                "Sew the cover",
+                "Lay the two hemmed back pieces right side down on the front, overlapping; sew all round with a ¼″ seam, clip the corners, turn out and put the form in.",
+            );
+        }
+    } else if case {
+        // a ½″ fold at the top, ½″ round the rest to trim to ¼″
+        let cut = (pw + IN, ph + IN);
+        supplies.push("Tear-away stabilizer, the size of the hoop".into());
+        supplies.push(format!("Front fabric {}; back fabric {}; fusible fleece {} (optional)", size(cut.0, cut.1), size(cut.0, cut.1), size(pw, ph)));
+        supplies.push(format!("Finished size {}", size(pw, ph)));
+        pieces.push(("Front fabric".into(), cut.0, cut.1));
+        pieces.push(("Back fabric".into(), cut.0, cut.1));
+        if !pr.extra.is_empty() {
+            supplies.push(pr.extra.into());
+        }
     } else if zipper {
         let front = (pw + IN, ph / 2.0 - zip_y + IN);
         let strip = (pw + IN, ZIPPER_DOWN + IN / 2.0);
@@ -563,7 +645,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         if ribbon {
             supplies.push("Ribbon ⅜″ wide, 6″ long, for the hanging loop".into());
         }
-                if let Some(share) = pocket {
+        if let Some(share) = pocket {
             let folded = (pw + IN, 2.0 * ph * share + IN / 2.0);
             supplies.push(format!("Pocket fabric {}, folded in half to {}", size(folded.0, folded.1), size(folded.0, folded.1 / 2.0)));
             pieces.push(("Pocket (fold in half)".into(), folded.0, folded.1));
@@ -701,7 +783,35 @@ mod tests {
         assert!(s.execute("embroidery.ith.templates", &json!({"project": "nope"})).is_err());
     }
 
-        /// HV-01: the card holder: its pocket marked and tacked after the design, the design above
+    /// HV-01: the phone case: outline, front, design, then the back sewn on three sides only (its
+    /// top open to turn it out); the book cover: a panel like a pillow front, made up with a back
+    /// and spine, a lining and two flaps.
+    #[test]
+    fn the_phone_case_is_open_at_the_top_and_the_book_cover_has_flaps() {
+        let mut s = Session::new();
+        let r = s.execute("embroidery.ith.make", &json!({"project": "phone-case", "text": "Ana", "shape": "Heart"})).unwrap();
+        let threads: Vec<&str> = r["steps"].as_array().unwrap().iter().filter_map(|x| x["thread"].as_str()).collect();
+        assert_eq!(threads.first(), Some(&CASE_PLACEMENT.1), "{threads:?}");
+        assert!(threads.iter().position(|t| *t == CASE_FRONT.1) < threads.iter().position(|t| *t == "The design"), "{threads:?}");
+        assert_eq!(&threads[threads.len() - 2..], &[CASE_BACK.1, "Turn it out"], "{threads:?}");
+        assert!(!threads.contains(&EDGE.1) && !threads.contains(&BACKING.1), "turned, no satin edge");
+        // the back's seam: three sides, its ends at the top corners
+        let info = s.execute("embroidery.info", &json!({})).unwrap();
+        assert_eq!(info["fits"], true, "{info}");
+        assert_eq!(r["pieces"].as_array().unwrap().len(), 2, "{r}");
+        assert!(s.execute("embroidery.ith.make", &json!({"project": "phone-case", "vinyl": true})).is_err());
+        // the book cover
+        let r = s.execute("embroidery.ith.make", &json!({"project": "book-cover", "text": "Notes", "hoop": "Brother 130 × 180 (5×7)"})).unwrap();
+        let sup = r["supplies"].to_string();
+        assert!(sup.contains("Back and spine") && sup.contains("Lining") && sup.contains("Flaps: 2 pieces") && !sup.contains("Pillow form"), "{sup}");
+        assert!(sup.contains("lies flat at 11¾″ × 8½″"), "{sup}");
+        let names: Vec<&str> = r["steps"].as_array().unwrap().iter().filter_map(|x| x["thread"].as_str()).collect();
+        assert!(names.contains(&TRIM_LINE.1) && names.contains(&"Join the back") && names.last() == Some(&"Sew the cover"), "{names:?}");
+        let info = s.execute("embroidery.info", &json!({})).unwrap();
+        assert!(info["heightMm"].as_f64().unwrap() > info["widthMm"].as_f64().unwrap(), "a portrait panel: {info}");
+    }
+
+    /// HV-01: the card holder: its pocket marked and tacked after the design, the design above
     /// the fold (not sewn through the pocket), the pocket in the supplies; the pencil case is a
     /// longer zipper pouch, in a 6×10-class hoop.
     #[test]
@@ -777,7 +887,10 @@ mod tests {
             let info = s.execute("embroidery.info", &json!({})).unwrap();
             assert_eq!(info["fits"], true, "{}: {info}", pr.id);
             let threads: Vec<String> = info["colors"].as_array().unwrap().iter().map(|c| c["name"].as_str().unwrap_or("").to_string()).collect();
-                        if ZIPPERED.contains(&pr.id) {
+            if pr.id == PHONE_CASE {
+                assert_eq!(threads.first().map(String::as_str), Some(CASE_PLACEMENT.1), "{}: {threads:?}", pr.id);
+                assert_eq!(threads.last().map(String::as_str), Some(CASE_BACK.1), "{}: {threads:?}", pr.id);
+            } else if ZIPPERED.contains(&pr.id) {
                 assert_eq!(threads.first().map(String::as_str), Some(POUCH_PLACEMENT.1), "{}: {threads:?}", pr.id);
                 assert_eq!(threads.last().map(String::as_str), Some(POUCH_BACK.1), "{}: {threads:?}", pr.id);
             } else if pr.panel {

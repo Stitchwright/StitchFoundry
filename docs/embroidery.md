@@ -791,6 +791,13 @@ way round:
   it), a line marks where the pocket's fold goes; the pocket fabric, folded in half, is laid with
   its fold on the line and tacked along its sides and bottom; the backing and the satin edge close
   them, and the fold stays open for cards.
+- **Phone case, 3½ × 6½″** (from a 5×7 hoop): sewn inside out and turned. The outline; the front
+  fabric, its top folded under ½″, laid on it and tacked; the design; then the back fabric, its top
+  folded under too, laid face down and sewn along the sides and bottom only. Trim, turn it out
+  through the open top and topstitch the top. No ribbon or vinyl.
+- **Book cover, for a 5½ × 8½″ book**: the hoop sews the front panel like a pillow front (a trim
+  line, the design, a frame); borders bring it to the cover's size, a back and spine piece is
+  joined to it, and a lining and two folded flaps make it up. The sizes are for a book ¾″ thick.
 
 Each step is its own thread, named for what to do ("Placement: lay batting, then top fabric over
 the line", "Backing: tape the backing fabric under the hoop", "Edge: satin all round"), so the
