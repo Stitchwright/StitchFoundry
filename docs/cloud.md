@@ -26,6 +26,11 @@ SiteSentrix earns in three ways, all through the owner's one Stripe account:
 | MakerFoundry buyers | designs that makers sell | MakerFoundry's own Stripe Connect code; MakerFoundry keeps 10% (plus the card fee), the rest goes to the maker |
 | StitchBench and StitchShop shops | the hosted option, $25 a month or $250 a year a shop | StitchHub's Stripe subscription (off while `PROGRAM_FREE` is on) |
 
+Not through SiteSentrix at all: a shop's own customers pay at the shop's own point of sale
+(StitchBench and StitchShop leave that to the shop), and parts one shop buys from another are paid
+between the two shops directly (PayPal, Zelle, a check). StitchHub only keeps the order, the
+shipping and its tracking number, and the messages between the shops.
+
 One Foundry Account signs in to all of them and holds one credit balance. Only the credit packs
 pass through this service; sales and subscriptions are the other services' own.
 
