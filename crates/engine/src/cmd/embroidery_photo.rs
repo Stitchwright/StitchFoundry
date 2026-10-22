@@ -677,7 +677,15 @@ fn coral(pic: &Picture, density: f64, invert: bool, contrast: f64) -> Result<Vec
 ///
 /// With `tones` (a ramp from light to dark) the photo is sewn by lightness alone: each cell takes
 /// the ramp's colour at its lightness, and the palette is `n` steps along the ramp.
-fn colour_fills(s: &Session, pic: &Picture, n: usize, cell: f64, chart: &ThreadChart, background: bool, tones: Option<[Rgb; 2]>) -> Result<Vec<vectorcraft_doc::Node>> {
+fn colour_fills(
+    s: &Session,
+    pic: &Picture,
+    n: usize,
+    cell: f64,
+    chart: &ThreadChart,
+    background: bool,
+    tones: Option<[Rgb; 2]>,
+) -> Result<Vec<vectorcraft_doc::Node>> {
     use kurbo::Shape;
     let b = pic.bounds();
     let mm = PT_PER_MM;
@@ -813,7 +821,13 @@ fn tile_shape(shape: &str, at: kurbo::Point, size: f64, gap: f64) -> Vec<kurbo::
         _ => (4, 45.0),
     };
     // a square's corners sit r·√2 out, so that it is `size` across
-    let reach = if shape == "square" { r * std::f64::consts::SQRT_2 } else if shape == "hexagon" { r / (30f64.to_radians().cos()) } else { r };
+    let reach = if shape == "square" {
+        r * std::f64::consts::SQRT_2
+    } else if shape == "hexagon" {
+        r / (30f64.to_radians().cos())
+    } else {
+        r
+    };
     (0..corners)
         .map(|k| {
             let a = (turn + 360.0 * f64::from(k) / f64::from(corners)).to_radians();
@@ -825,7 +839,16 @@ fn tile_shape(shape: &str, at: kurbo::Point, size: f64, gap: f64) -> Vec<kurbo::
 /// Colour tile: the photo as small tiles (squares, diamonds or hexagons `size` mm across), each
 /// one of the photo's `n` main colours matched to the chart, every colour's tiles one short-stitch
 /// fill, the lightest first.
-fn colour_tiles(s: &Session, pic: &Picture, n: usize, shape: &str, size: f64, gap: f64, chart: &ThreadChart, background: bool) -> Result<(Vec<vectorcraft_doc::Node>, usize)> {
+fn colour_tiles(
+    s: &Session,
+    pic: &Picture,
+    n: usize,
+    shape: &str,
+    size: f64,
+    gap: f64,
+    chart: &ThreadChart,
+    background: bool,
+) -> Result<(Vec<vectorcraft_doc::Node>, usize)> {
     const CMD: &str = "embroidery.photoStitch";
     let b = pic.bounds();
     let mm = PT_PER_MM;
@@ -879,10 +902,8 @@ fn colour_tiles(s: &Session, pic: &Picture, n: usize, shape: &str, size: f64, ga
         }
     }
     let colours: Vec<Rgb> = tiles.iter().map(|t| t.1).collect();
-    let palette: Vec<Rgb> = main_colors(&colours, n)
-        .into_iter()
-        .map(|(c, _)| chart.threads.get(chart.nearest(c)).map_or(c, |t| t.color))
-        .fold(Vec::new(), |mut v, c| {
+    let palette: Vec<Rgb> =
+        main_colors(&colours, n).into_iter().map(|(c, _)| chart.threads.get(chart.nearest(c)).map_or(c, |t| t.color)).fold(Vec::new(), |mut v, c| {
             if !v.contains(&c) {
                 v.push(c);
             }
@@ -938,7 +959,8 @@ fn colour_tiles(s: &Session, pic: &Picture, n: usize, shape: &str, size: f64, ga
         }
         let Some(color) = palette.get(*i).copied() else { continue };
         let paint = Paint::solid(Color::rgb8(color.r, color.g, color.b));
-        let mut node = vectorcraft_doc::Node::path(NodeId(0), vectorcraft_geom::PathData::from_bezpath(&bp), Appearance::basic(paint, Paint::None, 0.0));
+        let mut node =
+            vectorcraft_doc::Node::path(NodeId(0), vectorcraft_geom::PathData::from_bezpath(&bp), Appearance::basic(paint, Paint::None, 0.0));
         let mut fill = match new.first().map(|n| &n.stitch) {
             Some(StitchType::Fill(f)) => f.clone(),
             _ => FillParams::default(),

@@ -420,7 +420,12 @@ fn a_photo_is_stitched_in_sepia_greys_or_colour_tiles() {
         assert!(s.embroidery_plan().unwrap().pattern().stitches.len() > 100);
     }
     s.execute("select.set", &json!({"ids": [img]})).unwrap();
-    for bad in [json!({"mode": "tile", "shape": "star"}), json!({"mode": "tile", "size": 0.5}), json!({"mode": "sepia", "colors": 1}), json!({"mode": "tile", "gap": 3})] {
+    for bad in [
+        json!({"mode": "tile", "shape": "star"}),
+        json!({"mode": "tile", "size": 0.5}),
+        json!({"mode": "sepia", "colors": 1}),
+        json!({"mode": "tile", "gap": 3}),
+    ] {
         assert!(s.execute("embroidery.photoStitch", &bad).is_err(), "{bad}");
     }
 }
