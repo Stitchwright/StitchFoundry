@@ -143,6 +143,7 @@ target/release/stitchfoundry-cloud
 | `SF_CLOUD_FREE_BUDGET_CENTS` | the most the free offers may cost in AI a month (2500: $25; see Prices) |
 | `SF_CLOUD_MAIL_FROM` | who password-reset emails come from (`StitchFoundry <accounts@stitchfoundry.app>`), through Resend (`RESEND_API_KEY`); without the key there's no reset by email |
 | `RESEND_API_KEY`, `SF_CLOUD_REPORTS_TO`, `SF_CLOUD_REPORTS_FROM` | sew-out reports emailed through Resend to this address (e.g. `support@stitchfoundry.app`), from an address on a domain Resend has verified (`StitchFoundry <reports@stitchfoundry.app>`); without them reports are only kept |
+| `SF_CLOUD_END_SESSIONS_BEFORE` | sessions made before this UTC time (`2026-10-22T09:00:00Z`, a date, or Unix seconds) end when the service starts: everyone signs in again (see After a breach) |
 
 It speaks plain HTTP: put it behind a TLS proxy (Caddy, nginx, or the host's load balancer, as
 Railway's is) so the app reaches it over HTTPS. One small machine is enough to start: it keeps
@@ -152,6 +153,26 @@ added or spent) and `sf_shared_files` and `sf_shared_rounds` (shared checks).
 
 To try the database code against a database of your own: `SF_CLOUD_TEST_DATABASE_URL=postgres://…
 cargo test -p stitchfoundry-cloud` (it empties StitchFoundry's tables there).
+
+## After a breach
+
+If the host, a key or the database may have been exposed, give every secret a new value and sign
+everyone out. For each key: make a new one, put it in the Railway variable, let the service
+redeploy, then revoke the old one, so the service never stops.
+
+1. `ANTHROPIC_API_KEY`: a new key in the Anthropic Console, the old one deleted (and the usage
+   page checked for spending you don't know). The repository secret of the same name, which the
+   AI test jobs use, if it was the same key.
+2. `STRIPE_SECRET_KEY`: rolled in Stripe (Developers › API keys); `STRIPE_WEBHOOK_SECRET`: the
+   endpoint's signing secret rolled (Developers › Webhooks).
+3. `RESEND_API_KEY`: a new key in Resend, the old one deleted.
+4. `DATABASE_URL`: the database's credentials regenerated in Railway.
+5. `SF_CLOUD_END_SESSIONS_BEFORE` set to the time of the change (UTC): every session made before
+   it ends when the service restarts, so a session token copied from the database stops working
+   and everyone signs in again (passwords are kept only as hashes). Later restarts end nothing
+   more; remove the variable when you like.
+6. Railway itself: a new password, two-factor sign-in, its API tokens revoked, the project's
+   members and deploys checked.
 
 ## What the owner needs
 

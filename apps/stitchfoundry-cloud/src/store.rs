@@ -479,6 +479,17 @@ impl Store {
         self.state.resets.get(token_hash).filter(|r| r.expires > now).map(|r| r.account)
     }
 
+    /// Ends every session made before `t` (Unix seconds) → how many ended.
+    pub fn end_sessions_before(&mut self, t: u64) -> Result<usize, StoreError> {
+        let before = self.state.sessions.len();
+        self.state.sessions.retain(|_, s| s.created >= t);
+        let ended = before - self.state.sessions.len();
+        if ended > 0 {
+            self.save()?;
+        }
+        Ok(ended)
+    }
+
     /// Uses a reset link: the account gets `password_hash` as its password and every session it
     /// had ends (whoever knew the old password is signed out). `Ok(None)` when the link has
     /// expired or was used.
@@ -575,6 +586,18 @@ mod tests {
         s.reserve(id, 50).unwrap();
         assert_eq!(s.settle(id, 50, 0, "ask", 2).unwrap(), 88);
         assert_eq!(s.recent(id).iter().filter(|e| e.kind == "ai").count(), 1);
+    }
+
+    /// After a breach: sessions made before the time end, later ones go on.
+    #[test]
+    fn sessions_made_before_a_time_end() {
+        let mut s = Store::in_memory();
+        let id = s.create("a@b.c", "pw".into(), 0, 0).unwrap();
+        s.add_session("old".into(), id, 1000).unwrap();
+        s.add_session("new".into(), id, 5000).unwrap();
+        assert_eq!(s.end_sessions_before(3000).unwrap(), 1);
+        assert_eq!((s.session("old", 6000), s.session("new", 6000)), (None, Some(id)));
+        assert_eq!(s.end_sessions_before(3000).unwrap(), 0, "a restart ends nothing more");
     }
 
     #[test]

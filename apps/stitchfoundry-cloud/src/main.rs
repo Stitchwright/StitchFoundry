@@ -23,6 +23,12 @@ fn run() -> Result<(), String> {
         Some(url) => Store::open_db(url).map_err(|e| e.to_string())?,
         None => Store::open(&cfg.data_dir).map_err(|e| e.to_string())?,
     };
+    // after a breach: everyone signs in again (`SF_CLOUD_END_SESSIONS_BEFORE`)
+    let mut store = store;
+    if let Some(t) = cfg.end_sessions_before {
+        let n = store.end_sessions_before(t).map_err(|e| e.to_string())?;
+        eprintln!("stitchfoundry-cloud: ended {n} sessions made before SF_CLOUD_END_SESSIONS_BEFORE");
+    }
     let addr = cfg.addr.clone();
     eprintln!(
         "stitchfoundry-cloud: listening on {addr}; data in {}; AI {}, payments {}",

@@ -70,6 +70,42 @@ pub struct Config {
     /// Who account emails (password resets) come from (`SF_CLOUD_MAIL_FROM`, an address on a
     /// domain Resend has verified), through Resend; without `RESEND_API_KEY` there are none.
     pub mail_from: String,
+    /// Sessions made before this time (Unix seconds) end when the service starts
+    /// (`SF_CLOUD_END_SESSIONS_BEFORE`: `2026-10-22T09:00:00Z`, a date, or Unix seconds): set it
+    /// with new keys after a breach, and everyone signs in again. Later restarts end nothing more.
+    pub end_sessions_before: Option<u64>,
+}
+
+/// `text` as Unix seconds: digits, or a UTC date `YYYY-MM-DD` with an optional `THH:MM[:SS]` and
+/// `Z`.
+pub fn parse_time(text: &str) -> Option<u64> {
+    let t = text.trim();
+    if !t.is_empty() && t.bytes().all(|b| b.is_ascii_digit()) {
+        return t.parse().ok();
+    }
+    let t = t.strip_suffix('Z').unwrap_or(t);
+    let (date, time) = t.split_once('T').unwrap_or((t, "00:00:00"));
+    let d: Vec<i64> = date.split('-').map(|p| p.parse().ok()).collect::<Option<_>>()?;
+    let h: Vec<i64> = time.split(':').map(|p| p.parse().ok()).collect::<Option<_>>()?;
+    let ([y, m, day], [hh, mm, rest @ ..]) = (d.as_slice(), h.as_slice()) else { return None };
+    let ss = rest.first().copied().unwrap_or(0);
+    if !((1970..=9999).contains(y)
+        && (1..=12).contains(m)
+        && (1..=31).contains(day)
+        && (0..24).contains(hh)
+        && (0..60).contains(mm)
+        && (0..61).contains(&ss))
+    {
+        return None;
+    }
+    // days from 1970-01-01 to the date (Howard Hinnant's days_from_civil)
+    let (y, m) = if *m <= 2 { (y - 1, m + 9) } else { (*y, m - 3) };
+    let era = y.div_euclid(400);
+    let yoe = y - era * 400;
+    let doy = (153 * m + 2) / 5 + day - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    let days = era * 146_097 + doe - 719_468;
+    u64::try_from(days * 86_400 + hh * 3600 + mm * 60 + ss).ok()
 }
 
 /// The default packs, as the owner priced them (2026-10-18): $10, $25 and $50.
@@ -117,6 +153,10 @@ impl Config {
             reports_to: nonempty("SF_CLOUD_REPORTS_TO"),
             reports_from: nonempty("SF_CLOUD_REPORTS_FROM").unwrap_or_else(|| "StitchFoundry <reports@stitchfoundry.app>".into()),
             mail_from: nonempty("SF_CLOUD_MAIL_FROM").unwrap_or_else(|| "StitchFoundry <accounts@stitchfoundry.app>".into()),
+            end_sessions_before: match nonempty("SF_CLOUD_END_SESSIONS_BEFORE") {
+                None => None,
+                Some(v) => Some(parse_time(&v).ok_or("SF_CLOUD_END_SESSIONS_BEFORE is a UTC time like 2026-10-22T09:00:00Z")?),
+            },
         })
     }
 
@@ -162,6 +202,20 @@ pub fn parse_packs(s: &str) -> Result<Vec<Pack>, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn times_to_end_sessions_before_are_read() {
+        assert_eq!(parse_time("2026-10-22T09:00:00Z"), Some(1_792_659_600));
+        assert_eq!(parse_time("2026-10-22"), Some(1_792_627_200));
+        assert_eq!(parse_time("1970-01-01T00:00Z"), Some(0));
+        assert_eq!(parse_time(" 1792659600 "), Some(1_792_659_600));
+        for bad in ["", "yesterday", "2026-13-01", "2026-10-22T25:00", "10/22/2026"] {
+            assert_eq!(parse_time(bad), None, "{bad}");
+        }
+        let env = |k: &str| (k == "SF_CLOUD_END_SESSIONS_BEFORE").then(|| "2026-10-22".to_string());
+        assert_eq!(Config::from_env(env).unwrap().end_sessions_before, Some(1_792_627_200));
+        assert!(Config::from_env(|k| (k == "SF_CLOUD_END_SESSIONS_BEFORE").then(|| "soon".to_string())).is_err());
+    }
 
     #[test]
     fn settings_come_from_the_environment_with_defaults() {
