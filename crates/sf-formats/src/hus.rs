@@ -382,7 +382,7 @@ mod tests {
         for (v, n) in [(5u32, 16usize), (0, 5), (0, 5), (0, 9), (65, 9), (0, 5), (0, 5)] {
             bits += &format!("{v:0n$b}");
         }
-        while bits.len() % 8 != 0 {
+        while !bits.len().is_multiple_of(8) {
             bits.push('0');
         }
         let bytes: Vec<u8> = bits.as_bytes().chunks(8).map(|c| u8::from_str_radix(std::str::from_utf8(c).unwrap(), 2).unwrap()).collect();
@@ -396,7 +396,7 @@ mod tests {
         for (v, n) in [(5u32, 16usize), (0, 5), (0, 5), (0, 9), (256, 9), (0, 5), (0, 5)] {
             bits += &format!("{v:0n$b}");
         }
-        while bits.len() % 8 != 0 {
+        while !bits.len().is_multiple_of(8) {
             bits.push('0');
         }
         let bytes: Vec<u8> = bits.as_bytes().chunks(8).map(|c| u8::from_str_radix(std::str::from_utf8(c).unwrap(), 2).unwrap()).collect();
