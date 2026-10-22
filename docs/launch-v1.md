@@ -10,7 +10,7 @@ judged only from their public pages (never by running their software). The ranke
 
 | Launch item | State | What's missing |
 |---|---|---|
-| Lettering and monograms | Mostly done | TrueType/OpenType fonts sew as satin; monograms, words on arcs and circles, per-letter editing and kerning. Missing: **built-in embroidery fonts** (FONT-01). |
+| Lettering and monograms | Mostly done | TrueType/OpenType fonts sew as satin; monograms, words on arcs and circles, per-letter editing and kerning. Built-in embroidery fonts (FONT-01) done 2026-10-22: the Foundry fonts are bundled from Stitchwright/stitchfoundry-fonts. |
 | File formats | Mostly done | Reads and writes PES, DST, JEF, EXP, VP3, XXX, PEC, U01, PCS, TAP, DSB; reads DSZ. Missing: **HUS** (MF-04), VIP, SEW, ART. |
 | Stitch simulator | Done | 3D thread view, playback with speed, fabric colour, garment previews. |
 | Thread charts | Partial | Generic, Brother, Janome; nearest-colour matching; CSV import. Missing: **Isacord, Madeira, Robison-Anton, Sulky** (waiting on the makers' permission). |
@@ -21,7 +21,7 @@ judged only from their public pages (never by running their software). The ranke
 | Batch personalization | Done | Team Names from CSV, layouts, worksheets, patches. |
 | Job estimator | Done | Stitch count, time, thread and bobbin, quotes, job orders, worksheets. Barcodes still to be checked with a real scanner. |
 | Free web viewer | Done (VIEW-01) | A link with `?view` opens the design read-only: its size, stitches, threads and sewing time, with **Get StitchFoundry Free** and **Edit It Here**. |
-| Send to StitchShop | Missing | Waits for StitchShop. |
+| Send to StitchShop | Planned (SHOP-01) | StitchHub's inbox is built; StitchFoundry's side is planned in [`stitchshop.md`](stitchshop.md): File › Send to StitchShop… and from a job order, with the design's numbers and a preview. |
 | Shared library | Partial | Local library; Publish to MakerFoundry. Sharing comes later, with StitchHub. |
 
 From mySewnet, apart from in-the-hoop: split and multi-hoop, QuickFont, photo stitch, Encore's
@@ -43,13 +43,13 @@ Family Tree wizard and more photo stitch styles (sepia, black and white, colour 
 
 ## The v1 order
 
-1. Built-in fonts (FONT-01).
-2. HUS, experimental (MF-04).
-3. More in-the-hoop items (HV-01).
-4. The web viewer and its call to action.
-5. Thread charts, as permission comes.
+1. Send to StitchShop (SHOP-01, [`stitchshop.md`](stitchshop.md)).
+2. The rest of in-the-hoop (HV-01): photo stitch styles (sepia, black and white, colour tile),
+   Family Tree and the passport holder.
+3. The web viewer's call to action.
+4. Thread charts, as permission comes.
 
-Done since the list was drawn up: the one-step photo to embroidery (PH-01), Effort and the AI's
+Done since the list was drawn up: built-in fonts (FONT-01), the one-step photo to embroidery (PH-01), Effort and the AI's
 cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case and book cover, Repeat Design, Spiro, Endless Border and Quilt Background (HV-01), the web viewer
 (VIEW-01), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
 
