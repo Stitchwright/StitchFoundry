@@ -773,6 +773,10 @@ way round:
 - **Mug rug**, **coaster** and **round ornament**: finished in the hoop. A placement line; batting
   and top fabric tacked down; the design; the backing taped under the hoop and tacked on, with a
   stop to trim the layers; a satin edge all round.
+- **Key fob, 1¼ × 5″**, **luggage tag, 2¾ × 4½″** and **bookmark, 2 × 6½″**: finished in the hoop
+  the same way. The key fob and the tag come with their ribbon loop (for a split key ring, or round
+  a bag's handle; `ribbon: false` leaves it out). On the narrow ones, the fob and the bookmark, the
+  design is sized by the strip's width and the words turn to run along it, reading upwards.
 
 Each step is its own thread, named for what to do ("Placement: lay batting, then top fabric over
 the line", "Backing: tape the backing fabric under the hoop", "Edge: satin all round"), so the

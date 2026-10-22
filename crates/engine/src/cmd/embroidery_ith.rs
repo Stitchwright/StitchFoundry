@@ -2,8 +2,8 @@
 //! own thread named for what to do, so the machine stops and says it. Pillow fronts for the little
 //! seasonal bench pillows (an 8″ square or 5½ × 9½″ form, the embroidered panel from a 5×7 hoop
 //! with borders sewn on after), and pieces finished in the hoop: a mug rug, a coaster, an
-//! ornament (placement, batting and top fabric tacked down, the design, the backing, a satin
-//! edge). The supplies with their cut sizes and the steps are kept as the design's notes, so its
+//! ornament, a key fob, a luggage tag and a bookmark (placement, batting and top fabric tacked
+//! down, the design, the backing, a satin edge; the key fob and the tag with a loop). The supplies with their cut sizes and the steps are kept as the design's notes, so its
 //! worksheet is the step sheet. Original work: shapes, sizes and wording are our own.
 
 use serde_json::{Value, json};
@@ -26,14 +26,61 @@ struct Project {
     finished: (f64, f64),
     round: bool,
     panel: bool,
+    /// The loop at the top unless asked otherwise (the key fob's and the tag's).
+    looped: bool,
+    /// What else it needs, for the supplies.
+    extra: &'static str,
 }
 
 const PROJECTS: &[Project] = &[
-    Project { id: "pillow-square", name: "Little pillow front, 8″ square", finished: (8.0 * IN, 8.0 * IN), round: false, panel: true },
-    Project { id: "pillow-wide", name: "Little pillow front, 9½ × 5½″", finished: (9.5 * IN, 5.5 * IN), round: false, panel: true },
-    Project { id: "mug-rug", name: "Mug rug, 6½ × 4½″", finished: (6.5 * IN, 4.5 * IN), round: false, panel: false },
-    Project { id: "coaster", name: "Coaster, 3¾″ square", finished: (3.75 * IN, 3.75 * IN), round: false, panel: false },
-    Project { id: "ornament", name: "Round ornament, 3½″", finished: (3.5 * IN, 3.5 * IN), round: true, panel: false },
+    Project {
+        id: "pillow-square",
+        name: "Little pillow front, 8″ square",
+        finished: (8.0 * IN, 8.0 * IN),
+        round: false,
+        panel: true,
+        looped: false,
+        extra: "",
+    },
+    Project {
+        id: "pillow-wide",
+        name: "Little pillow front, 9½ × 5½″",
+        finished: (9.5 * IN, 5.5 * IN),
+        round: false,
+        panel: true,
+        looped: false,
+        extra: "",
+    },
+    Project { id: "mug-rug", name: "Mug rug, 6½ × 4½″", finished: (6.5 * IN, 4.5 * IN), round: false, panel: false, looped: false, extra: "" },
+    Project { id: "coaster", name: "Coaster, 3¾″ square", finished: (3.75 * IN, 3.75 * IN), round: false, panel: false, looped: false, extra: "" },
+    Project { id: "ornament", name: "Round ornament, 3½″", finished: (3.5 * IN, 3.5 * IN), round: true, panel: false, looped: false, extra: "" },
+    Project {
+        id: "key-fob",
+        name: "Key fob, 1¼ × 5″",
+        finished: (1.25 * IN, 5.0 * IN),
+        round: false,
+        panel: false,
+        looped: true,
+        extra: "A 1″ split key ring: thread it onto the ribbon before laying the loop, so it sits in the fold",
+    },
+    Project {
+        id: "luggage-tag",
+        name: "Luggage tag, 2¾ × 4½″",
+        finished: (2.75 * IN, 4.5 * IN),
+        round: false,
+        panel: false,
+        looped: true,
+        extra: "Write your name and phone number on the back, or stitch them as the words; the loop goes round the bag's handle",
+    },
+    Project {
+        id: "bookmark",
+        name: "Bookmark, 2 × 6½″",
+        finished: (2.0 * IN, 6.5 * IN),
+        round: false,
+        panel: false,
+        looped: false,
+        extra: "Thin batting (or none) keeps it flat enough to close the book on",
+    },
 ];
 
 /// Threads for the steps that aren't the design: a colour each, named for what to do.
@@ -63,7 +110,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Make In-the-Hoop Project",
             [],
             None,
-            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], notes}",
+            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament|key-fob|luggage-tag|bookmark, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop, on by default for the key fob and the luggage tag; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], notes}",
             always,
             make
         ),
@@ -164,9 +211,9 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     let shape = str_param(p, "shape").map(str::to_string);
     let color = str_param(p, "color").unwrap_or("#8a2432").to_string();
     sf_core::Rgb::from_hex(&color).ok_or_else(|| bad(CMD, "`color` is \"#rrggbb\""))?;
-    let (ribbon, vinyl, button) = (bool_or(p, "ribbon", false), bool_or(p, "vinyl", false), bool_or(p, "button", false));
+    let (ribbon, vinyl, button) = (bool_or(p, "ribbon", pr.looped), bool_or(p, "vinyl", false), bool_or(p, "button", false));
     if vinyl && pr.panel {
-        return Err(bad(CMD, "vinyl is for the pieces finished in the hoop (mug rug, coaster, ornament)"));
+        return Err(bad(CMD, "vinyl is for the pieces finished in the hoop, not the pillow fronts"));
     }
     // a panel needs a 5×7-class hoop; a finished piece its own size
     let need = if pr.panel { (118.0 + 2.0 * MARGIN, 160.0 + 2.0 * MARGIN) } else { (pr.finished.0 + 2.0 * MARGIN, pr.finished.1 + 2.0 * MARGIN) };
@@ -210,25 +257,50 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
             "Hoop cut-away stabilizer and sew the line. Lay the batting, then the top fabric right side up over it; the machine tacks them down.",
         );
     }
-    // 2: the design in the middle (above the words when both)
+    // 2: the design in the middle (above the words when both). A narrow piece (a key fob, a
+    // bookmark) is sized by its width, its words turned to run along it.
+    let narrow = pw < ph * 0.5;
     let inner = (pw.min(ph) - 24.0).max(10.0);
     let both = text.is_some() && shape.is_some();
     if let Some(name) = &shape {
-        let size = if both { inner * 0.5 } else { inner * 0.7 };
+        let size = match (narrow, both) {
+            (true, _) => (pw - 14.0).max(8.0),
+            (false, true) => inner * 0.5,
+            (false, false) => inner * 0.7,
+        };
         let r = s.execute("embroidery.addShape", &json!({ "name": name, "size": size }))?;
         if both && let Some(sid) = r["id"].as_u64() {
-            on(s, sid, "object.move", json!({ "dx": 0.0, "dy": -inner * 0.18 * PT_PER_MM }))?;
+            let dy = if narrow { -(ph * 0.25) } else { -inner * 0.18 };
+            on(s, sid, "object.move", json!({ "dx": 0.0, "dy": dy * PT_PER_MM }))?;
         }
         add_step("The design", "Sew the shape in its colours.");
     }
     if let Some(t) = &text {
         let height = match p.get("height").and_then(Value::as_f64) {
             Some(h) => h.clamp(5.0, 80.0),
+            None if narrow => ((pw - 14.0) * 0.55).clamp(6.0, 40.0),
             None => (inner * if both { 0.18 } else { 0.28 }).clamp(6.0, 40.0),
         };
         let r = s.execute("embroidery.addWords", &json!({ "text": t, "height": height, "color": color }))?;
-        if both && let Some(wid) = r["id"].as_u64() {
-            on(s, wid, "object.move", json!({ "dx": 0.0, "dy": inner * 0.3 * PT_PER_MM }))?;
+        if let Some(wid) = r["id"].as_u64() {
+            if narrow {
+                // reading upwards, the way a strip is held; kept within the piece's length
+                on(s, wid, "object.rotate", json!({ "angle": 90.0 }))?;
+                let room = ph * if both { 0.45 } else { 0.7 };
+                let long = {
+                    let d = &s.doc()?.doc;
+                    d.node(NodeId(wid)).and_then(|n| n.geometric_bounds()).map_or(0.0, |b| b.height() / PT_PER_MM)
+                };
+                if long > room && long > 0.0 {
+                    let k = room / long * 100.0;
+                    on(s, wid, "object.scale", json!({ "sx": k, "sy": k }))?;
+                }
+                if both {
+                    on(s, wid, "object.move", json!({ "dx": 0.0, "dy": ph * 0.15 * PT_PER_MM }))?;
+                }
+            } else if both {
+                on(s, wid, "object.move", json!({ "dx": 0.0, "dy": inner * 0.3 * PT_PER_MM }))?;
+            }
         }
         add_step("The words", "Sew the words.");
     }
@@ -342,6 +414,9 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         }
         if ribbon {
             supplies.push("Ribbon ⅜″ wide, 6″ long, for the hanging loop".into());
+        }
+        if !pr.extra.is_empty() {
+            supplies.push(pr.extra.into());
         }
     }
     let notes: String = std::iter::once(pr.name.to_string())
@@ -505,6 +580,16 @@ mod tests {
         let sup = r["supplies"].as_array().unwrap().iter().map(|x| x.as_str().unwrap().to_string()).collect::<Vec<_>>().join("\n");
         assert!(sup.contains("Side borders: 2 strips") && sup.contains("Envelope back"), "{sup}");
         assert!(sup.contains("Pillow form 8″ × 8″"), "{sup}");
+        // the key fob and the tag come with their loop, the bookmark without unless asked
+        for (id, looped) in [("key-fob", true), ("luggage-tag", true), ("bookmark", false)] {
+            let r = s.execute("embroidery.ith.make", &json!({"project": id, "text": "Al"})).unwrap();
+            let has_loop = r["steps"].as_array().unwrap().iter().any(|st| st["thread"] == RIBBON_MARK.1);
+            assert_eq!(has_loop, looped, "{id}: {r}");
+        }
+        let r = s.execute("embroidery.ith.make", &json!({"project": "key-fob", "ribbon": false})).unwrap();
+        assert!(!r["steps"].as_array().unwrap().iter().any(|st| st["thread"] == RIBBON_MARK.1));
+        let sup = s.execute("embroidery.ith.make", &json!({"project": "key-fob"})).unwrap()["supplies"].to_string();
+        assert!(sup.contains("key ring"), "{sup}");
         // the wide front turns the hoop landscape
         s.execute("embroidery.ith.make", &json!({"project": "pillow-wide", "hoop": "Brother 130 × 180 (5×7)", "text": "Hello fall"})).unwrap();
         let info = s.execute("embroidery.info", &json!({})).unwrap();
