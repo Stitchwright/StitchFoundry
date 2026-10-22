@@ -16,6 +16,19 @@ service, which pays Anthropic with its own key and takes credits for what each r
 open source like the app (`apps/stitchfoundry-cloud`, MIT OR Apache-2.0), and whoever runs it sets
 its keys and prices; nothing secret is in the repository.
 
+## Who pays for what (owner, 2026-10-22)
+
+SiteSentrix earns in three ways, all through the owner's one Stripe account:
+
+| Who | Pays for | Through |
+|---|---|---|
+| StitchFoundry, LaserFoundry, PatternFoundry and ScreenFoundry users | AI, in Foundry credits | this service: credit packs on Stripe Checkout, `/v1/messages` |
+| MakerFoundry buyers | designs that makers sell | MakerFoundry's own Stripe Connect code; MakerFoundry keeps 10% (plus the card fee), the rest goes to the maker |
+| StitchBench and StitchShop shops | the hosted option, $25 a month a shop | StitchHub's Stripe subscription (off while `PROGRAM_FREE` is on) |
+
+One Foundry Account signs in to all of them and holds one credit balance. Only the credit packs
+pass through this service; sales and subscriptions are the other services' own.
+
 ## What it does
 
 - **Accounts:** sign up and sign in with an email and a password (in the app: **Embroidery ›
