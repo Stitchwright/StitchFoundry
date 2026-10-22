@@ -709,9 +709,14 @@ fn colour_fills(s: &Session, pic: &Picture, n: usize, cell: f64, chart: &ThreadC
         Some(ramp) => (0..n).map(|i| along(ramp, i as f64 / (n - 1).max(1) as f64)).collect(),
         None => main_colors(&sample(&grid, 40_000), n).into_iter().map(|(c, _)| c).collect(),
     };
+    // a tone keeps its own colour unless the chart has a thread that really is that tone (a
+    // blue-grey is no grey): within 6 in Lab
     let palette: Vec<Rgb> = found
         .into_iter()
-        .map(|c| chart.threads.get(chart.nearest(c)).map_or(c, |t| t.color))
+        .map(|c| match chart.threads.get(chart.nearest(c)) {
+            Some(t) if tones.is_none() || lab_distance(t.color, c) <= 6.0 => t.color,
+            _ => c,
+        })
         .fold(Vec::new(), |mut v, c| {
             if !v.contains(&c) {
                 v.push(c);
@@ -776,6 +781,12 @@ fn colour_fills(s: &Session, pic: &Picture, n: usize, cell: f64, chart: &ThreadC
         out.push(node);
     }
     Ok(out)
+}
+
+/// How far apart two colours are in Lab.
+fn lab_distance(a: Rgb, b: Rgb) -> f64 {
+    let (a, b) = (a.to_lab(), b.to_lab());
+    ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt()
 }
 
 /// The colour `t` of the way (0–1) from a ramp's light end to its dark end.
