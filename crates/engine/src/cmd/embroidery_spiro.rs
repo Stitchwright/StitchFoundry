@@ -147,7 +147,14 @@ mod tests {
         assert!((reach - 100.0).abs() < 1e-6);
         // the outermost points: one a petal
         let far: Vec<f64> = pts.iter().map(|(x, y)| x.hypot(*y)).collect();
-        let peaks = far.windows(3).filter(|w| w[1] > w[0] && w[1] >= w[2] && w[1] > 99.0).count();
+        // round the closed curve (its last point is its first)
+        let n = far.len() - 1;
+        let peaks = (0..n)
+            .filter(|&i| {
+                let (a, b, c) = (far[(i + n - 1) % n], far[i], far[(i + 1) % n]);
+                b > a && b >= c && b > 99.0
+            })
+            .count();
         assert_eq!(peaks, 7, "seven petals");
         assert_eq!(gcd(12, 8), 4);
     }

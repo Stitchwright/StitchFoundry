@@ -24,10 +24,10 @@ judged only from their public pages (never by running their software). The ranke
 | Send to StitchShop | Missing | Waits for StitchShop. |
 | Shared library | Partial | Local library; Publish to MakerFoundry. Sharing comes later, with StitchHub. |
 
-From mySewnet, apart from in-the-hoop: split and multi-hoop, QuickFont and photo stitch are in.
-Missing: Endless (repeats re-hooped along marks), Encore (repeats round shapes), Name Changer,
-Spiro, Quilt Block, Family Tree and Background wizards, and more photo stitch styles (sepia, black
-and white, colour tile) (HV-01).
+From mySewnet, apart from in-the-hoop: split and multi-hoop, QuickFont, photo stitch, Encore's
+repeats (Repeat Design: round a circle, in a row, round the hoop, along a shape) and Spiro are in.
+Missing: Endless (repeats re-hooped along marks), Name Changer, Quilt Block, Family Tree and
+Background wizards, and more photo stitch styles (sepia, black and white, colour tile) (HV-01).
 
 ## The owner's decisions
 
@@ -48,7 +48,7 @@ and white, colour tile) (HV-01).
 5. Thread charts, as permission comes.
 
 Done since the list was drawn up: the one-step photo to embroidery (PH-01), Effort and the AI's
-cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case and book cover (HV-01), the web viewer
+cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case and book cover, Repeat Design and Spiro (HV-01), the web viewer
 (VIEW-01), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
 
 ## Sources

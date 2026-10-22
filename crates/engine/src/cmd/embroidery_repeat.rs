@@ -82,7 +82,8 @@ fn along(pts: &[Point], step: f64, corners: &[Point], skip_corners: bool) -> Vec
         let want = k as f64 * even;
         while let Some((a, b)) = segs.get(seg) {
             let len = a.distance(*b);
-            if walked + len >= want || seg + 1 == segs.len() {
+            // a place on a vertex starts the next side
+            if walked + len > want + 1e-9 || seg + 1 == segs.len() {
                 let t = if len > 1e-9 { ((want - walked) / len).clamp(0.0, 1.0) } else { 0.0 };
                 let q = a.lerp(*b, t);
                 let at_corner = corners.iter().any(|c| c.distance(q) < even / 2.0);
@@ -262,8 +263,9 @@ mod tests {
         let id = r["id"].as_u64().unwrap();
         let b = copies(&s, id);
         let mid = b.iter().map(|r| r.center().to_vec2()).fold(Vec2::ZERO, |a, v| a + v) / 6.0;
-        let dist: Vec<f64> = b.iter().map(|r| r.center().to_vec2().distance(mid)).collect();
-        assert!(dist.iter().all(|d| (d - dist[0]).abs() < 1.5), "{dist:?}");
+        let dist: Vec<f64> = b.iter().map(|r| (r.center().to_vec2() - mid).hypot()).collect();
+        // (a heart's box isn't round its turning point: near enough)
+        assert!(dist.iter().all(|d| (d - dist[0]).abs() < dist[0] * 0.1), "{dist:?}");
         for (k, x) in b.iter().enumerate() {
             for y in b.iter().skip(k + 1) {
                 assert!(x.center().distance(y.center()) > 15.0 * PT_PER_MM, "copies apart: {x:?} {y:?}");
