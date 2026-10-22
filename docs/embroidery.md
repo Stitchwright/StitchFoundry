@@ -777,6 +777,13 @@ way round:
   the same way. The key fob and the tag come with their ribbon loop (for a split key ring, or round
   a bag's handle; `ribbon: false` leaves it out). On the narrow ones, the fob and the bookmark, the
   design is sized by the strip's width and the words turn to run along it, reading upwards.
+- **Zipper pouch, 6 × 4½″** (from a 5×7 hoop): sewn inside out and turned. The outline and a
+  zipper line 1″ below the top; the front fabric laid with its top edge on the line and tacked;
+  the top strip laid with its bottom edge on the line and tacked; the design on the front, below
+  the zipper; the zipper laid face up over the line and both its tapes sewn down, covering the
+  fabrics' edges; then, with the zipper open halfway, the back laid face down and sewn all round.
+  Trim ¼″ outside, turn it out through the zipper. It needs a nylon coil zipper (the needle sews
+  over its ends), and takes no ribbon or vinyl.
 
 Each step is its own thread, named for what to do ("Placement: lay batting, then top fabric over
 the line", "Backing: tape the backing fabric under the hoop", "Edge: satin all round"), so the

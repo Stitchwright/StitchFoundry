@@ -524,6 +524,7 @@ fn project_name(name: &str) -> &str {
         "Key fob, 1¼ × 5″" => tl!("Key fob, 1¼ × 5″"),
         "Luggage tag, 2¾ × 4½″" => tl!("Luggage tag, 2¾ × 4½″"),
         "Bookmark, 2 × 6½″" => tl!("Bookmark, 2 × 6½″"),
+        "Zipper pouch, 6 × 4½″" => tl!("Zipper pouch, 6 × 4½″"),
         other => other,
     }
 }
