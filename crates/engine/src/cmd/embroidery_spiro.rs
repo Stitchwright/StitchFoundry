@@ -24,7 +24,7 @@ pub fn specs() -> Vec<CommandSpec> {
         ["Embroidery"],
         None,
         "{size?: mm across (80; 10–400), petals?: 3–36 (7), shape?: 1–petals−1 (how far round each loop reaches before it turns; 2), spacing?: 0.2–2 (how far the pen is from the small circle's middle; 1: the loops just touch the middle), layers?: 1–6 (copies turned between the petals, a colour each; 2), stitch?: run|double|triple (triple), colors?: [\"#rrggbb\"], random?: bool (petals, shape and spacing chosen at random), seed?: a number (with random: the same pattern each time)} a spirograph pattern in the middle of the hoop, each layer a line of its own colour sewn as a running, double or triple stitch, in a group, selected → {id, petals, shape, spacing, layers}",
-        always,
+        has_doc,
         spiro
     )]
 }
@@ -110,6 +110,28 @@ fn spiro(s: &mut Session, p: &Value) -> Result<Value> {
         d.artboards.first().map(|a| a.rect.center()).ok_or_else(|| EngineError::Other("the design has no page".into()))?
     };
     let radius = size / 2.0 * PT_PER_MM;
+    // its layers, their stitching and the group: one undo step
+    let group = s.active().is_some_and(|d| d.undo_group.is_none());
+    if group {
+        s.begin_named_undo_group(Some("Spiro".into()));
+    }
+    let done = make_layers(s, c, radius, (petals, shape, spacing, layers, passes), &colors);
+    if group {
+        s.end_undo_group(done.is_err());
+    }
+    let id = done?;
+    Ok(json!({ "id": id, "petals": petals, "shape": shape, "spacing": spacing, "layers": layers }))
+}
+
+/// The pattern's layers, each a line stitched in its colour, grouped → the group's id.
+fn make_layers(
+    s: &mut Session,
+    c: kurbo::Point,
+    radius: f64,
+    (petals, shape, spacing, layers, passes): (u32, u32, f64, u32, u32),
+    colors: &[String],
+) -> Result<u64> {
+    const CMD: &str = "embroidery.spiro";
     let mut ids = Vec::new();
     for k in 0..layers {
         // the layers turned evenly between the petals
@@ -129,8 +151,7 @@ fn spiro(s: &mut Session, p: &Value) -> Result<Value> {
     }
     s.execute("select.set", &json!({ "ids": ids }))?;
     let g = s.execute("object.group", &json!({}))?;
-    let id = g["id"].as_u64().or_else(|| ids.first().copied()).unwrap_or_default();
-    Ok(json!({ "id": id, "petals": petals, "shape": shape, "spacing": spacing, "layers": layers }))
+    Ok(g["id"].as_u64().or_else(|| ids.first().copied()).unwrap_or_default())
 }
 
 #[cfg(test)]
@@ -169,6 +190,10 @@ mod tests {
         assert_eq!(info["colors"].as_array().unwrap().len(), 3, "a colour a layer: {info}");
         assert_eq!(info["fits"], true);
         assert!((info["widthMm"].as_f64().unwrap() - 90.0).abs() < 6.0, "{info}");
+        // one undo takes it all back
+        s.execute("edit.undo", &json!({})).unwrap();
+        assert_eq!(s.execute("embroidery.info", &json!({})).unwrap()["stitches"].as_u64().unwrap_or(0), 0);
+        s.execute("edit.redo", &json!({})).unwrap();
         // shape made coprime with the petals; random the same with the same seed
         let r = s.execute("embroidery.spiro", &json!({"petals": 8, "shape": 6})).unwrap();
         assert_eq!(r["shape"], 5);
