@@ -33,7 +33,7 @@ visualizer, wreaths and mirror-merge, weld, branching and closest join).
 | StumpWork | 3D pieces (petals, wings) sewn with a wire round their edge on water-soluble stabilizer, cut out and attached | Done 2026-10-22 (SW-01): Embroidery › Make StumpWork |
 | Blackwork outline and fill, Candlewicking | Counted-thread styles: geometric blackwork repeats, and French-knot-like candlewick dots along lines | Done 2026-10-22 (ST-03): the blackwork and candlewick motifs, for motif runs and motif fills |
 | Lacework fill | A fill for free-standing lace (open net that holds together on its own) | Done 2026-10-22 (FSL-01): Embroidery › Make Lacework |
-| Star fill, Wave fill | A fill whose rows run out from a point like rays, or in waves | Star is close to our radial fill; Wave is new: a small fill option |
+| Star fill, Wave fill | A fill whose rows run out from a point like rays, or in waves | Star is close to our radial fill; Wave done 2026-10-22 (CS-08): Embroidery › Wave Fill |
 | Morphing | Warp a design (bulge, wave, envelope) | VectorCraft's envelope distort covers shapes; check that it carries through to stitches |
 | Eyelets | Round holes cut and satin-finished | Yes: CutWork has the cut; an eyelet object is small |
 | Convert Embroidery to Artwork | Stitches back to vectors or a picture | Partly there (Convert Stitches to Objects); a picture export exists |

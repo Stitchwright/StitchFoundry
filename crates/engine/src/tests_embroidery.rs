@@ -3204,6 +3204,33 @@ fn fills_sew_their_rows_along_flow_lines() {
     assert!(s.execute("embroidery.fillAlongLines", &json!({})).is_err());
 }
 
+/// The Wave Fill: a shape's tatami rows follow a wave across it, one flow line made for it.
+#[test]
+fn a_wave_fill_bends_the_rows_into_waves() {
+    let mut s = session();
+    let a = rect(&mut s, 50.0, 50.0, 240.0, 150.0);
+    s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+    let straight = needles(&s, a);
+    s.execute("embroidery.waveFill", &json!({"waves": 2, "height": 8})).unwrap();
+    assert_eq!(emb(&s, a).flow.len(), 1, "one wave line");
+    let wavy = needles(&s, a);
+    assert!(wavy.len() > 300 && wavy != straight);
+    // a row's points rise and fall: within the shape, the stitches span more height along a row
+    // than the 0.4 mm a straight row would; one undo puts it back
+    let flow = emb(&s, a).flow[0].clone();
+    let (lo, hi) = flow.iter().fold((f64::MAX, f64::MIN), |(lo, hi), q| (lo.min(q.y), hi.max(q.y)));
+    assert!((hi - lo) > 6.0 * vectorcraft_embroidery::PT_PER_MM * 0.9, "the line rises and falls 8 mm: {}", hi - lo);
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert!(emb(&s, a).flow.is_empty());
+    // an unfilled shape becomes a tatami fill; bad settings refused
+    let b = rect(&mut s, 50.0, 300.0, 100.0, 100.0);
+    s.execute("embroidery.waveFill", &json!({"ids": [b.0], "angle": 30})).unwrap();
+    assert_eq!(emb(&s, b).flow.len(), 1);
+    for bad in [json!({"ids": [b.0], "waves": 0}), json!({"ids": [b.0], "height": 100})] {
+        assert!(s.execute("embroidery.waveFill", &bad).is_err(), "{bad}");
+    }
+}
+
 #[test]
 fn auto_sequence_groups_colours_and_keeps_overlaps_in_order() {
     let mut s = session();

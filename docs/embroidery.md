@@ -456,6 +456,9 @@ the fill: an embossed texture without another thread.
   and split lines follow the rows; underlay stays straight. Flow lines show dashed on the
   selected fill, move with it, and take precedence over inclination lines;
   **Embroidery › Stitch Direction › Clear Flow Lines** (or the button in the panel) gives straight rows back.
+- **Wave Fill** (Embroidery › Wave Fill, `embroidery.waveFill {ids?, waves?, height?, angle?}`)
+  makes the flow line for you: the selected shapes become tatami fills whose rows rise and fall
+  across them `waves` times (3), `height` mm from crest to trough (5), running at `angle`.
 
 ## The digitizing widget and brush
 

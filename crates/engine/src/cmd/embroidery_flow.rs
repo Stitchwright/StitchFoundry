@@ -49,6 +49,15 @@ pub fn specs() -> Vec<CommandSpec> {
             fill_along_lines
         ),
         cmd!(
+            "embroidery.waveFill",
+            "Wave Fill",
+            ["Embroidery"],
+            None,
+            "{ids?, waves?: whole waves across the shape (3; 1–20), height?: mm from crest to trough (5; 0.5–60), angle?: degrees the rows run at (0)} the selected shapes sewn as tatami fills whose rows follow a wave: one wavy flow line made for each, so every row is a copy of it moved across the shape; one undo step → {ids}",
+            has_selection,
+            wave_fill
+        ),
+        cmd!(
             "embroidery.clearFlowLines",
             "Clear Flow Lines",
             ["Embroidery"],
@@ -63,6 +72,63 @@ pub fn specs() -> Vec<CommandSpec> {
 /// Whether an object is stitched as a tatami fill (the fill whose rows follow flow lines).
 fn tatami(d: &Document, id: NodeId) -> bool {
     d.node(id).and_then(|n| n.embroidery.as_deref()).is_some_and(|e| matches!(&e.stitch, StitchType::Fill(f) if f.kind == FillKind::Tatami))
+}
+
+/// Points a wave line is drawn with.
+const WAVE_POINTS: usize = 400;
+
+fn wave_fill(s: &mut Session, p: &Value) -> Result<Value> {
+    const CMD: &str = "embroidery.waveFill";
+    let waves = super::embroidery_lettering::ranged(p, "waves", 1.0..=20.0, CMD, "`waves` is 1 to 20")?.unwrap_or(3.0).round();
+    let height = super::embroidery_lettering::ranged(p, "height", 0.5..=60.0, CMD, "`height` is 0.5 to 60 mm")?.unwrap_or(5.0);
+    let angle = super::embroidery_lettering::ranged(p, "angle", -360.0..=360.0, CMD, "`angle` is in degrees")?.unwrap_or(0.0);
+    let ids: Vec<u64> = match p.get("ids").and_then(Value::as_array) {
+        Some(list) => list.iter().filter_map(Value::as_u64).collect(),
+        None => s.active().map(|d| d.selection.objects.iter().map(|n| n.0).collect()).unwrap_or_default(),
+    };
+    if ids.is_empty() {
+        return Err(bad(CMD, "select the shapes to fill with waves"));
+    }
+    let shapes = super::embroidery_stumpwork::closed_shapes(s, &ids, CMD, "wave fills")?;
+    let group = s.active().is_some_and(|d| d.undo_group.is_none());
+    if group {
+        s.begin_named_undo_group(Some("Wave Fill".into()));
+    }
+    let done = (|| -> Result<Vec<u64>> {
+        let mut made = Vec::new();
+        for (id, n) in &shapes {
+            let Some(b) = n.geometric_bounds() else { continue };
+            if !tatami(&s.doc()?.doc, NodeId(*id)) {
+                s.execute("select.set", &json!({ "ids": [id] }))?;
+                s.execute("embroidery.set", &json!({ "type": "fill" }))?;
+            }
+            // a line through the middle along the rows, past the shape at both ends, rising and
+            // falling across it `waves` times
+            let (sin, cos) = angle.to_radians().sin_cos();
+            let reach = b.width().hypot(b.height()) * 0.6;
+            let c = b.center();
+            let amp = height / 2.0 * PT_PER_MM;
+            let line: Vec<Value> = (0..=WAVE_POINTS)
+                .map(|k| {
+                    let t = k as f64 / WAVE_POINTS as f64 * 2.0 - 1.0;
+                    let along = t * reach;
+                    // the waves counted over the shape's own width along the rows
+                    let span = (b.width() * cos.abs() + b.height() * sin.abs()).max(1.0);
+                    let across = amp * (along / span * waves * std::f64::consts::TAU).sin();
+                    json!([c.x + along * cos - across * sin, c.y + along * sin + across * cos])
+                })
+                .collect();
+            s.execute("embroidery.setFlowLines", &json!({ "id": id, "lines": [line] }))?;
+            made.push(*id);
+        }
+        Ok(made)
+    })();
+    if group {
+        s.end_undo_group(done.is_err());
+    }
+    let made = done?;
+    s.execute("select.set", &json!({ "ids": made }))?;
+    Ok(json!({ "ids": made }))
 }
 
 /// Lines a shape takes from one Use Line as Direction, and points read from each line.
