@@ -493,7 +493,7 @@ mod tests {
             {"type": "text", "text": "<svg viewBox=\"0 0 10 10\"><rect width=\"10\" height=\"10\" fill=\"#ff8800\"/></svg>"}
         ], "usage": {"input_tokens": 1200, "output_tokens": 5000}});
         let first = parse_reply(200, &first_reply.to_string()).unwrap();
-        assert_eq!(first.usage, Usage { input: 1200, output: 5000 });
+        assert_eq!(first.usage, Usage { input: 1200, output: 5000, searches: 0 });
         let png = ArtImage { media_type: "image/png", data_base64: "iVBORw0KGgo=".into() };
         let http = r.check_http("sk-ant-test", &first, &png).unwrap();
         let body: Value = serde_json::from_str(&http.body).unwrap();
@@ -504,7 +504,7 @@ mod tests {
         assert!(m[2]["content"][1]["text"].as_str().unwrap().contains("single word OK"));
         let ok =
             json!({"stop_reason": "end_turn", "content": [{"type": "text", "text": "OK"}], "usage": {"input_tokens": 9000, "output_tokens": 40}});
-        assert_eq!(parse_check(200, &ok.to_string()).unwrap(), (Checked::Good, Usage { input: 9000, output: 40 }));
+        assert_eq!(parse_check(200, &ok.to_string()).unwrap(), (Checked::Good, Usage { input: 9000, output: 40, searches: 0 }));
         let better = json!({"stop_reason": "end_turn", "content": [{"type": "text", "text": "<svg viewBox=\"0 0 10 10\"></svg>"}]});
         assert!(matches!(parse_check(200, &better.to_string()).unwrap().0, Checked::Redrawn(a) if a.svg.starts_with("<svg")));
         let cut = json!({"stop_reason": "max_tokens", "content": [{"type": "text", "text": "<svg"}]});

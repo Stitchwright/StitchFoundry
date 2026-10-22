@@ -359,12 +359,12 @@ fn draw(payer: &Payer, job: usize, j: &Job, effort: Effort, out: &Path) -> Outco
             Ok((ai::Checked::Redrawn(better), u)) => {
                 o.redrawn = Some(true);
                 let first = art.usage;
-                ai::Art { usage: Usage { input: first.input + u.input, output: first.output + u.output }, ..better }
+                ai::Art { usage: first + u, ..better }
             }
             Ok((ai::Checked::Good, u)) => {
                 o.redrawn = Some(false);
                 let first = art.usage;
-                ai::Art { usage: Usage { input: first.input + u.input, output: first.output + u.output }, ..art }
+                ai::Art { usage: first + u, ..art }
             }
             Err(e) => {
                 eprint!("(check failed: {e}) ");
@@ -580,7 +580,7 @@ mod tests {
             job: 0,
             effort,
             seconds: 20.0,
-            usage: Usage { input: 1000, output },
+            usage: Usage { input: 1000, output, searches: 0 },
             model: ai::MODEL.into(),
             redrawn: None,
             image: Some("dog.png".into()),

@@ -409,15 +409,25 @@ pub fn effort(app: &VectorcraftApp) -> ai::Effort {
 /// with them (`creditsPerDollar` from the account), `None` when that isn't known.
 pub fn cost_line(app: &VectorcraftApp, e: ai::effort::Estimate) -> Option<String> {
     if super::account::paying_with_credits(app) {
-        let rate = app.embroidery.account.info.as_ref().and_then(|i| i["creditsPerDollar"].as_f64()).filter(|r| r.is_finite() && *r > 0.0)?;
-        let c = |usd: f64| ((usd * rate).ceil().max(1.0) as u64).to_string();
-        Some(crate::i18n::fmt(tl!("About {typical} credits a drawing, at most {most}."), &[("typical", &c(e.typical)), ("most", &c(e.most))]))
+        let (typical, most) = (credits_for(app, e.typical)?, credits_for(app, e.most)?);
+        Some(crate::i18n::fmt(
+            tl!("About {typical} credits a drawing, at most {most}."),
+            &[("typical", &typical.to_string()), ("most", &most.to_string())],
+        ))
     } else {
         Some(crate::i18n::fmt(
             tl!("About {typical} a drawing on your Anthropic account, at most {most}."),
             &[("typical", &dollars(e.typical)), ("most", &dollars(e.most))],
         ))
     }
+}
+
+/// What `usd` of AI costs in credits at StitchFoundry's price (the account's `creditsPerDollar`,
+/// which carries the markup), rounded up as the service charges; `None` before the account is read.
+fn credits_for(app: &VectorcraftApp, usd: f64) -> Option<u64> {
+    let rate = app.embroidery.account.info.as_ref().and_then(|i| i["creditsPerDollar"].as_f64()).filter(|r| r.is_finite() && *r > 0.0)?;
+    let c = (usd * rate).ceil();
+    c.is_finite().then(|| c.clamp(1.0, 1e12) as u64)
 }
 
 /// `usd` as dollars and cents, at least a cent.
@@ -471,7 +481,7 @@ fn poll_check(app: &mut VectorcraftApp, ctx: &egui::Context) {
         Ok((ai::Checked::Good, u)) => (c.first.clone(), u, false),
         Err(_) => (c.first.clone(), ai::Usage::default(), false),
     };
-    let usage = ai::Usage { input: c.first.usage.input + extra.input, output: c.first.usage.output + extra.output };
+    let usage = c.first.usage + extra;
     place(app, art, usage, &c.name, c.size, c.frame, Some(redrawn));
 }
 
@@ -567,12 +577,18 @@ fn place(app: &mut VectorcraftApp, art: Art, usage: ai::Usage, name: &str, size:
             }
             let n = v.get("objects").and_then(Value::as_u64).unwrap_or(0);
             let mut line = crate::i18n::tn(n, "Design placed: {n} stitched object", "Design placed: {n} stitched objects");
-            // what it took: tokens, and dollars when paid with the user's own key
+            // what it took: tokens, and what the user paid for them: credits at StitchFoundry's
+            // price when paying with credits, Anthropic's dollars on their own key
             if let Some(u) = usage.filter(|u| u.total() > 0) {
                 let tokens = u.total().to_string();
                 line.push_str(" · ");
                 line.push_str(&if super::account::paying_with_credits(app) {
-                    crate::i18n::fmt(tl!("{tokens} tokens"), &[("tokens", &tokens)])
+                    match credits_for(app, u.usd()) {
+                        Some(c) => {
+                            crate::i18n::fmt(tl!("{tokens} tokens, about {credits} credits"), &[("tokens", &tokens), ("credits", &c.to_string())])
+                        }
+                        None => crate::i18n::fmt(tl!("{tokens} tokens"), &[("tokens", &tokens)]),
+                    }
                 } else {
                     crate::i18n::fmt(tl!("{tokens} tokens, about {cost}"), &[("tokens", &tokens), ("cost", &dollars(u.usd()))])
                 });

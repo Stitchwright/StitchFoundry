@@ -1447,11 +1447,14 @@ instead (the status line says so). Only the drawing and its stitches go back, no
 your design. Thorough costs several times what Normal does. The choice is kept for next time (`embroidery.aiEffort {effort?: quick|normal|thorough}`)
 and goes to the Messages API as its `effort` (low, medium, high). Before anything is sent the
 dialog shows what a drawing should cost: in dollars on your own key, at Anthropic's published
-prices for the model ($4 a million tokens sent, $20 a million back), or in credits when you pay
-with them, with the most it could cost if the reply ran to its limit; Thorough carries a warning.
+prices for the model ($4 a million tokens sent, $20 a million back, $10 a thousand searches), or,
+when you pay with StitchFoundry credits, in credits at StitchFoundry's price (the service's rate,
+which includes its markup, so the number is what comes off your balance), with the most it could
+cost if the reply ran to its limit; Thorough carries a warning.
 The typical figures are estimates until the AI test jobs (`evals/ai/README.md`) measure them. Once
-the design is placed, the status line says what it took, from the reply itself: its tokens, and
-their cost on your own key.
+the design is placed, the status line says what it took, from the reply itself: its tokens and
+searches, and what you paid for them: dollars on your own key, credits at StitchFoundry's price
+when you pay with credits.
 
 **Your own API key.** Design from Prompt uses your Anthropic API key, and each design is billed to
 your Anthropic account; get a key in the [Anthropic Console](https://console.anthropic.com/settings/keys).

@@ -83,11 +83,23 @@ impl Effort {
     }
 }
 
-/// Tokens a reply used, from its `usage`.
+/// Tokens a reply used, and the web searches it made, from its `usage`.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Usage {
     pub input: u64,
     pub output: u64,
+    pub searches: u64,
+}
+
+impl std::ops::Add for Usage {
+    type Output = Usage;
+    fn add(self, o: Usage) -> Usage {
+        Usage {
+            input: self.input.saturating_add(o.input),
+            output: self.output.saturating_add(o.output),
+            searches: self.searches.saturating_add(o.searches),
+        }
+    }
 }
 
 impl Usage {
@@ -97,6 +109,7 @@ impl Usage {
         Usage {
             input: n("input_tokens").saturating_add(n("cache_read_input_tokens")).saturating_add(n("cache_creation_input_tokens")),
             output: n("output_tokens"),
+            searches: v.pointer("/usage/server_tool_use/web_search_requests").and_then(Value::as_u64).unwrap_or(0),
         }
     }
 
@@ -104,9 +117,9 @@ impl Usage {
         self.input.saturating_add(self.output)
     }
 
-    /// What it cost at Anthropic's prices (dollars).
+    /// What it cost at Anthropic's prices (dollars), searches included.
     pub fn usd(self) -> f64 {
-        (self.input as f64 * INPUT_PRICE + self.output as f64 * OUTPUT_PRICE) / 1e6
+        (self.input as f64 * INPUT_PRICE + self.output as f64 * OUTPUT_PRICE) / 1e6 + self.searches as f64 * SEARCH_USD
     }
 }
 
@@ -144,13 +157,13 @@ pub fn estimate(body: &Value, effort: Effort) -> Estimate {
         most += searches as f64 * SEARCH_USD;
     }
     let output = effort.typical_output().min(max);
-    typical += Usage { input, output }.usd();
-    most += Usage { input, output: max }.usd();
+    typical += Usage { input, output, searches: 0 }.usd();
+    most += Usage { input, output: max, searches: 0 }.usd();
     if effort.checks() {
         // the check: everything again as input, with the stitched picture, and a reply that is a
         // word or a corrected drawing
-        typical += Usage { input: input + output + IMAGE_TOKENS, output: output / 2 }.usd();
-        most += Usage { input: input + max + IMAGE_TOKENS, output: max }.usd();
+        typical += Usage { input: input + output + IMAGE_TOKENS, output: output / 2, searches: 0 }.usd();
+        most += Usage { input: input + max + IMAGE_TOKENS, output: max, searches: 0 }.usd();
     }
     Estimate { typical, most }
 }
@@ -174,9 +187,15 @@ mod tests {
     #[test]
     fn usage_and_estimates_are_in_dollars() {
         let u = Usage::of_reply(&json!({"usage": {"input_tokens": 1000, "cache_read_input_tokens": 500, "output_tokens": 6000}}));
-        assert_eq!(u, Usage { input: 1500, output: 6000 });
+        assert_eq!(u, Usage { input: 1500, output: 6000, searches: 0 });
         assert!((u.usd() - 0.126).abs() < 1e-9, "{}", u.usd());
         assert_eq!(Usage::of_reply(&json!({})), Usage::default());
+        // the searches a reply made are paid for too, and two replies add up
+        let searched = Usage::of_reply(&json!({"usage": {"input_tokens": 1000, "output_tokens": 0, "server_tool_use": {"web_search_requests": 2}}}));
+        assert_eq!(searched.searches, 2);
+        assert!((searched.usd() - (0.004 + 2.0 * SEARCH_USD)).abs() < 1e-9, "{}", searched.usd());
+        assert_eq!((u + searched).total(), u.total() + searched.total());
+        assert_eq!((u + searched).searches, 2);
         let body = json!({"max_tokens": 16000, "system": "x".repeat(3500), "messages": [{"role": "user", "content": "a fox"}]});
         let (quick, thorough) = (estimate(&body, Effort::Quick), estimate(&body, Effort::Thorough));
         assert!(quick.typical < estimate(&body, Effort::Normal).typical && estimate(&body, Effort::Normal).typical < thorough.typical);
