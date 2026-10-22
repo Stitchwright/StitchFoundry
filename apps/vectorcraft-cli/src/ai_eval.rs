@@ -220,6 +220,9 @@ struct Outcome {
     model: String,
     /// Whether the check redrew it (Thorough), when it was checked.
     redrawn: Option<bool>,
+    /// Requests sent whose replies never came (a timeout, a dropped connection): billed when
+    /// Anthropic finished them, but what they cost isn't known here.
+    unmeasured: u32,
     /// The stitches image (relative to the report), and the design's numbers.
     image: Option<String>,
     design: Value,
@@ -388,6 +391,12 @@ pub fn run(args: &[String]) -> Result<(), String> {
     let refs = copy_references(&jobs, &refs_dir, &out);
     write(&out.join("results.json"), &serde_json::to_string_pretty(&results_json(&jobs, &outcomes)).unwrap_or_default())?;
     write(&out.join("report.html"), &report(&jobs, &outcomes, &refs))?;
+    let usd: f64 = outcomes.iter().map(|o| o.usage.usd()).sum();
+    let unmeasured: u32 = outcomes.iter().map(|o| o.unmeasured).sum();
+    eprintln!(
+        "Spent: ${usd:.2}{}",
+        if unmeasured > 0 { format!(", plus {unmeasured} request(s) whose reply never came (see the Console)") } else { String::new() }
+    );
     eprintln!("Report: {}", out.join("report.html").display());
     Ok(())
 }
@@ -468,6 +477,7 @@ fn draw(payer: &Payer, job: usize, j: &Job, effort: Effort, out: &Path, maker: O
         usage: Usage::default(),
         model: String::new(),
         redrawn: None,
+        unmeasured: 0,
         image: None,
         design: Value::Null,
         error: None,
@@ -494,18 +504,31 @@ fn draw(payer: &Payer, job: usize, j: &Job, effort: Effort, out: &Path, maker: O
             return o;
         }
     };
-    let art = request
-        .http(payer.secret())
-        .map_err(|e| e.to_string())
-        .and_then(|http| payer.send(http))
-        .and_then(|(status, body)| ai::parse_reply(status, &body).map_err(|e| e.to_string()));
-    o.seconds = started.elapsed().as_secs_f64();
-    let art = match art {
-        Ok(a) => a,
+    let http = match request.http(payer.secret()) {
+        Ok(h) => h,
         Err(e) => {
+            o.error = Some(e.to_string());
+            return o;
+        }
+    };
+    let reply = payer.send(http);
+    o.seconds = started.elapsed().as_secs_f64();
+    let art = match reply {
+        // sent, no reply: it may still have been billed
+        Err(e) => {
+            o.unmeasured += 1;
             o.error = Some(e);
             return o;
         }
+        // a reply without a drawing still says what it used, and was billed for it
+        Ok((status, body)) => match ai::parse_reply(status, &body) {
+            Ok(a) => a,
+            Err(e) => {
+                o.usage = usage_of(&body);
+                o.error = Some(e.to_string());
+                return o;
+            }
+        },
     };
     // Thorough: the drawing goes back as it stitches, to be checked once
     let art = if effort.checks() {
@@ -513,10 +536,12 @@ fn draw(payer: &Payer, job: usize, j: &Job, effort: Effort, out: &Path, maker: O
             let mut h = crate::with_stores(Headless::new());
             h.call("engine.execute", json!({"command": "embroidery.artPreview", "params": {"svg": art.svg, "size": j.size_mm}}))
         };
+        let mut check_usage = Usage::default();
         let checked = preview.and_then(|p| {
             let stitched = ai::ArtImage { media_type: "image/png", data_base64: p["dataBase64"].as_str().unwrap_or_default().to_string() };
             let http = request.check_http(payer.secret(), &art, &stitched).map_err(|e| e.to_string())?;
-            let (status, body) = payer.send(http)?;
+            let (status, body) = payer.send(http).inspect_err(|_| o.unmeasured += 1)?;
+            check_usage = usage_of(&body);
             ai::parse_check(status, &body).map_err(|e| e.to_string())
         });
         o.seconds = started.elapsed().as_secs_f64();
@@ -533,7 +558,9 @@ fn draw(payer: &Payer, job: usize, j: &Job, effort: Effort, out: &Path, maker: O
             }
             Err(e) => {
                 eprint!("(check failed: {e}) ");
-                art
+                // what the check's reply used was billed all the same
+                let first = art.usage;
+                ai::Art { usage: first + check_usage, ..art }
             }
         }
     } else {
@@ -562,6 +589,11 @@ fn draw(payer: &Payer, job: usize, j: &Job, effort: Effort, out: &Path, maker: O
         Err(e) => o.error = Some(format!("digitizing: {e}")),
     }
     o
+}
+
+/// What a reply's body says it used (nothing, when it isn't a reply).
+fn usage_of(body: &str) -> Usage {
+    serde_json::from_str::<Value>(body).map(|v| Usage::of_reply(&v)).unwrap_or_default()
 }
 
 fn post(req: &ai::HttpRequest) -> Result<(u16, String), String> {
@@ -606,6 +638,7 @@ fn results_json(jobs: &[Job], outcomes: &[Outcome]) -> Value {
                 "model": o.model,
                 "image": o.image,
                 "redrawnByCheck": o.redrawn,
+                "unmeasuredRequests": o.unmeasured,
                 "stitches": o.design.get("stitches"),
                 "colorChanges": o.design.get("colorChanges"),
                 "error": o.error,
@@ -622,7 +655,10 @@ fn results_json(jobs: &[Job], outcomes: &[Outcome]) -> Value {
             (n > 0).then(|| json!({"effort": e.id(), "drawings": n, "meanOutputTokens": ok.iter().map(|o| o.usage.output).sum::<u64>() / n, "usd": ok.iter().map(|o| o.usage.usd()).sum::<f64>()}))
         })
         .collect();
-    json!({ "model": ai::MODEL, "drawings": rows, "byEffort": means })
+    // every reply's tokens, drawn or not; the requests sent that never answered aren't in it
+    let usd: f64 = outcomes.iter().map(|o| o.usage.usd()).sum();
+    let unmeasured: u32 = outcomes.iter().map(|o| o.unmeasured).sum();
+    json!({ "model": ai::MODEL, "drawings": rows, "byEffort": means, "usd": usd, "unmeasuredRequests": unmeasured })
 }
 
 fn esc(s: &str) -> String {
@@ -650,6 +686,15 @@ img{max-width:100%;border:1px solid #ddd;border-radius:6px;background:#f4f1ea}.m
         }
     }
     h.push_str("</table>");
+    let usd: f64 = outcomes.iter().map(|o| o.usage.usd()).sum();
+    let unmeasured: u32 = outcomes.iter().map(|o| o.unmeasured).sum();
+    h.push_str(&format!("<p><b>Spent in all: ${usd:.2}</b>, every reply counted, those with no drawing too."));
+    if unmeasured > 0 {
+        h.push_str(&format!(
+            " <span class=\"err\">Plus {unmeasured} request(s) sent whose reply never came (a timeout or a dropped connection): Anthropic bills them when it finishes them, so check the Console's usage for their cost.</span>"
+        ));
+    }
+    h.push_str("</p>");
     for (ji, j) in jobs.iter().enumerate() {
         h.push_str(&format!("<h2>{}</h2><p>{}</p>", esc(&j.title), esc(&j.prompt)));
         if !j.look_for.is_empty() {
@@ -680,7 +725,18 @@ img{max-width:100%;border:1px solid #ddd;border-radius:6px;background:#f4f1ea}.m
                 h.push_str(&format!("<img src=\"{}\" alt=\"stitches at {}\">", esc(img), esc(&who)));
             }
             match &o.error {
-                Some(e) => h.push_str(&format!("<div class=\"err\">{}: {}</div>", esc(&who), esc(e))),
+                Some(e) => h.push_str(&format!(
+                    "<div class=\"err\">{}: {}{}</div>",
+                    esc(&who),
+                    esc(e),
+                    if o.unmeasured > 0 {
+                        " (sent: its cost isn't known here, see the Console)".to_string()
+                    } else if o.usage.total() > 0 {
+                        format!(" (its reply still cost ${:.2})", o.usage.usd())
+                    } else {
+                        String::new()
+                    }
+                )),
                 None => h.push_str(&format!(
                     "<div class=\"meta\"><b>{}</b>{}: {:.0} s, {} + {} tokens, ${:.2} for Claude; {} stitches, {} colour changes</div>",
                     esc(&who),
@@ -759,6 +815,7 @@ mod tests {
             usage: Usage { input: 1000, output, searches: 0 },
             model: ai::MODEL.into(),
             redrawn: None,
+            unmeasured: 0,
             image: Some("dog.png".into()),
             design: json!({"stitches": 9000, "colorChanges": 4}),
             error: None,
@@ -766,13 +823,20 @@ mod tests {
         // a picture from Google redrawn: shown with its picture, left out of the effort means
         let from_google =
             Outcome { maker: Some(Provider::Google.name().into()), picture: Some("dog-google-quick-picture.jpg".into()), ..o(Effort::Quick, 9000) };
-        let outcomes = vec![o(Effort::Quick, 3000), o(Effort::Thorough, 12000), from_google];
+        // a reply with no drawing still cost what it used; a request lost on the way is flagged
+        let no_art = Outcome { error: Some("The reply had no artwork".into()), image: None, ..o(Effort::Normal, 2500) };
+        let lost = Outcome { error: Some("timeout: global".into()), image: None, unmeasured: 1, ..o(Effort::Thorough, 0) };
+        let outcomes = vec![o(Effort::Quick, 3000), o(Effort::Thorough, 12000), from_google, no_art, lost];
         let html = report(&jobs, &outcomes, &[None]);
         assert!(html.contains("A &lt;dog&gt;") && html.contains("a dog &amp; a ball") && !html.contains("<dog>"));
         assert!(html.contains("9000 stitches") && html.contains("a tail"));
         let r = results_json(&jobs, &outcomes);
         assert_eq!(r["byEffort"][0]["meanOutputTokens"], 3000);
-        assert_eq!(r["drawings"].as_array().unwrap().len(), 3);
+        assert_eq!(r["drawings"].as_array().unwrap().len(), 5);
+        assert_eq!(r["unmeasuredRequests"], 1);
+        let all: f64 = outcomes.iter().map(|o| o.usage.usd()).sum();
+        assert!((r["usd"].as_f64().unwrap() - all).abs() < 1e-9 && all > Usage { input: 1000, output: 2500, searches: 0 }.usd());
+        assert!(html.contains("its reply still cost") && html.contains("1 request(s) sent whose reply never came"), "{html}");
         assert_eq!(r["drawings"][2]["picture"], "Google Nano Banana");
         assert!(html.contains("dog-google-quick-picture.jpg") && html.contains("quick, from Google Nano Banana"), "{html}");
         assert_eq!(picture_key_var(Provider::OpenAi), "OPENAI_API_KEY");
