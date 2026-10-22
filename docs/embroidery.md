@@ -128,7 +128,7 @@ at once, with the stabiliser to hoop under it. Make your own for the fabrics you
 | Bean run | triple run (each stitch three times) | stitch length, passes |
 | Backstitch | hand-sewn look: each stitch goes forward two steps and back one | stitch length, passes |
 | Stem stitch | rope-like outline: backstitch with slanted stitches | stitch length, width, side, passes |
-| Blanket, zigzag, motif | E-stitch prongs, an open zigzag or a repeating motif along the path (wave, scallop, diamond, cross, feather, heart, star, leaf, loop, zigzag, E-stitch, coil, square loop, or one drawn for the design), motifs growing or shrinking along it when graded | stitch length, width, width at end, spacing, flip side |
+| Blanket, zigzag, motif | E-stitch prongs, an open zigzag or a repeating motif along the path (wave, scallop, diamond, cross, feather, heart, star, leaf, loop, zigzag, E-stitch, coil, square loop, blackwork, candlewick, or one drawn for the design), motifs growing or shrinking along it when graded | stitch length, width, width at end, spacing, flip side |
 | Redwork | the lines of a path, compound path, type or redwork group sewn as one line that ends where it starts, the way between lines retraced along them | run style (single, triple, backstitch, stem stitch), stitch length |
 | Hand stitch | a run that looks sewn by hand: thick stitches (each sewn three times) with short thin ones between them, lengths varying a little | stitch length, gap, passes |
 | Sculpture run | a thick-thin line: groups of triple stitches in turn with groups of single ones | triple and single stitch lengths, how many of each, passes |
@@ -169,10 +169,13 @@ over itself.
 **Passes:** any run style can be sewn up to 9 times over the same needle points; 2 passes is a
 backtrack, which ends where it started.
 
-**Motifs:** a motif run repeats one of thirteen motifs along its line (wave, scallop, diamond,
-cross, feather, heart, star, leaf, loop, zigzag, E-stitch, coil and square loop; zigzag and
-E-stitch make zigzag and E-stitch fills as motif fills, coil and square loop the looped, chenille
-look regular machines can sew, along a line or filling a shape). With *Graded* on, the motifs
+**Motifs:** a motif run repeats one of fifteen motifs along its line (wave, scallop, diamond,
+cross, feather, heart, star, leaf, loop, zigzag, E-stitch, coil, square loop, blackwork and
+candlewick; zigzag and E-stitch make zigzag and E-stitch fills as motif fills, coil and square
+loop the looped, chenille look regular machines can sew, along a line or filling a shape).
+**Blackwork** is a stepped key across the line, a counted-thread look as a border or, as a motif
+fill, an all-over pattern; **candlewick** sews a knot of short crossing stitches at each repeat
+with the line between, the look of candlewicking's French knots. With *Graded* on, the motifs
 grow or shrink from *Width* at the start to *Width at end*, their repeats keeping their
 proportions. Motifs, blanket prongs and their grading follow the line the way it was drawn,
 whichever end sewing starts from (the closest join). A **motif fill** sews rows of motifs across a shape, half a motif inside its outline;

@@ -357,6 +357,15 @@ pub(crate) fn motif_shape(m: Motif) -> Vec<(f64, f64)> {
                 (a / std::f64::consts::TAU + 0.45 * a.sin(), -0.5 * (1.0 - a.cos()))
             })
             .collect(),
+        // Blackwork: up, along, down across the line, along, back up to it: a stepped key, every
+        // repeat the same, so a row of them reads as a counted-thread border.
+        Motif::Blackwork => vec![(0.0, 0.0), (0.0, 0.4), (0.4, 0.4), (0.4, -0.4), (0.8, -0.4), (0.8, 0.0), (1.0, 0.0)],
+        // Candlewicking: along to the middle, a knot of four short crossing stitches round it,
+        // back to the middle, on.
+        Motif::Candlewick => {
+            let k = 0.14;
+            vec![(0.0, 0.0), (0.5, 0.0), (0.5 + k, k), (0.5 - k, -k), (0.5 + k, -k), (0.5 - k, k), (0.5, 0.0), (1.0, 0.0)]
+        }
         // A square loop: on, down, back across, up past where it went down, on.
         Motif::SquareLoop => vec![(0.0, 0.0), (0.75, 0.0), (0.75, -1.0), (0.25, -1.0), (0.25, 0.0), (1.0, 0.0)],
         // A loop like a handwritten l.
@@ -657,6 +666,23 @@ mod tests {
             let (lo, hi) = pts.iter().fold((0.0f64, 0.0f64), |(lo, hi), q| (lo.min(q.y), hi.max(q.y)));
             assert!(-lo > hi + 0.3, "{motif:?}: {lo} {hi}");
         }
+    }
+
+    /// Blackwork steps above and below the line in the same repeat; candlewicking stays on the
+    /// line but for a knot of short crossing stitches at each repeat's middle.
+    #[test]
+    fn blackwork_steps_across_the_line_and_candlewicking_knots_on_it() {
+        let p = RunParams { kind: RunKind::Motif, motif: Motif::Blackwork, width: 4.0, spacing: 4.0, ..Default::default() };
+        let pts: Vec<Point> = generate(&line(), &p, None, None).iter().map(|s| s.pos()).collect();
+        let (lo, hi) = pts.iter().fold((0.0f64, 0.0f64), |(lo, hi), q| (lo.min(q.y), hi.max(q.y)));
+        assert!(lo < -1.0 && hi > 1.0, "both sides: {lo} {hi}");
+        let p = RunParams { kind: RunKind::Motif, motif: Motif::Candlewick, width: 4.0, spacing: 4.0, ..Default::default() };
+        let pts: Vec<Point> = generate(&line(), &p, None, None).iter().map(|s| s.pos()).collect();
+        let off = pts.iter().map(|q| q.y.abs()).fold(0.0, f64::max);
+        assert!(off < 1.0, "the knots stay close to the line: {off}");
+        // a knot a repeat: points off the line, several in each 4 mm
+        let knots = pts.iter().filter(|q| q.y.abs() > 0.2).count();
+        assert!(knots >= 8, "{knots}");
     }
 
     #[test]

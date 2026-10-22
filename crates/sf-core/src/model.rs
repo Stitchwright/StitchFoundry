@@ -925,10 +925,14 @@ pub enum Motif {
     Coil,
     /// Chenille look on a regular machine: square loops, each crossing the last.
     SquareLoop,
+    /// Blackwork: a stepped geometric repeat, like counted-thread blackwork borders.
+    Blackwork,
+    /// Candlewicking: a small knot of crossing stitches at each repeat, the line between.
+    Candlewick,
 }
 
 impl Motif {
-    pub const ALL: [Motif; 13] = [
+    pub const ALL: [Motif; 15] = [
         Motif::Wave,
         Motif::Scallop,
         Motif::Diamond,
@@ -942,6 +946,8 @@ impl Motif {
         Motif::EStitch,
         Motif::Coil,
         Motif::SquareLoop,
+        Motif::Blackwork,
+        Motif::Candlewick,
     ];
 
     pub fn label(self) -> &'static str {
@@ -959,6 +965,8 @@ impl Motif {
             Motif::EStitch => "E-stitch",
             Motif::Coil => "Coil",
             Motif::SquareLoop => "Square loop",
+            Motif::Blackwork => "Blackwork",
+            Motif::Candlewick => "Candlewick",
         }
     }
 }

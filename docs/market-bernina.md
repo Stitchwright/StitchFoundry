@@ -31,7 +31,7 @@ visualizer, wreaths and mirror-merge, weld, branching and closest join).
 | BERNINA feature | What it is | Worth doing? |
 |---|---|---|
 | StumpWork | 3D pieces (petals, wings) sewn with a wire round their edge on water-soluble stabilizer, cut out and attached | Done 2026-10-22 (SW-01): Embroidery › Make StumpWork |
-| Blackwork outline and fill, Candlewicking | Counted-thread styles: geometric blackwork repeats, and French-knot-like candlewick dots along lines | Yes: small, as motif runs and fills |
+| Blackwork outline and fill, Candlewicking | Counted-thread styles: geometric blackwork repeats, and French-knot-like candlewick dots along lines | Done 2026-10-22 (ST-03): the blackwork and candlewick motifs, for motif runs and motif fills |
 | Lacework fill | A fill for free-standing lace (open net that holds together on its own) | Yes, with a free-standing lace check |
 | Star fill, Wave fill | A fill whose rows run out from a point like rays, or in waves | Star is close to our radial fill; Wave is new: a small fill option |
 | Morphing | Warp a design (bulge, wave, envelope) | VectorCraft's envelope distort covers shapes; check that it carries through to stitches |
