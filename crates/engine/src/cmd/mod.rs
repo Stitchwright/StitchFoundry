@@ -38,6 +38,7 @@ pub mod embroidery_cutout;
 pub mod embroidery_cutwork;
 pub mod embroidery_decor;
 pub mod embroidery_edit;
+pub mod embroidery_endless;
 pub mod embroidery_flow;
 pub mod embroidery_fontdoc;
 pub mod embroidery_guide;
@@ -346,6 +347,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(quilting::specs());
         v.extend(embroidery_testsew::specs());
         v.extend(embroidery_sheet_setup::specs());
+        v.extend(embroidery_endless::specs());
         v.extend(embroidery_repeat::specs());
         v.extend(embroidery_scatter::specs());
         v.extend(embroidery_spiro::specs());

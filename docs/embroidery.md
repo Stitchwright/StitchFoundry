@@ -571,6 +571,21 @@ its place, in a group in sewing order:
 the copies, by half a copy's width at most. It works like Encore in mySewnet
 ([public help](https://softwarehelp.mysewnet.com/MSW/140/Embroidery/Topics/Encore.htm)).
 
+## Endless Border
+
+**Embroidery › Endless Border** (`embroidery.endless {direction?, marker?, sides?, repeat?, gap?}`)
+makes the selected design a border sewn hooping after hooping, down a towel or along a table
+runner. The design is repeated along the way the fabric moves through the hoop (`direction`: up
+in a tall hoop, left in a wide one, or as set) as many times as fit (`repeat: false` for one),
+`gap` apart. Start marks come first, on the side the fabric moves toward, and end marks last, on
+the other, each in a thread of its own so the machine stops: sew it, move the fabric on and hoop
+it again, and at the start marks line the needle up with the end marks just sewn. The end marks
+are a small L of long stitches whose corner is the point (`marker: corner`), one long stitch onto
+it (`single`, for fabric that marks), a few stitches on it (`tieoff`) or three stitches in a line
+ending at it (`line`); on both sides of the border (`sides: both`, to see it went in straight) or
+the first only. Pick out the marks when the border is done. It works like Endless Embroidery in
+mySewnet ([public help](https://softwarehelp.mysewnet.com/MSW/140/Embroidery/Topics/Endless_Embroidery.htm)).
+
 ## Spiro
 
 **Embroidery › Spiro** (`embroidery.spiro {size?, petals?, shape?, spacing?, layers?, stitch?,
