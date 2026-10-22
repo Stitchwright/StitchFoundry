@@ -146,7 +146,7 @@ pub struct EmbroideryUi {
     pub cutout_sensitivity: u32,
     pub cutout_preview: Option<CutoutPreview>,
     pub cutout_split: f32,
-    /// Photo Stitch's mode: lines, coral or colour.
+    /// Photo Stitch's mode: lines, coral, colour, sepia, black and white or colour tile.
     pub photo_mode: usize,
     /// The last Check Design results (`embroidery.check` findings); `None` until run.
     pub checks: Option<Vec<serde_json::Value>>,

@@ -28,8 +28,8 @@ From mySewnet, apart from in-the-hoop: split and multi-hoop, QuickFont, photo st
 repeats (Repeat Design: round a circle, in a row, round the hoop, along a shape), Spiro and Endless
 (Endless Border: repeats re-hooped along start and end marks), the Quilt Block wizard's quilting
 round a design (Quilt Background: stipple or echo, a margin kept clear) are in, and Name Changer's
-job is Team Names' (one file per name, the lettering's place, size and arc kept). Missing: the
-Family Tree wizard and more photo stitch styles (sepia, black and white, colour tile) (HV-01).
+job is Team Names' (one file per name, the lettering's place, size and arc kept). PhotoStitch's sepia, black and white and colour tile styles are in. Missing: the Family Tree wizard
+(HV-01).
 
 ## The owner's decisions
 
@@ -44,13 +44,12 @@ Family Tree wizard and more photo stitch styles (sepia, black and white, colour 
 ## The v1 order
 
 1. Send to StitchShop (SHOP-01, [`stitchshop.md`](stitchshop.md)).
-2. The rest of in-the-hoop (HV-01): photo stitch styles (sepia, black and white, colour tile),
-   Family Tree and the passport holder.
+2. The rest of in-the-hoop (HV-01): Family Tree and the passport holder.
 3. The web viewer's call to action.
 4. Thread charts, as permission comes.
 
 Done since the list was drawn up: built-in fonts (FONT-01), the one-step photo to embroidery (PH-01), Effort and the AI's
-cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case and book cover, Repeat Design, Spiro, Endless Border and Quilt Background (HV-01), the web viewer
+cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case and book cover, Repeat Design, Spiro, Endless Border, Quilt Background and the sepia, black and white and colour tile photo stitches (HV-01), the web viewer
 (VIEW-01), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
 
 ## Sources
@@ -59,4 +58,6 @@ cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pen
 [Project-in-the-hoop Wizard guide](https://www.mysewnet.com/media/documents/Project-in-the-hoop-Wizard.pdf),
 [mySewnet help: Welcome Screen](https://softwarehelp.mysewnet.com/MSW/140/Embroidery/Topics/Welcome_Screen.htm),
 [mySewnet Embroidery features](https://mysewnet.com/en-il/embroidery/embroidery-digitizing-software/embroidery-software-features),
+[mySewnet help: PhotoStitch Assistant](https://softwarehelp.mysewnet.com/MSM/140/Embroidery/Topics/PP3M_Emb_22_Port_Wiz.htm),
+[mySewnet help: Photos for Color Tile PhotoStitch](https://softwarehelp.mysewnet.com/MSW/100/Embroidery/Topics/Photos_for_Color_Tile_PhotoStitch.htm),
 [mySewnet Embroidery Reference Guide](https://cms.prod.mysewnet.com/media/documents/mySewnetEmbroidery_RefGuide_Win140.pdf).

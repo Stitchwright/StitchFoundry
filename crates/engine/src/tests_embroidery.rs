@@ -376,6 +376,55 @@ fn a_photo_is_stitched_as_lines_coral_or_colours() {
     }
 }
 
+/// HV-01: sepia and black and white sew a photo by lightness in browns or greys; colour tile sews
+/// it as small tiles, each one thread colour.
+#[test]
+fn a_photo_is_stitched_in_sepia_greys_or_colour_tiles() {
+    let mut s = session();
+    let img = placed_photo(&mut s);
+    let threads = |s: &Session, ids: &[u64]| -> Vec<sf_core::Rgb> {
+        let d = &s.doc().unwrap().doc;
+        ids.iter().map(|id| d.node(NodeId(*id)).unwrap().embroidery.as_ref().unwrap().thread.clone().unwrap().color).collect()
+    };
+    let ids_of = |r: &Value| -> Vec<u64> { r["ids"].as_array().unwrap().iter().map(|v| v.as_u64().unwrap()).collect() };
+    // sepia: browns (red at least green at least blue), the lightest first, the red block brown
+    let r = s.execute("embroidery.photoStitch", &json!({"mode": "sepia", "cell": 1.5})).unwrap();
+    let ids = ids_of(&r);
+    assert!(ids.len() >= 2, "{r}");
+    let t = threads(&s, &ids);
+    for c in &t {
+        let lab = c.to_lab();
+        assert!(lab[2] >= -2.0 && lab[1].abs() < 30.0, "a brown: {}", c.to_hex());
+    }
+    assert!(t[0].to_lab()[0] >= t.last().unwrap().to_lab()[0], "lightest first");
+    // black and white: greys only
+    s.execute("edit.undo", &json!({})).unwrap();
+    s.execute("select.set", &json!({"ids": [img]})).unwrap();
+    let r = s.execute("embroidery.photoStitch", &json!({"mode": "mono", "cell": 1.5, "colors": 5})).unwrap();
+    for c in threads(&s, &ids_of(&r)) {
+        let lab = c.to_lab();
+        assert!(lab[1].abs() < 12.0 && lab[2].abs() < 12.0, "a grey: {}", c.to_hex());
+    }
+    // colour tile: every shape gives tiles, one fill a colour, the red block's tiles red
+    for shape in ["square", "diamond", "hexagon"] {
+        s.execute("edit.undo", &json!({})).unwrap();
+        s.execute("select.set", &json!({"ids": [img]})).unwrap();
+        let r = s.execute("embroidery.photoStitch", &json!({"mode": "tile", "shape": shape, "size": 3, "colors": 4})).unwrap();
+        let ids = ids_of(&r);
+        assert!(r["tiles"].as_u64().unwrap() > 50, "{shape}: {r}");
+        assert!(threads(&s, &ids).iter().any(|c| c.r > c.g.saturating_add(80)), "{shape}: a red thread");
+        let d = &s.doc().unwrap().doc;
+        let NodeKind::Path { path, .. } = &d.node(NodeId(ids[0])).unwrap().kind else { panic!("a path") };
+        let subpaths = path.to_bezpath().elements().iter().filter(|e| matches!(e, kurbo::PathEl::MoveTo(_))).count();
+        assert!(subpaths > 1, "{shape}: one path holds that colour's tiles");
+        assert!(s.embroidery_plan().unwrap().pattern().stitches.len() > 100);
+    }
+    s.execute("select.set", &json!({"ids": [img]})).unwrap();
+    for bad in [json!({"mode": "tile", "shape": "star"}), json!({"mode": "tile", "size": 0.5}), json!({"mode": "sepia", "colors": 1}), json!({"mode": "tile", "gap": 3})] {
+        assert!(s.execute("embroidery.photoStitch", &bad).is_err(), "{bad}");
+    }
+}
+
 /// PC-05: a lasso drawn loosely round a red disc on white closes on the disc's edge, in its colour.
 #[test]
 fn the_magnetic_lasso_snaps_to_the_edge_round_a_disc() {

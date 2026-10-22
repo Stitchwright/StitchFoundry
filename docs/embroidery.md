@@ -1468,8 +1468,17 @@ to sew it over the image as ordinary objects you can edit:
   lightest sewn first, its angle turned colour to colour. The background (the colour covering
   most of the photo's edges) is left unsewn unless `background` is on.
 
-`invert` sews the light parts instead (a light thread on a dark fabric) and `contrast` sharpens
-(above 1) or softens the tones. Prepare Image first to cut noise in a busy photo.
+- **Sepia** and **Black and White** (`mode: sepia`, `mode: mono`): as Colour, but by lightness
+  alone, in shades of brown (7, `colors`) or grey (11) from light to dark, each matched to the
+  chart's nearest thread. Good contrast and a plain or cut-away background work best.
+- **Colour Tile** (`mode: tile`): the photo as small tiles (`shape`: square, diamond or hexagon;
+  `size` mm across, 4; `gap` between them, 0.3 mm), each in one of the photo's main colours
+  (`colors`, 8) matched to the chart; every colour's tiles are one fill, the lightest sewn first.
+  Fine detail doesn't show at this scale: strong areas of colour do.
+
+The Colour, Sepia, Black and White and Colour Tile modes leave the background out (`background`
+to sew it). `invert` sews the light parts instead (a light thread on a dark fabric) and `contrast`
+sharpens (above 1) or softens the tones. Prepare Image first to cut noise in a busy photo.
 
 ## Design from Prompt
 

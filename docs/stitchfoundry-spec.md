@@ -507,6 +507,7 @@ not started · **Out** out of scope (reason given). **Phase** points to [§8](#8
 | PH-01 | Photo line embroidery (photo flash: lines of varying density) | Done | `embroidery.photoStitch {mode: lines}`: parallel lines whose zigzag widens with darkness, one line of manual stitches; spacing, angle, invert, contrast | 0 |
 | PH-02 | Coral / single-run photo stitch | Done | `embroidery.photoStitch {mode: coral}`: points scattered by darkness, sewn nearest-first as one meandering run (trims over 5 mm gaps) | 0 |
 | PH-03 | Colour photo stitch | Done | `embroidery.photoStitch {mode: color}`: main colours matched to chart threads on a cell grid, cleaned, each a short-stitch tatami fill, lightest first, angles turned per colour | 0 |
+| PH-04 | Sepia, black and white and colour tile photo stitch | Done | `embroidery.photoStitch {mode: sepia, mono or tile}`: by lightness in browns or greys matched to the chart; or tiles (square, diamond, hexagon) in the main colours, each colour's tiles one fill (from mySewnet's public PhotoStitch help: https://softwarehelp.mysewnet.com/MSM/140/Embroidery/Topics/PP3M_Emb_22_Port_Wiz.htm) | 0 |
 
 ### 6.13 Hooping, production, output, management
 

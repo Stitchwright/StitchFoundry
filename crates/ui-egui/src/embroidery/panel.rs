@@ -2002,8 +2002,8 @@ pub(crate) fn auto_digitize_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
     });
     cutout_rows(app, ui);
     // photo stitch: lines, coral or these colours
-    let modes = ["lines", "coral", "color"];
-    let names = [tl!("Lines"), tl!("Coral"), tl!("Colours")];
+    let modes = ["lines", "coral", "color", "sepia", "mono", "tile"];
+    let names = [tl!("Lines"), tl!("Coral"), tl!("Colours"), tl!("Sepia"), tl!("Black and White"), tl!("Colour Tile")];
     let cur = app.embroidery.photo_mode.min(modes.len() - 1);
     if let Some(i) = pick(ui, tl!("Photo Stitch"), "photo-mode", cur, &names) {
         app.embroidery.photo_mode = i;
@@ -2013,6 +2013,8 @@ pub(crate) fn auto_digitize_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
         let mut params = json!({ "mode": mode });
         if mode == "color" {
             params["colors"] = json!(colors);
+        }
+        if ["color", "sepia", "mono", "tile"].contains(&mode) {
             params["background"] = json!(!app.embroidery.digitize_background);
         }
         if let Err(e) = app.run("embroidery.photoStitch", params) {

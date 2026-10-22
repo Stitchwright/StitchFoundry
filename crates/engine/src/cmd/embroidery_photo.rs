@@ -1,8 +1,9 @@
 //! Images for embroidery (phase 5): an image's main colours matched to threads (BM-03), an image
 //! prepared for digitizing: smoothed, its colours reduced and its edges cleaned (BM-02), and photo
 //! stitch (PH-01…03): a photo sewn as lines whose zigzag follows its darkness, as one meandering
-//! run that is denser where it is darker, or in a few thread colours. Everything made is ordinary
-//! objects, editable as any other.
+//! run that is denser where it is darker, in a few thread colours, in sepia or grey tones, or as
+//! colour tiles (squares, diamonds or hexagons). Everything made is ordinary objects, editable as
+//! any other.
 
 use std::sync::Arc;
 
@@ -56,7 +57,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Photo Stitch",
             ["Embroidery"],
             None,
-            "{id?: an image (the selected one), mode?: lines|coral|color (lines), color?: \"#rrggbb\" the thread (lines, coral; black), invert?: bool (light thread on a dark fabric: the light parts sewn), contrast?: 0.3–3 (1), spacing?: mm between lines 0.6–5 (1.6; lines), angle?: degrees (0; lines), density?: 0.5–8 points a mm² where darkest (3; coral), colors?: 2–32 (6; color), chart?: (the design's; color), cell?: mm 0.5–5 (1; color), background?: bool (false: the colour covering most of the image's edges is left unsewn; color)} the image sewn as photo stitch over it: lines across it whose zigzag widens where it is darker (lines), one run meandering through points that crowd where it is darker (coral), or its main colours as short-stitch fills, the lightest first, matched to the chart's threads, its background left out (color) → {ids, mode, points?, colors?}",
+            "{id?: an image (the selected one), mode?: lines|coral|color|sepia|mono|tile (lines), color?: \"#rrggbb\" the thread (lines, coral; black), invert?: bool (light thread on a dark fabric: the light parts sewn), contrast?: 0.3–3 (1), spacing?: mm between lines 0.6–5 (1.6; lines), angle?: degrees (0; lines), density?: 0.5–8 points a mm² where darkest (3; coral), colors?: 2–32 (color 6; sepia 7; mono 11; tile 8), chart?: (the design's; color sepia mono tile), cell?: mm 0.5–5 (1; color sepia mono), shape?: square|diamond|hexagon (square; tile), size?: mm 2–12 (4; tile), gap?: mm 0–1 (0.3; tile), background?: bool (false: the colour covering most of the image's edges is left unsewn; color sepia mono tile)} the image sewn as photo stitch over it: lines across it whose zigzag widens where it is darker (lines), one run meandering through points that crowd where it is darker (coral), or its main colours as short-stitch fills, the lightest first, matched to the chart's threads, its background left out (color), the same in shades of brown (sepia) or grey (mono) by how light it is, or small tiles each one thread colour (tile) → {ids, mode, points?, colors?, tiles?}",
             has_doc,
             photo_stitch
         ),
@@ -673,7 +674,10 @@ fn coral(pic: &Picture, density: f64, invert: bool, contrast: f64) -> Result<Vec
 /// Colour photo: the image on a grid of `cell` mm cells, each the nearest of its `n` main colours
 /// matched to the chart's threads, specks cleaned; each colour's region one short-stitch tatami
 /// fill, the lightest first, their angles turned colour to colour.
-fn colour_fills(s: &Session, pic: &Picture, n: usize, cell: f64, chart: &ThreadChart, background: bool) -> Result<Vec<vectorcraft_doc::Node>> {
+///
+/// With `tones` (a ramp from light to dark) the photo is sewn by lightness alone: each cell takes
+/// the ramp's colour at its lightness, and the palette is `n` steps along the ramp.
+fn colour_fills(s: &Session, pic: &Picture, n: usize, cell: f64, chart: &ThreadChart, background: bool, tones: Option<[Rgb; 2]>) -> Result<Vec<vectorcraft_doc::Node>> {
     use kurbo::Shape;
     let b = pic.bounds();
     let mm = PT_PER_MM;
@@ -687,14 +691,27 @@ fn colour_fills(s: &Session, pic: &Picture, n: usize, cell: f64, chart: &ThreadC
     let grid = Raster::from_fn(w as u32, h as u32, |x, y| {
         let q = inv * kurbo::Point::new(b.x0 + (f64::from(x) + 0.5) * c, b.y0 + (f64::from(y) + 0.5) * c);
         if q.x >= 0.0 && q.y >= 0.0 && q.x < f64::from(pic.raster.width) && q.y < f64::from(pic.raster.height) {
-            pic.raster.pixel(q.x as u32, q.y as u32)
+            let px = pic.raster.pixel(q.x as u32, q.y as u32);
+            match tones {
+                Some(ramp) => {
+                    let [r, g, b, a] = px;
+                    let luma = (0.2126 * f64::from(r) + 0.7152 * f64::from(g) + 0.0722 * f64::from(b)) / 255.0;
+                    let t = along(ramp, 1.0 - luma);
+                    [t.r, t.g, t.b, a]
+                }
+                None => px,
+            }
         } else {
             [0, 0, 0, 0]
         }
     });
-    let palette: Vec<Rgb> = main_colors(&sample(&grid, 40_000), n)
+    let found: Vec<Rgb> = match tones {
+        Some(ramp) => (0..n).map(|i| along(ramp, i as f64 / (n - 1).max(1) as f64)).collect(),
+        None => main_colors(&sample(&grid, 40_000), n).into_iter().map(|(c, _)| c).collect(),
+    };
+    let palette: Vec<Rgb> = found
         .into_iter()
-        .map(|(c, _)| chart.threads.get(chart.nearest(c)).map_or(c, |t| t.color))
+        .map(|c| chart.threads.get(chart.nearest(c)).map_or(c, |t| t.color))
         .fold(Vec::new(), |mut v, c| {
             if !v.contains(&c) {
                 v.push(c);
@@ -761,11 +778,177 @@ fn colour_fills(s: &Session, pic: &Picture, n: usize, cell: f64, chart: &ThreadC
     Ok(out)
 }
 
+/// The colour `t` of the way (0–1) from a ramp's light end to its dark end.
+fn along(ramp: [Rgb; 2], t: f64) -> Rgb {
+    let t = if t.is_finite() { t.clamp(0.0, 1.0) } else { 0.0 };
+    let mix = |a: u8, b: u8| (f64::from(a) + (f64::from(b) - f64::from(a)) * t).round().clamp(0.0, 255.0) as u8;
+    let [l, d] = ramp;
+    Rgb::new(mix(l.r, d.r), mix(l.g, d.g), mix(l.b, d.b))
+}
+
+/// Sepia's and black and white's ramps, light to dark.
+const SEPIA: [Rgb; 2] = [Rgb::new(0xf2, 0xe4, 0xc9), Rgb::new(0x3a, 0x23, 0x12)];
+const MONO: [Rgb; 2] = [Rgb::new(0xf5, 0xf5, 0xf5), Rgb::new(0x14, 0x14, 0x14)];
+
+/// The most tiles a colour tile photo stitch makes.
+const MAX_TILES: usize = 60_000;
+
+/// A tile's shape, round its centre, `size` across, shrunk by `gap` on each side.
+fn tile_shape(shape: &str, at: kurbo::Point, size: f64, gap: f64) -> Vec<kurbo::Point> {
+    let r = (size / 2.0 - gap).max(size * 0.1);
+    let (corners, turn) = match shape {
+        "diamond" => (4, 0.0),
+        "hexagon" => (6, 30.0),
+        _ => (4, 45.0),
+    };
+    // a square's corners sit r·√2 out, so that it is `size` across
+    let reach = if shape == "square" { r * std::f64::consts::SQRT_2 } else if shape == "hexagon" { r / (30f64.to_radians().cos()) } else { r };
+    (0..corners)
+        .map(|k| {
+            let a = (turn + 360.0 * f64::from(k) / f64::from(corners)).to_radians();
+            kurbo::Point::new(at.x + reach * a.cos(), at.y + reach * a.sin())
+        })
+        .collect()
+}
+
+/// Colour tile: the photo as small tiles (squares, diamonds or hexagons `size` mm across), each
+/// one of the photo's `n` main colours matched to the chart, every colour's tiles one short-stitch
+/// fill, the lightest first.
+fn colour_tiles(s: &Session, pic: &Picture, n: usize, shape: &str, size: f64, gap: f64, chart: &ThreadChart, background: bool) -> Result<(Vec<vectorcraft_doc::Node>, usize)> {
+    const CMD: &str = "embroidery.photoStitch";
+    let b = pic.bounds();
+    let mm = PT_PER_MM;
+    let (sz, gp) = (size * mm, gap * mm);
+    // the tiles' centres: a square grid, diamonds in rows half a tile apart, hexagons (flat sides
+    // left and right) in rows 3/4 of a tile apart, every other row moved half a tile
+    let (dx, dy, shift) = match shape {
+        "diamond" => (sz, sz / 2.0, sz / 2.0),
+        "hexagon" => (sz, sz * 3f64.sqrt() / 2.0, sz / 2.0),
+        _ => (sz, sz, 0.0),
+    };
+    let (cols, rows) = ((b.width() / dx).ceil() as usize + 1, (b.height() / dy).ceil() as usize + 1);
+    if cols.saturating_mul(rows) > MAX_TILES {
+        return Err(bad(CMD, "too many tiles: make them larger or the image smaller"));
+    }
+    let inv = pic.to_doc.inverse();
+    let colour_at = |at: kurbo::Point| -> Option<Rgb> {
+        // the tile's colour: the mean of nine samples in it, if most are on the image and opaque
+        let (mut sum, mut k) = ([0.0f64; 3], 0u32);
+        for i in [-1.0, 0.0, 1.0] {
+            for j in [-1.0, 0.0, 1.0] {
+                let q = inv * kurbo::Point::new(at.x + i * sz / 4.0, at.y + j * sz / 4.0);
+                if q.x >= 0.0 && q.y >= 0.0 && q.x < f64::from(pic.raster.width) && q.y < f64::from(pic.raster.height) {
+                    let [r, g, bl, a] = pic.raster.pixel(q.x as u32, q.y as u32);
+                    if a >= 128 {
+                        sum[0] += f64::from(r);
+                        sum[1] += f64::from(g);
+                        sum[2] += f64::from(bl);
+                        k += 1;
+                    }
+                }
+            }
+        }
+        (k >= 5).then(|| {
+            let m = |v: f64| (v / f64::from(k)).round().clamp(0.0, 255.0) as u8;
+            Rgb::new(m(sum[0]), m(sum[1]), m(sum[2]))
+        })
+    };
+    let mut tiles: Vec<(kurbo::Point, Rgb, bool)> = Vec::new();
+    for r in 0..rows {
+        for c in 0..cols {
+            let off = if r % 2 == 1 { shift } else { 0.0 };
+            let at = kurbo::Point::new(b.x0 + c as f64 * dx + off, b.y0 + r as f64 * dy);
+            if !b.contains(at) {
+                continue;
+            }
+            if let Some(col) = colour_at(at) {
+                let edge = at.x - b.x0 < sz || b.x1 - at.x < sz || at.y - b.y0 < sz || b.y1 - at.y < sz;
+                tiles.push((at, col, edge));
+            }
+        }
+    }
+    let colours: Vec<Rgb> = tiles.iter().map(|t| t.1).collect();
+    let palette: Vec<Rgb> = main_colors(&colours, n)
+        .into_iter()
+        .map(|(c, _)| chart.threads.get(chart.nearest(c)).map_or(c, |t| t.color))
+        .fold(Vec::new(), |mut v, c| {
+            if !v.contains(&c) {
+                v.push(c);
+            }
+            v
+        });
+    let labs: Vec<[f64; 3]> = palette.iter().map(|c| c.to_lab()).collect();
+    let nearest = |c: Rgb| {
+        let l = c.to_lab();
+        let d = |m: &[f64; 3]| (m[0] - l[0]).powi(2) + (m[1] - l[1]).powi(2) + (m[2] - l[2]).powi(2);
+        labs.iter().enumerate().min_by(|a, b| d(a.1).total_cmp(&d(b.1))).map_or(0, |(i, _)| i)
+    };
+    let picked: Vec<usize> = tiles.iter().map(|t| nearest(t.1)).collect();
+    let skip = if background {
+        None
+    } else {
+        let mut edge = vec![0usize; palette.len()];
+        let mut total = 0usize;
+        for (t, i) in tiles.iter().zip(&picked) {
+            if t.2 {
+                total += 1;
+                if let Some(e) = edge.get_mut(*i) {
+                    *e += 1;
+                }
+            }
+        }
+        edge.iter().enumerate().max_by_key(|(_, n)| **n).filter(|(_, n)| **n * 2 > total).map(|(i, _)| i)
+    };
+    let mut order: Vec<usize> = (0..palette.len()).collect();
+    order.sort_by(|a, b| {
+        let l = |i: &usize| palette.get(*i).map_or(0.0, |c| c.to_lab()[0]);
+        l(b).total_cmp(&l(a))
+    });
+    let new = super::embroidery::new_stitching(s);
+    let mut out = Vec::new();
+    let mut count = 0;
+    for (k, i) in order.iter().enumerate() {
+        if skip == Some(*i) {
+            continue;
+        }
+        let mut bp = kurbo::BezPath::new();
+        for (t, _) in tiles.iter().zip(&picked).filter(|(_, p)| **p == *i) {
+            let pts = tile_shape(shape, t.0, sz, gp);
+            let Some((first, rest)) = pts.split_first() else { continue };
+            bp.move_to(*first);
+            for q in rest {
+                bp.line_to(*q);
+            }
+            bp.close_path();
+            count += 1;
+        }
+        if bp.elements().is_empty() {
+            continue;
+        }
+        let Some(color) = palette.get(*i).copied() else { continue };
+        let paint = Paint::solid(Color::rgb8(color.r, color.g, color.b));
+        let mut node = vectorcraft_doc::Node::path(NodeId(0), vectorcraft_geom::PathData::from_bezpath(&bp), Appearance::basic(paint, Paint::None, 0.0));
+        let mut fill = match new.first().map(|n| &n.stitch) {
+            Some(StitchType::Fill(f)) => f.clone(),
+            _ => FillParams::default(),
+        };
+        fill.angle = (k as f64 * 37.0) % 180.0;
+        fill.stitch_length = (size * 0.5).clamp(1.5, 3.0);
+        let mut e = Embroidery::new(StitchType::Fill(fill));
+        let thread = chart.threads.iter().find(|t| t.color == color).cloned().unwrap_or_else(|| sf_core::threads::Thread::new(color, ""));
+        e.thread = Some(thread);
+        node.embroidery = Some(Box::new(e));
+        node.name = Some(format!("Tiles {}", color.to_hex()));
+        out.push(node);
+    }
+    Ok((out, count))
+}
+
 fn photo_stitch(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "embroidery.photoStitch";
     let mode = str_param(p, "mode").unwrap_or("lines");
-    if !["lines", "coral", "color"].contains(&mode) {
-        return Err(bad(CMD, "`mode` is lines, coral or color"));
+    if !["lines", "coral", "color", "sepia", "mono", "tile"].contains(&mode) {
+        return Err(bad(CMD, "`mode` is lines, coral, color, sepia, mono or tile"));
     }
     let invert = bool_or(p, "invert", false);
     let contrast = number(p, "contrast", 0.3, 3.0, 1.0, CMD)?;
@@ -778,6 +961,7 @@ fn photo_stitch(s: &mut Session, p: &Value) -> Result<Value> {
     if b.width() > 600.0 * PT_PER_MM || b.height() > 600.0 * PT_PER_MM {
         return Err(bad(CMD, "the image is larger than 600 mm: scale it down first"));
     }
+    let mut tiles = None;
     let (nodes, points, colors) = match mode {
         "lines" => {
             let spacing = number(p, "spacing", 0.6, 5.0, 1.6, CMD)?;
@@ -792,11 +976,30 @@ fn photo_stitch(s: &mut Session, p: &Value) -> Result<Value> {
             let n: usize = l.iter().map(Vec::len).sum();
             (manual(l, thread, "Photo Coral").into_iter().collect(), Some(n), None)
         }
+        "tile" => {
+            let n = whole(p, "colors", 2, 32, 8, CMD)? as usize;
+            let shape = str_param(p, "shape").unwrap_or("square");
+            if !["square", "diamond", "hexagon"].contains(&shape) {
+                return Err(bad(CMD, "`shape` is square, diamond or hexagon"));
+            }
+            let size = number(p, "size", 2.0, 12.0, 4.0, CMD)?;
+            let gap = number(p, "gap", 0.0, 1.0, 0.3, CMD)?;
+            let chart = chart(s, p, CMD)?;
+            let (fills, count) = colour_tiles(s, &pic, n, shape, size, gap, &chart, bool_or(p, "background", false))?;
+            tiles = Some(count);
+            let k = fills.len();
+            (fills, None, Some(k))
+        }
         _ => {
-            let n = whole(p, "colors", 2, 32, 6, CMD)? as usize;
+            let (tones, default) = match mode {
+                "sepia" => (Some(SEPIA), 7),
+                "mono" => (Some(MONO), 11),
+                _ => (None, 6),
+            };
+            let n = whole(p, "colors", 2, 32, default, CMD)? as usize;
             let cell = number(p, "cell", 0.5, 5.0, 1.0, CMD)?;
             let chart = chart(s, p, CMD)?;
-            let fills = colour_fills(s, &pic, n, cell, &chart, bool_or(p, "background", false))?;
+            let fills = colour_fills(s, &pic, n, cell, &chart, bool_or(p, "background", false), tones)?;
             let k = fills.len();
             (fills, None, Some(k))
         }
@@ -817,5 +1020,5 @@ fn photo_stitch(s: &mut Session, p: &Value) -> Result<Value> {
         Ok(ids)
     })?;
     let ids: Vec<u64> = ids.iter().map(|i| i.0).collect();
-    Ok(json!({ "ids": ids, "mode": mode, "points": points, "colors": colors }))
+    Ok(json!({ "ids": ids, "mode": mode, "points": points, "colors": colors, "tiles": tiles }))
 }
