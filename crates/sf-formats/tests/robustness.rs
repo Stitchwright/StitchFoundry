@@ -44,6 +44,9 @@ fn random_bytes_behind_a_valid_header() {
             Format::Pcs => 22,
             // the header and the colour table
             Format::Hus => 0x2A + 2 * 4,
+            // the colour table and the preview
+            Format::Sew => 0x1D78,
+            Format::Vip => 0x2E + 4 * 4,
             Format::Dsz => 0,
         };
         for _ in 0..2000 {

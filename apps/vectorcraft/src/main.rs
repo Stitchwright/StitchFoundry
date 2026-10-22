@@ -1139,6 +1139,8 @@ mod tests {
         ("dsb", "application/x-embroidery-dsb"),
         ("dsz", "application/x-embroidery-dsz"),
         ("hus", "application/x-embroidery-hus"),
+        ("sew", "application/x-embroidery-sew"),
+        ("vip", "application/x-embroidery-vip"),
     ];
 
     /// The types in `LINUX_TYPES` that shared-mime-info defines. The MIME package declares every

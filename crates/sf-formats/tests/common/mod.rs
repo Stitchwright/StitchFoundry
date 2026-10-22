@@ -14,7 +14,7 @@ pub fn threads_for(format: Format) -> Vec<Thread> {
             let c = pec_chart();
             [5, 13, 2, 37].iter().map(|&i| c.threads[i].clone()).collect()
         }
-        Format::Jef => {
+        Format::Jef | Format::Sew => {
             let c = jef_chart();
             [10, 3, 12, 6].iter().map(|&i| c.threads[i].clone()).collect()
         }

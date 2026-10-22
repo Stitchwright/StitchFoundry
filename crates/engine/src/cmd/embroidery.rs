@@ -923,11 +923,11 @@ fn convert_art(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 /// The machine formats StitchFoundry writes, by extension (what `embroidery.export` takes).
-pub const MACHINE_EXTS: &[&str] = &["dst", "exp", "jef", "pes", "pec", "vp3", "xxx", "u01", "pcs", "tap", "dsb", "hus"];
+pub const MACHINE_EXTS: &[&str] = &["dst", "exp", "jef", "pes", "pec", "vp3", "xxx", "u01", "pcs", "tap", "dsb", "hus", "sew"];
 
 /// The machine formats StitchFoundry reads (File › Open, the design library): the ones it
 /// writes and ZSK DSZ.
-pub const MACHINE_READ_EXTS: &[&str] = &["dst", "exp", "jef", "pes", "pec", "vp3", "xxx", "u01", "pcs", "tap", "dsb", "dsz", "hus"];
+pub const MACHINE_READ_EXTS: &[&str] = &["dst", "exp", "jef", "pes", "pec", "vp3", "xxx", "u01", "pcs", "tap", "dsb", "dsz", "hus", "sew", "vip"];
 
 /// Open text exports of the stitches (export only): CSV and JSON stitch lists, G-code.
 pub const TEXT_EXTS: &[&str] = &["csv", "json", "gcode"];

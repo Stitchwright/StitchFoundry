@@ -1,7 +1,7 @@
 //! # StitchFoundry machine embroidery file formats
 //!
 //! Readers and writers for the files embroidery machines sew from. Every format
-//! has a reader ([`read`]) and all but ZSK DSZ a writer ([`write()`]); [`detect`] sniffs a file's
+//! has a reader ([`read`]) and all but ZSK DSZ and Pfaff VIP a writer ([`write()`]); [`detect`] sniffs a file's
 //! format from its bytes and [`read_any`] combines detection with reading.
 //!
 //! | Format | Machines | Colours | Native commands |
@@ -16,6 +16,8 @@
 //! | [`Format::U01`] | Barudan | no | stitch, jump, trim, stop, needle change, end |
 //! | [`Format::Pcs`] | Pfaff (experimental) | RGB, 16 at most | stitch, move, colour change (trims are a move where the needle is) |
 //! | [`Format::Hus`] | Husqvarna Viking (experimental) | Husqvarna palette | stitch, jump, trim, colour change, end |
+//! | [`Format::Sew`] | older Janome / Elna / Kenmore (experimental) | Janome palette | as JEF |
+//! | [`Format::Vip`] | older Pfaff (read only) | RGB | as HUS |
 //! | [`Format::Tap`] | Happy | no | as DST |
 //! | [`Format::Dsb`] | Barudan (a DST header, U01's records) | no | as U01 |
 //! | [`Format::Dsz`] | ZSK (read only) | no | stitch, jump, trim, stop, needle change |
@@ -60,8 +62,10 @@ mod pcs;
 mod pec;
 mod pes;
 mod plan;
+mod sew;
 mod tap;
 mod u01;
+mod vip;
 mod vp3;
 mod xxx;
 
@@ -102,6 +106,11 @@ pub enum Format {
     /// Husqvarna Viking `.hus` (experimental): a palette-indexed header and three compressed
     /// streams (commands, dx, dy) of one byte a record.
     Hus,
+    /// Janome `.sew` (experimental), older Janome, Elna and Kenmore machines: a palette-indexed
+    /// colour table, then JEF's records from 0x1D78.
+    Sew,
+    /// Pfaff `.vip` (read only): HUS's layout, another signature and a scrambled RGB colour table.
+    Vip,
     /// Pfaff `.pcs` (experimental): an RGB table of up to 16 colours, then 9-byte records at
     /// absolute positions in 1/6 mm; a trim is a move to where the needle is.
     Pcs,
@@ -116,7 +125,7 @@ pub enum Format {
 
 impl Format {
     /// Every format StitchFoundry writes (and reads).
-    pub const ALL: [Format; 12] = [
+    pub const ALL: [Format; 13] = [
         Format::Dst,
         Format::Exp,
         Format::Jef,
@@ -129,10 +138,11 @@ impl Format {
         Format::Tap,
         Format::Dsb,
         Format::Hus,
+        Format::Sew,
     ];
 
     /// The formats StitchFoundry reads but doesn't write.
-    pub const READ_ONLY: [Format; 1] = [Format::Dsz];
+    pub const READ_ONLY: [Format; 2] = [Format::Dsz, Format::Vip];
 
     /// Whether [`write()`] can write the format.
     pub fn writable(self) -> bool {
@@ -155,6 +165,8 @@ impl Format {
             Format::Dsb => "dsb",
             Format::Dsz => "dsz",
             Format::Hus => "hus",
+            Format::Sew => "sew",
+            Format::Vip => "vip",
         }
     }
 
@@ -174,6 +186,8 @@ impl Format {
             Format::Dsb => "Barudan DSB",
             Format::Dsz => "ZSK DSZ",
             Format::Hus => "Husqvarna HUS",
+            Format::Sew => "Janome SEW",
+            Format::Vip => "Pfaff VIP",
         }
     }
 
@@ -330,7 +344,8 @@ pub fn write(format: Format, pattern: &Pattern, opts: &WriteOptions) -> Result<V
         Format::Tap => tap::write(pattern, opts),
         Format::Dsb => dsb::write(pattern, opts),
         Format::Hus => hus::write(pattern, opts),
-        Format::Dsz => Err(FormatError::ReadOnly(format)),
+        Format::Sew => sew::write(pattern, opts),
+        Format::Dsz | Format::Vip => Err(FormatError::ReadOnly(format)),
     }
 }
 
@@ -350,6 +365,8 @@ pub fn read(format: Format, bytes: &[u8]) -> Result<Pattern, FormatError> {
         Format::Dsb => dsb::read(bytes),
         Format::Dsz => dsz::read(bytes),
         Format::Hus => hus::read(bytes),
+        Format::Sew => sew::read(bytes),
+        Format::Vip => vip::read(bytes),
     }
 }
 
@@ -373,13 +390,24 @@ pub fn prepare(format: Format, pattern: &Pattern, opts: &WriteOptions) -> Result
         Format::Tap => tap::plan(pattern, opts)?,
         Format::Dsb => dsb::plan(pattern, opts)?,
         Format::Hus => hus::plan(pattern, opts)?,
-        Format::Dsz => return Err(FormatError::ReadOnly(format)),
+        Format::Sew => sew::plan(pattern, opts)?,
+        Format::Dsz | Format::Vip => return Err(FormatError::ReadOnly(format)),
     };
     let mut out = plan.to_pattern(&cfg);
     // The label as the file stores it.
     out.name = match format {
         Format::Dst | Format::Dsb | Format::Pes | Format::Pec => bytes::ascii_label(opts.label(pattern), 16).trim_end().to_string(),
-        Format::Exp | Format::Jef | Format::Vp3 | Format::Xxx | Format::U01 | Format::Pcs | Format::Tap | Format::Dsz | Format::Hus => String::new(),
+        Format::Exp
+        | Format::Jef
+        | Format::Vp3
+        | Format::Xxx
+        | Format::U01
+        | Format::Pcs
+        | Format::Tap
+        | Format::Dsz
+        | Format::Hus
+        | Format::Sew
+        | Format::Vip => String::new(),
     };
     Ok(out)
 }
@@ -396,6 +424,8 @@ pub fn detect(bytes: &[u8]) -> Option<Format> {
         Some(Format::Vp3)
     } else if hus::sniff(bytes) {
         Some(Format::Hus)
+    } else if vip::sniff(bytes) {
+        Some(Format::Vip)
     } else if dsb::sniff(bytes) {
         Some(Format::Dsb)
     } else if dsz::sniff(bytes) {
@@ -412,6 +442,8 @@ pub fn detect(bytes: &[u8]) -> Option<Format> {
         Some(Format::Tap)
     } else if u01::sniff(bytes) {
         Some(Format::U01)
+    } else if sew::sniff(bytes) {
+        Some(Format::Sew)
     } else if exp::sniff(bytes) {
         Some(Format::Exp)
     } else {

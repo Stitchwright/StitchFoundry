@@ -2020,6 +2020,8 @@ a design; export machine files with **Export Machine File**.
 | Barudan | .u01 | no (needle numbers) | yes | yes |
 | Pfaff (older machines; experimental) | .pcs | RGB, 16 at most | yes | yes |
 | Husqvarna Viking (experimental) | .hus | HUS palette (nearest) | yes | yes |
+| Janome, Elna, Kenmore (older machines; experimental) | .sew | JEF palette (nearest) | yes | yes |
+| Pfaff (older machines) | .vip | RGB | yes | no |
 | Happy | .tap | no (DST records) | yes | yes |
 
 - Opening or placing a machine file turns each thread into a path of **Manual** stitches (one
@@ -2038,6 +2040,14 @@ a design; export machine files with **Export Machine File**.
   three streams are stored in blocks that code every byte as itself, which the format's own
   decoding reads, but no machine has sewn one yet. Colours are the nearest of the 29 in the HUS
   palette.
+- SEW, the format of older Janome, Elna and Kenmore machines, is **experimental**. Its colour
+  table (JEF's palette) and JEF's stitch records follow pyembroidery's and libembroidery's
+  readers; the preview picture Janome's own files keep before the stitches is written blank, and
+  no machine has sewn one of ours yet. A SEW file has no signature: it is recognised by its
+  extension, or by a colour table that fits the Janome palette.
+- Pfaff **VIP** (older Pfaff machines, between PCS and VP3) is **read only**: HUS's compressed
+  streams with an RGB colour table, unscrambled with libembroidery's key. Nobody has published a
+  writer machines accept, and machines that read VIP read HUS or VP3 too: export one of those.
 - PCS is **experimental**: its layout comes from public descriptions of the format, and no
   machine has sewn one yet. It holds 16 colours at most, positions in 1/6 mm, and no trim (a
   trim is written as a move to where the needle is). TAP is DST's records without the header.

@@ -315,7 +315,7 @@ fn distance_huffman(b: &mut Bits) -> Result<Huffman, FormatError> {
 }
 
 /// One stream decompressed, to at most `size` bytes.
-fn expand(data: &[u8], size: usize) -> Result<Vec<u8>, FormatError> {
+pub(crate) fn expand(data: &[u8], size: usize) -> Result<Vec<u8>, FormatError> {
     let mut b = Bits { data, pos: 0 };
     let mut out: Vec<u8> = Vec::with_capacity(size.min(MAX_RECORDS));
     let mut tables: Option<(Huffman, Huffman)> = None;

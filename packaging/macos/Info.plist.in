@@ -107,7 +107,7 @@
         <string>dst</string><string>exp</string><string>jef</string><string>pes</string>
         <string>pec</string><string>vp3</string><string>xxx</string><string>u01</string>
         <string>pcs</string><string>tap</string><string>dsb</string><string>dsz</string>
-        <string>hus</string>
+        <string>hus</string><string>sew</string><string>vip</string>
       </array>
       <key>CFBundleTypeRole</key><string>Editor</string>
       <key>LSHandlerRank</key><string>Alternate</string>

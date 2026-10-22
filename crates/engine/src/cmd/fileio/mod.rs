@@ -679,6 +679,8 @@ pub const FORMATS: &[Format] = &[
     reader("dsb", "Barudan DSB", &["dsb"], "application/x-dsb", false),
     reader("dsz", "ZSK DSZ", &["dsz"], "application/x-dsz", false),
     reader("hus", "Husqvarna HUS", &["hus"], "application/x-hus", false),
+    reader("sew", "Janome SEW", &["sew"], "application/x-sew", false),
+    reader("vip", "Pfaff VIP", &["vip"], "application/x-vip", false),
     // iPhone and Mac photos: decoded only in builds with the engine's `heif` feature.
     reader("heic", "HEIC", &["heic", "heif"], "image/heic", true),
 ];
@@ -732,6 +734,8 @@ pub const OPEN_EXTS: &[&str] = &[
     "dsb",
     "dsz",
     "hus",
+    "sew",
+    "vip",
 ];
 
 /// Extensions in [`OPEN_EXTS`] the packaging declares no type for: Photoshop documents belong to
@@ -813,6 +817,8 @@ pub const PLACE_EXTS: &[&str] = &[
     "dsb",
     "dsz",
     "hus",
+    "sew",
+    "vip",
     "txt",
     "rtf",
     "docx",
