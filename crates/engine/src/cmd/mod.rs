@@ -24,6 +24,7 @@ pub mod embroidery;
 pub mod embroidery_ai;
 pub mod embroidery_applique;
 pub mod embroidery_art;
+pub mod embroidery_background;
 pub mod embroidery_blend;
 pub mod embroidery_buttonholes;
 pub mod embroidery_charts;
@@ -347,6 +348,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(quilting::specs());
         v.extend(embroidery_testsew::specs());
         v.extend(embroidery_sheet_setup::specs());
+        v.extend(embroidery_background::specs());
         v.extend(embroidery_endless::specs());
         v.extend(embroidery_repeat::specs());
         v.extend(embroidery_scatter::specs());

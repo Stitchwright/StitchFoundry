@@ -586,6 +586,19 @@ ending at it (`line`); on both sides of the border (`sides: both`, to see it wen
 the first only. Pick out the marks when the border is done. It works like Endless Embroidery in
 mySewnet ([public help](https://softwarehelp.mysewnet.com/MSW/140/Embroidery/Topics/Endless_Embroidery.htm)).
 
+## Quilt Background
+
+**Embroidery › Quilt Background** (`embroidery.quiltBackground {fill?, margin?, spacing?, stitch?,
+width?, height?, color?}`) quilts round the selected design, for a quilt block or a framed
+piece: a `margin` (3 mm) is left unstitched round the design, and the rest of the hoop (3 mm in
+from its edge), or a block `width` × `height` round the design, is quilted in one running line,
+`spacing` (4 mm) between its lines, `stitch` (2 mm) long. `fill: stipple` (the default) is a
+wandering meander; `echo` is lines following the design's outline outward and the block's edge
+inward. The quilting is sewn first, under the design, in a thread of its own named Quilting (the
+design's first colour unless `color` is given). It works like the quilting round an embroidery in
+mySewnet's Quilt Block wizard
+([public help](https://softwarehelp.mysewnet.com/MSW/140/Embroidery/Topics/Quilt_Block_Wizard_Examples.htm)).
+
 ## Spiro
 
 **Embroidery › Spiro** (`embroidery.spiro {size?, petals?, shape?, spacing?, layers?, stitch?,
