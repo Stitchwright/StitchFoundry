@@ -320,15 +320,17 @@ fn make(s: &mut Session, units: &[Unit], st: Style) -> Result<Value> {
         d.artboards.first().map(|a| a.rect.center()).ok_or_else(|| EngineError::Other("the design has no page".into()))?
     };
     let hoop = s.doc()?.doc.embroidery.as_deref().and_then(|e| e.hoop.as_ref()).map(|h| (h.width, h.height));
+    // lettered at Add Words' smallest at least, then made as small as asked
+    let base = st.height.max(5.0);
     let mut words = Vec::new();
-    letter(s, units, st.height, &st.colors.0, &mut words)?;
+    letter(s, units, base, &st.colors.0, &mut words)?;
     let framed = st.frame != "none";
     // the layout at a letter height `h`, the words' widths scaled with it
     let layout = |h: f64| {
-        let k = h / st.height;
+        let k = h / base;
         let pad = if framed { 0.5 * h } else { 0.25 * h };
         let sz = Sizes { box_h: if framed { 1.9 * h } else { 1.4 * h }, partner_gap: 1.6 * h, sibling_gap: 1.4 * h };
-        let extra = if st.frame == "oval" { 0.35 * h } else { 0.0 };
+        let extra = if st.frame == "oval" { 0.9 * h } else { 0.0 };
         let mut widths = words.iter().map(|(_, w)| w * k + 2.0 * pad + 2.0 * extra);
         let (placed, right) = place(units, &mut widths, 0, 0.0, sz);
         let rows = generations(units);
@@ -347,7 +349,7 @@ fn make(s: &mut Session, units: &[Unit], st: Style) -> Result<Value> {
         height = (st.height * k).max(MIN_HEIGHT.min(st.height));
     }
     let (placed, width, chart_h, pitch, sz) = layout(height);
-    let k = height / st.height;
+    let k = height / base;
     // the chart's middle on the page's: rows from the top (descendants) or the bottom (ancestors)
     let (ox, oy) = (page.x / PT_PER_MM - width / 2.0, page.y / PT_PER_MM - chart_h / 2.0);
     let rows = generations(units);
@@ -432,7 +434,9 @@ fn make(s: &mut Session, units: &[Unit], st: Style) -> Result<Value> {
     let g = s.execute("object.group", &json!({}))?;
     let id = g["id"].as_u64().or_else(|| ids.first().copied()).unwrap_or_default();
     let fits = hoop.map(|(fw, fh)| width <= fw - 2.0 && chart_h <= fh - 2.0);
-    Ok(json!({ "id": id, "heightMm": (height * 10.0).round() / 10.0, "widthMm": (width * 10.0).round() / 10.0, "chartHeightMm": (chart_h * 10.0).round() / 10.0, "fits": fits }))
+    Ok(
+        json!({ "id": id, "heightMm": (height * 10.0).round() / 10.0, "widthMm": (width * 10.0).round() / 10.0, "chartHeightMm": (chart_h * 10.0).round() / 10.0, "fits": fits }),
+    )
 }
 
 #[cfg(test)]
@@ -513,6 +517,10 @@ mod tests {
         // a big family in a small hoop: made smaller, down to 4 mm letters
         s.execute("embroidery.newDesign", &json!({"hoop": "Brother 100 × 100 (4×4)"})).unwrap();
         let r = s.execute(CMD, &json!({"people": FAMILY, "height": 10})).unwrap();
+        // 4 mm letters asked: lettered at 5 and made smaller
+        s.execute("edit.undo", &json!({})).unwrap();
+        let r4 = s.execute(CMD, &json!({"people": "Ann + Bob\n  Cy\n", "height": 4})).unwrap();
+        assert_eq!(r4["heightMm"].as_f64(), Some(4.0), "{r4}");
         assert!(r["heightMm"].as_f64().unwrap() < 10.0 && r["heightMm"].as_f64().unwrap() >= MIN_HEIGHT, "{r}");
         // ancestors, given names, double running lines, no frames
         s.execute("embroidery.newDesign", &json!({"hoop": "Brother 200 × 200 (8×8)"})).unwrap();

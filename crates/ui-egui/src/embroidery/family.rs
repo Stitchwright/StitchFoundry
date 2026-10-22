@@ -96,7 +96,9 @@ pub fn open(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
         make(app)?;
     }
     let st = &app.embroidery.family;
-    Ok(json!({ "open": true, "people": st.people, "chart": if st.ancestors { "ancestors" } else { "descendants" }, "made": st.made, "error": st.error }))
+    Ok(
+        json!({ "open": true, "people": st.people, "chart": if st.ancestors { "ancestors" } else { "descendants" }, "made": st.made, "error": st.error }),
+    )
 }
 
 /// Make the chart in the open design (a new one in the hoop of My Machine when none is open).
@@ -113,11 +115,11 @@ fn make(app: &mut VectorcraftApp) -> Result<(), String> {
     });
     let kept = st.people.clone();
     account::keep(app, KEPT, Some(kept.as_str()));
-    if app.session.active().is_none() {
-        if let Err(e) = app.run("embroidery.newDesign", json!({})) {
-            app.embroidery.family.error = Some(e.clone());
-            return Err(e);
-        }
+    if app.session.active().is_none()
+        && let Err(e) = app.run("embroidery.newDesign", json!({}))
+    {
+        app.embroidery.family.error = Some(e.clone());
+        return Err(e);
     }
     match app.run("embroidery.familyTree", q) {
         Ok(r) => {

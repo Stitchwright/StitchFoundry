@@ -3,6 +3,7 @@
 
 pub mod account;
 pub mod ask;
+pub mod family;
 pub mod kiosk;
 pub mod overlay;
 pub mod panel;
@@ -12,7 +13,6 @@ pub mod publish;
 pub mod sequence;
 pub mod sewout;
 pub mod stitch_list;
-pub mod family;
 pub mod stitchshop;
 pub mod styles;
 pub mod viewer;

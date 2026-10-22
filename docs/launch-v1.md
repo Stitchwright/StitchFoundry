@@ -28,8 +28,8 @@ From mySewnet, apart from in-the-hoop: split and multi-hoop, QuickFont, photo st
 repeats (Repeat Design: round a circle, in a row, round the hoop, along a shape), Spiro and Endless
 (Endless Border: repeats re-hooped along start and end marks), the Quilt Block wizard's quilting
 round a design (Quilt Background: stipple or echo, a margin kept clear) are in, and Name Changer's
-job is Team Names' (one file per name, the lettering's place, size and arc kept). PhotoStitch's sepia, black and white and colour tile styles are in. Missing: the Family Tree wizard
-(HV-01).
+job is Team Names' (one file per name, the lettering's place, size and arc kept). PhotoStitch's sepia, black and white and colour tile styles and the Family Tree wizard are in
+(HV-01): mySewnet's wizards are matched.
 
 ## The owner's decisions
 
@@ -43,12 +43,11 @@ job is Team Names' (one file per name, the lettering's place, size and arc kept)
 
 ## The v1 order
 
-1. Family Tree (HV-01), the last of mySewnet's wizards.
-2. The web viewer's call to action.
-3. Thread charts, as permission comes.
+1. The web viewer's call to action.
+2. Thread charts, as permission comes.
 
 Done since the list was drawn up: Send to StitchShop (SHOP-01), built-in fonts (FONT-01), the one-step photo to embroidery (PH-01), Effort and the AI's
-cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case, passport holder and book cover, Repeat Design, Spiro, Endless Border, Quilt Background and the sepia, black and white and colour tile photo stitches (HV-01), the web viewer
+cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case, passport holder and book cover, Repeat Design, Spiro, Endless Border, Quilt Background, Family Tree and the sepia, black and white and colour tile photo stitches (HV-01), the web viewer
 (VIEW-01), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
 
 ## Sources

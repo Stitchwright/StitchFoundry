@@ -151,17 +151,37 @@ fn make_words(s: &mut Session, p: &Value) -> Result<Value> {
     s.execute("select.set", &json!({ "ids": [id] }))?;
     s.execute("embroidery.set", &json!({ "type": "satin" }))?;
     s.execute("embroidery.setThread", &json!({ "color": color, "name": "Words", "ids": [id] }))?;
-    // the type's frame is taller than its letters: size by the stitches the letters sew
-    if let Some((_, ink)) = sewn_size(s, id).filter(|(_, h)| *h > 0.5) {
+    // the type's frame is taller than its letters: size by the stitches a capital sews at this
+    // size, so a word with tails below the line (a y, a g) or without capitals is lettered at
+    // the same size as any other
+    if let Some(ink) = cap_ink(s, size, r.center(), color).or_else(|| sewn_size(s, id).map(|(_, h)| h)).filter(|h| *h > 0.5) {
         let f = height / ink;
         if f.is_finite() && (f - 1.0).abs() > 0.02 {
+            s.execute("select.set", &json!({ "ids": [id] }))?;
             s.execute("object.scale", &json!({ "sx": f * 100.0 }))?;
             centre(s, id, r.center())?;
         }
     }
+    s.execute("select.set", &json!({ "ids": [id] }))?;
     let round = |v: f64| (v * 10.0).round() / 10.0;
     let (w, h) = sewn_size(s, id).unwrap_or_default();
     Ok(json!({ "id": id, "widthMm": round(w), "heightMm": round(h) }))
+}
+
+/// How tall (mm) a capital H sews in the words' font at type size `size`: lettered at `at`,
+/// measured and taken away again.
+fn cap_ink(s: &mut Session, size: f64, at: kurbo::Point, color: &str) -> Option<f64> {
+    let made = s.execute("text.create", &json!({ "x": at.x, "y": at.y, "text": "H", "size": size, "color": color })).ok()?;
+    let id = made["id"].as_u64()?;
+    let ink = s
+        .execute("select.set", &json!({ "ids": [id] }))
+        .and_then(|_| s.execute("embroidery.set", &json!({ "type": "satin" })))
+        .ok()
+        .and_then(|_| sewn_size(s, id))
+        .map(|(_, h)| h);
+    // (the reference letter goes whatever happened; one left behind would sew)
+    let _ = s.execute("edit.clear", &json!({ "ids": [id] }));
+    ink
 }
 
 /// How wide and tall (mm) the stitches node `id` sews are.
@@ -220,6 +240,11 @@ mod tests {
         let (b, page) = (n.bounds_in(&d.symbol_boxes(), kurbo::Affine::IDENTITY, false).unwrap(), d.artboards[0].rect);
         assert!((b.center().x - page.center().x).abs() < 1.0 && (b.center().y - page.center().y).abs() < 1.0, "{b:?} {page:?}");
         assert!(s.embroidery_plan().unwrap().pattern().stitch_count() > 100);
+        // a word with tails below the line is lettered at the same size: its capitals as tall
+        let wide =
+            |s: &mut Session, t: &str| s.execute("embroidery.addWords", &json!({"text": t, "height": 7})).unwrap()["widthMm"].as_f64().unwrap();
+        let (john, mary) = (wide(&mut s, "John Green"), wide(&mut s, "Mary Green"));
+        assert!(mary > john * 0.85, "Mary Green {mary} mm, John Green {john} mm");
         assert!(s.execute("embroidery.addWords", &json!({"text": "  "})).is_err());
         assert!(s.execute("embroidery.addWords", &json!({"text": "A", "height": 1})).is_err());
     }
