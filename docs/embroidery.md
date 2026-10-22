@@ -1983,9 +1983,14 @@ that goes the other way or a design that came out larger shows at a glance
 
 Lettering can use embroidery fonts in Ink/Stitch's font format: a folder with `font.json` and
 its glyphs' art (`ltr.svg`, or SVGs in an `ltr` folder), each glyph a layer named
-`GlyphLayer-<glyph>` digitized with Ink/Stitch settings. StitchFoundry ships none: load font
-folders you have (`embroidery.font.load {path}`; Ink/Stitch's own fonts are free to download
-from its font library, each under its own licence, most of them the SIL Open Font License), and
+`GlyphLayer-<glyph>` digitized with Ink/Stitch settings. Official builds come with five fonts
+of our own built in, digitized from openly licensed typefaces (FONT-01): **Foundry Block**,
+**Foundry Varsity**, **Foundry Script**, **Foundry Slab** and **Foundry Sans**, listed without
+loading anything (`builtIn` in `embroidery.fonts`, with their licence's text, the SIL Open Font
+License). They are generated and not yet sew-tested: sew a test at the size you use first. More
+fonts download from **Get Embroidery Fonts…** (the Font Library): the 131 Ink/Stitch
+fonts in the StitchFoundry fonts collection and Ink/Stitch's own library, each under its own
+licence. Or load font folders you have (`embroidery.font.load {path}`), and
 set text with them (`embroidery.lettering {text, font, size, at}`): each glyph's art sewn the way
 its settings say, placed with the font's advances and kerning, lines its leading apart, ligatures
 first, in the font's letter case, characters it lacks shown as its default glyph. `size` is the

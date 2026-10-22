@@ -33,6 +33,8 @@ env:
   VECTORCRAFT_BUILD_SHA: ${{ github.sha }}
   CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
   CRAFT_FONTS_REQUIRED: "1"
+  STITCHFOUNDRY_FONTS_DIR: ${{ github.workspace }}/stitchfoundry-fonts
+  STITCHFOUNDRY_FONTS_REQUIRED: "1"
 
 jobs:
   build:
@@ -50,6 +52,14 @@ jobs:
           repository: storytold/craft-fonts
           ref: a71c20e30af613287c504f7e685ca8fad77752bc
           path: craft-fonts
+      # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
+      # only their fonts/ folder. Bump the commit deliberately.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Stitchwright/stitchfoundry-fonts
+          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          path: stitchfoundry-fonts
+          sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown

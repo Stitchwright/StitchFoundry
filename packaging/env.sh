@@ -57,12 +57,20 @@ copy_docs() {
   copy_font_licences "$dest"
 }
 
-# Built with craft-fonts (CRAFT_FONTS_DIR, set by release.yml): the embedded fonts' licences go with
+# Built with craft-fonts (CRAFT_FONTS_DIR, set by release.yml) and the Foundry embroidery fonts
+# (STITCHFOUNDRY_FONTS_DIR): the embedded fonts' licences go with
 # the package, as OFL-<family dir>.txt. Nothing to do without it.
 copy_font_licences() {
   local dest="$1" ofl family
   [ -n "${CRAFT_FONTS_DIR:-}" ] || return 0
   for ofl in "$CRAFT_FONTS_DIR"/fonts/*/OFL.txt; do
+    [ -f "$ofl" ] || continue
+    family="$(basename "$(dirname "$ofl")")"
+        cp "$ofl" "$dest/OFL-$family.txt"
+  done
+  # the Foundry embroidery fonts (STITCHFOUNDRY_FONTS_DIR, crates/embroidery/build.rs)
+  [ -n "${STITCHFOUNDRY_FONTS_DIR:-}" ] || return 0
+  for ofl in "$STITCHFOUNDRY_FONTS_DIR"/fonts/*/OFL.txt; do
     [ -f "$ofl" ] || continue
     family="$(basename "$(dirname "$ofl")")"
     cp "$ofl" "$dest/OFL-$family.txt"

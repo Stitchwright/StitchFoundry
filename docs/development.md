@@ -114,6 +114,25 @@ The window runs natively on Wayland (eframe's `wayland` feature) and on X11. On 
 - **Dropping files on the window does not work under Wayland:** winit 0.30, which eframe 0.36 runs on, has no Wayland drag and drop ([winit#1881](https://github.com/rust-windowing/winit/issues/1881), added in winit 0.31; [egui#1563](https://github.com/emilk/egui/issues/1563)), so no `dropped_files` arrive. Until eframe moves to winit 0.31: copy the files in the file manager and paste them, use File › Place or Open, or open the window through XWayland, where drops work: set **Preferences › Performance › Linux Display Server** to **X11 (XWayland)** and restart (#1151), or start the app with `WAYLAND_DISPLAY= vectorcraft`. The preference (`linuxDisplayServer`, read at startup in `apps/vectorcraft/src/main.rs`, shown on Linux only) has winit open the window on X11 (`EventLoopBuilderExtX11::with_x11`) when the session is Wayland, `DISPLAY` is set and the X11 libraries winit loads are installed (`apps/vectorcraft/src/xwayland.rs` reads `ldconfig -p` and the usual library directories); otherwise the window opens on Wayland and the log says why. Unlike clearing `WAYLAND_DISPLAY`, it leaves the clipboard on the compositor's own.
 - **Pens and pen displays under Wayland (#491, #2028):** winit 0.30 doesn't bind the Wayland tablet protocol (`zwp_tablet_v2`; tablet input arrives in winit 0.31, [winit#4318](https://github.com/rust-windowing/winit/pull/4318), [egui#7731](https://github.com/emilk/egui/pull/7731)). Since Plasma 6.3, KWin no longer turns tablet input into pointer input for such apps ([kwin!6336](https://invent.kde.org/plasma/kwin/-/merge_requests/6336), commit [25c65abd](https://invent.kde.org/plasma/kwin/-/commit/25c65abddd95eb87fb892a8594faccbf509ff62f)), and GNOME's Mutter does not turn it into pointer input either (that commit's message): on KWin the pen moves the compositor's cursor over the window, but the app gets no motion or presses and shows none of its own cursors. Until eframe moves to winit 0.31, either run the app under XWayland, which supports the tablet protocol and hands the pen to X11 apps as a pointer (Preferences › Performance › Linux Display Server › X11 (XWayland); X11 (XWayland) When a Pen Is Attached (`x11WithPen`), which opens the window through XWayland only when `/proc/bus/input/devices` lists a pen as the app starts, a device with the `BTN_TOOL_PEN` key and the `ABS_X` and `ABS_Y` axes, and logs `pen found: opening the window through XWayland`; `WAYLAND_DISPLAY= vectorcraft`, or `env -u WAYLAND_DISPLAY vectorcraft`; for a desktop launcher, put `env WAYLAND_DISPLAY=` before the command in its `Exec=` line), or turn KWin's deprecated emulation back on for the whole session by setting `KWIN_WAYLAND_EMULATE_TABLET=1` in KWin's environment (for example in a file under `~/.config/environment.d/` or in `/etc/environment`) and logging in again. The pen then works as a mouse, without pressure: winit 0.30 reads pen pressure on Windows only (Windows Ink, which reaches the Liquify tools' Use Pressure Pen). Other compositors that don't emulate a pointer for tablets behave the same way.
 
+## Embroidery fonts: stitchfoundry-fonts (optional build input)
+
+The Foundry embroidery fonts (Block, Varsity, Script, Slab, Sans) live in
+[Stitchwright/stitchfoundry-fonts](https://github.com/Stitchwright/stitchfoundry-fonts), never
+here. `crates/embroidery/build.rs` embeds every folder under its `fonts/` (font.json,
+glyphs.stitchfoundry and OFL.txt; about 1 MB in all) as
+`vectorcraft_embroidery::fonts::BUNDLED_FONTS` when `STITCHFOUNDRY_FONTS_DIR` points at a checkout,
+web builds included; the app lists them as built in, without loading anything. Unset, the list is
+empty and everything builds, tests and runs as before. `STITCHFOUNDRY_FONTS_REQUIRED=1` makes a bad
+checkout a build error. The release, nightly, web and FreeBSD workflows check out a pinned commit,
+only its `fonts/` folder (not the Ink/Stitch fonts, which the app's Font Library downloads when
+asked), and the packages carry each font's licence as `OFL-<folder>.txt`.
+
+```sh
+git clone --depth 1 --filter=blob:none --sparse https://github.com/Stitchwright/stitchfoundry-fonts ../stitchfoundry-fonts
+git -C ../stitchfoundry-fonts sparse-checkout set fonts
+STITCHFOUNDRY_FONTS_DIR="$PWD/../stitchfoundry-fonts" cargo xtask ci   # also runs the built-in fonts test
+```
+
 ## Fonts: craft-fonts (optional build input)
 
 Font files are never committed to this repository. Fonts shared by the Crafting Apps live in

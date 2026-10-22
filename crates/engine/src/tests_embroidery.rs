@@ -4375,7 +4375,9 @@ fn embroidery_fonts_set_lettering_from_their_glyphs() {
         (r["name"].as_str(), r["glyphs"].as_u64(), r["minSize"].as_f64(), r["maxSize"].as_f64()),
         (Some("Test Script"), Some(3), Some(5.0), Some(20.0))
     );
-    assert_eq!(s.execute("embroidery.fonts", &json!({})).unwrap()["fonts"].as_array().unwrap().len(), 1);
+    // (the fonts built into the app, when it is built with them, aside)
+    let listed = s.execute("embroidery.fonts", &json!({})).unwrap();
+    assert_eq!(listed["fonts"].as_array().unwrap().iter().filter(|f| f["builtIn"] == false).count(), 1);
     // "ab" set in capitals at the font's own size, from (100, 300) on its baseline
     let r = s.execute("embroidery.lettering", &json!({"text": "ab", "font": "test script", "at": [100, 300]})).unwrap();
     assert_eq!(r["glyphs"].as_u64(), Some(2));
@@ -4428,10 +4430,11 @@ fn embroidery_font_folders_are_remembered() {
     assert!(later.embroidery_fonts.is_empty());
     later.execute("embroidery.lettering", &json!({"text": "A", "font": "Test Script"})).unwrap();
     let r = later.execute("embroidery.fonts", &json!({})).unwrap();
-    assert_eq!(r["fonts"][0]["folder"].as_str(), Some(path.as_str()));
+    let mine = r["fonts"].as_array().unwrap().iter().find(|f| f["name"] == "Test Script").cloned().unwrap();
+    assert_eq!(mine["folder"].as_str(), Some(path.as_str()));
     // forgotten: unloaded and not remembered
     later.execute("embroidery.font.forget", &json!({"name": "test script"})).unwrap();
-    assert!(later.embroidery_fonts.is_empty() && later.prefs.embroidery_font_dirs.is_empty());
+    assert!(later.embroidery_fonts.iter().all(|f| f.built_in.is_some()) && later.prefs.embroidery_font_dirs.is_empty());
     assert!(later.execute("embroidery.font.forget", &json!({"name": "Test Script"})).is_err());
     // a folder gone: skipped with a warning, still remembered
     let mut gone = session();
@@ -6127,4 +6130,30 @@ fn a_patch_copied_to_fill_its_hoop() {
     s.execute("edit.undo", &json!({})).unwrap();
     let st = s.embroidery_plan().unwrap().stats.clone().unwrap();
     assert!(st.width_mm < 100.0, "{st:?}");
+}
+
+/// FONT-01: the fonts built into the app (a build with STITCHFOUNDRY_FONTS_DIR set) are listed
+/// without loading anything, built in, with their licence's text, and set lettering. Skipped when
+/// the build has none.
+#[test]
+fn built_in_fonts_are_there_without_loading_and_carry_their_licence() {
+    let bundled = vectorcraft_embroidery::fonts::BUNDLED_FONTS;
+    if bundled.is_empty() {
+        eprintln!("skipped: built without the StitchFoundry fonts (set STITCHFOUNDRY_FONTS_DIR to a stitchfoundry-fonts checkout)");
+        return;
+    }
+    let mut s = session();
+    let r = s.execute("embroidery.fonts", &json!({})).unwrap();
+    let built: Vec<&Value> = r["fonts"].as_array().unwrap().iter().filter(|f| f["builtIn"] == true).collect();
+    assert_eq!(built.len(), bundled.len(), "{r}");
+    assert!(r["warnings"].as_array().unwrap().is_empty(), "{r}");
+    for f in &built {
+        assert!(f["licenceText"].as_str().unwrap().contains("Open Font License"), "{f}");
+        assert!(f["glyphs"].as_u64().unwrap() > 50, "{f}");
+    }
+    s.execute("embroidery.newDesign", &json!({"hoop": "Brother 130 × 180 (5×7)"})).unwrap();
+    let name = built[0]["name"].as_str().unwrap();
+    let l = s.execute("embroidery.lettering", &json!({"text": "Hello", "font": name, "size": 20})).unwrap();
+    assert!(l["glyphs"].as_u64().unwrap() >= 5, "{l}");
+    assert!(s.execute("embroidery.info", &json!({})).unwrap()["stitches"].as_u64().unwrap() > 200);
 }
