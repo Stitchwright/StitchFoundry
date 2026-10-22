@@ -6358,3 +6358,29 @@ machine	Stop	停止
 	Quilt Background	背景絎縫
 	Sepia	棕褐色
 	Colour Tile	彩色磁磚
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	傳送到 StitchShop
+	Send to StitchShop…	傳送到 StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	將此設計傳送給負責刺繡的店家。它會帶著針跡圖片和詳細資料在店家的 StitchShop 收件匣中等待，直到店家將其接入訂單。
+	Job order: {job}	工單：{job}
+	Shop	店家
+	Any of my shops	我的任一店家
+	Include a picture of the stitches	附上針跡圖片
+	Sign in to your Foundry Account to send designs to your shop.	登入 Foundry 帳戶即可將設計傳送到你的店家。
+	Sending to StitchShop…	正在傳送到 StitchShop…
+	Asking StitchHub…	正在詢問 StitchHub…
+	{file} is in {shop}'s inbox.	{file} 已在 {shop} 的收件匣中。
+	{file} is in your shops' inbox.	{file} 已在你的店家收件匣中。
+	Take It Back	收回
+	{file} was taken back.	已收回 {file}。
+	The design is in the shop's StitchShop inbox.	設計已在店家的 StitchShop 收件匣中。
+	The design was taken back from the shop's inbox.	已從店家收件匣收回設計。
+	The design was no longer in the shop's inbox.	設計已不在店家收件匣中。
+@msg	The StitchHub address isn't valid: use an https:// address.	StitchHub 位址無效：請使用 https:// 位址。
+@msg	The design is too big to send to StitchShop (10 MB at most).	設計太大，無法傳送到 StitchShop（最多 10 MB）。
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub 無法接收設計（錯誤 {_1}）：請稍後再試。
+@msg	The design couldn't be uploaded (error {_1}): try again.	無法上傳設計（錯誤 {_1}）：請重試。
+@msg	`job` is a job order's id	`job` 是工單的 id
+@msg	no job order with that id	沒有該 id 的工單
+@msg	nothing has been sent to take back	沒有已傳送的內容可收回
+@msg	the design couldn't be written	無法寫出設計

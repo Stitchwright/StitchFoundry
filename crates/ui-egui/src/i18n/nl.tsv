@@ -6690,3 +6690,29 @@ swatch	Bright Violet	Felviolet
 	Quilt Background	Achtergrond quilten
 	Sepia	Sepia
 	Colour Tile	Kleurtegels
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Naar StitchShop sturen
+	Send to StitchShop…	Naar StitchShop sturen…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Stuur dit ontwerp naar de winkel die het borduurt. Het wacht in het StitchShop-postvak van de winkel, met een afbeelding van de steken en de gegevens, tot de winkel het in een order opneemt.
+	Job order: {job}	Order: {job}
+	Shop	Winkel
+	Any of my shops	Een van mijn winkels
+	Include a picture of the stitches	Een afbeelding van de steken meesturen
+	Sign in to your Foundry Account to send designs to your shop.	Meld je aan bij je Foundry-account om ontwerpen naar je winkel te sturen.
+	Sending to StitchShop…	Bezig met sturen naar StitchShop…
+	Asking StitchHub…	StitchHub wordt gevraagd…
+	{file} is in {shop}'s inbox.	{file} staat in het postvak van {shop}.
+	{file} is in your shops' inbox.	{file} staat in het postvak van je winkels.
+	Take It Back	Terughalen
+	{file} was taken back.	{file} is teruggehaald.
+	The design is in the shop's StitchShop inbox.	Het ontwerp staat in het StitchShop-postvak van de winkel.
+	The design was taken back from the shop's inbox.	Het ontwerp is teruggehaald uit het postvak van de winkel.
+	The design was no longer in the shop's inbox.	Het ontwerp stond niet meer in het postvak van de winkel.
+@msg	The StitchHub address isn't valid: use an https:// address.	Het adres van StitchHub is ongeldig: gebruik een https://-adres.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Het ontwerp is te groot om naar StitchShop te sturen (maximaal 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub kon het ontwerp niet aannemen (fout {_1}): probeer het later opnieuw.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Het ontwerp kon niet worden geüpload (fout {_1}): probeer het opnieuw.
+@msg	`job` is a job order's id	`job` is de id van een order
+@msg	no job order with that id	geen order met die id
+@msg	nothing has been sent to take back	er is niets verstuurd om terug te halen
+@msg	the design couldn't be written	het ontwerp kon niet worden geschreven

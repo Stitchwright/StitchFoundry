@@ -224,7 +224,7 @@ pub(crate) fn browsable_url(url: &str) -> Result<(), String> {
 /// Shows a file in the system file manager, or opens it in its app.
 pub type RevealFn = Box<dyn FnMut(&str) -> Result<(), String>>;
 
-pub use vectorcraft_embroidery::sf_core::ai::HttpRequest;
+pub use vectorcraft_embroidery::sf_core::ai::{HttpRequest, Method};
 
 /// Sends an HTTPS POST and waits for the answer → (HTTP status, body), or why none came. Called
 /// from a thread of its own.
@@ -1572,6 +1572,7 @@ impl VectorcraftApp {
         embroidery::sewout::report_window(self, &ctx);
         embroidery::account::window(self, &ctx);
         embroidery::publish::window(self, &ctx);
+        embroidery::stitchshop::window(self, &ctx);
         if simple {
             simple::windows(self, &ctx);
         } else {

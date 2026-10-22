@@ -6597,3 +6597,29 @@ machine	Stop	Zatrzymanie
 	Quilt Background	Pikowanie tła
 	Sepia	Sepia
 	Colour Tile	Kolorowe kafelki
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Wyślij do StitchShop
+	Send to StitchShop…	Wyślij do StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Wyślij ten wzór do zakładu, który go wyhaftuje. Czeka w skrzynce odbiorczej StitchShop zakładu, z obrazem ściegów i szczegółami, aż zakład przyjmie go do zamówienia.
+	Job order: {job}	Zamówienie: {job}
+	Shop	Zakład
+	Any of my shops	Dowolny z moich zakładów
+	Include a picture of the stitches	Dołącz obraz ściegów
+	Sign in to your Foundry Account to send designs to your shop.	Zaloguj się na konto Foundry, aby wysyłać wzory do swojego zakładu.
+	Sending to StitchShop…	Wysyłanie do StitchShop…
+	Asking StitchHub…	Pytanie StitchHub…
+	{file} is in {shop}'s inbox.	{file} jest w skrzynce odbiorczej zakładu {shop}.
+	{file} is in your shops' inbox.	{file} jest w skrzynce odbiorczej Twoich zakładów.
+	Take It Back	Wycofaj
+	{file} was taken back.	{file} wycofano.
+	The design is in the shop's StitchShop inbox.	Wzór jest w skrzynce odbiorczej StitchShop zakładu.
+	The design was taken back from the shop's inbox.	Wzór wycofano ze skrzynki odbiorczej zakładu.
+	The design was no longer in the shop's inbox.	Wzoru nie było już w skrzynce odbiorczej zakładu.
+@msg	The StitchHub address isn't valid: use an https:// address.	Adres StitchHub jest nieprawidłowy: użyj adresu https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Wzór jest za duży, by wysłać go do StitchShop (najwyżej 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub nie mógł przyjąć wzoru (błąd {_1}): spróbuj później.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Nie udało się przesłać wzoru (błąd {_1}): spróbuj ponownie.
+@msg	`job` is a job order's id	`job` to identyfikator zamówienia
+@msg	no job order with that id	brak zamówienia o tym identyfikatorze
+@msg	nothing has been sent to take back	nic nie wysłano, więc nie ma czego wycofać
+@msg	the design couldn't be written	nie udało się zapisać wzoru

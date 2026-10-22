@@ -180,6 +180,7 @@ pub(crate) fn request_with(key: &str, system: String, messages: &[Value]) -> Res
             ("anthropic-beta", FALLBACK_BETA.to_string()),
         ],
         body: body.to_string(),
+        ..Default::default()
     })
 }
 

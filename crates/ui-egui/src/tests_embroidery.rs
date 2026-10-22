@@ -1317,6 +1317,131 @@ mod ask_about_embroidery {
         assert!(app.run(publish::COMMAND, json!({"format": "svg"})).is_err());
         assert_eq!(sent.lock().unwrap().len(), 5);
     }
+
+    /// SHOP-01: Send to StitchShop asks the hub for the account's shops, offers the design (DST,
+    /// its preview and its details, the job order's too), uploads the file and the preview to the
+    /// addresses the hub signed, and says it is done; Take It Back retracts it. The hub's
+    /// messages are shown as it wrote them, and an ended sign-in opens Foundry Account.
+    #[test]
+    fn a_design_is_sent_to_the_shops_stitchshop_inbox() {
+        use crate::Method;
+        use crate::embroidery::stitchshop;
+        use vectorcraft_embroidery::sf_core::ai::stitchshop::sha256_hex;
+        let said = |status: u16, m: &str| (status, json!({"error": m}).to_string());
+        let slots = |preview: bool| {
+            let mut v = json!({"id": "it_1", "url": "https://store.example/inbox/9/it_1?X-Amz-Signature=ab", "method": "PUT", "expiresIn": 900, "headers": {"x-amz-checksum-sha256": "q83v"}});
+            if preview {
+                v["preview"] =
+                    json!({"url": "https://store.example/inbox/9/it_1.preview?s=1", "method": "PUT", "headers": {"content-type": "image/png"}});
+            }
+            (200, v.to_string())
+        };
+        let linked = "No StitchHub account is linked to this Foundry Account yet. In your shop's Settings, Foundry Account, link it, or sign in at the hub's account page with it.";
+        let (mut app, sent, keys) = app(vec![
+            (200, json!({"shops": [{"id": "s1", "name": "Main St", "program": "StitchShop"}, {"id": "s2", "name": "Back Room", "program": "StitchBench"}]}).to_string()),
+            slots(true),
+            (200, String::new()),
+            (200, String::new()),
+            (200, json!({"ok": true}).to_string()),
+            (200, json!({"ok": true, "retracted": 1}).to_string()),
+            said(404, linked),
+            slots(false),
+            (403, "<Error><Code>SignatureDoesNotMatch</Code></Error>".into()),
+            said(401, "The Foundry Account service doesn't know that token: sign in to StitchFoundry again."),
+        ]);
+        let wait = |app: &mut VectorcraftApp| {
+            let ctx = egui::Context::default();
+            for _ in 0..400 {
+                stitchshop::poll(app, &ctx);
+                if !app.run(stitchshop::COMMAND, json!({})).unwrap()["sending"].as_bool().unwrap() {
+                    return;
+                }
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            panic!("no answer");
+        };
+        // nothing stitched, or signed out: not now
+        assert!(!crate::menus::enabled(&app, stitchshop::COMMAND));
+        rectangle(&mut app);
+        assert!(!crate::menus::enabled(&app, stitchshop::COMMAND), "signed out");
+        assert!(app.run(stitchshop::COMMAND, json!({"send": true})).unwrap_err().contains("Sign in"));
+        assert!(sent.lock().unwrap().is_empty());
+        app.embroidery.account.token = "sfs_0123456789abcdef".into();
+        assert!(crate::menus::enabled(&app, stitchshop::COMMAND));
+        app.embroidery.stitchshop.open = false;
+
+        // opening asks for the shops, for the picker
+        app.run(stitchshop::COMMAND, json!({})).unwrap();
+        wait(&mut app);
+        let r = sent.lock().unwrap()[0].clone();
+        assert_eq!((r.method, r.url.as_str()), (Method::Get, "https://hub.stitchbench.app/v1/inbox/shops"));
+        assert!(r.headers.contains(&("authorization", "Bearer sfs_0123456789abcdef".to_string())));
+        let st = app.run(stitchshop::COMMAND, json!({})).unwrap();
+        assert_eq!(st["shops"][1], json!({"id": "s2", "name": "Back Room", "program": "StitchBench"}));
+        assert_eq!(st["format"], "dst");
+
+        // from a job order, to one shop: offered, uploaded (file then preview), done
+        let job = app
+            .run("embroidery.job.create", json!({"customer": "Rovers FC", "quantity": 24, "due": "2026-11-01", "garment": "Navy polo", "placement": "left-chest", "notes": "Club crest"}))
+            .unwrap();
+        app.run(stitchshop::COMMAND, json!({"job": job["id"], "shop": "s2", "send": true})).unwrap();
+        wait(&mut app);
+        assert_eq!(app.embroidery.stitchshop.error, None);
+        let log = sent.lock().unwrap().clone();
+        assert_eq!(log[1].url, "https://hub.stitchbench.app/v1/inbox/put");
+        let b: Value = serde_json::from_str(&log[1].body).unwrap();
+        let name = b["fileName"].as_str().unwrap();
+        assert!(name.starts_with("J-0001 ") && name.ends_with(".dst"), "{name}");
+        assert_eq!(b["toShopId"], "s2");
+        let m = &b["meta"];
+        assert_eq!((m["job"].as_str(), m["customer"].as_str(), m["quantity"].as_u64()), (Some("J-0001"), Some("Rovers FC"), Some(24)));
+        assert_eq!((m["placement"].as_str(), m["due"].as_str(), m["notes"].as_str()), (Some("left-chest"), Some("2026-11-01"), Some("Club crest")));
+        assert_eq!((m["program"].as_str(), m["format"].as_str()), (Some("StitchFoundry"), Some("dst")));
+        assert!(m["stitches"].as_u64().unwrap() > 100 && m["widthMm"].as_f64().unwrap() > 30.0, "{m}");
+        // the file goes to the store as announced, with the hub's headers; then the preview
+        let file = log[2].bytes.clone().unwrap();
+        assert_eq!((log[2].method, log[2].url.as_str()), (Method::Put, "https://store.example/inbox/9/it_1?X-Amz-Signature=ab"));
+        assert!(file.starts_with(b"LA:"), "a DST file");
+        assert_eq!((b["size"].as_u64(), b["sha256"].as_str()), (Some(file.len() as u64), Some(sha256_hex(&file).as_str())));
+        assert_eq!(log[2].headers, vec![("x-amz-checksum-sha256", "q83v".to_string())]);
+        let png = log[3].bytes.clone().unwrap();
+        assert_eq!(log[3].url, "https://store.example/inbox/9/it_1.preview?s=1");
+        assert!(png.starts_with(b"\x89PNG"));
+        assert_eq!(b["preview"], json!({"size": png.len(), "sha256": sha256_hex(&png), "type": "image/png"}));
+        assert_eq!((log[4].url.as_str(), log[4].body.as_str()), ("https://hub.stitchbench.app/v1/inbox/done", r#"{"id":"it_1"}"#));
+        let st = app.run(stitchshop::COMMAND, json!({})).unwrap();
+        assert_eq!(st["sent"]["shop"], "Back Room");
+
+        // Take It Back
+        app.run(stitchshop::COMMAND, json!({"retract": true})).unwrap();
+        wait(&mut app);
+        assert_eq!(sent.lock().unwrap()[5].url, "https://hub.stitchbench.app/v1/inbox/retract");
+        let st = app.run(stitchshop::COMMAND, json!({})).unwrap();
+        assert_eq!((st["sent"].is_null(), st["retracted"].as_str()), (true, Some(name)));
+
+        // the hub's own sentence, as it is
+        app.run(stitchshop::COMMAND, json!({"job": null, "preview": false, "send": true})).unwrap();
+        wait(&mut app);
+        assert_eq!(app.embroidery.stitchshop.error.as_deref(), Some(linked));
+        assert!(serde_json::from_str::<Value>(&sent.lock().unwrap()[6].body).unwrap().get("preview").is_none());
+        // the store refused the upload: said, and nothing is done
+        app.run(stitchshop::COMMAND, json!({"send": true})).unwrap();
+        wait(&mut app);
+        assert_eq!(app.embroidery.stitchshop.error.as_deref(), Some("The design couldn't be uploaded (error 403): try again."));
+        assert_eq!(sent.lock().unwrap().len(), 9);
+        // the sign-in ended: Foundry Account opens on Sign In
+        app.run(stitchshop::COMMAND, json!({"send": true})).unwrap();
+        wait(&mut app);
+        assert!(app.embroidery.stitchshop.error.as_deref().unwrap().contains("sign in to StitchFoundry again"));
+        assert!(app.embroidery.account.open && app.embroidery.account.sign_in_shown);
+
+        // a hub on this computer, kept for next time; nothing but https:// elsewhere
+        app.run(stitchshop::COMMAND, json!({"hub": "http://127.0.0.1:8787"})).unwrap();
+        assert_eq!(keys.load("stitchshop-hub").as_deref(), Some("http://127.0.0.1:8787"));
+        assert!(app.run(stitchshop::COMMAND, json!({"hub": "http://hub.example"})).unwrap_err().contains("https://"));
+        assert!(app.run(stitchshop::COMMAND, json!({"format": "svg"})).is_err());
+        assert!(app.run(stitchshop::COMMAND, json!({"job": 999})).is_err());
+    }
 }
 
 /// VIEW-01: the free viewer shows the design with its size, stitches and sewing time, nothing to

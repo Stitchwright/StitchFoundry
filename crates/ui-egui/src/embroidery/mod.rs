@@ -12,6 +12,7 @@ pub mod publish;
 pub mod sequence;
 pub mod sewout;
 pub mod stitch_list;
+pub mod stitchshop;
 pub mod styles;
 pub mod viewer;
 pub mod widget;
@@ -162,6 +163,7 @@ pub struct EmbroideryUi {
     pub account: account::AccountState,
     /// Publish to MakerFoundry's window (PUB-01).
     pub publish: publish::PublishState,
+    pub stitchshop: stitchshop::StitchShopState,
     /// Get Embroidery Fonts' window (NEW-20).
     pub font_library: crate::dialogs::font_library::FontLibraryState,
     /// Compare Designs' window (CMP-01).
@@ -394,6 +396,7 @@ impl Default for EmbroideryUi {
             sewout: Default::default(),
             account: Default::default(),
             publish: Default::default(),
+            stitchshop: Default::default(),
             font_library: Default::default(),
             compare: Default::default(),
         }
@@ -408,6 +411,7 @@ pub fn tick(app: &mut crate::VectorcraftApp, ctx: &egui::Context) {
     account::poll(app, ctx);
     sewout::poll_report(app, ctx);
     publish::poll(app, ctx);
+    stitchshop::poll(app, ctx);
     let tool = app.session.tool_id();
     if tool != app.embroidery.widget.last_tool {
         if tool == widget::TOOL {

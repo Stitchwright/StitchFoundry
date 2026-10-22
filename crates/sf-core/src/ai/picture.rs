@@ -144,7 +144,7 @@ pub fn request(provider: Provider, key: &str, model: &str, description: &str, co
             json!({ "model": model, "prompt": prompt }),
         ),
     };
-    Ok(HttpRequest { url, headers, body: body.to_string() })
+    Ok(HttpRequest { url, headers, body: body.to_string(), ..Default::default() })
 }
 
 /// The picture in an answer with HTTP status `status` and body `body`, wherever the service put it.

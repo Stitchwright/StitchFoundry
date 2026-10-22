@@ -6398,3 +6398,29 @@ machine	Stop	Arresto
 	Quilt Background	Trapuntatura dello sfondo
 	Sepia	Seppia
 	Colour Tile	Mosaico a colori
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Invia a StitchShop
+	Send to StitchShop…	Invia a StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Invia questo disegno al laboratorio che lo ricamerà. Attende nella posta in arrivo StitchShop del laboratorio, con un'immagine dei punti e i suoi dettagli, finché il laboratorio non lo inserisce in un ordine.
+	Job order: {job}	Ordine: {job}
+	Shop	Laboratorio
+	Any of my shops	Uno qualsiasi dei miei laboratori
+	Include a picture of the stitches	Includi un'immagine dei punti
+	Sign in to your Foundry Account to send designs to your shop.	Accedi al tuo account Foundry per inviare disegni al tuo laboratorio.
+	Sending to StitchShop…	Invio a StitchShop…
+	Asking StitchHub…	Richiesta a StitchHub…
+	{file} is in {shop}'s inbox.	{file} è nella posta in arrivo di {shop}.
+	{file} is in your shops' inbox.	{file} è nella posta in arrivo dei tuoi laboratori.
+	Take It Back	Ritira
+	{file} was taken back.	{file} è stato ritirato.
+	The design is in the shop's StitchShop inbox.	Il disegno è nella posta in arrivo StitchShop del laboratorio.
+	The design was taken back from the shop's inbox.	Il disegno è stato ritirato dalla posta in arrivo del laboratorio.
+	The design was no longer in the shop's inbox.	Il disegno non era più nella posta in arrivo del laboratorio.
+@msg	The StitchHub address isn't valid: use an https:// address.	L'indirizzo di StitchHub non è valido: usa un indirizzo https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Il disegno è troppo grande per inviarlo a StitchShop (al massimo 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub non ha potuto accettare il disegno (errore {_1}): riprova più tardi.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Non è stato possibile caricare il disegno (errore {_1}): riprova.
+@msg	`job` is a job order's id	`job` è l'id di un ordine
+@msg	no job order with that id	nessun ordine con quell'id
+@msg	nothing has been sent to take back	non è stato inviato nulla da ritirare
+@msg	the design couldn't be written	non è stato possibile scrivere il disegno

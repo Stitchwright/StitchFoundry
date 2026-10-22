@@ -6378,3 +6378,29 @@ machine	Stop	Зупинка
 	Quilt Background	Стьобання тла
 	Sepia	Сепія
 	Colour Tile	Кольорова плитка
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Надіслати до StitchShop
+	Send to StitchShop…	Надіслати до StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Надішліть цей дизайн майстерні, яка його вишиє. Він чекає у вхідних StitchShop майстерні, із зображенням стібків і своїми даними, доки майстерня не візьме його в замовлення.
+	Job order: {job}	Замовлення: {job}
+	Shop	Майстерня
+	Any of my shops	Будь-яка з моїх майстерень
+	Include a picture of the stitches	Додати зображення стібків
+	Sign in to your Foundry Account to send designs to your shop.	Увійдіть в обліковий запис Foundry, щоб надсилати дизайни до своєї майстерні.
+	Sending to StitchShop…	Надсилання до StitchShop…
+	Asking StitchHub…	Запит до StitchHub…
+	{file} is in {shop}'s inbox.	{file} у вхідних майстерні {shop}.
+	{file} is in your shops' inbox.	{file} у вхідних ваших майстерень.
+	Take It Back	Забрати назад
+	{file} was taken back.	{file} забрано назад.
+	The design is in the shop's StitchShop inbox.	Дизайн у вхідних StitchShop майстерні.
+	The design was taken back from the shop's inbox.	Дизайн забрано назад із вхідних майстерні.
+	The design was no longer in the shop's inbox.	Дизайну вже не було у вхідних майстерні.
+@msg	The StitchHub address isn't valid: use an https:// address.	Адреса StitchHub недійсна: використайте адресу https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Дизайн завеликий для надсилання до StitchShop (не більше 10 МБ).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub не зміг прийняти дизайн (помилка {_1}): спробуйте пізніше.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Не вдалося завантажити дизайн (помилка {_1}): спробуйте ще раз.
+@msg	`job` is a job order's id	`job` — це id замовлення
+@msg	no job order with that id	немає замовлення з таким id
+@msg	nothing has been sent to take back	нічого не надіслано, забирати нічого
+@msg	the design couldn't be written	не вдалося записати дизайн

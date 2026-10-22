@@ -806,6 +806,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "{create?: bool (open on Create Account, else Sign In)} open Foundry Account: make an account or sign in to the StitchFoundry service or make an account, see the credits and buy more (Stripe's page opens in the browser), and choose to pay for the AI features with them instead of your own Anthropic API key (desktop and web) → {open, signedIn, server, credits, payWithCredits}",
     ),
     (
+        "embroidery.sendToStitchShop",
+        "Send to StitchShop…",
+        "",
+        "{format?: dst|pes|jef|exp|vp3|xxx|pec|u01 (dst), job?: a job order's id (its design opened, and its customer, garment, placement, due date, quantity and notes sent along; null: none), shop?: one of the account's shops' id (from `shops`; empty: any of them), preview?: bool (a picture of the stitches goes along; true), hub?: StitchHub's address (empty: hub.stitchbench.app; https://, or http:// on this computer for testing), send?: bool (send at once), retract?: bool (Take It Back: the design sent last leaves the inbox, unless a shop has taken it)} open Send to StitchShop: the design, written in that format, goes with a picture of its stitches and its details (size, stitches, colours and threads, trims, thread and bobbin used, sewing time, hoop, fabric) to the shop's StitchShop inbox through StitchHub, signed in with your Foundry Account (whose session the hub doesn't keep), where the shop takes it into an order (desktop and web) → {open, signedIn, format, job, preview, hub, shops: [{id, name, program}], shop, sending, sent: {id, fileName, shop}, retracted, error}",
+    ),
+    (
         "embroidery.publishToMakerFoundry",
         "Publish to MakerFoundry…",
         "",
@@ -2030,6 +2036,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.account" => crate::embroidery::account::open(app, p),
         "ui.reportSewout" => crate::embroidery::sewout::open_report(app, p),
         "embroidery.publishToMakerFoundry" => crate::embroidery::publish::open(app, p),
+        "embroidery.sendToStitchShop" => crate::embroidery::stitchshop::open(app, p),
         "ui.makeDesign" => crate::guide::open(app),
         "ui.viewer" => {
             app.ui.viewer = p.get("on").and_then(Value::as_bool).unwrap_or(true);
@@ -2888,6 +2895,7 @@ pub fn enabled(app: &VectorcraftApp, id: &str) -> bool {
         }
         "ui.redrawImage" => crate::embroidery::prompt::available(app) && crate::embroidery::prompt::selected_image(app).is_some(),
         "embroidery.publishToMakerFoundry" => crate::embroidery::publish::enabled(app),
+        "embroidery.sendToStitchShop" => crate::embroidery::stitchshop::enabled(app),
         "file.export.embroidery" => app.session.embroidery_plan().is_some_and(|p| !p.is_empty()),
         "ui.saveEmbroideryFont" => app.session.active().is_some_and(|st| st.doc.embroidery.as_deref().is_some_and(|e| e.font.is_some())),
         "ui.batchDialog" => !app.ui.action_sets.is_empty() && app.ui.action_sets.iter().any(|s| !s.actions.is_empty()),
@@ -2961,6 +2969,7 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                 c("Save As…", "file.saveAs"),
                 c("Save for My Machine", "ui.saveForMyMachine"),
                 c("Publish to MakerFoundry…", crate::embroidery::publish::COMMAND),
+                c("Send to StitchShop…", crate::embroidery::stitchshop::COMMAND),
                 c("Save a Copy…", "file.saveCopy"),
                 c("Save as Template…", "file.saveAsTemplate"),
                 c("Save as PDF…", "file.export.pdf"),

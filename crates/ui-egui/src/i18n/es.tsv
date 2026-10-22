@@ -6712,3 +6712,29 @@ mark-style	Japanese	Japonesas
 	Quilt Background	Acolchado de fondo
 	Sepia	Sepia
 	Colour Tile	Mosaico de color
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Enviar a StitchShop
+	Send to StitchShop…	Enviar a StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Envía este diseño al taller que lo bordará. Espera en la bandeja de entrada de StitchShop del taller, con una imagen de las puntadas y sus detalles, hasta que el taller lo pase a un pedido.
+	Job order: {job}	Pedido: {job}
+	Shop	Taller
+	Any of my shops	Cualquiera de mis talleres
+	Include a picture of the stitches	Incluir una imagen de las puntadas
+	Sign in to your Foundry Account to send designs to your shop.	Inicia sesión en tu cuenta Foundry para enviar diseños a tu taller.
+	Sending to StitchShop…	Enviando a StitchShop…
+	Asking StitchHub…	Consultando StitchHub…
+	{file} is in {shop}'s inbox.	{file} está en la bandeja de entrada de {shop}.
+	{file} is in your shops' inbox.	{file} está en la bandeja de entrada de tus talleres.
+	Take It Back	Recuperar
+	{file} was taken back.	{file} se ha recuperado.
+	The design is in the shop's StitchShop inbox.	El diseño está en la bandeja de entrada de StitchShop del taller.
+	The design was taken back from the shop's inbox.	El diseño se ha recuperado de la bandeja de entrada del taller.
+	The design was no longer in the shop's inbox.	El diseño ya no estaba en la bandeja de entrada del taller.
+@msg	The StitchHub address isn't valid: use an https:// address.	La dirección de StitchHub no es válida: usa una dirección https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	El diseño es demasiado grande para enviarlo a StitchShop (10 MB como máximo).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub no pudo recibir el diseño (error {_1}): inténtalo más tarde.
+@msg	The design couldn't be uploaded (error {_1}): try again.	No se pudo subir el diseño (error {_1}): inténtalo de nuevo.
+@msg	`job` is a job order's id	`job` es el id de un pedido
+@msg	no job order with that id	no hay ningún pedido con ese id
+@msg	nothing has been sent to take back	no se ha enviado nada que recuperar
+@msg	the design couldn't be written	no se pudo escribir el diseño

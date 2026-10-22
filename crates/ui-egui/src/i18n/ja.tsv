@@ -6437,3 +6437,29 @@ machine	Stop	停止
 	Quilt Background	背景キルティング
 	Sepia	セピア
 	Colour Tile	カラータイル
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	StitchShopに送る
+	Send to StitchShop…	StitchShopに送る…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	このデザインを、刺繍するショップに送ります。ショップが注文に取り込むまで、ステッチの画像と詳細とともにショップのStitchShop受信箱で待機します。
+	Job order: {job}	受注: {job}
+	Shop	ショップ
+	Any of my shops	自分のショップのどれでも
+	Include a picture of the stitches	ステッチの画像を添える
+	Sign in to your Foundry Account to send designs to your shop.	ショップにデザインを送るには、Foundryアカウントにサインインしてください。
+	Sending to StitchShop…	StitchShopに送信中…
+	Asking StitchHub…	StitchHubに問い合わせ中…
+	{file} is in {shop}'s inbox.	{file}は{shop}の受信箱にあります。
+	{file} is in your shops' inbox.	{file}はあなたのショップの受信箱にあります。
+	Take It Back	取り戻す
+	{file} was taken back.	{file}を取り戻しました。
+	The design is in the shop's StitchShop inbox.	デザインはショップのStitchShop受信箱にあります。
+	The design was taken back from the shop's inbox.	デザインをショップの受信箱から取り戻しました。
+	The design was no longer in the shop's inbox.	デザインはもうショップの受信箱にありませんでした。
+@msg	The StitchHub address isn't valid: use an https:// address.	StitchHubのアドレスが正しくありません: https://のアドレスを使ってください。
+@msg	The design is too big to send to StitchShop (10 MB at most).	デザインが大きすぎてStitchShopに送れません（10 MBまで）。
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHubがデザインを受け取れませんでした（エラー{_1}）: 後でもう一度お試しください。
+@msg	The design couldn't be uploaded (error {_1}): try again.	デザインをアップロードできませんでした（エラー{_1}）: もう一度お試しください。
+@msg	`job` is a job order's id	`job` は受注のIDです
+@msg	no job order with that id	そのIDの受注はありません
+@msg	nothing has been sent to take back	取り戻すものは送られていません
+@msg	the design couldn't be written	デザインを書き出せませんでした

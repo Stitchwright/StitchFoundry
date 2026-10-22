@@ -6648,3 +6648,29 @@ swatch	Bright Violet	Kraftig violet
 	Quilt Background	Quiltet baggrund
 	Sepia	Sepia
 	Colour Tile	Farvefliser
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Send til StitchShop
+	Send to StitchShop…	Send til StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Send dette design til den butik, der skal brodere det. Det venter i butikkens StitchShop-indbakke med et billede af stingene og dets oplysninger, indtil butikken tager det ind i en ordre.
+	Job order: {job}	Ordre: {job}
+	Shop	Butik
+	Any of my shops	En hvilken som helst af mine butikker
+	Include a picture of the stitches	Medtag et billede af stingene
+	Sign in to your Foundry Account to send designs to your shop.	Log ind på din Foundry-konto for at sende designs til din butik.
+	Sending to StitchShop…	Sender til StitchShop…
+	Asking StitchHub…	Spørger StitchHub…
+	{file} is in {shop}'s inbox.	{file} ligger i indbakken hos {shop}.
+	{file} is in your shops' inbox.	{file} ligger i dine butikkers indbakke.
+	Take It Back	Tag tilbage
+	{file} was taken back.	{file} blev taget tilbage.
+	The design is in the shop's StitchShop inbox.	Designet ligger i butikkens StitchShop-indbakke.
+	The design was taken back from the shop's inbox.	Designet blev taget tilbage fra butikkens indbakke.
+	The design was no longer in the shop's inbox.	Designet lå ikke længere i butikkens indbakke.
+@msg	The StitchHub address isn't valid: use an https:// address.	StitchHub-adressen er ugyldig: brug en https://-adresse.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Designet er for stort til at sende til StitchShop (højst 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub kunne ikke modtage designet (fejl {_1}): prøv igen senere.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Designet kunne ikke uploades (fejl {_1}): prøv igen.
+@msg	`job` is a job order's id	`job` er id'et på en ordre
+@msg	no job order with that id	ingen ordre med det id
+@msg	nothing has been sent to take back	der er ikke sendt noget, der kan tages tilbage
+@msg	the design couldn't be written	designet kunne ikke skrives

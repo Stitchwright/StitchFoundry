@@ -866,6 +866,9 @@ pub(crate) fn jobs_body(app: &mut VectorcraftApp, ui: &mut Ui) {
             if button(ui, tl!("Worksheet")).clicked() {
                 act = Some(("embroidery.job.worksheet", json!({ "id": j.id })));
             }
+            if button(ui, tl!("Send to StitchShop")).clicked() {
+                act = Some((crate::embroidery::stitchshop::COMMAND, json!({ "job": j.id })));
+            }
         });
     }
     if let Some((id, p)) = act

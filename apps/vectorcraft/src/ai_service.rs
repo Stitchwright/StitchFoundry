@@ -5,22 +5,34 @@
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use vectorcraft_ui_egui::{HttpRequest, SecretStore};
+use vectorcraft_ui_egui::{HttpRequest, Method, SecretStore};
 
 /// How long a drawing may take, answer included: as long as the hosted service waits for it, since
 /// a request given up on here is still billed when it finishes.
 const TIMEOUT: Duration = Duration::from_secs(600);
 
-/// Send `req` and wait for the answer → (HTTP status, body). Proxies come from `HTTPS_PROXY` and
+/// Send `req` (a POST, a GET or a PUT of its bytes) and wait for the answer → (HTTP status, body). Proxies come from `HTTPS_PROXY` and
 /// friends; certificates are checked against the system's trusted ones.
 pub fn post(req: &HttpRequest) -> Result<(u16, String), String> {
     let tls = ureq::tls::TlsConfig::builder().root_certs(ureq::tls::RootCerts::PlatformVerifier).build();
     let agent: ureq::Agent = ureq::Agent::config_builder().tls_config(tls).timeout_global(Some(TIMEOUT)).http_status_as_error(false).build().into();
-    let mut call = agent.post(&req.url);
-    for (name, value) in &req.headers {
-        call = call.header(*name, value.as_str());
+    let mut res = if req.method == Method::Get {
+        let mut call = agent.get(&req.url);
+        for (name, value) in &req.headers {
+            call = call.header(*name, value.as_str());
+        }
+        call.call()
+    } else {
+        let mut call = if req.method == Method::Put { agent.put(&req.url) } else { agent.post(&req.url) };
+        for (name, value) in &req.headers {
+            call = call.header(*name, value.as_str());
+        }
+        match &req.bytes {
+            Some(bytes) => call.send(bytes.as_slice()),
+            None => call.send(req.body.as_str()),
+        }
     }
-    let mut res = call.send(req.body.as_str()).map_err(|e| e.to_string())?;
+    .map_err(|e| e.to_string())?;
     let status = res.status().as_u16();
     let body = res.body_mut().read_to_string().map_err(|e| e.to_string())?;
     Ok((status, body))

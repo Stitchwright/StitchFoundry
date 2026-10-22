@@ -6731,3 +6731,29 @@ machine	Stop	Megállás
 	Quilt Background	Háttér steppelése
 	Sepia	Szépia
 	Colour Tile	Színes csempék
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Küldés a StitchShopba
+	Send to StitchShop…	Küldés a StitchShopba…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Küldje el ezt a mintát a műhelynek, amely kihímzi. A műhely StitchShop-postafiókjában várakozik az öltések képével és az adataival, amíg a műhely be nem veszi egy rendelésbe.
+	Job order: {job}	Megrendelés: {job}
+	Shop	Műhely
+	Any of my shops	Bármelyik műhelyem
+	Include a picture of the stitches	Az öltések képének csatolása
+	Sign in to your Foundry Account to send designs to your shop.	Jelentkezzen be Foundry-fiókjába, hogy mintákat küldhessen a műhelyének.
+	Sending to StitchShop…	Küldés a StitchShopba…
+	Asking StitchHub…	A StitchHub lekérdezése…
+	{file} is in {shop}'s inbox.	{file} a(z) {shop} postafiókjában van.
+	{file} is in your shops' inbox.	{file} a műhelyei postafiókjában van.
+	Take It Back	Visszavétel
+	{file} was taken back.	{file} visszavéve.
+	The design is in the shop's StitchShop inbox.	A minta a műhely StitchShop-postafiókjában van.
+	The design was taken back from the shop's inbox.	A mintát visszavették a műhely postafiókjából.
+	The design was no longer in the shop's inbox.	A minta már nem volt a műhely postafiókjában.
+@msg	The StitchHub address isn't valid: use an https:// address.	A StitchHub címe érvénytelen: használjon https:// címet.
+@msg	The design is too big to send to StitchShop (10 MB at most).	A minta túl nagy ahhoz, hogy a StitchShopba küldje (legfeljebb 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	A StitchHub nem tudta fogadni a mintát (hiba: {_1}): próbálja újra később.
+@msg	The design couldn't be uploaded (error {_1}): try again.	A mintát nem sikerült feltölteni (hiba: {_1}): próbálja újra.
+@msg	`job` is a job order's id	a `job` egy megrendelés azonosítója
+@msg	no job order with that id	nincs ilyen azonosítójú megrendelés
+@msg	nothing has been sent to take back	nem küldött semmit, amit vissza lehetne venni
+@msg	the design couldn't be written	a mintát nem sikerült megírni

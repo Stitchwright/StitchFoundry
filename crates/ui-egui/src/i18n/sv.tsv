@@ -6710,3 +6710,29 @@ machine	Stop	Stopp
 	Quilt Background	Quiltad bakgrund
 	Sepia	Sepia
 	Colour Tile	Färgplattor
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Skicka till StitchShop
+	Send to StitchShop…	Skicka till StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Skicka den här designen till butiken som ska brodera den. Den väntar i butikens StitchShop-inkorg, med en bild av stygnen och dess uppgifter, tills butiken tar in den i en order.
+	Job order: {job}	Order: {job}
+	Shop	Butik
+	Any of my shops	Valfri av mina butiker
+	Include a picture of the stitches	Ta med en bild av stygnen
+	Sign in to your Foundry Account to send designs to your shop.	Logga in på ditt Foundry-konto för att skicka designer till din butik.
+	Sending to StitchShop…	Skickar till StitchShop…
+	Asking StitchHub…	Frågar StitchHub…
+	{file} is in {shop}'s inbox.	{file} ligger i inkorgen hos {shop}.
+	{file} is in your shops' inbox.	{file} ligger i dina butikers inkorg.
+	Take It Back	Ta tillbaka
+	{file} was taken back.	{file} togs tillbaka.
+	The design is in the shop's StitchShop inbox.	Designen ligger i butikens StitchShop-inkorg.
+	The design was taken back from the shop's inbox.	Designen togs tillbaka från butikens inkorg.
+	The design was no longer in the shop's inbox.	Designen låg inte längre i butikens inkorg.
+@msg	The StitchHub address isn't valid: use an https:// address.	StitchHub-adressen är ogiltig: använd en https://-adress.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Designen är för stor för att skickas till StitchShop (högst 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub kunde inte ta emot designen (fel {_1}): försök igen senare.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Designen kunde inte laddas upp (fel {_1}): försök igen.
+@msg	`job` is a job order's id	`job` är id:t för en order
+@msg	no job order with that id	ingen order med det id:t
+@msg	nothing has been sent to take back	inget har skickats som kan tas tillbaka
+@msg	the design couldn't be written	designen kunde inte skrivas

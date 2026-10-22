@@ -6759,3 +6759,29 @@ mark-style	Japanese	Japonské
 	Quilt Background	Prošívání pozadí
 	Sepia	Sépie
 	Colour Tile	Barevné dlaždice
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Odeslat do StitchShop
+	Send to StitchShop…	Odeslat do StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Odešlete tento vzor dílně, která ho vyšije. Počká ve schránce StitchShop dílny, s obrázkem stehů a svými údaji, dokud ho dílna nepřevezme do zakázky.
+	Job order: {job}	Zakázka: {job}
+	Shop	Dílna
+	Any of my shops	Kterákoli z mých dílen
+	Include a picture of the stitches	Přiložit obrázek stehů
+	Sign in to your Foundry Account to send designs to your shop.	Přihlaste se ke svému účtu Foundry, abyste mohli posílat vzory své dílně.
+	Sending to StitchShop…	Odesílání do StitchShop…
+	Asking StitchHub…	Dotaz na StitchHub…
+	{file} is in {shop}'s inbox.	{file} je ve schránce dílny {shop}.
+	{file} is in your shops' inbox.	{file} je ve schránce vašich dílen.
+	Take It Back	Vzít zpět
+	{file} was taken back.	{file} byl vzat zpět.
+	The design is in the shop's StitchShop inbox.	Vzor je ve schránce StitchShop dílny.
+	The design was taken back from the shop's inbox.	Vzor byl vzat zpět ze schránky dílny.
+	The design was no longer in the shop's inbox.	Vzor už ve schránce dílny nebyl.
+@msg	The StitchHub address isn't valid: use an https:// address.	Adresa StitchHub není platná: použijte adresu https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Vzor je příliš velký na odeslání do StitchShop (nejvýše 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub nemohl vzor přijmout (chyba {_1}): zkuste to později.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Vzor se nepodařilo nahrát (chyba {_1}): zkuste to znovu.
+@msg	`job` is a job order's id	`job` je id zakázky
+@msg	no job order with that id	žádná zakázka s tímto id
+@msg	nothing has been sent to take back	nebylo odesláno nic, co by šlo vzít zpět
+@msg	the design couldn't be written	vzor se nepodařilo zapsat

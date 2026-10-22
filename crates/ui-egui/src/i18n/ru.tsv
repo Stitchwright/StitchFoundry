@@ -6394,3 +6394,29 @@ machine	Stop	Остановка
 	Quilt Background	Стёжка фона
 	Sepia	Сепия
 	Colour Tile	Цветная плитка
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Отправить в StitchShop
+	Send to StitchShop…	Отправить в StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Отправьте этот дизайн мастерской, которая его вышьет. Он ждёт во входящих StitchShop мастерской, с изображением стежков и своими данными, пока мастерская не возьмёт его в заказ.
+	Job order: {job}	Заказ: {job}
+	Shop	Мастерская
+	Any of my shops	Любая из моих мастерских
+	Include a picture of the stitches	Приложить изображение стежков
+	Sign in to your Foundry Account to send designs to your shop.	Войдите в учётную запись Foundry, чтобы отправлять дизайны в свою мастерскую.
+	Sending to StitchShop…	Отправка в StitchShop…
+	Asking StitchHub…	Запрос к StitchHub…
+	{file} is in {shop}'s inbox.	{file} во входящих мастерской {shop}.
+	{file} is in your shops' inbox.	{file} во входящих ваших мастерских.
+	Take It Back	Забрать обратно
+	{file} was taken back.	{file} забран обратно.
+	The design is in the shop's StitchShop inbox.	Дизайн во входящих StitchShop мастерской.
+	The design was taken back from the shop's inbox.	Дизайн забран обратно из входящих мастерской.
+	The design was no longer in the shop's inbox.	Дизайна уже не было во входящих мастерской.
+@msg	The StitchHub address isn't valid: use an https:// address.	Адрес StitchHub недействителен: используйте адрес https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Дизайн слишком велик для отправки в StitchShop (не более 10 МБ).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub не смог принять дизайн (ошибка {_1}): попробуйте позже.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Не удалось загрузить дизайн (ошибка {_1}): попробуйте ещё раз.
+@msg	`job` is a job order's id	`job` — это id заказа
+@msg	no job order with that id	нет заказа с таким id
+@msg	nothing has been sent to take back	ничего не отправлено, забирать нечего
+@msg	the design couldn't be written	не удалось записать дизайн

@@ -6586,3 +6586,29 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	Quilt Background	ფონის ქვილთინგი
 	Sepia	სეპია
 	Colour Tile	ფერადი ფილები
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	StitchShop-ში გაგზავნა
+	Send to StitchShop…	StitchShop-ში გაგზავნა…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	გაუგზავნეთ ეს დიზაინი სახელოსნოს, რომელიც მას ამოქარგავს. ის სახელოსნოს StitchShop-ის შემოსულებში ელოდება, ნაკერების სურათითა და მონაცემებით, სანამ სახელოსნო მას შეკვეთაში არ ჩართავს.
+	Job order: {job}	შეკვეთა: {job}
+	Shop	სახელოსნო
+	Any of my shops	ჩემი ნებისმიერი სახელოსნო
+	Include a picture of the stitches	ნაკერების სურათის დართვა
+	Sign in to your Foundry Account to send designs to your shop.	შედით Foundry-ის ანგარიშში, რომ დიზაინები გაუგზავნოთ თქვენს სახელოსნოს.
+	Sending to StitchShop…	იგზავნება StitchShop-ში…
+	Asking StitchHub…	მიმდინარეობს StitchHub-ის კითხვა…
+	{file} is in {shop}'s inbox.	{file} არის {shop}-ის შემოსულებში.
+	{file} is in your shops' inbox.	{file} არის თქვენი სახელოსნოების შემოსულებში.
+	Take It Back	უკან წაღება
+	{file} was taken back.	{file} უკან იქნა წაღებული.
+	The design is in the shop's StitchShop inbox.	დიზაინი სახელოსნოს StitchShop-ის შემოსულებშია.
+	The design was taken back from the shop's inbox.	დიზაინი უკან იქნა წაღებული სახელოსნოს შემოსულებიდან.
+	The design was no longer in the shop's inbox.	დიზაინი აღარ იყო სახელოსნოს შემოსულებში.
+@msg	The StitchHub address isn't valid: use an https:// address.	StitchHub-ის მისამართი არასწორია: გამოიყენეთ https:// მისამართი.
+@msg	The design is too big to send to StitchShop (10 MB at most).	დიზაინი ძალიან დიდია StitchShop-ში გასაგზავნად (მაქსიმუმ 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub-მა ვერ მიიღო დიზაინი (შეცდომა {_1}): სცადეთ მოგვიანებით.
+@msg	The design couldn't be uploaded (error {_1}): try again.	დიზაინის ატვირთვა ვერ მოხერხდა (შეცდომა {_1}): სცადეთ ხელახლა.
+@msg	`job` is a job order's id	`job` შეკვეთის id-ია
+@msg	no job order with that id	ამ id-ით შეკვეთა არ არის
+@msg	nothing has been sent to take back	გაგზავნილი არაფერია, რომ უკან წაიღოთ
+@msg	the design couldn't be written	დიზაინის ჩაწერა ვერ მოხერხდა

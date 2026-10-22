@@ -21,7 +21,7 @@ judged only from their public pages (never by running their software). The ranke
 | Batch personalization | Done | Team Names from CSV, layouts, worksheets, patches. |
 | Job estimator | Done | Stitch count, time, thread and bobbin, quotes, job orders, worksheets. Barcodes still to be checked with a real scanner. |
 | Free web viewer | Done (VIEW-01) | A link with `?view` opens the design read-only: its size, stitches, threads and sewing time, with **Get StitchFoundry Free** and **Edit It Here**. |
-| Send to StitchShop | Planned (SHOP-01) | StitchHub's inbox is built; StitchFoundry's side is planned in [`stitchshop.md`](stitchshop.md): File › Send to StitchShop… and from a job order, with the design's numbers and a preview. |
+| Send to StitchShop | Done (SHOP-01), not yet tried against the real hub | File › Send to StitchShop… and from a job order, with the design's numbers, the job's and a preview ([`stitchshop.md`](stitchshop.md)). Missing: a run against the live hub and bucket, and the bucket's CORS rule for the web app. |
 | Shared library | Partial | Local library; Publish to MakerFoundry. Sharing comes later, with StitchHub. |
 
 From mySewnet, apart from in-the-hoop: split and multi-hoop, QuickFont, photo stitch, Encore's
@@ -43,12 +43,11 @@ job is Team Names' (one file per name, the lettering's place, size and arc kept)
 
 ## The v1 order
 
-1. Send to StitchShop (SHOP-01, [`stitchshop.md`](stitchshop.md)).
-2. The rest of in-the-hoop (HV-01): Family Tree and the passport holder.
-3. The web viewer's call to action.
-4. Thread charts, as permission comes.
+1. The rest of in-the-hoop (HV-01): Family Tree and the passport holder.
+2. The web viewer's call to action.
+3. Thread charts, as permission comes.
 
-Done since the list was drawn up: built-in fonts (FONT-01), the one-step photo to embroidery (PH-01), Effort and the AI's
+Done since the list was drawn up: Send to StitchShop (SHOP-01), built-in fonts (FONT-01), the one-step photo to embroidery (PH-01), Effort and the AI's
 cost (AI-05), HUS (MF-04), the key fob, luggage tag, bookmark, zipper pouch, pencil case, card holder, phone case and book cover, Repeat Design, Spiro, Endless Border, Quilt Background and the sepia, black and white and colour tile photo stitches (HV-01), the web viewer
 (VIEW-01), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
 

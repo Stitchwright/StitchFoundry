@@ -28,6 +28,7 @@ the control channel, the CLI and the MCP server.
 - [Check My Sew-out](#check-my-sew-out)
 - [Foundry Account](#foundry-account)
 - [Publish to MakerFoundry](#publish-to-makerfoundry)
+- [Send to StitchShop](#send-to-stitchshop)
 - [Design settings: hoop, fabric, threads](#design-settings-hoop-fabric-threads)
 - [Stitch Sequence and the stitch player](#stitch-sequence-and-the-stitch-player)
 - [Machine files](#machine-files)
@@ -1710,6 +1711,42 @@ variable; anything else must be an `https://` address. From the control channel 
 `embroidery.publishToMakerFoundry {format?, photos?, server?, send?}` (`send: true` publishes at
 once) → `{open, signedIn, format, photos, server, sending, url, error}`. The web app sends from the
 browser, which MakerFoundry allows for stitchfoundry.app.
+
+## Send to StitchShop
+
+**File › Send to StitchShop…**, or **Send to StitchShop** on a job order (Embroidery panel › Job
+Orders), sends the open design to the shop that will sew it. It waits in the shop's inbox in
+StitchShop or StitchBench until the shop takes it into an order. It goes through StitchHub, by the
+Foundry Account you and the shop share, so the shop has to have linked its StitchHub account to
+that Foundry Account first (in the shop's program, Settings › Foundry Account).
+
+1. Sign in to your Foundry Account. The command needs a design with stitches and a sign-in.
+2. Pick the shop when your account has more than one (**Any of my shops** lets each of them see
+   it), and the machine format: **DST** unless you choose another (PES, JEF, EXP, VP3, XXX, PEC or
+   U01). **Include a picture of the stitches** sends a PNG of the design as it sews, which the shop
+   uses as the order's mock-up when the order has none.
+3. Press **Send to StitchShop**. The design is written in that format and sent with its details:
+   its name, size, stitches (needle stitches only, counted as StitchShop counts a DST), colours and
+   the threads in sewing order, colour changes, trims, thread and bobbin used, sewing time, hoop
+   and fabric. From a job order, its number, customer, garment, placement, due date, quantity and
+   notes go too, and the file is named after the job (`J-0001 Rose crest.dst`).
+4. The window says which inbox it is in. **Take It Back** removes it while no shop has taken it.
+
+The file and the picture go straight to StitchHub's file store at addresses the hub signs for their
+exact size and contents; the hub checks your sign-in with Foundry Accounts and doesn't keep it.
+A file waits 30 days. The hub's limits are 10 MB for the file, 2 MB for the picture (it is made
+smaller until it fits), and 25 files or 100 MB waiting for an account. Over 10 MB, the design is
+refused before anything is sent. The hub's messages are shown as it wrote them: no StitchHub
+account linked to this Foundry Account yet, the inbox full, too many tries. An ended sign-in
+opens Foundry Account.
+
+The window's **Server** row sends to another hub (a self-hosted one, or one on this computer for
+testing: `http://127.0.0.1:8787`), and so does the `STITCHSHOP_HUB_URL` environment variable;
+anything else must be an `https://` address. From the control channel or MCP:
+`embroidery.sendToStitchShop {format?, job?, shop?, preview?, hub?, send?, retract?}` → `{open,
+signedIn, format, job, preview, hub, shops, shop, sending, sent, retracted, error}`. The web app
+sends from the browser, which needs the hub's file store to allow stitchfoundry.app (a CORS rule
+for the hub's owner).
 
 ### Open in StitchFoundry
 

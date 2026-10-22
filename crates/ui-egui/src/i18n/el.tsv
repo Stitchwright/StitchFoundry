@@ -6706,3 +6706,29 @@ machine	Stop	Στάση
 	Quilt Background	Καπιτονέ φόντο
 	Sepia	Σέπια
 	Colour Tile	Χρωματιστά πλακίδια
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Αποστολή στο StitchShop
+	Send to StitchShop…	Αποστολή στο StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Στείλτε αυτό το σχέδιο στο εργαστήριο που θα το κεντήσει. Περιμένει στα εισερχόμενα StitchShop του εργαστηρίου, με μια εικόνα των βελονιών και τα στοιχεία του, μέχρι το εργαστήριο να το πάρει σε παραγγελία.
+	Job order: {job}	Παραγγελία: {job}
+	Shop	Εργαστήριο
+	Any of my shops	Οποιοδήποτε από τα εργαστήριά μου
+	Include a picture of the stitches	Να συμπεριληφθεί εικόνα των βελονιών
+	Sign in to your Foundry Account to send designs to your shop.	Συνδεθείτε στον λογαριασμό Foundry για να στέλνετε σχέδια στο εργαστήριό σας.
+	Sending to StitchShop…	Αποστολή στο StitchShop…
+	Asking StitchHub…	Ερώτηση στο StitchHub…
+	{file} is in {shop}'s inbox.	Το {file} είναι στα εισερχόμενα του {shop}.
+	{file} is in your shops' inbox.	Το {file} είναι στα εισερχόμενα των εργαστηρίων σας.
+	Take It Back	Ανάκληση
+	{file} was taken back.	Το {file} ανακλήθηκε.
+	The design is in the shop's StitchShop inbox.	Το σχέδιο είναι στα εισερχόμενα StitchShop του εργαστηρίου.
+	The design was taken back from the shop's inbox.	Το σχέδιο ανακλήθηκε από τα εισερχόμενα του εργαστηρίου.
+	The design was no longer in the shop's inbox.	Το σχέδιο δεν ήταν πια στα εισερχόμενα του εργαστηρίου.
+@msg	The StitchHub address isn't valid: use an https:// address.	Η διεύθυνση του StitchHub δεν είναι έγκυρη: χρησιμοποιήστε διεύθυνση https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Το σχέδιο είναι πολύ μεγάλο για αποστολή στο StitchShop (έως 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	Το StitchHub δεν μπόρεσε να δεχτεί το σχέδιο (σφάλμα {_1}): δοκιμάστε αργότερα.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Δεν ήταν δυνατή η αποστολή του σχεδίου (σφάλμα {_1}): δοκιμάστε ξανά.
+@msg	`job` is a job order's id	το `job` είναι το id μιας παραγγελίας
+@msg	no job order with that id	καμία παραγγελία με αυτό το id
+@msg	nothing has been sent to take back	δεν στάλθηκε τίποτα για ανάκληση
+@msg	the design couldn't be written	δεν ήταν δυνατή η εγγραφή του σχεδίου

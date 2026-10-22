@@ -6648,3 +6648,29 @@ swatch	Bright Violet	Violet cerah
 	Quilt Background	Quilting latar
 	Sepia	Sepia
 	Colour Tile	Ubin Warna
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Kirim ke StitchShop
+	Send to StitchShop…	Kirim ke StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Kirim desain ini ke toko yang akan menyulamnya. Desain menunggu di kotak masuk StitchShop toko, dengan gambar jahitan dan detailnya, sampai toko memasukkannya ke pesanan.
+	Job order: {job}	Pesanan: {job}
+	Shop	Toko
+	Any of my shops	Toko saya yang mana saja
+	Include a picture of the stitches	Sertakan gambar jahitan
+	Sign in to your Foundry Account to send designs to your shop.	Masuk ke akun Foundry Anda untuk mengirim desain ke toko Anda.
+	Sending to StitchShop…	Mengirim ke StitchShop…
+	Asking StitchHub…	Menanyai StitchHub…
+	{file} is in {shop}'s inbox.	{file} ada di kotak masuk {shop}.
+	{file} is in your shops' inbox.	{file} ada di kotak masuk toko Anda.
+	Take It Back	Tarik Kembali
+	{file} was taken back.	{file} ditarik kembali.
+	The design is in the shop's StitchShop inbox.	Desain ada di kotak masuk StitchShop toko.
+	The design was taken back from the shop's inbox.	Desain ditarik kembali dari kotak masuk toko.
+	The design was no longer in the shop's inbox.	Desain sudah tidak ada di kotak masuk toko.
+@msg	The StitchHub address isn't valid: use an https:// address.	Alamat StitchHub tidak valid: gunakan alamat https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Desain terlalu besar untuk dikirim ke StitchShop (paling besar 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub tidak dapat menerima desain (galat {_1}): coba lagi nanti.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Desain tidak dapat diunggah (galat {_1}): coba lagi.
+@msg	`job` is a job order's id	`job` adalah id pesanan
+@msg	no job order with that id	tidak ada pesanan dengan id itu
+@msg	nothing has been sent to take back	belum ada yang dikirim untuk ditarik kembali
+@msg	the design couldn't be written	desain tidak dapat ditulis

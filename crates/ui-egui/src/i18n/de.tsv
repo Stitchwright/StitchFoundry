@@ -6364,3 +6364,29 @@ effect	Soft	Weich
 	Quilt Background	Hintergrund quilten
 	Sepia	Sepia
 	Colour Tile	Farbkacheln
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	An StitchShop senden
+	Send to StitchShop…	An StitchShop senden…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Senden Sie dieses Design an die Werkstatt, die es stickt. Es wartet im StitchShop-Posteingang der Werkstatt, mit einem Bild der Stiche und seinen Angaben, bis die Werkstatt es in einen Auftrag übernimmt.
+	Job order: {job}	Auftrag: {job}
+	Shop	Werkstatt
+	Any of my shops	Eine meiner Werkstätten
+	Include a picture of the stitches	Ein Bild der Stiche mitsenden
+	Sign in to your Foundry Account to send designs to your shop.	Melden Sie sich bei Ihrem Foundry-Konto an, um Designs an Ihre Werkstatt zu senden.
+	Sending to StitchShop…	Wird an StitchShop gesendet…
+	Asking StitchHub…	StitchHub wird gefragt…
+	{file} is in {shop}'s inbox.	{file} liegt im Posteingang von {shop}.
+	{file} is in your shops' inbox.	{file} liegt im Posteingang Ihrer Werkstätten.
+	Take It Back	Zurückholen
+	{file} was taken back.	{file} wurde zurückgeholt.
+	The design is in the shop's StitchShop inbox.	Das Design liegt im StitchShop-Posteingang der Werkstatt.
+	The design was taken back from the shop's inbox.	Das Design wurde aus dem Posteingang der Werkstatt zurückgeholt.
+	The design was no longer in the shop's inbox.	Das Design war nicht mehr im Posteingang der Werkstatt.
+@msg	The StitchHub address isn't valid: use an https:// address.	Die Adresse von StitchHub ist ungültig: Verwenden Sie eine https://-Adresse.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Das Design ist zu groß zum Senden an StitchShop (höchstens 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub konnte das Design nicht annehmen (Fehler {_1}): Versuchen Sie es später erneut.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Das Design konnte nicht hochgeladen werden (Fehler {_1}): Versuchen Sie es erneut.
+@msg	`job` is a job order's id	`job` ist die ID eines Auftrags
+@msg	no job order with that id	kein Auftrag mit dieser ID
+@msg	nothing has been sent to take back	es wurde nichts gesendet, das zurückgeholt werden könnte
+@msg	the design couldn't be written	das Design konnte nicht geschrieben werden

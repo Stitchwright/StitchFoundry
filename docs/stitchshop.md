@@ -1,7 +1,10 @@
-# Send to StitchShop (SHOP-01): the plan
+# Send to StitchShop (SHOP-01)
 
-Status: planned, 2026-10-22; the hub's preview slot and the extra `meta` keys added the same day
-(a value out of range is dropped by the hub, not refused). StitchHub's side is built (the "StitchFoundry inbox": `src/inbox.mjs` and
+Status: built 2026-10-22 (`sf_core::ai::stitchshop`, `crates/ui-egui/src/embroidery/stitchshop.rs`),
+tested against a stand-in hub, not yet against the real hub and bucket. The hub's preview slot and
+the extra `meta` keys were added the same day (a value out of range is dropped by the hub, not
+refused). Left for the hub's owner: a CORS rule on the bucket for stitchfoundry.app, so the web
+app can upload. StitchHub's side is built (the "StitchFoundry inbox": `src/inbox.mjs` and
 the README's section of that name in [Stitchwright/stitchhub](https://github.com/Stitchwright/stitchhub),
 on the branch `claude/happy-einstein-mmdl83` at the time of writing), tested against stand-ins only.
 This page is StitchFoundry's side: what it sends, from where, and its answers to the hub's questions.
@@ -31,8 +34,10 @@ is (`POST /v1/account`, its numeric `id`) and keeps nothing of it.
    has none.
 5. `POST {hub}/v1/inbox/retract {id}` for Take It Back (409: a shop has taken it already).
 
-- **The hub's address** is a setting (Preferences › StitchFoundry, `stitchshop-hub`), by default
-  `https://hub.stitchbench.app`; a self-hosted hub has its own. HTTPS only (or this computer).
+- **The hub's address** is the window's Server row (kept as `stitchshop-hub`) or
+  `STITCHSHOP_HUB_URL`, by default `https://hub.stitchbench.app`; a self-hosted hub has its own.
+  HTTPS only (or this computer). An upload address the hub gives must be HTTPS too, and only the
+  headers an upload needs are sent with it (`content-type`, `x-amz-checksum-sha256`).
 - **The file name** is the design's (or the job's number and design), made to fit
   `^[A-Za-z0-9][A-Za-z0-9 ._()+-]{0,119}$`; **size** 1 byte to 10 MB, checked before sending.
 - **Errors** are said in words: 401 sign in again; **404 "link your shop first: in StitchShop,

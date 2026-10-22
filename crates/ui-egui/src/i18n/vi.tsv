@@ -6354,3 +6354,29 @@ machine	Stop	Dừng máy
 	Quilt Background	Chần nền
 	Sepia	Nâu đỏ (sepia)
 	Colour Tile	Ô màu
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Gửi tới StitchShop
+	Send to StitchShop…	Gửi tới StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Gửi mẫu này tới cửa hàng sẽ thêu nó. Mẫu chờ trong hộp thư StitchShop của cửa hàng, kèm ảnh các mũi thêu và thông tin, cho đến khi cửa hàng đưa nó vào một đơn hàng.
+	Job order: {job}	Đơn hàng: {job}
+	Shop	Cửa hàng
+	Any of my shops	Bất kỳ cửa hàng nào của tôi
+	Include a picture of the stitches	Kèm ảnh các mũi thêu
+	Sign in to your Foundry Account to send designs to your shop.	Đăng nhập tài khoản Foundry để gửi mẫu tới cửa hàng của bạn.
+	Sending to StitchShop…	Đang gửi tới StitchShop…
+	Asking StitchHub…	Đang hỏi StitchHub…
+	{file} is in {shop}'s inbox.	{file} đang ở hộp thư của {shop}.
+	{file} is in your shops' inbox.	{file} đang ở hộp thư các cửa hàng của bạn.
+	Take It Back	Lấy lại
+	{file} was taken back.	Đã lấy lại {file}.
+	The design is in the shop's StitchShop inbox.	Mẫu đang ở hộp thư StitchShop của cửa hàng.
+	The design was taken back from the shop's inbox.	Đã lấy lại mẫu khỏi hộp thư của cửa hàng.
+	The design was no longer in the shop's inbox.	Mẫu không còn trong hộp thư của cửa hàng.
+@msg	The StitchHub address isn't valid: use an https:// address.	Địa chỉ StitchHub không hợp lệ: hãy dùng địa chỉ https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Mẫu quá lớn để gửi tới StitchShop (tối đa 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub không nhận được mẫu (lỗi {_1}): hãy thử lại sau.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Không tải lên được mẫu (lỗi {_1}): hãy thử lại.
+@msg	`job` is a job order's id	`job` là id của một đơn hàng
+@msg	no job order with that id	không có đơn hàng nào với id đó
+@msg	nothing has been sent to take back	chưa gửi gì để lấy lại
+@msg	the design couldn't be written	không ghi được mẫu

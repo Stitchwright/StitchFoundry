@@ -30,7 +30,7 @@ pub fn request(server: &str, path: &str, token: Option<&str>, body: &Value) -> R
     if let Some(t) = token {
         headers.push(("authorization", format!("Bearer {}", t.trim())));
     }
-    Ok(HttpRequest { url: format!("{server}{path}"), headers, body: body.to_string() })
+    Ok(HttpRequest { url: format!("{server}{path}"), headers, body: body.to_string(), ..Default::default() })
 }
 
 pub fn sign_in(server: &str, email: &str, password: &str) -> Result<HttpRequest, ArtError> {

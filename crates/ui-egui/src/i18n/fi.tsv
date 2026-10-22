@@ -6771,3 +6771,29 @@ swatch	Bright Violet	Kirkas violetti
 	Quilt Background	Taustan tikkaus
 	Sepia	Seepia
 	Colour Tile	Värilaatat
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Lähetä StitchShopiin
+	Send to StitchShop…	Lähetä StitchShopiin…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Lähetä tämä kuvio liikkeelle, joka kirjoo sen. Se odottaa liikkeen StitchShop-saapuneissa kuvan ja tietojensa kanssa, kunnes liike ottaa sen tilaukseen.
+	Job order: {job}	Tilaus: {job}
+	Shop	Liike
+	Any of my shops	Mikä tahansa liikkeistäni
+	Include a picture of the stitches	Liitä kuva pistoista
+	Sign in to your Foundry Account to send designs to your shop.	Kirjaudu Foundry-tiliisi lähettääksesi kuvioita liikkeellesi.
+	Sending to StitchShop…	Lähetetään StitchShopiin…
+	Asking StitchHub…	Kysytään StitchHubilta…
+	{file} is in {shop}'s inbox.	{file} on liikkeen {shop} saapuneissa.
+	{file} is in your shops' inbox.	{file} on liikkeidesi saapuneissa.
+	Take It Back	Ota takaisin
+	{file} was taken back.	{file} otettiin takaisin.
+	The design is in the shop's StitchShop inbox.	Kuvio on liikkeen StitchShop-saapuneissa.
+	The design was taken back from the shop's inbox.	Kuvio otettiin takaisin liikkeen saapuneista.
+	The design was no longer in the shop's inbox.	Kuvio ei ollut enää liikkeen saapuneissa.
+@msg	The StitchHub address isn't valid: use an https:// address.	StitchHubin osoite ei kelpaa: käytä https://-osoitetta.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Kuvio on liian suuri lähetettäväksi StitchShopiin (enintään 10 Mt).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub ei voinut ottaa kuviota vastaan (virhe {_1}): yritä myöhemmin uudelleen.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Kuviota ei voitu ladata (virhe {_1}): yritä uudelleen.
+@msg	`job` is a job order's id	`job` on tilauksen tunnus
+@msg	no job order with that id	ei tilausta tällä tunnuksella
+@msg	nothing has been sent to take back	mitään ei ole lähetetty takaisin otettavaksi
+@msg	the design couldn't be written	kuviota ei voitu kirjoittaa

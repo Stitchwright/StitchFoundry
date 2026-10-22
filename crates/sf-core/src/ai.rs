@@ -20,6 +20,7 @@ pub mod effort;
 pub mod makerfoundry;
 pub mod picture;
 pub mod sewout;
+pub mod stitchshop;
 
 /// The Messages API endpoint.
 pub const API_URL: &str = "https://api.anthropic.com/v1/messages";
@@ -76,12 +77,34 @@ pub struct ArtImage {
     pub data_base64: String,
 }
 
-/// An HTTP POST for the app's client to send.
-#[derive(Clone, Debug, PartialEq)]
+/// An HTTP request for the app's client to send: a POST of `body` unless `method` says otherwise.
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct HttpRequest {
+    pub method: Method,
     pub url: String,
     pub headers: Vec<(&'static str, String)>,
     pub body: String,
+    /// Raw bytes sent instead of `body` (a file uploaded with a PUT).
+    pub bytes: Option<Vec<u8>>,
+}
+
+/// An [`HttpRequest`]'s method.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Method {
+    #[default]
+    Post,
+    Get,
+    Put,
+}
+
+impl Method {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Post => "POST",
+            Self::Get => "GET",
+            Self::Put => "PUT",
+        }
+    }
 }
 
 /// Artwork the model drew.
@@ -196,6 +219,24 @@ pub enum ArtError {
     /// MakerFoundry failed without saying why.
     #[error("MakerFoundry couldn't take the design (error {0}): try again later.")]
     MakerFoundryFailed(u16),
+    /// The hub's address (the setting) isn't one the app may send to.
+    #[error("The StitchHub address isn't valid: use an https:// address.")]
+    NoStitchHub,
+    /// The design or its preview is over the hub's limits.
+    #[error("The design is too big to send to StitchShop (10 MB at most).")]
+    TooBigForStitchShop,
+    /// The hub found the sign-in ended (401), with its message.
+    #[error("{0}")]
+    StitchHubSignIn(String),
+    /// The hub refused, with its message to show as it is.
+    #[error("{0}")]
+    StitchHub(String),
+    /// The hub failed without saying why.
+    #[error("StitchHub couldn't take the design (error {0}): try again later.")]
+    StitchHubFailed(u16),
+    /// The file store refused an upload.
+    #[error("The design couldn't be uploaded (error {0}): try again.")]
+    UploadFailed(u16),
 }
 
 impl ArtError {
@@ -409,6 +450,7 @@ document alone, keeping to the same rules.",
                 ("anthropic-beta", FALLBACK_BETA.to_string()),
             ],
             body: self.body().to_string(),
+            ..Default::default()
         })
     }
 }

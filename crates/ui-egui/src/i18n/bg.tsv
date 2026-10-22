@@ -6714,3 +6714,29 @@ machine	Stop	Спиране
 	Quilt Background	Ватиране на фона
 	Sepia	Сепия
 	Colour Tile	Цветни плочки
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Изпращане към StitchShop
+	Send to StitchShop…	Изпращане към StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Изпратете този дизайн на ателието, което ще го избродира. Той чака във входящите на StitchShop на ателието, с изображение на бодовете и данните си, докато ателието не го вземе в поръчка.
+	Job order: {job}	Поръчка: {job}
+	Shop	Ателие
+	Any of my shops	Което и да е от моите ателиета
+	Include a picture of the stitches	Прилагане на изображение на бодовете
+	Sign in to your Foundry Account to send designs to your shop.	Влезте в профила си във Foundry, за да изпращате дизайни на ателието си.
+	Sending to StitchShop…	Изпращане към StitchShop…
+	Asking StitchHub…	Запитване към StitchHub…
+	{file} is in {shop}'s inbox.	{file} е във входящите на {shop}.
+	{file} is in your shops' inbox.	{file} е във входящите на вашите ателиета.
+	Take It Back	Връщане обратно
+	{file} was taken back.	{file} беше върнат обратно.
+	The design is in the shop's StitchShop inbox.	Дизайнът е във входящите на StitchShop на ателието.
+	The design was taken back from the shop's inbox.	Дизайнът беше върнат от входящите на ателието.
+	The design was no longer in the shop's inbox.	Дизайнът вече не беше във входящите на ателието.
+@msg	The StitchHub address isn't valid: use an https:// address.	Адресът на StitchHub е невалиден: използвайте адрес https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Дизайнът е твърде голям, за да се изпрати към StitchShop (най-много 10 MB).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub не успя да приеме дизайна (грешка {_1}): опитайте по-късно.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Дизайнът не можа да се качи (грешка {_1}): опитайте отново.
+@msg	`job` is a job order's id	`job` е id на поръчка
+@msg	no job order with that id	няма поръчка с този id
+@msg	nothing has been sent to take back	нищо не е изпратено, което да се върне
+@msg	the design couldn't be written	дизайнът не можа да се запише

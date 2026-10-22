@@ -518,9 +518,13 @@ async fn post(request: &vectorcraft_ui_egui::HttpRequest) -> Result<(u16, String
         headers.set("anthropic-dangerous-direct-browser-access", "true").map_err(js_err)?;
     }
     let init = web_sys::RequestInit::new();
-    init.set_method("POST");
+    init.set_method(request.method.as_str());
     init.set_headers(&headers);
-    init.set_body(&wasm_bindgen::JsValue::from_str(&request.body));
+    match (&request.bytes, request.method) {
+        (_, vectorcraft_ui_egui::Method::Get) => {}
+        (Some(bytes), _) => init.set_body(&js_sys::Uint8Array::from(bytes.as_slice())),
+        (None, _) => init.set_body(&wasm_bindgen::JsValue::from_str(&request.body)),
+    }
     let response: web_sys::Response =
         JsFuture::from(window.fetch_with_str_and_init(&request.url, &init)).await.map_err(js_err)?.dyn_into().map_err(js_err)?;
     let status = response.status();

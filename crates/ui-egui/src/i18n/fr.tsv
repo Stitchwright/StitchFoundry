@@ -6771,3 +6771,29 @@ theme	Appearance	Apparence
 	Quilt Background	Matelassage du fond
 	Sepia	Sépia
 	Colour Tile	Mosaïque de couleurs
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Envoyer à StitchShop
+	Send to StitchShop…	Envoyer à StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Envoyez ce motif à l'atelier qui le brodera. Il attend dans la boîte de réception StitchShop de l'atelier, avec une image des points et ses détails, jusqu'à ce que l'atelier le reprenne dans une commande.
+	Job order: {job}	Commande : {job}
+	Shop	Atelier
+	Any of my shops	N'importe lequel de mes ateliers
+	Include a picture of the stitches	Joindre une image des points
+	Sign in to your Foundry Account to send designs to your shop.	Connectez-vous à votre compte Foundry pour envoyer des motifs à votre atelier.
+	Sending to StitchShop…	Envoi à StitchShop…
+	Asking StitchHub…	Interrogation de StitchHub…
+	{file} is in {shop}'s inbox.	{file} est dans la boîte de réception de {shop}.
+	{file} is in your shops' inbox.	{file} est dans la boîte de réception de vos ateliers.
+	Take It Back	Reprendre
+	{file} was taken back.	{file} a été repris.
+	The design is in the shop's StitchShop inbox.	Le motif est dans la boîte de réception StitchShop de l'atelier.
+	The design was taken back from the shop's inbox.	Le motif a été repris de la boîte de réception de l'atelier.
+	The design was no longer in the shop's inbox.	Le motif n'était plus dans la boîte de réception de l'atelier.
+@msg	The StitchHub address isn't valid: use an https:// address.	L'adresse de StitchHub n'est pas valide : utilisez une adresse https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	Le motif est trop lourd pour être envoyé à StitchShop (10 Mo au plus).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	StitchHub n'a pas pu prendre le motif (erreur {_1}) : réessayez plus tard.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Le motif n'a pas pu être envoyé (erreur {_1}) : réessayez.
+@msg	`job` is a job order's id	`job` est l'identifiant d'une commande
+@msg	no job order with that id	aucune commande avec cet identifiant
+@msg	nothing has been sent to take back	rien n'a été envoyé à reprendre
+@msg	the design couldn't be written	le motif n'a pas pu être écrit

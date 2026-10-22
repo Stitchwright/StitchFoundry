@@ -6612,3 +6612,29 @@ mark-style	Japanese	Japonesas
 	Quilt Background	Quiltado de fundo
 	Sepia	Sépia
 	Colour Tile	Mosaico colorido
+# Send to StitchShop (embroidery.sendToStitchShop)
+	Send to StitchShop	Enviar ao StitchShop
+	Send to StitchShop…	Enviar ao StitchShop…
+	Send this design to the shop that will sew it. It waits in the shop's StitchShop inbox, with a picture of the stitches and its details, until the shop takes it into an order.	Envie este desenho para a loja que vai bordá-lo. Ele aguarda na caixa de entrada do StitchShop da loja, com uma imagem dos pontos e seus detalhes, até a loja colocá-lo em um pedido.
+	Job order: {job}	Pedido: {job}
+	Shop	Loja
+	Any of my shops	Qualquer uma das minhas lojas
+	Include a picture of the stitches	Incluir uma imagem dos pontos
+	Sign in to your Foundry Account to send designs to your shop.	Entre na sua conta Foundry para enviar desenhos para a sua loja.
+	Sending to StitchShop…	Enviando ao StitchShop…
+	Asking StitchHub…	Consultando o StitchHub…
+	{file} is in {shop}'s inbox.	{file} está na caixa de entrada de {shop}.
+	{file} is in your shops' inbox.	{file} está na caixa de entrada das suas lojas.
+	Take It Back	Retirar
+	{file} was taken back.	{file} foi retirado.
+	The design is in the shop's StitchShop inbox.	O desenho está na caixa de entrada do StitchShop da loja.
+	The design was taken back from the shop's inbox.	O desenho foi retirado da caixa de entrada da loja.
+	The design was no longer in the shop's inbox.	O desenho não estava mais na caixa de entrada da loja.
+@msg	The StitchHub address isn't valid: use an https:// address.	O endereço do StitchHub não é válido: use um endereço https://.
+@msg	The design is too big to send to StitchShop (10 MB at most).	O desenho é grande demais para enviar ao StitchShop (10 MB no máximo).
+@msg	StitchHub couldn't take the design (error {_1}): try again later.	O StitchHub não conseguiu receber o desenho (erro {_1}): tente mais tarde.
+@msg	The design couldn't be uploaded (error {_1}): try again.	Não foi possível enviar o desenho (erro {_1}): tente de novo.
+@msg	`job` is a job order's id	`job` é o id de um pedido
+@msg	no job order with that id	nenhum pedido com esse id
+@msg	nothing has been sent to take back	nada foi enviado para retirar
+@msg	the design couldn't be written	não foi possível gravar o desenho
