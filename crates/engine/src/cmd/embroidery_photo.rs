@@ -836,6 +836,15 @@ fn tile_shape(shape: &str, at: kurbo::Point, size: f64, gap: f64) -> Vec<kurbo::
         .collect()
 }
 
+/// A colour tile's shape (square, diamond or hexagon), its size across and the gap between
+/// tiles, in mm.
+#[derive(Clone, Copy)]
+struct Tiles<'a> {
+    shape: &'a str,
+    size: f64,
+    gap: f64,
+}
+
 /// Colour tile: the photo as small tiles (squares, diamonds or hexagons `size` mm across), each
 /// one of the photo's `n` main colours matched to the chart, every colour's tiles one short-stitch
 /// fill, the lightest first.
@@ -843,13 +852,12 @@ fn colour_tiles(
     s: &Session,
     pic: &Picture,
     n: usize,
-    shape: &str,
-    size: f64,
-    gap: f64,
+    tiles: Tiles<'_>,
     chart: &ThreadChart,
     background: bool,
 ) -> Result<(Vec<vectorcraft_doc::Node>, usize)> {
     const CMD: &str = "embroidery.photoStitch";
+    let Tiles { shape, size, gap } = tiles;
     let b = pic.bounds();
     let mm = PT_PER_MM;
     let (sz, gp) = (size * mm, gap * mm);
@@ -1018,7 +1026,7 @@ fn photo_stitch(s: &mut Session, p: &Value) -> Result<Value> {
             let size = number(p, "size", 2.0, 12.0, 4.0, CMD)?;
             let gap = number(p, "gap", 0.0, 1.0, 0.3, CMD)?;
             let chart = chart(s, p, CMD)?;
-            let (fills, count) = colour_tiles(s, &pic, n, shape, size, gap, &chart, bool_or(p, "background", false))?;
+            let (fills, count) = colour_tiles(s, &pic, n, Tiles { shape, size, gap }, &chart, bool_or(p, "background", false))?;
             tiles = Some(count);
             let k = fills.len();
             (fills, None, Some(k))
