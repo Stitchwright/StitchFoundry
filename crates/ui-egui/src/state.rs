@@ -405,6 +405,10 @@ pub struct UiState {
     /// Edit Toolbar's All Tools drawer is open beside the toolbar (`window.editToolbar`).
     #[serde(skip)]
     pub tools_drawer: bool,
+    /// The free viewer (`ui.viewer`, the web app's `?view`): the design and what it is, nothing
+    /// to edit, until Edit It Here.
+    #[serde(skip)]
+    pub viewer: bool,
     /// Panels dragged out of the dock: each group floats as its own stack of tabs.
     #[serde(default)]
     pub floating_panels: Vec<FloatingPanels>,
@@ -856,6 +860,7 @@ impl Default for UiState {
             toolbar_edits: ToolbarEdits::default(),
             toolbar_show: ToolbarShow::default(),
             tools_drawer: false,
+            viewer: false,
             floating_panels: vec![],
             docking: None,
             docking_hidden: Default::default(),

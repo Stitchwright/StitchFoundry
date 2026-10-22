@@ -137,6 +137,10 @@ async fn run(host: Host, canvas: web_sys::HtmlCanvasElement, moving: Option<Movi
                         }
                         let mut app = VectorcraftApp::new(Session::new(), services).with_control(control_rx);
                         tablet_start(&mut app);
+                        // `?view`: the free viewer, the design shown with nothing to edit
+                        if query().trim_start_matches('?').split('&').any(|kv| kv == "view" || kv.starts_with("view=")) {
+                            app.ui.viewer = true;
+                        }
                         // Open in StitchFoundry: `?open=` names a design on MakerFoundry, opened once
                         if let Some(raw) = query_param("open") {
                             match crate::open_link::allowed(&raw) {

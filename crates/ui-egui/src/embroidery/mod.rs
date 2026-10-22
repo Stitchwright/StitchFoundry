@@ -13,6 +13,7 @@ pub mod sequence;
 pub mod sewout;
 pub mod stitch_list;
 pub mod styles;
+pub mod viewer;
 pub mod widget;
 
 use egui::Color32;

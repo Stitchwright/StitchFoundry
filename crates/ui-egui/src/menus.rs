@@ -758,6 +758,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ),
     ("help.about", "About StitchFoundry", "", "{}"),
     (
+        "ui.viewer",
+        "Viewer",
+        "",
+        "{on?: bool (true)} the free viewer: the open design shown with its size, stitches, threads and sewing time, nothing to edit, and Edit It Here and Get StitchFoundry Free; off, the full app → {viewer}",
+    ),
+    (
         "ui.makeDesign",
         "Make a Design…",
         "",
@@ -2025,6 +2031,10 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.reportSewout" => crate::embroidery::sewout::open_report(app, p),
         "embroidery.publishToMakerFoundry" => crate::embroidery::publish::open(app, p),
         "ui.makeDesign" => crate::guide::open(app),
+        "ui.viewer" => {
+            app.ui.viewer = p.get("on").and_then(Value::as_bool).unwrap_or(true);
+            Ok(serde_json::json!({ "viewer": app.ui.viewer }))
+        }
         "ui.saveForMyMachine" => crate::dialogs::my_machine::save(app, p),
         "help.commandPalette" => {
             app.ui.palette_open = !app.ui.palette_open;

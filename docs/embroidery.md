@@ -931,6 +931,12 @@ write to folders or a USB stick:
 - Keep Safe's automatic saving to My Designs is desktop only; the web app keeps recovery copies in
   the browser's storage instead.
 
+**The free viewer** (VIEW-01): add `&view` to a link that opens a design (`?open=…&view`, a design on
+MakerFoundry) and the web app shows just the design, with nothing to edit: its name, its
+size, stitch count and sewing time, and its threads in sewing order (point at one for its name).
+**Get StitchFoundry Free** goes to stitchfoundry.app; **Edit It Here** opens the full app with the
+design already open. `ui.viewer {"on": true|false}` switches it from the control channel.
+
 **Tablets** (TB-01): the web app runs on iPad and Android tablets in Safari or Chrome. The first
 time it opens on a touch tablet (a touch screen whose main pointer is a finger, so touch-screen
 laptops aren't counted) it starts in simple mode: the big buttons on the left and Your Design in

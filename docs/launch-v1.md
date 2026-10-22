@@ -20,7 +20,7 @@ judged only from their public pages (never by running their software). The ranke
 | Appliqué / in-the-hoop | Partial | Appliqué is complete. In-the-hoop has 5 projects. Missing: **more items** (key fobs, zipper pouches, card holders, phone cases, luggage tags, passport holders, book covers, pencil cases), each with styles, a blank and printable steps. |
 | Batch personalization | Done | Team Names from CSV, layouts, worksheets, patches. |
 | Job estimator | Done | Stitch count, time, thread and bobbin, quotes, job orders, worksheets. Barcodes still to be checked with a real scanner. |
-| Free web viewer | Partial | Files and MakerFoundry links open in the web app. Missing: **a viewer-only mode and a "Get StitchFoundry free" button**. |
+| Free web viewer | Done (VIEW-01) | A link with `?view` opens the design read-only: its size, stitches, threads and sewing time, with **Get StitchFoundry Free** and **Edit It Here**. |
 | Send to StitchShop | Missing | Waits for StitchShop. |
 | Shared library | Partial | Local library; Publish to MakerFoundry. Sharing comes later, with StitchHub. |
 
@@ -48,7 +48,8 @@ and white, colour tile) (HV-01).
 5. Thread charts, as permission comes.
 
 Done since the list was drawn up: the one-step photo to embroidery (PH-01), Effort and the AI's
-cost (AI-05), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
+cost (AI-05), HUS (MF-04), the key fob, luggage tag and bookmark (HV-01), the web viewer
+(VIEW-01), research and the stitch check (AI-04), the AI test jobs (AI-EVAL-01).
 
 ## Sources
 

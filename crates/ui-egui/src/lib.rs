@@ -1501,6 +1501,15 @@ impl VectorcraftApp {
         widgets::set_dialog_open(&ctx, self.ui.dialog.is_some());
         scrub::begin_frame(self, &ctx);
         embroidery::tick(self, &ctx);
+        // the free viewer: the design and what it is, nothing to edit
+        if self.ui.viewer {
+            embroidery::viewer::show(self, ui);
+            dialogs::show(self, &ctx);
+            self.ui_fonts.frame(&ctx);
+            scrub::end_frame(self, &ctx);
+            self.perf.frame_ms = now_ms() - t0;
+            return;
+        }
         // the lettering kiosk: its panel and the design, nothing else
         if self.session.prefs.embroidery_kiosk.on {
             embroidery::kiosk::show(self, ui);

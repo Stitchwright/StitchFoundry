@@ -1317,3 +1317,40 @@ mod ask_about_embroidery {
         assert_eq!(sent.lock().unwrap().len(), 5);
     }
 }
+
+/// VIEW-01: the free viewer shows the design with its size, stitches and sewing time, nothing to
+/// edit, Get StitchFoundry Free and Edit It Here; Edit It Here is the full app again.
+#[test]
+fn the_viewer_shows_the_design_and_its_facts_with_nothing_to_edit() {
+    let mut app = app();
+    app.run("embroidery.newDesign", json!({"hoop": "Brother 100 × 100 (4×4)"})).unwrap();
+    app.run("shape.rectangle", json!({"x": 60, "y": 60, "width": 80, "height": 60})).unwrap();
+    app.run("embroidery.set", json!({"type": "fill"})).unwrap();
+    assert_eq!(app.run("ui.viewer", json!({})).unwrap()["viewer"], true);
+    let ctx = egui::Context::default();
+    crate::theme::install_fonts(&ctx);
+    let frame = |app: &mut VectorcraftApp| {
+        let raw = egui::RawInput { screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1100.0, 700.0))), ..Default::default() };
+        let mut out = ctx.run_ui(raw, |ui| crate::embroidery::viewer::show(app, ui));
+        out.textures_delta.clear();
+        fn walk(s: &egui::Shape, into: &mut Vec<String>) {
+            match s {
+                egui::Shape::Text(t) => into.push(t.galley.text().to_string()),
+                egui::Shape::Vec(v) => v.iter().for_each(|s| walk(s, into)),
+                _ => {}
+            }
+        }
+        let mut texts = Vec::new();
+        out.shapes.iter().for_each(|c| walk(&c.shape, &mut texts));
+        texts
+    };
+    frame(&mut app);
+    let texts = frame(&mut app);
+    for want in ["Get StitchFoundry Free", "Edit It Here"] {
+        assert!(texts.iter().any(|t| t == want), "{want} missing from {texts:?}");
+    }
+    let facts = texts.iter().find(|t| t.contains(" mm · ")).unwrap_or_else(|| panic!("no facts in {texts:?}"));
+    assert!(facts.contains(" × 21 mm") && facts.contains("stitches") && facts.ends_with("to sew"), "{facts}");
+    assert_eq!(app.run("ui.viewer", json!({"on": false})).unwrap()["viewer"], false);
+    assert!(!app.ui.viewer);
+}
