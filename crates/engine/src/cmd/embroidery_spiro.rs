@@ -23,7 +23,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Spiro",
         ["Embroidery"],
         None,
-        "{size?: mm across (80; 10–400), petals?: 3–36 (7), shape?: 1–petals−1, how far round each loop reaches before it turns (2), spacing?: 0.2–2, how far the pen is from the small circle's middle (1: loops just touch the middle), layers?: 1–6 (2: copies turned between the petals, a colour each), stitch?: run|double|triple (triple), colors?: [\"#rrggbb\"], random?: bool (petals, shape and spacing chosen at random), seed?: a number (with random: the same pattern each time)} a spirograph pattern in the middle of the hoop, each layer a line of its own colour sewn as a running, double or triple stitch, in a group, selected → {id, petals, shape, spacing, layers}",
+        "{size?: mm across (80; 10–400), petals?: 3–36 (7), shape?: 1–petals−1 (how far round each loop reaches before it turns; 2), spacing?: 0.2–2 (how far the pen is from the small circle's middle; 1: the loops just touch the middle), layers?: 1–6 (copies turned between the petals, a colour each; 2), stitch?: run|double|triple (triple), colors?: [\"#rrggbb\"], random?: bool (petals, shape and spacing chosen at random), seed?: a number (with random: the same pattern each time)} a spirograph pattern in the middle of the hoop, each layer a line of its own colour sewn as a running, double or triple stitch, in a group, selected → {id, petals, shape, spacing, layers}",
         always,
         spiro
     )]
