@@ -553,6 +553,35 @@ triangular grid (`even`), up to `count` (20), each turned at random with `turn`.
 motif's stitching and land in a group above the shape, which stays (delete it, or give it a
 fill to sew behind them).
 
+## Repeat Design
+
+**Embroidery › Repeat Design** (`embroidery.repeat {along?, repeats?, position?, radius?, gap?,
+margin?, corners?}`) repeats the selected design (one object or several) and puts the copies in
+its place, in a group in sewing order:
+
+- `along: circle` (the default): `repeats` (8; 2 to 360) copies round a circle, clockwise from the
+  top, each turned to face out, the circle just large enough to keep them `gap` (2 mm) apart unless
+  a `radius` is given;
+- `line`: in a row, left to right, `gap` apart;
+- `frame`: round the inside of the hoop, `margin` (5 mm) from its edge, as many as fit a gap apart,
+  turned to follow each side; `corners: false` leaves the corners empty;
+- `shape`: along the outline of a closed shape selected with the design (the larger), which stays.
+
+`position: mirrored` mirrors every other copy (best with an even number). A negative gap overlaps
+the copies, by half a copy's width at most. It works like Encore in mySewnet
+([public help](https://softwarehelp.mysewnet.com/MSW/140/Embroidery/Topics/Encore.htm)).
+
+## Spiro
+
+**Embroidery › Spiro** (`embroidery.spiro {size?, petals?, shape?, spacing?, layers?, stitch?,
+colors?, random?, seed?}`) draws a spirograph pattern in the middle of the hoop, `size` (80 mm)
+across, as lines sewn in running, double or triple stitch (`stitch`, triple by default). `petals`
+(7) sets the loops round it, `shape` how far round each loop reaches before it turns (1 to petals
+− 1; one that shares a factor with the petals is moved to the nearest that doesn't, so each layer
+is one closed line), `spacing` how far the loops swing in (1: they meet in the middle). `layers`
+(2) repeats it turned between the petals, a thread colour each (`colors`, or six of our own in
+turn). `random: true` chooses the petals, shape and spacing for you, the same for the same `seed`.
+
 ## Cross-stitch patterns
 
 A cross-stitch pattern is drawn square by square on a grid, the way counted cross stitch is
