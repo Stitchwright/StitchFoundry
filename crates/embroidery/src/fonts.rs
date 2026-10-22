@@ -83,9 +83,26 @@ impl Glyph {
 pub struct EmbFont {
     pub info: FontInfo,
     pub glyphs: HashMap<String, Glyph>,
-    /// The folder it was read from (none: given as text).
+    /// The folder it was read from (none: given as text, or built in).
     pub folder: Option<String>,
+    /// Built into the app ([`BUNDLED_FONTS`]): its licence's text.
+    pub built_in: Option<&'static str>,
 }
+
+/// A font built into the app (FONT-01): its folder's files, embedded at build time from a
+/// checkout of the StitchFoundry fonts repository (`build.rs`, `STITCHFOUNDRY_FONTS_DIR`).
+#[derive(Debug)]
+pub struct BundledFont {
+    /// Its folder's name in that repository (`foundry-block`).
+    pub folder: &'static str,
+    pub json: &'static str,
+    /// Its glyphs: a StitchFoundry document.
+    pub glyphs: &'static [u8],
+    /// Its licence's text (the SIL Open Font License), which travels with the font.
+    pub licence: &'static str,
+}
+
+include!(concat!(env!("OUT_DIR"), "/bundled_fonts.rs"));
 
 /// One glyph of set text: its name, how far along its line it starts and which line (font units).
 #[derive(Clone, Debug, PartialEq)]
@@ -127,7 +144,7 @@ impl EmbFont {
         if glyphs.is_empty() {
             return Err(format!("{}: no glyph layers (GlyphLayer-…) in its art", info.name));
         }
-        Ok(EmbFont { info, glyphs, folder: None })
+        Ok(EmbFont { info, glyphs, folder: None, built_in: None })
     }
 
     /// The text as the font sets it: in its letter case.

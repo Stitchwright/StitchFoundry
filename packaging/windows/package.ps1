@@ -98,9 +98,10 @@ foreach ($f in 'README.md', 'LICENSE', 'LICENSE-MIT', 'LICENSE-APACHE', 'NOTICE'
   $p = Join-Path $Root $f
   if (Test-Path $p) { Copy-Item $p $Docs }
 }
-# Built with craft-fonts (CRAFT_FONTS_DIR, release builds): the embedded fonts' licences.
-if ($env:CRAFT_FONTS_DIR) {
-  foreach ($ofl in Get-ChildItem -Path (Join-Path $env:CRAFT_FONTS_DIR 'fonts\*\OFL.txt') -ErrorAction SilentlyContinue) {
+# Built with craft-fonts (CRAFT_FONTS_DIR) and the Foundry embroidery fonts (STITCHFOUNDRY_FONTS_DIR),
+# release builds: the embedded fonts' licences.
+foreach ($dir in @($env:CRAFT_FONTS_DIR, $env:STITCHFOUNDRY_FONTS_DIR) | Where-Object { $_ }) {
+  foreach ($ofl in Get-ChildItem -Path (Join-Path $dir 'fonts\*\OFL.txt') -ErrorAction SilentlyContinue) {
     Copy-Item $ofl.FullName (Join-Path $Docs "OFL-$($ofl.Directory.Name).txt")
   }
 }

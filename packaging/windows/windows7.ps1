@@ -72,8 +72,8 @@ try {
   Copy-Item docs/windows7.md (Join-Path $Stage 'WINDOWS7.md')
   # portable.txt switches on portable mode, as in the regular portable zip (#1366).
   Copy-Item (Join-Path $PSScriptRoot 'portable.txt') $Stage
-  if ($env:CRAFT_FONTS_DIR) {
-    foreach ($ofl in Get-ChildItem (Join-Path $env:CRAFT_FONTS_DIR 'fonts\*\OFL.txt')) {
+    foreach ($dir in @($env:CRAFT_FONTS_DIR, $env:STITCHFOUNDRY_FONTS_DIR) | Where-Object { $_ }) {
+    foreach ($ofl in Get-ChildItem (Join-Path $dir 'fonts\*\OFL.txt')) {
       Copy-Item $ofl.FullName (Join-Path $Stage "OFL-$($ofl.Directory.Name).txt")
     }
   }

@@ -84,6 +84,14 @@ jobs:
           repository: storytold/craft-fonts
           ref: a71c20e30af613287c504f7e685ca8fad77752bc
           path: craft-fonts
+      # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
+      # only their fonts/ folder. Bump the commit deliberately.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Stitchwright/stitchfoundry-fonts
+          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          path: stitchfoundry-fonts
+          sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
         with:
           targets: aarch64-apple-darwin, x86_64-apple-darwin
@@ -106,6 +114,8 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          STITCHFOUNDRY_FONTS_DIR: ${{ github.workspace }}/stitchfoundry-fonts
+          STITCHFOUNDRY_FONTS_REQUIRED: "1"
         run: packaging/macos/package.sh --arch universal
       # Gatekeeper's verdict on what was built, in the run's summary: "source=Notarized Developer
       # ID" and the signer, or why not.
@@ -162,6 +172,14 @@ jobs:
           repository: storytold/craft-fonts
           ref: a71c20e30af613287c504f7e685ca8fad77752bc
           path: craft-fonts
+      # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
+      # only their fonts/ folder. Bump the commit deliberately.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Stitchwright/stitchfoundry-fonts
+          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          path: stitchfoundry-fonts
+          sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
         with:
           targets: ${{ matrix.target }}
@@ -190,6 +208,8 @@ jobs:
           AZURE_CERT_PROFILE: ${{ secrets.AZURE_CERT_PROFILE }}
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          STITCHFOUNDRY_FONTS_DIR: ${{ github.workspace }}/stitchfoundry-fonts
+          STITCHFOUNDRY_FONTS_REQUIRED: "1"
         run: ./packaging/windows/package.ps1 -Arch ${{ matrix.arch }}
       # Who signed each installer and program, in the run's summary.
       - name: Signature check
@@ -240,6 +260,14 @@ jobs:
           repository: storytold/craft-fonts
           ref: a71c20e30af613287c504f7e685ca8fad77752bc
           path: craft-fonts
+      # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
+      # only their fonts/ folder. Bump the commit deliberately.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Stitchwright/stitchfoundry-fonts
+          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          path: stitchfoundry-fonts
+          sparse-checkout: fonts
       - name: Install build and packaging tools
         run: |
           sudo apt-get update
@@ -260,6 +288,8 @@ jobs:
         env:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          STITCHFOUNDRY_FONTS_DIR: ${{ github.workspace }}/stitchfoundry-fonts
+          STITCHFOUNDRY_FONTS_REQUIRED: "1"
         run: packaging/linux/package.sh
       - name: Check the packages
         run: |
@@ -342,6 +372,14 @@ jobs:
           repository: storytold/craft-fonts
           ref: a71c20e30af613287c504f7e685ca8fad77752bc
           path: craft-fonts
+      # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
+      # only their fonts/ folder. Bump the commit deliberately.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Stitchwright/stitchfoundry-fonts
+          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          path: stitchfoundry-fonts
+          sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
         if: inputs.version != ''
       - name: Apply version override
@@ -365,7 +403,7 @@ jobs:
             git config --global --add safe.directory "$PWD"
             # Build outside the checkout so only dist/ is copied back out of the VM.
             # The craft-fonts checkout is synced into the VM with the workspace.
-            export CRAFT_FONTS_DIR="$PWD/craft-fonts" CRAFT_FONTS_REQUIRED=1
+            export CRAFT_FONTS_DIR="$PWD/craft-fonts" CRAFT_FONTS_REQUIRED=1 STITCHFOUNDRY_FONTS_DIR="$PWD/stitchfoundry-fonts" STITCHFOUNDRY_FONTS_REQUIRED=1
             export CARGO_TARGET_DIR=/var/tmp/vectorcraft-target CARGO_BUILD_JOBS=4
             bash packaging/freebsd/package.sh
             tar -tzf dist/release/stitchfoundry-*-freebsd-x86_64.tar.gz \
@@ -395,6 +433,14 @@ jobs:
           repository: storytold/craft-fonts
           ref: a71c20e30af613287c504f7e685ca8fad77752bc
           path: craft-fonts
+      # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
+      # only their fonts/ folder. Bump the commit deliberately.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Stitchwright/stitchfoundry-fonts
+          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          path: stitchfoundry-fonts
+          sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
         with:
           targets: wasm32-unknown-unknown
@@ -413,6 +459,8 @@ jobs:
         env:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          STITCHFOUNDRY_FONTS_DIR: ${{ github.workspace }}/stitchfoundry-fonts
+          STITCHFOUNDRY_FONTS_REQUIRED: "1"
         run: packaging/web/package.sh
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -442,6 +490,14 @@ jobs:
           repository: storytold/craft-fonts
           ref: a71c20e30af613287c504f7e685ca8fad77752bc
           path: craft-fonts
+      # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
+      # only their fonts/ folder. Bump the commit deliberately.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Stitchwright/stitchfoundry-fonts
+          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          path: stitchfoundry-fonts
+          sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
         with:
           targets: riscv64gc-unknown-linux-gnu
@@ -477,6 +533,8 @@ jobs:
         env:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          STITCHFOUNDRY_FONTS_DIR: ${{ github.workspace }}/stitchfoundry-fonts
+          STITCHFOUNDRY_FONTS_REQUIRED: "1"
           CARGO_TARGET_RISCV64GC_UNKNOWN_LINUX_GNU_LINKER: riscv64-linux-gnu-gcc
           CC_riscv64gc_unknown_linux_gnu: riscv64-linux-gnu-gcc
           CXX_riscv64gc_unknown_linux_gnu: riscv64-linux-gnu-g++

@@ -46,7 +46,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Embroidery Fonts",
             [],
             None,
-            "{} the embroidery fonts, those of the folders remembered from earlier sessions too (loaded now, if they weren't) → {fonts: [{name, glyphs, size, minSize, maxSize, license, description, folder}], warnings: the folders that failed to load}",
+            "{} the embroidery fonts: those built into the app (builtIn, with their licence's text), and those of the folders remembered from earlier sessions (loaded now, if they weren't) → {fonts: [{name, glyphs, size, minSize, maxSize, license, description, folder, builtIn, licenceText?}], warnings: the folders that failed to load}",
             always,
             list_fonts
         ),
@@ -154,8 +154,9 @@ pub(super) fn describe(f: &EmbFont) -> Value {
         "minSize": size(i.min_scale),
         "maxSize": size(i.max_scale),
         "license": i.font_license,
-        "description": i.description,
+                "description": i.description,
         "folder": f.folder,
+        "builtIn": f.built_in.is_some(),
     })
 }
 
@@ -299,6 +300,16 @@ pub(super) fn ensure_fonts(s: &mut Session) -> Vec<String> {
         return Vec::new();
     }
     let mut warnings = Vec::new();
+    // the fonts built into the app first: a folder loaded with the same name replaces one
+    for b in vectorcraft_embroidery::fonts::BUNDLED_FONTS {
+        match font_from(b.json, &[Art::Native(b.glyphs.to_vec())]) {
+            Ok(mut font) => {
+                font.built_in = Some(b.licence);
+                add_font(s, font);
+            }
+            Err(e) => warnings.push(format!("the built-in embroidery font {} didn't load: {e}", b.folder)),
+        }
+    }
     for dir in s.prefs.embroidery_font_dirs.clone() {
         // one loaded already this session stays as it is
         if s.embroidery_fonts.iter().any(|f| f.folder.as_deref() == Some(dir.as_str())) {
@@ -344,7 +355,18 @@ fn load_font(s: &mut Session, p: &Value) -> Result<Value> {
 
 fn list_fonts(s: &mut Session, _: &Value) -> Result<Value> {
     let warnings = ensure_fonts(s);
-    Ok(json!({ "fonts": s.embroidery_fonts.iter().map(|f| describe(f)).collect::<Vec<_>>(), "warnings": warnings }))
+    let fonts: Vec<Value> = s
+        .embroidery_fonts
+        .iter()
+        .map(|f| {
+            let mut v = describe(f);
+            if let Some(text) = f.built_in {
+                v["licenceText"] = json!(text);
+            }
+            v
+        })
+        .collect();
+    Ok(json!({ "fonts": fonts, "warnings": warnings }))
 }
 
 fn forget_font(s: &mut Session, p: &Value) -> Result<Value> {

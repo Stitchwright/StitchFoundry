@@ -45,6 +45,14 @@ jobs:
           repository: storytold/craft-fonts
           ref: a71c20e30af613287c504f7e685ca8fad77752bc
           path: craft-fonts
+      # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
+      # only their fonts/ folder. Bump the commit deliberately.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Stitchwright/stitchfoundry-fonts
+          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          path: stitchfoundry-fonts
+          sparse-checkout: fonts
       - name: Build and test in a FreeBSD VM
         uses: vmactions/freebsd-vm@c46abacb49f09938ca4e1702d15d836285d694cc # v1.5.9
         with:
@@ -63,7 +71,7 @@ jobs:
             git config --global --add safe.directory "*"
             rustc --version
             # The checkout above is synced into the VM with the workspace.
-            export CRAFT_FONTS_DIR="$PWD/craft-fonts" CRAFT_FONTS_REQUIRED=1
+            export CRAFT_FONTS_DIR="$PWD/craft-fonts" CRAFT_FONTS_REQUIRED=1 STITCHFOUNDRY_FONTS_DIR="$PWD/stitchfoundry-fonts" STITCHFOUNDRY_FONTS_REQUIRED=1
             CARGO_PROFILE_DEV_DEBUG=0 cargo build --workspace --all-targets --locked
             CARGO_PROFILE_DEV_DEBUG=0 cargo test --workspace --locked
 
@@ -83,6 +91,14 @@ jobs:
           repository: storytold/craft-fonts
           ref: a71c20e30af613287c504f7e685ca8fad77752bc
           path: craft-fonts
+      # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
+      # only their fonts/ folder. Bump the commit deliberately.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Stitchwright/stitchfoundry-fonts
+          ref: 02459a144efc3c5e1f94f5e941ef0d4cd7874860
+          path: stitchfoundry-fonts
+          sparse-checkout: fonts
       - name: Package in a FreeBSD VM
         uses: vmactions/freebsd-vm@c46abacb49f09938ca4e1702d15d836285d694cc # v1.5.9
         with:
@@ -97,7 +113,7 @@ jobs:
             git config --global --add safe.directory "$PWD"
             # Build outside the checkout so only dist/ is copied back out of the VM.
             # The craft-fonts checkout is synced into the VM with the workspace.
-            export CRAFT_FONTS_DIR="$PWD/craft-fonts" CRAFT_FONTS_REQUIRED=1
+            export CRAFT_FONTS_DIR="$PWD/craft-fonts" CRAFT_FONTS_REQUIRED=1 STITCHFOUNDRY_FONTS_DIR="$PWD/stitchfoundry-fonts" STITCHFOUNDRY_FONTS_REQUIRED=1
             export CARGO_TARGET_DIR=/var/tmp/vectorcraft-target CARGO_BUILD_JOBS=4
             bash packaging/freebsd/package.sh
             # Every part the package must have, the craft-fonts licences included.
