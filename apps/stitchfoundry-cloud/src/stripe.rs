@@ -37,7 +37,7 @@ pub fn checkout_form(cfg: &Config, pack: &Pack, account: u64, email: &str) -> St
         ("line_items[0][quantity]", "1".to_string()),
         ("line_items[0][price_data][currency]", "usd".to_string()),
         ("line_items[0][price_data][unit_amount]", pack.cents.to_string()),
-        ("line_items[0][price_data][product_data][name]", format!("StitchFoundry AI credits: {}", pack.credits)),
+        ("line_items[0][price_data][product_data][name]", format!("Foundry credits: {}", pack.credits)),
         ("metadata[account]", account.to_string()),
         ("metadata[credits]", pack.credits.to_string()),
         ("metadata[pack]", pack.id.clone()),

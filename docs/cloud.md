@@ -53,7 +53,8 @@ pass through this service; sales and subscriptions are the other services' own.
   held, and a request that fails or is refused costs nothing. Every change is a ledger entry.
 - **Buying credits:** the app asks for a checkout page for a pack (`POST /v1/checkout`); the buyer
   pays on Stripe's own page in the browser; Stripe tells the service with a signed webhook, which
-  adds the credits once (even if Stripe sends it twice). Card details never reach the service.
+  adds the credits once (even if Stripe sends it twice). Card details never reach the service. The
+  checkout page and the receipt name them "Foundry credits", since every Foundry app uses them.
 - **AI requests:** `POST /v1/messages` takes the same request the app sends Anthropic, checks it
   (the offered model, at most 16,000 tokens a reply, no streaming, at most three at once an
   account; tools only the app's own and the basic web search, `web_search_20250305` with at most
