@@ -52,6 +52,10 @@ jobs:
           ONLY: ${{ inputs.only }}
         run: |
           set -o pipefail
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::The repository has no ANTHROPIC_API_KEY secret (Settings › Secrets and variables › Actions): nothing was sent."
+            exit 1
+          fi
           args=(--effort "$EFFORT" --out target/ai-eval/report --yes)
           if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
           target/debug/stitchfoundry-cli ai-eval "${args[@]}" 2>&1 | tee target/ai-eval-log.txt
