@@ -385,17 +385,27 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let mut design: Vec<u64> = Vec::new();
     let both = text.is_some() && shape.is_some();
+    // a wide, short space (above a card holder's pocket): the shape at the left, the words beside
+    // it, rather than one over the other, too small
+    let side_by_side = both && !narrow && pw > 2.2 * area_h;
+    let mut shape_size = 0.0;
     if let Some(name) = &shape {
         let size = match (narrow, both) {
+            _ if side_by_side => (area_h - 10.0).max(8.0),
             (true, _) => (pw - 14.0).max(8.0),
             (false, true) => inner * 0.5,
             (false, false) => inner * 0.7,
         };
+        shape_size = size;
         let r = s.execute("embroidery.addShape", &json!({ "name": name, "size": size }))?;
         design.extend(r["id"].as_u64());
         if both && let Some(sid) = r["id"].as_u64() {
-            let dy = if narrow { -(ph * 0.25) } else { -inner * 0.18 };
-            on(s, sid, "object.move", json!({ "dx": 0.0, "dy": dy * PT_PER_MM }))?;
+            let (dx, dy) = match narrow {
+                _ if side_by_side => (-(pw / 2.0 - 8.0 - size / 2.0), 0.0),
+                true => (0.0, -(ph * 0.25)),
+                false => (0.0, -inner * 0.18),
+            };
+            on(s, sid, "object.move", json!({ "dx": dx * PT_PER_MM, "dy": dy * PT_PER_MM }))?;
         }
         add_step("The design", "Sew the shape in its colours.");
     }
@@ -403,6 +413,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         let height = match p.get("height").and_then(Value::as_f64) {
             Some(h) => h.clamp(5.0, 80.0),
             None if narrow => ((pw - 14.0) * 0.55).clamp(6.0, 40.0),
+            None if side_by_side => ((area_h - 10.0) * 0.45).clamp(6.0, 40.0),
             None => (inner * if both { 0.18 } else { 0.28 }).clamp(6.0, 40.0),
         };
         let r = s.execute("embroidery.addWords", &json!({ "text": t, "height": height, "color": color }))?;
@@ -423,6 +434,18 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
                 if both {
                     on(s, wid, "object.move", json!({ "dx": 0.0, "dy": ph * 0.15 * PT_PER_MM }))?;
                 }
+            } else if side_by_side {
+                // in the room right of the shape, made smaller if they don't fit it
+                let (left, right) = (-pw / 2.0 + 8.0 + shape_size + 5.0, pw / 2.0 - 8.0);
+                let wide = {
+                    let d = &s.doc()?.doc;
+                    d.node(NodeId(wid)).and_then(|n| n.geometric_bounds()).map_or(0.0, |b| b.width() / PT_PER_MM)
+                };
+                if wide > right - left && wide > 0.0 {
+                    let k = (right - left) / wide * 100.0;
+                    on(s, wid, "object.scale", json!({ "sx": k, "sy": k }))?;
+                }
+                on(s, wid, "object.move", json!({ "dx": (left + right) / 2.0 * PT_PER_MM, "dy": 0.0 }))?;
             } else if both {
                 on(s, wid, "object.move", json!({ "dx": 0.0, "dy": inner * 0.3 * PT_PER_MM }))?;
             }
@@ -828,6 +851,15 @@ mod tests {
         let fold = page.center().y + (3.0 * IN / 2.0 - 3.0 * IN * 0.55) * PT_PER_MM;
         assert!(words.y1 < fold, "the words {words:?} above the pocket's fold at {fold}");
         assert!(r["supplies"].to_string().contains("Pocket fabric"), "{r}");
+        // with a shape too: side by side above the pocket, apart, both inside the piece
+        let r2 = s.execute("embroidery.ith.make", &json!({"project": "card-holder", "text": "Bruce", "shape": "Heart"})).unwrap();
+        let d2 = &s.doc().unwrap().doc;
+        let b = |i: usize| d2.node(NodeId(r2["design"][i].as_u64().unwrap())).and_then(|n| n.geometric_bounds()).unwrap();
+        let (heart, name) = (b(0), b(1));
+        assert!(heart.x1 < name.x0, "the heart {heart:?} left of the name {name:?}");
+        let page2 = d2.artboards[0].rect;
+        assert!(heart.x0 > page2.center().x - 2.0 * IN * PT_PER_MM && name.x1 < page2.center().x + 2.0 * IN * PT_PER_MM, "{heart:?} {name:?}");
+        assert!(heart.y1.max(name.y1) < fold, "above the fold");
         assert!(r["pieces"].as_array().unwrap().iter().any(|p| p["name"] == "Pocket (fold in half)"), "{r}");
         let info = s.execute("embroidery.info", &json!({})).unwrap();
         assert_eq!(info["fits"], true, "{info}");
