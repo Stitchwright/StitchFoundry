@@ -50,6 +50,7 @@ pub mod embroidery_input;
 pub mod embroidery_ith;
 pub mod embroidery_jobs;
 pub mod embroidery_kiosk;
+pub mod embroidery_lace;
 pub mod embroidery_lasso;
 pub mod embroidery_laydown;
 pub mod embroidery_lettering;
@@ -357,6 +358,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(embroidery_spiro::specs());
         v.extend(embroidery_family::specs());
         v.extend(embroidery_stumpwork::specs());
+        v.extend(embroidery_lace::specs());
         v.extend(xform::specs());
         v.extend(effectcmd::specs());
         v.extend(pathops::specs());

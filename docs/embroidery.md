@@ -617,7 +617,7 @@ turn). `random: true` chooses the petals, shape and spacing for you, the same fo
 ## StumpWork
 
 **Embroidery › Make StumpWork** (`embroidery.stumpwork {ids?, gauge?, cover?, coverWidth?, color?,
-fill?}`) turns the selected closed shapes into stumpwork pieces: raised, free-standing petals,
+fill?}`) turns the selected closed shapes (a group's too) into stumpwork pieces: raised, free-standing petals,
 leaves or wings with a wire round their edge, sewn on organza over water-soluble stabilizer, cut
 out and bent to shape. Each piece sews in four steps, each its own thread named for what to do,
 so the machine stops before it:
@@ -636,6 +636,18 @@ The finishing goes in the design's notes, which the worksheet prints: cut each p
 its edge, rinse the stabilizer away, let it dry, bend the wire to shape, and push the tails through
 the fabric where the piece goes. One undo takes a piece back to its shape. Behaviour from
 BERNINA's public help on its stumpwork tools.
+
+## Lacework (free-standing lace)
+
+**Embroidery › Make Lacework** (`embroidery.lacework {ids?, pattern?, spacing?, edge?, color?}`)
+turns the selected closed shapes (a group's too) into free-standing lace: open rows crossing at the
+pattern's angles, which lock where they cross so the lace holds once the stabilizer is gone, and a
+satin edge round it. **Diamond** crosses rows at 45° and 135°, **grid** at 0° and 90°,
+**triangle** at 0°, 60° and 120°, **star** all four; `spacing` sets the rows apart (2.5 mm, 1.5 to
+6) and `edge` the satin's width (3 mm, or 0 for none). It is all one thread with no stop, in the
+shape's colour or `color`. The design's notes say how to sew it: two layers of fibrous
+water-soluble stabilizer, the same thread in the bobbin, then rinse the stabilizer away and pin the
+lace flat to dry. One undo takes it back. Behaviour from BERNINA's public help on its Lacework fill.
 
 ## Family Tree
 

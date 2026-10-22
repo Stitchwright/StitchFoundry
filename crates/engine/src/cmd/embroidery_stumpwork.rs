@@ -34,6 +34,37 @@ pub fn specs() -> Vec<CommandSpec> {
     )]
 }
 
+/// The closed shapes among `ids`, looking inside groups: (id, node). Refused when one is an open
+/// line, type or a picture, or none is closed. `what` names them in the message.
+pub(super) fn closed_shapes(s: &Session, ids: &[u64], cmd: &str, what: &str) -> Result<Vec<(u64, vectorcraft_doc::Node)>> {
+    fn walk(n: &vectorcraft_doc::Node, out: &mut Vec<(u64, vectorcraft_doc::Node)>, bad_kind: &mut bool, open: &mut bool) {
+        match &n.kind {
+            NodeKind::Path { path, .. } => {
+                if path.to_bezpath().elements().iter().any(|e| matches!(e, kurbo::PathEl::ClosePath)) {
+                    out.push((n.id.0, n.clone()));
+                } else {
+                    *open = true;
+                }
+            }
+            NodeKind::Group { children, .. } => children.iter().for_each(|c| walk(c, out, bad_kind, open)),
+            _ => *bad_kind = true,
+        }
+    }
+    let d = &s.doc()?.doc;
+    let (mut out, mut bad_kind, mut open) = (Vec::new(), false, false);
+    for id in ids {
+        let n = d.node(NodeId(*id)).ok_or_else(|| bad(cmd, format!("no object {id}")))?;
+        walk(n, &mut out, &mut bad_kind, &mut open);
+    }
+    if bad_kind {
+        return Err(bad(cmd, format!("{what} are made from closed shapes: convert type to outlines first")));
+    }
+    if open || out.is_empty() {
+        return Err(bad(cmd, format!("{what} are made from closed shapes: close the path first")));
+    }
+    Ok(out)
+}
+
 /// A wire's diameter (mm) from its American Wire Gauge number.
 fn awg_mm(gauge: f64) -> f64 {
     0.127 * 92f64.powf((36.0 - gauge) / 39.0)
@@ -58,25 +89,16 @@ fn stumpwork(s: &mut Session, p: &Value) -> Result<Value> {
     if ids.is_empty() {
         return Err(bad(CMD, "select the closed shapes to make into stumpwork pieces"));
     }
-    // closed paths only, with the piece's own thread colour and whether it already fills
-    let mut pieces = Vec::new();
-    {
-        let d = &s.doc()?.doc;
-        for id in &ids {
-            let n = d.node(NodeId(*id)).ok_or_else(|| bad(CMD, format!("no object {id}")))?;
-            let NodeKind::Path { path, .. } = &n.kind else {
-                return Err(bad(CMD, "stumpwork pieces are closed shapes: convert type or groups to paths first"));
-            };
-            let closed = path.to_bezpath().elements().iter().any(|e| matches!(e, kurbo::PathEl::ClosePath));
-            if !closed {
-                return Err(bad(CMD, "a stumpwork piece is a closed shape: close the path first"));
-            }
+    // closed paths only (a group's own closed shapes), with each one's thread colour and whether
+    // it already fills
+    let pieces: Vec<(u64, bool, Option<String>)> = closed_shapes(s, &ids, CMD, "stumpwork pieces")?
+        .into_iter()
+        .map(|(id, n)| {
             let emb = n.embroidery.as_deref();
             let fills = emb.is_some_and(|e| matches!(e.stitch, sf_core::attr::StitchType::Fill(_)));
-            let own = emb.and_then(|e| e.thread.as_ref()).map(|t| t.color.to_hex());
-            pieces.push((*id, fills, own));
-        }
-    }
+            (id, fills, emb.and_then(|e| e.thread.as_ref()).map(|t| t.color.to_hex()))
+        })
+        .collect();
     let wire = awg_mm(gauge);
     let group = s.active().is_some_and(|d| d.undo_group.is_none());
     if group {
