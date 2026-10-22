@@ -6737,3 +6737,19 @@ machine	Stop	Stopp
 @msg	nothing has been sent to take back	inget har skickats som kan tas tillbaka
 @msg	the design couldn't be written	designen kunde inte skrivas
 	Passport holder, 4 × 5¾″	Passfodral, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Släktträd
+	Family Tree…	Släktträd…
+	Descendants	Ättlingar
+	Ancestors	Anor
+	Full names	Fullständiga namn
+	Given names only	Bara förnamn
+	Letter height	Bokstavshöjd
+	Frame	Ram
+	Box	Ruta
+	Running stitch	Raksöm
+	Make the Family Tree	Gör släktträdet
+	{n} people, {size}	{n} personer, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	En person per rad. Börja med personen, sedan far och mor indragna under, och under var och en deras föräldrar.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	En person per rad. Börja med den första personen ("Namn + Partner" för ett par), sedan barnen indragna under, och under vart och ett deras barn.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Släktträdet är större än bågen: välj en större båge eller färre generationer.

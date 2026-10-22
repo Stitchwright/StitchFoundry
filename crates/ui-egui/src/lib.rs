@@ -1573,6 +1573,7 @@ impl VectorcraftApp {
         embroidery::account::window(self, &ctx);
         embroidery::publish::window(self, &ctx);
         embroidery::stitchshop::window(self, &ctx);
+        embroidery::family::window(self, &ctx);
         if simple {
             simple::windows(self, &ctx);
         } else {

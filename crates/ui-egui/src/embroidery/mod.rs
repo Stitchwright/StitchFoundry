@@ -12,6 +12,7 @@ pub mod publish;
 pub mod sequence;
 pub mod sewout;
 pub mod stitch_list;
+pub mod family;
 pub mod stitchshop;
 pub mod styles;
 pub mod viewer;
@@ -164,6 +165,7 @@ pub struct EmbroideryUi {
     /// Publish to MakerFoundry's window (PUB-01).
     pub publish: publish::PublishState,
     pub stitchshop: stitchshop::StitchShopState,
+    pub family: family::FamilyState,
     /// Get Embroidery Fonts' window (NEW-20).
     pub font_library: crate::dialogs::font_library::FontLibraryState,
     /// Compare Designs' window (CMP-01).
@@ -397,6 +399,7 @@ impl Default for EmbroideryUi {
             account: Default::default(),
             publish: Default::default(),
             stitchshop: Default::default(),
+            family: Default::default(),
             font_library: Default::default(),
             compare: Default::default(),
         }

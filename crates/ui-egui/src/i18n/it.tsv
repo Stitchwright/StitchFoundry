@@ -6425,3 +6425,19 @@ machine	Stop	Arresto
 @msg	nothing has been sent to take back	non è stato inviato nulla da ritirare
 @msg	the design couldn't be written	non è stato possibile scrivere il disegno
 	Passport holder, 4 × 5¾″	Porta passaporto, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Albero genealogico
+	Family Tree…	Albero genealogico…
+	Descendants	Discendenti
+	Ancestors	Antenati
+	Full names	Nomi completi
+	Given names only	Solo nomi propri
+	Letter height	Altezza lettere
+	Frame	Cornice
+	Box	Riquadro
+	Running stitch	Punto filza
+	Make the Family Tree	Crea l'albero genealogico
+	{n} people, {size}	{n} persone, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	Una persona per riga. Inizia con la persona, poi padre e madre rientrati sotto, e sotto ciascuno i suoi genitori.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Una persona per riga. Inizia con la prima persona («Nome + Partner» per una coppia), poi i figli rientrati sotto, e sotto ciascuno i suoi figli.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	L'albero genealogico è più grande del telaio: scegli un telaio più grande o meno generazioni.

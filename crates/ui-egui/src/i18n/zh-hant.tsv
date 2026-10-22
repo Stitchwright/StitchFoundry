@@ -6385,3 +6385,19 @@ machine	Stop	停止
 @msg	nothing has been sent to take back	沒有已傳送的內容可收回
 @msg	the design couldn't be written	無法寫出設計
 	Passport holder, 4 × 5¾″	護照套，4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	家譜樹
+	Family Tree…	家譜樹…
+	Descendants	後代
+	Ancestors	祖先
+	Full names	全名
+	Given names only	只用名字
+	Letter height	字母高度
+	Frame	邊框
+	Box	方框
+	Running stitch	平針
+	Make the Family Tree	製作家譜樹
+	{n} people, {size}	{n} 人，{size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	每行一人。先寫本人，再在其下縮排寫父親和母親，每人之下再寫他們的父母。
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	每行一人。先寫第一個人（夫妻寫作「名字 + 伴侶」），再在其下縮排寫子女，每人之下再寫他們的子女。
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	家譜樹比繡框大：請選更大的繡框，或減少世代。

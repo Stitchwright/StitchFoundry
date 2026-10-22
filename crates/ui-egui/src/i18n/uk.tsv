@@ -6405,3 +6405,19 @@ machine	Stop	Зупинка
 @msg	nothing has been sent to take back	нічого не надіслано, забирати нічого
 @msg	the design couldn't be written	не вдалося записати дизайн
 	Passport holder, 4 × 5¾″	Обкладинка для паспорта, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Родовідне дерево
+	Family Tree…	Родовідне дерево…
+	Descendants	Нащадки
+	Ancestors	Предки
+	Full names	Повні імена
+	Given names only	Лише імена
+	Letter height	Висота літер
+	Frame	Рамка
+	Box	Прямокутник
+	Running stitch	Прямий стібок
+	Make the Family Tree	Створити родовідне дерево
+	{n} people, {size}	{n} осіб, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	Одна особа в рядку. Почніть з особи, під нею з відступом — батько й мати, а під кожним — його батьки.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Одна особа в рядку. Почніть з першої особи («Ім'я + Партнер» для пари), під нею з відступом — діти, а під кожним — його діти.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Родовідне дерево більше за п'яльця: виберіть більші п'яльця або менше поколінь.

@@ -6624,3 +6624,19 @@ machine	Stop	Zatrzymanie
 @msg	nothing has been sent to take back	nic nie wysłano, więc nie ma czego wycofać
 @msg	the design couldn't be written	nie udało się zapisać wzoru
 	Passport holder, 4 × 5¾″	Etui na paszport, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Drzewo genealogiczne
+	Family Tree…	Drzewo genealogiczne…
+	Descendants	Potomkowie
+	Ancestors	Przodkowie
+	Full names	Pełne imiona i nazwiska
+	Given names only	Tylko imiona
+	Letter height	Wysokość liter
+	Frame	Ramka
+	Box	Prostokąt
+	Running stitch	Ścieg prosty
+	Make the Family Tree	Utwórz drzewo genealogiczne
+	{n} people, {size}	{n} osób, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	Jedna osoba w wierszu. Zacznij od osoby, pod nią z wcięciem ojciec i matka, a pod każdym jego rodzice.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Jedna osoba w wierszu. Zacznij od pierwszej osoby („Imię + Partner” dla pary), pod nią z wcięciem dzieci, a pod każdym jego dzieci.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Drzewo genealogiczne jest większe niż tamborek: wybierz większy tamborek lub mniej pokoleń.

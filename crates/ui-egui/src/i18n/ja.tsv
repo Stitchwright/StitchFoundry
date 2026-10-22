@@ -6464,3 +6464,19 @@ machine	Stop	停止
 @msg	nothing has been sent to take back	取り戻すものは送られていません
 @msg	the design couldn't be written	デザインを書き出せませんでした
 	Passport holder, 4 × 5¾″	パスポートケース、4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	家系図
+	Family Tree…	家系図…
+	Descendants	子孫
+	Ancestors	祖先
+	Full names	フルネーム
+	Given names only	名前のみ
+	Letter height	文字の高さ
+	Frame	枠
+	Box	四角
+	Running stitch	ランニングステッチ
+	Make the Family Tree	家系図を作る
+	{n} people, {size}	{n}人、{size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	1行に1人。本人から始め、その下に字下げして父と母、さらにそれぞれの下にその両親を書きます。
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	1行に1人。最初の人から始め（夫婦は「名前 + パートナー」）、その下に字下げして子ども、さらにそれぞれの下にその子どもを書きます。
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	家系図が枠より大きくなっています: 大きい枠を選ぶか、世代を減らしてください。

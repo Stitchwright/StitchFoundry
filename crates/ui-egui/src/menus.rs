@@ -126,6 +126,7 @@ fn embroidery_menu() -> Vec<Item> {
                 c("Auto-Digitize Image", "embroidery.autoDigitize"),
                 c("Design from Prompt…", "ui.designFromPrompt"),
                 c("Redraw Image with Claude…", "ui.redrawImage"),
+                c("Family Tree…", crate::embroidery::family::COMMAND),
                 Sep,
                 c("Digitizing Widget", "ui.embroideryWidget"),
                 sub(
@@ -804,6 +805,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "Foundry Account…",
         "",
         "{create?: bool (open on Create Account, else Sign In)} open Foundry Account: make an account or sign in to the StitchFoundry service or make an account, see the credits and buy more (Stripe's page opens in the browser), and choose to pay for the AI features with them instead of your own Anthropic API key (desktop and web) → {open, signedIn, server, credits, payWithCredits}",
+    ),
+    (
+        "ui.familyTree",
+        "Family Tree…",
+        "",
+        "{people?: text (the outline: one person a line, each generation indented under the one before), chart?: descendants|ancestors, names?: full|given, height?: mm, frame?: none|box|rounded|oval, connectors?: run|satin|none, double?: bool, make?: bool (make the chart at once)} open Family Tree: the family typed as an outline (kept on this computer for next time), the chart's names, frames and connectors chosen, and the chart made in the design (embroidery.familyTree) → {open, people, chart, made, error}",
     ),
     (
         "embroidery.sendToStitchShop",
@@ -2037,6 +2044,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.reportSewout" => crate::embroidery::sewout::open_report(app, p),
         "embroidery.publishToMakerFoundry" => crate::embroidery::publish::open(app, p),
         "embroidery.sendToStitchShop" => crate::embroidery::stitchshop::open(app, p),
+        "ui.familyTree" => crate::embroidery::family::open(app, p),
         "ui.makeDesign" => crate::guide::open(app),
         "ui.viewer" => {
             app.ui.viewer = p.get("on").and_then(Value::as_bool).unwrap_or(true);

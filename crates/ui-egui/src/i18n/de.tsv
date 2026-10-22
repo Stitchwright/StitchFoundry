@@ -6391,3 +6391,19 @@ effect	Soft	Weich
 @msg	nothing has been sent to take back	es wurde nichts gesendet, das zurückgeholt werden könnte
 @msg	the design couldn't be written	das Design konnte nicht geschrieben werden
 	Passport holder, 4 × 5¾″	Reisepasshülle, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Stammbaum
+	Family Tree…	Stammbaum…
+	Descendants	Nachkommen
+	Ancestors	Vorfahren
+	Full names	Volle Namen
+	Given names only	Nur Vornamen
+	Letter height	Buchstabenhöhe
+	Frame	Rahmen
+	Box	Kasten
+	Running stitch	Steppstich
+	Make the Family Tree	Stammbaum erstellen
+	{n} people, {size}	{n} Personen, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	Eine Person pro Zeile. Beginnen Sie mit der Person, dann darunter eingerückt Vater und Mutter und unter jedem dessen Eltern.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Eine Person pro Zeile. Beginnen Sie mit der ersten Person („Name + Partner“ für ein Paar), dann darunter eingerückt die Kinder und unter jedem dessen Kinder.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Der Stammbaum ist größer als der Rahmen: Wählen Sie einen größeren Stickrahmen oder weniger Generationen.

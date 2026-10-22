@@ -611,6 +611,38 @@ is one closed line), `spacing` how far the loops swing in (1: they meet in the m
 (2) repeats it turned between the petals, a thread colour each (`colors`, or six of our own in
 turn). `random: true` chooses the petals, shape and spacing for you, the same for the same `seed`.
 
+## Family Tree
+
+**Embroidery › Create › Family Tree…** makes a family chart: each name lettered in satin, framed
+if you like, partners side by side joined by a line, and each family joined to its parents. Type
+the family as an outline, one person a line, each generation indented under the one before:
+
+```
+John Green + Mary Green
+  Anna Green + Tom Hill
+    Lucy Hill
+    Sam Hill
+  Peter Green
+```
+
+- **Descendants** (the default): the first person at the top (`Name + Partner`, or `&`, for a
+  couple), their children below them, and their children below each, the oldest first. A chart
+  holds four generations: down to the great-grandchildren.
+- **Ancestors**: the person at the bottom, their father and mother indented under them in the
+  outline (they sit above on the chart), and each one's parents under them, up to the
+  great-grandparents. Two parents a person.
+- **Names**: as typed, or the given names only (the first word of each).
+- **Letter height** (7 mm), a **frame** round each name (none, box, rounded or oval, triple
+  stitch), and the **connectors** (running stitch, satin or none; **Double** sews two lines side
+  by side). Names, frames and connectors are each their own thread.
+
+The chart goes in the middle of the hoop, made smaller to fit it if it is too big, down to 4 mm
+letters; if it still doesn't fit, the status bar says so. It is one group, and one undo takes it
+back. The window keeps the outline on this computer for next time; nothing is sent anywhere.
+From the control channel or MCP: `embroidery.familyTree {people, chart?, names?, height?, color?,
+frame?, frameColor?, connectors?, double?, connectorColor?, fit?}` → `{id, people, generations,
+heightMm, widthMm, chartHeightMm, fits}`, and `ui.familyTree` opens the window.
+
 ## Cross-stitch patterns
 
 A cross-stitch pattern is drawn square by square on a grid, the way counted cross stitch is

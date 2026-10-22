@@ -6758,3 +6758,19 @@ machine	Stop	Megállás
 @msg	nothing has been sent to take back	nem küldött semmit, amit vissza lehetne venni
 @msg	the design couldn't be written	a mintát nem sikerült megírni
 	Passport holder, 4 × 5¾″	Útlevéltok, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Családfa
+	Family Tree…	Családfa…
+	Descendants	Leszármazottak
+	Ancestors	Felmenők
+	Full names	Teljes nevek
+	Given names only	Csak keresztnevek
+	Letter height	Betűmagasság
+	Frame	Keret
+	Box	Doboz
+	Running stitch	Egyenes öltés
+	Make the Family Tree	Családfa készítése
+	{n} people, {size}	{n} személy, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	Soronként egy személy. Kezdje a személlyel, alatta behúzva az apja és az anyja, és mindegyik alatt a szülei.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Soronként egy személy. Kezdje az első személlyel („Név + Társ” egy párnál), alatta behúzva a gyerekei, és mindegyik alatt az ő gyerekei.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	A családfa nagyobb a hímzőkeretnél: válasszon nagyobb keretet vagy kevesebb nemzedéket.

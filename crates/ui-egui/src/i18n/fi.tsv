@@ -6798,3 +6798,19 @@ swatch	Bright Violet	Kirkas violetti
 @msg	nothing has been sent to take back	mitään ei ole lähetetty takaisin otettavaksi
 @msg	the design couldn't be written	kuviota ei voitu kirjoittaa
 	Passport holder, 4 × 5¾″	Passikotelo, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Sukupuu
+	Family Tree…	Sukupuu…
+	Descendants	Jälkeläiset
+	Ancestors	Esivanhemmat
+	Full names	Koko nimet
+	Given names only	Vain etunimet
+	Letter height	Kirjainkorkeus
+	Frame	Kehys
+	Box	Laatikko
+	Running stitch	Suora pisto
+	Make the Family Tree	Tee sukupuu
+	{n} people, {size}	{n} henkilöä, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	Yksi henkilö riville. Aloita henkilöstä, sitten isä ja äiti sisennettyinä sen alle ja kunkin alle hänen vanhempansa.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Yksi henkilö riville. Aloita ensimmäisestä henkilöstä ("Nimi + Puoliso" pariskunnalle), sitten lapset sisennettyinä alle ja kunkin alle hänen lapsensa.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Sukupuu on kehystä suurempi: valitse suurempi kehys tai vähemmän sukupolvia.

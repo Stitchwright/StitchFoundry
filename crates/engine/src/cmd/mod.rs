@@ -72,6 +72,7 @@ pub mod embroidery_scatter;
 pub mod embroidery_sequence;
 pub mod embroidery_sheet_setup;
 pub mod embroidery_simple;
+pub mod embroidery_family;
 pub mod embroidery_spiro;
 pub mod embroidery_splits;
 pub mod embroidery_start;
@@ -353,6 +354,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(embroidery_repeat::specs());
         v.extend(embroidery_scatter::specs());
         v.extend(embroidery_spiro::specs());
+        v.extend(embroidery_family::specs());
         v.extend(xform::specs());
         v.extend(effectcmd::specs());
         v.extend(pathops::specs());

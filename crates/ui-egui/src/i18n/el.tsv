@@ -6733,3 +6733,19 @@ machine	Stop	Στάση
 @msg	nothing has been sent to take back	δεν στάλθηκε τίποτα για ανάκληση
 @msg	the design couldn't be written	δεν ήταν δυνατή η εγγραφή του σχεδίου
 	Passport holder, 4 × 5¾″	Θήκη διαβατηρίου, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Οικογενειακό δέντρο
+	Family Tree…	Οικογενειακό δέντρο…
+	Descendants	Απόγονοι
+	Ancestors	Πρόγονοι
+	Full names	Πλήρη ονόματα
+	Given names only	Μόνο μικρά ονόματα
+	Letter height	Ύψος γραμμάτων
+	Frame	Πλαίσιο
+	Box	Ορθογώνιο
+	Running stitch	Ευθεία βελονιά
+	Make the Family Tree	Δημιουργία οικογενειακού δέντρου
+	{n} people, {size}	{n} άτομα, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	Ένα άτομο ανά γραμμή. Ξεκινήστε με το άτομο, από κάτω με εσοχή τον πατέρα και τη μητέρα και κάτω από τον καθένα τους γονείς του.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Ένα άτομο ανά γραμμή. Ξεκινήστε με το πρώτο άτομο («Όνομα + Σύντροφος» για ζευγάρι), από κάτω με εσοχή τα παιδιά και κάτω από το καθένα τα δικά του.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Το οικογενειακό δέντρο είναι μεγαλύτερο από το τελάρο: διαλέξτε μεγαλύτερο τελάρο ή λιγότερες γενιές.

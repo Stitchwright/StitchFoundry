@@ -6377,3 +6377,19 @@ machine	Stop	정지
 @msg	nothing has been sent to take back	되돌려 받을 보낸 것이 없습니다
 @msg	the design couldn't be written	디자인을 쓸 수 없었습니다
 	Passport holder, 4 × 5¾″	여권 케이스, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	가계도
+	Family Tree…	가계도…
+	Descendants	후손
+	Ancestors	조상
+	Full names	전체 이름
+	Given names only	이름만
+	Letter height	글자 높이
+	Frame	테두리
+	Box	사각형
+	Running stitch	러닝 스티치
+	Make the Family Tree	가계도 만들기
+	{n} people, {size}	{n}명, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	한 줄에 한 사람. 본인으로 시작하고, 그 아래 들여쓰기로 아버지와 어머니, 각 사람 아래에 그 부모를 적습니다.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	한 줄에 한 사람. 첫 사람으로 시작하고(부부는 "이름 + 배우자"), 그 아래 들여쓰기로 자녀, 각 자녀 아래에 그 자녀를 적습니다.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	가계도가 수틀보다 큽니다: 더 큰 수틀을 고르거나 세대를 줄이세요.

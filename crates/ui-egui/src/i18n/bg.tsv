@@ -6741,3 +6741,19 @@ machine	Stop	Спиране
 @msg	nothing has been sent to take back	нищо не е изпратено, което да се върне
 @msg	the design couldn't be written	дизайнът не можа да се запише
 	Passport holder, 4 × 5¾″	Калъф за паспорт, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Родословно дърво
+	Family Tree…	Родословно дърво…
+	Descendants	Потомци
+	Ancestors	Предци
+	Full names	Пълни имена
+	Given names only	Само собствени имена
+	Letter height	Височина на буквите
+	Frame	Рамка
+	Box	Правоъгълник
+	Running stitch	Прав бод
+	Make the Family Tree	Създаване на родословно дърво
+	{n} people, {size}	{n} души, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	По един човек на ред. Започнете с човека, под него с отстъп баща и майка, а под всеки — неговите родители.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	По един човек на ред. Започнете с първия човек („Име + Партньор“ за двойка), под него с отстъп децата, а под всяко — неговите деца.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	Родословното дърво е по-голямо от гергефа: изберете по-голям гергеф или по-малко поколения.

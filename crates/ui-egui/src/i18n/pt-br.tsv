@@ -6639,3 +6639,19 @@ mark-style	Japanese	Japonesas
 @msg	nothing has been sent to take back	nada foi enviado para retirar
 @msg	the design couldn't be written	não foi possível gravar o desenho
 	Passport holder, 4 × 5¾″	Porta-passaporte, 4 × 5¾″
+# Family Tree (ui.familyTree, embroidery.familyTree)
+	Family Tree	Árvore genealógica
+	Family Tree…	Árvore genealógica…
+	Descendants	Descendentes
+	Ancestors	Antepassados
+	Full names	Nomes completos
+	Given names only	Só os primeiros nomes
+	Letter height	Altura das letras
+	Frame	Moldura
+	Box	Retângulo
+	Running stitch	Ponto reto
+	Make the Family Tree	Criar a árvore genealógica
+	{n} people, {size}	{n} pessoas, {size}
+	One person a line. Start with the person, then their father and mother indented under them, and each one's parents under them.	Uma pessoa por linha. Comece pela pessoa, depois o pai e a mãe recuados abaixo dela, e abaixo de cada um os pais dele.
+	One person a line. Start with the first person ("Name + Partner" for a couple), then their children indented under them, and their children under each.	Uma pessoa por linha. Comece pela primeira pessoa ("Nome + Parceiro" para um casal), depois os filhos recuados abaixo, e abaixo de cada um os filhos dele.
+	The family tree is bigger than the hoop: choose a bigger hoop, or fewer generations.	A árvore genealógica é maior que o bastidor: escolha um bastidor maior ou menos gerações.
