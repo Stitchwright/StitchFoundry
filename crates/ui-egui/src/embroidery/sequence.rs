@@ -133,7 +133,11 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         }
     });
     // the player's sewing as a looping GIF, at about the player's speed
-    if ui.small_button(tl!("Save as Animation…")).on_hover_text(tl!("A GIF of the design sewing itself, for a website, a listing or a message")).clicked() {
+    if ui
+        .small_button(tl!("Save as Animation…"))
+        .on_hover_text(tl!("A GIF of the design sewing itself, for a website, a listing or a message"))
+        .clicked()
+    {
         let seconds = (total as f64 / app.embroidery.player.speed.max(1.0)).clamp(2.0, 60.0);
         if let Err(e) = app.run("file.export.sewAnimation", json!({ "seconds": seconds })) {
             app.status(e);
