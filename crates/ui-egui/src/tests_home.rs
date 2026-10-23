@@ -541,7 +541,7 @@ fn home_scrolls_in_a_short_window() {
     assert!(has(&texts, "Community"), "the wheel reaches the bottom: {texts:?}");
     assert!(!has(&texts, "Welcome to StitchFoundry"), "the top scrolled away");
     // The last sample, scrolled into view, still takes a click.
-    let card = texts.iter().find(|(t, _)| t == "Appliqué star").map(|(_, r)| r.center()).unwrap();
+    let card = texts.iter().find(|(t, _)| t == "Quilt block").map(|(_, r)| r.center()).unwrap();
     let press = |pressed| egui::Event::PointerButton { pos: card, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() };
     visible_home_texts(&mut app, &ctx, size, 4.0, vec![egui::Event::PointerMoved(card), press(true)]);
     visible_home_texts(&mut app, &ctx, size, 4.1, vec![press(false)]);
