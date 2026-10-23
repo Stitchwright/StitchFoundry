@@ -489,7 +489,8 @@ fn details(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
             let samples = app.session.execute("embroidery.samples", &json!({})).unwrap_or_default();
             for s in samples["samples"].as_array().map(Vec::as_slice).unwrap_or_default() {
                 let (Some(id), Some(name)) = (s["id"].as_str(), s["name"].as_str()) else { continue };
-                if ui.add(egui::Button::new(RichText::new(crate::canvas::sample_name(name)).size(15.0)).min_size(vec2(220.0, 40.0))).clicked() {
+                let about = crate::canvas::sample_about(s["about"].as_str().unwrap_or_default());
+                if ui.add(egui::Button::new(RichText::new(crate::canvas::sample_name(name)).size(15.0)).min_size(vec2(220.0, 40.0))).on_hover_text(about).clicked() {
                     make = Some(json!({ "what": "sample", "sample": id }));
                 }
             }

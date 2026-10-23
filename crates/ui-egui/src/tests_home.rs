@@ -157,7 +157,7 @@ fn home_strings(app: &mut VectorcraftApp) -> Vec<String> {
 fn home_starts_embroidery_designs_by_hoop_with_samples_steps_and_a_tip() {
     let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), crate::Services::default());
     let texts = home_strings(&mut app);
-    for want in ["Start a design for your hoop", "130 × 180 mm (5×7″)", "Your first design", "Learn how", "Try a sample", "Heart patch", "Tip:"] {
+    for want in ["Start a design for your hoop", "130 × 180 mm (5×7″)", "Your first design", "Learn how", "Try a sample", "Heart patch", "Mug rug", "Quilt block", "Tip:"] {
         assert!(texts.iter().any(|t| t == want), "{want} in {texts:?}");
     }
     // the graphic-design presets are gone

@@ -6,11 +6,17 @@ use vectorcraft_embroidery::PT_PER_MM;
 
 use super::*;
 
-/// The sample designs: id, name, the hoop they are made for.
-const SAMPLES: &[(&str, &str, &str)] = &[
-    ("heart-patch", "Heart patch", "Brother 100 × 100 (4×4)"),
-    ("sun-and-moon", "Sun and moon", "Brother 130 × 180 (5×7)"),
-    ("applique-star", "Appliqué star", "Brother 100 × 100 (4×4)"),
+/// The sample designs: id, name, the hoop they are made for, what it shows.
+const SAMPLES: &[(&str, &str, &str, &str)] = &[
+    ("heart-patch", "Heart patch", "Brother 100 × 100 (4×4)", "A fill with a satin border round it, like a patch"),
+    ("sun-and-moon", "Sun and moon", "Brother 130 × 180 (5×7)", "Clipart turned into fills, one colour after another"),
+    ("applique-star", "Appliqué star", "Brother 100 × 100 (4×4)", "Appliqué: stop, lay the fabric, tack it down, trim, satin edge"),
+    ("spiro-flower", "Spiro flower", "Brother 130 × 180 (5×7)", "Spirograph loops in three colours, triple running stitch"),
+    ("tartan-heart", "Tartan heart", "Brother 100 × 100 (4×4)", "A heart filled with a woven-looking tartan"),
+    ("lace-star", "Lace star", "Brother 100 × 100 (4×4)", "Free-standing lace: sew it on water-soluble stabilizer"),
+    ("wavy-leaf", "Wavy leaf", "Brother 100 × 100 (4×4)", "A fill whose rows follow a wave, blending two greens"),
+    ("mug-rug", "Mug rug", "Brother 130 × 180 (5×7)", "An in-the-hoop project, made start to finish in the hoop"),
+    ("quilt-block", "Quilt block", "Brother 130 × 180 (5×7)", "A 5-inch quilt block, a heart in the middle, stippled round it"),
 ];
 
 pub fn specs() -> Vec<CommandSpec> {
@@ -24,13 +30,13 @@ pub fn specs() -> Vec<CommandSpec> {
             always,
             new_design
         ),
-        cmd!(query "embroidery.samples", "Sample Designs", [], None, "{} the sample designs → {samples: [{id, name, hoop}]}", always, samples),
+        cmd!(query "embroidery.samples", "Sample Designs", [], None, "{} the sample designs → {samples: [{id, name, hoop, about}]}", always, samples),
         cmd!(
             "embroidery.sample",
             "Open Sample Design",
             [],
             None,
-            "{id: heart-patch|sun-and-moon|applique-star} a sample design, digitized, in a new document → {id, name, objects}",
+            "{id: heart-patch|sun-and-moon|applique-star|spiro-flower|tartan-heart|lace-star|wavy-leaf|mug-rug|quilt-block} a sample design, digitized, in a new document → {id, name, objects}",
             always,
             sample
         ),
@@ -64,13 +70,28 @@ fn new_design(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 fn samples(_: &mut Session, _: &Value) -> Result<Value> {
-    Ok(json!({ "samples": SAMPLES.iter().map(|(id, name, hoop)| json!({ "id": id, "name": name, "hoop": hoop })).collect::<Vec<_>>() }))
+    Ok(json!({ "samples": SAMPLES.iter().map(|(id, name, hoop, about)| json!({ "id": id, "name": name, "hoop": hoop, "about": about })).collect::<Vec<_>>() }))
 }
 
 fn sample(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "embroidery.sample";
     let id = str_param(p, "id").ok_or_else(|| bad(CMD, "missing `id`: see embroidery.samples"))?;
-    let &(id, name, hoop) = SAMPLES.iter().find(|(i, _, _)| *i == id).ok_or_else(|| bad(CMD, "no such sample: see embroidery.samples"))?;
+    let &(id, name, hoop, _) = SAMPLES.iter().find(|(i, ..)| *i == id).ok_or_else(|| bad(CMD, "no such sample: see embroidery.samples"))?;
+    // the projects that make their own design
+    match id {
+        "mug-rug" => {
+            s.execute("embroidery.ith.make", &json!({ "project": "mug-rug", "hoop": hoop, "shape": "Heart", "color": "#c0392b" }))?;
+            return finish(s, id, name);
+        }
+        "quilt-block" => {
+            s.execute(
+                "embroidery.quiltBlock",
+                &json!({ "width": 5, "height": 5, "unit": "in", "shape": "Heart", "pattern": "stipple", "color": "#1d3557", "hoop": hoop }),
+            )?;
+            return finish(s, id, name);
+        }
+        _ => {}
+    }
     let r = s.execute("embroidery.newDesign", &json!({ "hoop": hoop }))?;
     let (w, h) = (r["width"].as_f64().unwrap_or(100.0), r["height"].as_f64().unwrap_or(100.0));
     let at = |x: f64, y: f64| json!([x * PT_PER_MM, y * PT_PER_MM]);
@@ -84,6 +105,27 @@ fn sample(s: &mut Session, p: &Value) -> Result<Value> {
             s.execute("embroidery.clipart.insert", &json!({ "name": "Sun", "size": 70, "at": at(w / 2.0, h * 0.3) }))?;
             s.execute("embroidery.clipart.insert", &json!({ "name": "Moon", "size": 60, "at": at(w / 2.0, h * 0.72) }))?;
         }
+        "spiro-flower" => {
+            s.execute(
+                "embroidery.spiro",
+                &json!({ "size": 90, "petals": 9, "shape": 4, "layers": 3, "colors": ["#e63946", "#f4a261", "#2a9d8f"] }),
+            )?;
+        }
+        "tartan-heart" => {
+            s.execute("embroidery.addShape", &json!({ "name": "Heart", "size": 70 }))?;
+            s.execute("embroidery.tartan", &json!({}))?;
+        }
+        "lace-star" => {
+            let (cx, cy) = (w / 2.0 * PT_PER_MM, h / 2.0 * PT_PER_MM);
+            s.execute("shape.star", &json!({ "cx": cx, "cy": cy, "radius1": 40.0 * PT_PER_MM, "radius2": 22.0 * PT_PER_MM, "points": 6 }))?;
+            s.execute("embroidery.set", &json!({ "type": "fill" }))?;
+            s.execute("embroidery.lacework", &json!({ "pattern": "star", "spacing": 3, "color": "#4a7fb0" }))?;
+        }
+        "wavy-leaf" => {
+            s.execute("embroidery.addShape", &json!({ "name": "Leaf", "size": 72 }))?;
+            s.execute("embroidery.waveFill", &json!({ "waves": 3, "height": 4 }))?;
+            s.execute("embroidery.makeBlend", &json!({ "colors": ["#1b6b3a", "#9bd46b"] }))?;
+        }
         _ => {
             // a star cut from gingham, a small heart sewn on it
             let (cx, cy) = (w / 2.0 * PT_PER_MM, h / 2.0 * PT_PER_MM);
@@ -96,6 +138,11 @@ fn sample(s: &mut Session, p: &Value) -> Result<Value> {
             s.execute("embroidery.clipart.insert", &json!({ "name": "Heart", "size": 18, "at": at(w / 2.0, h / 2.0 + 3.0) }))?;
         }
     }
+    finish(s, id, name)
+}
+
+/// A sample made: nothing selected, how many objects it sews.
+fn finish(s: &mut Session, id: &str, name: &str) -> Result<Value> {
     s.execute("select.none", &json!({}))?;
     let objects = s.embroidery_plan().map_or(0, |plan| plan.design.objects.len());
     Ok(json!({ "id": id, "name": name, "objects": objects }))

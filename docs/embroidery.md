@@ -41,9 +41,12 @@ the control channel, the CLI and the MCP server.
 
 The **Home screen** (shown when no design is open, or with the Home button) starts a design the
 size of your hoop (4×4, 5×7, 6×10, 8×8 or 8×12; `embroidery.newDesign {hoop}`), opens a sample
-design to look at and sew (`embroidery.sample {id}`: a heart patch, sun and moon, an appliqué
-star), walks through a first design in four steps with a link to the help on each, and shows a
-tip. **Help › StitchFoundry Help…** (F1) opens this guide in the app, on the topic about the tool
+design to look at and sew, each shown as a picture of its stitches with what it shows when you
+point at it (`embroidery.samples`, `embroidery.sample {id}`): a heart patch (a satin border round
+a fill), sun and moon (clipart as fills), an appliqué star, a spiro flower (spirograph loops), a
+tartan heart, a lace star (free-standing lace), a wavy leaf (rows following a wave, blending two
+greens), a mug rug (an in-the-hoop project) and a quilt block (a heart stippled round). It also
+walks through a first design in four steps with a link to the help on each, and shows a tip. **Help › StitchFoundry Help…** (F1) opens this guide in the app, on the topic about the tool
 in hand, with a search; its **Tips** tab (Help › Tips) has short hints, the tool's first. The
 guide is the same text as this file (`help.topics`, `help.topic`, `help.forTool`).
 

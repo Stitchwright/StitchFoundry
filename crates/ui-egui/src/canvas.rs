@@ -2974,10 +2974,19 @@ fn home_body(app: &mut VectorcraftApp, ui: &mut Ui) {
     ui.label(egui::RichText::new(tl!("Try a sample")).font(theme::semibold(14.0)).color(t.text));
     ui.add_space(8.0);
     let samples = app.session.execute("embroidery.samples", &json!({})).unwrap_or_default();
+    let samples = samples["samples"].as_array().cloned().unwrap_or_default();
+    // one picture made a frame, so Home opens at once and fills in
+    if let Some(id) = samples.iter().filter_map(|sm| sm["id"].as_str()).find(|id| !app.embroidery.sample_pictures.contains_key(*id)) {
+        let picture = sample_picture(ui.ctx(), id);
+        app.embroidery.sample_pictures.insert(id.to_string(), picture);
+        ui.ctx().request_repaint();
+    }
     ui.horizontal_wrapped(|ui| {
-        for sm in samples["samples"].as_array().map(Vec::as_slice).unwrap_or_default() {
+        for sm in &samples {
             let (Some(id), Some(name)) = (sm["id"].as_str(), sm["name"].as_str()) else { continue };
-            if widgets::secondary_button(ui, sample_name(name)).clicked() {
+            let picture = app.embroidery.sample_pictures.get(id).cloned().flatten();
+            let r = sample_card(ui, &t, sample_name(name), picture.as_ref()).on_hover_text(sample_about(sm["about"].as_str().unwrap_or_default()));
+            if r.clicked() {
                 app.run("embroidery.sample", json!({ "id": id })).ok();
             }
         }
@@ -3074,8 +3083,70 @@ pub(crate) fn sample_name(name: &str) -> &str {
         "Heart patch" => tl!("Heart patch"),
         "Sun and moon" => tl!("Sun and moon"),
         "Appliqué star" => tl!("Appliqué star"),
+        "Spiro flower" => tl!("Spiro flower"),
+        "Tartan heart" => tl!("Tartan heart"),
+        "Lace star" => tl!("Lace star"),
+        "Wavy leaf" => tl!("Wavy leaf"),
+        "Mug rug" => tl!("Mug rug"),
+        "Quilt block" => tl!("Quilt block"),
         other => other,
     }
+}
+
+/// What a sample design shows, in the UI language.
+pub(crate) fn sample_about(about: &str) -> &str {
+    match about {
+        "A fill with a satin border round it, like a patch" => tl!("A fill with a satin border round it, like a patch"),
+        "Clipart turned into fills, one colour after another" => tl!("Clipart turned into fills, one colour after another"),
+        "Appliqué: stop, lay the fabric, tack it down, trim, satin edge" => tl!("Appliqué: stop, lay the fabric, tack it down, trim, satin edge"),
+        "Spirograph loops in three colours, triple running stitch" => tl!("Spirograph loops in three colours, triple running stitch"),
+        "A heart filled with a woven-looking tartan" => tl!("A heart filled with a woven-looking tartan"),
+        "Free-standing lace: sew it on water-soluble stabilizer" => tl!("Free-standing lace: sew it on water-soluble stabilizer"),
+        "A fill whose rows follow a wave, blending two greens" => tl!("A fill whose rows follow a wave, blending two greens"),
+        "An in-the-hoop project, made start to finish in the hoop" => tl!("An in-the-hoop project, made start to finish in the hoop"),
+        "A 5-inch quilt block, a heart in the middle, stippled round it" => tl!("A 5-inch quilt block, a heart in the middle, stippled round it"),
+        other => other,
+    }
+}
+
+/// A sample design's stitches as a small picture, made in a session of its own so the open
+/// documents are left alone.
+fn sample_picture(ctx: &egui::Context, id: &str) -> Option<egui::TextureHandle> {
+    let mut s = vectorcraft_engine::Session::new();
+    s.execute("embroidery.sample", &json!({ "id": id })).ok()?;
+    let r = s.execute("embroidery.exportImage", &json!({ "ppmm": 1.5, "margin": 2, "view": "trueview" })).ok()?;
+    let bytes = r["dataBase64"].as_str().and_then(vectorcraft_format::base64_decode)?;
+    let img = image::load_from_memory_with_format(&bytes, image::ImageFormat::Png).ok()?.to_rgba8();
+    let color = egui::ColorImage::from_rgba_unmultiplied([img.width() as usize, img.height() as usize], img.as_raw());
+    Some(ctx.load_texture(format!("sample-{id}"), color, egui::TextureOptions::LINEAR))
+}
+
+/// A Home screen card for a sample design: its stitches, its name under them.
+pub(crate) fn sample_card(ui: &mut Ui, t: &Tokens, name: &str, picture: Option<&egui::TextureHandle>) -> egui::Response {
+    let (rect, resp) = ui.allocate_exact_size(vec2(128.0, 128.0), egui::Sense::click());
+    let hovered = resp.hovered();
+    ui.painter().rect_filled(rect, 6.0, t.panel);
+    ui.painter().rect_stroke(rect, 6.0, egui::Stroke::new(1.0, if hovered { t.accent } else { t.border }), egui::StrokeKind::Inside);
+    let field = egui::Rect::from_min_max(rect.min + vec2(10.0, 8.0), egui::pos2(rect.max.x - 10.0, rect.max.y - 28.0));
+    match picture {
+        Some(tex) => {
+            let [w, h] = tex.size().map(|v| v.max(1) as f32);
+            let scale = (field.width() / w).min(field.height() / h);
+            let shown = egui::Rect::from_center_size(field.center(), vec2(w * scale, h * scale));
+            ui.painter().image(tex.id(), shown, egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)), egui::Color32::WHITE);
+        }
+        None => {
+            ui.painter().rect_filled(field.shrink(16.0), 4.0, t.border);
+        }
+    }
+    ui.painter().text(
+        egui::pos2(rect.center().x, rect.max.y - 14.0),
+        egui::Align2::CENTER_CENTER,
+        name,
+        egui::FontId::proportional(12.0),
+        if hovered { t.accent } else { t.text },
+    );
+    resp
 }
 
 /// A Home screen card for a hoop: its field drawn to scale, its size under it.

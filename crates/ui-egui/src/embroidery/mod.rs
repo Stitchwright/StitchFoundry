@@ -147,6 +147,9 @@ pub struct EmbroideryUi {
     pub border_width: f64,
     pub border_color: [u8; 3],
     pub border_edge: bool,
+    /// The Home screen's pictures of the sample designs, by id, made one a frame (`None`: it
+    /// couldn't be made).
+    pub sample_pictures: std::collections::HashMap<String, Option<egui::TextureHandle>>,
     /// The colour preview of the selected image (Auto-Digitize's colours, before digitizing).
     pub colour_preview: Option<ColourPreview>,
     /// Remove Background's sensitivity (0–100, 50 even), its before-and-after preview of the
@@ -347,6 +350,7 @@ impl Default for EmbroideryUi {
             border_width: 4.0,
             border_color: [255, 255, 255],
             border_edge: true,
+            sample_pictures: Default::default(),
             colour_preview: None,
             cutout_sensitivity: 50,
             cutout_preview: None,
