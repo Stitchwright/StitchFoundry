@@ -6783,3 +6783,8 @@ machine	Stop	Megállás
 	Wave Fill	Hullámos kitöltés
 	Make Eyelets	Lyukhímzés készítése
 	Ragged edge	Rojtos szél
+	Fill Region	Terület kitöltése
+	Fill Region Tool	Terület kitöltése eszköz
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Kattints egy vonalakkal körülzárt területen belül, mint egy CAD-rajzon, a kitöltéséhez; a vonalak közötti kis rések bezáródnak.
+	Close gaps up to	Rések bezárása eddig
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	ott nincs zárt terület: kattints olyan vonalakon belül, amelyek területet zárnak körül (vagy engedj meg szélesebb rést)

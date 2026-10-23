@@ -2106,6 +2106,7 @@ const MOTIF_TOOL: &str = "embroideryMotif";
 /// The Click-to-Stitch tool's id.
 const CLICK_TOOL: &str = "embroideryClick";
 const LASSO_TOOL: &str = "embroideryLasso";
+const REGION_TOOL: &str = "embroideryRegion";
 /// The Cross Stitch tool's id.
 const CROSS_TOOL: &str = "embroideryCrossStitch";
 
@@ -2309,6 +2310,22 @@ fn digitize_row(app: &mut VectorcraftApp, ui: &mut Ui) {
         ui.label(tl!(
             "Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it."
         ));
+    }
+    // the Fill Region tool: how the area is stitched, and the gaps it closes
+    if app.session.tool_id() == REGION_TOOL {
+        let opts = app.session.tool_options_of(REGION_TOOL);
+        let kinds = ["fill", "satin"];
+        let labels = [tl!("Fill"), tl!("Satin")];
+        let cur = kinds.iter().position(|k| opts["as"].as_str() == Some(*k)).unwrap_or(0);
+        if let Some(i) = pick(ui, tl!("Stitch as"), "region-as", cur, &labels)
+            && let Some(k) = kinds.get(i)
+        {
+            app.run("tool.setOption", json!({ "tool": REGION_TOOL, "values": { "as": k } })).ok();
+        }
+        if let Some(v) = num(ui, tl!("Close gaps up to"), "region-gap", opts["gap"].as_f64().unwrap_or(1.0), " mm", 1) {
+            app.run("tool.setOption", json!({ "tool": REGION_TOOL, "values": { "gap": v.clamp(0.0, 25.0) } })).ok();
+        }
+        ui.label(tl!("Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed."));
     }
     if app.session.tool_id() == CROSS_TOOL {
         cross_stitch_tool_rows(app, ui);

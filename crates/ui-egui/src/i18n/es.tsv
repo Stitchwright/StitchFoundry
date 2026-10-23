@@ -6764,3 +6764,8 @@ mark-style	Japanese	Japonesas
 	Wave Fill	Relleno de ondas
 	Make Eyelets	Crear ojales
 	Ragged edge	Borde irregular
+	Fill Region	Rellenar región
+	Fill Region Tool	Herramienta Rellenar región
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Haz clic dentro de un área que encierran líneas, como en un dibujo CAD, para rellenarla; se cierran los huecos pequeños entre las líneas.
+	Close gaps up to	Cerrar huecos de hasta
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	ahí no hay ningún área cerrada: haz clic dentro de líneas que encierren un área (o permite un hueco más ancho)

@@ -6823,3 +6823,8 @@ theme	Appearance	Apparence
 	Wave Fill	Remplissage en vagues
 	Make Eyelets	Créer des œillets
 	Ragged edge	Bord irrégulier
+	Fill Region	Remplir la région
+	Fill Region Tool	Outil Remplir la région
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Cliquez à l’intérieur d’une zone fermée par des lignes, comme dans un dessin de CAO, pour la remplir ; les petits espaces entre les lignes sont fermés.
+	Close gaps up to	Fermer les espaces jusqu’à
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	aucune zone fermée à cet endroit : cliquez à l’intérieur de lignes qui ferment une zone (ou autorisez un espace plus large)

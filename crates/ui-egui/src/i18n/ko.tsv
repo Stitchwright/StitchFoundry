@@ -6402,3 +6402,8 @@ machine	Stop	정지
 	Wave Fill	물결 채우기
 	Make Eyelets	아일렛 만들기
 	Ragged edge	거친 가장자리
+	Fill Region	영역 채우기
+	Fill Region Tool	영역 채우기 도구
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	CAD 도면처럼 선으로 둘러싸인 영역 안을 클릭하면 채워집니다. 선 사이의 작은 틈은 닫힙니다.
+	Close gaps up to	틈 닫기 최대
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	그곳에는 닫힌 영역이 없습니다: 영역을 둘러싼 선 안을 클릭하세요(또는 더 넓은 틈을 허용하세요)

@@ -133,6 +133,7 @@ const TOOL_TOPICS: &[(&str, &str)] = &[
     ("embroideryClick", "click-to-stitch"),
     ("embroideryCutout", "auto-digitize"),
     ("embroideryLasso", "click-to-stitch"),
+    ("embroideryRegion", "fill-region"),
     ("embroideryCrossStitch", "cross-stitch-patterns"),
     ("type", "lettering"),
     ("areaType", "lettering"),

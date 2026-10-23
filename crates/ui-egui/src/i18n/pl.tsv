@@ -6649,3 +6649,8 @@ machine	Stop	Zatrzymanie
 	Wave Fill	Wypełnienie falami
 	Make Eyelets	Utwórz oczka
 	Ragged edge	Postrzępiona krawędź
+	Fill Region	Wypełnij obszar
+	Fill Region Tool	Narzędzie Wypełnij obszar
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Kliknij wewnątrz obszaru otoczonego liniami, jak na rysunku CAD, aby go wypełnić; małe przerwy między liniami zostaną zamknięte.
+	Close gaps up to	Zamykaj przerwy do
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	nie ma tam zamkniętego obszaru: kliknij wewnątrz linii, które otaczają obszar (lub zezwól na szerszą przerwę)

@@ -6664,3 +6664,8 @@ mark-style	Japanese	Japonesas
 	Wave Fill	Preenchimento em ondas
 	Make Eyelets	Criar ilhoses
 	Ragged edge	Borda irregular
+	Fill Region	Preencher região
+	Fill Region Tool	Ferramenta Preencher região
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Clique dentro de uma área cercada por linhas, como em um desenho CAD, para preenchê-la; pequenas aberturas entre as linhas são fechadas.
+	Close gaps up to	Fechar aberturas de até
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	não há área fechada ali: clique dentro de linhas que cercam uma área (ou permita uma abertura maior)

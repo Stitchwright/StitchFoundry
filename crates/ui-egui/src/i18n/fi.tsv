@@ -6823,3 +6823,8 @@ swatch	Bright Violet	Kirkas violetti
 	Wave Fill	Aaltotäyttö
 	Make Eyelets	Tee reikäompeleet
 	Ragged edge	Rosoinen reuna
+	Fill Region	Täytä alue
+	Fill Region Tool	Täytä alue -työkalu
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Napsauta viivojen rajaaman alueen sisällä, kuten CAD-piirustuksessa, niin se täytetään; pienet raot viivojen välillä suljetaan.
+	Close gaps up to	Sulje raot enintään
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	siinä ei ole suljettua aluetta: napsauta viivojen rajaaman alueen sisällä (tai salli leveämpi rako)

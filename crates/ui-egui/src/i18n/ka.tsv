@@ -6638,3 +6638,8 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	Wave Fill	ტალღოვანი შევსება
 	Make Eyelets	ნახვრეტების შექმნა
 	Ragged edge	უსწორმასწორო კიდე
+	Fill Region	არის შევსება
+	Fill Region Tool	არის შევსების ხელსაწყო
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	დააწკაპუნეთ ხაზებით შემოსაზღვრული არის შიგნით, როგორც CAD ნახაზში, რომ შეავსოთ; ხაზებს შორის მცირე ღრიჭოები იხურება.
+	Close gaps up to	ღრიჭოების დახურვა
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	იქ დახურული არე არ არის: დააწკაპუნეთ არის შემომსაზღვრელი ხაზების შიგნით (ან დაუშვით უფრო ფართო ღრიჭო)

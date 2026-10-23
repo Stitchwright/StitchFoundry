@@ -6762,3 +6762,8 @@ machine	Stop	Stopp
 	Wave Fill	Vågfyllning
 	Make Eyelets	Gör hålsöm
 	Ragged edge	Fransig kant
+	Fill Region	Fyll område
+	Fill Region Tool	Verktyget Fyll område
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Klicka inuti ett område som linjer omsluter, som i en CAD-ritning, för att fylla det; små glipor mellan linjerna stängs.
+	Close gaps up to	Stäng glipor upp till
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	där finns inget slutet område: klicka inuti linjer som omsluter ett område (eller tillåt en bredare glipa)

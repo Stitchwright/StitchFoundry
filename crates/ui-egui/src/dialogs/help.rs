@@ -47,6 +47,10 @@ pub fn tips() -> Vec<(&'static str, &'static str)> {
                 "Click round part of a photo: the border snaps to its edges; click the first point, double-click or press Enter to close and stitch it."
             ),
         ),
+        (
+            "embroideryRegion",
+            tl!("Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed."),
+        ),
         ("embroideryStitches", tl!("Drag picked needle points to move them, Alt-click a stitch to add one, Delete removes them.")),
         ("embroideryColumn", tl!("Click on one side of the column, then the other, in turn; Enter or Escape ends it.")),
         ("embroideryBrush", tl!("The dial in the lower-left corner sets the brush, width, density, length and shape.")),

@@ -69,6 +69,7 @@ pub mod embroidery_props;
 pub mod embroidery_queue;
 pub mod embroidery_recognise;
 pub mod embroidery_recolor;
+pub mod embroidery_region;
 pub mod embroidery_repeat;
 pub mod embroidery_safe;
 pub mod embroidery_scatter;
@@ -361,6 +362,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(embroidery_stumpwork::specs());
         v.extend(embroidery_lace::specs());
         v.extend(embroidery_eyelet::specs());
+        v.extend(embroidery_region::specs());
         v.extend(xform::specs());
         v.extend(effectcmd::specs());
         v.extend(pathops::specs());

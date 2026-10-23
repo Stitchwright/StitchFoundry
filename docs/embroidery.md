@@ -534,6 +534,20 @@ photo's pixels, an edge is looked for (10), and *Contrast* how strong a step in 
 to count as one (10 %). The same is `embroidery.magneticLasso {points, guide?, width?, contrast?,
 as?, id?}`, one undo step.
 
+## Fill region
+
+For line drawings, such as a DXF from a CAD program or a colouring-book outline, the **Fill Region
+tool** (in the Embroidery tools, with the paint-bucket cursor) fills an area with one click. Click
+inside an area that lines enclose and it becomes a new closed shape above the lines, sewn as the
+tool's *Stitch as* setting says (Fill or Satin) in the current fill colour. The lines aren't
+changed, and a line across the area bounds it, as a CAD program's boundary pick does.
+
+- The selected lines and shapes bound the area; with nothing selected, every line does.
+- **Close gaps up to** (1 mm; 0 to 25): lines that stop short of each other by up to this much
+  still enclose the area, as lines from CAD often do. When a click finds no closed area, raise it.
+
+The same is `embroidery.fillRegion {point, ids?, gap?, type?, color?}`. Each click is one undo step.
+
 ## Outlines round art
 
 **Embroidery › Outline Around** (`embroidery.outlineAround {gap?, width?, kind?, color?}`)

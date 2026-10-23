@@ -6430,3 +6430,8 @@ machine	Stop	Зупинка
 	Wave Fill	Хвиляста заливка
 	Make Eyelets	Створити люверси
 	Ragged edge	Нерівний край
+	Fill Region	Заливка області
+	Fill Region Tool	Інструмент «Заливка області»
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Клацніть усередині області, обмеженої лініями, як у кресленні CAD, щоб залити її; невеликі проміжки між лініями закриваються.
+	Close gaps up to	Закривати проміжки до
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	там немає замкненої області: клацніть усередині ліній, що обмежують область (або дозвольте ширший проміжок)

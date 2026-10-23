@@ -33,6 +33,7 @@ pub fn create(id: &str) -> Option<Box<dyn Tool>> {
         "embroideryClick" => Some(Box::new(ClickStitchTool::default())),
         "embroideryCutout" => Some(Box::new(CutoutBrushTool::default())),
         "embroideryLasso" => Some(Box::new(MagneticLassoTool::default())),
+        "embroideryRegion" => Some(Box::new(FillRegionTool::default())),
         "embroideryCrossStitch" => Some(Box::new(CrossStitchTool::default())),
         _ => None,
     }
@@ -855,6 +856,64 @@ impl Tool for ClickStitchTool {
     }
 }
 
+/// Fill Region tool: a click inside an area that lines enclose (a CAD drawing of loose lines)
+/// makes it a fill (`embroidery.fillRegion`), as the tool's settings say: `as` (fill or satin)
+/// and `gap` (mm: gaps between the lines up to this wide are closed). The selected lines bound
+/// it, else every line.
+pub struct FillRegionTool {
+    pub stitch_as: String,
+    pub gap: f64,
+}
+
+impl Default for FillRegionTool {
+    fn default() -> Self {
+        FillRegionTool { stitch_as: "fill".into(), gap: 1.0 }
+    }
+}
+
+impl Tool for FillRegionTool {
+    fn id(&self) -> &'static str {
+        "embroideryRegion"
+    }
+
+    fn pointer(&mut self, cx: &ToolContext, ev: &PointerEvent) -> Vec<Action> {
+        match ev.kind {
+            PointerKind::Up => {
+                let mut p = json!({ "point": [ev.pos.x, ev.pos.y], "type": self.stitch_as, "gap": self.gap });
+                if !cx.selection.objects.is_empty() {
+                    p["ids"] = json!(cx.selection.objects.iter().map(|n| n.0).collect::<Vec<_>>());
+                }
+                vec![Action::Exec("embroidery.fillRegion".into(), p)]
+            }
+            _ => vec![],
+        }
+    }
+
+    fn cursor(&self, _cx: &ToolContext, _p: Point, _mods: Mods) -> Cursor {
+        Cursor::LivePaintBucket
+    }
+
+    fn options(&self) -> Value {
+        json!({ "as": self.stitch_as, "gap": self.gap })
+    }
+
+    fn set_option(&mut self, key: &str, value: &Value) {
+        match key {
+            "as" => {
+                if let Some(v) = value.as_str().filter(|v| ["fill", "satin"].contains(v)) {
+                    self.stitch_as = v.to_string();
+                }
+            }
+            "gap" => {
+                if let Some(v) = value.as_f64().filter(|v| (0.0..=25.0).contains(v)) {
+                    self.gap = v;
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
 /// Cut-Out Brush tool: paint over a cut-out photo (made by Remove Background) to put back what it
 /// left out, or with Alt held (or `mode: remove`) to take away background it kept; on release the
 /// cut-out is made again with the stroke (`embroidery.image.refineCutout`), one step per stroke.
@@ -1509,6 +1568,29 @@ mod tests {
         t.set_option("mode", &json!("remove"));
         t.set_option("size", &json!(20));
         assert_eq!(t.options(), json!({"mode": "remove", "size": 20.0}));
+    }
+
+    /// CAD-02: a click asks for the area round it, bounded by the selected lines if any.
+    #[test]
+    fn the_fill_region_tool_sends_the_click_and_its_settings() {
+        let d = Document::new(400.0, 300.0);
+        let mut s = Selection::default();
+        let p = crate::PaintDefaults::default();
+        let mut t = FillRegionTool::default();
+        assert!(t.pointer(&cx(&d, &s, &p), &PointerEvent::new(PointerKind::Down, 40.0, 50.0)).is_empty());
+        let done = t.pointer(&cx(&d, &s, &p), &PointerEvent::new(PointerKind::Up, 40.0, 50.0));
+        let [Action::Exec(cmd, v)] = done.as_slice() else { panic!("{done:?}") };
+        assert_eq!(cmd, "embroidery.fillRegion");
+        assert_eq!((v["point"].clone(), v["type"].as_str(), v["gap"].as_f64()), (json!([40.0, 50.0]), Some("fill"), Some(1.0)));
+        assert!(v.get("ids").is_none(), "nothing selected: every line");
+        t.set_option("as", &json!("satin"));
+        t.set_option("gap", &json!(3.0));
+        t.set_option("gap", &json!(99.0));
+        s.set([NodeId(7)]);
+        let done = t.pointer(&cx(&d, &s, &p), &PointerEvent::new(PointerKind::Up, 1.0, 2.0));
+        let [Action::Exec(_, v)] = done.as_slice() else { panic!("{done:?}") };
+        assert_eq!((v["type"].as_str(), v["gap"].as_f64(), v["ids"].clone()), (Some("satin"), Some(3.0), json!([7])));
+        assert_eq!(t.cursor(&cx(&d, &s, &p), Point::new(0.0, 0.0), Mods::default()), Cursor::LivePaintBucket);
     }
 
     /// PC-05: clicks fasten points, the pointer's path between them goes along, and a click on

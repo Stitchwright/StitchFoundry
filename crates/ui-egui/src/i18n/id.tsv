@@ -6700,3 +6700,8 @@ swatch	Bright Violet	Violet cerah
 	Wave Fill	Isian gelombang
 	Make Eyelets	Buat lubang tali
 	Ragged edge	Tepi kasar
+	Fill Region	Isi Wilayah
+	Fill Region Tool	Alat Isi Wilayah
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Klik di dalam area yang dikelilingi garis, seperti pada gambar CAD, untuk mengisinya; celah kecil di antara garis ditutup.
+	Close gaps up to	Tutup celah hingga
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	tidak ada area tertutup di sana: klik di dalam garis yang mengelilingi area (atau izinkan celah yang lebih lebar)

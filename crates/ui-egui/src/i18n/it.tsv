@@ -6450,3 +6450,8 @@ machine	Stop	Arresto
 	Wave Fill	Riempimento a onde
 	Make Eyelets	Crea occhielli
 	Ragged edge	Bordo frastagliato
+	Fill Region	Riempi regione
+	Fill Region Tool	Strumento Riempi regione
+	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Fai clic all’interno di un’area racchiusa da linee, come in un disegno CAD, per riempirla; i piccoli spazi tra le linee vengono chiusi.
+	Close gaps up to	Chiudi spazi fino a
+@msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	lì non c’è un’area chiusa: fai clic all’interno di linee che racchiudono un’area (o consenti uno spazio più ampio)
