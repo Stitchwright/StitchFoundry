@@ -32,7 +32,13 @@ struct Card {
 const BROTHER_MACHINES: &str = "Brother, Baby Lock, Bernina Deco, Simplicity, White, Viking/Husqvarna (Brother-made)";
 
 const CARDS: &[Card] = &[
-    Card { id: "brother-512k", name: "Brother 512 KB blank card (Magic, Amazing)", machines: BROTHER_MACHINES, format: "pes", stitches: Some(230_000) },
+    Card {
+        id: "brother-512k",
+        name: "Brother 512 KB blank card (Magic, Amazing)",
+        machines: BROTHER_MACHINES,
+        format: "pes",
+        stitches: Some(230_000),
+    },
     Card { id: "ultimate", name: "Ultimate Card", machines: BROTHER_MACHINES, format: "pes", stitches: Some(450_000) },
     Card { id: "pfaff", name: "Pfaff card (two-slot box)", machines: "Pfaff", format: "pcs", stitches: None },
 ];

@@ -31,12 +31,8 @@ pub fn run(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
 /// The design saved for `card`, to `path` or one picked.
 fn save(app: &mut VectorcraftApp, card: &str, path: Option<&str>) -> Result<Value, String> {
     let cards = app.session.execute("embroidery.memoryCards", &json!({})).map_err(|e| e.to_string())?;
-    let ext = cards["cards"]
-        .as_array()
-        .and_then(|l| l.iter().find(|c| c["id"] == card))
-        .and_then(|c| c["format"].as_str())
-        .unwrap_or("pes")
-        .to_string();
+    let ext =
+        cards["cards"].as_array().and_then(|l| l.iter().find(|c| c["id"] == card)).and_then(|c| c["format"].as_str()).unwrap_or("pes").to_string();
     let mut q = json!({ "card": card });
     if let Some(path) = path {
         q["path"] = json!(path);
