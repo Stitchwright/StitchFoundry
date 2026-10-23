@@ -130,6 +130,12 @@ fn usage() -> String {
 }
 
 fn main() -> ExitCode {
+    // Started to convert a DWG drawing (sf-dwg's helper)? Then that is all this process does;
+    // else DWG drawings are converted in such a helper, so a damaged one can't take the app down.
+    sf_dwg::serve_if_helper();
+    if let Ok(exe) = std::env::current_exe() {
+        sf_dwg::use_helper(sf_dwg::Helper { exe, args: Vec::new() });
+    }
     // Before any font lookup: the fonts font services load (#579).
     #[cfg(all(windows, not(target_vendor = "win7")))]
     system_fonts::install();

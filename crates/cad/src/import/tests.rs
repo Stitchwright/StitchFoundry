@@ -1105,3 +1105,45 @@ fn binary_dxf_opens_as_its_ascii_twin_does() {
         }
     }
 }
+
+/// A DXF this crate wrote, as a DWG drawing (acadrust reads the DXF and writes the DWG).
+#[cfg(not(target_arch = "wasm32"))]
+fn to_dwg(dxf: &[u8]) -> Vec<u8> {
+    let doc = acadrust::DxfReader::from_reader(std::io::Cursor::new(dxf.to_vec())).unwrap().read().unwrap();
+    acadrust::DwgWriter::write_to_vec(&doc).unwrap()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn dwg_drawings_open_through_dxf() {
+    let mut doc = Document::new(200.0, 100.0);
+    let layer = doc.layers[0].id;
+    let id = doc.alloc_id();
+    let blue = Appearance::basic(Paint::None, Paint::solid(Color::rgb8(0, 0, 255)), 1.0);
+    doc.insert(Some(layer), 0, Node::path(id, shapes::rectangle(Rect::new(20.0, 20.0, 120.0, 70.0)), blue.clone())).unwrap();
+    let id = doc.alloc_id();
+    doc.insert(Some(layer), 1, Node::path(id, shapes::ellipse(Rect::new(140.0, 20.0, 180.0, 60.0)), blue)).unwrap();
+    let opts =
+        crate::DxfOptions { version: crate::DxfVersion::R2018, unit: Unit::Points, region: doc.artboards[0].rect, ..crate::DxfOptions::default() };
+    let dxf = crate::export(&doc, &opts).unwrap().bytes;
+    let dwg = to_dwg(&dxf);
+    assert!(dwg.starts_with(b"AC10"), "{:?}", &dwg[..6]);
+    assert!(is_dxf(&dwg));
+    let i = info(&dwg).unwrap();
+    assert!(i.layouts.iter().any(|l| l == "Model"), "{i:?}");
+    let back = open(&dwg, &points());
+    let art = leaves(&back.document);
+    assert!(art.len() >= 2, "{} objects: {:?}", art.len(), back.warnings);
+    let ascii: Vec<_> = leaves(&open(&dxf, &points()).document).iter().map(stroke_rgb).collect();
+    assert_eq!(art.iter().map(stroke_rgb).collect::<Vec<_>>(), ascii, "the colours come through");
+    let all = art.iter().filter_map(|n| n.geometric_bounds()).reduce(|a, b| a.union(b)).unwrap();
+    assert!((all.width() - 160.0).abs() < 1.0 && (all.height() - 50.0).abs() < 1.0, "{all:?}");
+    // the drawing's unit comes through
+    let mm = crate::export(&doc, &crate::DxfOptions { unit: Unit::Millimeters, ..opts }).unwrap().bytes;
+    assert_eq!(info(&mm).unwrap().units, "Millimeters");
+    assert_eq!(info(&to_dwg(&mm)).unwrap().units, "Millimeters");
+    // a cut-off DWG is refused with a message, never a crash
+    for n in [6, 20, 100, dwg.len() / 2] {
+        let _ = import(&dwg[..n.min(dwg.len())], &ImportOptions::default());
+    }
+}

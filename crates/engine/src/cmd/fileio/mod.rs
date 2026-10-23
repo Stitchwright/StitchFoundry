@@ -198,7 +198,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "File Formats",
             [],
             None,
-            "{} → {formats: [{id, label, extensions, mime, read, write, raster, options: {name: {type, default, description}}, plugin?: the id of the exporter plug-in that adds the format (its id is plugin.<plug-in id>; see plugin.list)}], readable: [id…], writable: [id…], openExtensions: [ext…], unsupported: [{id, label, extensions, hint}] (formats asked for that can be neither opened nor written, such as DWG and PICT, with what to use instead)}",
+            "{} → {formats: [{id, label, extensions, mime, read, write, raster, options: {name: {type, default, description}}, plugin?: the id of the exporter plug-in that adds the format (its id is plugin.<plug-in id>; see plugin.list)}], readable: [id…], writable: [id…], openExtensions: [ext…], unsupported: [{id, label, extensions, hint}] (formats asked for that can be neither opened nor written, such as PICT, and DWG, which opens but can't be written, with what to use instead)}",
             always,
             formats
         ),
@@ -635,6 +635,8 @@ pub const FORMATS: &[Format] = &[
     Format { id: "png8", label: "PNG-8", extensions: &["png"], mime: "image/png", read: false, write: true, raster: true, options: PALETTE_OPTIONS },
     Format { id: "txt", label: "Text", extensions: TEXT_EXTS, mime: "text/plain", read: false, write: true, raster: false, options: text::OPTIONS },
     Format { id: "dxf", label: "DXF", extensions: &["dxf"], mime: "image/vnd.dxf", read: true, write: true, raster: false, options: dxf::OPTIONS },
+    // Read through the DXF import (desktop only; `sf-dwg`), never written.
+    Format { id: "dwg", label: "DWG", extensions: &["dwg"], mime: "image/vnd.dwg", read: true, write: false, raster: false, options: &[] },
     Format {
         id: "eps",
         label: "EPS",
@@ -713,6 +715,7 @@ pub const OPEN_EXTS: &[&str] = &[
     "psb",
     "vctemplate",
     "dxf",
+    "dwg",
     "emf",
     "wmf",
     "eps",
@@ -742,8 +745,8 @@ pub const OPEN_EXTS: &[&str] = &[
 /// raster editors, so Finder and file managers don't offer a vector app for them, and there is no
 /// `.epsf`, `.ps` or Targa type (File › Open and Place still read them all). On Linux the desktop
 /// entry's EPS type (shared-mime-info's) also covers `.epsf`, so file managers offer VectorCraft
-/// for it.
-pub const UNASSOCIATED_EXTS: &[&str] = &["psd", "psb", "epsf", "ps", "tga", "vda", "icb", "vst", "heic", "heif"];
+/// for it. DWG drawings belong to CAD apps.
+pub const UNASSOCIATED_EXTS: &[&str] = &["psd", "psb", "epsf", "ps", "tga", "vda", "icb", "vst", "heic", "heif", "dwg"];
 
 /// The extension that picks each writable format when exporting (the format's first; PNG-8 shares
 /// `.png` with PNG, so `.png` comes once), in [`FORMATS`] order.
@@ -796,6 +799,7 @@ pub const PLACE_EXTS: &[&str] = &[
     "psb",
     "vctemplate",
     "dxf",
+    "dwg",
     "emf",
     "wmf",
     "eps",

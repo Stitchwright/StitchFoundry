@@ -209,7 +209,7 @@ fn load(p: &Value, cmd: &str, board: Option<Rect>) -> Result<Loaded> {
         let warnings = fileio::too_large_note(&img.blob.bytes).into_iter().collect();
         return Ok(Loaded { name, format, art: Art::Image(img), natural, warnings, link, board: None });
     }
-    let anchored = format.id == "dxf" && (opts.dxf.fit || !opts.dxf.center);
+    let anchored = matches!(format.id, "dxf" | "dwg") && (opts.dxf.fit || !opts.dxf.center);
     let (mut doc, warnings) = match format.id {
         // Only the page placed is read, its artboard the box asked for (Bounding Box: the art's
         // bounds, below).

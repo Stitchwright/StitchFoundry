@@ -28,6 +28,12 @@ SLIC superpixels, guided-filter edge refinement, distance transform, live-wire) 
 PhotoCraft (https://github.com/storytold/photocraft, commit 04d0212) by the ArtCraft Team, under the MIT
 License or the Apache License, Version 2.0, the same as this product.
 
+The desktop app opens DWG drawings with acadrust (https://github.com/hakanaktt/acadrust, version
+0.6.4), copyright its authors, under the Mozilla Public License 2.0
+(https://mozilla.org/MPL/2.0/). It is used unmodified, as a library, through crates/sf-dwg; its
+source code is available from that repository and from crates.io
+(https://crates.io/crates/acadrust/0.6.4). The web app doesn't include it.
+
 Builds made with the `heif` feature (not the official ones, for now) decode HEIC photos with heic-rs
 (https://github.com/tbraun96/heic-rs, MIT OR Apache-2.0), through crates/sf-heif, adapted from
 PhotoCraft's HEIF wrapper (MIT OR Apache-2.0). HEVC, the compression HEIC uses, is covered by patents

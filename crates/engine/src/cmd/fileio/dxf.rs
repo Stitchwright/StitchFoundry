@@ -86,7 +86,7 @@ pub const UNSUPPORTED: &[Unsupported] = &[
         id: "dwg",
         label: "DWG",
         extensions: &["dwg"],
-        hint: "DWG is not available (no openly licensed writer exists): export DXF instead, which CAD apps open",
+        hint: "DWG drawings open, but can't be written: export DXF instead, which CAD apps open",
     },
     Unsupported {
         id: "pict",

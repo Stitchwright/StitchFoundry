@@ -47,6 +47,7 @@ vectorcraft-scriptcheck = { path = "crates/scriptcheck" }
 sf-core = { path = "crates/sf-core" }
 sf-photo = { path = "crates/sf-photo" }
 sf-heif = { path = "crates/sf-heif" }
+sf-dwg = { path = "crates/sf-dwg" }
 sf-formats = { path = "crates/sf-formats" }
 vectorcraft-embroidery = { path = "crates/embroidery" }
 

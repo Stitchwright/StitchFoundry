@@ -71,6 +71,8 @@ pub const TABLE: &[(&str, Class)] = &[
     ("sf-photo", Class::Standalone),
     // HEIF/HEIC decoding (optional, the engine's `heif` feature), adapted from PhotoCraft.
     ("sf-heif", Class::Standalone),
+    // DWG drawings as DXF text for the DXF import (acadrust, MPL-2.0; native only).
+    ("sf-dwg", Class::Standalone),
     // StitchFoundry's cloud service (a server binary, never in the app or the web build).
     ("stitchfoundry-cloud", Class::Exempt),
 ];

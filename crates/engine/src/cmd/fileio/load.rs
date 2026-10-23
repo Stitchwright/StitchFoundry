@@ -274,7 +274,7 @@ pub fn load_with(name: &str, bytes: &[u8], opts: &LoadOptions) -> Result<Loaded>
                 Err(e) => Err(e),
             })?
         }
-        "dxf" => {
+        "dxf" | "dwg" => {
             let (doc, warnings) = super::dxfimport::import(bytes, &opts.dxf)?;
             (doc, warnings, false)
         }

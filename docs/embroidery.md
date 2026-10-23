@@ -536,6 +536,11 @@ as?, id?}`, one undo step.
 
 ## Fill region
 
+CAD drawings open with File › Open or File › Place: DXF (ASCII or binary, any version) and, in
+the desktop app, DWG (AutoCAD 2000 and later). A DWG is turned into DXF first by acadrust
+(MPL-2.0), in a helper copy of the app with a two-minute limit, so a damaged drawing fails to open
+without taking the app down; the web app asks for a DXF instead.
+
 For line drawings, such as a DXF from a CAD program or a colouring-book outline, the **Fill Region
 tool** (in the Embroidery tools, with the paint-bucket cursor) fills an area with one click. Click
 inside an area that lines enclose and it becomes a new closed shape above the lines, sewn as the

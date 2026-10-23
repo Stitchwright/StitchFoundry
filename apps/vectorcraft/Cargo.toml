@@ -36,6 +36,8 @@ log = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 rfd = { workspace = true }
+# DWG drawings are converted in a helper copy of the app (sf-dwg).
+sf-dwg = { workspace = true }
 # wayland-data-control: native Wayland clipboard (Linux; X11 through XWayland only sees what X11 apps copied).
 arboard = { workspace = true, features = ["image-data", "wayland-data-control"] }
 image = { workspace = true }

@@ -1,4 +1,4 @@
-//! Untrusted files never crash the app: garbage, truncated, mutated and hostile SVG, PDF and DXF (ASCII and binary) input,
+//! Untrusted files never crash the app: garbage, truncated, mutated and hostile SVG, PDF, DXF (ASCII and binary) and DWG input,
 //! mutated raster images (Photoshop documents among them) placed with File → Place, and swatch (`.vcswatches`, `.gpl`, `.ase`), graphic style (`.vcstyles`) and flattener preset
 //! (`.vcflattener`) libraries, shortcut sets other apps save as text (`.kys`), and native files (compressed, damaged, saved for older versions),
 //! must load as an error or as a document that then renders and exports, without a panic; nor may
@@ -2083,6 +2083,21 @@ fn survive_dxf(what: &str, bytes: &[u8], fit: bool) -> Result<(), TestCaseError>
     })
 }
 
+/// The helper process the DWG tests convert in: this test binary, running only
+/// [`dwg_helper_entry`].
+fn dwg_helper() {
+    sf_dwg::use_helper(sf_dwg::Helper {
+        exe: std::env::current_exe().unwrap(),
+        args: ["dwg_helper_entry", "--exact", "--quiet", "--test-threads=1"].map(String::from).to_vec(),
+    });
+}
+
+/// Converts one DWG when run as the helper ([`dwg_helper`]); otherwise does nothing.
+#[test]
+fn dwg_helper_entry() {
+    sf_dwg::serve_if_helper();
+}
+
 proptest! {
     #![proptest_config(config())]
 
@@ -2101,6 +2116,39 @@ proptest! {
         b.extend(b"SECTION\0");
         b.extend(bytes);
         survive_dxf("binary dxf garbage", &b, fit)?;
+    }
+
+    #[test]
+    fn dwg_garbage_never_panics(bytes in prop::collection::vec(any::<u8>(), 0..600), version in prop::sample::select(vec![&b"AC1015"[..], b"AC1018", b"AC1021", b"AC1024", b"AC1027", b"AC1032"])) {
+        // a DWG version header, then anything: read through the DXF import, or refused
+        dwg_helper();
+        let mut b = version.to_vec();
+        b.extend(bytes);
+        survive_dxf("dwg garbage", &b, false)?;
+    }
+
+    #[test]
+    fn dwg_mutated_drawing_never_panics(
+        cut in 0usize..200_000,
+        edits in prop::collection::vec((0usize..200_000, any::<u8>()), 1..16),
+    ) {
+        // the rich document as a 2018 DXF, read by acadrust and written as a DWG
+        // converted as the app converts them, in a helper process (this test binary, run as
+        // `dwg_helper_entry`): a reader that aborts or hangs fails the open, not the app
+        dwg_helper();
+        static SAMPLE: std::sync::OnceLock<Vec<u8>> = std::sync::OnceLock::new();
+        let sample = SAMPLE.get_or_init(|| {
+            let doc = acadrust::DxfReader::from_reader(std::io::Cursor::new(rich_dxf("2018"))).unwrap().read().unwrap();
+            acadrust::DwgWriter::write_to_vec(&doc).unwrap()
+        });
+        let mut bytes = sample.clone();
+        for &(at, b) in &edits {
+            let n = bytes.len();
+            // keep the version header, so the bytes are read as a DWG
+            bytes[6 + at % (n - 6)] = b;
+        }
+        bytes.truncate(cut.max(64));
+        survive_dxf("mutated dwg", &bytes, cut % 2 == 0)?;
     }
 
     #[test]

@@ -18,6 +18,8 @@ workspace = true
 heif = ["vectorcraft-engine/heif"]
 
 [dependencies]
+# DWG drawings are converted in a helper copy of the program (sf-dwg).
+sf-dwg = { workspace = true }
 vectorcraft-color = { workspace = true }
 vectorcraft-doc = { workspace = true }
 vectorcraft-engine = { workspace = true }

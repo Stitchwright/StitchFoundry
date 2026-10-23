@@ -37,7 +37,7 @@ const REMEMBERED: [&str; 4] = ["fit", "scaleLineweights", "center", "mergeLayers
 /// Open `bytes` (or place them with the `file.place` params `place`) through the dialog when they
 /// are a DXF drawing; false when they aren't (or can't be read: the loader then says why).
 pub fn offer(app: &mut VectorcraftApp, name: &str, bytes: &[u8], path: Option<String>, place: Option<&Value>) -> bool {
-    if fileio::detect(name, bytes).is_none_or(|f| f.id != "dxf") {
+    if fileio::detect(name, bytes).is_none_or(|f| !matches!(f.id, "dxf" | "dwg")) {
         return false;
     }
     let Ok(info) = vectorcraft_cad::info(bytes) else { return false };
@@ -80,7 +80,7 @@ pub fn offer_place(app: &mut VectorcraftApp, p: &Value) -> bool {
     if p.get("dxf").is_some() || named.as_deref() != Some("dxf") {
         return false;
     }
-    let Some((name, bytes, path)) = place_source(app, p, |ext| ext == "dxf") else { return false };
+    let Some((name, bytes, path)) = place_source(app, p, |ext| matches!(ext, "dxf" | "dwg")) else { return false };
     offer(app, &name, &bytes, path, Some(p))
 }
 

@@ -177,7 +177,7 @@ fn dwg_and_pict_say_what_to_use_instead() {
     let mut s = two_boards();
     for p in [json!({"format": "dwg"}), json!({"path": "/tmp/plan.DWG"})] {
         let e = s.execute("document.export", &p).unwrap_err().to_string();
-        assert!(e.contains("DWG is not available") && e.contains("DXF"), "{p}: {e}");
+        assert!(e.contains("DWG") && e.contains("not written"), "{p}: {e}");
     }
     let e = s.execute("document.export", &json!({"format": "pict"})).unwrap_err().to_string();
     assert!(e.contains("PICT is a retired format"), "{e}");
@@ -190,5 +190,6 @@ fn dwg_and_pict_say_what_to_use_instead() {
         .execute("document.open", &json!({"name": "site.dwg", "dataBase64": vectorcraft_format::base64_encode(b"AC1032\0\0")}))
         .unwrap_err()
         .to_string();
-    assert!(e.contains("DWG is not available"), "{e}");
+    // a DWG opens through the DXF import; one that is only a header says it couldn't be read
+    assert!(e.contains("DWG drawing couldn't be read"), "{e}");
 }

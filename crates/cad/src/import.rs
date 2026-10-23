@@ -1,4 +1,5 @@
-//! DXF import: a DXF drawing (ASCII or binary) of any version as a document.
+//! DXF import: a DXF drawing (ASCII or binary) of any version as a document; a DWG drawing is
+//! first turned into DXF text (`sf-dwg`, native only).
 //!
 //! The drawing's model space (or a paper layout) comes in at a ratio (1 unit of the art = N
 //! drawing units; by default the drawing's own unit at 1:1) or fitted to an artboard, centred
@@ -85,9 +86,9 @@ pub struct DxfInfo {
     pub scale: f64,
 }
 
-/// Does `bytes` look like a DXF file (ASCII or binary)?
+/// Does `bytes` look like a DXF file (ASCII or binary), or a DWG drawing (read through DXF)?
 pub fn is_dxf(bytes: &[u8]) -> bool {
-    if bytes.starts_with(reader::BINARY_SENTINEL) {
+    if bytes.starts_with(reader::BINARY_SENTINEL) || sf_dwg::is_dwg(bytes) {
         return true;
     }
     let head = String::from_utf8_lossy(bytes.get(..bytes.len().min(1024)).unwrap_or(bytes));
@@ -103,15 +104,22 @@ pub fn is_dxf(bytes: &[u8]) -> bool {
     false
 }
 
-/// The text of a DXF file, ASCII or binary (DWG files are refused).
-fn text(bytes: &[u8]) -> Result<std::borrow::Cow<'_, str>, String> {
+/// The text of a DXF file, ASCII or binary, or of a DWG drawing turned into DXF, with notes on
+/// what of a DWG couldn't be read.
+fn text(bytes: &[u8]) -> Result<(std::borrow::Cow<'_, str>, Vec<String>), String> {
+    use std::borrow::Cow;
     if binary::is_binary(bytes) {
-        return binary::to_text(bytes).map(std::borrow::Cow::Owned);
+        return binary::to_text(bytes).map(|t| (Cow::Owned(t), Vec::new()));
     }
-    if bytes.starts_with(b"AC10") || bytes.starts_with(b"AC1.") {
+    if sf_dwg::is_dwg(bytes) {
+        let (dxf, notes) = sf_dwg::dwg_to_dxf(bytes)?;
+        return Ok((Cow::Owned(reader::decode(&dxf).into_owned()), notes));
+    }
+    // a DWG from before AutoCAD 2.5 (`AC1.`), which isn't read
+    if bytes.starts_with(b"AC1.") {
         return Err("this is a DWG drawing, which can't be read: save it from the CAD app as an ASCII DXF and open that".into());
     }
-    Ok(reader::decode(bytes))
+    Ok((reader::decode(bytes), Vec::new()))
 }
 
 /// The unit of `$INSUNITS` code `code` and the scale that shows the drawing 1:1 in it.
@@ -160,7 +168,7 @@ fn units_name(code: i64) -> &'static str {
 
 /// Read what `bytes` holds: its version, units, layouts and layers.
 pub fn info(bytes: &[u8]) -> Result<DxfInfo, String> {
-    let text = text(bytes)?;
+    let (text, _) = text(bytes)?;
     let (pairs, _) = reader::pairs(&text)?;
     let d = reader::Drawing::read(&pairs);
     if d.sections == 0 {
@@ -190,7 +198,7 @@ pub fn import(bytes: &[u8], o: &ImportOptions) -> Result<Imported, String> {
     {
         return Err(format!("scale must be a number from {} to {}, not {s}", SCALE_RANGE.start(), SCALE_RANGE.end()));
     }
-    let text = text(bytes)?;
+    let (text, notes) = text(bytes)?;
     let (pairs, damaged) = reader::pairs(&text)?;
     let d = reader::Drawing::read(&pairs);
     if d.sections == 0 {
@@ -213,6 +221,7 @@ pub fn import(bytes: &[u8], o: &ImportOptions) -> Result<Imported, String> {
     let (mut document, mut warnings) = build::Build::new(&d, o).run(layout, natural, ratio)?;
     document.units = if o.fit { unit } else { o.unit.unwrap_or(unit) };
     warnings.extend(damaged);
+    warnings.extend(notes);
     document.limit_depth_noting(&mut warnings);
     Ok(Imported { document, warnings })
 }

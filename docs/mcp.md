@@ -2983,8 +2983,8 @@ selected objects in their layers (every export takes it), and `useArtboards: tru
 artboard holding the art over it. What DXF can't hold (gradients and patterns as one colour, blending, opacity masks,
 raster effects, clipping) comes back in `warnings`.
 
-DWG can't be written (no openly licensed writer exists): `document.formats` lists it under `unsupported` with that
-hint, and exporting to it answers with the hint to export DXF. PICT files are not supported either and say so when
+DWG can't be written: `document.formats` lists it as readable and not writable (and under `unsupported` with the
+hint to export DXF), and exporting to it says so. PICT files are not supported either and say so when
 opened.
 
 ```json
@@ -3008,7 +3008,9 @@ hatches filled, pattern hatches as their boundaries), text and multiline text po
 (one per look when their art takes colour "by block"), anonymous blocks such as dimensions groups. Indexed colours
 (7 is black on paper), true colour, lineweights (`scaleLineweights` scales them with the art), linetypes and
 transparency resolve through layers and blocks. What is left out (viewports, images, meshes, unknown entities) is
-listed in `warnings`. Binary DXF files open as ASCII ones do; DWG files answer an error saying to save them as DXF.
+listed in `warnings`. Binary DXF files open as ASCII ones do. DWG drawings (AutoCAD 2000 and later) open in the desktop app: a helper
+copy of the app turns them into DXF with acadrust (MPL-2.0) within a time and size limit, so a damaged drawing fails
+only the open; on the web they answer an error saying to save them as DXF.
 
 ```json
 {"name":"run_command","arguments":{"command":"document.dxfInfo","params":{"path":"/tmp/plan.dxf"}}}

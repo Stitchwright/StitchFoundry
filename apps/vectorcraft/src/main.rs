@@ -685,6 +685,12 @@ Without a window (converting, scripting, the MCP server), use stitchfoundry-cli:
 ";
 
 fn main() -> std::process::ExitCode {
+    // Started to convert a DWG drawing (sf-dwg's helper)? Then that is all this process does;
+    // else DWG drawings are converted in such a helper, so a damaged one can't take the app down.
+    sf_dwg::serve_if_helper();
+    if let Ok(exe) = std::env::current_exe() {
+        sf_dwg::use_helper(sf_dwg::Helper { exe, args: Vec::new() });
+    }
     // Before any thread starts: the pointer must find a cursor theme on Wayland (#2450).
     #[cfg(target_os = "linux")]
     cursor_theme::apply();
