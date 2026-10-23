@@ -1,4 +1,4 @@
-//! Untrusted files never crash the app: garbage, truncated, mutated and hostile SVG, PDF and DXF input,
+//! Untrusted files never crash the app: garbage, truncated, mutated and hostile SVG, PDF and DXF (ASCII and binary) input,
 //! mutated raster images (Photoshop documents among them) placed with File → Place, and swatch (`.vcswatches`, `.gpl`, `.ase`), graphic style (`.vcstyles`) and flattener preset
 //! (`.vcflattener`) libraries, shortcut sets other apps save as text (`.kys`), and native files (compressed, damaged, saved for older versions),
 //! must load as an error or as a document that then renders and exports, without a panic; nor may
@@ -2091,6 +2091,16 @@ proptest! {
         let mut b = if section { b"  0\nSECTION\n  2\nENTITIES\n".to_vec() } else { vec![] };
         b.extend(bytes);
         survive_dxf("dxf garbage", &b, section)?;
+    }
+
+    #[test]
+    fn dxf_binary_garbage_never_panics(bytes in prop::collection::vec(any::<u8>(), 0..400), wide in any::<bool>(), fit in any::<bool>()) {
+        // the sentinel, a first `0 SECTION` group (2-byte or 1-byte code), then anything
+        let mut b = vectorcraft_cad::import::BINARY_SENTINEL.to_vec();
+        b.extend(if wide { &[0u8, 0][..] } else { &[0u8][..] });
+        b.extend(b"SECTION\0");
+        b.extend(bytes);
+        survive_dxf("binary dxf garbage", &b, fit)?;
     }
 
     #[test]

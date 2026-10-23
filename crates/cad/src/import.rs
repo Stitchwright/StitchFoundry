@@ -1,4 +1,4 @@
-//! DXF import: an ASCII DXF drawing of any version as a document.
+//! DXF import: a DXF drawing (ASCII or binary) of any version as a document.
 //!
 //! The drawing's model space (or a paper layout) comes in at a ratio (1 unit of the art = N
 //! drawing units; by default the drawing's own unit at 1:1) or fitted to an artboard, centred
@@ -10,12 +10,14 @@
 //! lineweights, linetypes and transparency come through layers and blocks as CAD apps resolve
 //! them. What can't come in is listed in the warnings.
 //!
+//! - `binary`: a binary DXF as the ASCII text.
 //! - `reader`: the file's text, group codes, sections, tables, blocks and layouts.
 //! - `entity`: entities to items (geometry and properties).
 //! - `curve`: bulges, arcs, ellipses and NURBS as Bézier paths.
 //! - `text`: text values to plain text.
 //! - `build`: items to the document.
 
+mod binary;
 mod build;
 mod curve;
 mod entity;
@@ -30,9 +32,6 @@ use crate::{DxfVersion, INSUNITS, SCALE_RANGE};
 
 /// Letter, the box Fit to Artboard fills unless told otherwise (points).
 pub const FIT_TO: (f64, f64) = (612.0, 792.0);
-
-/// Why a binary DXF can't be opened.
-pub const BINARY: &str = "this is a binary DXF file, which can't be read: save it from the CAD app as an ASCII DXF and open that";
 
 /// How a drawing comes in.
 #[derive(Clone, Debug, PartialEq)]
@@ -104,10 +103,10 @@ pub fn is_dxf(bytes: &[u8]) -> bool {
     false
 }
 
-/// The pairs of a DXF file and where it is damaged (binary and DWG files are refused).
+/// The text of a DXF file, ASCII or binary (DWG files are refused).
 fn text(bytes: &[u8]) -> Result<std::borrow::Cow<'_, str>, String> {
-    if bytes.starts_with(reader::BINARY_SENTINEL) {
-        return Err(BINARY.into());
+    if binary::is_binary(bytes) {
+        return binary::to_text(bytes).map(std::borrow::Cow::Owned);
     }
     if bytes.starts_with(b"AC10") || bytes.starts_with(b"AC1.") {
         return Err("this is a DWG drawing, which can't be read: save it from the CAD app as an ASCII DXF and open that".into());
@@ -180,7 +179,7 @@ pub fn info(bytes: &[u8]) -> Result<DxfInfo, String> {
     })
 }
 
-/// Import an ASCII DXF drawing with `o`.
+/// Import a DXF drawing (ASCII or binary) with `o`.
 pub fn import(bytes: &[u8], o: &ImportOptions) -> Result<Imported, String> {
     let (w, h) = o.fit_to;
     if !(w > 0.0 && h > 0.0 && w.max(h) <= build::MAX_EXTENT) {

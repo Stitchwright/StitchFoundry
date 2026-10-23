@@ -625,7 +625,9 @@ impl Drawing {
         c.raw(7, "");
         c.int(75, 16);
         c.num(147, 1.0);
-        c.xy(148, 0.0, 0.0);
+        // the paper image origin: X in 148, Y in 149 (not 158, as a point's Y would be)
+        c.num(148, 0.0);
+        c.num(149, 0.0);
         c.raw(100, "AcDbLayout");
         c.raw(1, name);
         c.int(70, 1);

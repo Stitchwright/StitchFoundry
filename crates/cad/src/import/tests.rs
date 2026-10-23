@@ -913,7 +913,11 @@ fn binary_dwg_damaged_and_foreign_files() {
     binary.extend([0u8; 40]);
     assert!(is_dxf(&binary));
     let e = import(&binary, &ImportOptions::default()).unwrap_err();
-    assert!(e.contains("binary DXF") && e.contains("ASCII"), "{e}");
+    assert!(e.contains("binary DXF is damaged"), "{e}");
+    let mut cut = BINARY_SENTINEL.to_vec();
+    cut.extend([0, 0, b'S', b'E']);
+    let e = import(&cut, &ImportOptions::default()).unwrap_err();
+    assert!(e.contains("binary DXF is damaged"), "{e}");
     let e = import(b"AC1032\x00\x00\x00", &ImportOptions::default()).unwrap_err();
     assert!(e.contains("DWG"), "{e}");
     for junk in [&b""[..], b"hello", b"<svg/>", b"999\nnote\n"] {
@@ -1018,4 +1022,86 @@ fn entities_extruded_along_minus_z_are_mirrored() {
     let doc = open(&entities(&e), &points()).document;
     let b = bounds(&leaves(&doc)[0]);
     assert!((b.center().x + 50.0).abs() < 1e-6, "the centre's x is mirrored: {b:?}");
+}
+
+/// `ascii` (a DXF this crate wrote, or a fixture) written as a binary DXF, from Autodesk's
+/// description of the format: 2-byte group codes (`wide`, Release 13 on) or 1-byte ones, and
+/// 280–289 in one byte when `small`.
+fn to_binary(ascii: &[u8], wide: bool, small: bool) -> Vec<u8> {
+    use binary::Kind;
+    let text = std::str::from_utf8(ascii).unwrap();
+    let mut out = BINARY_SENTINEL.to_vec();
+    let mut lines = text.lines();
+    while let (Some(c), Some(v)) = (lines.next(), lines.next()) {
+        let code: i32 = c.trim().parse().unwrap();
+        if code == 999 {
+            continue;
+        }
+        if wide {
+            out.extend((code as i16).to_le_bytes());
+        } else if code < 255 {
+            out.push(code as u8);
+        } else {
+            out.push(255);
+            out.extend((code as i16).to_le_bytes());
+        }
+        let t = v.trim();
+        match binary::kind(code, small).unwrap_or_else(|| panic!("group code {code}")) {
+            Kind::Text => {
+                out.extend(v.as_bytes());
+                out.push(0);
+            }
+            Kind::Double => out.extend(t.parse::<f64>().unwrap().to_le_bytes()),
+            Kind::I16 => out.extend(t.parse::<i16>().unwrap().to_le_bytes()),
+            Kind::I32 => out.extend(t.parse::<i32>().unwrap().to_le_bytes()),
+            Kind::I64 => out.extend(t.parse::<i64>().unwrap().to_le_bytes()),
+            Kind::Bool => out.push(t.parse::<i16>().unwrap() as u8),
+            Kind::Chunk => {
+                let data: Vec<u8> = (0..t.len() / 2).map(|i| u8::from_str_radix(&t[2 * i..2 * i + 2], 16).unwrap()).collect();
+                out.push(data.len() as u8);
+                out.extend(data);
+            }
+        }
+    }
+    out
+}
+
+#[test]
+fn binary_dxf_opens_as_its_ascii_twin_does() {
+    let mut doc = Document::new(200.0, 100.0);
+    let layer = doc.layers[0].id;
+    let id = doc.alloc_id();
+    let blue = Appearance::basic(Paint::None, Paint::solid(Color::rgb8(0, 0, 255)), 2.0);
+    doc.insert(Some(layer), 0, Node::path(id, shapes::rectangle(Rect::new(20.0, 20.0, 120.0, 70.0)), blue)).unwrap();
+    let id = doc.alloc_id();
+    let red = Appearance::basic(Paint::solid(Color::rgb8(255, 0, 0)), Paint::None, 0.0);
+    doc.insert(Some(layer), 1, Node::path(id, shapes::ellipse(Rect::new(140.0, 20.0, 180.0, 60.0)), red)).unwrap();
+    let summary = |d: &Document| -> Vec<String> {
+        leaves(d)
+            .iter()
+            .map(|n| {
+                format!(
+                    "{:?} {:?} {:?}",
+                    n.geometric_bounds().map(|b| (b.x0.round(), b.y0.round(), b.x1.round(), b.y1.round())),
+                    n.appearance.fill().map(|f| f.paint.clone()),
+                    n.appearance.stroke().map(|s| (s.paint.clone(), (s.width * 10.0).round()))
+                )
+            })
+            .collect()
+    };
+    for version in [crate::DxfVersion::R12, crate::DxfVersion::R2000, crate::DxfVersion::R2018] {
+        let opts = crate::DxfOptions { version, unit: Unit::Points, region: doc.artboards[0].rect, ..crate::DxfOptions::default() };
+        let ascii = crate::export(&doc, &opts).unwrap().bytes;
+        let want = summary(&open(&ascii, &points()).document);
+        assert!(want.len() >= 2, "{version:?}: {want:?}");
+        let wide = version >= crate::DxfVersion::R13;
+        for small in [false, true] {
+            let bin = to_binary(&ascii, wide, small);
+            assert!(is_dxf(&bin));
+            let got = open(&bin, &points());
+            assert_eq!(summary(&got.document), want, "{version:?} small {small}");
+            assert!(got.warnings.iter().all(|w| !w.contains("damaged")), "{:?}", got.warnings);
+            assert_eq!(info(&bin).unwrap().layers, info(&ascii).unwrap().layers);
+        }
+    }
 }
