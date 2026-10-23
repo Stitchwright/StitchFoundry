@@ -6411,3 +6411,9 @@ machine	Stop	정지
 	A: objects with their stitch settings	A: 스티치 설정이 있는 개체
 	C: from a machine file, made into objects	C: 기계 파일에서, 개체로 변환됨
 	D: from a machine file, stitches only	D: 기계 파일에서, 스티치만
+	Eject USB Stick	USB 꺼내기
+	Saved for your machine	기계용으로 저장됨
+	Eject the USB stick before you pull it out, then put it in the machine.	USB를 뽑기 전에 꺼내기를 한 다음 기계에 꽂으세요.
+	Safe to remove:	안전하게 제거할 수 있음:
+@msg	no machine folder yet	아직 기계 폴더가 없습니다
+@msg	ejecting isn't available here	여기서는 꺼내기를 사용할 수 없습니다

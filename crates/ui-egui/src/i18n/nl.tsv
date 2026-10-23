@@ -6751,3 +6751,9 @@ swatch	Bright Violet	Felviolet
 	A: objects with their stitch settings	A: objecten met hun steekinstellingen
 	C: from a machine file, made into objects	C: uit een machinebestand, omgezet in objecten
 	D: from a machine file, stitches only	D: uit een machinebestand, alleen steken
+	Eject USB Stick	USB-stick uitwerpen
+	Saved for your machine	Opgeslagen voor je machine
+	Eject the USB stick before you pull it out, then put it in the machine.	Werp de USB-stick uit voordat je hem eruit trekt en steek hem dan in de machine.
+	Safe to remove:	Kan veilig worden verwijderd:
+@msg	no machine folder yet	nog geen machinemap
+@msg	ejecting isn't available here	uitwerpen is hier niet beschikbaar

@@ -6775,3 +6775,9 @@ machine	Stop	Спиране
 	A: objects with their stitch settings	A: обекти с настройките на бод
 	C: from a machine file, made into objects	C: от машинен файл, превърнат в обекти
 	D: from a machine file, stitches only	D: от машинен файл, само бодове
+	Eject USB Stick	Извади USB паметта
+	Saved for your machine	Запазено за машината ви
+	Eject the USB stick before you pull it out, then put it in the machine.	Извадете USB паметта безопасно, преди да я издърпате, след това я поставете в машината.
+	Safe to remove:	Може да се извади безопасно:
+@msg	no machine folder yet	още няма папка за машината
+@msg	ejecting isn't available here	изваждането не е налично тук

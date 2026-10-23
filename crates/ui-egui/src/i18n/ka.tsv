@@ -6647,3 +6647,9 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	A: objects with their stitch settings	A: ობიექტები თავიანთი ნაკერის პარამეტრებით
 	C: from a machine file, made into objects	C: მანქანის ფაილიდან, ობიექტებად გარდაქმნილი
 	D: from a machine file, stitches only	D: მანქანის ფაილიდან, მხოლოდ ნაკერები
+	Eject USB Stick	USB მეხსიერების ამოღება
+	Saved for your machine	შენახულია თქვენი მანქანისთვის
+	Eject the USB stick before you pull it out, then put it in the machine.	ამოიღეთ USB მეხსიერება გამოძრობამდე, შემდეგ ჩადეთ მანქანაში.
+	Safe to remove:	შეიძლება უსაფრთხოდ ამოღება:
+@msg	no machine folder yet	მანქანის საქაღალდე ჯერ არ არის
+@msg	ejecting isn't available here	ამოღება აქ მიუწვდომელია

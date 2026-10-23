@@ -29,6 +29,7 @@ mod clipboard;
 mod compositor_gpu;
 mod control_server;
 mod cursor_theme;
+mod eject;
 #[cfg(feature = "wgpu")]
 mod gpu;
 mod logging;
@@ -563,6 +564,8 @@ fn services(parent: Parent, ui: egui::Context) -> Services {
             let _ = webbrowser::open(url);
         })),
         reveal: Some(Box::new(reveal)),
+        // After Save for My Machine: eject the USB stick the machine folder is on.
+        eject: Some(Box::new(eject::eject)),
         // Links panel: Edit Original; Package: Show Package. Relink to Folder and Package pick folders.
         open_file: Some(Box::new(open_file)),
         pick_folder: Some(Box::new(move || pick_now(PickRequest::Folder, &p4).into_iter().next())),
@@ -1102,6 +1105,10 @@ mod tests {
         let types = plist.matches("<key>CFBundleTypeName</key>").count();
         assert!(types > 1 && plist.matches("<key>LSHandlerRank</key>").count() == types, "every document type has a rank");
         assert_eq!(plist.matches("<string>Owner</string>").count(), 2, "only VectorCraft documents and templates are owned");
+        // machine embroidery files open in StitchFoundry on a double-click when no other app
+        // claims them: it is their editor, not a secondary viewer
+        let machine = plist.split("<string>Embroidery Machine File</string>").nth(1).and_then(|r| r.split("</dict>").next()).unwrap();
+        assert!(machine.contains("<key>LSHandlerRank</key><string>Default</string>"), "{machine}");
     }
 
     /// The MIME types a Linux desktop gives each extension in `OPEN_EXTS` but `UNASSOCIATED_EXTS`

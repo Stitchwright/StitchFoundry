@@ -6439,3 +6439,9 @@ machine	Stop	Зупинка
 	A: objects with their stitch settings	A: об’єкти з налаштуваннями стібків
 	C: from a machine file, made into objects	C: з машинного файлу, перетворено на об’єкти
 	D: from a machine file, stitches only	D: з машинного файлу, лише стібки
+	Eject USB Stick	Вийняти флешку
+	Saved for your machine	Збережено для вашої машини
+	Eject the USB stick before you pull it out, then put it in the machine.	Вийміть флешку безпечно, перш ніж висмикнути її, потім вставте її в машину.
+	Safe to remove:	Можна безпечно вийняти:
+@msg	no machine folder yet	папки машини ще немає
+@msg	ejecting isn't available here	виймання тут недоступне

@@ -6773,3 +6773,9 @@ mark-style	Japanese	Japonesas
 	A: objects with their stitch settings	A: objetos con sus ajustes de puntada
 	C: from a machine file, made into objects	C: de un archivo de máquina, convertido en objetos
 	D: from a machine file, stitches only	D: de un archivo de máquina, solo puntadas
+	Eject USB Stick	Expulsar USB
+	Saved for your machine	Guardado para tu máquina
+	Eject the USB stick before you pull it out, then put it in the machine.	Expulsa la memoria USB antes de sacarla y luego ponla en la máquina.
+	Safe to remove:	Se puede quitar con seguridad:
+@msg	no machine folder yet	aún no hay carpeta de la máquina
+@msg	ejecting isn't available here	expulsar no está disponible aquí

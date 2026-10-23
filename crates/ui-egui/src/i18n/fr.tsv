@@ -6832,3 +6832,9 @@ theme	Appearance	Apparence
 	A: objects with their stitch settings	A : objets avec leurs réglages de points
 	C: from a machine file, made into objects	C : d’un fichier machine, converti en objets
 	D: from a machine file, stitches only	D : d’un fichier machine, points seulement
+	Eject USB Stick	Éjecter la clé USB
+	Saved for your machine	Enregistré pour votre machine
+	Eject the USB stick before you pull it out, then put it in the machine.	Éjectez la clé USB avant de la retirer, puis mettez-la dans la machine.
+	Safe to remove:	Peut être retirée en toute sécurité :
+@msg	no machine folder yet	pas encore de dossier de la machine
+@msg	ejecting isn't available here	l’éjection n’est pas disponible ici

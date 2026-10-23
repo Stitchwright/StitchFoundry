@@ -6832,3 +6832,9 @@ swatch	Bright Violet	Kirkas violetti
 	A: objects with their stitch settings	A: objektit pistoasetuksineen
 	C: from a machine file, made into objects	C: konetiedostosta, muutettu objekteiksi
 	D: from a machine file, stitches only	D: konetiedostosta, vain pistot
+	Eject USB Stick	Poista USB-tikku
+	Saved for your machine	Tallennettu koneellesi
+	Eject the USB stick before you pull it out, then put it in the machine.	Poista USB-tikku turvallisesti ennen irrottamista ja laita se sitten koneeseen.
+	Safe to remove:	Voidaan irrottaa turvallisesti:
+@msg	no machine folder yet	ei vielä koneen kansiota
+@msg	ejecting isn't available here	poistaminen ei ole käytettävissä täällä

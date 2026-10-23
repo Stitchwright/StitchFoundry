@@ -6459,3 +6459,9 @@ machine	Stop	Arresto
 	A: objects with their stitch settings	A: oggetti con le loro impostazioni dei punti
 	C: from a machine file, made into objects	C: da un file macchina, convertito in oggetti
 	D: from a machine file, stitches only	D: da un file macchina, solo punti
+	Eject USB Stick	Espelli chiavetta USB
+	Saved for your machine	Salvato per la tua macchina
+	Eject the USB stick before you pull it out, then put it in the machine.	Espelli la chiavetta USB prima di estrarla, poi inseriscila nella macchina.
+	Safe to remove:	Rimovibile in sicurezza:
+@msg	no machine folder yet	ancora nessuna cartella della macchina
+@msg	ejecting isn't available here	l’espulsione non è disponibile qui

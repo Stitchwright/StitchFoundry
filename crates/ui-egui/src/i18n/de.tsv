@@ -6425,3 +6425,9 @@ effect	Soft	Weich
 	A: objects with their stitch settings	A: Objekte mit ihren Sticheinstellungen
 	C: from a machine file, made into objects	C: aus einer Maschinendatei, in Objekte umgewandelt
 	D: from a machine file, stitches only	D: aus einer Maschinendatei, nur Stiche
+	Eject USB Stick	USB-Stick auswerfen
+	Saved for your machine	Für Ihre Maschine gespeichert
+	Eject the USB stick before you pull it out, then put it in the machine.	Werfen Sie den USB-Stick aus, bevor Sie ihn abziehen, und stecken Sie ihn dann in die Maschine.
+	Safe to remove:	Kann sicher entfernt werden:
+@msg	no machine folder yet	noch kein Maschinenordner
+@msg	ejecting isn't available here	Auswerfen ist hier nicht verfügbar

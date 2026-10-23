@@ -6820,3 +6820,9 @@ mark-style	Japanese	Japonské
 	A: objects with their stitch settings	A: objekty s nastavením stehů
 	C: from a machine file, made into objects	C: ze strojového souboru, převedeno na objekty
 	D: from a machine file, stitches only	D: ze strojového souboru, jen stehy
+	Eject USB Stick	Vysunout USB disk
+	Saved for your machine	Uloženo pro váš stroj
+	Eject the USB stick before you pull it out, then put it in the machine.	Před vytažením USB disk vysuňte, pak jej vložte do stroje.
+	Safe to remove:	Lze bezpečně vyjmout:
+@msg	no machine folder yet	zatím žádná složka stroje
+@msg	ejecting isn't available here	vysunutí tu není k dispozici

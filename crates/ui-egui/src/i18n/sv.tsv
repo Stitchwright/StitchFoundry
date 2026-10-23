@@ -6771,3 +6771,9 @@ machine	Stop	Stopp
 	A: objects with their stitch settings	A: objekt med sina stygninställningar
 	C: from a machine file, made into objects	C: från en maskinfil, omgjord till objekt
 	D: from a machine file, stitches only	D: från en maskinfil, endast stygn
+	Eject USB Stick	Mata ut USB-minne
+	Saved for your machine	Sparat för din maskin
+	Eject the USB stick before you pull it out, then put it in the machine.	Mata ut USB-minnet innan du drar ut det och sätt sedan i det i maskinen.
+	Safe to remove:	Kan tas bort säkert:
+@msg	no machine folder yet	ingen maskinmapp ännu
+@msg	ejecting isn't available here	utmatning är inte tillgänglig här

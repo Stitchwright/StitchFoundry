@@ -6709,3 +6709,9 @@ swatch	Bright Violet	Kraftig violet
 	A: objects with their stitch settings	A: objekter med deres stingindstillinger
 	C: from a machine file, made into objects	C: fra en maskinfil, gjort til objekter
 	D: from a machine file, stitches only	D: fra en maskinfil, kun sting
+	Eject USB Stick	Skub USB-stik ud
+	Saved for your machine	Gemt til din maskine
+	Eject the USB stick before you pull it out, then put it in the machine.	Skub USB-stikket ud, før du tager det ud, og sæt det så i maskinen.
+	Safe to remove:	Kan fjernes sikkert:
+@msg	no machine folder yet	ingen maskinmappe endnu
+@msg	ejecting isn't available here	udskubning er ikke tilgængelig her

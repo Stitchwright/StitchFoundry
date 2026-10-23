@@ -110,7 +110,7 @@
         <string>hus</string><string>sew</string><string>vip</string>
       </array>
       <key>CFBundleTypeRole</key><string>Editor</string>
-      <key>LSHandlerRank</key><string>Alternate</string>
+      <key>LSHandlerRank</key><string>Default</string>
     </dict>
     <dict>
       <key>CFBundleTypeName</key><string>EMF and WMF</string>

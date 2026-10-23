@@ -6419,3 +6419,9 @@ machine	Stop	停止
 	A: objects with their stitch settings	A：帶針跡設定的物件
 	C: from a machine file, made into objects	C：來自機器檔案，已轉換為物件
 	D: from a machine file, stitches only	D：來自機器檔案，僅有針跡
+	Eject USB Stick	退出 USB 隨身碟
+	Saved for your machine	已為您的機器儲存
+	Eject the USB stick before you pull it out, then put it in the machine.	拔出 USB 隨身碟前請先退出，然後插入機器。
+	Safe to remove:	可以安全移除：
+@msg	no machine folder yet	還沒有機器資料夾
+@msg	ejecting isn't available here	此處無法退出

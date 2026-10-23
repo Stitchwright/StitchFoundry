@@ -224,6 +224,10 @@ pub(crate) fn browsable_url(url: &str) -> Result<(), String> {
 /// Shows a file in the system file manager, or opens it in its app.
 pub type RevealFn = Box<dyn FnMut(&str) -> Result<(), String>>;
 
+/// Ejects the removable drive (a USB stick) a folder is on, so it can be pulled out safely →
+/// the drive's name.
+pub type EjectFn = Box<dyn FnMut(&str) -> Result<String, String>>;
+
 pub use vectorcraft_embroidery::sf_core::ai::{HttpRequest, Method};
 
 /// Sends an HTTPS POST and waits for the answer → (HTTP status, body), or why none came. Called
@@ -288,6 +292,8 @@ pub struct Services {
     pub clipboard_probe: Option<ClipboardProbeFactory>,
     /// File → Show in Folder: select a file in the system file manager (desktop).
     pub reveal: Option<RevealFn>,
+    /// Eject the USB stick a machine folder is on (desktop), after Save for My Machine.
+    pub eject: Option<EjectFn>,
     /// Write a file from any thread (desktop): lets Background Save and Export write off the UI
     /// thread ([`background`]). Without it they run at once.
     pub write_shared: Option<background::SharedWriteFn>,

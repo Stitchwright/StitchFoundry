@@ -6639,3 +6639,9 @@ machine	Stop	停止
 	A: objects with their stitch settings	A：带针迹设置的对象
 	C: from a machine file, made into objects	C：来自机器文件，已转换为对象
 	D: from a machine file, stitches only	D：来自机器文件，仅有针迹
+	Eject USB Stick	弹出 U 盘
+	Saved for your machine	已为您的机器保存
+	Eject the USB stick before you pull it out, then put it in the machine.	拔出 U 盘前请先弹出，然后插入机器。
+	Safe to remove:	可以安全移除：
+@msg	no machine folder yet	还没有机器文件夹
+@msg	ejecting isn't available here	此处无法弹出

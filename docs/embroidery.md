@@ -1431,6 +1431,12 @@ millimetres or inches, and which folder or USB stick designs go to. From then on
   USB stick. When nobody has said which fabric the design goes on, it asks first (**Which
   fabric?**, the same choices as Make a Design) and sets the stitches up for it; **not sure**
   saves it as it is and isn't asked again for that design.
+- After it saves in the desktop app, **Saved for your machine** shows where the file went, with
+  **Eject USB Stick** (so the stick can be pulled out without losing the file: macOS's `diskutil
+  eject`, udisks or GIO on Linux, the Explorer's Eject on Windows) and **Show in Folder**. The
+  same is `ui.ejectMachineFolder {folder?}`; a folder that isn't on a removable drive says so.
+- On a Mac, StitchFoundry is the default app for machine files (DST, PES, JEF, EXP, VP3 and the
+  rest) unless another app claims them, so double-clicking one in the Finder opens it here.
 
 Commands: `embroidery.myMachine` (the machine, its format, hoops and folder, one's own hoops
 (`own`), and the list to choose from), `embroidery.myMachine.set {machine: name|null}`, `ui.myMachine`, `ui.saveForMyMachine

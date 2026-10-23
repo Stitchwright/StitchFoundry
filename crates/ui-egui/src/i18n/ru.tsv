@@ -6455,3 +6455,9 @@ machine	Stop	Остановка
 	A: objects with their stitch settings	A: объекты с настройками стежков
 	C: from a machine file, made into objects	C: из машинного файла, преобразован в объекты
 	D: from a machine file, stitches only	D: из машинного файла, только стежки
+	Eject USB Stick	Извлечь флешку
+	Saved for your machine	Сохранено для вашей машины
+	Eject the USB stick before you pull it out, then put it in the machine.	Извлеките флешку перед тем, как вынуть её, затем вставьте её в машину.
+	Safe to remove:	Можно безопасно извлечь:
+@msg	no machine folder yet	папки машины пока нет
+@msg	ejecting isn't available here	извлечение здесь недоступно

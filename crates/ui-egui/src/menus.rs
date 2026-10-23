@@ -856,6 +856,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "{folder?} write the design in My Machine's format to its folder or USB stick (embroidery.send); with no machine chosen the My Machine window opens, with no folder (or the USB stick out) one is picked first → {path, format, bytes, stitches}",
     ),
     (
+        "ui.ejectMachineFolder",
+        "Eject USB Stick",
+        "",
+        "{folder?: a machine folder (default: the last one saved to)} eject the USB stick (removable drive) the folder is on, so it can be pulled out and put in the machine safely (desktop) → {ejected: the drive's name}",
+    ),
+    (
         "ui.calibrateLifeSize",
         "Calibrate Life Size…",
         "",
@@ -2052,6 +2058,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
             Ok(serde_json::json!({ "viewer": app.ui.viewer }))
         }
         "ui.saveForMyMachine" => crate::dialogs::my_machine::save(app, p),
+        "ui.ejectMachineFolder" => crate::dialogs::my_machine::eject(app, p),
         "help.commandPalette" => {
             app.ui.palette_open = !app.ui.palette_open;
             app.ui.palette_query.clear();
@@ -2843,6 +2850,7 @@ pub fn enabled(app: &VectorcraftApp, id: &str) -> bool {
         "type.bold" | "type.italic" => crate::panels::character::text_style(app).is_some(),
         id if crate::panels::paragraph::ALIGN_COMMANDS.iter().any(|c| c.0 == id) => crate::panels::character::text_style(app).is_some(),
         "file.reveal" => app.services.reveal.is_some() && app.session.active().is_some_and(|d| d.path.is_some()),
+        "ui.ejectMachineFolder" => app.services.eject.is_some(),
         "file.cancelExport" | "file.exportInBackground" => app.background.jobs.iter().any(|j| j.progress.is_some() && !j.cancelled()),
         "file.place"
         | "file.export.svg"

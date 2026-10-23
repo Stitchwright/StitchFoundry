@@ -6415,3 +6415,9 @@ machine	Stop	Dừng máy
 	A: objects with their stitch settings	A: đối tượng với cài đặt mũi khâu
 	C: from a machine file, made into objects	C: từ tệp máy, đã chuyển thành đối tượng
 	D: from a machine file, stitches only	D: từ tệp máy, chỉ có mũi khâu
+	Eject USB Stick	Đẩy USB ra
+	Saved for your machine	Đã lưu cho máy của bạn
+	Eject the USB stick before you pull it out, then put it in the machine.	Hãy đẩy USB ra trước khi rút, rồi cắm vào máy.
+	Safe to remove:	Có thể rút an toàn:
+@msg	no machine folder yet	chưa có thư mục máy
+@msg	ejecting isn't available here	không thể đẩy ra ở đây

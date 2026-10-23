@@ -6767,3 +6767,9 @@ machine	Stop	Στάση
 	A: objects with their stitch settings	A: αντικείμενα με τις ρυθμίσεις βελονιάς τους
 	C: from a machine file, made into objects	C: από αρχείο μηχανής, μετατραπέν σε αντικείμενα
 	D: from a machine file, stitches only	D: από αρχείο μηχανής, μόνο βελονιές
+	Eject USB Stick	Εξαγωγή USB
+	Saved for your machine	Αποθηκεύτηκε για τη μηχανή σας
+	Eject the USB stick before you pull it out, then put it in the machine.	Κάντε εξαγωγή του USB πριν το βγάλετε και μετά βάλτε το στη μηχανή.
+	Safe to remove:	Μπορεί να αφαιρεθεί με ασφάλεια:
+@msg	no machine folder yet	δεν υπάρχει ακόμη φάκελος μηχανής
+@msg	ejecting isn't available here	η εξαγωγή δεν είναι διαθέσιμη εδώ

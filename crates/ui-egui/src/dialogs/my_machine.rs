@@ -25,6 +25,10 @@ pub struct MyMachineState {
     pub fabric_then: Value,
     /// The designs (by title) the fabric question was answered "not sure" for this session.
     pub fabric_asked: Vec<String>,
+    /// Saved for the machine: the file and its folder, shown with Eject and Show in Finder until
+    /// closed; and what ejecting said.
+    pub saved: Option<(String, String)>,
+    pub eject_status: Option<String>,
 }
 
 /// A size typed in the units shown (`inches` or millimetres), in millimetres.
@@ -147,8 +151,13 @@ pub fn save(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
         },
     };
     let r = app.session.execute("embroidery.send", &json!({ "folder": folder })).map_err(|e| e.to_string())?;
-    let path = r["path"].as_str().unwrap_or_default();
+    let path = r["path"].as_str().unwrap_or_default().to_string();
     app.status(with_notes(format!("{} {}", tl!("Saved for your machine:"), path), &r));
+    // where it went, with Eject for a USB stick
+    if app.services.eject.is_some() {
+        app.ui.my_machine.saved = Some((path, folder));
+        app.ui.my_machine.eject_status = None;
+    }
     Ok(r)
 }
 
@@ -159,6 +168,67 @@ pub(crate) fn with_notes(msg: String, r: &Value) -> String {
         [] => msg,
         [one] => format!("{msg}. {} {one}", tl!("Note:")),
         [first, rest @ ..] => format!("{msg}. {} {first} (+{})", tl!("Note:"), rest.len()),
+    }
+}
+
+/// `ui.ejectMachineFolder`: eject the USB stick `folder` (else the last machine folder) is on.
+pub fn eject(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
+    let folder = match p.get("folder").and_then(Value::as_str) {
+        Some(f) => f.to_string(),
+        None => app
+            .session
+            .execute("embroidery.send.targets", &json!({}))
+            .ok()
+            .and_then(|t| t["targets"].get(0).and_then(|x| x["folder"].as_str().map(str::to_string)))
+            .ok_or("no machine folder yet")?,
+    };
+    let eject = app.services.eject.as_mut().ok_or("ejecting isn't available here")?;
+    let name = eject(&folder)?;
+    app.status(format!("{} {name}", tl!("Safe to remove:")));
+    Ok(json!({ "ejected": name }))
+}
+
+/// After Save for My Machine: where the file went, Eject the USB stick and Show in Finder.
+fn saved_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    let Some((path, folder)) = app.ui.my_machine.saved.clone() else { return };
+    let mut open = true;
+    let mut close = false;
+    egui::Window::new(tl!("Saved for your machine"))
+        .open(&mut open)
+        .collapsible(false)
+        .resizable(false)
+        .default_pos(ctx.content_rect().center() - egui::vec2(200.0, 80.0))
+        .show(ctx, |ui| {
+            let t = Tokens::get(ui.ctx());
+            ui.set_width(400.0);
+            ui.label(egui::RichText::new(&path).color(t.text_dim));
+            ui.label(tl!("Eject the USB stick before you pull it out, then put it in the machine."));
+            ui.horizontal(|ui| {
+                if crate::widgets::primary_button(ui, tl!("Eject USB Stick")).clicked() {
+                    app.ui.my_machine.eject_status = Some(match eject(app, &json!({ "folder": folder })) {
+                        Ok(r) => format!("{} {}", tl!("Safe to remove:"), r["ejected"].as_str().unwrap_or_default()),
+                        Err(e) => e,
+                    });
+                }
+                if app.services.reveal.is_some() && crate::widgets::secondary_button(ui, tl!("Show in Folder")).clicked() {
+                    // the file shown in Finder / Explorer; a failure goes to the status bar
+                    if let Some(reveal) = app.services.reveal.as_mut()
+                        && let Err(e) = reveal(&path)
+                    {
+                        app.status(e);
+                    }
+                }
+                if crate::widgets::secondary_button(ui, tl!("Done")).clicked() {
+                    close = true;
+                }
+            });
+            if let Some(s) = &app.ui.my_machine.eject_status {
+                ui.label(s.clone());
+            }
+        });
+    if !open || close {
+        app.ui.my_machine.saved = None;
+        app.ui.my_machine.eject_status = None;
     }
 }
 
@@ -220,6 +290,7 @@ fn fabric_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
 /// The window, while open.
 pub(super) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
     fabric_window(app, ctx);
+    saved_window(app, ctx);
     if !app.ui.my_machine.open {
         return;
     }

@@ -6709,3 +6709,9 @@ swatch	Bright Violet	Violet cerah
 	A: objects with their stitch settings	A: objek dengan pengaturan jahitannya
 	C: from a machine file, made into objects	C: dari file mesin, diubah menjadi objek
 	D: from a machine file, stitches only	D: dari file mesin, hanya jahitan
+	Eject USB Stick	Keluarkan USB
+	Saved for your machine	Disimpan untuk mesin Anda
+	Eject the USB stick before you pull it out, then put it in the machine.	Keluarkan USB dengan aman sebelum mencabutnya, lalu pasang di mesin.
+	Safe to remove:	Aman untuk dilepas:
+@msg	no machine folder yet	belum ada folder mesin
+@msg	ejecting isn't available here	pengeluaran tidak tersedia di sini

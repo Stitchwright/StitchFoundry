@@ -6498,3 +6498,9 @@ machine	Stop	停止
 	A: objects with their stitch settings	A: ステッチ設定を持つオブジェクト
 	C: from a machine file, made into objects	C: ミシン用ファイルから、オブジェクトに変換済み
 	D: from a machine file, stitches only	D: ミシン用ファイルから、ステッチのみ
+	Eject USB Stick	USBメモリを取り出す
+	Saved for your machine	ミシン用に保存しました
+	Eject the USB stick before you pull it out, then put it in the machine.	USBメモリを抜く前に取り出してから、ミシンに差し込んでください。
+	Safe to remove:	安全に取り外せます:
+@msg	no machine folder yet	ミシンのフォルダーがまだありません
+@msg	ejecting isn't available here	ここでは取り出しを使用できません
