@@ -70,7 +70,9 @@ fn new_design(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 fn samples(_: &mut Session, _: &Value) -> Result<Value> {
-    Ok(json!({ "samples": SAMPLES.iter().map(|(id, name, hoop, about)| json!({ "id": id, "name": name, "hoop": hoop, "about": about })).collect::<Vec<_>>() }))
+    Ok(
+        json!({ "samples": SAMPLES.iter().map(|(id, name, hoop, about)| json!({ "id": id, "name": name, "hoop": hoop, "about": about })).collect::<Vec<_>>() }),
+    )
 }
 
 fn sample(s: &mut Session, p: &Value) -> Result<Value> {
@@ -106,10 +108,7 @@ fn sample(s: &mut Session, p: &Value) -> Result<Value> {
             s.execute("embroidery.clipart.insert", &json!({ "name": "Moon", "size": 60, "at": at(w / 2.0, h * 0.72) }))?;
         }
         "spiro-flower" => {
-            s.execute(
-                "embroidery.spiro",
-                &json!({ "size": 90, "petals": 9, "shape": 4, "layers": 3, "colors": ["#e63946", "#f4a261", "#2a9d8f"] }),
-            )?;
+            s.execute("embroidery.spiro", &json!({ "size": 90, "petals": 9, "shape": 4, "layers": 3, "colors": ["#e63946", "#f4a261", "#2a9d8f"] }))?;
         }
         "tartan-heart" => {
             s.execute("embroidery.addShape", &json!({ "name": "Heart", "size": 70 }))?;
