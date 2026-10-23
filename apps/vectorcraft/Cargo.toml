@@ -66,7 +66,7 @@ windows = { version = "0.62", features = ["Win32_Graphics_DirectWrite"] }
 [target.'cfg(target_os = "macos")'.dependencies]
 # The macOS menu bar (src/mac_menu.rs): Tauri's menu crate, AppKit menus behind a safe API (no GTK
 # with default features off). Pinned exactly: review the diff before bumping.
-muda = { version = "=0.21.1", default-features = false }
+muda = { version = "=0.21.2", default-features = false }
 objc2 = "0.6"
 objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "block2", "objc2-core-foundation", "NSApplication", "NSButton", "NSColor", "NSColorSampler", "NSColorSpace", "NSControl", "NSMenu", "NSEvent", "NSPasteboard", "NSPopUpButton", "NSResponder", "NSSavePanel", "NSTextField", "NSTextInputContext", "NSView", "NSWindow"] }
 # Files opened from Finder and the Dock (src/open_documents.rs) and pasted bitmaps (src/clipboard.rs); both already come with winit, muda and rfd.
