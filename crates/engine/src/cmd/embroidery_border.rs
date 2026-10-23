@@ -30,7 +30,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Add Border",
         ["Embroidery"],
         None,
-        "{ids?: the stitched shapes, or a group of them such as Auto-Digitize's (else the selection), width?: mm the band reaches out from the design (3; 1–30), color?: \"#rrggbb\" (the band's thread; #ffffff), smooth?: mm (2: notches and gaps narrower than this are bridged, the band's outline rounded; 0–15), edge?: satin|run|none (satin: an edge round the band's outside), edgeWidth?: mm (satin, 1.5; 0.8–6), edgeColor?: \"#rrggbb\" (the design's darkest thread)} a filled band round the design's silhouette, as a sticker's or a patch's border, sewn first under the design (which leaves it out where it covers it), and an edge round it; one undo step → {id, edge?: id, widthMm, heightMm}",
+        "{ids?: the stitched shapes or a group of them such as Auto-Digitize's (else the selection), width?: mm the band reaches out from the design (3; 1–30), color?: \"#rrggbb\" (the band's thread; #ffffff), smooth?: mm (2: notches and gaps narrower than this are bridged, the band's outline rounded; 0–15), edge?: satin|run|none (satin: an edge round the band's outside), edgeWidth?: mm (satin, 1.5; 0.8–6), edgeColor?: \"#rrggbb\" (the design's darkest thread)} a filled band round the design's silhouette, as a sticker's or a patch's border, sewn first under the design (which leaves it out where it covers it), and an edge round it; one undo step → {id, edge?: id, widthMm, heightMm}",
         has_doc,
         add_border
     )]
