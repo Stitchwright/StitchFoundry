@@ -11,7 +11,7 @@ judged only from their public pages (never by running their software). The ranke
 | Launch item | State | What's missing |
 |---|---|---|
 | Lettering and monograms | Mostly done | TrueType/OpenType fonts sew as satin; monograms, words on arcs and circles, per-letter editing and kerning. Built-in embroidery fonts (FONT-01) done 2026-10-22: the Foundry fonts are bundled from Stitchwright/stitchfoundry-fonts. |
-| File formats | Mostly done | Reads and writes PES, DST, JEF, EXP, VP3, XXX, PEC, U01, PCS, TAP, DSB, HUS and SEW (HUS and SEW experimental, MF-04); reads DSZ and VIP. Missing: ART (Bernina's own; no published layout, and only Bernina's software writes it). |
+| File formats | Mostly done | Reads and writes PES, DST, JEF, EXP, VP3, XXX, PEC, U01, PCS, TAP, DSB, HUS and SEW (HUS and SEW experimental, MF-04); reads DSZ and VIP. Every writer checked against an independent reader and its header fields (FR-01, [`format-verification.md`](format-verification.md)); warnings before saving for a machine. Left: sew-outs on real machines. Missing: ART (Bernina's own; no published layout, and only Bernina's software writes it). |
 | Stitch simulator | Done | 3D thread view, playback with speed, fabric colour, garment previews. |
 | Thread charts | Partial | Generic, Brother, Janome; nearest-colour matching; CSV import. Missing: **Isacord, Madeira, Robison-Anton, Sulky** (waiting on the makers' permission). |
 | Hoops | Done | About 60 hoops by maker, chosen by My Machine. |

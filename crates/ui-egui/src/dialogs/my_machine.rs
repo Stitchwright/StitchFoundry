@@ -148,8 +148,18 @@ pub fn save(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     };
     let r = app.session.execute("embroidery.send", &json!({ "folder": folder })).map_err(|e| e.to_string())?;
     let path = r["path"].as_str().unwrap_or_default();
-    app.status(format!("{} {}", tl!("Saved for your machine:"), path));
+    app.status(with_notes(format!("{} {}", tl!("Saved for your machine:"), path), &r));
     Ok(r)
+}
+
+/// `msg`, then what the machine may refuse or show otherwise (the file's warnings), if anything.
+pub(crate) fn with_notes(msg: String, r: &Value) -> String {
+    let notes: Vec<&str> = r["warnings"].as_array().map(|w| w.iter().filter_map(Value::as_str).collect()).unwrap_or_default();
+    match notes.as_slice() {
+        [] => msg,
+        [one] => format!("{msg}. {} {one}", tl!("Note:")),
+        [first, rest @ ..] => format!("{msg}. {} {first} (+{})", tl!("Note:"), rest.len()),
+    }
 }
 
 /// Web: the design's machine file in My Machine's format, downloaded.
@@ -161,7 +171,7 @@ fn download(app: &mut VectorcraftApp) -> Result<Value, String> {
     let bytes = r["dataBase64"].as_str().and_then(vectorcraft_format::base64_decode).ok_or("the machine file didn't encode")?;
     let name = format!("{stem}.{}", r["format"].as_str().unwrap_or("dst"));
     crate::io::write_to(&mut app.services, &name, &bytes)?;
-    app.status(format!("{} {name}", tl!("Downloaded for your machine:")));
+    app.status(with_notes(format!("{} {name}", tl!("Downloaded for your machine:")), &r));
     Ok(json!({ "downloaded": name, "format": r["format"], "bytes": bytes.len() }))
 }
 

@@ -74,6 +74,15 @@ impl Rgb {
         ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt()
     }
 
+    /// The CIEDE2000 colour difference to `o`: how far apart two colours look, closer to what
+    /// people see than [`delta_e`](Self::delta_e) for saturated blues, purples and dark reds.
+    /// From G. Sharma, W. Wu and E. N. Dalal, "The CIEDE2000 Color-Difference Formula:
+    /// Implementation Notes, Supplementary Test Data, and Mathematical Observations", Color
+    /// Research & Application 30(1), 2005 (<https://hajim.rochester.edu/ece/sites/gsharma/ciede2000/>).
+    pub fn delta_e2000(self, o: Rgb) -> f64 {
+        de2000(self.to_lab(), o.to_lab())
+    }
+
     /// Multiplies each channel by `f` (clamped), for shading.
     pub fn scaled(self, f: f64) -> Rgb {
         let s = |c: u8| (c as f64 * f).round().clamp(0.0, 255.0) as u8;
@@ -291,14 +300,53 @@ impl ThreadChart {
 /// Index of the colour closest (ΔE) to `c`.
 pub fn nearest_index(colors: impl Iterator<Item = Rgb>, c: Rgb) -> Option<usize> {
     let lab = c.to_lab();
-    colors
-        .enumerate()
-        .map(|(i, k)| {
-            let l = k.to_lab();
-            (i, (l[0] - lab[0]).powi(2) + (l[1] - lab[1]).powi(2) + (l[2] - lab[2]).powi(2))
-        })
-        .min_by(|a, b| a.1.total_cmp(&b.1))
-        .map(|(i, _)| i)
+    colors.enumerate().map(|(i, k)| (i, de2000(lab, k.to_lab()))).min_by(|a, b| a.1.total_cmp(&b.1)).map(|(i, _)| i)
+}
+
+/// CIEDE2000 between two CIELAB colours (Sharma, Wu and Dalal 2005, equations 1–22; kL = kC =
+/// kH = 1).
+pub fn de2000(a: [f64; 3], b: [f64; 3]) -> f64 {
+    let ([l1, a1, b1], [l2, a2, b2]) = (a, b);
+    let pow7 = |v: f64| v.powi(7);
+    let c_bar = (a1.hypot(b1) + a2.hypot(b2)) / 2.0;
+    let g = 0.5 * (1.0 - (pow7(c_bar) / (pow7(c_bar) + pow7(25.0))).sqrt());
+    let (a1p, a2p) = ((1.0 + g) * a1, (1.0 + g) * a2);
+    let (c1p, c2p) = (a1p.hypot(b1), a2p.hypot(b2));
+    let hue = |b: f64, a: f64| if b == 0.0 && a == 0.0 { 0.0 } else { b.atan2(a).to_degrees().rem_euclid(360.0) };
+    let (h1p, h2p) = (hue(b1, a1p), hue(b2, a2p));
+    let dlp = l2 - l1;
+    let dcp = c2p - c1p;
+    let dh = if c1p * c2p == 0.0 {
+        0.0
+    } else if (h2p - h1p).abs() <= 180.0 {
+        h2p - h1p
+    } else if h2p - h1p > 180.0 {
+        h2p - h1p - 360.0
+    } else {
+        h2p - h1p + 360.0
+    };
+    let dhp = 2.0 * (c1p * c2p).sqrt() * (dh / 2.0).to_radians().sin();
+    let lbp = (l1 + l2) / 2.0;
+    let cbp = (c1p + c2p) / 2.0;
+    let hbp = if c1p * c2p == 0.0 {
+        h1p + h2p
+    } else if (h1p - h2p).abs() <= 180.0 {
+        (h1p + h2p) / 2.0
+    } else if h1p + h2p < 360.0 {
+        (h1p + h2p + 360.0) / 2.0
+    } else {
+        (h1p + h2p - 360.0) / 2.0
+    };
+    let cos = |d: f64| d.to_radians().cos();
+    let t = 1.0 - 0.17 * cos(hbp - 30.0) + 0.24 * cos(2.0 * hbp) + 0.32 * cos(3.0 * hbp + 6.0) - 0.20 * cos(4.0 * hbp - 63.0);
+    let d_theta = 30.0 * (-((hbp - 275.0) / 25.0).powi(2)).exp();
+    let rc = 2.0 * (pow7(cbp) / (pow7(cbp) + pow7(25.0))).sqrt();
+    let sl = 1.0 + 0.015 * (lbp - 50.0).powi(2) / (20.0 + (lbp - 50.0).powi(2)).sqrt();
+    let sc = 1.0 + 0.045 * cbp;
+    let sh = 1.0 + 0.015 * cbp * t;
+    let rt = -(2.0 * d_theta).to_radians().sin() * rc;
+    let (l, c, h) = (dlp / sl, dcp / sc, dhp / sh);
+    (l * l + c * c + h * h + rt * c * h).max(0.0).sqrt()
 }
 
 fn chart(name: &'static str, entries: &[(u32, &str, &str)]) -> ThreadChart {
@@ -416,6 +464,96 @@ pub fn pec_chart() -> ThreadChart {
             (0xff9900, "Orange", "62"),
             (0xfff08d, "Cream Yellow", "63"),
             (0xffc8c8, "Applique", "64"),
+        ],
+    )
+}
+
+/// The palette of Janome SEW files (older Janome, Elna and Kenmore machines; index 0 is a
+/// placeholder). It is not JEF's: 42 of its 79 colours differ. The table is the one pyembroidery
+/// publishes (MIT License, by Tatarize; see `NOTICE`).
+pub fn sew_chart() -> ThreadChart {
+    chart(
+        "Janome SEW",
+        &[
+            (0x000000, "Placeholder", "0"),
+            (0x000000, "Black", "1"),
+            (0xffffff, "White", "2"),
+            (0xffff17, "Sunflower", "3"),
+            (0xfaa060, "Hazel", "4"),
+            (0x5c7649, "Green Dust", "5"),
+            (0x40c030, "Green", "6"),
+            (0x65c2c8, "Sky", "7"),
+            (0xac80be, "Purple", "8"),
+            (0xf5bccb, "Pink", "9"),
+            (0xff0000, "Red", "10"),
+            (0xc08000, "Brown", "11"),
+            (0x0000f0, "Blue", "12"),
+            (0xe4c35d, "Gold", "13"),
+            (0xa52a2a, "Dark Brown", "14"),
+            (0xd5b0d4, "Pale Violet", "15"),
+            (0xfcf294, "Pale Yellow", "16"),
+            (0xf0d0c0, "Pale Pink", "17"),
+            (0xffc000, "Peach", "18"),
+            (0xc9a480, "Beige", "19"),
+            (0x9b3d4b, "Wine Red", "20"),
+            (0xa0b8cc, "Pale Sky", "21"),
+            (0x7fc21c, "Yellow Green", "22"),
+            (0xb9b9b9, "Silver Grey", "23"),
+            (0xa0a0a0, "Grey", "24"),
+            (0x98d6bd, "Pale Aqua", "25"),
+            (0xb8f0f0, "Baby Blue", "26"),
+            (0x368ba0, "Powder Blue", "27"),
+            (0x4f83ab, "Bright Blue", "28"),
+            (0x386a91, "Slate Blue", "29"),
+            (0x00206b, "Nave Blue", "30"),
+            (0xe5c5ca, "Salmon Pink", "31"),
+            (0xf9676b, "Coral", "32"),
+            (0xe3311f, "Burnt Orange", "33"),
+            (0xe2a188, "Cinnamon", "34"),
+            (0xb59474, "Umber", "35"),
+            (0xe4cf99, "Blonde", "36"),
+            (0xe1cb00, "Sunflower", "37"),
+            (0xe1add4, "Orchid Pink", "38"),
+            (0xc3007e, "Peony Purple", "39"),
+            (0x80004b, "Burgundy", "40"),
+            (0xa060b0, "Royal Purple", "41"),
+            (0xc04020, "Cardinal Red", "42"),
+            (0xcae0c0, "Opal Green", "43"),
+            (0x899856, "Moss Green", "44"),
+            (0x00aa00, "Meadow Green", "45"),
+            (0x218a21, "Dark Green", "46"),
+            (0x5dae94, "Aquamarine", "47"),
+            (0x4cbf8f, "Emerald Green", "48"),
+            (0x007772, "Peacock Green", "49"),
+            (0x707070, "Dark Grey", "50"),
+            (0xf2ffff, "Ivory White", "51"),
+            (0xb15818, "Hazel", "52"),
+            (0xcb8a07, "Toast", "53"),
+            (0xf7927b, "Salmon", "54"),
+            (0x98692d, "Cocoa Brown", "55"),
+            (0xa27148, "Sienna", "56"),
+            (0x7b554a, "Sepia", "57"),
+            (0x4f3946, "Dark Sepia", "58"),
+            (0x523a97, "Violet Blue", "59"),
+            (0x0000a0, "Blue Ink", "60"),
+            (0x0096de, "Solar Blue", "61"),
+            (0xb2dd53, "Green Dust", "62"),
+            (0xfa8fbb, "Crimson", "63"),
+            (0xde649e, "Floral Pink", "64"),
+            (0xb55066, "Wine", "65"),
+            (0x5e5747, "Olive Drab", "66"),
+            (0x4c881f, "Meadow", "67"),
+            (0xe4dc79, "Canary Yellow", "68"),
+            (0xcb8a1a, "Toast", "69"),
+            (0xc6aa42, "Beige", "70"),
+            (0xecb02c, "Honey Dew", "71"),
+            (0xf88040, "Tangerine", "72"),
+            (0xffe505, "Ocean Blue", "73"),
+            (0xfa7a7a, "Sepia", "74"),
+            (0x6be000, "Royal Purple", "75"),
+            (0x386cae, "Yellow Ocher", "76"),
+            (0xd0bab0, "Beige Grey", "77"),
+            (0xe3be81, "Bamboo", "78"),
         ],
     )
 }
@@ -554,6 +692,28 @@ pub fn hus_chart() -> ThreadChart {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn ciede2000_matches_the_published_test_pairs() {
+        // pairs 1, 7, 13, 17, 19, 25 and 34 of Sharma, Wu and Dalal's Table 1
+        for (a, b, want) in [
+            ([50.0, 2.6772, -79.7751], [50.0, 0.0, -82.7485], 2.0425),
+            ([50.0, 0.0, 0.0], [50.0, -1.0, 2.0], 2.3669),
+            ([50.0, 2.5, 0.0], [56.0, -27.0, -3.0], 31.9030),
+            ([50.0, 2.5, 0.0], [73.0, 25.0, -18.0], 27.1492),
+            ([50.0, 2.5, 0.0], [50.0, 3.1736, 0.5854], 1.0000),
+            ([60.2574, -34.0099, 36.2677], [60.4626, -34.1751, 39.4387], 1.2644),
+            ([90.8027, -2.0831, 1.4410], [91.1528, -1.6435, 0.0447], 1.4441),
+        ] {
+            let got = de2000(a, b);
+            assert!((got - want).abs() < 1e-4, "{a:?} {b:?}: {got} not {want}");
+            assert!((de2000(b, a) - want).abs() < 1e-4, "symmetric");
+        }
+        assert_eq!(de2000([40.0, 10.0, -5.0], [40.0, 10.0, -5.0]), 0.0);
+        // the thread that looks nearest: a mid blue is Cornflower, not the darker Ultramarine
+        let blues = [Rgb::new(75, 107, 175), Rgb::new(11, 61, 145)];
+        assert_eq!(nearest_index(blues.into_iter(), Rgb::new(67, 99, 216)), Some(0));
+    }
 
     /// D6: a GIMP palette becomes a thread chart, codes taken from the start or end of a name.
     #[test]

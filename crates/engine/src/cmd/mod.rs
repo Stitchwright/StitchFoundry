@@ -56,6 +56,7 @@ pub mod embroidery_lasso;
 pub mod embroidery_laydown;
 pub mod embroidery_lettering;
 pub mod embroidery_library;
+pub mod embroidery_machine_check;
 pub mod embroidery_machines;
 pub mod embroidery_merge;
 pub mod embroidery_monogram;

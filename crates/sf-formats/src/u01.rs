@@ -3,7 +3,9 @@
 //! A 0x100-byte header (written as zeros; the reader skips it), then 3-byte
 //! records: a control byte, then the y and x move magnitudes (0.1 mm, +y up,
 //! at most 127). Control byte: bit 6 makes y negative, bit 5 makes x negative,
-//! bits 0–4 hold the function and bit 7 is set on every record we write:
+//! bits 0–4 hold the function and bit 7 is set on every record we write. A move of zero has
+//! its sign bit set too, as in Barudan's files (pyembroidery's notes: a stop is `E8`), so
+//! trims, stops and needle changes are `E7`, `E8` and `E9`–`F7`:
 //!
 //! | function | meaning |
 //! |---|---|
@@ -47,11 +49,13 @@ pub(crate) fn plan(pattern: &Pattern, opts: &WriteOptions) -> Result<(Plan, Plan
 }
 
 fn record(func: u8, dx: i64, dy: i64) -> [u8; 3] {
+    // a move of zero carries the sign bit, as in Barudan's own files: a trim, stop or needle
+    // change is `E7`, `E8`, `E9`…, which readers of DSB look for exactly
     let mut ctrl = VALID | func;
-    if dx < 0 {
+    if dx <= 0 {
         ctrl |= X_NEG;
     }
-    if dy < 0 {
+    if dy <= 0 {
         ctrl |= Y_NEG;
     }
     [ctrl, dy.unsigned_abs().min(255) as u8, dx.unsigned_abs().min(255) as u8]
@@ -153,5 +157,7 @@ mod tests {
             assert_eq!(delta(&record(STITCH, dx, dy)), (dx, dy));
         }
         assert_eq!(record(JUMP, 3, -4), [0x80 | 0x40 | 0x01, 4, 3]);
+        // zero moves carry the sign bits, as Barudan's files do: E7 trim, E8 stop, E9 needle 1
+        assert_eq!((record(TRIM, 0, 0), record(STOP, 0, 0), record(NEEDLE_1, 0, 0)), ([0xE7, 0, 0], [0xE8, 0, 0], [0xE9, 0, 0]));
     }
 }

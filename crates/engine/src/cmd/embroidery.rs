@@ -192,7 +192,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Export Machine File",
             ["Embroidery"],
             None,
-            "{format?: dst|exp|jef|pes|pec|vp3|xxx|u01|pcs|tap|dsb (the design's machine, else dst; or an open text export: csv|json (stitch lists: x, y in mm from the centre, y down, command, thread) or gcode (G21 G90; G0 jumps, G1 stitches each followed by a needle cycle; thread changes pause)), name?: design label, center?: bool (true), gcode?: {feed?: mm/min (1200), zStep?: Z advance a stitch (1; 0: none), stitchCommand?: after each stitch (none), colorCommand?: at a thread change or stop (M0), trimCommand?: at a trim (none), flipY?: bool (true: y up)}} the stitch plan as a machine embroidery file → {dataBase64, format, bytes, stitches, colors}",
+            "{format?: dst|exp|jef|pes|pec|vp3|xxx|u01|pcs|tap|dsb (the design's machine, else dst; or an open text export: csv|json (stitch lists: x, y in mm from the centre, y down, command, thread) or gcode (G21 G90; G0 jumps, G1 stitches each followed by a needle cycle; thread changes pause)), name?: design label, center?: bool (true), gcode?: {feed?: mm/min (1200), zStep?: Z advance a stitch (1; 0: none), stitchCommand?: after each stitch (none), colorCommand?: at a thread change or stop (M0), trimCommand?: at a trim (none), flipY?: bool (true: y up)}} the stitch plan as a machine embroidery file → {dataBase64, format, bytes, stitches, colors, warnings: [what the machine may refuse or show otherwise: larger than the hoop or than the format's largest, thread colours a palette format shows as its nearest, colours the format doesn't store, stops written as colour changes]}",
             has_doc,
             export_machine_file
         ),
@@ -237,7 +237,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Send to Machine",
             ["Embroidery"],
             None,
-            "{folder?: the machine's folder (a USB stick, the machine's folder or a network share; default: the last one used), format?: as Export Machine File (the design's machine, else dst), name?: the file's name (the design's), replace?: bool (false: a number is added when the name is taken)} send to machine: the design's machine file written to the folder, which is checked first and remembered → {path, format, bytes, stitches}",
+            "{folder?: the machine's folder (a USB stick, the machine's folder or a network share; default: the last one used), format?: as Export Machine File (the design's machine, else dst), name?: the file's name (the design's), replace?: bool (false: a number is added when the name is taken)} send to machine: the design's machine file written to the folder, which is checked first and remembered → {path, format, bytes, stitches, warnings (as embroidery.export's)}",
             has_doc,
             send_to_machine
         ),
@@ -1019,10 +1019,14 @@ pub(super) fn export_machine_file(s: &mut Session, p: &Value) -> Result<Value> {
         None => plan.pattern(),
     };
     let bytes = sf_formats::write(format, pattern, &opts).map_err(|e| EngineError::Other(format!("{} export failed: {e}", format.name())))?;
+    // what the machine may refuse or show otherwise, sewn in the design's hoop where it is placed
+    let cfg = s.doc()?.doc.embroidery.as_deref().cloned().unwrap_or_default();
+    let warnings = super::embroidery_machine_check::warnings(format, plan.pattern(), cfg.hoop.as_ref(), cfg.settings.hoop_offset);
     Ok(json!({
         "dataBase64": vectorcraft_format::base64_encode(&bytes),
         "format": format.extension(),
         "bytes": bytes.len(),
+        "warnings": warnings,
         "stitches": pattern.stitch_count(),
         "colors": pattern.color_blocks().len(),
     }))
@@ -1195,7 +1199,7 @@ fn send_to_machine(s: &mut Session, p: &Value) -> Result<Value> {
     let path = path.to_string_lossy().to_string();
     super::fileio::write_file(&path, &bytes)?;
     remember_send_dir(s, &folder);
-    Ok(json!({ "path": path, "format": ext, "bytes": bytes.len(), "stitches": out["stitches"] }))
+    Ok(json!({ "path": path, "format": ext, "bytes": bytes.len(), "stitches": out["stitches"], "warnings": out["warnings"] }))
 }
 
 fn send_targets(s: &mut Session, p: &Value) -> Result<Value> {

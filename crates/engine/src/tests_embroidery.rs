@@ -6328,3 +6328,31 @@ fn the_design_grade_goes_by_where_the_design_came_from() {
     s.execute("file.place", &json!({"name": "motif.dst", "dataBase64": dst})).unwrap();
     assert_eq!(grade(&mut s), "A");
 }
+
+/// A machine file comes with what the machine may refuse or show otherwise: larger than the hoop,
+/// colours the format doesn't store, thread colours a palette format shows as its nearest.
+#[test]
+fn machine_files_say_what_the_machine_may_refuse_or_show_otherwise() {
+    const PT: f64 = vectorcraft_embroidery::PT_PER_MM;
+    let mut s = Session::new();
+    s.execute("embroidery.newDesign", &json!({"hoop": "Brother 100 × 100 (4×4)"})).unwrap();
+    rect(&mut s, 10.0 * PT, 10.0 * PT, 40.0 * PT, 40.0 * PT);
+    s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+    s.execute("embroidery.setThread", &json!({"color": "#ed171f"})).unwrap();
+    let notes = |s: &mut Session, f: &str| -> Vec<String> {
+        let r = s.execute("embroidery.export", &json!({"format": f})).unwrap();
+        r["warnings"].as_array().unwrap().iter().map(|w| w.as_str().unwrap().to_string()).collect()
+    };
+    assert!(notes(&mut s, "pes").is_empty(), "fits, one Brother red: nothing to say");
+    // a fuchsia no Brother thread is near, and a second colour DST can't store
+    rect(&mut s, 60.0 * PT, 10.0 * PT, 20.0 * PT, 20.0 * PT);
+    s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+    s.execute("embroidery.setThread", &json!({"color": "#f032e6"})).unwrap();
+    assert!(notes(&mut s, "pes").iter().any(|w| w.contains("#f032e6 as")), "{:?}", notes(&mut s, "pes"));
+    assert!(notes(&mut s, "dst").iter().any(|w| w.contains("stores no thread colours")));
+    assert!(notes(&mut s, "vp3").is_empty(), "VP3 keeps every colour");
+    // too big for the 4×4 hoop
+    rect(&mut s, 0.0, 0.0, 150.0 * PT, 20.0 * PT);
+    s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+    assert!(notes(&mut s, "vp3").iter().any(|w| w.contains("larger than the")), "{:?}", notes(&mut s, "vp3"));
+}

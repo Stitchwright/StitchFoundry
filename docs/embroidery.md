@@ -2103,6 +2103,22 @@ a design; export machine files with **Export Machine File**.
 | Pfaff (older machines) | .vip | RGB | yes | no |
 | Happy | .tap | no (DST records) | yes | yes |
 
+- **Before a file goes to the machine** (File › Export, Save for My Machine, Send), it comes
+  with what the machine may refuse or show differently, in the status bar (`warnings` in
+  `embroidery.export` and `embroidery.send`):
+  - the design is larger than its hoop's sewing field (where it is placed in it), or than the
+    largest hoop the format names (JEF: 200 × 200 mm);
+  - the format stores no thread colours (DST, EXP, TAP, DSB, U01): the machine shows its own, so
+    sew by the colour list;
+  - a palette format (Brother PES and PEC, Janome JEF and SEW, Husqvarna HUS) can only store its
+    machines' own colours: threads further than 12 (CIEDE2000) from all of them are named with
+    the one the machine will show;
+  - stops written as colour changes, where the format has no stop of its own.
+
+  Limits a format can't hold refuse the file instead (PCS: 16 colours; DST: 999 colour changes).
+  Thread colours go to a palette as the one that looks nearest by CIEDE2000 (Sharma, Wu and
+  Dalal, 2005), which picks better than plain Lab distance among saturated blues, purples and
+  dark reds. How each writer is checked: [`format-verification.md`](format-verification.md).
 - Opening or placing a machine file turns each thread into a path of **Manual** stitches (one
   subpath per run between trims), which you can edit, move, scale and recolour.
 - **Embroidery › Convert Stitches to Objects** (`embroidery.stitchesToObjects {ids?}`) then

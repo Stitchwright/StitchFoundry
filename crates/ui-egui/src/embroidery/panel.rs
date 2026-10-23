@@ -651,7 +651,7 @@ pub(crate) fn send_body(app: &mut VectorcraftApp, ui: &mut Ui) {
     ui.horizontal(|ui| {
         if button(ui, tl!("Send")).clicked() {
             app.embroidery.send_status = match app.run("embroidery.send", json!({ "folder": folder })) {
-                Ok(r) => format!("{} {}", tl!("Sent:"), r["path"].as_str().unwrap_or_default()),
+                Ok(r) => crate::dialogs::my_machine::with_notes(format!("{} {}", tl!("Sent:"), r["path"].as_str().unwrap_or_default()), &r),
                 Err(e) => e.to_string(),
             };
             app.embroidery.send_folder = 0;

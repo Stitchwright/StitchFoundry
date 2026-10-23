@@ -2,7 +2,7 @@
 //! small deterministic random generator.
 #![allow(dead_code)]
 
-use sf_core::threads::{hus_chart, jef_chart, pec_chart};
+use sf_core::threads::{hus_chart, jef_chart, pec_chart, sew_chart};
 use sf_core::{Cmd, Pattern, Point, Rgb, Thread};
 use sf_formats::{Format, Timestamp, WriteOptions};
 
@@ -14,8 +14,13 @@ pub fn threads_for(format: Format) -> Vec<Thread> {
             let c = pec_chart();
             [5, 13, 2, 37].iter().map(|&i| c.threads[i].clone()).collect()
         }
-        Format::Jef | Format::Sew => {
+        Format::Jef => {
             let c = jef_chart();
+            [10, 3, 12, 6].iter().map(|&i| c.threads[i].clone()).collect()
+        }
+        // SEW has a palette of its own
+        Format::Sew => {
+            let c = sew_chart();
             [10, 3, 12, 6].iter().map(|&i| c.threads[i].clone()).collect()
         }
         Format::Hus => {

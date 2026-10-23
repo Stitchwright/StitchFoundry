@@ -5,7 +5,7 @@
 //! | offset | type | field |
 //! |---|---|---|
 //! | 0x0000 | u16 | colour (block) count |
-//! | 0x0002 | colours × u16 | Janome palette index of each block ([`jef_chart`], as JEF's) |
+//! | 0x0002 | colours × u16 | palette index of each block ([`sew_chart`]: SEW's own palette, not JEF's) |
 //! | … | | up to 0x1D78: a preview picture in Janome's files; we write zeros |
 //! | 0x1D78 | | stitch data, as JEF's |
 //!
@@ -21,7 +21,7 @@ use crate::bytes::{Cursor, Put};
 use crate::exp::{byte, signed};
 use crate::plan::{Decoder, Plan, PlanCfg, build_plan};
 use crate::{FormatError, WriteOptions};
-use sf_core::threads::jef_chart;
+use sf_core::threads::sew_chart;
 use sf_core::{Cmd, Pattern, Thread};
 
 const MAX_STEP: i64 = 127;
@@ -37,7 +37,7 @@ pub(crate) fn plan(pattern: &Pattern, opts: &WriteOptions) -> Result<(Plan, Plan
 fn plan_with_indices(pattern: &Pattern, opts: &WriteOptions) -> Result<(Plan, PlanCfg, Vec<usize>), FormatError> {
     let cfg = PlanCfg::tenth_mm(true, MAX_STEP, MAX_STEP, opts.center);
     let mut plan = build_plan(pattern, &cfg.with(opts))?;
-    let indices = plan.map_to_chart(&jef_chart());
+    let indices = plan.map_to_chart(&sew_chart());
     Ok((plan, cfg, indices))
 }
 
@@ -75,7 +75,7 @@ pub(crate) fn read(bytes: &[u8]) -> Result<Pattern, FormatError> {
     if bytes.len() < STITCHES {
         return Err(FormatError::Truncated);
     }
-    let chart = jef_chart();
+    let chart = sew_chart();
     let threads: Vec<Thread> = (0..colors)
         .map(|i| {
             let at = 2 + 2 * i;
@@ -125,7 +125,7 @@ pub(crate) fn read(bytes: &[u8]) -> Result<Pattern, FormatError> {
 /// palette, and room for the stitch data. Tried after every format with a signature.
 pub(crate) fn sniff(bytes: &[u8]) -> bool {
     let Some(colors) = bytes.get(0..2).map(|b| usize::from(u16::from_le_bytes([b[0], b[1]]))) else { return false };
-    let palette = jef_chart().threads.len();
+    let palette = sew_chart().threads.len();
     (1..=100).contains(&colors)
         && bytes.len() >= STITCHES + 2
         && (0..colors).all(|i| bytes.get(2 + 2 * i..4 + 2 * i).is_some_and(|b| usize::from(u16::from_le_bytes([b[0], b[1]])) < palette))
