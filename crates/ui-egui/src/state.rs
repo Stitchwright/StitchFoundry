@@ -473,7 +473,8 @@ pub struct UiState {
     /// Embroidery › My Machine….
     #[serde(skip)]
     pub my_machine: crate::dialogs::my_machine::MyMachineState,
-    /// The Save for a Memory Card window.
+    /// Embroidery › Save for a Memory Card….
+    #[serde(skip)]
     pub memory_card: crate::dialogs::memory_card::MemoryCardState,
     /// Recorded actions (Actions panel), persisted with the UI preferences.
     #[serde(default = "crate::panels::actions::default_sets")]
