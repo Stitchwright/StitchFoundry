@@ -35,7 +35,7 @@ visualizer, wreaths and mirror-merge, weld, branching and closest join).
 | Lacework fill | A fill for free-standing lace (open net that holds together on its own) | Done 2026-10-22 (FSL-01): Embroidery › Make Lacework |
 | Star fill, Wave fill | A fill whose rows run out from a point like rays, or in waves | Star is close to our radial fill; Wave done 2026-10-22 (CS-08): Embroidery › Wave Fill |
 | Morphing | Warp a design (bulge, wave, envelope) | VectorCraft's envelope distort covers shapes; check that it carries through to stitches |
-| Eyelets | Round holes cut and satin-finished | Yes: CutWork has the cut; an eyelet object is small |
+| Eyelets | Round holes cut and satin-finished | Done 2026-10-22 (EY-01): Embroidery › Make Eyelets |
 | Convert Embroidery to Artwork | Stitches back to vectors or a picture | Partly there (Convert Stitches to Objects); a picture export exists |
 | Textured Edge | Fill edges made ragged, like fur | Our jagged edges are on satins; extend to fills |
 | PunchWork | Felting with BERNINA's punch-needle attachment | Only for machines with that attachment: low |

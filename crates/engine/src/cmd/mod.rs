@@ -40,6 +40,7 @@ pub mod embroidery_cutwork;
 pub mod embroidery_decor;
 pub mod embroidery_edit;
 pub mod embroidery_endless;
+pub mod embroidery_eyelet;
 pub mod embroidery_family;
 pub mod embroidery_flow;
 pub mod embroidery_fontdoc;
@@ -359,6 +360,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(embroidery_family::specs());
         v.extend(embroidery_stumpwork::specs());
         v.extend(embroidery_lace::specs());
+        v.extend(embroidery_eyelet::specs());
         v.extend(xform::specs());
         v.extend(effectcmd::specs());
         v.extend(pathops::specs());

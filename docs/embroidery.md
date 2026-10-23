@@ -640,6 +640,17 @@ its edge, rinse the stabilizer away, let it dry, bend the wire to shape, and pus
 the fabric where the piece goes. One undo takes a piece back to its shape. Behaviour from
 BERNINA's public help on its stumpwork tools.
 
+## Eyelets
+
+**Embroidery › Make Eyelets** (`embroidery.eyelet {ids?, diameter?, width?, color?}`) makes holes
+bound with satin, for lacing, ribbon or broderie anglaise. With nothing selected it makes a round
+one in the middle of the design, its hole `diameter` mm across (4); selected closed shapes become
+eyelets of their own shape. Each sews in two steps, each its own thread so the machine stops
+between them: the hole's edge stitched round twice to hold the fabric, then (after you take the
+hoop off and cut the hole open inside that stitching) a satin binding `width` mm wide (1.5) over the
+cut edge. On the round eyelet the satin lies just outside the hole, overlapping the cut edge, so
+the hole stays the size asked. One undo takes them back.
+
 ## Lacework (free-standing lace)
 
 **Embroidery › Make Lacework** (`embroidery.lacework {ids?, pattern?, spacing?, edge?, color?}`)
