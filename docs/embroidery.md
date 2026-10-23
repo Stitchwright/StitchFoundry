@@ -1483,6 +1483,28 @@ when it isn't there (the stick taken out, the share unreachable) the send stops 
 `embroidery.send.targets` lists the folders and whether each is there now. Machines that only take
 designs over their maker's own wireless link are not reached directly; send to a folder they read.
 
+### Memory cards
+
+Older machines read designs from a memory card, written by a card writer box (the Magic, Amazing or
+Ultimate Box) and the box's own software. **Embroidery › Save for a Memory Card…**
+(`ui.saveForMemoryCard`; `embroidery.memoryCards`, `embroidery.memoryCard.save {card, path?}`) asks
+which card the machine takes and saves the design in the format its machines read, ready for the
+box's software to put on the card:
+
+| Card | Machines | Saved as | Holds |
+|---|---|---|---|
+| Brother 512 KB blank card (Magic, Amazing) | Brother, Baby Lock, Bernina Deco, Simplicity, White, Viking/Husqvarna (Brother-made) | PES | up to 230,000 stitches |
+| Ultimate Card | the same | PES | over 450,000 stitches |
+| Pfaff card (two-slot box) | Pfaff | PCS | not published |
+
+A design with more stitches than the card holds isn't saved, and the window says how much of the
+card it takes, with the warnings Export Machine File gives (a design larger than the hoop, thread
+colours the format shows as their nearest). What the cards take is from the public Embird pages on
+the Ultimate Box (<https://www.embird.net/sw/embird/tutorial/wubox/wubox.htm>,
+<https://embird.net/manual/0575ultimatebox.htm>). StitchFoundry doesn't write to the box itself: how
+it talks to a computer isn't published. Bernina Artista cards, which the two-slot box also writes,
+take a format StitchFoundry doesn't write yet.
+
 ## Lettering
 
 **Embroidery › Add Words…** (in every way of working) asks what to say and how tall, and adds the
@@ -2476,6 +2498,7 @@ tool list for all parameters):
 | `embroidery.addLaydown {ids?, margin?, spacing?, angle?}` | an open fill sewn first under the selected shapes and type (pile fabrics) |
 | `embroidery.makeBlend {colors, ids?, spacing?, separate?}` | a tatami fill as stacked layers blending 2 to 6 thread colours across its rows, in the one object (or one object per layer) |
 | `embroidery.addOutline {ids?, shape?, offset?, stitch?, width?, motif?}` | a stitched outline or border round the selected shapes, lines and type |
+| `embroidery.memoryCards`, `embroidery.memoryCard.save {card, path?}` | the memory cards a card writer box writes, and the design saved in the format a card's machines read, checked against what it holds |
 | `embroidery.addBorder {ids?, width?, color?, smooth?, edge?, edgeWidth?, edgeColor?}` | a sticker- or patch-like band of fill round a design's outline, sewn first, with a satin or run edge |
 | `embroidery.placeRing {stitch?, diameter?, width?, at?}` | a satin, filled or bean ring |
 | `embroidery.draw {brush, points \| stamp, …}` | a brush stroke, as the widget draws it |

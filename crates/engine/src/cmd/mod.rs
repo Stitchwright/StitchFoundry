@@ -27,6 +27,7 @@ pub mod embroidery_art;
 pub mod embroidery_background;
 pub mod embroidery_blend;
 pub mod embroidery_border;
+pub mod embroidery_card;
 pub mod embroidery_buttonholes;
 pub mod embroidery_charts;
 pub mod embroidery_chenille;
@@ -364,6 +365,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(embroidery_stumpwork::specs());
         v.extend(embroidery_lace::specs());
         v.extend(embroidery_border::specs());
+        v.extend(embroidery_card::specs());
         v.extend(embroidery_eyelet::specs());
         v.extend(embroidery_region::specs());
         v.extend(xform::specs());

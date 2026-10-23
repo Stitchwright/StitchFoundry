@@ -6449,3 +6449,11 @@ machine	Stop	停止
 	A fill whose rows follow a wave, blending two greens	行隨波浪走的填充，兩種綠色漸層
 	An in-the-hoop project, made start to finish in the hoop	在繡框中從頭到尾完成的專案
 	A 5-inch quilt block, a heart in the middle, stippled round it	5 吋拼布塊，中間一顆心，周圍隨意壓縫
+# Memory cards
+	Save for a Memory Card…	儲存到記憶卡…
+	Save for a Memory Card	儲存到記憶卡
+	Which card does your machine take?	您的繡花機使用哪種卡？
+	For {machines}	適用於 {machines}
+	holds up to {n} stitches	最多可存 {n} 針
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry 只儲存檔案；請用寫卡器內附的軟體（Magic、Amazing 或 Ultimate Box 的）寫到卡上。
+	{share}% of the card	卡的 {share}%

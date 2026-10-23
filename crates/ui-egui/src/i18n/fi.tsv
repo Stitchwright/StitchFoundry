@@ -6862,3 +6862,11 @@ swatch	Bright Violet	Kirkas violetti
 	A fill whose rows follow a wave, blending two greens	Täyttö, jonka rivit seuraavat aaltoa, kahden vihreän liukuma
 	An in-the-hoop project, made start to finish in the hoop	Kehyksessä tehtävä projekti, alusta loppuun kehyksessä
 	A 5-inch quilt block, a heart in the middle, stippled round it	5 tuuman tilkkublokki, sydän keskellä ja tikkaus ympärillä
+# Memory cards
+	Save for a Memory Card…	Tallenna muistikortille…
+	Save for a Memory Card	Tallenna muistikortille
+	Which card does your machine take?	Minkä kortin koneesi ottaa?
+	For {machines}	Koneille {machines}
+	holds up to {n} stitches	mahtuu jopa {n} pistoa
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry tallentaa tiedoston; kirjoita se kortille kortinkirjoittimen omalla ohjelmalla (Magic, Amazing tai Ultimate Box).
+	{share}% of the card	{share} % kortista

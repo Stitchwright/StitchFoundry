@@ -6677,3 +6677,11 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	A fill whose rows follow a wave, blending two greens	შევსება, რომლის რიგები ტალღას მიჰყვება, ორი მწვანის გადასვლით
 	An in-the-hoop project, made start to finish in the hoop	პროექტი ჩარჩოში, თავიდან ბოლომდე ჩარჩოში გაკეთებული
 	A 5-inch quilt block, a heart in the middle, stippled round it	5-დუიმიანი ქვილთის ბლოკი, შუაში გული, გარშემო სტიპლინგი
+# Memory cards
+	Save for a Memory Card…	შენახვა მეხსიერების ბარათისთვის…
+	Save for a Memory Card	შენახვა მეხსიერების ბარათისთვის
+	Which card does your machine take?	რომელ ბარათს იღებს თქვენი მანქანა?
+	For {machines}	{machines}-ისთვის
+	holds up to {n} stitches	იტევს {n} ნაკერამდე
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry ინახავს ფაილს; ჩაწერეთ ბარათზე ბარათის ჩამწერის საკუთარი პროგრამით (Magic, Amazing ან Ultimate Box).
+	{share}% of the card	ბარათის {share}%

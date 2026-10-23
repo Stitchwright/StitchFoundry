@@ -6489,3 +6489,11 @@ machine	Stop	Arresto
 	A fill whose rows follow a wave, blending two greens	Un riempimento le cui file seguono un’onda, sfumando due verdi
 	An in-the-hoop project, made start to finish in the hoop	Un progetto nel telaio, fatto dall’inizio alla fine nel telaio
 	A 5-inch quilt block, a heart in the middle, stippled round it	Un blocco di quilt da 5 pollici, un cuore al centro e stippling attorno
+# Memory cards
+	Save for a Memory Card…	Salva per una scheda di memoria…
+	Save for a Memory Card	Salva per una scheda di memoria
+	Which card does your machine take?	Quale scheda usa la tua macchina?
+	For {machines}	Per {machines}
+	holds up to {n} stitches	contiene fino a {n} punti
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry salva il file; scrivilo sulla scheda con il software del tuo scrittore di schede (quello di Magic, Amazing o Ultimate Box).
+	{share}% of the card	{share}% della scheda

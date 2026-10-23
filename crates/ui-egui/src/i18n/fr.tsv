@@ -6862,3 +6862,11 @@ theme	Appearance	Apparence
 	A fill whose rows follow a wave, blending two greens	Un remplissage dont les rangs suivent une vague, en dégradé de deux verts
 	An in-the-hoop project, made start to finish in the hoop	Un projet dans le cadre, fait du début à la fin dans le cadre
 	A 5-inch quilt block, a heart in the middle, stippled round it	Un bloc de courtepointe de 5 pouces, un cœur au milieu, piqué en méandres autour
+# Memory cards
+	Save for a Memory Card…	Enregistrer pour une carte mémoire…
+	Save for a Memory Card	Enregistrer pour une carte mémoire
+	Which card does your machine take?	Quelle carte votre machine prend-elle ?
+	For {machines}	Pour {machines}
+	holds up to {n} stitches	contient jusqu’à {n} points
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry enregistre le fichier ; écrivez-le sur la carte avec le logiciel de votre graveur de cartes (celui de la Magic, Amazing ou Ultimate Box).
+	{share}% of the card	{share} % de la carte

@@ -60,6 +60,7 @@ pub mod live_paint_selection;
 pub mod missing_fonts;
 pub mod missing_links;
 pub(crate) mod modal;
+pub mod memory_card;
 pub mod my_machine;
 pub mod new_color_group;
 mod new_document;
@@ -440,6 +441,7 @@ pub fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
     help::show(app, ctx);
     life_size::show(app, ctx);
     my_machine::show(app, ctx);
+    memory_card::show(app, ctx);
     font_library::show(app, ctx);
     compare::show(app, ctx);
     crate::guide::show(app, ctx);

@@ -116,6 +116,7 @@ fn embroidery_menu() -> Vec<Item> {
         c("Add Words…", "ui.addWords"),
         c("Save for My Machine", "ui.saveForMyMachine"),
         c("My Machine…", "ui.myMachine"),
+        c("Save for a Memory Card…", "ui.saveForMemoryCard"),
         c("Ask About Embroidery…", "ui.askAboutEmbroidery"),
         c("Check My Sew-out…", "ui.checkSewout"),
         c("Foundry Account…", "ui.account"),
@@ -862,6 +863,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "{folder?: a machine folder (default: the last one saved to)} eject the USB stick (removable drive) the folder is on, so it can be pulled out and put in the machine safely (desktop) → {ejected: the drive's name}",
     ),
     (
+    (
+        "ui.saveForMemoryCard",
+        "Save for a Memory Card…",
+        "",
+        "{card?: an id from embroidery.memoryCards, path?} save the design for a memory card written by a card writer box (Magic, Amazing or Ultimate Box): in the format the card's machines read, checked against what the card holds (embroidery.memoryCard.save); without a card the window opens to choose one → {path, format, stitches, share, warnings} or {open}",
+    ),
         "ui.calibrateLifeSize",
         "Calibrate Life Size…",
         "",
@@ -2055,6 +2062,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.makeDesign" => crate::guide::open(app),
         "ui.viewer" => {
             app.ui.viewer = p.get("on").and_then(Value::as_bool).unwrap_or(true);
+        "ui.saveForMemoryCard" => crate::dialogs::memory_card::run(app, p),
             Ok(serde_json::json!({ "viewer": app.ui.viewer }))
         }
         "ui.saveForMyMachine" => crate::dialogs::my_machine::save(app, p),

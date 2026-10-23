@@ -6805,3 +6805,11 @@ machine	Stop	Спиране
 	A fill whose rows follow a wave, blending two greens	Запълване, чиито редове следват вълна, преливащо между два зелени цвята
 	An in-the-hoop project, made start to finish in the hoop	Проект в рамката, направен от начало до край в рамката
 	A 5-inch quilt block, a heart in the middle, stippled round it	Пачуърк блок 5 инча със сърце в средата и стипъл около него
+# Memory cards
+	Save for a Memory Card…	Запазване за карта с памет…
+	Save for a Memory Card	Запазване за карта с памет
+	Which card does your machine take?	Каква карта приема вашата машина?
+	For {machines}	За {machines}
+	holds up to {n} stitches	побира до {n} бода
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry запазва файла; запишете го на картата със собствения софтуер на устройството за запис (на Magic, Amazing или Ultimate Box).
+	{share}% of the card	{share}% от картата

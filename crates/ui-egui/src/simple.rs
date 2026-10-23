@@ -450,6 +450,7 @@ pub fn keeps(id: &str, _p: &Value) -> bool {
         "file.quit",
         "file.place",
         "ui.saveForMyMachine",
+        "ui.saveForMemoryCard",
         "ui.myMachine",
         "edit.undo",
         "edit.redo",

@@ -6528,3 +6528,11 @@ machine	Stop	停止
 	A fill whose rows follow a wave, blending two greens	波に沿った列のフィル、2つの緑のグラデーション
 	An in-the-hoop project, made start to finish in the hoop	刺しゅう枠の中で最初から最後まで仕上げるプロジェクト
 	A 5-inch quilt block, a heart in the middle, stippled round it	5インチのキルトブロック、中央にハート、周りにスティップリング
+# Memory cards
+	Save for a Memory Card…	メモリーカード用に保存…
+	Save for a Memory Card	メモリーカード用に保存
+	Which card does your machine take?	お使いのミシンはどのカードを使いますか？
+	For {machines}	対応：{machines}
+	holds up to {n} stitches	最大 {n} 針
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry はファイルを保存します。カードライター（Magic、Amazing、Ultimate Box）付属のソフトでカードに書き込んでください。
+	{share}% of the card	カードの {share}%

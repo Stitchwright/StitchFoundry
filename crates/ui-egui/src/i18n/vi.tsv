@@ -6445,3 +6445,11 @@ machine	Stop	Dừng máy
 	A fill whose rows follow a wave, blending two greens	Vùng tô có các hàng theo sóng, chuyển giữa hai màu xanh lá
 	An in-the-hoop project, made start to finish in the hoop	Một dự án trong khung, làm từ đầu đến cuối trong khung
 	A 5-inch quilt block, a heart in the middle, stippled round it	Khối chần bông 5 inch, trái tim ở giữa, chần ngẫu nhiên xung quanh
+# Memory cards
+	Save for a Memory Card…	Lưu cho thẻ nhớ…
+	Save for a Memory Card	Lưu cho thẻ nhớ
+	Which card does your machine take?	Máy của bạn dùng thẻ nào?
+	For {machines}	Cho {machines}
+	holds up to {n} stitches	chứa tới {n} mũi
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry lưu tệp; hãy ghi nó vào thẻ bằng phần mềm riêng của bộ ghi thẻ (của Magic, Amazing hoặc Ultimate Box).
+	{share}% of the card	{share}% của thẻ

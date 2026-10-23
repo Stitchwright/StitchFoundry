@@ -6801,3 +6801,11 @@ machine	Stop	Stopp
 	A fill whose rows follow a wave, blending two greens	En fyllning vars rader följer en våg och blandar två gröna
 	An in-the-hoop project, made start to finish in the hoop	Ett in-the-hoop-projekt, gjort från början till slut i bågen
 	A 5-inch quilt block, a heart in the middle, stippled round it	Ett 5-tums quiltblock, ett hjärta i mitten, stipplat runt
+# Memory cards
+	Save for a Memory Card…	Spara för ett minneskort…
+	Save for a Memory Card	Spara för ett minneskort
+	Which card does your machine take?	Vilket kort tar din maskin?
+	For {machines}	För {machines}
+	holds up to {n} stitches	rymmer upp till {n} stygn
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry sparar filen; skriv den till kortet med kortskrivarens eget program (Magic, Amazing eller Ultimate Box).
+	{share}% of the card	{share} % av kortet

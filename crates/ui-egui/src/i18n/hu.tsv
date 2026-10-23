@@ -6822,3 +6822,11 @@ machine	Stop	Megállás
 	A fill whose rows follow a wave, blending two greens	Kitöltés, amelynek sorai hullámot követnek, két zöld átmenetével
 	An in-the-hoop project, made start to finish in the hoop	Keretben készülő projekt, elejétől végéig a keretben
 	A 5-inch quilt block, a heart in the middle, stippled round it	5 hüvelykes foltvarrott blokk, szívvel középen, körben tűzéssel
+# Memory cards
+	Save for a Memory Card…	Mentés memóriakártyára…
+	Save for a Memory Card	Mentés memóriakártyára
+	Which card does your machine take?	Milyen kártyát fogad a gépe?
+	For {machines}	Gépek: {machines}
+	holds up to {n} stitches	legfeljebb {n} öltést tárol
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	A StitchFoundry elmenti a fájlt; a kártyaíró saját programjával írja a kártyára (Magic, Amazing vagy Ultimate Box).
+	{share}% of the card	a kártya {share}%-a

@@ -473,6 +473,8 @@ pub struct UiState {
     /// Embroidery › My Machine….
     #[serde(skip)]
     pub my_machine: crate::dialogs::my_machine::MyMachineState,
+    /// The Save for a Memory Card window.
+    pub memory_card: crate::dialogs::memory_card::MemoryCardState,
     /// Recorded actions (Actions panel), persisted with the UI preferences.
     #[serde(default = "crate::panels::actions::default_sets")]
     pub action_sets: Vec<crate::panels::actions::ActionSet>,
@@ -887,6 +889,7 @@ impl Default for UiState {
             help: Default::default(),
             life_size: Default::default(),
             my_machine: Default::default(),
+            memory_card: Default::default(),
             action_sets: crate::panels::actions::default_sets(),
             recording: None,
             shortcut_overrides: Default::default(),

@@ -6797,3 +6797,11 @@ machine	Stop	Στάση
 	A fill whose rows follow a wave, blending two greens	Γέμισμα με σειρές που ακολουθούν κύμα, με μετάβαση ανάμεσα σε δύο πράσινα
 	An in-the-hoop project, made start to finish in the hoop	Ένα έργο μέσα στο τελάρο, φτιαγμένο από την αρχή ως το τέλος στο τελάρο
 	A 5-inch quilt block, a heart in the middle, stippled round it	Μπλοκ καπιτονέ 5 ιντσών με καρδιά στη μέση και στίπλινγκ γύρω της
+# Memory cards
+	Save for a Memory Card…	Αποθήκευση για κάρτα μνήμης…
+	Save for a Memory Card	Αποθήκευση για κάρτα μνήμης
+	Which card does your machine take?	Ποια κάρτα δέχεται η μηχανή σας;
+	For {machines}	Για {machines}
+	holds up to {n} stitches	χωρά έως {n} βελονιές
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	Το StitchFoundry αποθηκεύει το αρχείο· γράψτε το στην κάρτα με το λογισμικό της συσκευής εγγραφής (του Magic, Amazing ή Ultimate Box).
+	{share}% of the card	{share}% της κάρτας

@@ -6469,3 +6469,11 @@ machine	Stop	Зупинка
 	A fill whose rows follow a wave, blending two greens	Заливка, ряди якої йдуть хвилею, з переходом двох зелених
 	An in-the-hoop project, made start to finish in the hoop	Проєкт у п’яльцях, зроблений від початку до кінця в п’яльцях
 	A 5-inch quilt block, a heart in the middle, stippled round it	Блок квілту 5 дюймів, серце посередині, навколо стібка-меандр
+# Memory cards
+	Save for a Memory Card…	Зберегти для картки пам’яті…
+	Save for a Memory Card	Зберегти для картки пам’яті
+	Which card does your machine take?	Яку картку приймає ваша машина?
+	For {machines}	Для {machines}
+	holds up to {n} stitches	вміщує до {n} стібків
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry зберігає файл; запишіть його на картку програмою вашого пристрою запису (Magic, Amazing або Ultimate Box).
+	{share}% of the card	{share}% картки

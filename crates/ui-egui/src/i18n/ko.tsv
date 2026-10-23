@@ -6441,3 +6441,11 @@ machine	Stop	정지
 	A fill whose rows follow a wave, blending two greens	줄이 물결을 따르고 두 가지 초록이 섞이는 채우기
 	An in-the-hoop project, made start to finish in the hoop	자수틀 안에서 처음부터 끝까지 만드는 프로젝트
 	A 5-inch quilt block, a heart in the middle, stippled round it	5인치 퀼트 블록, 가운데 하트, 주위에 스티플링
+# Memory cards
+	Save for a Memory Card…	메모리 카드용으로 저장…
+	Save for a Memory Card	메모리 카드용으로 저장
+	Which card does your machine take?	재봉틀이 어떤 카드를 쓰나요?
+	For {machines}	대상: {machines}
+	holds up to {n} stitches	최대 {n}땀 저장
+	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry가 파일을 저장합니다. 카드 라이터(Magic, Amazing, Ultimate Box)의 자체 소프트웨어로 카드에 기록하세요.
+	{share}% of the card	카드의 {share}%
