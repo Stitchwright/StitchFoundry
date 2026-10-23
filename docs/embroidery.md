@@ -279,7 +279,10 @@ The outline is an ordinary path afterwards: reshape it or change its stitch type
 mirror) are sewn once per copy, where each copy shows: wreaths, borders and arrays from one
 motif. Selecting the source object shows every copy's stitches. Stitched objects inside an
 envelope (Object › Envelope Distort) are sewn bent through it, like the art; their inclination
-lines and start and stop beads don't bend with them.
+lines and start and stop beads don't bend with them. The same goes for the live effects that
+reshape a path (Effect › Warp, and Distort & Transform: Pucker & Bloat, Roughen, Twist, Zig Zag,
+Tweak, Transform…): the stitches follow the shape as it shows, and taking the effect off sews the
+plain shape again. Effect › Stylize and the other raster effects don't change what is sewn.
 
 **Laydown:** **Embroidery › Add to Design › Add Laydown** puts an open tatami (rows 2.5 mm apart, at 45°, no
 underlay, travel along its outline) under the selected stitched shapes and type, 1.5 mm beyond

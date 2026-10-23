@@ -95,6 +95,8 @@ pub const INTRA_LAYER_ORDER: &[&[&str]] = &[
     &["three-d", "effects"],
     // Embroidery stitches type from its glyph outlines.
     &["text", "embroidery"],
+    // Embroidery sews art with its live geometry effects (Warp, Distort & Transform) applied.
+    &["effects", "embroidery"],
     // Inflate cuts its surface's grid cells to the shape with Pathfinder's booleans.
     &["pathops", "three-d"],
 ];

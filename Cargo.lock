@@ -5448,6 +5448,7 @@ dependencies = [
  "sf-core",
  "vectorcraft-color",
  "vectorcraft-doc",
+ "vectorcraft-effects",
  "vectorcraft-geom",
  "vectorcraft-text",
 ]

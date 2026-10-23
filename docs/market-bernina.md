@@ -34,7 +34,7 @@ visualizer, wreaths and mirror-merge, weld, branching and closest join).
 | Blackwork outline and fill, Candlewicking | Counted-thread styles: geometric blackwork repeats, and French-knot-like candlewick dots along lines | Done 2026-10-22 (ST-03): the blackwork and candlewick motifs, for motif runs and motif fills |
 | Lacework fill | A fill for free-standing lace (open net that holds together on its own) | Done 2026-10-22 (FSL-01): Embroidery › Make Lacework |
 | Star fill, Wave fill | A fill whose rows run out from a point like rays, or in waves | Star is close to our radial fill; Wave done 2026-10-22 (CS-08): Embroidery › Wave Fill |
-| Morphing | Warp a design (bulge, wave, envelope) | VectorCraft's envelope distort covers shapes; check that it carries through to stitches |
+| Morphing | Warp a design (bulge, wave, envelope) | Done 2026-10-23 (MORPH-01): Envelope Distort and the Warp and Distort effects all sew as the art shows |
 | Eyelets | Round holes cut and satin-finished | Done 2026-10-22 (EY-01): Embroidery › Make Eyelets |
 | Convert Embroidery to Artwork | Stitches back to vectors or a picture | Partly there (Convert Stitches to Objects); a picture export exists |
 | Textured Edge | Fill edges made ragged, like fur | Done 2026-10-23 (SP-09): Ragged edge on tatami fills |

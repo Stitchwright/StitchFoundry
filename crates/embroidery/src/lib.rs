@@ -170,6 +170,47 @@ impl LiveCache {
         fresh.insert(n.id, (n.clone(), out.clone()));
         out
     }
+
+    /// A stitched path or compound path with live geometry effects (Effect › Warp, Distort &
+    /// Transform) as it shows: its geometry reshaped by them, the effects taken off. Anything else
+    /// as it is.
+    fn reshaped(&mut self, n: &Arc<Node>, fresh: &mut HashMap<NodeId, (Arc<Node>, Vec<Arc<Node>>)>) -> Arc<Node> {
+        if !matches!(n.kind, NodeKind::Path { .. } | NodeKind::Compound { .. }) || !vectorcraft_effects::has_geometry(&n.appearance.effects) {
+            return n.clone();
+        }
+        let out = match self.0.remove(&n.id) {
+            Some((key, out)) if Arc::ptr_eq(&key, n) => out,
+            _ => vec![Arc::new(with_geometry_effects(n))],
+        };
+        let shown = out.first().cloned().unwrap_or_else(|| n.clone());
+        fresh.insert(n.id, (n.clone(), out));
+        shown
+    }
+}
+
+/// `n` (a path or compound path) with its visible geometry effects applied to its paths, each
+/// taking the object's bounds as its reference box as the art does, and then taken off.
+fn with_geometry_effects(n: &Node) -> Node {
+    let mut c = n.clone();
+    let Some(bounds) = n.geometric_bounds() else { return c };
+    let fx = &n.appearance.effects;
+    match &mut c.kind {
+        NodeKind::Path { path, live, .. } => {
+            *path = vectorcraft_effects::apply_geometry(fx, path, bounds);
+            *live = None;
+        }
+        NodeKind::Compound { children, .. } => {
+            for ch in children.iter_mut() {
+                if let NodeKind::Path { path, live, .. } = &mut Arc::make_mut(ch).kind {
+                    *path = vectorcraft_effects::apply_geometry(fx, path, bounds);
+                    *live = None;
+                }
+            }
+        }
+        _ => {}
+    }
+    c.appearance.effects.retain(|e| !vectorcraft_effects::is_geometry(&e.id));
+    c
 }
 
 /// The stitched nodes in sewing order as [`stitched_nodes`] lists them, with repeats sewn once
@@ -180,7 +221,7 @@ fn sewing_order(doc: &Document, cache: &mut LiveCache) -> Vec<Arc<Node>> {
             return;
         }
         if n.embroidery.is_some() {
-            out.push(n.clone());
+            out.push(cache.reshaped(n, fresh));
             if !matches!(n.kind, NodeKind::Layer { .. } | NodeKind::Group { .. }) || sews_whole(n) {
                 return;
             }

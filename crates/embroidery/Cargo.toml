@@ -12,6 +12,8 @@ vectorcraft-doc = { workspace = true }
 vectorcraft-geom = { workspace = true }
 vectorcraft-color = { workspace = true }
 vectorcraft-text = { workspace = true }
+# Live geometry effects (Warp, Distort & Transform) are sewn as the art shows them.
+vectorcraft-effects = { workspace = true }
 sf-core = { workspace = true }
 kurbo = { workspace = true }
 serde = { workspace = true }

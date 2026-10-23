@@ -6238,3 +6238,64 @@ fn built_in_fonts_are_there_without_loading_and_carry_their_licence() {
     assert!(l["glyphs"].as_u64().unwrap() >= 5, "{l}");
     assert!(s.execute("embroidery.info", &json!({})).unwrap()["stitches"].as_u64().unwrap() > 200);
 }
+
+/// Warps and distortions (Envelope Distort, and the Warp and Distort & Transform effects) carry
+/// through to the stitches: the needle points cover the art as it shows, and keep within it.
+#[test]
+fn warped_and_distorted_art_is_sewn_as_it_looks() {
+    const PT: f64 = vectorcraft_embroidery::PT_PER_MM;
+    let bbox = |pts: &[sf_core::Point]| {
+        pts.iter()
+            .fold([f64::MAX, f64::MAX, f64::MIN, f64::MIN], |b, p| [b[0].min(p.x * PT), b[1].min(p.y * PT), b[2].max(p.x * PT), b[3].max(p.y * PT)])
+    };
+    // the stitches reach each side of the art as it shows, within 1.5 mm, and no further
+    let fits = |b: [f64; 4], art: vectorcraft_geom::Rect| {
+        let t = 1.5 * PT;
+        (b[0] - art.x0).abs() < t && (b[1] - art.y0).abs() < t && (b[2] - art.x1).abs() < t && (b[3] - art.y1).abs() < t
+    };
+    let start = |s: &mut Session| {
+        let a = rect(s, 200.0, 200.0, 160.0, 80.0);
+        s.execute("paint.setStroke", &json!({"none": true})).unwrap();
+        s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+        a
+    };
+    let plain = {
+        let mut s = session();
+        let a = start(&mut s);
+        bbox(&needles(&s, a))
+    };
+    for style in
+        ["arc", "arcLower", "arcUpper", "arch", "bulge", "shellLower", "shellUpper", "flag", "wave", "fish", "rise", "inflate", "squeeze", "twist"]
+    {
+        let mut s = session();
+        let a = start(&mut s);
+        let env =
+            NodeId(s.execute("object.envelope.makeWithWarp", &json!({"ids": [a.0], "style": style, "bend": 50})).unwrap()["id"].as_u64().unwrap());
+        let art = s.doc().unwrap().doc.bounds_of(&[env], false).unwrap();
+        let b = bbox(&needles(&s, a));
+        assert!(fits(b, art) && b != plain, "envelope {style}: stitches {b:?}, art {art:?}");
+    }
+    for (effect, params) in [
+        ("warp.arc", json!({})),
+        ("warp.wave", json!({})),
+        ("warp.twist", json!({})),
+        ("distort.puckerBloat", json!({"amount": 50})),
+        ("distort.roughen", json!({})),
+        ("distort.twist", json!({})),
+        ("distort.zigZag", json!({})),
+        ("distort.transform", json!({"scaleH": 150})),
+    ] {
+        let mut s = session();
+        let a = start(&mut s);
+        s.execute("effect.apply", &json!({"effect": effect, "params": params, "ids": [a.0]})).unwrap();
+        // the art as it shows: its path through its effects
+        let n = s.doc().unwrap().doc.node(a).unwrap().clone();
+        let NodeKind::Path { path, .. } = &n.kind else { panic!() };
+        let shown = vectorcraft_render::effects::apply_geometry(&n.appearance.effects, path, n.geometric_bounds().unwrap()).bounds().unwrap();
+        let b = bbox(&needles(&s, a));
+        assert!(fits(b, shown) && b != plain, "{effect}: stitches {b:?}, art {shown:?}");
+        // taken off again, it sews as before
+        s.execute("effect.remove", &json!({"ids": [a.0], "index": 0})).unwrap();
+        assert_eq!(bbox(&needles(&s, a)), plain, "{effect}");
+    }
+}
