@@ -288,7 +288,7 @@ fn fabric_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
 }
 
 /// The window, while open.
-pub(super) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
+pub(crate) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
     fabric_window(app, ctx);
     saved_window(app, ctx);
     if !app.ui.my_machine.open {

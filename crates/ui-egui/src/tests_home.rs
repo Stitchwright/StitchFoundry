@@ -537,3 +537,54 @@ fn home_scrolls_in_a_short_window() {
     visible_home_texts(&mut app, &ctx, size, 4.1, vec![press(false)]);
     assert_eq!(app.session.documents().len(), 1, "the sample opened");
 }
+
+/// MAC-01: after Save for My Machine, the window says where the file went and ejects the USB
+/// stick it is on; without an eject service (the web) there is no Eject.
+#[test]
+fn saved_for_the_machine_ejects_the_usb_stick() {
+    use std::sync::{Arc, Mutex};
+    let asked: Arc<Mutex<Vec<String>>> = Arc::default();
+    let seen = asked.clone();
+    let eject: crate::EjectFn = Box::new(move |folder: &str| {
+        seen.lock().unwrap().push(folder.to_string());
+        Ok("NO NAME".to_string())
+    });
+    let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), crate::Services { eject: Some(eject), ..Default::default() });
+    app.run("embroidery.myMachine.set", json!({"machine": "Husqvarna Viking Designer Diamond deLuxe"})).unwrap();
+    app.run("embroidery.newDesign", json!({})).unwrap();
+    app.run("shape.rectangle", json!({"x": 100, "y": 100, "width": 120, "height": 80})).unwrap();
+    app.run("embroidery.set", json!({"type": "fill"})).unwrap();
+    let dir = std::env::temp_dir().join(format!("sf-eject-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let folder = dir.to_string_lossy().to_string();
+    let r = app.run("ui.saveForMyMachine", json!({"folder": folder, "fabric": "Jersey knit (T-shirt)"})).unwrap();
+    let (path, at) = app.ui.my_machine.saved.clone().expect("the Saved window");
+    assert_eq!((path.as_str(), at.as_str()), (r["path"].as_str().unwrap(), folder.as_str()));
+    // the window shows the file and Eject
+    let ctx = egui::Context::default();
+    crate::theme::install_fonts(&ctx);
+    let raw = || egui::RawInput { screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1200.0, 900.0))), ..Default::default() };
+    // a window is measured on its first frame and drawn on the next
+    let mut out = ctx.run_ui(raw(), |ui| crate::dialogs::my_machine::show(&mut app, ui.ctx()));
+    out.textures_delta.clear();
+    let mut out = ctx.run_ui(raw(), |ui| crate::dialogs::my_machine::show(&mut app, ui.ctx()));
+    out.textures_delta.clear();
+    let mut texts = vec![];
+    fn walk(s: &egui::Shape, out: &mut Vec<String>) {
+        match s {
+            egui::Shape::Text(t) => out.push(t.galley.text().to_string()),
+            egui::Shape::Vec(v) => v.iter().for_each(|s| walk(s, out)),
+            _ => {}
+        }
+    }
+    out.shapes.iter().for_each(|c| walk(&c.shape, &mut texts));
+    assert!(texts.iter().any(|t| t == "Eject USB Stick") && texts.iter().any(|t| t == &path), "{texts:?}");
+    // Eject: the last machine folder's stick
+    let r = app.run("ui.ejectMachineFolder", json!({})).unwrap();
+    assert_eq!(r["ejected"], "NO NAME");
+    assert_eq!(asked.lock().unwrap().as_slice(), std::slice::from_ref(&folder));
+    std::fs::remove_dir_all(&dir).ok();
+    // no eject service: not offered
+    let mut web = VectorcraftApp::new(vectorcraft_engine::Session::new(), crate::Services::default());
+    assert!(web.run("ui.ejectMachineFolder", json!({"folder": "/Volumes/X"})).is_err());
+}
