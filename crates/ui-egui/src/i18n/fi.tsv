@@ -6828,3 +6828,7 @@ swatch	Bright Violet	Kirkas violetti
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Napsauta viivojen rajaaman alueen sisällä, kuten CAD-piirustuksessa, niin se täytetään; pienet raot viivojen välillä suljetaan.
 	Close gaps up to	Sulje raot enintään
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	siinä ei ole suljettua aluetta: napsauta viivojen rajaaman alueen sisällä (tai salli leveämpi rako)
+	Design grade	Mallin luokka
+	A: objects with their stitch settings	A: objektit pistoasetuksineen
+	C: from a machine file, made into objects	C: konetiedostosta, muutettu objekteiksi
+	D: from a machine file, stitches only	D: konetiedostosta, vain pistot

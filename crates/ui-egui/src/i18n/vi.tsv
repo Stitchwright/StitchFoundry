@@ -6411,3 +6411,7 @@ machine	Stop	Dừng máy
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Nhấp vào bên trong vùng được các đường bao quanh, như trong bản vẽ CAD, để tô nó; các khe hở nhỏ giữa các đường được đóng lại.
 	Close gaps up to	Đóng khe hở đến
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	không có vùng kín ở đó: nhấp vào bên trong các đường bao quanh một vùng (hoặc cho phép khe hở rộng hơn)
+	Design grade	Cấp thiết kế
+	A: objects with their stitch settings	A: đối tượng với cài đặt mũi khâu
+	C: from a machine file, made into objects	C: từ tệp máy, đã chuyển thành đối tượng
+	D: from a machine file, stitches only	D: từ tệp máy, chỉ có mũi khâu

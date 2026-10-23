@@ -40,7 +40,7 @@ visualizer, wreaths and mirror-merge, weld, branching and closest join).
 | Textured Edge | Fill edges made ragged, like fur | Done 2026-10-23 (SP-09): Ragged edge on tatami fills |
 | PunchWork | Felting with BERNINA's punch-needle attachment | Only for machines with that attachment: low |
 | Direct WiFi to the B 790 PRO and B 990, the B 990's camera picture of the hoop | Machine tie-ins | Needs BERNINA's protocol: not public |
-| Design grade (A–D) | How editable an opened file is, on the status bar | Small: a label on opened files |
+| Design grade (A–D) | How editable an opened file is, on the status bar | Done 2026-10-23 (GRADE-01): the Design figures show A, C or D |
 
 ## What StitchFoundry has that BERNINA doesn't
 

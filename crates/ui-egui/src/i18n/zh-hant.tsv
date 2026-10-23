@@ -6415,3 +6415,7 @@ machine	Stop	停止
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	在由線條圍成的區域內按一下（如 CAD 圖面中）即可填滿；線條之間的小縫隙會被閉合。
 	Close gaps up to	閉合縫隙最大
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	那裡沒有閉合區域：請在圍成區域的線條內按一下（或允許更寬的縫隙）
+	Design grade	設計等級
+	A: objects with their stitch settings	A：帶針跡設定的物件
+	C: from a machine file, made into objects	C：來自機器檔案，已轉換為物件
+	D: from a machine file, stitches only	D：來自機器檔案，僅有針跡

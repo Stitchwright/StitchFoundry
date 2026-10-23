@@ -6767,3 +6767,7 @@ machine	Stop	Stopp
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Klicka inuti ett område som linjer omsluter, som i en CAD-ritning, för att fylla det; små glipor mellan linjerna stängs.
 	Close gaps up to	Stäng glipor upp till
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	där finns inget slutet område: klicka inuti linjer som omsluter ett område (eller tillåt en bredare glipa)
+	Design grade	Designklass
+	A: objects with their stitch settings	A: objekt med sina stygninställningar
+	C: from a machine file, made into objects	C: från en maskinfil, omgjord till objekt
+	D: from a machine file, stitches only	D: från en maskinfil, endast stygn

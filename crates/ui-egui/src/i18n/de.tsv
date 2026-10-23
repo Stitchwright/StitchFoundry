@@ -6421,3 +6421,7 @@ effect	Soft	Weich
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Klicken Sie in einen von Linien umschlossenen Bereich, etwa in einer CAD-Zeichnung, um ihn zu füllen; kleine Lücken zwischen den Linien werden geschlossen.
 	Close gaps up to	Lücken schließen bis
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	dort ist kein geschlossener Bereich: Klicken Sie in Linien, die einen Bereich umschließen (oder erlauben Sie eine größere Lücke)
+	Design grade	Designstufe
+	A: objects with their stitch settings	A: Objekte mit ihren Sticheinstellungen
+	C: from a machine file, made into objects	C: aus einer Maschinendatei, in Objekte umgewandelt
+	D: from a machine file, stitches only	D: aus einer Maschinendatei, nur Stiche

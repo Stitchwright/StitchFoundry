@@ -6828,3 +6828,7 @@ theme	Appearance	Apparence
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Cliquez à l’intérieur d’une zone fermée par des lignes, comme dans un dessin de CAO, pour la remplir ; les petits espaces entre les lignes sont fermés.
 	Close gaps up to	Fermer les espaces jusqu’à
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	aucune zone fermée à cet endroit : cliquez à l’intérieur de lignes qui ferment une zone (ou autorisez un espace plus large)
+	Design grade	Niveau du motif
+	A: objects with their stitch settings	A : objets avec leurs réglages de points
+	C: from a machine file, made into objects	C : d’un fichier machine, converti en objets
+	D: from a machine file, stitches only	D : d’un fichier machine, points seulement

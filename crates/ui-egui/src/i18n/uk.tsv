@@ -6435,3 +6435,7 @@ machine	Stop	Зупинка
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Клацніть усередині області, обмеженої лініями, як у кресленні CAD, щоб залити її; невеликі проміжки між лініями закриваються.
 	Close gaps up to	Закривати проміжки до
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	там немає замкненої області: клацніть усередині ліній, що обмежують область (або дозвольте ширший проміжок)
+	Design grade	Клас дизайну
+	A: objects with their stitch settings	A: об’єкти з налаштуваннями стібків
+	C: from a machine file, made into objects	C: з машинного файлу, перетворено на об’єкти
+	D: from a machine file, stitches only	D: з машинного файлу, лише стібки

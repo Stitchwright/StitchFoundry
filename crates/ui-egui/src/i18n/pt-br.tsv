@@ -6669,3 +6669,7 @@ mark-style	Japanese	Japonesas
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Clique dentro de uma área cercada por linhas, como em um desenho CAD, para preenchê-la; pequenas aberturas entre as linhas são fechadas.
 	Close gaps up to	Fechar aberturas de até
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	não há área fechada ali: clique dentro de linhas que cercam uma área (ou permita uma abertura maior)
+	Design grade	Nível do desenho
+	A: objects with their stitch settings	A: objetos com suas configurações de ponto
+	C: from a machine file, made into objects	C: de um arquivo de máquina, convertido em objetos
+	D: from a machine file, stitches only	D: de um arquivo de máquina, só pontos

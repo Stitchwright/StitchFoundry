@@ -6816,3 +6816,7 @@ mark-style	Japanese	Japonské
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Klepněte dovnitř oblasti ohraničené čarami, jako ve výkresu CAD, a vyplní se; malé mezery mezi čarami se uzavřou.
 	Close gaps up to	Uzavřít mezery do
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	tam není žádná uzavřená oblast: klepněte dovnitř čar, které ohraničují oblast (nebo povolte širší mezeru)
+	Design grade	Třída vzoru
+	A: objects with their stitch settings	A: objekty s nastavením stehů
+	C: from a machine file, made into objects	C: ze strojového souboru, převedeno na objekty
+	D: from a machine file, stitches only	D: ze strojového souboru, jen stehy

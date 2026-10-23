@@ -6299,3 +6299,32 @@ fn warped_and_distorted_art_is_sewn_as_it_looks() {
         assert_eq!(bbox(&needles(&s, a)), plain, "{effect}");
     }
 }
+
+/// The design grade: A for a design made here, D for a machine file opened as stitches, C once
+/// its stitches are made into objects; it stays with the design when saved and opened again.
+#[test]
+fn the_design_grade_goes_by_where_the_design_came_from() {
+    let mut s = session();
+    rect(&mut s, 20.0, 20.0, 120.0, 80.0);
+    s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+    let grade = |s: &mut Session| s.execute("embroidery.info", &json!({})).unwrap()["grade"].as_str().unwrap().to_string();
+    assert_eq!(grade(&mut s), "A");
+    let dst = s.execute("embroidery.export", &json!({"format": "dst"})).unwrap()["dataBase64"].as_str().unwrap().to_string();
+    s.execute("document.open", &json!({"name": "design.dst", "dataBase64": dst})).unwrap();
+    assert_eq!(grade(&mut s), "D");
+    assert_eq!(s.execute("embroidery.info", &json!({})).unwrap()["openedFrom"], "dst");
+    s.execute("select.none", &json!({})).unwrap();
+    s.execute("embroidery.stitchesToObjects", &json!({})).unwrap();
+    assert_eq!(grade(&mut s), "C");
+    // saved and opened again: still from a machine file
+    let saved = s.execute("document.export", &json!({"format": "vectorcraft"})).unwrap()["dataBase64"].as_str().unwrap().to_string();
+    s.execute("document.open", &json!({"name": "design.vectorcraft", "dataBase64": saved})).unwrap();
+    assert_eq!(grade(&mut s), "C");
+    // a machine file placed into a design made here leaves it grade A
+    s.execute("file.new", &json!({"width": 600, "height": 600})).unwrap();
+    rect(&mut s, 20.0, 20.0, 60.0, 40.0);
+    s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+    let dst = s.execute("embroidery.export", &json!({"format": "dst"})).unwrap()["dataBase64"].as_str().unwrap().to_string();
+    s.execute("file.place", &json!({"name": "motif.dst", "dataBase64": dst})).unwrap();
+    assert_eq!(grade(&mut s), "A");
+}

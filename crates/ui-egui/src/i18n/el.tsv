@@ -6763,3 +6763,7 @@ machine	Stop	Στάση
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Κάντε κλικ μέσα σε μια περιοχή που κλείνουν γραμμές, όπως σε σχέδιο CAD, για να τη γεμίσετε· τα μικρά κενά ανάμεσα στις γραμμές κλείνουν.
 	Close gaps up to	Κλείσιμο κενών έως
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	δεν υπάρχει κλειστή περιοχή εκεί: κάντε κλικ μέσα σε γραμμές που κλείνουν μια περιοχή (ή επιτρέψτε μεγαλύτερο κενό)
+	Design grade	Βαθμός σχεδίου
+	A: objects with their stitch settings	A: αντικείμενα με τις ρυθμίσεις βελονιάς τους
+	C: from a machine file, made into objects	C: από αρχείο μηχανής, μετατραπέν σε αντικείμενα
+	D: from a machine file, stitches only	D: από αρχείο μηχανής, μόνο βελονιές

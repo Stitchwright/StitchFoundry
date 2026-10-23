@@ -773,6 +773,46 @@ pub struct DocEmbroidery {
     /// The scheme in use: 0 the design's own threads, else `colorways[colorway - 1]`.
     #[serde(skip_serializing_if = "is_zero_index")]
     pub colorway: usize,
+    /// The machine stitch file the design was opened from (its format, `dst`, `pes`…), kept when
+    /// it is saved: what its [`DesignGrade`] goes by. Empty for a design made here.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub opened_from: String,
+}
+
+/// How editable a design is, by where it came from: made here (every object keeps its stitch
+/// settings), or a machine stitch file, with its stitches made into objects or not. The grades
+/// BERNINA's software shows on its status bar
+/// (<https://softwarehelp.bernina.com/en/MainHelp/PART_Basics/assets/Design_files.htm>); grade B,
+/// a design read from another program's outline file, has no counterpart here.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DesignGrade {
+    /// Made in StitchFoundry: objects with their stitch settings.
+    A,
+    /// A machine file, part or all of its stitches made into objects.
+    C,
+    /// A machine file, stitches only.
+    D,
+}
+
+impl DesignGrade {
+    pub fn letter(self) -> &'static str {
+        match self {
+            DesignGrade::A => "A",
+            DesignGrade::C => "C",
+            DesignGrade::D => "D",
+        }
+    }
+
+    /// The grade of a design with `settings` whose stitched objects have `stitches` types.
+    pub fn of<'a>(settings: Option<&DocEmbroidery>, mut stitches: impl Iterator<Item = &'a StitchType>) -> DesignGrade {
+        if settings.is_none_or(|s| s.opened_from.is_empty()) {
+            DesignGrade::A
+        } else if stitches.any(|t| !matches!(t, StitchType::Manual)) {
+            DesignGrade::C
+        } else {
+            DesignGrade::D
+        }
+    }
 }
 
 fn is_zero_index(v: &usize) -> bool {
@@ -1015,6 +1055,7 @@ impl Default for DocEmbroidery {
             cost: None,
             colorways: Vec::new(),
             colorway: 0,
+            opened_from: String::new(),
         }
     }
 }

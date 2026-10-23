@@ -6769,3 +6769,7 @@ mark-style	Japanese	Japonesas
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Haz clic dentro de un área que encierran líneas, como en un dibujo CAD, para rellenarla; se cierran los huecos pequeños entre las líneas.
 	Close gaps up to	Cerrar huecos de hasta
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	ahí no hay ningún área cerrada: haz clic dentro de líneas que encierren un área (o permite un hueco más ancho)
+	Design grade	Grado del diseño
+	A: objects with their stitch settings	A: objetos con sus ajustes de puntada
+	C: from a machine file, made into objects	C: de un archivo de máquina, convertido en objetos
+	D: from a machine file, stitches only	D: de un archivo de máquina, solo puntadas

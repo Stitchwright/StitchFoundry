@@ -2114,6 +2114,14 @@ a design; export machine files with **Export Machine File**.
   place (one undo step), so a design whose source is lost can be resized and sewn again with its
   stitches made afresh. Underlay is recognised as runs or fills of its own; delete those you
   don't want, since the new objects make their own.
+- The Embroidery panel's **Design** figures show the **design grade**, how editable the design
+  is by where it came from (the grades BERNINA's software shows,
+  <https://softwarehelp.bernina.com/en/MainHelp/PART_Basics/assets/Design_files.htm>): **A** for a
+  design made here, every object keeping its stitch settings; **D** for a machine file opened
+  as stitches only; **C** once its stitches are converted to objects. A design keeps its grade
+  when saved and opened again; placing a machine file into a design made here leaves it grade A.
+  BERNINA's grade B (a design read from another program's outline file) has no counterpart, as
+  no such files are read. `embroidery.info` gives it as `grade` and `openedFrom`.
 - HUS is **experimental**. Reading follows the MIT-licensed pyembroidery project's reader,
   which reads real Husqvarna files, decompression included. Writing has no public reference: the
   three streams are stored in blocks that code every byte as itself, which the format's own

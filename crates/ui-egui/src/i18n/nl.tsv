@@ -6747,3 +6747,7 @@ swatch	Bright Violet	Felviolet
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Klik binnen een gebied dat lijnen omsluiten, zoals in een CAD-tekening, om het te vullen; kleine openingen tussen de lijnen worden gesloten.
 	Close gaps up to	Openingen sluiten tot
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	daar is geen gesloten gebied: klik binnen lijnen die een gebied omsluiten (of sta een bredere opening toe)
+	Design grade	Ontwerpklasse
+	A: objects with their stitch settings	A: objecten met hun steekinstellingen
+	C: from a machine file, made into objects	C: uit een machinebestand, omgezet in objecten
+	D: from a machine file, stitches only	D: uit een machinebestand, alleen steken

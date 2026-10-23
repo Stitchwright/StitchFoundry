@@ -6705,3 +6705,7 @@ swatch	Bright Violet	Kraftig violet
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Klik inde i et område, som linjer omslutter, som i en CAD-tegning, for at udfylde det; små huller mellem linjerne lukkes.
 	Close gaps up to	Luk huller op til
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	der er intet lukket område der: klik inde i linjer, der omslutter et område (eller tillad et bredere hul)
+	Design grade	Designklasse
+	A: objects with their stitch settings	A: objekter med deres stingindstillinger
+	C: from a machine file, made into objects	C: fra en maskinfil, gjort til objekter
+	D: from a machine file, stitches only	D: fra en maskinfil, kun sting

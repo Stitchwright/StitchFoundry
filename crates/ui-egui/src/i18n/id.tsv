@@ -6705,3 +6705,7 @@ swatch	Bright Violet	Violet cerah
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Klik di dalam area yang dikelilingi garis, seperti pada gambar CAD, untuk mengisinya; celah kecil di antara garis ditutup.
 	Close gaps up to	Tutup celah hingga
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	tidak ada area tertutup di sana: klik di dalam garis yang mengelilingi area (atau izinkan celah yang lebih lebar)
+	Design grade	Tingkat desain
+	A: objects with their stitch settings	A: objek dengan pengaturan jahitannya
+	C: from a machine file, made into objects	C: dari file mesin, diubah menjadi objek
+	D: from a machine file, stitches only	D: dari file mesin, hanya jahitan

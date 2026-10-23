@@ -3287,6 +3287,13 @@ fn design_section(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
         row(ui, tl!("Trims"), info["trims"].as_u64().unwrap_or(0).to_string());
         row(ui, tl!("Sewing time"), info["time"].as_str().unwrap_or_default().to_string());
         row(ui, tl!("Thread"), format!("{:.1} m", info["threadM"].as_f64().unwrap_or(0.0)));
+        // how editable it is, by where it came from
+        let grade = match info["grade"].as_str() {
+            Some("C") => tl!("C: from a machine file, made into objects"),
+            Some("D") => tl!("D: from a machine file, stitches only"),
+            _ => tl!("A: objects with their stitch settings"),
+        };
+        row(ui, tl!("Design grade"), grade.to_string());
         if let Some(c) = info["costEstimate"]["perPiece"].as_f64() {
             row(ui, tl!("Cost a piece"), format!("{}{c:.2}", info["costEstimate"]["currency"].as_str().unwrap_or_default()));
         }

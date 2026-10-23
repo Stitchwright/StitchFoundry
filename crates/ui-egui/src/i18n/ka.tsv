@@ -6643,3 +6643,7 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	დააწკაპუნეთ ხაზებით შემოსაზღვრული არის შიგნით, როგორც CAD ნახაზში, რომ შეავსოთ; ხაზებს შორის მცირე ღრიჭოები იხურება.
 	Close gaps up to	ღრიჭოების დახურვა
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	იქ დახურული არე არ არის: დააწკაპუნეთ არის შემომსაზღვრელი ხაზების შიგნით (ან დაუშვით უფრო ფართო ღრიჭო)
+	Design grade	დიზაინის კლასი
+	A: objects with their stitch settings	A: ობიექტები თავიანთი ნაკერის პარამეტრებით
+	C: from a machine file, made into objects	C: მანქანის ფაილიდან, ობიექტებად გარდაქმნილი
+	D: from a machine file, stitches only	D: მანქანის ფაილიდან, მხოლოდ ნაკერები

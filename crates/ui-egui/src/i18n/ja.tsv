@@ -6494,3 +6494,7 @@ machine	Stop	停止
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	CAD 図面のように線で囲まれた領域の内側をクリックすると塗りつぶされます。線の間の小さな隙間は閉じられます。
 	Close gaps up to	隙間を閉じる最大幅
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	そこには閉じた領域がありません: 領域を囲む線の内側をクリックしてください (または隙間の幅を広げてください)
+	Design grade	デザインのグレード
+	A: objects with their stitch settings	A: ステッチ設定を持つオブジェクト
+	C: from a machine file, made into objects	C: ミシン用ファイルから、オブジェクトに変換済み
+	D: from a machine file, stitches only	D: ミシン用ファイルから、ステッチのみ

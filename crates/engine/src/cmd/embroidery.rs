@@ -309,7 +309,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Design Information",
             [],
             None,
-            "{} → {objects, stitches, jumps, trims, colorChanges, stops, widthMm, heightMm, threadM, bobbinM, seconds, time, colors: [{color, name, stitches, threadM}], hoop, fits, fabric, fabrics, hoops, charts, machine, machineFormat (what it exports in), machines (as embroidery.machine.list), settings}",
+            "{} → {grade (A: made here, objects with their stitch settings; C: opened from a machine file, its stitches made into objects; D: a machine file, stitches only), openedFrom (that file's format, else empty), objects, stitches, jumps, trims, colorChanges, stops, widthMm, heightMm, threadM, bobbinM, seconds, time, colors: [{color, name, stitches, threadM}], hoop, fits, fabric, fabrics, hoops, charts, machine, machineFormat (what it exports in), machines (as embroidery.machine.list), settings}",
             has_doc,
             info
         ),
@@ -1103,6 +1103,8 @@ pub(crate) fn machine_file_doc(title: &str, bytes: &[u8], ext: &str) -> Result<(
         n.embroidery = Some(Box::new(e));
         doc.insert(layer, usize::MAX, n).map_err(|e| EngineError::Other(e.to_string()))?;
     }
+    // its design grade goes by the file it came from
+    doc.embroidery.get_or_insert_with(Box::default).opened_from = ext.to_ascii_lowercase();
     let mut warnings = Vec::new();
     if stops > 0 {
         warnings.push(format!("the design's {stops} machine stop(s) weren't kept"));
@@ -3323,12 +3325,24 @@ fn info(s: &mut Session, _p: &Value) -> Result<Value> {
         );
         h.fits(&placed)
     });
+    let grade = {
+        let d = &s.doc()?.doc;
+        let mut types = Vec::new();
+        d.walk(|n| {
+            if let Some(e) = n.embroidery.as_deref() {
+                types.push(e.stitch.clone());
+            }
+        });
+        sf_core::attr::DesignGrade::of(d.embroidery.as_deref(), types.iter())
+    };
     let Some(st) = &plan.stats else {
         return Ok(
-            json!({"objects": 0, "stitches": 0, "fabrics": fabrics, "fabricDetails": details, "hoops": hoops, "charts": charts, "machines": machines, "hoop": cfg.hoop.map(|h| h.name), "fabric": cfg.fabric, "machine": cfg.machine, "machineFormat": machine_format, "settings": settings, "notes": cfg.notes}),
+            json!({"objects": 0, "stitches": 0, "fabrics": fabrics, "fabricDetails": details, "hoops": hoops, "charts": charts, "machines": machines, "hoop": cfg.hoop.map(|h| h.name), "fabric": cfg.fabric, "machine": cfg.machine, "machineFormat": machine_format, "settings": settings, "notes": cfg.notes, "grade": grade.letter(), "openedFrom": cfg.opened_from}),
         );
     };
     Ok(json!({
+        "grade": grade.letter(),
+        "openedFrom": cfg.opened_from,
         "objects": plan.design.objects.len(),
         "stitches": st.stitches,
         "jumps": st.jumps,

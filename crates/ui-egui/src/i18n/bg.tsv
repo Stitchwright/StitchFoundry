@@ -6771,3 +6771,7 @@ machine	Stop	Спиране
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	Щракнете вътре в област, оградена от линии, като в CAD чертеж, за да я запълните; малките пролуки между линиите се затварят.
 	Close gaps up to	Затваряне на пролуки до
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	няма затворена област там: щракнете вътре в линии, които ограждат област (или разрешете по-широка пролука)
+	Design grade	Клас на дизайна
+	A: objects with their stitch settings	A: обекти с настройките на бод
+	C: from a machine file, made into objects	C: от машинен файл, превърнат в обекти
+	D: from a machine file, stitches only	D: от машинен файл, само бодове

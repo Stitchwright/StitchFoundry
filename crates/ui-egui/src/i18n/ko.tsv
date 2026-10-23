@@ -6407,3 +6407,7 @@ machine	Stop	정지
 	Click inside an area that lines enclose, as in a CAD drawing, to fill it; small gaps between the lines are closed.	CAD 도면처럼 선으로 둘러싸인 영역 안을 클릭하면 채워집니다. 선 사이의 작은 틈은 닫힙니다.
 	Close gaps up to	틈 닫기 최대
 @msg	no closed area there: click inside lines that enclose an area (or allow a wider gap)	그곳에는 닫힌 영역이 없습니다: 영역을 둘러싼 선 안을 클릭하세요(또는 더 넓은 틈을 허용하세요)
+	Design grade	디자인 등급
+	A: objects with their stitch settings	A: 스티치 설정이 있는 개체
+	C: from a machine file, made into objects	C: 기계 파일에서, 개체로 변환됨
+	D: from a machine file, stitches only	D: 기계 파일에서, 스티치만
