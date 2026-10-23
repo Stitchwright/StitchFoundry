@@ -134,7 +134,7 @@ at once, with the stabiliser to hoop under it. Make your own for the fabrics you
 | Sculpture run | a thick-thin line: groups of triple stitches in turn with groups of single ones | triple and single stitch lengths, how many of each, passes |
 | String stitch | string art (as in Paghadi work): long straight stitches spanning part of the line, overlapping; on curves they draw a curve inside it, round a circle a ring | chord length, spacing, passes |
 | Satin | a column; on a closed shape, satin that turns along it | density, pull compensation (one value, or one per side), auto spacing, short stitches, auto split, preserve long stitches, tatami stitches (a tatami border), jagged edges, underlay (incl. double zigzag) |
-| Tatami fill | rows of staggered stitches at the best angle, or turning along inclination lines | density, stitch length, row offset, angle, randomised needle points, gradient density, spacing profile, colour blends, texture, split lines, trapunto, underlay |
+| Tatami fill | rows of staggered stitches at the best angle, or turning along inclination lines | density, stitch length, row offset, angle, randomised needle points, gradient density, spacing profile, colour blends, texture, split lines, trapunto, ragged edge, underlay |
 | Satin fill | satin rows across the shape | density, pull compensation |
 | Contour / Spiral / Radial / Cross / Meander fill | rows following the outline (all the way in, or only so many rings: an offset fill), a spiral, rays from the centre, cross stitches on a grid (full X, half, upright + or double), or a flowing stipple line that never crosses itself | spacing, stitch length, rings (contour), cross style and cell size (cross), randomness (meander) |
 | Motif fill | rows of motifs across the shape, kept inside it, each row shifted by the row offset | motif, motif size, row spacing, stitch length, row offset, angle |
@@ -310,6 +310,11 @@ stitch always keeps at least a fifth of the column's width; the underlay isn't j
 **Trapunto** (tatami): travel between the parts of the fill keeps to its outline instead of
 running along its rows, crossing the fill only where nothing else reaches (round a hole). Use it
 with an open density (2 mm and more), where travel along the rows would show between them.
+
+**Ragged edge** (tatami, Textured Edge in other programs): each row's ends stop short of the
+outline by a random amount up to the depth set (mm, 0 for a clean edge; at most 20, and never more
+than two fifths of the row from each end), for fur, grass or feathers. The same rows come out each
+time. Turn the edge-run underlay off as well when the outline shouldn't show between the ends.
 
 **Satin details:** *pull compensation* can differ per side (side 1 is the first rail), for a
 column lying on fabric on one side and on other stitching on the other. *Preserve long stitches*

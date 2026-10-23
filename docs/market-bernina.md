@@ -37,7 +37,7 @@ visualizer, wreaths and mirror-merge, weld, branching and closest join).
 | Morphing | Warp a design (bulge, wave, envelope) | VectorCraft's envelope distort covers shapes; check that it carries through to stitches |
 | Eyelets | Round holes cut and satin-finished | Done 2026-10-22 (EY-01): Embroidery › Make Eyelets |
 | Convert Embroidery to Artwork | Stitches back to vectors or a picture | Partly there (Convert Stitches to Objects); a picture export exists |
-| Textured Edge | Fill edges made ragged, like fur | Our jagged edges are on satins; extend to fills |
+| Textured Edge | Fill edges made ragged, like fur | Done 2026-10-23 (SP-09): Ragged edge on tatami fills |
 | PunchWork | Felting with BERNINA's punch-needle attachment | Only for machines with that attachment: low |
 | Direct WiFi to the B 790 PRO and B 990, the B 990's camera picture of the hoop | Machine tie-ins | Needs BERNINA's protocol: not public |
 | Design grade (A–D) | How editable an opened file is, on the status bar | Small: a label on opened files |

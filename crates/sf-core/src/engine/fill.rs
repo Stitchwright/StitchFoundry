@@ -54,6 +54,8 @@ pub(crate) struct ScanConfig {
     pub splits: Vec<Vec<Point>>,
     /// Trapunto: travel keeps to the outline instead of running along the rows.
     pub trapunto: bool,
+    /// A textured edge: the most a row's end stops short of the outline (mm, at random).
+    pub ragged: f64,
     /// Row spacing along a profile across the shape (see `FillParams::profile`), already in
     /// row spacing (halved for satin); empty = `row_spacing`.
     pub profile: Vec<[f64; 2]>,
@@ -74,6 +76,7 @@ impl Default for ScanConfig {
             texture: None,
             splits: Vec::new(),
             trapunto: false,
+            ragged: 0.0,
             profile: Vec::new(),
         }
     }
@@ -829,6 +832,23 @@ fn travel_path(pts: &mut Vec<Point>, g: &Graph, path: &[usize], step: f64) {
 /// with needle points where it crosses `splits`.
 fn row_points(xa: f64, xb: f64, (row, y): (usize, f64), cfg: &ScanConfig, splits: Option<&Splits>, out: &mut Vec<f64>) {
     out.clear();
+    // A textured edge: each end stops short at random (the same for the same row each time),
+    // always leaving the middle fifth of the row.
+    let (xa, xb) = if cfg.ragged > 0.0 {
+        let unit = |salt: u64| {
+            let mut h = (row as u64).wrapping_mul(0x9e37_79b9_7f4a_7c15) ^ salt.wrapping_mul(0xc2b2_ae3d_27d4_eb4f);
+            h ^= h >> 31;
+            h = h.wrapping_mul(0xbf58_476d_1ce4_e5b9);
+            h ^= h >> 29;
+            (h >> 11) as f64 / (1u64 << 53) as f64
+        };
+        let most = (xb - xa).abs() * 0.4;
+        let (da, db) = ((unit(1) * cfg.ragged).min(most), (unit(2) * cfg.ragged).min(most));
+        let dir = if xb >= xa { 1.0 } else { -1.0 };
+        (xa + dir * da, xb - dir * db)
+    } else {
+        (xa, xb)
+    };
     let (lo, hi) = (xa.min(xb), xa.max(xb));
     let len = hi - lo;
     let (step, offset) = if cfg.stitch_length.is_finite() {
@@ -1202,6 +1222,26 @@ mod tests {
                 (y, xs)
             })
             .collect()
+    }
+
+    #[test]
+    fn a_ragged_edge_ends_each_row_short_of_the_outline_at_random() {
+        let poly = Polygon::from_ring(rect(0.0, 0.0, 30.0, 20.0));
+        let ends = |ragged: f64| -> Vec<(f64, f64)> {
+            let cfg = ScanConfig { ragged, ..Default::default() };
+            rows(&scan_fill(&poly, &cfg, None, None)).into_iter().filter(|(_, xs)| xs.len() > 3).map(|(_, xs)| (xs[0], *xs.last().unwrap())).collect()
+        };
+        let spread = |v: &[f64]| v.iter().copied().fold(f64::MIN, f64::max) - v.iter().copied().fold(f64::MAX, f64::min);
+        let clean = ends(0.0);
+        let rough = ends(3.0);
+        assert!(rough.len() > 20 && rough.len() == clean.len(), "{} rows, {} clean", rough.len(), clean.len());
+        let (lefts, rights): (Vec<f64>, Vec<f64>) = rough.iter().copied().unzip();
+        let (cl, cr): (Vec<f64>, Vec<f64>) = clean.iter().copied().unzip();
+        assert!(spread(&cl) < 0.5 && spread(&cr) < 0.5, "a clean edge stays clean");
+        assert!(spread(&lefts) > 1.5 && spread(&rights) > 1.5, "the ends wander: {lefts:?}");
+        // inside the outline, never more than the depth in, and the same each time
+        assert!(lefts.iter().all(|x| (-0.01..3.3).contains(x)) && rights.iter().all(|x| (26.7..30.01).contains(x)), "{rough:?}");
+        assert_eq!(rough, ends(3.0));
     }
 
     #[test]

@@ -209,6 +209,7 @@ fn fill_piece_inner(piece: &Polygon, job: FillJob, out: &mut Out, hint: Option<P
                 texture: if satin { None } else { params.texture },
                 splits: if satin { Vec::new() } else { job.splits.to_vec() },
                 trapunto: params.trapunto,
+                ragged: if satin || !params.ragged.is_finite() { 0.0 } else { params.ragged.clamp(0.0, 20.0) },
                 profile: params.spacing_profile.iter().map(|&[t, s]| [t, s * f]).collect(),
             };
             // rows along flow lines, or straight when they make no frame for the piece

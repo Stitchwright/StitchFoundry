@@ -1722,6 +1722,10 @@ pub struct FillParams {
     /// fill shows no travel stitches across it.
     #[serde(skip_serializing_if = "is_false")]
     pub trapunto: bool,
+    /// A textured edge: each row's ends stop short of the outline by a random amount up to this
+    /// (mm; 0, the default, for a clean edge), so the edge looks ragged like fur or grass.
+    #[serde(skip_serializing_if = "is_no_depth")]
+    pub ragged: f64,
     /// Motif fills: the motif on the rows, and its size (mm, across the row and along it).
     pub motif: Motif,
     pub motif_size: f64,
@@ -1786,6 +1790,10 @@ impl FillParams {
     }
 }
 
+fn is_no_depth(d: &f64) -> bool {
+    *d == 0.0
+}
+
 fn is_zero(n: &u32) -> bool {
     *n == 0
 }
@@ -1808,6 +1816,7 @@ impl Default for FillParams {
             satin_column: None,
             texture: None,
             trapunto: false,
+            ragged: 0.0,
             motif: Motif::Wave,
             motif_size: 4.0,
             custom_motif: None,

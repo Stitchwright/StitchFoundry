@@ -2768,6 +2768,9 @@ fn props_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, e: &Embroid
                 if let Some(v) = check(ui, tl!("Trapunto (travel along the outline)"), f.trapunto) {
                     set(app, target, json!({ "trapunto": v }));
                 }
+                if let Some(v) = num(ui, tl!("Ragged edge"), "frag", f.ragged, " mm", 1) {
+                    set(app, target, json!({ "ragged": v }));
+                }
             }
             if f.kind == FillKind::Satin
                 && let Some(v) = num(ui, tl!("Auto split"), "fsplit", f.split_length, " mm", 1)
