@@ -6645,3 +6645,11 @@ machine	Stop	停止
 	Safe to remove:	可以安全移除：
 @msg	no machine folder yet	还没有机器文件夹
 @msg	ejecting isn't available here	此处无法弹出
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	像贴纸或布贴一样在周围加一圈白边
+	Border round the subject	主体周围的边框
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	围绕设计轮廓的一圈线带，像贴纸或布贴的边，最先绣
+	Border width	边框宽度
+	Satin edge	缎纹包边
+	Add Border	添加边框
+	Put the border round the selected stitched shapes	在所选绣制形状周围加上边框

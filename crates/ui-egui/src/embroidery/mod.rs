@@ -141,6 +141,12 @@ pub struct EmbroideryUi {
     /// Auto-Digitize: thread colours to trace with, and whether the background is dropped.
     pub digitize_colors: u32,
     pub digitize_background: bool,
+    /// Auto-Digitize's border round the result (and Add Border's): on, its width (mm), its colour
+    /// and whether it has a satin edge.
+    pub border_on: bool,
+    pub border_width: f64,
+    pub border_color: [u8; 3],
+    pub border_edge: bool,
     /// The colour preview of the selected image (Auto-Digitize's colours, before digitizing).
     pub colour_preview: Option<ColourPreview>,
     /// Remove Background's sensitivity (0–100, 50 even), its before-and-after preview of the
@@ -337,6 +343,10 @@ impl Default for EmbroideryUi {
             widget: widget::WidgetState::default(),
             digitize_colors: 6,
             digitize_background: true,
+            border_on: false,
+            border_width: 4.0,
+            border_color: [255, 255, 255],
+            border_edge: true,
             colour_preview: None,
             cutout_sensitivity: 50,
             cutout_preview: None,

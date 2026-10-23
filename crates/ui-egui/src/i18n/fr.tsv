@@ -6838,3 +6838,11 @@ theme	Appearance	Apparence
 	Safe to remove:	Peut être retirée en toute sécurité :
 @msg	no machine folder yet	pas encore de dossier de la machine
 @msg	ejecting isn't available here	l’éjection n’est pas disponible ici
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Ajouter une bordure blanche autour, comme un autocollant ou un écusson
+	Border round the subject	Bordure autour du sujet
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Une bande de fil autour du contour du motif, comme la bordure d’un autocollant ou d’un écusson, brodée en premier
+	Border width	Largeur de la bordure
+	Satin edge	Bord en satin
+	Add Border	Ajouter une bordure
+	Put the border round the selected stitched shapes	Mettre la bordure autour des formes brodées sélectionnées

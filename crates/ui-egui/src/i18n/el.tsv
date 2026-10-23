@@ -6773,3 +6773,11 @@ machine	Stop	Στάση
 	Safe to remove:	Μπορεί να αφαιρεθεί με ασφάλεια:
 @msg	no machine folder yet	δεν υπάρχει ακόμη φάκελος μηχανής
 @msg	ejecting isn't available here	η εξαγωγή δεν είναι διαθέσιμη εδώ
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Προσθήκη λευκού περιγράμματος γύρω του, όπως σε αυτοκόλλητο ή σήμα
+	Border round the subject	Περίγραμμα γύρω από το θέμα
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Μια λωρίδα κλωστής γύρω από το περίγραμμα του σχεδίου, όπως το περιθώριο αυτοκόλλητου ή σήματος, κεντημένη πρώτη
+	Border width	Πλάτος περιγράμματος
+	Satin edge	Σατέν άκρη
+	Add Border	Προσθήκη περιγράμματος
+	Put the border round the selected stitched shapes	Τοποθέτηση περιγράμματος γύρω από τα επιλεγμένα κεντημένα σχήματα

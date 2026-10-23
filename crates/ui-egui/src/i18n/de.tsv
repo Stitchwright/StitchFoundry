@@ -6431,3 +6431,11 @@ effect	Soft	Weich
 	Safe to remove:	Kann sicher entfernt werden:
 @msg	no machine folder yet	noch kein Maschinenordner
 @msg	ejecting isn't available here	Auswerfen ist hier nicht verfügbar
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Weißen Rand darum legen, wie bei einem Aufkleber oder Aufnäher
+	Border round the subject	Rand um das Motiv
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Ein Band aus Garn um die Kontur des Designs, wie der Rand eines Aufklebers oder Aufnähers, zuerst gestickt
+	Border width	Randbreite
+	Satin edge	Satinkante
+	Add Border	Rand hinzufügen
+	Put the border round the selected stitched shapes	Den Rand um die ausgewählten bestickten Formen legen

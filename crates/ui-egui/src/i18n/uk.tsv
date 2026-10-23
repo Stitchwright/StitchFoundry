@@ -6445,3 +6445,11 @@ machine	Stop	Зупинка
 	Safe to remove:	Можна безпечно вийняти:
 @msg	no machine folder yet	папки машини ще немає
 @msg	ejecting isn't available here	виймання тут недоступне
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Додати білу облямівку навколо, як у наліпки чи нашивки
+	Border round the subject	Облямівка навколо об’єкта
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Смуга ниток навколо контуру дизайну, як облямівка наліпки чи нашивки, вишивається першою
+	Border width	Ширина облямівки
+	Satin edge	Атласний край
+	Add Border	Додати облямівку
+	Put the border round the selected stitched shapes	Додати облямівку навколо вибраних вишитих фігур

@@ -6504,3 +6504,11 @@ machine	Stop	停止
 	Safe to remove:	安全に取り外せます:
 @msg	no machine folder yet	ミシンのフォルダーがまだありません
 @msg	ejecting isn't available here	ここでは取り出しを使用できません
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	ステッカーやワッペンのように周りに白い縁を付ける
+	Border round the subject	被写体の周りの縁
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	ステッカーやワッペンの縁のように、デザインの輪郭を囲む糸の帯（最初に縫います）
+	Border width	縁の幅
+	Satin edge	サテンの縁取り
+	Add Border	縁を追加
+	Put the border round the selected stitched shapes	選択した刺しゅう図形の周りに縁を付ける

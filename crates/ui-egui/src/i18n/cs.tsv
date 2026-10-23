@@ -6826,3 +6826,11 @@ mark-style	Japanese	Japonské
 	Safe to remove:	Lze bezpečně vyjmout:
 @msg	no machine folder yet	zatím žádná složka stroje
 @msg	ejecting isn't available here	vysunutí tu není k dispozici
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Přidat kolem bílý okraj, jako u samolepky nebo nášivky
+	Border round the subject	Okraj kolem motivu
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Pruh nití kolem obrysu výšivky, jako okraj samolepky nebo nášivky, vyšitý jako první
+	Border width	Šířka okraje
+	Satin edge	Saténový lem
+	Add Border	Přidat okraj
+	Put the border round the selected stitched shapes	Přidat okraj kolem vybraných vyšitých tvarů

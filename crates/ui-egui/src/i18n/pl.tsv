@@ -6664,3 +6664,11 @@ machine	Stop	Zatrzymanie
 	Safe to remove:	Można bezpiecznie usunąć:
 @msg	no machine folder yet	jeszcze nie ma folderu maszyny
 @msg	ejecting isn't available here	wysuwanie nie jest tu dostępne
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Dodaj wokół biały brzeg, jak na naklejce lub naszywce
+	Border round the subject	Brzeg wokół motywu
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Pas nici wokół konturu projektu, jak brzeg naklejki lub naszywki, haftowany jako pierwszy
+	Border width	Szerokość brzegu
+	Satin edge	Satynowa krawędź
+	Add Border	Dodaj brzeg
+	Put the border round the selected stitched shapes	Dodaj brzeg wokół zaznaczonych wyhaftowanych kształtów

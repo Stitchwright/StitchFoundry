@@ -6465,3 +6465,11 @@ machine	Stop	Arresto
 	Safe to remove:	Rimovibile in sicurezza:
 @msg	no machine folder yet	ancora nessuna cartella della macchina
 @msg	ejecting isn't available here	l’espulsione non è disponibile qui
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Aggiungi un bordo bianco attorno, come un adesivo o una toppa
+	Border round the subject	Bordo attorno al soggetto
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Una fascia di filo attorno al contorno del disegno, come il bordo di un adesivo o di una toppa, ricamata per prima
+	Border width	Larghezza del bordo
+	Satin edge	Orlo in satin
+	Add Border	Aggiungi bordo
+	Put the border round the selected stitched shapes	Metti il bordo attorno alle forme ricamate selezionate

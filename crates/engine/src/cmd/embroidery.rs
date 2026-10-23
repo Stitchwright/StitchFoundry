@@ -201,7 +201,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Auto-Digitize Image",
             ["Embroidery"],
             None,
-            "{colors?: 2-32 (6), detail?: 0-100 (60), noise?: px (16), removeBackground?: bool (true), minArea?: mm² (1), size?: mm (longest side), keepImage?: bool (true), details?: mm (1.2: shapes no thicker, fine lines and details, sewn as a run round them on top of the rest, kept however small when they are lines; 0 none), outline?: none|design|shapes (none: a satin outline round the whole design, or round each filled shape), outlineWidth?: mm (1.5), outlineColor?: \"#rrggbb\" (the design's darkest thread), chart?: a thread chart to match the threads to (none)} trace the selected image into flat colour shapes and give each a stitch type: satin for narrow parts, tatami at its best angle for the rest, details as runs, specks and the background dropped, sewn colour by colour, outlined and matched to a chart if asked, small holes and gaps where nothing is sewn closed in the colour round them → {id, objects, satin, fill, run, outlines, removed, holesClosed, gapsFilled, colors, scale}",
+            "{colors?: 2-32 (6), detail?: 0-100 (60), noise?: px (16), removeBackground?: bool (true), minArea?: mm² (1), size?: mm (longest side), keepImage?: bool (true), details?: mm (1.2: shapes no thicker, fine lines and details, sewn as a run round them on top of the rest, kept however small when they are lines; 0 none), outline?: none|design|shapes (none: a satin outline round the whole design, or round each filled shape), outlineWidth?: mm (1.5), outlineColor?: \"#rrggbb\" (the design's darkest thread), border?: mm (0: none; else a filled band this wide round the design, as a sticker's or patch's border, as embroidery.addBorder makes), borderColor?: \"#rrggbb\" (#ffffff), borderEdge?: satin|run|none (satin), chart?: a thread chart to match the threads to (none)} trace the selected image into flat colour shapes and give each a stitch type: satin for narrow parts, tatami at its best angle for the rest, details as runs, specks and the background dropped, sewn colour by colour, outlined and matched to a chart if asked, small holes and gaps where nothing is sewn closed in the colour round them → {id, objects, satin, fill, run, outlines, border (its id), removed, holesClosed, gapsFilled, colors, scale}",
             has_selection,
             auto_digitize
         ),
@@ -1767,6 +1767,12 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
         Some(c) => Some(Rgb::from_hex(c).ok_or_else(|| bad(CMD, "`outlineColor` is \"#rrggbb\""))?),
         None => None,
     };
+    let border = f64_or(p, "border", 0.0);
+    if !(border == 0.0 || (1.0..=30.0).contains(&border)) {
+        return Err(bad(CMD, "`border` is 0 (none) or 1 to 30 mm"));
+    }
+    let border_color = str_param(p, "borderColor").unwrap_or("#ffffff").to_string();
+    let border_edge = str_param(p, "borderEdge").unwrap_or("satin").to_string();
     let chart = match str_param(p, "chart") {
         Some(name) => Some(super::embroidery_charts::find_chart(s, name).ok_or_else(|| bad(CMD, format!("unknown thread chart `{name}`")))?.name),
         None => None,
@@ -1889,8 +1895,9 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
     let mut keep = areas;
     // Abutting shapes don't overlap, so they can be sewn colour by colour (in the order the colours
     // first appear), each colour nearest-first.
-    let colour = |n: &vectorcraft_doc::Node| match n.appearance.fill_paint() {
-        Paint::Solid { color, .. } => rgb_of(&color).to_u32(),
+    // a shape's colour is its fill; a detail's run, which has none, its stroke
+    let colour = |n: &vectorcraft_doc::Node| match (n.appearance.fill_paint(), n.appearance.stroke_paint()) {
+        (Paint::Solid { color, .. }, _) | (_, Paint::Solid { color, .. }) => rgb_of(&color).to_u32(),
         _ => 0,
     };
     let centre = |n: &vectorcraft_doc::Node| n.geometric_bounds().map_or(kurbo::Point::ZERO, |b| b.center());
@@ -1967,8 +1974,16 @@ fn digitize_image(s: &mut Session, p: &Value) -> Result<Value> {
         }
         s.execute("select.set", &json!({ "ids": [gid.0] }))?;
     }
+    // a border round it all, sewn first
+    let border_id = if border > 0.0 {
+        let r = s.execute("embroidery.addBorder", &json!({ "ids": [gid.0], "width": border, "color": border_color, "edge": border_edge }))?;
+        s.execute("select.set", &json!({ "ids": [gid.0] }))?;
+        r["id"].as_u64()
+    } else {
+        None
+    };
     Ok(json!({
-        "id": gid.0, "objects": objects, "satin": satin, "fill": fill, "run": run, "outlines": outlines,
+        "id": gid.0, "objects": objects, "satin": satin, "fill": fill, "run": run, "outlines": outlines, "border": border_id,
         "removed": removed, "holesClosed": holes_closed, "gapsFilled": gaps_filled, "colors": order.len(), "scale": scale,
     }))
 }

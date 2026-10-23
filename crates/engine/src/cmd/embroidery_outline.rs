@@ -33,7 +33,7 @@ pub fn specs() -> Vec<CommandSpec> {
 /// What a stitched object covers (mm): a shape its area; a line (or a border) the band its
 /// stitches cover, satin as wide as it is sewn and runs 1 mm, without the space a closed line
 /// goes round.
-fn covered_mm(n: &Node) -> Vec<Polygon> {
+pub(super) fn covered_mm(n: &Node) -> Vec<Polygon> {
     if !vectorcraft_embroidery::is_line_art(n) {
         return regions_mm(n);
     }

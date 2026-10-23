@@ -6715,3 +6715,11 @@ swatch	Bright Violet	Kraftig violet
 	Safe to remove:	Kan fjernes sikkert:
 @msg	no machine folder yet	ingen maskinmappe endnu
 @msg	ejecting isn't available here	udskubning er ikke tilgængelig her
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Tilføj en hvid kant omkring, som på et klistermærke eller mærke
+	Border round the subject	Kant omkring motivet
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Et bånd af tråd omkring designets omrids, som kanten på et klistermærke eller mærke, syet først
+	Border width	Kantbredde
+	Satin edge	Satinkant
+	Add Border	Tilføj kant
+	Put the border round the selected stitched shapes	Sæt kanten omkring de valgte broderede former

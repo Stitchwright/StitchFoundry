@@ -6777,3 +6777,11 @@ machine	Stop	Stopp
 	Safe to remove:	Kan tas bort säkert:
 @msg	no machine folder yet	ingen maskinmapp ännu
 @msg	ejecting isn't available here	utmatning är inte tillgänglig här
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Lägg till en vit kant runt, som på ett klistermärke eller tygmärke
+	Border round the subject	Kant runt motivet
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Ett band av tråd runt designens kontur, som kanten på ett klistermärke eller tygmärke, broderas först
+	Border width	Kantbredd
+	Satin edge	Satinkant
+	Add Border	Lägg till kant
+	Put the border round the selected stitched shapes	Lägg kanten runt de markerade broderade formerna

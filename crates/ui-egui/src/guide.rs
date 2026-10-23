@@ -52,6 +52,8 @@ pub struct GuideState {
     pub picture: Option<String>,
     /// A photo's subject cut out of its background before it is digitized.
     pub remove_background: bool,
+    /// A border round the picture's stitches (a sticker's or patch's white band and edge).
+    pub picture_border: bool,
     /// The in-the-hoop project chosen (`embroidery.ith.projects`).
     pub project: Option<String>,
     /// The in-the-hoop project's shape, if any.
@@ -92,6 +94,7 @@ impl Default for GuideState {
             sample: None,
             picture: None,
             remove_background: true,
+            picture_border: false,
             project: None,
             ith_shape: None,
             ribbon: false,
@@ -308,12 +311,14 @@ fn details(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
             );
             ui.label(RichText::new(tl!("Photos work too. With Remove Background on, the subject is cut out of its background first; turn it off to stitch the whole photo.")).size(13.0).color(t.text_dim));
             ui.checkbox(&mut app.guide.remove_background, tl!("Remove Background"));
+            ui.checkbox(&mut app.guide.picture_border, tl!("Add a white border round it, like a sticker or patch"));
             if crate::widgets::primary_button(ui, tl!("Choose a Picture…")).clicked() {
                 crate::picks::button(app, |app| {
                     let pick = crate::FilePick { filters: vec![("Pictures", PICTURES)], ..Default::default() };
                     if let Some(path) = crate::picks::open(app, &pick) {
                         app.guide.picture = Some(path.clone());
-                        let q = json!({ "what": "picture", "path": path, "hoop": app.guide.hoop, "removeBackground": app.guide.remove_background });
+                        let border = if app.guide.picture_border { 4.0 } else { 0.0 };
+                        let q = json!({ "what": "picture", "path": path, "hoop": app.guide.hoop, "removeBackground": app.guide.remove_background, "border": border });
                         make_it(app, q);
                     }
                 });

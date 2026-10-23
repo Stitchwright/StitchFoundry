@@ -6356,3 +6356,34 @@ fn machine_files_say_what_the_machine_may_refuse_or_show_otherwise() {
     s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
     assert!(notes(&mut s, "vp3").iter().any(|w| w.contains("larger than the")), "{:?}", notes(&mut s, "vp3"));
 }
+
+/// Auto-Digitize sews the fine lines on top colour by colour (by their stroke: they have no
+/// fill), not one change of thread per line; and a border round the result is sewn first.
+#[test]
+fn auto_digitized_details_are_sewn_colour_by_colour_and_take_a_border() {
+    let mut s = session();
+    // a blue disc, then ten hairlines (0.7 mm) alternately black and dark red below it
+    let r = vectorcraft_trace::Raster::from_fn(300, 260, |x, y| {
+        let (dx, dy) = (x as f64 - 90.0, y as f64 - 80.0);
+        let line = (140..240).contains(&y) && (y - 140) % 10 < 2 && (40..260).contains(&x);
+        if dx * dx + dy * dy <= 60.0 * 60.0 {
+            [20, 40, 200, 255]
+        } else if line && ((y - 140) / 10) % 2 == 0 {
+            [15, 15, 15, 255]
+        } else if line {
+            [120, 10, 20, 255]
+        } else {
+            [255, 255, 255, 255]
+        }
+    });
+    s.execute("file.place", &json!({"name": "lines.png", "dataBase64": vectorcraft_format::base64_encode(&r.encode_png())})).unwrap();
+    let res = s.execute("embroidery.autoDigitize", &json!({"colors": 4, "keepImage": false, "border": 3})).unwrap();
+    assert!(res["run"].as_u64().unwrap() >= 8, "the lines are runs: {res}");
+    assert!(res["border"].as_u64().is_some(), "{res}");
+    s.execute("select.none", &json!({})).unwrap();
+    let info = s.execute("embroidery.info", &json!({})).unwrap();
+    let colours: Vec<&str> = info["colors"].as_array().unwrap().iter().map(|c| c["color"].as_str().unwrap()).collect();
+    // the border and its edge, the disc, then each line colour once: not a change per line
+    assert_eq!(colours.first(), Some(&"#ffffff"), "the border first: {colours:?}");
+    assert!(colours.len() <= 5, "{colours:?}");
+}

@@ -6425,3 +6425,11 @@ machine	Stop	停止
 	Safe to remove:	可以安全移除：
 @msg	no machine folder yet	還沒有機器資料夾
 @msg	ejecting isn't available here	此處無法退出
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	像貼紙或布貼一樣在周圍加一圈白邊
+	Border round the subject	主體周圍的邊框
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	圍繞設計輪廓的一圈線帶，像貼紙或布貼的邊，最先繡
+	Border width	邊框寬度
+	Satin edge	緞紋包邊
+	Add Border	新增邊框
+	Put the border round the selected stitched shapes	在所選繡製形狀周圍加上邊框

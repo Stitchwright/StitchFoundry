@@ -13,7 +13,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Make a Design",
         [],
         None,
-        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6; 8 for a photo), photo?: bool (picture: whether it is a photo, guessed from its colours; a photo's colours are made flat before it is digitized), removeBackground?: bool (picture, a photo: true; its subject cut out of its background first, false: the whole photo stitched), sample?: heart-patch|sun-and-moon|applique-star} a new design made in one step: words or a shape in the middle of the hoop, an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits, photo (picture)}",
+        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6; 8 for a photo), photo?: bool (picture: whether it is a photo, guessed from its colours; a photo's colours are made flat before it is digitized), removeBackground?: bool (picture, a photo: true; its subject cut out of its background first, false: the whole photo stitched), border?: mm (picture: 0, none; else a filled band this wide round it, as embroidery.addBorder makes), sample?: heart-patch|sun-and-moon|applique-star} a new design made in one step: words or a shape in the middle of the hoop, an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits, photo (picture)}",
         always,
         make_design
     )]
@@ -71,6 +71,12 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
                 None | Some(Value::Null) => true,
                 Some(v) => v.as_bool().ok_or_else(|| bad(CMD, "`removeBackground` is true or false"))?,
             };
+            let border = match p.get("border") {
+                None | Some(Value::Null) => 0.0,
+                Some(v) => {
+                    v.as_f64().filter(|b| *b == 0.0 || (1.0..=30.0).contains(b)).ok_or_else(|| bad(CMD, "`border` is 0 (none) or 1 to 30 mm"))?
+                }
+            };
             let made = s.execute("embroidery.newDesign", &hoop())?;
             let (w, h) = (made["width"].as_f64().unwrap_or(100.0), made["height"].as_f64().unwrap_or(100.0));
             s.execute("file.place", &place)?;
@@ -80,8 +86,9 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
                 None => Picture::get(s, &json!({}), CMD).is_ok_and(|pic| looks_like_photo(&pic.raster)),
             };
             photo = Some(is_photo);
-            // four fifths of the hoop's shorter side, so it fits whichever way the picture is
-            let size = (w.min(h) * 0.8).clamp(10.0, 400.0);
+            // four fifths of the hoop's shorter side, so it fits whichever way the picture is, the
+            // border round it included
+            let size = (w.min(h) * 0.8 - 2.0 * border).clamp(10.0, 400.0);
             let r = if is_photo {
                 let colors = colors.unwrap_or(8);
                 if cut_out {
@@ -91,10 +98,10 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
                 s.execute("embroidery.image.prepare", &json!({ "colors": colors, "smooth": 4, "clean": 3, "replace": true }))?;
                 // a photo's many small patches: fewer, larger shapes than for a drawing
                 // without the cut-out the whole photo is sewn, its background too
-                let q = json!({ "colors": colors, "size": size, "keepImage": false, "detail": 35, "noise": 30, "minArea": 4, "removeBackground": cut_out });
+                let q = json!({ "colors": colors, "size": size, "keepImage": false, "detail": 35, "noise": 30, "minArea": 4, "removeBackground": cut_out, "border": border });
                 s.execute("embroidery.autoDigitize", &q)?
             } else {
-                s.execute("embroidery.autoDigitize", &json!({ "colors": colors.unwrap_or(6), "size": size, "keepImage": false }))?
+                s.execute("embroidery.autoDigitize", &json!({ "colors": colors.unwrap_or(6), "size": size, "keepImage": false, "border": border }))?
             };
             vec![r["id"].clone()]
         }

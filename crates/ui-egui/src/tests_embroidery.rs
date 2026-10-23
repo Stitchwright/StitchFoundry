@@ -1480,3 +1480,16 @@ fn the_viewer_shows_the_design_and_its_facts_with_nothing_to_edit() {
     assert_eq!(app.run("ui.viewer", json!({"on": false})).unwrap()["viewer"], false);
     assert!(!app.ui.viewer);
 }
+
+#[test]
+fn auto_digitize_offers_a_border_round_the_subject() {
+    let mut app = app();
+    let texts = painted_text_in(&mut app, crate::embroidery::panel::auto_digitize_rows, 900.0);
+    assert!(texts.iter().any(|t| t == "Border round the subject"), "{texts:?}");
+    assert!(!texts.iter().any(|t| t == "Border width" || t == "Add Border"), "{texts:?}");
+    app.embroidery.border_on = true;
+    let texts = painted_text_in(&mut app, crate::embroidery::panel::auto_digitize_rows, 900.0);
+    for want in ["Border width", "Satin edge", "Add Border"] {
+        assert!(texts.iter().any(|t| t == want), "{want} missing from {texts:?}");
+    }
+}

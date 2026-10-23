@@ -868,9 +868,13 @@ steps, with Back to change an answer:
    is prepared first: with **Remove Background** on (the default) its subject is cut out of the
    background, the way **Remove Background** does it, then its colours are made flat (8 unless
    asked) and it is digitized in fewer, larger shapes than a drawing. Turn **Remove Background**
-   off to stitch the whole photo, its background too (a landscape, a garden). **Make It** builds
+   off to stitch the whole photo, its background too (a landscape, a garden). **Add a white
+   border round it** puts a 4 mm white band with a satin edge round the picture, like a sticker
+   or a patch (see [Borders round a design](#borders-round-a-design)); the picture is made
+   smaller to leave room for it. **Make It** builds
    the design (`embroidery.makeDesign {what, hoop?, text?, height?, shape?, path?, colors?,
-   photo?, removeBackground?, sample?}`; `photo` overrides the guess); a
+   photo?, removeBackground?, border?, sample?}`; `photo` overrides the guess, `border` is the
+   band's width in mm, 0 for none); a
    mistake (no words typed, a picture that can't be read) shows on the step.
 4. **What fabric will you sew it on?** Woven, piqué (polo shirt), jersey (T-shirt), fleece or
    sweatshirt, towel, denim or canvas, leather or vinyl, a structured cap, or silk: the stitches'
@@ -1568,6 +1572,25 @@ Alt (or set its mode to Remove) and paint over background it kept to take it awa
 the cut-out is made again round the stroke, one undo step per stroke
 (`embroidery.image.refineCutout {keep?, remove?, radius?, sensitivity?}`, points in the document);
 the cut-out still holds the whole photo, its background only transparent, so nothing is lost.
+
+### Borders round a design
+
+A cut-out photo sewn on its own can look lost on the fabric; a border round it, like the white
+band round a die-cut sticker or the edge of a patch, holds it together. **Border round the
+subject** (Embroidery panel, above Auto-Digitize Image) adds one when the image is digitized
+(`embroidery.autoDigitize {…, border?, borderColor?, borderEdge?}`), and **Add Border**
+(Embroidery menu, or the button beside it; `embroidery.addBorder {ids?, width?, color?, smooth?,
+edge?, edgeWidth?, edgeColor?}`) puts one round stitched shapes already there: the selection, or
+a digitized photo's group.
+
+The border follows the design's outline grown by **Border width** (`width`, 1 to 30 mm, 3 by
+default), its corners and notches rounded (`smooth`, 0 to 15 mm, 2 by default) so the edge is a
+smooth line rather than every feather's tip. It is a fill in its own colour (`color`, white by
+default) with a hole the design's shape, reaching 0.5 mm under the design so no fabric shows
+between them; it is sewn first, so the design lies on top of it. **Satin edge** (`edge`: `satin`,
+`run` or `none`) sews a satin column round its outside (`edgeWidth` mm wide, 1.5 by default) in
+the design's darkest thread unless `edgeColor` names one. It is one undo step, and gives the
+border's id and its size.
 
 **Image Colours** (`embroidery.image.colors {colors?, chart?}`) lists an image's main colours,
 the most used first, each with how much of the image it covers and the nearest thread in the
@@ -2450,6 +2473,7 @@ tool list for all parameters):
 | `embroidery.addLaydown {ids?, margin?, spacing?, angle?}` | an open fill sewn first under the selected shapes and type (pile fabrics) |
 | `embroidery.makeBlend {colors, ids?, spacing?, separate?}` | a tatami fill as stacked layers blending 2 to 6 thread colours across its rows, in the one object (or one object per layer) |
 | `embroidery.addOutline {ids?, shape?, offset?, stitch?, width?, motif?}` | a stitched outline or border round the selected shapes, lines and type |
+| `embroidery.addBorder {ids?, width?, color?, smooth?, edge?, edgeWidth?, edgeColor?}` | a sticker- or patch-like band of fill round a design's outline, sewn first, with a satin or run edge |
 | `embroidery.placeRing {stitch?, diameter?, width?, at?}` | a satin, filled or bean ring |
 | `embroidery.draw {brush, points \| stamp, …}` | a brush stroke, as the widget draws it |
 | `embroidery.column {points: [[x, y, curve?]…], id?}` | a Column A/B satin column from points on its two sides in turn; with `id`, continue that column |

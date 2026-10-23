@@ -6757,3 +6757,11 @@ swatch	Bright Violet	Felviolet
 	Safe to remove:	Kan veilig worden verwijderd:
 @msg	no machine folder yet	nog geen machinemap
 @msg	ejecting isn't available here	uitwerpen is hier niet beschikbaar
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Een witte rand eromheen, zoals bij een sticker of embleem
+	Border round the subject	Rand rond het onderwerp
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Een band van garen rond de omtrek van het ontwerp, zoals de rand van een sticker of embleem, als eerste geborduurd
+	Border width	Randbreedte
+	Satin edge	Satijnen boord
+	Add Border	Rand toevoegen
+	Put the border round the selected stitched shapes	De rand rond de geselecteerde geborduurde vormen leggen

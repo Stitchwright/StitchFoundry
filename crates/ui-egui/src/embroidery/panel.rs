@@ -1858,6 +1858,36 @@ fn colour_preview(app: &mut VectorcraftApp, ui: &Ui) {
     app.embroidery.colour_preview = Some(ColourPreview { key, texture, info });
 }
 
+/// The border: on or off, its width and colour, a satin edge, and Add Border for stitched shapes
+/// already there (a photo digitized before, lettering, a shape).
+fn border_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
+    ui.horizontal(|ui| {
+        ui.checkbox(&mut app.embroidery.border_on, tl!("Border round the subject"))
+            .on_hover_text(tl!("A band of thread round the design's outline, like a sticker's or a patch's border, sewn first"));
+        if app.embroidery.border_on {
+            ui.color_edit_button_srgb(&mut app.embroidery.border_color);
+        }
+    });
+    if !app.embroidery.border_on {
+        return;
+    }
+    if let Some(v) = num(ui, tl!("Border width"), "border-width", app.embroidery.border_width, " mm", 1) {
+        app.embroidery.border_width = v.clamp(1.0, 30.0);
+    }
+    ui.checkbox(&mut app.embroidery.border_edge, tl!("Satin edge"));
+    if button(ui, tl!("Add Border")).on_hover_text(tl!("Put the border round the selected stitched shapes")).clicked() {
+        let [r, g, b] = app.embroidery.border_color;
+        let q = json!({
+            "width": app.embroidery.border_width,
+            "color": format!("#{r:02x}{g:02x}{b:02x}"),
+            "edge": if app.embroidery.border_edge { "satin" } else { "none" },
+        });
+        if let Err(e) = app.run("embroidery.addBorder", q) {
+            app.status(e);
+        }
+    }
+}
+
 /// Remove Background's sensitivity and its before-and-after preview: the photo on one side of a
 /// line dragged across it, its cut-out (on a checkerboard) on the other.
 fn cutout_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
@@ -1985,9 +2015,19 @@ pub(crate) fn auto_digitize_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
     }
     ui.add_space(4.0);
     let colors = app.embroidery.digitize_colors;
+    // a border round the subject: a band like a sticker's or patch's, with a satin edge
+    border_rows(app, ui);
     if button(ui, tl!("Auto-Digitize Image")).clicked() {
-        let params = json!({ "colors": colors, "removeBackground": app.embroidery.digitize_background });
-        app.run("embroidery.autoDigitize", params).ok();
+        let mut params = json!({ "colors": colors, "removeBackground": app.embroidery.digitize_background });
+        if app.embroidery.border_on {
+            let [r, g, b] = app.embroidery.border_color;
+            params["border"] = json!(app.embroidery.border_width);
+            params["borderColor"] = json!(format!("#{r:02x}{g:02x}{b:02x}"));
+            params["borderEdge"] = json!(if app.embroidery.border_edge { "satin" } else { "none" });
+        }
+        if let Err(e) = app.run("embroidery.autoDigitize", params) {
+            app.status(e);
+        }
     }
     ui.horizontal(|ui| {
         if button(ui, tl!("Remove Background")).on_hover_text(tl!("Cut the subject out of the photo, so only it is digitized")).clicked()

@@ -6715,3 +6715,11 @@ swatch	Bright Violet	Violet cerah
 	Safe to remove:	Aman untuk dilepas:
 @msg	no machine folder yet	belum ada folder mesin
 @msg	ejecting isn't available here	pengeluaran tidak tersedia di sini
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Tambahkan bingkai putih di sekelilingnya, seperti stiker atau patch
+	Border round the subject	Bingkai di sekeliling subjek
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Pita benang di sekeliling garis luar desain, seperti bingkai stiker atau patch, dijahit lebih dulu
+	Border width	Lebar bingkai
+	Satin edge	Tepi satin
+	Add Border	Tambah Bingkai
+	Put the border round the selected stitched shapes	Pasang bingkai di sekeliling bentuk bersulam yang dipilih

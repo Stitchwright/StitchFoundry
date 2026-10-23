@@ -6421,3 +6421,11 @@ machine	Stop	Dừng máy
 	Safe to remove:	Có thể rút an toàn:
 @msg	no machine folder yet	chưa có thư mục máy
 @msg	ejecting isn't available here	không thể đẩy ra ở đây
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Thêm viền trắng quanh nó, như nhãn dán hoặc miếng vá
+	Border round the subject	Viền quanh chủ thể
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Một dải chỉ quanh đường viền thiết kế, như viền của nhãn dán hoặc miếng vá, được thêu trước
+	Border width	Độ rộng viền
+	Satin edge	Mép satin
+	Add Border	Thêm viền
+	Put the border round the selected stitched shapes	Đặt viền quanh các hình thêu đã chọn

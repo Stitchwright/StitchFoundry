@@ -6679,3 +6679,11 @@ mark-style	Japanese	Japonesas
 	Safe to remove:	Pode ser removido com segurança:
 @msg	no machine folder yet	ainda não há pasta da máquina
 @msg	ejecting isn't available here	ejetar não está disponível aqui
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Adicionar uma borda branca ao redor, como um adesivo ou patch
+	Border round the subject	Borda ao redor do motivo
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Uma faixa de linha ao redor do contorno do desenho, como a borda de um adesivo ou patch, bordada primeiro
+	Border width	Largura da borda
+	Satin edge	Acabamento em cetim
+	Add Border	Adicionar borda
+	Put the border round the selected stitched shapes	Colocar a borda ao redor das formas bordadas selecionadas

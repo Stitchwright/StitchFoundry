@@ -6781,3 +6781,11 @@ machine	Stop	Спиране
 	Safe to remove:	Може да се извади безопасно:
 @msg	no machine folder yet	още няма папка за машината
 @msg	ejecting isn't available here	изваждането не е налично тук
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Добави бял кант около него, като на стикер или емблема
+	Border round the subject	Кант около обекта
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Ивица конец около контура на дизайна, като канта на стикер или емблема, бродирана първа
+	Border width	Ширина на канта
+	Satin edge	Сатенен ръб
+	Add Border	Добави кант
+	Put the border round the selected stitched shapes	Постави кант около избраните бродирани форми

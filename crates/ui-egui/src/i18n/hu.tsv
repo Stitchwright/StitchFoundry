@@ -6798,3 +6798,11 @@ machine	Stop	Megállás
 	Safe to remove:	Biztonságosan eltávolítható:
 @msg	no machine folder yet	még nincs gépmappa
 @msg	ejecting isn't available here	a kiadás itt nem érhető el
+# Borders round digitized designs
+	Add a white border round it, like a sticker or patch	Fehér szegély hozzáadása köré, mint egy matricán vagy felvarrón
+	Border round the subject	Szegély a téma körül
+	A band of thread round the design's outline, like a sticker's or a patch's border, sewn first	Cérnasáv a minta körvonala körül, mint egy matrica vagy felvarró szegélye, elsőként varrva
+	Border width	Szegély szélessége
+	Satin edge	Szatén szél
+	Add Border	Szegély hozzáadása
+	Put the border round the selected stitched shapes	Szegély a kijelölt hímzett alakzatok köré
