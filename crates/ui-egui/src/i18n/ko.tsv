@@ -6449,3 +6449,9 @@ machine	Stop	정지
 	holds up to {n} stitches	최대 {n}땀 저장
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry가 파일을 저장합니다. 카드 라이터(Magic, Amazing, Ultimate Box)의 자체 소프트웨어로 카드에 기록하세요.
 	{share}% of the card	카드의 {share}%
+# Sew-out animation
+	Export Sew-out Animation…	자수 애니메이션 내보내기…
+	Export Sew-out Animation	자수 애니메이션 내보내기
+	Sew-out Animation GIF (.gif)…	자수 애니메이션 GIF (.gif)…
+	Save as Animation…	애니메이션으로 저장…
+	A GIF of the design sewing itself, for a website, a listing or a message	디자인이 저절로 수놓아지는 GIF, 웹사이트·판매 글·메시지용

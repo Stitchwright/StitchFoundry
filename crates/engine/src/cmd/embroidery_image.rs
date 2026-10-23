@@ -27,6 +27,15 @@ pub fn specs() -> Vec<CommandSpec> {
             export_image
         ),
         cmd!(
+            "embroidery.exportAnimation",
+            "Export Sew-out Animation",
+            [],
+            None,
+            "{path?: a .gif file to write (without it: the bytes), frames?: (60; 10–240), seconds?: how long it takes to sew (6; 2–60), hold?: seconds the finished design stays before it starts again (2; 0–10), ppmm?: pixels a millimetre (4; 1–12), background?: \"#rrggbb\" (white), margin?: mm (3; 0–50), view?: trueview|flat} the design sewing itself, stitch by stitch in sewing order as the stitch player shows it, as an animated GIF that loops (for a website, a listing or a message) → {path?, dataBase64?, format, bytes, width, height, frames}",
+            has_doc,
+            export_animation
+        ),
+        cmd!(
             "embroidery.printView",
             "Print Stitch View",
             ["Embroidery"],
@@ -107,6 +116,21 @@ fn stitch(img: &mut image::RgbaImage, a: (f64, f64), b: (f64, f64), half: f64, c
 
 /// The pattern drawn at `ppmm` pixels a millimetre with `margin` mm round it.
 fn render(pattern: &sf_core::Pattern, ppmm: f64, margin: f64, background: [u8; 4], flat: bool) -> std::result::Result<image::RgbaImage, String> {
+    render_frames(pattern, ppmm, margin, background, flat, usize::MAX, &mut |_| Ok(()))
+}
+
+/// [`render`], handing `frame` the picture so far after every `every` needle points (the
+/// stitch player's view, for an animation); the finished picture is returned.
+fn render_frames(
+    pattern: &sf_core::Pattern,
+    ppmm: f64,
+    margin: f64,
+    background: [u8; 4],
+    flat: bool,
+    every: usize,
+    frame: &mut dyn FnMut(&image::RgbaImage) -> std::result::Result<(), String>,
+) -> std::result::Result<image::RgbaImage, String> {
+    let every = every.max(1);
     let b = pattern.bounds();
     if b.is_empty() {
         return Err("the design has no stitches".into());
@@ -125,7 +149,10 @@ fn render(pattern: &sf_core::Pattern, ppmm: f64, margin: f64, background: [u8; 4
     let half = (THREAD_WIDTH_MM * ppmm * 0.5).max(0.5);
     let (mut thread, mut prev, mut sewing) = (0usize, None, false);
     let mut color = pattern.thread(0).color;
-    for st in &pattern.stitches {
+    for (i, st) in pattern.stitches.iter().enumerate() {
+        if i > 0 && i % every == 0 {
+            frame(&img)?;
+        }
         let p = to_px(st.pos());
         match st.cmd {
             sf_core::Cmd::Stitch => {
@@ -151,6 +178,74 @@ fn render(pattern: &sf_core::Pattern, ppmm: f64, margin: f64, background: [u8; 4
         }
     }
     Ok(img)
+}
+
+/// The most pixels an animation's frames hold together.
+const MAX_ANIMATION_PIXELS: u64 = 400_000_000;
+
+fn export_animation(s: &mut Session, p: &Value) -> Result<Value> {
+    use image::codecs::gif::{GifEncoder, Repeat};
+    use image::{Delay, Frame};
+    const CMD: &str = "embroidery.exportAnimation";
+    let num = |key: &str, default: f64, range: std::ops::RangeInclusive<f64>, what: &str| -> Result<f64> {
+        match p.get(key) {
+            None | Some(Value::Null) => Ok(default),
+            Some(v) => v.as_f64().filter(|v| range.contains(v)).ok_or_else(|| bad(CMD, what.to_string())),
+        }
+    };
+    let frames = num("frames", 60.0, 10.0..=240.0, "`frames` is 10 to 240")?.round() as usize;
+    let seconds = num("seconds", 6.0, 2.0..=60.0, "`seconds` is 2 to 60")?;
+    let hold = num("hold", 2.0, 0.0..=10.0, "`hold` is 0 to 10 seconds")?;
+    let ppmm = num("ppmm", 4.0, 1.0..=12.0, "`ppmm` is 1 to 12")?;
+    let margin = num("margin", 3.0, 0.0..=50.0, "`margin` is 0 to 50 mm")?;
+    let background = match str_param(p, "background") {
+        None => [255, 255, 255, 255],
+        Some(c) => {
+            let c = sf_core::Rgb::from_hex(c).ok_or_else(|| bad(CMD, "`background` is \"#rrggbb\""))?;
+            [c.r, c.g, c.b, 255]
+        }
+    };
+    let flat = match str_param(p, "view").unwrap_or("trueview") {
+        "trueview" => false,
+        "flat" => true,
+        _ => return Err(bad(CMD, "`view` is trueview or flat")),
+    };
+    let plan = s.embroidery_plan().ok_or_else(|| bad(CMD, "no document"))?;
+    if plan.is_empty() {
+        return Err(bad(CMD, "nothing is stitched yet: give objects a stitch type first"));
+    }
+    let pattern = plan.pattern();
+    let b = pattern.bounds();
+    let px = ((b.width() + 2.0 * margin) * ppmm).ceil() * ((b.height() + 2.0 * margin) * ppmm).ceil();
+    if !px.is_finite() || px * frames as f64 > MAX_ANIMATION_PIXELS as f64 {
+        return Err(bad(CMD, "the animation would be too large: lower ppmm or frames"));
+    }
+    // every frame the same share of the needle points, the last one the finished design
+    let every = pattern.stitches.len().div_ceil(frames).max(1);
+    let delay = Delay::from_numer_denom_ms((seconds * 1000.0 / frames as f64).round().max(20.0) as u32, 1);
+    let mut bytes = Vec::new();
+    let (width, height, count) = {
+        let mut enc = GifEncoder::new_with_speed(&mut bytes, 10);
+        enc.set_repeat(Repeat::Infinite).map_err(|e| EngineError::Other(format!("GIF encoding failed: {e}")))?;
+        let mut count = 0usize;
+        let mut add = |img: &image::RgbaImage, delay: Delay| -> std::result::Result<(), String> {
+            count += 1;
+            enc.encode_frame(Frame::from_parts(img.clone(), 0, 0, delay)).map_err(|e| format!("GIF encoding failed: {e}"))
+        };
+        let done = render_frames(pattern, ppmm, margin, background, flat, every, &mut |img| add(img, delay)).map_err(|e| bad(CMD, e))?;
+        let last = Delay::from_numer_denom_ms((hold * 1000.0).round().max(20.0) as u32, 1);
+        add(&done, last).map_err(EngineError::Other)?;
+        (done.width(), done.height(), count)
+    };
+    let mut r = json!({ "format": "gif", "bytes": bytes.len(), "width": width, "height": height, "frames": count });
+    match str_param(p, "path").map(str::trim).filter(|p| !p.is_empty()) {
+        Some(path) => {
+            super::fileio::write_file(path, &bytes)?;
+            r["path"] = json!(path);
+        }
+        None => r["dataBase64"] = json!(vectorcraft_format::base64_encode(&bytes)),
+    }
+    Ok(r)
 }
 
 fn export_image(s: &mut Session, p: &Value) -> Result<Value> {
@@ -265,4 +360,30 @@ fn print_view(s: &mut Session, p: &Value) -> Result<Value> {
     s.execute("file.place", &json!({ "name": format!("{title}.png"), "dataBase64": img["dataBase64"], "rect": [x, y, w, h] }))?;
     s.execute("select.none", &json!({}))?;
     Ok(json!({ "pages": pages, "scale": if (w - life.0).abs() < 0.5 { 1.0 } else { (w / life.0 * 1000.0).round() / 1000.0 } }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_animation_sews_the_design_frame_by_frame_and_loops() {
+        let mut s = Session::new();
+        s.execute("embroidery.sample", &json!({"id": "heart-patch"})).unwrap();
+        let r = s.execute("embroidery.exportAnimation", &json!({"frames": 12, "ppmm": 2})).unwrap();
+        assert_eq!(r["format"], "gif");
+        let bytes = vectorcraft_format::base64_decode(r["dataBase64"].as_str().unwrap()).unwrap();
+        assert!(bytes.starts_with(b"GIF89a") && bytes.windows(11).any(|w| w == b"NETSCAPE2.0"), "a looping GIF");
+        let frames = r["frames"].as_u64().unwrap();
+        assert!((12..=14).contains(&frames), "{frames}");
+        // the frames decode, the first nearly empty and the last the finished design
+        let dec = image::codecs::gif::GifDecoder::new(std::io::Cursor::new(&bytes)).unwrap();
+        let all: Vec<_> = image::AnimationDecoder::into_frames(dec).collect_frames().unwrap();
+        assert_eq!(all.len() as u64, frames);
+        let ink = |f: &image::Frame| f.buffer().pixels().filter(|p| p.0[0] < 200 || p.0[1] < 200 || p.0[2] < 200).count();
+        assert!(ink(&all[0]) < ink(all.last().unwrap()) / 3, "it fills in as it sews");
+        for bad in [json!({"frames": 2}), json!({"ppmm": 50}), json!({"view": "x"}), json!({"seconds": 1})] {
+            assert!(s.execute("embroidery.exportAnimation", &bad).is_err(), "{bad}");
+        }
+    }
 }

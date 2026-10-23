@@ -6858,3 +6858,9 @@ mark-style	Japanese	Japonské
 	holds up to {n} stitches	pojme až {n} stehů
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry soubor uloží; na kartu ho zapište vlastním softwarem zapisovačky (Magic, Amazing nebo Ultimate Box).
 	{share}% of the card	{share} % karty
+# Sew-out animation
+	Export Sew-out Animation…	Exportovat animaci vyšívání…
+	Export Sew-out Animation	Exportovat animaci vyšívání
+	Sew-out Animation GIF (.gif)…	Animace vyšívání GIF (.gif)…
+	Save as Animation…	Uložit jako animaci…
+	A GIF of the design sewing itself, for a website, a listing or a message	GIF výšivky, která se sama vyšívá, pro web, inzerát nebo zprávu

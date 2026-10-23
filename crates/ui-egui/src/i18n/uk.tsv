@@ -6477,3 +6477,9 @@ machine	Stop	Зупинка
 	holds up to {n} stitches	вміщує до {n} стібків
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry зберігає файл; запишіть його на картку програмою вашого пристрою запису (Magic, Amazing або Ultimate Box).
 	{share}% of the card	{share}% картки
+# Sew-out animation
+	Export Sew-out Animation…	Експорт анімації вишивки…
+	Export Sew-out Animation	Експорт анімації вишивки
+	Sew-out Animation GIF (.gif)…	Анімація вишивки GIF (.gif)…
+	Save as Animation…	Зберегти як анімацію…
+	A GIF of the design sewing itself, for a website, a listing or a message	GIF, де дизайн вишивається сам, для сайту, оголошення чи повідомлення

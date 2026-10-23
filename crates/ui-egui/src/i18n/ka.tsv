@@ -6685,3 +6685,9 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	holds up to {n} stitches	იტევს {n} ნაკერამდე
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry ინახავს ფაილს; ჩაწერეთ ბარათზე ბარათის ჩამწერის საკუთარი პროგრამით (Magic, Amazing ან Ultimate Box).
 	{share}% of the card	ბარათის {share}%
+# Sew-out animation
+	Export Sew-out Animation…	ქარგვის ანიმაციის ექსპორტი…
+	Export Sew-out Animation	ქარგვის ანიმაციის ექსპორტი
+	Sew-out Animation GIF (.gif)…	ქარგვის ანიმაცია GIF (.gif)…
+	Save as Animation…	ანიმაციად შენახვა…
+	A GIF of the design sewing itself, for a website, a listing or a message	GIF, სადაც დიზაინი თავისით იქარგება, ვებგვერდისთვის, განცხადებისთვის ან შეტყობინებისთვის

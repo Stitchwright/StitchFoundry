@@ -6805,3 +6805,9 @@ machine	Stop	Στάση
 	holds up to {n} stitches	χωρά έως {n} βελονιές
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	Το StitchFoundry αποθηκεύει το αρχείο· γράψτε το στην κάρτα με το λογισμικό της συσκευής εγγραφής (του Magic, Amazing ή Ultimate Box).
 	{share}% of the card	{share}% της κάρτας
+# Sew-out animation
+	Export Sew-out Animation…	Εξαγωγή κινούμενου κεντήματος…
+	Export Sew-out Animation	Εξαγωγή κινούμενου κεντήματος
+	Sew-out Animation GIF (.gif)…	Κινούμενο κέντημα GIF (.gif)…
+	Save as Animation…	Αποθήκευση ως κινούμενη εικόνα…
+	A GIF of the design sewing itself, for a website, a listing or a message	Ένα GIF του σχεδίου που κεντιέται μόνο του, για ιστότοπο, αγγελία ή μήνυμα

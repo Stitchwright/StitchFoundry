@@ -6457,3 +6457,9 @@ machine	Stop	停止
 	holds up to {n} stitches	最多可存 {n} 針
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry 只儲存檔案；請用寫卡器內附的軟體（Magic、Amazing 或 Ultimate Box 的）寫到卡上。
 	{share}% of the card	卡的 {share}%
+# Sew-out animation
+	Export Sew-out Animation…	匯出繡製動畫…
+	Export Sew-out Animation	匯出繡製動畫
+	Sew-out Animation GIF (.gif)…	繡製動畫 GIF (.gif)…
+	Save as Animation…	另存為動畫…
+	A GIF of the design sewing itself, for a website, a listing or a message	圖案自己一針一針繡出來的 GIF，用於網站、商品頁或訊息

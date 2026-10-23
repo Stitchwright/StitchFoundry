@@ -6453,3 +6453,9 @@ machine	Stop	Dừng máy
 	holds up to {n} stitches	chứa tới {n} mũi
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry lưu tệp; hãy ghi nó vào thẻ bằng phần mềm riêng của bộ ghi thẻ (của Magic, Amazing hoặc Ultimate Box).
 	{share}% of the card	{share}% của thẻ
+# Sew-out animation
+	Export Sew-out Animation…	Xuất hoạt ảnh thêu…
+	Export Sew-out Animation	Xuất hoạt ảnh thêu
+	Sew-out Animation GIF (.gif)…	Hoạt ảnh thêu GIF (.gif)…
+	Save as Animation…	Lưu thành hoạt ảnh…
+	A GIF of the design sewing itself, for a website, a listing or a message	Một GIF mẫu thêu tự thêu, cho trang web, tin đăng hoặc tin nhắn

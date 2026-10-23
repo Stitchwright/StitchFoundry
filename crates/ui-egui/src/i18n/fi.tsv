@@ -6870,3 +6870,9 @@ swatch	Bright Violet	Kirkas violetti
 	holds up to {n} stitches	mahtuu jopa {n} pistoa
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry tallentaa tiedoston; kirjoita se kortille kortinkirjoittimen omalla ohjelmalla (Magic, Amazing tai Ultimate Box).
 	{share}% of the card	{share} % kortista
+# Sew-out animation
+	Export Sew-out Animation…	Vie kirjontaanimaatio…
+	Export Sew-out Animation	Vie kirjontaanimaatio
+	Sew-out Animation GIF (.gif)…	Kirjontaanimaatio GIF (.gif)…
+	Save as Animation…	Tallenna animaationa…
+	A GIF of the design sewing itself, for a website, a listing or a message	GIF mallista, joka kirjoutuu itsestään, verkkosivulle, ilmoitukseen tai viestiin

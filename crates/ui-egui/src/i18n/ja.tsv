@@ -6536,3 +6536,9 @@ machine	Stop	停止
 	holds up to {n} stitches	最大 {n} 針
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry はファイルを保存します。カードライター（Magic、Amazing、Ultimate Box）付属のソフトでカードに書き込んでください。
 	{share}% of the card	カードの {share}%
+# Sew-out animation
+	Export Sew-out Animation…	刺しゅうアニメーションを書き出し…
+	Export Sew-out Animation	刺しゅうアニメーションを書き出し
+	Sew-out Animation GIF (.gif)…	刺しゅうアニメーション GIF (.gif)…
+	Save as Animation…	アニメーションとして保存…
+	A GIF of the design sewing itself, for a website, a listing or a message	デザインがひとりでに縫われていく GIF（ウェブサイト、出品、メッセージ用）

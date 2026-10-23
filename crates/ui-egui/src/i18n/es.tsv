@@ -6811,3 +6811,9 @@ mark-style	Japanese	Japonesas
 	holds up to {n} stitches	admite hasta {n} puntadas
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry guarda el archivo; escríbalo en la tarjeta con el programa de su grabadora de tarjetas (el de Magic, Amazing o Ultimate Box).
 	{share}% of the card	{share} % de la tarjeta
+# Sew-out animation
+	Export Sew-out Animation…	Exportar animación del bordado…
+	Export Sew-out Animation	Exportar animación del bordado
+	Sew-out Animation GIF (.gif)…	Animación del bordado GIF (.gif)…
+	Save as Animation…	Guardar como animación…
+	A GIF of the design sewing itself, for a website, a listing or a message	Un GIF del diseño bordándose solo, para una web, un anuncio o un mensaje

@@ -6813,3 +6813,9 @@ machine	Stop	Спиране
 	holds up to {n} stitches	побира до {n} бода
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry запазва файла; запишете го на картата със собствения софтуер на устройството за запис (на Magic, Amazing или Ultimate Box).
 	{share}% of the card	{share}% от картата
+# Sew-out animation
+	Export Sew-out Animation…	Експорт на анимация на бродирането…
+	Export Sew-out Animation	Експорт на анимация на бродирането
+	Sew-out Animation GIF (.gif)…	Анимация на бродирането GIF (.gif)…
+	Save as Animation…	Запазване като анимация…
+	A GIF of the design sewing itself, for a website, a listing or a message	GIF на дизайна, който се бродира сам, за уебсайт, обява или съобщение

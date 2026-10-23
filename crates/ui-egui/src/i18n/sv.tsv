@@ -6809,3 +6809,9 @@ machine	Stop	Stopp
 	holds up to {n} stitches	rymmer upp till {n} stygn
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	StitchFoundry sparar filen; skriv den till kortet med kortskrivarens eget program (Magic, Amazing eller Ultimate Box).
 	{share}% of the card	{share} % av kortet
+# Sew-out animation
+	Export Sew-out Animation…	Exportera broderianimation…
+	Export Sew-out Animation	Exportera broderianimation
+	Sew-out Animation GIF (.gif)…	Broderianimation GIF (.gif)…
+	Save as Animation…	Spara som animation…
+	A GIF of the design sewing itself, for a website, a listing or a message	En GIF där designen broderar sig själv, för en webbplats, en annons eller ett meddelande

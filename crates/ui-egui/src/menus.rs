@@ -66,6 +66,7 @@ fn machine_file_items() -> Vec<Item> {
         f("Stitch List JSON (.json)…", "json"),
         f("G-code (.gcode)…", "gcode"),
         c("Stitch Image PNG (.png)…", "file.export.stitchImage"),
+        c("Sew-out Animation GIF (.gif)…", "file.export.sewAnimation"),
     ]
 }
 
@@ -115,8 +116,8 @@ fn embroidery_menu() -> Vec<Item> {
         c("Make a Design…", "ui.makeDesign"),
         c("Add Words…", "ui.addWords"),
         c("Save for My Machine", "ui.saveForMyMachine"),
-        c("My Machine…", "ui.myMachine"),
         c("Save for a Memory Card…", "ui.saveForMemoryCard"),
+        c("My Machine…", "ui.myMachine"),
         c("Ask About Embroidery…", "ui.askAboutEmbroidery"),
         c("Check My Sew-out…", "ui.checkSewout"),
         c("Foundry Account…", "ui.account"),
@@ -344,6 +345,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "Export Stitch Image…",
         "",
         "{path?, ppmm?, background?, margin?, view?} write the design's stitches as a PNG image (embroidery.exportImage) to path, else a picked file (the web downloads it) → {path}",
+    ),
+    (
+        "file.export.sewAnimation",
+        "Export Sew-out Animation…",
+        "",
+        "{path?, frames?, seconds?, hold?, ppmm?, background?, margin?, view?} write the design sewing itself, stitch by stitch, as an animated GIF (embroidery.exportAnimation) to path, else a picked file (the web downloads it) → {path}",
     ),
     (
         "ui.embroideryCheck",
@@ -857,18 +864,18 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "{folder?} write the design in My Machine's format to its folder or USB stick (embroidery.send); with no machine chosen the My Machine window opens, with no folder (or the USB stick out) one is picked first → {path, format, bytes, stitches}",
     ),
     (
+        "ui.saveForMemoryCard",
+        "Save for a Memory Card…",
+        "",
+        "{card?: an id from embroidery.memoryCards, path?} save the design for a memory card written by a card writer box (Magic, Amazing or Ultimate Box): in the format the card's machines read, checked against what the card holds (embroidery.memoryCard.save); without a card the window opens to choose one → {path, format, stitches, share, warnings} or {open}",
+    ),
+    (
         "ui.ejectMachineFolder",
         "Eject USB Stick",
         "",
         "{folder?: a machine folder (default: the last one saved to)} eject the USB stick (removable drive) the folder is on, so it can be pulled out and put in the machine safely (desktop) → {ejected: the drive's name}",
     ),
     (
-    (
-        "ui.saveForMemoryCard",
-        "Save for a Memory Card…",
-        "",
-        "{card?: an id from embroidery.memoryCards, path?} save the design for a memory card written by a card writer box (Magic, Amazing or Ultimate Box): in the format the card's machines read, checked against what the card holds (embroidery.memoryCard.save); without a card the window opens to choose one → {path, format, stitches, share, warnings} or {open}",
-    ),
         "ui.calibrateLifeSize",
         "Calibrate Life Size…",
         "",
@@ -1556,6 +1563,12 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         }
         return Some(r);
     }
+    if id == "file.export.sewAnimation" {
+        return Some(
+            io::save_command_output(app, "embroidery.exportAnimation", "gif", if p.is_object() { p.clone() } else { json!({}) })
+                .map(|path| json!({ "path": path })),
+        );
+    }
     if id == "file.export.stitchImage" {
         return Some(
             io::save_command_output(app, "embroidery.exportImage", "png", if p.is_object() { p.clone() } else { json!({}) })
@@ -2049,6 +2062,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "help.show" => crate::dialogs::help::open(app, p),
         "ui.calibrateLifeSize" => crate::dialogs::life_size::run(app, p),
         "ui.myMachine" => crate::dialogs::my_machine::open(app),
+        "ui.saveForMemoryCard" => crate::dialogs::memory_card::run(app, p),
         "ui.fontLibrary" => crate::dialogs::font_library::open(app),
         "ui.compareDesigns" => crate::dialogs::compare::open(app, p),
         "ui.addWords" => Ok(crate::simple::open_words(app)),
@@ -2062,7 +2076,6 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.makeDesign" => crate::guide::open(app),
         "ui.viewer" => {
             app.ui.viewer = p.get("on").and_then(Value::as_bool).unwrap_or(true);
-        "ui.saveForMemoryCard" => crate::dialogs::memory_card::run(app, p),
             Ok(serde_json::json!({ "viewer": app.ui.viewer }))
         }
         "ui.saveForMyMachine" => crate::dialogs::my_machine::save(app, p),

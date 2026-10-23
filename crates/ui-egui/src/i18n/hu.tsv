@@ -6830,3 +6830,9 @@ machine	Stop	Megállás
 	holds up to {n} stitches	legfeljebb {n} öltést tárol
 	StitchFoundry saves the file; write it to the card with your card writer's own software (the Magic, Amazing or Ultimate Box's).	A StitchFoundry elmenti a fájlt; a kártyaíró saját programjával írja a kártyára (Magic, Amazing vagy Ultimate Box).
 	{share}% of the card	a kártya {share}%-a
+# Sew-out animation
+	Export Sew-out Animation…	Hímzésanimáció exportálása…
+	Export Sew-out Animation	Hímzésanimáció exportálása
+	Sew-out Animation GIF (.gif)…	Hímzésanimáció GIF (.gif)…
+	Save as Animation…	Mentés animációként…
+	A GIF of the design sewing itself, for a website, a listing or a message	GIF a magát kihímző mintáról, weboldalra, hirdetésbe vagy üzenetbe

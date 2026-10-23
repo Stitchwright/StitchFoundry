@@ -1391,6 +1391,14 @@ display shows them (`view: flat` for flat colour), and writes a PNG: for a websi
 catalogue. `ppmm` sets the pixels a millimetre (10; up to 40 for print), `background` white, a
 colour or `transparent`, `margin` the mm round the design (3).
 
+**Sew-out Animation GIF** (the same menu, or **Save as Animation…** under the stitch player;
+`embroidery.exportAnimation {path?, frames?, seconds?, hold?, ppmm?, background?, margin?, view?}`)
+writes the design sewing itself, stitch by stitch in sewing order as the stitch player shows it, as
+an animated GIF that loops: for a website, a listing or a message. It has 60 frames (10 to 240)
+over 6 seconds (2 to 60; from the player, its speed sets it), then holds the finished design for 2
+seconds before it starts again, at 4 pixels a millimetre (up to 12). GIF needs no new library and
+plays everywhere; a video file (MP4) would need a video encoder added to the app.
+
 **Embroidery › Print Stitch View** (`embroidery.printView {scale?, page?, view?}`) opens the
 stitch view as pages to print (File › Print) or export: life size over as many A4 or Letter pages
 as it takes (the pages touching, to tape together), or fitted to one page (`scale: fit`).
@@ -2498,6 +2506,7 @@ tool list for all parameters):
 | `embroidery.addLaydown {ids?, margin?, spacing?, angle?}` | an open fill sewn first under the selected shapes and type (pile fabrics) |
 | `embroidery.makeBlend {colors, ids?, spacing?, separate?}` | a tatami fill as stacked layers blending 2 to 6 thread colours across its rows, in the one object (or one object per layer) |
 | `embroidery.addOutline {ids?, shape?, offset?, stitch?, width?, motif?}` | a stitched outline or border round the selected shapes, lines and type |
+| `embroidery.exportAnimation {path?, frames?, seconds?, hold?, ppmm?}` | the design sewing itself as a looping animated GIF |
 | `embroidery.memoryCards`, `embroidery.memoryCard.save {card, path?}` | the memory cards a card writer box writes, and the design saved in the format a card's machines read, checked against what it holds |
 | `embroidery.addBorder {ids?, width?, color?, smooth?, edge?, edgeWidth?, edgeColor?}` | a sticker- or patch-like band of fill round a design's outline, sewn first, with a satin or run edge |
 | `embroidery.placeRing {stitch?, diameter?, width?, at?}` | a satin, filled or bean ring |
