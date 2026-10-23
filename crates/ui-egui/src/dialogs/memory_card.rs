@@ -127,10 +127,8 @@ mod tests {
 
     #[test]
     fn a_card_saves_the_design_in_its_format() {
-        let services = crate::Services {
-            write: Some(Box::new(|p: &str, b: &[u8]| std::fs::write(p, b).map_err(|e| e.to_string()))),
-            ..Default::default()
-        };
+        let services =
+            crate::Services { write: Some(Box::new(|p: &str, b: &[u8]| std::fs::write(p, b).map_err(|e| e.to_string()))), ..Default::default() };
         let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), services);
         assert_eq!(app.run("ui.saveForMemoryCard", json!({})).unwrap()["open"], true);
         assert!(app.ui.memory_card.open);
