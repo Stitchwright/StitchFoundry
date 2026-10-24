@@ -6837,8 +6837,17 @@ machine	Stop	Спиране
 @msg	`automatic` is true, false or "toggle"	`automatic` е true, false или "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Излезе StitchFoundry {version}: вижте началния екран
 	StitchFoundry {version} is the newest	StitchFoundry {version} е най-новата версия
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Видео на бродирането MP4 (.mp4)…
+	Save as Video…	Запазване като видео…
+	An MP4 video of the design sewing itself, for social posts and phones	MP4 видео на дизайна, който се бродира сам, за публикации и телефони
 	As shown	Както е показан
 	Larger	По-голям
 	Rounded corners	Заоблени ъгли
 	Scalloped	На фестони
+@msg	H.264 encoding failed: {e:?}	Кодирането H.264 не успя: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Видеокадърът е {w} × {h}: трябва да е от цели макроблокове, най-много 4096 на страна
+@msg	the video's frames changed size	Кадрите на видеото смениха размера си
+@msg	the video has no frames	Видеото няма кадри
+@msg	the video would be larger than 4 GB: lower the size or frames	Видеото би било над 4 GB: намалете размера или кадрите
+@msg	the video is too large	Видеото е твърде голямо

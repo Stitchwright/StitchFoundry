@@ -6829,8 +6829,17 @@ machine	Stop	Στάση
 @msg	`automatic` is true, false or "toggle"	Το `automatic` είναι true, false ή "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Κυκλοφόρησε το StitchFoundry {version}: δείτε την αρχική οθόνη
 	StitchFoundry {version} is the newest	Το StitchFoundry {version} είναι το νεότερο
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Βίντεο κεντήματος MP4 (.mp4)…
+	Save as Video…	Αποθήκευση ως βίντεο…
+	An MP4 video of the design sewing itself, for social posts and phones	Βίντεο MP4 του σχεδίου που κεντιέται μόνο του, για αναρτήσεις και κινητά
 	As shown	Όπως φαίνεται
 	Larger	Μεγαλύτερο
 	Rounded corners	Στρογγυλεμένες γωνίες
 	Scalloped	Με φεστόνια
+@msg	H.264 encoding failed: {e:?}	Η κωδικοποίηση H.264 απέτυχε: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Ένα καρέ βίντεο είναι {w} × {h}: πρέπει να είναι ολόκληρα μακρομπλοκ, έως 4096 ανά πλευρά
+@msg	the video's frames changed size	Τα καρέ του βίντεο άλλαξαν μέγεθος
+@msg	the video has no frames	Το βίντεο δεν έχει καρέ
+@msg	the video would be larger than 4 GB: lower the size or frames	Το βίντεο θα ήταν πάνω από 4 GB: μειώστε το μέγεθος ή τα καρέ
+@msg	the video is too large	Το βίντεο είναι πολύ μεγάλο

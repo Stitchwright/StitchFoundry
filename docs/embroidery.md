@@ -1411,8 +1411,15 @@ colour or `transparent`, `margin` the mm round the design (3).
 writes the design sewing itself, stitch by stitch in sewing order as the stitch player shows it, as
 an animated GIF that loops: for a website, a listing or a message. It has 60 frames (10 to 240)
 over 6 seconds (2 to 60; from the player, its speed sets it), then holds the finished design for 2
-seconds before it starts again, at 4 pixels a millimetre (up to 12). GIF needs no new library and
-plays everywhere; a video file (MP4) would need a video encoder added to the app.
+seconds before it starts again, at 4 pixels a millimetre (up to 12).
+
+**Sew-out Video MP4** (the same menu, or **Save as Video…** beside it; `format: "mp4"`, or a
+`.mp4` path) writes the same as an MP4 video, which phones and social sites play where they won't
+take a GIF: H.264, Baseline profile, every frame a key frame, encoded by the pure-Rust `less-avc`
+(MIT OR Apache-2.0) and put in an MP4 file written by StitchFoundry from ISO/IEC 14496-12 and -15.
+Its frames are uncompressed inside, so a six-second clip is about 10–20 MB; sites recompress it on
+upload. H.264 is a patented format, whose licence has asked nothing for the first 100,000 copies of
+an encoder a year (the owner's decision, 2026-10-24, to use it).
 
 **Embroidery › Print Stitch View** (`embroidery.printView {scale?, page?, view?}`) opens the
 stitch view as pages to print (File › Print) or export: life size over as many A4 or Letter pages

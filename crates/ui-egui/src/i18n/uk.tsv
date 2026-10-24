@@ -6501,8 +6501,17 @@ machine	Stop	Зупинка
 @msg	`automatic` is true, false or "toggle"	`automatic` — true, false або "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Вийшов StitchFoundry {version}: див. початковий екран
 	StitchFoundry {version} is the newest	StitchFoundry {version} — найновіша версія
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Відео вишивки MP4 (.mp4)…
+	Save as Video…	Зберегти як відео…
+	An MP4 video of the design sewing itself, for social posts and phones	MP4-відео, де дизайн вишивається сам, для соцмереж і телефонів
 	As shown	Як показано
 	Larger	Більший
 	Rounded corners	Заокруглені кути
 	Scalloped	Фестонами
+@msg	H.264 encoding failed: {e:?}	Не вдалося закодувати H.264: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Кадр відео {w} × {h}: він має складатися з цілих макроблоків, не більше 4096 на сторону
+@msg	the video's frames changed size	Кадри відео змінили розмір
+@msg	the video has no frames	У відео немає кадрів
+@msg	the video would be larger than 4 GB: lower the size or frames	Відео було б більше 4 ГБ: зменште розмір або кількість кадрів
+@msg	the video is too large	Відео завелике

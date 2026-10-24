@@ -132,16 +132,29 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
             stepped = Some(travel(&plan, at, p.travel, true));
         }
     });
-    // the player's sewing as a looping GIF, at about the player's speed
-    if ui
-        .small_button(tl!("Save as Animation…"))
-        .on_hover_text(tl!("A GIF of the design sewing itself, for a website, a listing or a message"))
-        .clicked()
-    {
-        let seconds = (total as f64 / app.embroidery.player.speed.max(1.0)).clamp(2.0, 60.0);
-        if let Err(e) = app.run("file.export.sewAnimation", json!({ "seconds": seconds })) {
-            app.status(e);
+    // the player's sewing as a looping GIF or an MP4 video, at about the player's speed
+    let seconds = (total as f64 / app.embroidery.player.speed.max(1.0)).clamp(2.0, 60.0);
+    let mut save = None;
+    ui.horizontal(|ui| {
+        if ui
+            .small_button(tl!("Save as Animation…"))
+            .on_hover_text(tl!("A GIF of the design sewing itself, for a website, a listing or a message"))
+            .clicked()
+        {
+            save = Some(json!({ "seconds": seconds }));
         }
+        if ui
+            .small_button(tl!("Save as Video…"))
+            .on_hover_text(tl!("An MP4 video of the design sewing itself, for social posts and phones"))
+            .clicked()
+        {
+            save = Some(json!({ "seconds": seconds, "format": "mp4" }));
+        }
+    });
+    if let Some(q) = save
+        && let Err(e) = app.run("file.export.sewAnimation", q)
+    {
+        app.status(e);
     }
     if let Some(pos) = stepped {
         let p = &mut app.embroidery.player;

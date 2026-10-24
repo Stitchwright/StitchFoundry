@@ -6771,8 +6771,17 @@ swatch	Bright Violet	Violet cerah
 @msg	`automatic` is true, false or "toggle"	`automatic` adalah true, false, atau "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} sudah rilis: lihat layar Beranda
 	StitchFoundry {version} is the newest	StitchFoundry {version} adalah yang terbaru
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Video Sulaman MP4 (.mp4)…
+	Save as Video…	Simpan sebagai Video…
+	An MP4 video of the design sewing itself, for social posts and phones	Video MP4 desain yang menjahit dirinya sendiri, untuk media sosial dan ponsel
 	As shown	Seperti ditampilkan
 	Larger	Lebih besar
 	Rounded corners	Sudut membulat
 	Scalloped	Bergelombang
+@msg	H.264 encoding failed: {e:?}	Pengodean H.264 gagal: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Satu bingkai video berukuran {w} × {h}: harus berupa makroblok utuh, paling banyak 4096 per sisi
+@msg	the video's frames changed size	Bingkai video berganti ukuran
+@msg	the video has no frames	Video tidak memiliki bingkai
+@msg	the video would be larger than 4 GB: lower the size or frames	Video akan lebih dari 4 GB: kecilkan ukuran atau jumlah bingkai
+@msg	the video is too large	Video terlalu besar

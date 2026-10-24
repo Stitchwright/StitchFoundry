@@ -6477,8 +6477,17 @@ machine	Stop	Dừng máy
 @msg	`automatic` is true, false or "toggle"	`automatic` là true, false hoặc "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} đã ra mắt: xem màn hình chính
 	StitchFoundry {version} is the newest	StitchFoundry {version} là bản mới nhất
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Video thêu MP4 (.mp4)…
+	Save as Video…	Lưu thành video…
+	An MP4 video of the design sewing itself, for social posts and phones	Video MP4 mẫu thêu tự thêu, cho mạng xã hội và điện thoại
 	As shown	Như hiển thị
 	Larger	Lớn hơn
 	Rounded corners	Góc bo tròn
 	Scalloped	Viền sò
+@msg	H.264 encoding failed: {e:?}	Mã hóa H.264 thất bại: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Một khung hình là {w} × {h}: phải gồm các macroblock trọn vẹn, tối đa 4096 mỗi cạnh
+@msg	the video's frames changed size	Các khung hình của video đổi kích thước
+@msg	the video has no frames	Video không có khung hình
+@msg	the video would be larger than 4 GB: lower the size or frames	Video sẽ lớn hơn 4 GB: hãy giảm kích thước hoặc số khung hình
+@msg	the video is too large	Video quá lớn

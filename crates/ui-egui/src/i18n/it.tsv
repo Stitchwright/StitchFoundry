@@ -6521,8 +6521,17 @@ machine	Stop	Arresto
 @msg	`automatic` is true, false or "toggle"	`automatic` è true, false o "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	È uscito StitchFoundry {version}: lo trovi nella schermata Home
 	StitchFoundry {version} is the newest	StitchFoundry {version} è la più recente
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Video del ricamo MP4 (.mp4)…
+	Save as Video…	Salva come video…
+	An MP4 video of the design sewing itself, for social posts and phones	Un video MP4 del disegno che si ricama da solo, per i social e i telefoni
 	As shown	Come mostrato
 	Larger	Più grande
 	Rounded corners	Angoli arrotondati
 	Scalloped	Smerlato
+@msg	H.264 encoding failed: {e:?}	Codifica H.264 non riuscita: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Un fotogramma è {w} × {h}: deve essere di macroblocchi interi, al massimo 4096 per lato
+@msg	the video's frames changed size	I fotogrammi del video hanno cambiato dimensione
+@msg	the video has no frames	Il video non ha fotogrammi
+@msg	the video would be larger than 4 GB: lower the size or frames	Il video supererebbe i 4 GB: riduci dimensione o fotogrammi
+@msg	the video is too large	Il video è troppo grande

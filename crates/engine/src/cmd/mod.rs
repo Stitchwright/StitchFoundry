@@ -63,6 +63,7 @@ pub mod embroidery_machines;
 pub mod embroidery_merge;
 pub mod embroidery_monogram;
 pub mod embroidery_motifs;
+pub mod embroidery_mp4;
 pub mod embroidery_my_machine;
 pub mod embroidery_outline;
 pub mod embroidery_output;

@@ -67,6 +67,7 @@ fn machine_file_items() -> Vec<Item> {
         f("G-code (.gcode)…", "gcode"),
         c("Stitch Image PNG (.png)…", "file.export.stitchImage"),
         c("Sew-out Animation GIF (.gif)…", "file.export.sewAnimation"),
+        cp("Sew-out Video MP4 (.mp4)…", "file.export.sewAnimation", json!({ "format": "mp4" })),
     ]
 }
 
@@ -350,7 +351,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "file.export.sewAnimation",
         "Export Sew-out Animation…",
         "",
-        "{path?, frames?, seconds?, hold?, ppmm?, background?, margin?, view?} write the design sewing itself, stitch by stitch, as an animated GIF (embroidery.exportAnimation) to path, else a picked file (the web downloads it) → {path}",
+        "{path?, format?: gif|mp4, frames?, seconds?, hold?, ppmm?, background?, margin?, view?} write the design sewing itself, stitch by stitch, as an animated GIF or an MP4 video (embroidery.exportAnimation) to path, else a picked file (the web downloads it) → {path}",
     ),
     (
         "ui.embroideryCheck",
@@ -1571,8 +1572,13 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
     }
     if id == "file.export.sewAnimation" {
         return Some(
-            io::save_command_output(app, "embroidery.exportAnimation", "gif", if p.is_object() { p.clone() } else { json!({}) })
-                .map(|path| json!({ "path": path })),
+            io::save_command_output(
+                app,
+                "embroidery.exportAnimation",
+                if p.get("format").and_then(Value::as_str) == Some("mp4") { "mp4" } else { "gif" },
+                if p.is_object() { p.clone() } else { json!({}) },
+            )
+            .map(|path| json!({ "path": path })),
         );
     }
     if id == "file.export.stitchImage" {

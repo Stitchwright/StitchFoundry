@@ -31,7 +31,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Export Sew-out Animation",
             [],
             None,
-            "{path?: a .gif file to write (without it: the bytes), frames?: (60; 10–240), seconds?: how long it takes to sew (6; 2–60), hold?: seconds the finished design stays before it starts again (2; 0–10), ppmm?: pixels a millimetre (4; 1–12), background?: \"#rrggbb\" (white), margin?: mm (3; 0–50), view?: trueview|flat} the design sewing itself, stitch by stitch in sewing order as the stitch player shows it, as an animated GIF that loops (for a website, a listing or a message) → {path?, dataBase64?, format, bytes, width, height, frames}",
+            "{path?: a .gif or .mp4 file to write (without it: the bytes), format?: gif|mp4 (the path's extension, else gif; mp4: H.264, which phones and social sites play), frames?: (60; 10–240), seconds?: how long it takes to sew (6; 2–60), hold?: seconds the finished design stays before it starts again (2; 0–10), ppmm?: pixels a millimetre (4; 1–12), background?: \"#rrggbb\" (white), margin?: mm (3; 0–50), view?: trueview|flat} the design sewing itself, stitch by stitch in sewing order as the stitch player shows it, as an animated GIF that loops or an MP4 video (for a website, a listing, a message or a social post) → {path?, dataBase64?, format, bytes, width, height, frames}",
             has_doc,
             export_animation
         ),
@@ -220,11 +220,37 @@ fn export_animation(s: &mut Session, p: &Value) -> Result<Value> {
     if !px.is_finite() || px * frames as f64 > MAX_ANIMATION_PIXELS as f64 {
         return Err(bad(CMD, "the animation would be too large: lower ppmm or frames"));
     }
+    // gif, or mp4: from `format`, else the path's extension
+    let path = str_param(p, "path").map(str::trim).filter(|p| !p.is_empty());
+    let format = match str_param(p, "format") {
+        Some(f) => f.to_ascii_lowercase(),
+        None => path.and_then(|p| p.rsplit_once('.')).map(|(_, e)| e.to_ascii_lowercase()).filter(|e| e == "mp4").unwrap_or_else(|| "gif".into()),
+    };
+    if format != "gif" && format != "mp4" {
+        return Err(bad(CMD, "`format` is gif or mp4"));
+    }
     // every frame the same share of the needle points, the last one the finished design
     let every = pattern.stitches.len().div_ceil(frames).max(1);
-    let delay = Delay::from_numer_denom_ms((seconds * 1000.0 / frames as f64).round().max(20.0) as u32, 1);
+    let frame_ms = (seconds * 1000.0 / frames as f64).round().max(20.0) as u32;
+    let hold_ms = (hold * 1000.0).round().max(20.0) as u32;
     let mut bytes = Vec::new();
-    let (width, height, count) = {
+    let (width, height, count) = if format == "mp4" {
+        let mut video = super::embroidery_mp4::Mp4::new(1000.0 / f64::from(frame_ms));
+        let mut count = 0usize;
+        // the picture in whole 16-pixel macroblocks, the design in the middle
+        let mut add = |img: &image::RgbaImage, ms: u32| -> std::result::Result<(), String> {
+            count += 1;
+            let (w, h) = (img.width().div_ceil(16) * 16, img.height().div_ceil(16) * 16);
+            let mut padded = image::RgbaImage::from_pixel(w, h, image::Rgba(background));
+            image::imageops::overlay(&mut padded, img, i64::from((w - img.width()) / 2), i64::from((h - img.height()) / 2));
+            video.frame(&padded, ms)
+        };
+        let done = render_frames(pattern, ppmm, margin, background, flat, every, &mut |img| add(img, frame_ms)).map_err(|e| bad(CMD, e))?;
+        add(&done, hold_ms).map_err(EngineError::Other)?;
+        bytes = video.finish().map_err(EngineError::Other)?;
+        (done.width().div_ceil(16) * 16, done.height().div_ceil(16) * 16, count)
+    } else {
+        let delay = Delay::from_numer_denom_ms(frame_ms, 1);
         let mut enc = GifEncoder::new_with_speed(&mut bytes, 10);
         enc.set_repeat(Repeat::Infinite).map_err(|e| EngineError::Other(format!("GIF encoding failed: {e}")))?;
         let mut count = 0usize;
@@ -233,12 +259,11 @@ fn export_animation(s: &mut Session, p: &Value) -> Result<Value> {
             enc.encode_frame(Frame::from_parts(img.clone(), 0, 0, delay)).map_err(|e| format!("GIF encoding failed: {e}"))
         };
         let done = render_frames(pattern, ppmm, margin, background, flat, every, &mut |img| add(img, delay)).map_err(|e| bad(CMD, e))?;
-        let last = Delay::from_numer_denom_ms((hold * 1000.0).round().max(20.0) as u32, 1);
-        add(&done, last).map_err(EngineError::Other)?;
+        add(&done, Delay::from_numer_denom_ms(hold_ms, 1)).map_err(EngineError::Other)?;
         (done.width(), done.height(), count)
     };
-    let mut r = json!({ "format": "gif", "bytes": bytes.len(), "width": width, "height": height, "frames": count });
-    match str_param(p, "path").map(str::trim).filter(|p| !p.is_empty()) {
+    let mut r = json!({ "format": format, "bytes": bytes.len(), "width": width, "height": height, "frames": count });
+    match path {
         Some(path) => {
             super::fileio::write_file(path, &bytes)?;
             r["path"] = json!(path);
@@ -382,6 +407,14 @@ mod tests {
         assert_eq!(all.len() as u64, frames);
         let ink = |f: &image::Frame| f.buffer().pixels().filter(|p| p.0[0] < 200 || p.0[1] < 200 || p.0[2] < 200).count();
         assert!(ink(&all[0]) < ink(all.last().unwrap()) / 3, "it fills in as it sews");
+        // as an MP4: H.264 frames in one video track, whole macroblocks
+        let r = s.execute("embroidery.exportAnimation", &json!({"frames": 12, "ppmm": 2, "format": "mp4"})).unwrap();
+        assert_eq!(r["format"], "mp4");
+        assert!(r["width"].as_u64().unwrap() % 16 == 0 && r["height"].as_u64().unwrap() % 16 == 0, "{r}");
+        let mp4 = vectorcraft_format::base64_decode(r["dataBase64"].as_str().unwrap()).unwrap();
+        assert_eq!(&mp4[4..12], b"ftypisom");
+        assert!(mp4.windows(4).any(|w| w == b"avcC"));
+        assert!(s.execute("embroidery.exportAnimation", &json!({"format": "avi"})).is_err());
         for bad in [json!({"frames": 2}), json!({"ppmm": 50}), json!({"view": "x"}), json!({"seconds": 1})] {
             assert!(s.execute("embroidery.exportAnimation", &bad).is_err(), "{bad}");
         }

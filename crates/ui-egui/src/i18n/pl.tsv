@@ -6720,8 +6720,17 @@ machine	Stop	Zatrzymanie
 @msg	`automatic` is true, false or "toggle"	`automatic` to true, false lub "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Wyszedł StitchFoundry {version}: zobacz ekran startowy
 	StitchFoundry {version} is the newest	StitchFoundry {version} jest najnowszy
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Film z haftowania MP4 (.mp4)…
+	Save as Video…	Zapisz jako film…
+	An MP4 video of the design sewing itself, for social posts and phones	Film MP4 z wzorem, który sam się wyszywa, do mediów społecznościowych i telefonów
 	As shown	Jak pokazano
 	Larger	Większy
 	Rounded corners	Zaokrąglone rogi
 	Scalloped	Falbankowa
+@msg	H.264 encoding failed: {e:?}	Kodowanie H.264 nie powiodło się: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Klatka filmu ma {w} × {h}: musi składać się z całych makrobloków, najwyżej 4096 na bok
+@msg	the video's frames changed size	Klatki filmu zmieniły rozmiar
+@msg	the video has no frames	Film nie ma klatek
+@msg	the video would be larger than 4 GB: lower the size or frames	Film przekroczyłby 4 GB: zmniejsz rozmiar lub liczbę klatek
+@msg	the video is too large	Film jest za duży

@@ -6882,8 +6882,17 @@ mark-style	Japanese	Japonské
 @msg	`automatic` is true, false or "toggle"	`automatic` je true, false nebo "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Vyšel StitchFoundry {version}: najdete ho na úvodní obrazovce
 	StitchFoundry {version} is the newest	StitchFoundry {version} je nejnovější
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Video vyšívání MP4 (.mp4)…
+	Save as Video…	Uložit jako video…
+	An MP4 video of the design sewing itself, for social posts and phones	Video MP4, jak se výšivka sama vyšívá, pro sociální sítě a telefony
 	As shown	Jak je zobrazeno
 	Larger	Větší
 	Rounded corners	Zaoblené rohy
 	Scalloped	Vlnkový
+@msg	H.264 encoding failed: {e:?}	Kódování H.264 selhalo: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Snímek videa má {w} × {h}: musí být z celých makrobloků, nejvýše 4096 na stranu
+@msg	the video's frames changed size	Snímky videa změnily velikost
+@msg	the video has no frames	Video nemá žádné snímky
+@msg	the video would be larger than 4 GB: lower the size or frames	Video by mělo přes 4 GB: zmenšete velikost nebo počet snímků
+@msg	the video is too large	Video je příliš velké

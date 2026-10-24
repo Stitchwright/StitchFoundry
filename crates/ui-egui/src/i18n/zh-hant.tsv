@@ -6481,8 +6481,17 @@ machine	Stop	停止
 @msg	`automatic` is true, false or "toggle"	`automatic` 為 true、false 或 "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} 已發布：請看主畫面
 	StitchFoundry {version} is the newest	StitchFoundry {version} 是最新版本
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	繡製影片 MP4 (.mp4)…
+	Save as Video…	另存為影片…
+	An MP4 video of the design sewing itself, for social posts and phones	圖案自己一針一針繡出來的 MP4 影片，用於社群媒體和手機
 	As shown	如圖
 	Larger	大一點
 	Rounded corners	圓角
 	Scalloped	波浪邊
+@msg	H.264 encoding failed: {e:?}	H.264 編碼失敗：{e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	影片影格為 {w} × {h}：必須是完整的巨集區塊，每邊最多 4096
+@msg	the video's frames changed size	影片影格的尺寸變了
+@msg	the video has no frames	影片沒有影格
+@msg	the video would be larger than 4 GB: lower the size or frames	影片會超過 4 GB：請減小尺寸或影格數
+@msg	the video is too large	影片太大

@@ -6894,8 +6894,17 @@ swatch	Bright Violet	Kirkas violetti
 @msg	`automatic` is true, false or "toggle"	`automatic` on true, false tai "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} on julkaistu: katso aloitusnäyttö
 	StitchFoundry {version} is the newest	StitchFoundry {version} on uusin
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Kirjontavideo MP4 (.mp4)…
+	Save as Video…	Tallenna videona…
+	An MP4 video of the design sewing itself, for social posts and phones	MP4-video mallista, joka kirjoutuu itsestään, someen ja puhelimiin
 	As shown	Kuten näytetty
 	Larger	Suurempi
 	Rounded corners	Pyöristetyt kulmat
 	Scalloped	Aaltoreuna
+@msg	H.264 encoding failed: {e:?}	H.264-koodaus epäonnistui: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Videon kuva on {w} × {h}: sen on oltava kokonaisia makrolohkoja, enintään 4096 sivua kohden
+@msg	the video's frames changed size	Videon kuvat vaihtoivat kokoa
+@msg	the video has no frames	Videossa ei ole kuvia
+@msg	the video would be larger than 4 GB: lower the size or frames	Video olisi yli 4 Gt: pienennä kokoa tai kuvien määrää
+@msg	the video is too large	Video on liian suuri

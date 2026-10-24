@@ -6813,8 +6813,17 @@ swatch	Bright Violet	Felviolet
 @msg	`automatic` is true, false or "toggle"	`automatic` is true, false of "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} is uit: zie het startscherm
 	StitchFoundry {version} is the newest	StitchFoundry {version} is de nieuwste
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Borduurvideo MP4 (.mp4)…
+	Save as Video…	Bewaren als video…
+	An MP4 video of the design sewing itself, for social posts and phones	Een MP4-video van het ontwerp dat zichzelf borduurt, voor sociale media en telefoons
 	As shown	Zoals getoond
 	Larger	Groter
 	Rounded corners	Afgeronde hoeken
 	Scalloped	Geschulpt
+@msg	H.264 encoding failed: {e:?}	H.264-codering mislukt: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Een videobeeld is {w} × {h}: het moet uit hele macroblokken bestaan, hoogstens 4096 per zijde
+@msg	the video's frames changed size	De beelden van de video veranderden van grootte
+@msg	the video has no frames	De video heeft geen beelden
+@msg	the video would be larger than 4 GB: lower the size or frames	De video zou groter zijn dan 4 GB: verklein de grootte of het aantal beelden
+@msg	the video is too large	De video is te groot

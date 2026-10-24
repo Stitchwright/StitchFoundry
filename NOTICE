@@ -39,6 +39,11 @@ Builds made with the `heif` feature (not the official ones, for now) decode HEIC
 PhotoCraft's HEIF wrapper (MIT OR Apache-2.0). HEVC, the compression HEIC uses, is covered by patents
 in some countries; whoever distributes such a build is responsible for any licence they need.
 
+The sew-out video (File › Export › Sew-out Video MP4) is encoded as H.264 with less-avc
+(https://github.com/strawlab/less-avc, MIT OR Apache-2.0); StitchFoundry writes the MP4 file itself.
+H.264 (AVC) is covered by patents in some countries, licensed by Via LA (formerly MPEG LA); its
+licence has asked no royalty for the first 100,000 copies of an encoder a year.
+
 Rust dependencies (vello_cpu, kurbo, peniko, skrifa, harfrust, usvg, linesweeper, egui, eframe, …) are
 fetched through crates.io under their own permissive licenses (mostly MIT and/or Apache-2.0; also
 BSD, ISC, Zlib, BSL-1.0 and Unicode-3.0).

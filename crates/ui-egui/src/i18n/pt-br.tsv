@@ -6735,8 +6735,17 @@ mark-style	Japanese	Japonesas
 @msg	`automatic` is true, false or "toggle"	`automatic` é true, false ou "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Saiu o StitchFoundry {version}: veja a tela inicial
 	StitchFoundry {version} is the newest	O StitchFoundry {version} é o mais recente
-# In-the-hoop sizes and edges
+# Sew-out video, in-the-hoop sizes and edges
+	Sew-out Video MP4 (.mp4)…	Vídeo do bordado MP4 (.mp4)…
+	Save as Video…	Salvar como vídeo…
+	An MP4 video of the design sewing itself, for social posts and phones	Um vídeo MP4 do desenho se bordando sozinho, para redes sociais e celulares
 	As shown	Como mostrado
 	Larger	Maior
 	Rounded corners	Cantos arredondados
 	Scalloped	Recortada em ondas
+@msg	H.264 encoding failed: {e:?}	Falha na codificação H.264: {e:?}
+@msg	a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side	Um quadro do vídeo tem {w} × {h}: precisa ser de macroblocos inteiros, no máximo 4096 por lado
+@msg	the video's frames changed size	Os quadros do vídeo mudaram de tamanho
+@msg	the video has no frames	O vídeo não tem quadros
+@msg	the video would be larger than 4 GB: lower the size or frames	O vídeo passaria de 4 GB: reduza o tamanho ou os quadros
+@msg	the video is too large	O vídeo é grande demais
