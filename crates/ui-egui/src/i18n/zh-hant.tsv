@@ -6518,3 +6518,4 @@ machine	Stop	停止
 	 it to move it	以移動它
 	Turn your words, shapes and pictures into designs for your embroidery machine.	把您的文字、圖形和圖片變成繡花機可用的圖案。
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	請先告訴 StitchFoundry 您用的是哪台繡花機，這樣圖案會存成它能讀取的檔案類型。然後按「完成」儲存。
+	The words were made smaller ({pct}%) to fit in the hoop.	為了放進繡框，文字已縮小（{pct}%）。

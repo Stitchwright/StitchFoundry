@@ -6597,3 +6597,4 @@ machine	Stop	停止
 	 it to move it	：動かす
 	Turn your words, shapes and pictures into designs for your embroidery machine.	文字や図形、写真を、お使いの刺しゅうミシン用のデザインにします。
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	まず、お使いのミシンを StitchFoundry に教えてください。ミシンが読める形式でデザインを保存します。そのあと「完了」を押すと保存されます。
+	The words were made smaller ({pct}%) to fit in the hoop.	刺繍枠に収まるように、文字を小さくしました（{pct}%）。

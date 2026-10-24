@@ -6510,3 +6510,4 @@ machine	Stop	정지
 	 it to move it	 옮길 부분
 	Turn your words, shapes and pictures into designs for your embroidery machine.	글자, 모양, 사진을 자수기용 디자인으로 바꿔 보세요.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	먼저 어떤 자수기를 쓰는지 StitchFoundry에 알려 주세요. 그 기계가 읽는 파일 형식으로 디자인을 저장합니다. 그런 다음 완료를 누르면 저장됩니다.
+	The words were made smaller ({pct}%) to fit in the hoop.	후프에 들어가도록 글자를 줄였습니다({pct}%).

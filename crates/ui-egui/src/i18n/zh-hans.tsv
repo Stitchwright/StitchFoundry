@@ -6735,3 +6735,4 @@ machine	Stop	停止
 	 it to move it	以移动它
 	Turn your words, shapes and pictures into designs for your embroidery machine.	把您的文字、图形和图片变成绣花机可用的图案。
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	请先告诉 StitchFoundry 您用的是哪台绣花机，这样图案会存成它能读取的文件类型。然后按“完成”保存。
+	The words were made smaller ({pct}%) to fit in the hoop.	为了放进绣框，文字已缩小（{pct}%）。

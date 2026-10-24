@@ -13,7 +13,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Make a Design",
         [],
         None,
-        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), pieceSize?: small|regular|large (ith), edge?: square|rounded|scalloped|round (ith), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6; 8 for a photo), photo?: bool (picture: whether it is a photo, guessed from its colours; a photo's colours are made flat before it is digitized), removeBackground?: bool (picture, a photo: true; its subject cut out of its background first, false: the whole photo stitched), border?: mm (picture: 0, none; else a filled band this wide round it, as embroidery.addBorder makes), sample?: an id from embroidery.samples} a new design made in one step: words or a shape in the middle of the hoop, an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits, photo (picture)}",
+        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), pieceSize?: small|regular|large (ith), edge?: square|rounded|scalloped|round (ith), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6; 8 for a photo), photo?: bool (picture: whether it is a photo, guessed from its colours; a photo's colours are made flat before it is digitized), removeBackground?: bool (picture, a photo: true; its subject cut out of its background first, false: the whole photo stitched), border?: mm (picture: 0, none; else a filled band this wide round it, as embroidery.addBorder makes), sample?: an id from embroidery.samples} a new design made in one step: words or a shape in the middle of the hoop (words too long for it made smaller to fit), an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits, photo (picture), madeSmaller (words made smaller to fit: %)}",
         always,
         make_design
     )]
@@ -27,6 +27,8 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
         _ => json!({}),
     };
     let mut photo = None;
+    // words made smaller to fit the hoop: to what percent
+    let mut smaller: Option<f64> = None;
     let ids: Vec<Value> = match what {
         "sample" => {
             let id = str_param(p, "sample").ok_or_else(|| bad(CMD, "missing `sample`: see embroidery.samples"))?;
@@ -34,12 +36,22 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
             Vec::new()
         }
         "words" => {
-            s.execute("embroidery.newDesign", &hoop())?;
+            let made = s.execute("embroidery.newDesign", &hoop())?;
             let mut q = json!({ "text": p.get("text").cloned().unwrap_or(Value::Null) });
             if let Some(h) = p.get("height") {
                 q["height"] = h.clone();
             }
-            vec![s.execute("embroidery.addWords", &q)?["id"].clone()]
+            let id = s.execute("embroidery.addWords", &q)?["id"].clone();
+            // words longer than the hoop is wide: made smaller, to nine tenths of the hoop
+            let (hw, hh) = (made["width"].as_f64().unwrap_or(0.0), made["height"].as_f64().unwrap_or(0.0));
+            let info = s.execute("embroidery.info", &json!({}))?;
+            let (w, h) = (info["widthMm"].as_f64().unwrap_or(0.0), info["heightMm"].as_f64().unwrap_or(0.0));
+            let k = if w > 0.0 && h > 0.0 { (0.9 * hw / w).min(0.9 * hh / h) } else { 1.0 };
+            if k.is_finite() && k > 0.0 && k < 1.0 {
+                s.execute("object.scale", &json!({ "ids": [id.clone()], "sx": k * 100.0 }))?;
+                smaller = Some(k * 100.0);
+            }
+            vec![id]
         }
         "shape" | "applique" => {
             s.execute("embroidery.newDesign", &hoop())?;
@@ -145,6 +157,9 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
     if let Some(v) = photo {
         out["photo"] = json!(v);
     }
+    if let Some(pct) = smaller {
+        out["madeSmaller"] = json!(pct.round());
+    }
     Ok(out)
 }
 
@@ -167,6 +182,22 @@ mod tests {
         .write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png)
         .unwrap();
         vectorcraft_format::base64_encode(&png)
+    }
+
+    /// QA-01: words too long for the hoop are made smaller to fit, and the result says so;
+    /// words that fit keep their size.
+    #[test]
+    fn words_too_long_for_the_hoop_are_made_smaller_to_fit() {
+        let mut s = Session::new();
+        s.execute("embroidery.myMachine.set", &json!({"machine": null})).unwrap();
+        let r = s.execute("embroidery.makeDesign", &json!({"what": "words", "text": "Grandma", "height": 25})).unwrap();
+        assert_eq!(r["fits"], true, "{r}");
+        let pct = r["madeSmaller"].as_f64().unwrap();
+        assert!((40.0..100.0).contains(&pct), "{r}");
+        assert!(r["widthMm"].as_f64().unwrap() <= 130.0 * 0.9 + 0.5, "nine tenths of the 5×7's width: {r}");
+        let r = s.execute("embroidery.makeDesign", &json!({"what": "words", "text": "Al", "height": 25})).unwrap();
+        assert!(r.get("madeSmaller").is_none(), "{r}");
+        assert!((r["heightMm"].as_f64().unwrap() - 25.0).abs() < 6.0, "{r}");
     }
 
     /// E3: each kind of design the guide offers is made in one step, ready to sew in the hoop.

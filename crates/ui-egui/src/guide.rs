@@ -81,6 +81,9 @@ pub struct GuideState {
     pub middle_applique: bool,
     /// The last thing that went wrong, shown under the step.
     pub error: Option<String>,
+    /// What Make a Design did that wasn't asked for (words made smaller to fit), shown under the
+    /// next step.
+    pub note: Option<String>,
 }
 
 impl Default for GuideState {
@@ -115,6 +118,7 @@ impl Default for GuideState {
             middle_shape: None,
             middle_applique: false,
             error: None,
+            note: None,
         }
     }
 }
@@ -181,6 +185,9 @@ pub fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 }
                 if let Some(e) = &app.guide.error {
                     ui.label(RichText::new(e).size(13.0).color(t.error));
+                }
+                if let Some(n) = app.guide.note.as_ref().filter(|_| step == Step::Fabric) {
+                    ui.label(RichText::new(n).size(14.0).color(t.text));
                 }
             });
             ui.add_space(6.0);
@@ -588,7 +595,10 @@ fn project_name(name: &str) -> &str {
 /// Makes the design and moves on to the fabric it goes on.
 pub(crate) fn make_it(app: &mut VectorcraftApp, q: Value) {
     match app.run("embroidery.makeDesign", q) {
-        Ok(_) => {
+        Ok(r) => {
+            app.guide.note = r["madeSmaller"]
+                .as_f64()
+                .map(|pct| crate::i18n::fmt(tl!("The words were made smaller ({pct}%) to fit in the hoop."), &[("pct", &format!("{pct:.0}"))]));
             app.run("select.none", json!({})).ok();
             app.run("view.fitArtboard", json!({})).ok();
             app.guide.error = None;

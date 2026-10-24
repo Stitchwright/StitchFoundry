@@ -435,6 +435,20 @@ fn simple_mode_names_threads_and_says_why_my_machine_opened() {
     assert!(window.iter().any(|t| t == "Done"), "{window:?}");
 }
 
+/// QA-01: words too long for the hoop are made smaller, and the guide's next step says so.
+#[test]
+fn the_guide_says_when_words_were_made_smaller() {
+    let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), crate::Services::default());
+    app.run("embroidery.myMachine.set", json!({"machine": null})).unwrap();
+    app.run("ui.makeDesign", json!({})).unwrap();
+    crate::guide::make_it(&mut app, json!({"what": "words", "text": "Grandma", "height": 25}));
+    assert_eq!(app.guide.step, crate::guide::Step::Fabric);
+    let note = app.guide.note.clone().expect("a note");
+    assert!(note.starts_with("The words were made smaller (") && note.ends_with("%) to fit in the hoop."), "{note}");
+    let s = guide_strings(&mut app);
+    assert!(s.contains(&note), "{s:?}");
+}
+
 /// TB-01: the first start on a tablet turns on simple mode, unless a way of working was chosen.
 #[test]
 fn a_tablet_starts_in_simple_mode_unless_another_way_was_chosen() {

@@ -6558,3 +6558,4 @@ machine	Stop	Arresto
 	 it to move it	 per spostarla
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Trasforma parole, forme e immagini in disegni per la tua macchina da ricamo.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Per prima cosa indica a StitchFoundry quale macchina hai, così il disegno viene salvato nel tipo di file che legge. Poi premi Fine per salvare.
+	The words were made smaller ({pct}%) to fit in the hoop.	Le parole sono state rimpicciolite ({pct}%) per stare nel telaio.
