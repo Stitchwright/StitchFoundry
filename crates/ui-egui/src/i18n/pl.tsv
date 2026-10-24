@@ -6720,3 +6720,8 @@ machine	Stop	Zatrzymanie
 @msg	`automatic` is true, false or "toggle"	`automatic` to true, false lub "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Wyszedł StitchFoundry {version}: zobacz ekran startowy
 	StitchFoundry {version} is the newest	StitchFoundry {version} jest najnowszy
+# In-the-hoop sizes and edges
+	As shown	Jak pokazano
+	Larger	Większy
+	Rounded corners	Zaokrąglone rogi
+	Scalloped	Falbankowa

@@ -13,7 +13,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Make a Design",
         [],
         None,
-        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6; 8 for a photo), photo?: bool (picture: whether it is a photo, guessed from its colours; a photo's colours are made flat before it is digitized), removeBackground?: bool (picture, a photo: true; its subject cut out of its background first, false: the whole photo stitched), border?: mm (picture: 0, none; else a filled band this wide round it, as embroidery.addBorder makes), sample?: an id from embroidery.samples} a new design made in one step: words or a shape in the middle of the hoop, an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits, photo (picture)}",
+        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), pieceSize?: small|regular|large (ith), edge?: square|rounded|scalloped|round (ith), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6; 8 for a photo), photo?: bool (picture: whether it is a photo, guessed from its colours; a photo's colours are made flat before it is digitized), removeBackground?: bool (picture, a photo: true; its subject cut out of its background first, false: the whole photo stitched), border?: mm (picture: 0, none; else a filled band this wide round it, as embroidery.addBorder makes), sample?: an id from embroidery.samples} a new design made in one step: words or a shape in the middle of the hoop, an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits, photo (picture)}",
         always,
         make_design
     )]
@@ -107,10 +107,14 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
         }
         "ith" => {
             let mut q = json!({ "project": p.get("project").cloned().unwrap_or(Value::Null) });
-            for k in ["hoop", "text", "shape", "height", "ribbon", "vinyl", "button"] {
+            for k in ["hoop", "text", "shape", "height", "ribbon", "vinyl", "button", "edge"] {
                 if let Some(v) = p.get(k).filter(|v| !v.is_null()) {
                     q[k] = v.clone();
                 }
+            }
+            // `size` is a shape's size in mm here: the project's is `pieceSize`
+            if let Some(v) = p.get("pieceSize").filter(|v| !v.is_null()) {
+                q["size"] = v.clone();
             }
             s.execute("embroidery.ith.make", &q)?;
             Vec::new()

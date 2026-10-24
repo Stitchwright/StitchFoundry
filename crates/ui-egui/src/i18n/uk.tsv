@@ -6501,3 +6501,8 @@ machine	Stop	Зупинка
 @msg	`automatic` is true, false or "toggle"	`automatic` — true, false або "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Вийшов StitchFoundry {version}: див. початковий екран
 	StitchFoundry {version} is the newest	StitchFoundry {version} — найновіша версія
+# In-the-hoop sizes and edges
+	As shown	Як показано
+	Larger	Більший
+	Rounded corners	Заокруглені кути
+	Scalloped	Фестонами

@@ -6771,3 +6771,8 @@ swatch	Bright Violet	Kraftig violet
 @msg	`automatic` is true, false or "toggle"	`automatic` er true, false eller "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} er ude: se startskærmen
 	StitchFoundry {version} is the newest	StitchFoundry {version} er den nyeste
+# In-the-hoop sizes and edges
+	As shown	Som vist
+	Larger	Større
+	Rounded corners	Runde hjørner
+	Scalloped	Bølget

@@ -6473,3 +6473,8 @@ machine	Stop	정지
 @msg	`automatic` is true, false or "toggle"	`automatic`은 true, false 또는 "toggle"입니다
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version}이(가) 나왔습니다: 홈 화면을 보세요
 	StitchFoundry {version} is the newest	StitchFoundry {version}이(가) 최신입니다
+# In-the-hoop sizes and edges
+	As shown	보이는 대로
+	Larger	크게
+	Rounded corners	둥근 모서리
+	Scalloped	물결무늬

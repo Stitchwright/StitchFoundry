@@ -6837,3 +6837,8 @@ machine	Stop	Спиране
 @msg	`automatic` is true, false or "toggle"	`automatic` е true, false или "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Излезе StitchFoundry {version}: вижте началния екран
 	StitchFoundry {version} is the newest	StitchFoundry {version} е най-новата версия
+# In-the-hoop sizes and edges
+	As shown	Както е показан
+	Larger	По-голям
+	Rounded corners	Заоблени ъгли
+	Scalloped	На фестони

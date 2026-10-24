@@ -6894,3 +6894,8 @@ theme	Appearance	Apparence
 @msg	`automatic` is true, false or "toggle"	`automatic` vaut true, false ou "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} est sorti : voir l’écran d’accueil
 	StitchFoundry {version} is the newest	StitchFoundry {version} est la plus récente
+# In-the-hoop sizes and edges
+	As shown	Comme montré
+	Larger	Plus grand
+	Rounded corners	Coins arrondis
+	Scalloped	Festonné

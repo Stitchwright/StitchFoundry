@@ -946,9 +946,15 @@ a crash in between.
 
 An in-the-hoop project is sewn whole, or nearly, in the hoop: the machine stops at each step for
 you to lay, tape or trim fabric. **Make a Design › An in-the-hoop project** (or
-`embroidery.ith.make {project, hoop?, text?, shape?, height?, color?}`) makes one with your
-words and a shape in the middle, in the smallest of My Machine's hoops it fits, turned the right
-way round:
+`embroidery.ith.make {project, hoop?, text?, shape?, height?, color?, size?, edge?}`) makes one
+with your words and a shape in the middle, in the smallest of My Machine's hoops it fits, turned the
+right way round. Most pieces come **smaller** or **larger** (`size: small|large`, four fifths or
+five quarters of their own size; the hoop grows to fit), all but the pillow fronts, the book cover,
+the phone case and the passport holder, which fit what goes in them. The pieces finished in the
+hoop with nothing sewn into their edge (the mug rug, coaster, ornament, key fob, luggage tag and
+bookmark) take an **edge**: square corners, rounded corners, scallops all round, or round
+(`edge: square|rounded|scalloped|round`), the placement line, tack-downs and satin edge all
+following it.
 
 - **Little pillow front, 8″ square** and **9½ × 5½″**: fronts for the little seasonal bench
   pillows that sit on a small bench and change with the months (forms of those two sizes). The

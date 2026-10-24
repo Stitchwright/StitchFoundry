@@ -6487,3 +6487,9 @@ effect	Soft	Weich
 @msg	`automatic` is true, false or "toggle"	`automatic` ist true, false oder "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} ist erschienen: siehe Startbildschirm
 	StitchFoundry {version} is the newest	StitchFoundry {version} ist die neueste Version
+# In-the-hoop sizes and edges
+	As shown	Wie gezeigt
+	Larger	Größer
+	Edge	Rand
+	Rounded corners	Abgerundete Ecken
+	Scalloped	Gewellt

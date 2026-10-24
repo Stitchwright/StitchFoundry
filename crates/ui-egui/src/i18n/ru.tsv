@@ -6517,3 +6517,8 @@ machine	Stop	Остановка
 @msg	`automatic` is true, false or "toggle"	`automatic` — true, false или "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Вышел StitchFoundry {version}: см. начальный экран
 	StitchFoundry {version} is the newest	StitchFoundry {version} — самая новая версия
+# In-the-hoop sizes and edges
+	As shown	Как показано
+	Larger	Больше
+	Rounded corners	Скруглённые углы
+	Scalloped	Фестонами

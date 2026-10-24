@@ -62,6 +62,9 @@ pub struct GuideState {
     pub ribbon: bool,
     pub vinyl: bool,
     pub button: bool,
+    /// The project's size (small, regular, large) and edge (square, rounded, scalloped, round).
+    pub piece_size: &'static str,
+    pub edge: Option<&'static str>,
     /// The last in-the-hoop project made, for its cutting templates.
     pub last_ith: Option<Value>,
     /// A quilt block: its size (inches), pattern and line spacing (mm).
@@ -100,6 +103,8 @@ impl Default for GuideState {
             ribbon: false,
             vinyl: false,
             button: false,
+            piece_size: "regular",
+            edge: None,
             last_ith: None,
             block: (5.0, 7.0),
             pattern: "stipple",
@@ -440,7 +445,8 @@ fn details(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
         "ith" => {
             ui.label(RichText::new(tl!("Which project?")).font(theme::semibold(18.0)).color(t.text));
             let list = app.session.execute("embroidery.ith.projects", &json!({})).unwrap_or_default();
-            for pr in list["projects"].as_array().map(Vec::as_slice).unwrap_or_default() {
+            let projects = list["projects"].as_array().cloned().unwrap_or_default();
+            for pr in &projects {
                 let (Some(id), Some(name)) = (pr["id"].as_str(), pr["name"].as_str()) else { continue };
                 let line = if pr["panel"] == true {
                     tl!("Sewn in a 5×7 hoop, borders and back sewn on after")
@@ -449,7 +455,38 @@ fn details(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
                 };
                 if card(ui, t, project_name(name), line, app.guide.project.as_deref() == Some(id)).clicked() {
                     app.guide.project = Some(id.to_string());
+                    // a new project starts at its own size and edge
+                    app.guide.piece_size = "regular";
+                    app.guide.edge = None;
                 }
+            }
+            // its size and edge, where it comes in more than one
+            let chosen = projects.iter().find(|pr| pr["id"].as_str() == app.guide.project.as_deref());
+            if chosen.is_some_and(|pr| pr["sizes"] == true) {
+                ui.horizontal_wrapped(|ui| {
+                    ui.label(RichText::new(tl!("Size")).size(14.0));
+                    for (v, label) in [("small", tl!("Smaller")), ("regular", tl!("As shown")), ("large", tl!("Larger"))] {
+                        if ui.selectable_label(app.guide.piece_size == v, label).clicked() {
+                            app.guide.piece_size = v;
+                        }
+                    }
+                });
+            }
+            if chosen.is_some_and(|pr| pr["edges"] == true) {
+                ui.horizontal_wrapped(|ui| {
+                    ui.label(RichText::new(tl!("Edge")).size(14.0));
+                    let own = if app.guide.project.as_deref() == Some("ornament") { "round" } else { "square" };
+                    for (v, label) in [
+                        ("square", tl!("Square corners")),
+                        ("rounded", tl!("Rounded corners")),
+                        ("scalloped", tl!("Scalloped")),
+                        ("round", tl!("Round")),
+                    ] {
+                        if ui.selectable_label(app.guide.edge.unwrap_or(own) == v, label).clicked() {
+                            app.guide.edge = Some(v);
+                        }
+                    }
+                });
             }
             ui.label(RichText::new(tl!("Words (you can leave this empty)")).size(14.0));
             ui.add(egui::TextEdit::singleline(&mut app.guide.text).font(egui::FontId::proportional(18.0)).desired_width(500.0));
@@ -479,6 +516,7 @@ fn details(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
                 let q = json!({
                     "what": "ith", "project": project, "text": (!text.is_empty()).then_some(text), "shape": g.ith_shape,
                     "ribbon": g.ribbon, "vinyl": g.vinyl && !panel, "button": g.button,
+                    "pieceSize": g.piece_size, "edge": g.edge,
                 });
                 app.guide.last_ith = Some(q.clone());
                 make = Some(q);

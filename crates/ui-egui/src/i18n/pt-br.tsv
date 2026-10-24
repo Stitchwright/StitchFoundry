@@ -6735,3 +6735,8 @@ mark-style	Japanese	Japonesas
 @msg	`automatic` is true, false or "toggle"	`automatic` é true, false ou "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Saiu o StitchFoundry {version}: veja a tela inicial
 	StitchFoundry {version} is the newest	O StitchFoundry {version} é o mais recente
+# In-the-hoop sizes and edges
+	As shown	Como mostrado
+	Larger	Maior
+	Rounded corners	Cantos arredondados
+	Scalloped	Recortada em ondas

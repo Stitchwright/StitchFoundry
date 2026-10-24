@@ -6882,3 +6882,8 @@ mark-style	Japanese	Japonské
 @msg	`automatic` is true, false or "toggle"	`automatic` je true, false nebo "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Vyšel StitchFoundry {version}: najdete ho na úvodní obrazovce
 	StitchFoundry {version} is the newest	StitchFoundry {version} je nejnovější
+# In-the-hoop sizes and edges
+	As shown	Jak je zobrazeno
+	Larger	Větší
+	Rounded corners	Zaoblené rohy
+	Scalloped	Vlnkový

@@ -6771,3 +6771,8 @@ swatch	Bright Violet	Violet cerah
 @msg	`automatic` is true, false or "toggle"	`automatic` adalah true, false, atau "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} sudah rilis: lihat layar Beranda
 	StitchFoundry {version} is the newest	StitchFoundry {version} adalah yang terbaru
+# In-the-hoop sizes and edges
+	As shown	Seperti ditampilkan
+	Larger	Lebih besar
+	Rounded corners	Sudut membulat
+	Scalloped	Bergelombang

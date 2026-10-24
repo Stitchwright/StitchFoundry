@@ -6477,3 +6477,8 @@ machine	Stop	Dừng máy
 @msg	`automatic` is true, false or "toggle"	`automatic` là true, false hoặc "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} đã ra mắt: xem màn hình chính
 	StitchFoundry {version} is the newest	StitchFoundry {version} là bản mới nhất
+# In-the-hoop sizes and edges
+	As shown	Như hiển thị
+	Larger	Lớn hơn
+	Rounded corners	Góc bo tròn
+	Scalloped	Viền sò

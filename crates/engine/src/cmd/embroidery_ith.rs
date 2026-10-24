@@ -23,6 +23,9 @@ const IN: f64 = 25.4;
 const SEAM: f64 = IN / 4.0;
 /// Room kept between the project and the hoop's sewing field (mm).
 const MARGIN: f64 = 6.0;
+/// The small and large sizes, as a share of the project's own.
+const SMALL: f64 = 0.8;
+const LARGE: f64 = 1.25;
 
 /// One project: id, name, finished width × height (mm), sewn round (an ornament), and whether the
 /// hoop makes a panel that borders finish (else the piece is finished in the hoop).
@@ -180,7 +183,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "In-the-Hoop Projects",
             [],
             None,
-            "{} the in-the-hoop projects → {projects: [{id, name, widthMm, heightMm, panel (borders finish it) }]}",
+            "{} the in-the-hoop projects → {projects: [{id, name, widthMm, heightMm, panel (borders finish it), sizes (small and large made), edges (rounded, scalloped and round edges made) }]}",
             always,
             projects
         ),
@@ -189,7 +192,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Make In-the-Hoop Project",
             [],
             None,
-            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament|key-fob|luggage-tag|bookmark|zipper-pouch|pencil-case|card-holder|phone-case|passport-holder|book-cover, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop, on by default for the key fob and the luggage tag; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], design: [ids of the shape and words], notes}",
+            "{project: pillow-square|pillow-wide|mug-rug|coaster|ornament|key-fob|luggage-tag|bookmark|zipper-pouch|pencil-case|card-holder|phone-case|passport-holder|book-cover, hoop?: a hoop's name (else the smallest of My Machine's, or the usual ones, that it fits), text?: words, height?: mm (the words), shape?: Heart|Star|… (embroidery.addShape's), color?: \"#rrggbb\" (the design's thread), ribbon?: bool (a hanging loop at the top of a piece finished in the hoop, on by default for the key fob and the luggage tag; on a pillow front, a ribbon band across the panel below the design, sewn along both its edges), vinyl?: bool (pieces finished in the hoop: clear vinyl over the top, tacked with long stitches, wipe-clean), button?: bool (a small cross marking where to sew a button by hand), size?: small|regular|large (four fifths or five quarters of the project's own size; not the pillow fronts, book cover, phone case or passport holder, which fit what goes in them), edge?: square|rounded|scalloped|round (the outline of a piece finished in the hoop with nothing sewn into its edge: mug rug, coaster, ornament, key fob, luggage tag, bookmark)} a new design: the project's steps in sewing order, each its own thread named for what to do (the machine stops between them), the words and shape in the middle; the supplies with cut sizes and the steps become the design's notes (its worksheet is the step sheet) → {project, hoop, steps: [{step, thread, what}], supplies: [text], pieces: [{name, widthMm, heightMm}], design: [ids of the shape and words], notes}",
             always,
             make
         ),
@@ -207,9 +210,14 @@ pub fn specs() -> Vec<CommandSpec> {
 
 fn projects(_s: &mut Session, _p: &Value) -> Result<Value> {
     Ok(json!({
-        "projects": PROJECTS.iter().map(|p| json!({
-            "id": p.id, "name": p.name, "widthMm": p.finished.0, "heightMm": p.finished.1, "panel": p.panel,
-        })).collect::<Vec<_>>()
+        "projects": PROJECTS.iter().map(|p| {
+            let case = SLEEVES.contains(&p.id);
+            let edges = !p.panel && !case && !ZIPPERED.contains(&p.id) && !POCKETS.iter().any(|x| x.0 == p.id);
+            json!({
+                "id": p.id, "name": p.name, "widthMm": p.finished.0, "heightMm": p.finished.1, "panel": p.panel,
+                "sizes": !p.panel && !case, "edges": edges,
+            })
+        }).collect::<Vec<_>>()
     }))
 }
 
@@ -265,11 +273,70 @@ fn on(s: &mut Session, id: u64, cmd: &str, q: Value) -> Result<Value> {
 }
 
 /// A rectangle (or circle) `w` × `h` mm round the page's middle → its id.
-fn outline(s: &mut Session, c: kurbo::Point, w: f64, h: f64, round: bool) -> Result<u64> {
+fn outline(s: &mut Session, c: kurbo::Point, w: f64, h: f64, edge: Edge) -> Result<u64> {
     let (wp, hp) = (w * PT_PER_MM, h * PT_PER_MM);
     let q = json!({ "x": c.x - wp / 2.0, "y": c.y - hp / 2.0, "width": wp, "height": hp });
-    let r = s.execute(if round { "shape.ellipse" } else { "shape.rectangle" }, &q)?;
+    let r = match edge {
+        Edge::Square => s.execute("shape.rectangle", &q)?,
+        Edge::Round => s.execute("shape.ellipse", &q)?,
+        Edge::Rounded => {
+            let mut q = q;
+            q["radius"] = json!(ROUNDED * w.min(h) * PT_PER_MM);
+            s.execute("shape.rectangle", &q)?
+        }
+        Edge::Scalloped(nx, ny) => s.execute("path.create", &json!({ "d": scallops(c, w, h, nx, ny) }))?,
+    };
     r["id"].as_u64().ok_or_else(|| bad("embroidery.ith.make", "the outline wasn't made"))
+}
+
+/// A piece's edge: square corners, rounded ones, scallops all round (how many along the width and
+/// the height), or round (an ellipse).
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Edge {
+    Square,
+    Rounded,
+    Scalloped(usize, usize),
+    Round,
+}
+
+/// How round a rounded piece's corners are: their radius, a share of its shorter side.
+const ROUNDED: f64 = 0.15;
+/// About how wide a scallop is (mm).
+const SCALLOP: f64 = 18.0;
+
+/// How many scallops go along `w` and `h` (mm): every scallop about as deep as the others.
+fn scallop_counts(w: f64, h: f64) -> (usize, usize) {
+    let nx = ((w / SCALLOP).round() as usize).clamp(2, 40);
+    // each scallop is as deep as half its width; the corners are where two meet
+    let depth = w / (2.0 * nx as f64 + 2.0);
+    let ny = ((h / (2.0 * depth) - 1.0).round() as usize).clamp(2, 40);
+    (nx, ny)
+}
+
+/// SVG path data (points) for a w × h (mm) outline round `c` of scallops bulging outwards: `nx`
+/// along the top and bottom, `ny` down the sides, the outline exactly w × h.
+fn scallops(c: kurbo::Point, w: f64, h: f64, nx: usize, ny: usize) -> String {
+    let (nx, ny) = (nx.max(1), ny.max(1));
+    // the scallops' depth, the same all round: the corners' arcs meet there
+    let depth = (w / (2.0 * nx as f64 + 2.0)).min(h / (2.0 * ny as f64 + 2.0)) * PT_PER_MM;
+    let (wp, hp) = (w * PT_PER_MM, h * PT_PER_MM);
+    let (l, r, t, b) = (c.x - wp / 2.0 + depth, c.x + wp / 2.0 - depth, c.y - hp / 2.0 + depth, c.y + hp / 2.0 - depth);
+    let (sx, sy) = ((r - l) / nx as f64, (b - t) / ny as f64);
+    let mut d = format!("M{l:.3} {t:.3}");
+    // clockwise on the page (y down): each arc's sweep flag 1 bulges outwards
+    for i in 1..=nx {
+        d += &format!(" A{:.3} {depth:.3} 0 0 1 {:.3} {t:.3}", sx / 2.0, l + sx * i as f64);
+    }
+    for i in 1..=ny {
+        d += &format!(" A{depth:.3} {:.3} 0 0 1 {r:.3} {:.3}", sy / 2.0, t + sy * i as f64);
+    }
+    for i in 1..=nx {
+        d += &format!(" A{:.3} {depth:.3} 0 0 1 {:.3} {b:.3}", sx / 2.0, r - sx * i as f64);
+    }
+    for i in 1..=ny {
+        d += &format!(" A{depth:.3} {:.3} 0 0 1 {l:.3} {:.3}", sy / 2.0, b - sy * i as f64);
+    }
+    d + " Z"
 }
 
 /// A step: its object gets stitch type `ty`, `params`, and the step's thread (its own colour block).
@@ -297,26 +364,60 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     let zipper = ZIPPERED.contains(&pr.id);
     let pocket = POCKETS.iter().find(|x| x.0 == pr.id).map(|x| x.1);
     let case = SLEEVES.contains(&pr.id);
+    // a size: smaller or larger than the project's own, for the pieces that fit nothing in them
+    let scale = match str_param(p, "size").unwrap_or("regular") {
+        "regular" => 1.0,
+        "small" | "large" if pr.panel || case => {
+            return Err(bad(CMD, "this project's size is set by what it fits (the pillow form, the phone, the passport): it comes in one size"));
+        }
+        "small" => SMALL,
+        "large" => LARGE,
+        _ => return Err(bad(CMD, "`size` is small, regular or large")),
+    };
+    let finished = (pr.finished.0 * scale, pr.finished.1 * scale);
+    // the edge: square, rounded, scalloped or round, for the pieces finished in the hoop with
+    // nothing sewn into their edge
+    let shaped = !pr.panel && !zipper && !case && pocket.is_none();
+    let edge_name = str_param(p, "edge");
+    let base = if pr.round { "round" } else { "square" };
+    let edge = match edge_name.unwrap_or(base) {
+        e if e == base => {
+            if pr.round {
+                Edge::Round
+            } else {
+                Edge::Square
+            }
+        }
+        _ if !shaped => return Err(bad(CMD, "this project's edge holds a zipper, a pocket or a seam: it keeps square corners")),
+        "square" => Edge::Square,
+        "rounded" => Edge::Rounded,
+        "round" => Edge::Round,
+        "scalloped" => {
+            let (nx, ny) = scallop_counts(finished.0, finished.1);
+            Edge::Scalloped(nx, ny)
+        }
+        _ => return Err(bad(CMD, "`edge` is square, rounded, scalloped or round")),
+    };
     if (zipper || case) && (vinyl || ribbon) {
         return Err(bad(CMD, "this piece is sewn inside out and turned, so it takes no ribbon or vinyl"));
     }
     // a panel needs a 5×7-class hoop; a finished piece its own size
-    let need = if pr.panel { (118.0 + 2.0 * MARGIN, 160.0 + 2.0 * MARGIN) } else { (pr.finished.0 + 2.0 * MARGIN, pr.finished.1 + 2.0 * MARGIN) };
+    let need = if pr.panel { (118.0 + 2.0 * MARGIN, 160.0 + 2.0 * MARGIN) } else { (finished.0 + 2.0 * MARGIN, finished.1 + 2.0 * MARGIN) };
     let (hoop, fw, fh) = pick_hoop(s, p, need, CMD)?;
     let (long, short) = (fw.max(fh) - 2.0 * MARGIN, fw.min(fh) - 2.0 * MARGIN);
     // the piece sewn in the hoop: a panel as big as the field allows (no bigger than the front),
     // or the finished piece itself
-    let landscape = pr.finished.0 >= pr.finished.1;
+    let landscape = finished.0 >= finished.1;
     let (pw, ph) = if pr.panel {
-        if (pr.finished.0 - pr.finished.1).abs() < 1.0 {
-            let side = short.min(pr.finished.0);
+        if (finished.0 - finished.1).abs() < 1.0 {
+            let side = short.min(finished.0);
             (side, side)
         } else {
-            let (a, b) = (long.min(pr.finished.0.max(pr.finished.1)), short.min(pr.finished.0.min(pr.finished.1)));
+            let (a, b) = (long.min(finished.0.max(finished.1)), short.min(finished.0.min(finished.1)));
             if landscape { (a, b) } else { (b, a) }
         }
     } else {
-        pr.finished
+        finished
     };
     // the hoop turned to the piece's way round
     let hoop = if (pw > ph) != (fw > fh) && (pw - ph).abs() > 1.0 { json!({ "width": fh, "height": fw }) } else { hoop };
@@ -343,35 +444,35 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         add_step(POUCH_PLACEMENT.1, "Hoop tear-away stabilizer and sew the pouch's outline and the zipper line across it.");
         // the front below the line, the top strip above: their edges meet on it, under the zipper
         let (front_top, bottom) = (zip_y + 4.0, ph / 2.0);
-        let o = outline(s, at((front_top + bottom) / 2.0), pw, bottom - front_top, false)?;
+        let o = outline(s, at((front_top + bottom) / 2.0), pw, bottom - front_top, Edge::Square)?;
         step(s, o, "run", json!({}), POUCH_FRONT)?;
         add_step(
             POUCH_FRONT.1,
             "Lay the front fabric right side up with its top edge on the zipper line, covering the outline below it; the machine tacks it down.",
         );
         let (top, strip_bottom) = (-ph / 2.0, zip_y - 4.0);
-        let o = outline(s, at((top + strip_bottom) / 2.0), pw, strip_bottom - top, false)?;
+        let o = outline(s, at((top + strip_bottom) / 2.0), pw, strip_bottom - top, Edge::Square)?;
         step(s, o, "run", json!({}), POUCH_TOP)?;
         add_step(
             POUCH_TOP.1,
             "Lay the top strip right side up with its bottom edge on the zipper line, covering the outline above it; the machine tacks it down.",
         );
     } else if case {
-        let o = outline(s, c, pw, ph, false)?;
+        let o = outline(s, c, pw, ph, Edge::Square)?;
         step(s, o, "run", json!({}), CASE_PLACEMENT)?;
         add_step(CASE_PLACEMENT.1, "Hoop tear-away stabilizer and sew the case's outline.");
-        let o = outline(s, c, pw - 3.0, ph - 3.0, false)?;
+        let o = outline(s, c, pw - 3.0, ph - 3.0, Edge::Square)?;
         step(s, o, "run", json!({}), CASE_FRONT)?;
         add_step(
             CASE_FRONT.1,
             "Fold the front fabric's top edge ½″ to the wrong side and press. Lay it right side up, the fold on the outline's top and the rest past the outline (fusible fleece under it, if you like); the machine tacks it down.",
         );
     } else if pr.panel {
-        let o = outline(s, c, pw, ph, pr.round)?;
+        let o = outline(s, c, pw, ph, edge)?;
         step(s, o, "run", json!({}), TRIM_LINE)?;
         add_step(TRIM_LINE.1, "Hoop the top fabric with tear-away stabilizer. This line marks the panel; trim on it after.");
     } else {
-        let o = outline(s, c, pw, ph, pr.round)?;
+        let o = outline(s, c, pw, ph, edge)?;
         step(s, o, "applique", json!({ "placement": true, "tackdown": "Run", "trim_stop": false, "cover": "None" }), PLACEMENT)?;
         add_step(
             PLACEMENT.1,
@@ -516,7 +617,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         add_step(RIBBON_TACK.1, "The machine sews the ribbon down along both its edges.");
     }
     if vinyl {
-        let v = outline(s, c, pw - 4.0, ph - 4.0, pr.round)?;
+        let v = outline(s, c, pw - 4.0, ph - 4.0, edge)?;
         step(s, v, "run", json!({ "stitch_length": 4.0 }), VINYL)?;
         add_step(
             VINYL.1,
@@ -557,7 +658,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
             "Take it out of the hoop and tear the stabilizer away. Trim ¼″ outside the stitching, clip the bottom corners, turn the case out through the top and press. Topstitch the top closed by machine or slipstitch it by hand.",
         );
     } else if zipper {
-        let back = outline(s, c, pw, ph, false)?;
+        let back = outline(s, c, pw, ph, Edge::Square)?;
         step(s, back, "run", json!({ "stitch_length": 2.0, "passes": 3 }), POUCH_BACK)?;
         add_step(
             POUCH_BACK.1,
@@ -568,17 +669,17 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
             "Take it out of the hoop and tear the stabilizer away. Trim ¼″ outside the stitching and cut the zipper's ends off there, clip the corners, turn the pouch out through the zipper and press.",
         );
     } else if pr.panel {
-        let o = outline(s, c, pw - 16.0, ph - 16.0, pr.round)?;
+        let o = outline(s, c, pw - 16.0, ph - 16.0, edge)?;
         step(s, o, "run", json!({ "passes": 3 }), FRAME)?;
         add_step(FRAME.1, "A triple-stitch frame round the design. Take the panel out of the hoop and tear the stabilizer away.");
     } else {
-        let back = outline(s, c, pw, ph, pr.round)?;
+        let back = outline(s, c, pw, ph, edge)?;
         step(s, back, "applique", json!({ "placement": false, "tackdown": "Run", "trim_stop": true, "cover": "None" }), BACKING)?;
         add_step(
             BACKING.1,
             "Take the hoop off the machine without unhooping. Tape the backing fabric right side out under the hoop over the piece, put the hoop back; the machine tacks it on, then stops: trim all the layers close to the stitching, front and back.",
         );
-        let edge = outline(s, c, pw, ph, pr.round)?;
+        let edge = outline(s, c, pw, ph, edge)?;
         step(s, edge, "applique", json!({ "placement": false, "tackdown": "None", "trim_stop": false, "cover": "Satin", "cover_width": 4.0 }), EDGE)?;
         add_step(EDGE.1, "A satin edge all round covers the cut edges. Take it out of the hoop and cut the stabilizer away close to the satin.");
     }
@@ -587,7 +688,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     // the pieces to cut, for the cutting templates
     let mut pieces: Vec<(String, f64, f64)> = Vec::new();
     if pr.panel {
-        let (w, h) = pr.finished;
+        let (w, h) = finished;
         let (side, topb) = (((w - pw) / 2.0).max(0.0), ((h - ph) / 2.0).max(0.0));
         supplies.push(format!("Top fabric for hooping: {}", size(fw + 2.0 * IN, fh + 2.0 * IN)));
         supplies.push("Tear-away stabilizer, the size of the hoop".into());
@@ -690,7 +791,8 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
             supplies.push(pr.extra.into());
         }
     }
-    let notes: String = std::iter::once(pr.name.to_string())
+    let title = if scale == 1.0 { pr.name.to_string() } else { format!("{}, made {}", pr.name, size(pw, ph)) };
+    let notes: String = std::iter::once(title)
         .chain(std::iter::once(String::new()))
         .chain(std::iter::once("You need:".to_string()))
         .chain(supplies.iter().map(|x| format!("- {x}")))
@@ -929,6 +1031,61 @@ mod tests {
 
     /// K2: every project is made in a hoop it fits, its steps each a thread of their own in sewing
     /// order, its supplies and steps kept as the design's notes.
+    #[test]
+    fn pieces_come_smaller_or_larger_with_rounded_scalloped_or_round_edges() {
+        let mut s = Session::new();
+        let list = s.execute("embroidery.ith.projects", &json!({})).unwrap();
+        let find = |id: &str| list["projects"].as_array().unwrap().iter().find(|p| p["id"] == id).unwrap().clone();
+        assert_eq!((find("mug-rug")["sizes"].clone(), find("mug-rug")["edges"].clone()), (json!(true), json!(true)));
+        assert_eq!((find("phone-case")["sizes"].clone(), find("card-holder")["edges"].clone()), (json!(false), json!(false)));
+        // the finished size follows the size asked for, and the hoop grows to fit it
+        let finished = |r: &Value| {
+            r["supplies"].as_array().unwrap().iter().filter_map(|x| x.as_str()).find(|x| x.starts_with("Finished size")).map(str::to_string)
+        };
+        let regular = s.execute("embroidery.ith.make", &json!({"project": "coaster"})).unwrap();
+        let large = s.execute("embroidery.ith.make", &json!({"project": "coaster", "size": "large"})).unwrap();
+        let small = s.execute("embroidery.ith.make", &json!({"project": "coaster", "size": "small"})).unwrap();
+        assert!(finished(&regular).unwrap().contains("3¾″"), "{regular}");
+        assert!(finished(&large).unwrap().contains("4¾″"), "{large}");
+        assert!(finished(&small).unwrap().contains("3″"), "{small}");
+        assert!(large["notes"].as_str().unwrap().starts_with("Coaster, 3¾″ square, made"), "{}", large["notes"]);
+        assert_eq!(s.execute("embroidery.info", &json!({})).unwrap()["fits"], true);
+        // each edge sews in the hoop, its satin edge following the outline
+        for (id, edge) in [
+            ("mug-rug", "scalloped"),
+            ("coaster", "rounded"),
+            ("coaster", "round"),
+            ("luggage-tag", "scalloped"),
+            ("bookmark", "rounded"),
+            ("ornament", "scalloped"),
+        ] {
+            s.execute("embroidery.ith.make", &json!({"project": id, "edge": edge, "size": "large"})).unwrap_or_else(|e| panic!("{id} {edge}: {e}"));
+            let info = s.execute("embroidery.info", &json!({})).unwrap();
+            assert_eq!(info["fits"], true, "{id} {edge}: {info}");
+        }
+        // the scallops make the outline exactly the piece's size
+        let c = kurbo::Point::new(0.0, 0.0);
+        let (nx, ny) = scallop_counts(165.0, 114.0);
+        assert!((7..=11).contains(&nx) && (4..=8).contains(&ny), "{nx} {ny}");
+        let id = s.execute("path.create", &json!({ "d": scallops(c, 165.0, 114.0, nx, ny) })).unwrap()["id"].as_u64().unwrap();
+        let bb = s.doc().unwrap().doc.node(vectorcraft_doc::NodeId(id)).unwrap().visual_bounds().unwrap();
+        assert!((bb.width() / PT_PER_MM - 165.0).abs() < 0.5 && (bb.height() / PT_PER_MM - 114.0).abs() < 0.5, "{bb:?}");
+        // what a project can't be
+        for bad in [
+            json!({"project": "phone-case", "size": "large"}),
+            json!({"project": "pillow-square", "size": "small"}),
+            json!({"project": "card-holder", "edge": "scalloped"}),
+            json!({"project": "zipper-pouch", "edge": "round"}),
+            json!({"project": "coaster", "size": "huge"}),
+            json!({"project": "coaster", "edge": "wavy"}),
+        ] {
+            assert!(s.execute("embroidery.ith.make", &bad).is_err(), "{bad}");
+        }
+        // the guide passes them on
+        let r = s.execute("embroidery.makeDesign", &json!({"what": "ith", "project": "mug-rug", "pieceSize": "small", "edge": "rounded"})).unwrap();
+        assert_eq!(r["what"], "ith");
+    }
+
     #[test]
     fn each_project_sews_step_by_step_in_a_hoop_it_fits() {
         let mut s = Session::new();

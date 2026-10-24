@@ -6854,3 +6854,8 @@ machine	Stop	Megállás
 @msg	`automatic` is true, false or "toggle"	Az `automatic` értéke true, false vagy "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	Megjelent a StitchFoundry {version}: lásd a kezdőképernyőt
 	StitchFoundry {version} is the newest	A StitchFoundry {version} a legújabb
+# In-the-hoop sizes and edges
+	As shown	Ahogy látszik
+	Larger	Nagyobb
+	Rounded corners	Lekerekített sarkok
+	Scalloped	Hullámos

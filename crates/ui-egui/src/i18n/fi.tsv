@@ -6894,3 +6894,8 @@ swatch	Bright Violet	Kirkas violetti
 @msg	`automatic` is true, false or "toggle"	`automatic` on true, false tai "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} on julkaistu: katso aloitusnäyttö
 	StitchFoundry {version} is the newest	StitchFoundry {version} on uusin
+# In-the-hoop sizes and edges
+	As shown	Kuten näytetty
+	Larger	Suurempi
+	Rounded corners	Pyöristetyt kulmat
+	Scalloped	Aaltoreuna

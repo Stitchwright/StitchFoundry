@@ -6709,3 +6709,8 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 @msg	`automatic` is true, false or "toggle"	`automatic` არის true, false ან "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	გამოვიდა StitchFoundry {version}: იხილეთ მთავარი ეკრანი
 	StitchFoundry {version} is the newest	StitchFoundry {version} უახლესია
+# In-the-hoop sizes and edges
+	As shown	როგორც ჩანს
+	Larger	უფრო დიდი
+	Rounded corners	მომრგვალებული კუთხეები
+	Scalloped	ფესტონებიანი

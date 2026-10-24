@@ -6560,3 +6560,8 @@ machine	Stop	停止
 @msg	`automatic` is true, false or "toggle"	`automatic` は true、false、または "toggle" です
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} が公開されました：ホーム画面をご覧ください
 	StitchFoundry {version} is the newest	StitchFoundry {version} が最新です
+# In-the-hoop sizes and edges
+	As shown	表示どおり
+	Larger	大きめ
+	Rounded corners	角丸
+	Scalloped	スカラップ

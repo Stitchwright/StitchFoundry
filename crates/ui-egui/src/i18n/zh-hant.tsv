@@ -6481,3 +6481,8 @@ machine	Stop	停止
 @msg	`automatic` is true, false or "toggle"	`automatic` 為 true、false 或 "toggle"
 	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} 已發布：請看主畫面
 	StitchFoundry {version} is the newest	StitchFoundry {version} 是最新版本
+# In-the-hoop sizes and edges
+	As shown	如圖
+	Larger	大一點
+	Rounded corners	圓角
+	Scalloped	波浪邊
