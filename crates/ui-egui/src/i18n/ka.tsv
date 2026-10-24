@@ -6693,3 +6693,17 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	A GIF of the design sewing itself, for a website, a listing or a message	GIF, სადაც დიზაინი თავისით იქარგება, ვებგვერდისთვის, განცხადებისთვის ან შეტყობინებისთვის
 	Memory Cards	მეხსიერების ბარათები
 @msg	GIF encoding failed: {e}	GIF-ის კოდირება ვერ მოხერხდა: {e}
+# Updates
+	Check for Updates	განახლებების შემოწმება
+	Check for Updates Automatically	განახლებების ავტომატური შემოწმება
+	StitchFoundry {version} is out.	გამოვიდა StitchFoundry {version}.
+	Not now	ახლა არა
+@msg	StitchFoundry {version} is out: it's on the Home screen	გამოვიდა StitchFoundry {version}: იხილეთ მთავარი ეკრანი
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} უახლესია
+@msg	checking for updates works in the desktop app	განახლებების შემოწმება მუშაობს სამაგიდო აპში
+@msg	can't reach GitHub: {e}	GitHub-თან დაკავშირება ვერ ხერხდება: {e}
+@msg	GitHub answered {status}: try again later	GitHub-მა უპასუხა {status}: სცადეთ მოგვიანებით
+@msg	GitHub's answer couldn't be read	GitHub-ის პასუხი ვერ წაიკითხა
+@msg	GitHub's answer isn't a list of releases	GitHub-ის პასუხი არ არის გამოშვებების სია
+@msg	this version ({current}) isn't one to compare	ამ ვერსიის ({current}) შედარება შეუძლებელია
+@msg	`automatic` is true, false or "toggle"	`automatic` არის true, false ან "toggle"

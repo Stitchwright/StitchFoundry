@@ -6817,3 +6817,17 @@ machine	Stop	Stopp
 	A GIF of the design sewing itself, for a website, a listing or a message	En GIF där designen broderar sig själv, för en webbplats, en annons eller ett meddelande
 	Memory Cards	Minneskort
 @msg	GIF encoding failed: {e}	GIF-kodningen misslyckades: {e}
+# Updates
+	Check for Updates	Sök efter uppdateringar
+	Check for Updates Automatically	Sök efter uppdateringar automatiskt
+	StitchFoundry {version} is out.	StitchFoundry {version} har kommit.
+	Not now	Inte nu
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} har kommit: se startskärmen
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} är den senaste
+@msg	checking for updates works in the desktop app	Sökning efter uppdateringar fungerar i skrivbordsappen
+@msg	can't reach GitHub: {e}	Kan inte nå GitHub: {e}
+@msg	GitHub answered {status}: try again later	GitHub svarade {status}: försök igen senare
+@msg	GitHub's answer couldn't be read	GitHubs svar kunde inte läsas
+@msg	GitHub's answer isn't a list of releases	GitHubs svar är inte en lista med versioner
+@msg	this version ({current}) isn't one to compare	Den här versionen ({current}) kan inte jämföras
+@msg	`automatic` is true, false or "toggle"	`automatic` är true, false eller "toggle"

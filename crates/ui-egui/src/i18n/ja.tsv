@@ -6544,3 +6544,17 @@ machine	Stop	停止
 	A GIF of the design sewing itself, for a website, a listing or a message	デザインがひとりでに縫われていく GIF（ウェブサイト、出品、メッセージ用）
 	Memory Cards	メモリーカード
 @msg	GIF encoding failed: {e}	GIF のエンコードに失敗しました: {e}
+# Updates
+	Check for Updates	アップデートを確認
+	Check for Updates Automatically	アップデートを自動的に確認
+	StitchFoundry {version} is out.	StitchFoundry {version} が公開されました。
+	Not now	後で
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} が公開されました：ホーム画面をご覧ください
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} が最新です
+@msg	checking for updates works in the desktop app	アップデートの確認はデスクトップ版で使えます
+@msg	can't reach GitHub: {e}	GitHub に接続できません: {e}
+@msg	GitHub answered {status}: try again later	GitHub の応答 {status}：後でもう一度お試しください
+@msg	GitHub's answer couldn't be read	GitHub の応答を読み取れませんでした
+@msg	GitHub's answer isn't a list of releases	GitHub の応答がリリースの一覧ではありません
+@msg	this version ({current}) isn't one to compare	このバージョン ({current}) は比較できません
+@msg	`automatic` is true, false or "toggle"	`automatic` は true、false、または "toggle" です

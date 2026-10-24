@@ -50,6 +50,15 @@ walks through a first design in four steps with a link to the help on each, and 
 in hand, with a search; its **Tips** tab (Help › Tips) has short hints, the tool's first. The
 guide is the same text as this file (`help.topics`, `help.topic`, `help.forTool`).
 
+**Updates.** Once a day the desktop app asks GitHub for StitchFoundry's releases (the request
+carries nothing about you or your designs) and, when one is newer, the Home screen says so with
+**Download**, which opens the release's page, and **Not now**, which hides it until the next
+version. A release candidate (a test release, such as 0.14.0-rc.1) is offered only to someone
+running one; drafts and the unsigned Latest build never are. **Help › Check for Updates** asks at
+once and says in the status bar what it found; **Help › Check for Updates Automatically** turns the
+daily check off (`ui.checkForUpdates {automatic?}`). The web app is always the newest and doesn't
+ask.
+
 1. Draw shapes, place a logo, or type text.
 2. Select them and choose **Embroidery › Create › Convert Artwork to Embroidery**. Filled areas become
    satin (if no part is thicker than 7 mm) or tatami fill, and strokes become satin lines, bean

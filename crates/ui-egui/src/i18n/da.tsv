@@ -6755,3 +6755,17 @@ swatch	Bright Violet	Kraftig violet
 	A GIF of the design sewing itself, for a website, a listing or a message	En GIF af designet, der syr sig selv, til en hjemmeside, en annonce eller en besked
 	Memory Cards	Hukommelseskort
 @msg	GIF encoding failed: {e}	GIF-kodning mislykkedes: {e}
+# Updates
+	Check for Updates	Søg efter opdateringer
+	Check for Updates Automatically	Søg automatisk efter opdateringer
+	StitchFoundry {version} is out.	StitchFoundry {version} er ude.
+	Not now	Ikke nu
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} er ude: se startskærmen
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} er den nyeste
+@msg	checking for updates works in the desktop app	Søgning efter opdateringer virker i skrivebordsprogrammet
+@msg	can't reach GitHub: {e}	Kan ikke nå GitHub: {e}
+@msg	GitHub answered {status}: try again later	GitHub svarede {status}: prøv igen senere
+@msg	GitHub's answer couldn't be read	GitHubs svar kunne ikke læses
+@msg	GitHub's answer isn't a list of releases	GitHubs svar er ikke en liste over udgivelser
+@msg	this version ({current}) isn't one to compare	Denne version ({current}) kan ikke sammenlignes
+@msg	`automatic` is true, false or "toggle"	`automatic` er true, false eller "toggle"

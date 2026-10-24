@@ -768,6 +768,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ),
     ("help.about", "About StitchFoundry", "", "{}"),
     (
+        "ui.checkForUpdates",
+        "Check for Updates",
+        "",
+        "{automatic?: bool|toggle} ask GitHub now for a newer StitchFoundry (desktop; a release candidate is offered only to one), shown on the Home screen with Download; with `automatic`, turn the once-a-day check on or off → {checking} or {automatic}",
+    ),
+    (
         "ui.viewer",
         "Viewer",
         "",
@@ -2060,6 +2066,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
             Ok(Value::Null)
         }
         "help.show" => crate::dialogs::help::open(app, p),
+        "ui.checkForUpdates" => crate::updates::run(app, p),
         "ui.calibrateLifeSize" => crate::dialogs::life_size::run(app, p),
         "ui.myMachine" => crate::dialogs::my_machine::open(app),
         "ui.saveForMemoryCard" => crate::dialogs::memory_card::run(app, p),
@@ -2314,6 +2321,9 @@ fn go_to_artboard(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> 
 
 /// Checked state for toggle items.
 pub fn checked(app: &VectorcraftApp, id: &str, p: &Value) -> Option<bool> {
+    if id == "ui.checkForUpdates" && p.get("automatic").is_some() {
+        return Some(app.ui.check_updates);
+    }
     if id == "ui.embroideryDensity" {
         return Some(app.embroidery.density_map);
     }
@@ -3683,6 +3693,8 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                 c("Check My Sew-out…", "ui.checkSewout"),
                 c("Foundry Account…", "ui.account"),
                 Sep,
+                c("Check for Updates", "ui.checkForUpdates"),
+                cp("Check for Updates Automatically", "ui.checkForUpdates", json!({ "automatic": "toggle" })),
                 c("About StitchFoundry", "help.about"),
             ],
         ),

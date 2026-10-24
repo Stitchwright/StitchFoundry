@@ -6461,3 +6461,17 @@ machine	Stop	Dừng máy
 	A GIF of the design sewing itself, for a website, a listing or a message	Một GIF mẫu thêu tự thêu, cho trang web, tin đăng hoặc tin nhắn
 	Memory Cards	Thẻ nhớ
 @msg	GIF encoding failed: {e}	Mã hóa GIF thất bại: {e}
+# Updates
+	Check for Updates	Kiểm tra cập nhật
+	Check for Updates Automatically	Tự động kiểm tra cập nhật
+	StitchFoundry {version} is out.	StitchFoundry {version} đã ra mắt.
+	Not now	Để sau
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} đã ra mắt: xem màn hình chính
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} là bản mới nhất
+@msg	checking for updates works in the desktop app	Kiểm tra cập nhật hoạt động trong ứng dụng máy tính
+@msg	can't reach GitHub: {e}	Không kết nối được GitHub: {e}
+@msg	GitHub answered {status}: try again later	GitHub trả lời {status}: hãy thử lại sau
+@msg	GitHub's answer couldn't be read	Không đọc được câu trả lời của GitHub
+@msg	GitHub's answer isn't a list of releases	Câu trả lời của GitHub không phải danh sách bản phát hành
+@msg	this version ({current}) isn't one to compare	Không thể so sánh phiên bản này ({current})
+@msg	`automatic` is true, false or "toggle"	`automatic` là true, false hoặc "toggle"

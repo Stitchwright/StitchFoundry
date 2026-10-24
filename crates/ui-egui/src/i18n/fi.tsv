@@ -6878,3 +6878,17 @@ swatch	Bright Violet	Kirkas violetti
 	A GIF of the design sewing itself, for a website, a listing or a message	GIF mallista, joka kirjoutuu itsestään, verkkosivulle, ilmoitukseen tai viestiin
 	Memory Cards	Muistikortit
 @msg	GIF encoding failed: {e}	GIF-koodaus epäonnistui: {e}
+# Updates
+	Check for Updates	Tarkista päivitykset
+	Check for Updates Automatically	Tarkista päivitykset automaattisesti
+	StitchFoundry {version} is out.	StitchFoundry {version} on julkaistu.
+	Not now	Ei nyt
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} on julkaistu: katso aloitusnäyttö
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} on uusin
+@msg	checking for updates works in the desktop app	Päivitysten tarkistus toimii työpöytäsovelluksessa
+@msg	can't reach GitHub: {e}	GitHubiin ei saada yhteyttä: {e}
+@msg	GitHub answered {status}: try again later	GitHub vastasi {status}: yritä myöhemmin
+@msg	GitHub's answer couldn't be read	GitHubin vastausta ei voitu lukea
+@msg	GitHub's answer isn't a list of releases	GitHubin vastaus ei ole julkaisuluettelo
+@msg	this version ({current}) isn't one to compare	Tätä versiota ({current}) ei voi verrata
+@msg	`automatic` is true, false or "toggle"	`automatic` on true, false tai "toggle"

@@ -2915,6 +2915,7 @@ fn home_body(app: &mut VectorcraftApp, ui: &mut Ui) {
         }
     });
     ui.add_space(18.0);
+    crate::updates::home_card(app, ui, &t);
     crate::embroidery::account::home_card(app, ui, &t);
     ui.add_space(14.0);
     experience_row(app, ui, &t);

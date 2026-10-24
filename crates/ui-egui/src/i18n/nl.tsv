@@ -6797,3 +6797,17 @@ swatch	Bright Violet	Felviolet
 	A GIF of the design sewing itself, for a website, a listing or a message	Een GIF van het ontwerp dat zichzelf borduurt, voor een website, een advertentie of een bericht
 	Memory Cards	Geheugenkaarten
 @msg	GIF encoding failed: {e}	GIF-codering mislukt: {e}
+# Updates
+	Check for Updates	Zoeken naar updates
+	Check for Updates Automatically	Automatisch zoeken naar updates
+	StitchFoundry {version} is out.	StitchFoundry {version} is uit.
+	Not now	Niet nu
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} is uit: zie het startscherm
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} is de nieuwste
+@msg	checking for updates works in the desktop app	Zoeken naar updates werkt in de desktopapp
+@msg	can't reach GitHub: {e}	GitHub is niet bereikbaar: {e}
+@msg	GitHub answered {status}: try again later	GitHub antwoordde {status}: probeer het later opnieuw
+@msg	GitHub's answer couldn't be read	Het antwoord van GitHub kon niet worden gelezen
+@msg	GitHub's answer isn't a list of releases	Het antwoord van GitHub is geen lijst met versies
+@msg	this version ({current}) isn't one to compare	Deze versie ({current}) kan niet worden vergeleken
+@msg	`automatic` is true, false or "toggle"	`automatic` is true, false of "toggle"

@@ -6755,3 +6755,17 @@ swatch	Bright Violet	Violet cerah
 	A GIF of the design sewing itself, for a website, a listing or a message	GIF desain yang menjahit dirinya sendiri, untuk situs web, iklan, atau pesan
 	Memory Cards	Kartu Memori
 @msg	GIF encoding failed: {e}	Pengodean GIF gagal: {e}
+# Updates
+	Check for Updates	Periksa Pembaruan
+	Check for Updates Automatically	Periksa Pembaruan Secara Otomatis
+	StitchFoundry {version} is out.	StitchFoundry {version} sudah rilis.
+	Not now	Nanti saja
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} sudah rilis: lihat layar Beranda
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} adalah yang terbaru
+@msg	checking for updates works in the desktop app	Pemeriksaan pembaruan berfungsi di aplikasi desktop
+@msg	can't reach GitHub: {e}	Tidak dapat menjangkau GitHub: {e}
+@msg	GitHub answered {status}: try again later	GitHub menjawab {status}: coba lagi nanti
+@msg	GitHub's answer couldn't be read	Jawaban GitHub tidak dapat dibaca
+@msg	GitHub's answer isn't a list of releases	Jawaban GitHub bukan daftar rilis
+@msg	this version ({current}) isn't one to compare	Versi ini ({current}) tidak dapat dibandingkan
+@msg	`automatic` is true, false or "toggle"	`automatic` adalah true, false, atau "toggle"

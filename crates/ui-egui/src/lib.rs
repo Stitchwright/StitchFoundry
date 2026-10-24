@@ -63,6 +63,7 @@ pub mod toolbar;
 pub mod touch;
 mod ui_fonts;
 pub mod unsaved;
+pub mod updates;
 pub mod widgets;
 pub mod workspaces;
 
@@ -443,6 +444,8 @@ pub struct VectorcraftApp {
     pub simple: simple::SimpleState,
     /// Make a Design: the step-by-step guide.
     pub guide: guide::GuideState,
+    /// The update check: running, and a newer release when it found one (desktop).
+    pub updates: updates::UpdateState,
     pub perf: Perf,
     /// macOS: the room the app bar keeps at its left for the window buttons over it, in points
     /// (0 where the OS draws no buttons over the app bar).
@@ -595,6 +598,7 @@ impl VectorcraftApp {
             embroidery: embroidery::EmbroideryUi::default(),
             simple: simple::SimpleState::default(),
             guide: guide::GuideState::default(),
+            updates: updates::UpdateState::default(),
             perf: Perf::default(),
             titlebar_inset: 0.0,
             last_effect: None,
@@ -1285,6 +1289,7 @@ impl VectorcraftApp {
         }
         self.poll_font_check(ctx);
         picks::poll(self, ctx);
+        updates::poll(self, ctx);
         self.write_formats_before_text_input(ctx);
         background::poll(self);
         screen_color::poll(self, ctx);

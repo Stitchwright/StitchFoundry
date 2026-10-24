@@ -6457,3 +6457,17 @@ machine	Stop	정지
 	A GIF of the design sewing itself, for a website, a listing or a message	디자인이 저절로 수놓아지는 GIF, 웹사이트·판매 글·메시지용
 	Memory Cards	메모리 카드
 @msg	GIF encoding failed: {e}	GIF 인코딩 실패: {e}
+# Updates
+	Check for Updates	업데이트 확인
+	Check for Updates Automatically	업데이트 자동 확인
+	StitchFoundry {version} is out.	StitchFoundry {version}이(가) 나왔습니다.
+	Not now	나중에
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version}이(가) 나왔습니다: 홈 화면을 보세요
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version}이(가) 최신입니다
+@msg	checking for updates works in the desktop app	업데이트 확인은 데스크톱 앱에서 작동합니다
+@msg	can't reach GitHub: {e}	GitHub에 연결할 수 없습니다: {e}
+@msg	GitHub answered {status}: try again later	GitHub 응답 {status}: 나중에 다시 시도하세요
+@msg	GitHub's answer couldn't be read	GitHub 응답을 읽을 수 없습니다
+@msg	GitHub's answer isn't a list of releases	GitHub 응답이 릴리스 목록이 아닙니다
+@msg	this version ({current}) isn't one to compare	이 버전({current})은 비교할 수 없습니다
+@msg	`automatic` is true, false or "toggle"	`automatic`은 true, false 또는 "toggle"입니다

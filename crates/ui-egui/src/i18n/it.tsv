@@ -6505,3 +6505,17 @@ machine	Stop	Arresto
 	A GIF of the design sewing itself, for a website, a listing or a message	Una GIF del disegno che si ricama da solo, per un sito, un annuncio o un messaggio
 	Memory Cards	Schede di memoria
 @msg	GIF encoding failed: {e}	Codifica GIF non riuscita: {e}
+# Updates
+	Check for Updates	Verifica aggiornamenti
+	Check for Updates Automatically	Verifica aggiornamenti automaticamente
+	StitchFoundry {version} is out.	È uscito StitchFoundry {version}.
+	Not now	Non ora
+@msg	StitchFoundry {version} is out: it's on the Home screen	È uscito StitchFoundry {version}: lo trovi nella schermata Home
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} è la più recente
+@msg	checking for updates works in the desktop app	La verifica degli aggiornamenti funziona nell’app desktop
+@msg	can't reach GitHub: {e}	Impossibile raggiungere GitHub: {e}
+@msg	GitHub answered {status}: try again later	GitHub ha risposto {status}: riprova più tardi
+@msg	GitHub's answer couldn't be read	Impossibile leggere la risposta di GitHub
+@msg	GitHub's answer isn't a list of releases	La risposta di GitHub non è un elenco di versioni
+@msg	this version ({current}) isn't one to compare	Questa versione ({current}) non si può confrontare
+@msg	`automatic` is true, false or "toggle"	`automatic` è true, false o "toggle"

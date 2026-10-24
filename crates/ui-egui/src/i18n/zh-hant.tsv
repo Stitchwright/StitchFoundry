@@ -6465,3 +6465,17 @@ machine	Stop	停止
 	A GIF of the design sewing itself, for a website, a listing or a message	圖案自己一針一針繡出來的 GIF，用於網站、商品頁或訊息
 	Memory Cards	記憶卡
 @msg	GIF encoding failed: {e}	GIF 編碼失敗：{e}
+# Updates
+	Check for Updates	檢查更新
+	Check for Updates Automatically	自動檢查更新
+	StitchFoundry {version} is out.	StitchFoundry {version} 已發布。
+	Not now	以後再說
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} 已發布：請看主畫面
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} 是最新版本
+@msg	checking for updates works in the desktop app	檢查更新只在桌面版中可用
+@msg	can't reach GitHub: {e}	無法連線 GitHub：{e}
+@msg	GitHub answered {status}: try again later	GitHub 回覆 {status}：請稍後再試
+@msg	GitHub's answer couldn't be read	無法讀取 GitHub 的回覆
+@msg	GitHub's answer isn't a list of releases	GitHub 的回覆不是發布清單
+@msg	this version ({current}) isn't one to compare	無法比較此版本（{current}）
+@msg	`automatic` is true, false or "toggle"	`automatic` 為 true、false 或 "toggle"

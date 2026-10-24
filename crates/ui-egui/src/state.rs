@@ -500,6 +500,12 @@ pub struct UiState {
     /// File → Open Recent Files, most recent first.
     #[serde(default)]
     pub recent_files: Vec<String>,
+    /// Help › Check for Updates Automatically: once a day, ask GitHub for a newer release (desktop).
+    pub check_updates: bool,
+    /// When updates were last checked (seconds since 1970).
+    pub update_checked_at: u64,
+    /// The newer version the Home screen's notice was dismissed for (Not Now).
+    pub update_skipped: String,
     /// Type → Recent Fonts, most recent first.
     #[serde(default)]
     pub recent_fonts: Vec<String>,
@@ -899,6 +905,9 @@ impl Default for UiState {
             experience: Experience::default(),
             custom_workspaces: vec![],
             recent_files: vec![],
+            check_updates: true,
+            update_checked_at: 0,
+            update_skipped: String::new(),
             recent_fonts: vec![],
             favorite_fonts: vec![],
             engine_prefs: Value::Null,

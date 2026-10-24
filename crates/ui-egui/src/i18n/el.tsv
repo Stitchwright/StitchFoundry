@@ -6813,3 +6813,17 @@ machine	Stop	Στάση
 	A GIF of the design sewing itself, for a website, a listing or a message	Ένα GIF του σχεδίου που κεντιέται μόνο του, για ιστότοπο, αγγελία ή μήνυμα
 	Memory Cards	Κάρτες μνήμης
 @msg	GIF encoding failed: {e}	Η κωδικοποίηση GIF απέτυχε: {e}
+# Updates
+	Check for Updates	Έλεγχος για ενημερώσεις
+	Check for Updates Automatically	Αυτόματος έλεγχος για ενημερώσεις
+	StitchFoundry {version} is out.	Κυκλοφόρησε το StitchFoundry {version}.
+	Not now	Όχι τώρα
+@msg	StitchFoundry {version} is out: it's on the Home screen	Κυκλοφόρησε το StitchFoundry {version}: δείτε την αρχική οθόνη
+@msg	StitchFoundry {version} is the newest	Το StitchFoundry {version} είναι το νεότερο
+@msg	checking for updates works in the desktop app	Ο έλεγχος για ενημερώσεις λειτουργεί στην εφαρμογή υπολογιστή
+@msg	can't reach GitHub: {e}	Δεν υπάρχει σύνδεση με το GitHub: {e}
+@msg	GitHub answered {status}: try again later	Το GitHub απάντησε {status}: δοκιμάστε αργότερα
+@msg	GitHub's answer couldn't be read	Η απάντηση του GitHub δεν διαβάστηκε
+@msg	GitHub's answer isn't a list of releases	Η απάντηση του GitHub δεν είναι λίστα εκδόσεων
+@msg	this version ({current}) isn't one to compare	Αυτή η έκδοση ({current}) δεν συγκρίνεται
+@msg	`automatic` is true, false or "toggle"	Το `automatic` είναι true, false ή "toggle"

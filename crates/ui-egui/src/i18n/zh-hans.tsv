@@ -6685,3 +6685,17 @@ machine	Stop	停止
 	A GIF of the design sewing itself, for a website, a listing or a message	图案自己一针一针绣出来的 GIF，用于网站、商品页或消息
 	Memory Cards	存储卡
 @msg	GIF encoding failed: {e}	GIF 编码失败：{e}
+# Updates
+	Check for Updates	检查更新
+	Check for Updates Automatically	自动检查更新
+	StitchFoundry {version} is out.	StitchFoundry {version} 已发布。
+	Not now	以后再说
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} 已发布：请看主屏幕
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} 是最新版本
+@msg	checking for updates works in the desktop app	检查更新只在桌面版中可用
+@msg	can't reach GitHub: {e}	无法连接 GitHub：{e}
+@msg	GitHub answered {status}: try again later	GitHub 返回 {status}：请稍后再试
+@msg	GitHub's answer couldn't be read	无法读取 GitHub 的回复
+@msg	GitHub's answer isn't a list of releases	GitHub 的回复不是发布列表
+@msg	this version ({current}) isn't one to compare	无法比较此版本（{current}）
+@msg	`automatic` is true, false or "toggle"	`automatic` 为 true、false 或 "toggle"

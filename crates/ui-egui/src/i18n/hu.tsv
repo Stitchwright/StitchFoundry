@@ -6838,3 +6838,17 @@ machine	Stop	Megállás
 	A GIF of the design sewing itself, for a website, a listing or a message	GIF a magát kihímző mintáról, weboldalra, hirdetésbe vagy üzenetbe
 	Memory Cards	Memóriakártyák
 @msg	GIF encoding failed: {e}	A GIF kódolása nem sikerült: {e}
+# Updates
+	Check for Updates	Frissítések keresése
+	Check for Updates Automatically	Frissítések automatikus keresése
+	StitchFoundry {version} is out.	Megjelent a StitchFoundry {version}.
+	Not now	Most nem
+@msg	StitchFoundry {version} is out: it's on the Home screen	Megjelent a StitchFoundry {version}: lásd a kezdőképernyőt
+@msg	StitchFoundry {version} is the newest	A StitchFoundry {version} a legújabb
+@msg	checking for updates works in the desktop app	A frissítések keresése az asztali alkalmazásban működik
+@msg	can't reach GitHub: {e}	A GitHub nem érhető el: {e}
+@msg	GitHub answered {status}: try again later	A GitHub válasza {status}: próbálja később
+@msg	GitHub's answer couldn't be read	A GitHub válasza nem olvasható
+@msg	GitHub's answer isn't a list of releases	A GitHub válasza nem kiadások listája
+@msg	this version ({current}) isn't one to compare	Ez a verzió ({current}) nem hasonlítható össze
+@msg	`automatic` is true, false or "toggle"	Az `automatic` értéke true, false vagy "toggle"

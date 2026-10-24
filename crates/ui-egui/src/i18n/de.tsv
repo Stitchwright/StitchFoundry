@@ -6471,3 +6471,17 @@ effect	Soft	Weich
 	A GIF of the design sewing itself, for a website, a listing or a message	Ein GIF, in dem sich das Design selbst stickt, für eine Website, ein Angebot oder eine Nachricht
 	Memory Cards	Speicherkarten
 @msg	GIF encoding failed: {e}	GIF-Kodierung fehlgeschlagen: {e}
+# Updates
+	Check for Updates	Nach Updates suchen
+	Check for Updates Automatically	Automatisch nach Updates suchen
+	StitchFoundry {version} is out.	StitchFoundry {version} ist erschienen.
+	Not now	Nicht jetzt
+@msg	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} ist erschienen: siehe Startbildschirm
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} ist die neueste Version
+@msg	checking for updates works in the desktop app	Die Suche nach Updates funktioniert in der Desktop-App
+@msg	can't reach GitHub: {e}	GitHub ist nicht erreichbar: {e}
+@msg	GitHub answered {status}: try again later	GitHub antwortete {status}: später erneut versuchen
+@msg	GitHub's answer couldn't be read	Die Antwort von GitHub konnte nicht gelesen werden
+@msg	GitHub's answer isn't a list of releases	Die Antwort von GitHub ist keine Liste von Versionen
+@msg	this version ({current}) isn't one to compare	Diese Version ({current}) lässt sich nicht vergleichen
+@msg	`automatic` is true, false or "toggle"	`automatic` ist true, false oder "toggle"

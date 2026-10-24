@@ -6501,3 +6501,17 @@ machine	Stop	Остановка
 	A GIF of the design sewing itself, for a website, a listing or a message	GIF, где дизайн вышивается сам, для сайта, объявления или сообщения
 	Memory Cards	Карты памяти
 @msg	GIF encoding failed: {e}	Не удалось закодировать GIF: {e}
+# Updates
+	Check for Updates	Проверить обновления
+	Check for Updates Automatically	Проверять обновления автоматически
+	StitchFoundry {version} is out.	Вышел StitchFoundry {version}.
+	Not now	Не сейчас
+@msg	StitchFoundry {version} is out: it's on the Home screen	Вышел StitchFoundry {version}: см. начальный экран
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} — самая новая версия
+@msg	checking for updates works in the desktop app	Проверка обновлений работает в настольном приложении
+@msg	can't reach GitHub: {e}	Нет связи с GitHub: {e}
+@msg	GitHub answered {status}: try again later	GitHub ответил {status}: попробуйте позже
+@msg	GitHub's answer couldn't be read	Не удалось прочитать ответ GitHub
+@msg	GitHub's answer isn't a list of releases	Ответ GitHub — не список выпусков
+@msg	this version ({current}) isn't one to compare	Эту версию ({current}) нельзя сравнить
+@msg	`automatic` is true, false or "toggle"	`automatic` — true, false или "toggle"

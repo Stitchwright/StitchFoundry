@@ -6866,3 +6866,17 @@ mark-style	Japanese	Japonské
 	A GIF of the design sewing itself, for a website, a listing or a message	GIF výšivky, která se sama vyšívá, pro web, inzerát nebo zprávu
 	Memory Cards	Paměťové karty
 @msg	GIF encoding failed: {e}	Kódování GIF selhalo: {e}
+# Updates
+	Check for Updates	Vyhledat aktualizace
+	Check for Updates Automatically	Vyhledávat aktualizace automaticky
+	StitchFoundry {version} is out.	Vyšel StitchFoundry {version}.
+	Not now	Teď ne
+@msg	StitchFoundry {version} is out: it's on the Home screen	Vyšel StitchFoundry {version}: najdete ho na úvodní obrazovce
+@msg	StitchFoundry {version} is the newest	StitchFoundry {version} je nejnovější
+@msg	checking for updates works in the desktop app	Vyhledávání aktualizací funguje v desktopové aplikaci
+@msg	can't reach GitHub: {e}	Nelze se spojit s GitHubem: {e}
+@msg	GitHub answered {status}: try again later	GitHub odpověděl {status}: zkuste to později
+@msg	GitHub's answer couldn't be read	Odpověď GitHubu nelze přečíst
+@msg	GitHub's answer isn't a list of releases	Odpověď GitHubu není seznam vydání
+@msg	this version ({current}) isn't one to compare	Tuto verzi ({current}) nelze porovnat
+@msg	`automatic` is true, false or "toggle"	`automatic` je true, false nebo "toggle"

@@ -6719,3 +6719,17 @@ mark-style	Japanese	Japonesas
 	A GIF of the design sewing itself, for a website, a listing or a message	Um GIF do desenho se bordando sozinho, para um site, um anúncio ou uma mensagem
 	Memory Cards	Cartões de memória
 @msg	GIF encoding failed: {e}	Falha ao codificar o GIF: {e}
+# Updates
+	Check for Updates	Verificar atualizações
+	Check for Updates Automatically	Verificar atualizações automaticamente
+	StitchFoundry {version} is out.	Saiu o StitchFoundry {version}.
+	Not now	Agora não
+@msg	StitchFoundry {version} is out: it's on the Home screen	Saiu o StitchFoundry {version}: veja a tela inicial
+@msg	StitchFoundry {version} is the newest	O StitchFoundry {version} é o mais recente
+@msg	checking for updates works in the desktop app	Verificar atualizações funciona no aplicativo para computador
+@msg	can't reach GitHub: {e}	Não foi possível acessar o GitHub: {e}
+@msg	GitHub answered {status}: try again later	O GitHub respondeu {status}: tente mais tarde
+@msg	GitHub's answer couldn't be read	Não foi possível ler a resposta do GitHub
+@msg	GitHub's answer isn't a list of releases	A resposta do GitHub não é uma lista de versões
+@msg	this version ({current}) isn't one to compare	Esta versão ({current}) não pode ser comparada
+@msg	`automatic` is true, false or "toggle"	`automatic` é true, false ou "toggle"
