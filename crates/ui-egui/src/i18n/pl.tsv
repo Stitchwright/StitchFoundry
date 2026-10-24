@@ -6734,3 +6734,26 @@ machine	Stop	Zatrzymanie
 @msg	the video has no frames	Film nie ma klatek
 @msg	the video would be larger than 4 GB: lower the size or frames	Film przekroczyłby 4 GB: zmniejsz rozmiar lub liczbę klatek
 @msg	the video is too large	Film jest za duży
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Królewski niebieski
+	Kelly Green	Trawiasta zieleń
+	Orange	Pomarańczowy
+	Purple	Fioletowy
+	Navy	Granatowy
+	Old Gold	Stare złoto
+	Silver Grey	Srebrnoszary
+	Brown	Brązowy
+	Sky Blue	Błękitny
+	Maroon	Bordowy
+	Forest Green	Butelkowa zieleń
+	Cream	Kremowy
+	Teal	Morski
+	Mint	Miętowy
+	Tan	Jasnobrązowy
+	Lavender	Lawendowy
+	Light Gold	Jasne złoto
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 część wzoru, aby ją wybrać  |  
+	 it to move it	 aby ją przesunąć
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Zamień swoje słowa, kształty i obrazy we wzory dla swojej hafciarki.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Najpierw powiedz StitchFoundry, jaką masz maszynę, aby wzór zapisał się w rodzaju pliku, który ona czyta. Potem naciśnij Gotowe, aby zapisać.

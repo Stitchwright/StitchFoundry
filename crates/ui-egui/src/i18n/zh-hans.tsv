@@ -6715,3 +6715,23 @@ machine	Stop	停止
 @msg	the video has no frames	视频没有帧
 @msg	the video would be larger than 4 GB: lower the size or frames	视频会超过 4 GB：请减小尺寸或帧数
 @msg	the video is too large	视频太大
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	宝蓝
+	Kelly Green	草绿
+	Navy	藏青
+	Old Gold	古金
+	Silver Grey	银灰
+	Sky Blue	天蓝
+	Maroon	酒红
+	Forest Green	森林绿
+	Cream	奶油色
+	Teal	青绿
+	Mint	薄荷绿
+	Tan	浅棕
+	Lavender	薰衣草紫
+	Light Gold	浅金
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	以选择设计的一部分  |  
+	 it to move it	以移动它
+	Turn your words, shapes and pictures into designs for your embroidery machine.	把您的文字、图形和图片变成绣花机可用的图案。
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	请先告诉 StitchFoundry 您用的是哪台绣花机，这样图案会存成它能读取的文件类型。然后按“完成”保存。

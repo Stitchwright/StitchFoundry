@@ -6535,3 +6535,26 @@ machine	Stop	Arresto
 @msg	the video has no frames	Il video non ha fotogrammi
 @msg	the video would be larger than 4 GB: lower the size or frames	Il video supererebbe i 4 GB: riduci dimensione o fotogrammi
 @msg	the video is too large	Il video è troppo grande
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Blu reale
+	Kelly Green	Verde prato
+	Orange	Arancione
+	Purple	Viola
+	Navy	Blu navy
+	Old Gold	Oro antico
+	Silver Grey	Grigio argento
+	Brown	Marrone
+	Sky Blue	Azzurro
+	Maroon	Bordeaux
+	Forest Green	Verde bosco
+	Cream	Crema
+	Teal	Verde acqua
+	Mint	Verde menta
+	Tan	Nocciola
+	Lavender	Lavanda
+	Light Gold	Oro chiaro
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 su una parte del disegno per sceglierla  |  
+	 it to move it	 per spostarla
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Trasforma parole, forme e immagini in disegni per la tua macchina da ricamo.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Per prima cosa indica a StitchFoundry quale macchina hai, così il disegno viene salvato nel tipo di file che legge. Poi premi Fine per salvare.

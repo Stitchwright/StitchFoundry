@@ -6785,3 +6785,23 @@ swatch	Bright Violet	Kraftig violet
 @msg	the video has no frames	Videoen har ingen billeder
 @msg	the video would be larger than 4 GB: lower the size or frames	Videoen ville blive over 4 GB: mindsk størrelsen eller antallet af billeder
 @msg	the video is too large	Videoen er for stor
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Kongeblå
+	Kelly Green	Græsgrøn
+	Navy	Marineblå
+	Old Gold	Gammelguld
+	Silver Grey	Sølvgrå
+	Sky Blue	Himmelblå
+	Maroon	Bordeaux
+	Forest Green	Skovgrøn
+	Cream	Creme
+	Teal	Petrol
+	Mint	Mintgrøn
+	Tan	Lysebrun
+	Lavender	Lavendel
+	Light Gold	Lys guld
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 på en del af designet for at vælge den  |  
+	 it to move it	 for at flytte den
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Gør dine ord, figurer og billeder til design til din broderimaskine.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Fortæl først StitchFoundry, hvilken maskine du har, så designet gemmes i den slags fil, den læser. Tryk derefter på Udført for at gemme.

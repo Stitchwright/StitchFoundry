@@ -6487,3 +6487,26 @@ machine	Stop	정지
 @msg	the video has no frames	동영상에 프레임이 없습니다
 @msg	the video would be larger than 4 GB: lower the size or frames	동영상이 4 GB를 넘습니다: 크기나 프레임 수를 줄이세요
 @msg	the video is too large	동영상이 너무 큽니다
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	로열 블루
+	Kelly Green	켈리 그린
+	Orange	주황
+	Purple	보라
+	Navy	네이비
+	Old Gold	올드 골드
+	Silver Grey	실버 그레이
+	Brown	갈색
+	Sky Blue	하늘색
+	Maroon	적갈색
+	Forest Green	포레스트 그린
+	Cream	크림
+	Teal	청록
+	Mint	민트
+	Tan	황갈색
+	Lavender	라벤더
+	Light Gold	라이트 골드
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 선택할 디자인 부분  |  
+	 it to move it	 옮길 부분
+	Turn your words, shapes and pictures into designs for your embroidery machine.	글자, 모양, 사진을 자수기용 디자인으로 바꿔 보세요.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	먼저 어떤 자수기를 쓰는지 StitchFoundry에 알려 주세요. 그 기계가 읽는 파일 형식으로 디자인을 저장합니다. 그런 다음 완료를 누르면 저장됩니다.

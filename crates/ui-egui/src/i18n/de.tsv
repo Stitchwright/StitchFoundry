@@ -6502,3 +6502,26 @@ effect	Soft	Weich
 @msg	the video has no frames	Das Video hat keine Bilder
 @msg	the video would be larger than 4 GB: lower the size or frames	Das Video wäre größer als 4 GB: Größe oder Bildzahl verringern
 @msg	the video is too large	Das Video ist zu groß
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Königsblau
+	Kelly Green	Grasgrün
+	Orange	Orange
+	Purple	Lila
+	Navy	Marineblau
+	Old Gold	Altgold
+	Silver Grey	Silbergrau
+	Brown	Braun
+	Sky Blue	Himmelblau
+	Maroon	Weinrot
+	Forest Green	Waldgrün
+	Cream	Creme
+	Teal	Petrol
+	Mint	Mintgrün
+	Tan	Hellbraun
+	Lavender	Lavendel
+	Light Gold	Hellgold
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 auf einen Teil des Designs, um ihn zu wählen  |  
+	 it to move it	 um ihn zu verschieben
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Machen Sie aus Ihren Worten, Formen und Bildern Designs für Ihre Stickmaschine.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Sagen Sie StitchFoundry zuerst, welche Maschine Sie haben, damit das Design in der Dateiart gespeichert wird, die sie liest. Drücken Sie dann auf Fertig, um zu speichern.

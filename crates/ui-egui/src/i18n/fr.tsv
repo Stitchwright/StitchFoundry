@@ -6908,3 +6908,23 @@ theme	Appearance	Apparence
 @msg	the video has no frames	La vidéo n’a pas d’images
 @msg	the video would be larger than 4 GB: lower the size or frames	La vidéo dépasserait 4 Go : réduisez la taille ou le nombre d’images
 @msg	the video is too large	La vidéo est trop grande
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Bleu roi
+	Kelly Green	Vert prairie
+	Navy	Bleu marine
+	Old Gold	Vieil or
+	Silver Grey	Gris argent
+	Sky Blue	Bleu ciel
+	Maroon	Bordeaux
+	Forest Green	Vert forêt
+	Cream	Crème
+	Teal	Bleu canard
+	Mint	Vert menthe
+	Tan	Beige foncé
+	Lavender	Lavande
+	Light Gold	Or clair
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 sur une partie du motif pour la choisir  |  
+	 it to move it	 pour la déplacer
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Transformez vos mots, formes et images en motifs pour votre machine à broder.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Indiquez d'abord à StitchFoundry quelle machine vous avez, pour que le motif soit enregistré dans le type de fichier qu'elle lit. Appuyez ensuite sur Terminé pour enregistrer.

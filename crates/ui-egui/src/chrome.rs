@@ -900,6 +900,8 @@ fn status_field(ui: &mut Ui, id: &str, rect: egui::Rect, text: String, font: egu
 /// written as shortcuts are ("Alt+Click"); [`hint_segments`] names them for the platform.
 /// The hint of the Zoom tool with Performance › Animated Zoom on.
 const ANIMATED_ZOOM_HINT: &str = "zoom.animated";
+/// The Selection tool's hint in simple mode: no modifier keys, the words its buttons use.
+const SIMPLE_SELECT_HINT: &str = "selection.simple";
 
 fn hint_for(tool: &str) -> Option<&'static [(&'static str, bool)]> {
     Some(match tool {
@@ -917,6 +919,7 @@ fn hint_for(tool: &str) -> Option<&'static [(&'static str, bool)]> {
             ("Alt+Drag", true),
             (" the object to duplicate", false),
         ],
+        SIMPLE_SELECT_HINT => &[("Click", true), (" a part of the design to choose it  |  ", false), ("Drag", true), (" it to move it", false)],
         "directSelection" => &[
             ("Click", true),
             (" an anchor or path segment to select it  |  ", false),
@@ -1074,7 +1077,7 @@ fn hint_for(tool: &str) -> Option<&'static [(&'static str, bool)]> {
 /// can insist a complete language covers them.
 pub fn hint_strings() -> Vec<&'static str> {
     let mut v = Vec::new();
-    for tool in vectorcraft_tools::catalog::all_tools().map(|t| t.id).chain([ANIMATED_ZOOM_HINT]) {
+    for tool in vectorcraft_tools::catalog::all_tools().map(|t| t.id).chain([ANIMATED_ZOOM_HINT, SIMPLE_SELECT_HINT]) {
         for &(text, bold) in hint_for(tool).unwrap_or(&[]) {
             let text = if bold { text.rsplit_once('+').map_or(text, |(_, k)| k) } else { text };
             if !text.is_empty() && !text.chars().all(|c| c.is_ascii_digit()) && !v.contains(&text) {
@@ -1133,7 +1136,11 @@ pub fn hint_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
                     vec![(crate::dialogs::revolve_gizmo::hint(d).into(), false)]
                 } else {
                     let tool = app.session.tool_id();
-                    let hint = if tool == "zoom" && crate::canvas::animated_zoom(&app.session.prefs) { ANIMATED_ZOOM_HINT } else { tool };
+                    let hint = match tool {
+                        "zoom" if crate::canvas::animated_zoom(&app.session.prefs) => ANIMATED_ZOOM_HINT,
+                        "selection" if crate::simple::active(app) => SIMPLE_SELECT_HINT,
+                        _ => tool,
+                    };
                     hint_segments(hint)
                 };
                 for (txt, bold) in segments {
@@ -1184,6 +1191,9 @@ mod tests {
         if !cfg!(target_os = "macos") {
             assert!(text("zoom").contains("Alt+Click") && text("paintbrush").contains("Ctrl+Shift+/"));
         }
+        // QA-01: simple mode's Selection hint needs no modifier keys
+        let simple = text(super::SIMPLE_SELECT_HINT);
+        assert_eq!(simple, "Click a part of the design to choose it  |  Drag it to move it");
     }
 
     #[derive(Debug)]

@@ -6847,3 +6847,23 @@ machine	Stop	Stopp
 @msg	the video has no frames	Videon har inga bilder
 @msg	the video would be larger than 4 GB: lower the size or frames	Videon skulle bli över 4 GB: minska storleken eller antalet bilder
 @msg	the video is too large	Videon är för stor
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Kungsblå
+	Kelly Green	Gräsgrön
+	Navy	Marinblå
+	Old Gold	Gammalguld
+	Silver Grey	Silvergrå
+	Sky Blue	Himmelsblå
+	Maroon	Vinröd
+	Forest Green	Skogsgrön
+	Cream	Gräddvit
+	Teal	Petrol
+	Mint	Mintgrön
+	Tan	Ljusbrun
+	Lavender	Lavendel
+	Light Gold	Ljust guld
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 på en del av mönstret för att välja den  |  
+	 it to move it	 för att flytta den
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Gör dina ord, former och bilder till mönster för din broderimaskin.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Tala först om för StitchFoundry vilken maskin du har, så sparas mönstret i den sortens fil den läser. Tryck sedan på Klart för att spara.

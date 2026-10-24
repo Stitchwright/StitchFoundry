@@ -6827,3 +6827,23 @@ swatch	Bright Violet	Felviolet
 @msg	the video has no frames	De video heeft geen beelden
 @msg	the video would be larger than 4 GB: lower the size or frames	De video zou groter zijn dan 4 GB: verklein de grootte of het aantal beelden
 @msg	the video is too large	De video is te groot
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Koningsblauw
+	Kelly Green	Grasgroen
+	Navy	Marineblauw
+	Old Gold	Oudgoud
+	Silver Grey	Zilvergrijs
+	Sky Blue	Hemelsblauw
+	Maroon	Bordeauxrood
+	Forest Green	Bosgroen
+	Cream	Crème
+	Teal	Petrol
+	Mint	Mintgroen
+	Tan	Lichtbruin
+	Lavender	Lavendel
+	Light Gold	Lichtgoud
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 op een deel van het ontwerp om het te kiezen  |  
+	 it to move it	 om het te verplaatsen
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Maak van uw woorden, vormen en afbeeldingen ontwerpen voor uw borduurmachine.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Vertel StitchFoundry eerst welke machine u hebt, zodat het ontwerp wordt bewaard in het soort bestand dat hij leest. Druk dan op Gereed om te bewaren.

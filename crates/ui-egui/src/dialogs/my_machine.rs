@@ -29,6 +29,8 @@ pub struct MyMachineState {
     /// closed; and what ejecting said.
     pub saved: Option<(String, String)>,
     pub eject_status: Option<String>,
+    /// Opened by Save for My Machine with no machine chosen: it says so, and Done goes on to save.
+    pub then_save: bool,
 }
 
 /// A size typed in the units shown (`inches` or millimetres), in millimetres.
@@ -121,7 +123,7 @@ pub fn save(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     }
     let mine = info(app);
     if mine["machine"].is_null() {
-        app.ui.my_machine.open = true;
+        (app.ui.my_machine.open, app.ui.my_machine.then_save) = (true, true);
         return Ok(json!({ "open": true }));
     }
     // the stitches suit the fabric: asked once, when the design has none
@@ -305,52 +307,64 @@ pub(crate) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
         .show(ctx, |ui| {
             let t = Tokens::get(ui.ctx());
             ui.set_width(460.0);
-            ui.label(egui::RichText::new(tl!("Which embroidery machine do you have?")).font(theme::semibold(15.0)).color(t.text));
-            ui.add_space(6.0);
-            let current = mine["machine"].as_str().unwrap_or_default().to_string();
-            for m in mine["machines"].as_array().map(Vec::as_slice).unwrap_or_default() {
-                let Some(name) = m["name"].as_str() else { continue };
-                let label = egui::RichText::new(machine_name(name)).size(15.0);
-                if ui.selectable_label(name == current, label).clicked() {
-                    app.run("embroidery.myMachine.set", json!({ "machine": name })).ok();
-                }
+            // on a small screen or at a big text size the list scrolls, and Done stays in view
+            let body = (ui.ctx().content_rect().height() - 150.0).max(160.0);
+            if app.ui.my_machine.then_save {
+                ui.label(
+                    egui::RichText::new(tl!("First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save."))
+                        .size(14.0)
+                        .color(t.text),
+                );
+                ui.add_space(6.0);
             }
-            ui.add_space(10.0);
-            ui.horizontal(|ui| {
-                ui.label(egui::RichText::new(tl!("Measure in")).size(14.0));
-                let units = app.session.prefs.units_general.clone();
-                for (id, label) in [("millimeters", tl!("Millimeters")), ("inches", tl!("Inches"))] {
-                    if ui.selectable_label(units == id, egui::RichText::new(label).size(14.0)).clicked() {
-                        app.session.execute("prefs.set", &json!({ "key": "unitsGeneral", "value": id })).ok();
+            egui::ScrollArea::vertical().max_height(body).auto_shrink([false, true]).show(ui, |ui| {
+                ui.label(egui::RichText::new(tl!("Which embroidery machine do you have?")).font(theme::semibold(15.0)).color(t.text));
+                ui.add_space(6.0);
+                let current = mine["machine"].as_str().unwrap_or_default().to_string();
+                for m in mine["machines"].as_array().map(Vec::as_slice).unwrap_or_default() {
+                    let Some(name) = m["name"].as_str() else { continue };
+                    let label = egui::RichText::new(machine_name(name)).size(15.0);
+                    if ui.selectable_label(name == current, label).clicked() {
+                        app.run("embroidery.myMachine.set", json!({ "machine": name })).ok();
                     }
                 }
-            });
-            ui.add_space(10.0);
-            if crate::io::is_web(app) {
-                ui.label(
-                    egui::RichText::new(tl!("Save for My Machine downloads the design: copy it to the USB stick you take to your machine."))
-                        .size(12.0)
-                        .color(t.text_dim),
-                );
-            } else {
-                ui.label(egui::RichText::new(tl!("Save designs to")).size(14.0));
+                ui.add_space(10.0);
                 ui.horizontal(|ui| {
-                    let folder = mine["folder"].as_str().map(str::to_string);
-                    ui.label(egui::RichText::new(folder.unwrap_or_else(|| tl!("No folder chosen yet").into())).color(t.text_dim));
-                    if ui.button(tl!("Choose Folder…")).clicked() {
-                        crate::picks::button(app, |app| {
-                            if let Some(f) = crate::picks::folder(app) {
-                                app.session.execute("embroidery.send.targets", &json!({ "add": f })).ok();
-                            }
-                        });
+                    ui.label(egui::RichText::new(tl!("Measure in")).size(14.0));
+                    let units = app.session.prefs.units_general.clone();
+                    for (id, label) in [("millimeters", tl!("Millimeters")), ("inches", tl!("Inches"))] {
+                        if ui.selectable_label(units == id, egui::RichText::new(label).size(14.0)).clicked() {
+                            app.session.execute("prefs.set", &json!({ "key": "unitsGeneral", "value": id })).ok();
+                        }
                     }
                 });
-                ui.label(
-                    egui::RichText::new(tl!("Plug in the USB stick you take to your machine, then choose it here.")).size(12.0).color(t.text_dim),
-                );
-            }
-            ui.add_space(10.0);
-            own_hoops(app, ui, &mine, &t);
+                ui.add_space(10.0);
+                if crate::io::is_web(app) {
+                    ui.label(
+                        egui::RichText::new(tl!("Save for My Machine downloads the design: copy it to the USB stick you take to your machine."))
+                            .size(12.0)
+                            .color(t.text_dim),
+                    );
+                } else {
+                    ui.label(egui::RichText::new(tl!("Save designs to")).size(14.0));
+                    ui.horizontal(|ui| {
+                        let folder = mine["folder"].as_str().map(str::to_string);
+                        ui.label(egui::RichText::new(folder.unwrap_or_else(|| tl!("No folder chosen yet").into())).color(t.text_dim));
+                        if ui.button(tl!("Choose Folder…")).clicked() {
+                            crate::picks::button(app, |app| {
+                                if let Some(f) = crate::picks::folder(app) {
+                                    app.session.execute("embroidery.send.targets", &json!({ "add": f })).ok();
+                                }
+                            });
+                        }
+                    });
+                    ui.label(
+                        egui::RichText::new(tl!("Plug in the USB stick you take to your machine, then choose it here.")).size(12.0).color(t.text_dim),
+                    );
+                }
+                ui.add_space(10.0);
+                own_hoops(app, ui, &mine, &t);
+            });
             ui.add_space(12.0);
             if crate::widgets::primary_button(ui, tl!("Done")).clicked() {
                 done = true;
@@ -358,6 +372,14 @@ pub(crate) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
         });
     if !open || done || ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
         app.ui.my_machine.open = false;
+        // Done after Save for My Machine opened it: on with the save, now there is a machine
+        if std::mem::take(&mut app.ui.my_machine.then_save)
+            && done
+            && !info(app)["machine"].is_null()
+            && let Err(e) = app.run("ui.saveForMyMachine", json!({}))
+        {
+            app.status(e);
+        }
     }
 }
 

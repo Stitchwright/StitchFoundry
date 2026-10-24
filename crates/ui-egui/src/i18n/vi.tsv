@@ -6491,3 +6491,26 @@ machine	Stop	Dừng máy
 @msg	the video has no frames	Video không có khung hình
 @msg	the video would be larger than 4 GB: lower the size or frames	Video sẽ lớn hơn 4 GB: hãy giảm kích thước hoặc số khung hình
 @msg	the video is too large	Video quá lớn
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Xanh hoàng gia
+	Kelly Green	Xanh lá cỏ
+	Orange	Cam
+	Purple	Tím
+	Navy	Xanh hải quân
+	Old Gold	Vàng cổ
+	Silver Grey	Xám bạc
+	Brown	Nâu
+	Sky Blue	Xanh da trời
+	Maroon	Đỏ rượu
+	Forest Green	Xanh rừng
+	Cream	Kem
+	Teal	Xanh mòng két
+	Mint	Xanh bạc hà
+	Tan	Nâu nhạt
+	Lavender	Tím oải hương
+	Light Gold	Vàng nhạt
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 vào một phần của mẫu để chọn  |  
+	 it to move it	 để di chuyển
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Biến chữ, hình và ảnh của bạn thành mẫu thêu cho máy thêu của bạn.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Trước tiên hãy cho StitchFoundry biết bạn có máy nào, để mẫu được lưu đúng loại tệp máy đọc được. Sau đó nhấn Xong để lưu.

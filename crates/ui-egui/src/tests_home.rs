@@ -275,9 +275,13 @@ fn guide_strings(app: &mut VectorcraftApp) -> Vec<String> {
     }
     let ctx = egui::Context::default();
     crate::theme::install_fonts(&ctx);
-    let raw = egui::RawInput { screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1200.0, 1000.0))), ..Default::default() };
-    // a window is measured on its first frame and drawn on the next
-    ctx.run_ui(raw.clone(), |ui| crate::guide::show(app, ui.ctx())).textures_delta.clear();
+    // tall enough for every step without scrolling (a shorter screen scrolls the step)
+    let raw = egui::RawInput { screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1200.0, 1600.0))), ..Default::default() };
+    // a window is measured on its first frame, then grows a little each frame to its step's
+    // height (the step sits in a scroll area): drawn until it has
+    for _ in 0..30 {
+        ctx.run_ui(raw.clone(), |ui| crate::guide::show(app, ui.ctx())).textures_delta.clear();
+    }
     let mut out = ctx.run_ui(raw, |ui| crate::guide::show(app, ui.ctx()));
     out.textures_delta.clear();
     let mut v = vec![];
@@ -406,6 +410,29 @@ fn simple_mode_makes_mistakes_safe_and_text_larger() {
     let panel = strings(&mut app, crate::simple::right_panel);
     assert!(panel.iter().any(|t| t == "Saved for you automatically in My Designs:"), "{panel:?}");
     std::fs::remove_dir_all(&dir).ok();
+}
+
+/// QA-01: for someone new, Your Design names each thread ("Sky Blue"), never a colour code, and
+/// Save for My Machine with no machine chosen says why My Machine opened.
+#[test]
+fn simple_mode_names_threads_and_says_why_my_machine_opened() {
+    let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), crate::Services::default());
+    app.run("window.experience", json!({"level": "beginner"})).unwrap();
+    app.run("embroidery.myMachine.set", json!({"machine": null})).unwrap();
+    app.run("embroidery.newDesign", json!({})).unwrap();
+    app.run("shape.rectangle", json!({"x": 100, "y": 100, "width": 120, "height": 80})).unwrap();
+    app.run("embroidery.set", json!({"type": "fill"})).unwrap();
+    app.run("embroidery.setThread", json!({"color": "#5fa8d3"})).unwrap();
+    app.run("select.none", json!({})).unwrap();
+    let panel = strings(&mut app, crate::simple::right_panel);
+    assert!(panel.iter().any(|t| t == "1. Sky Blue"), "{panel:?}");
+    assert!(!panel.iter().any(|t| t.contains("#5fa8d3")), "{panel:?}");
+    // no machine yet: the window opens and says why, and Done goes on with the save
+    assert_eq!(app.run("ui.saveForMyMachine", json!({})).unwrap()["open"], true);
+    assert!(app.ui.my_machine.open && app.ui.my_machine.then_save);
+    let window = strings(&mut app, |app, ui| crate::dialogs::my_machine::show(app, ui.ctx()));
+    assert!(window.iter().any(|t| t.starts_with("First tell StitchFoundry which machine you have")), "{window:?}");
+    assert!(window.iter().any(|t| t == "Done"), "{window:?}");
 }
 
 /// TB-01: the first start on a tablet turns on simple mode, unless a way of working was chosen.

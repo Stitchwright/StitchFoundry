@@ -6749,3 +6749,23 @@ mark-style	Japanese	Japonesas
 @msg	the video has no frames	O vídeo não tem quadros
 @msg	the video would be larger than 4 GB: lower the size or frames	O vídeo passaria de 4 GB: reduza o tamanho ou os quadros
 @msg	the video is too large	O vídeo é grande demais
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Azul royal
+	Kelly Green	Verde grama
+	Navy	Azul-marinho
+	Old Gold	Ouro velho
+	Silver Grey	Cinza prata
+	Sky Blue	Azul-celeste
+	Maroon	Vinho
+	Forest Green	Verde floresta
+	Cream	Creme
+	Teal	Azul-petróleo
+	Mint	Verde menta
+	Tan	Caramelo
+	Lavender	Lavanda
+	Light Gold	Ouro claro
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 em uma parte do desenho para escolhê-la  |  
+	 it to move it	 para movê-la
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Transforme suas palavras, formas e imagens em desenhos para sua máquina de bordar.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Primeiro diga ao StitchFoundry qual máquina você tem, para o desenho ser salvo no tipo de arquivo que ela lê. Depois clique em Concluído para salvar.

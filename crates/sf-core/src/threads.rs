@@ -361,35 +361,41 @@ pub fn default_palette() -> Vec<Thread> {
 /// Generic polyester colour set, used for default palettes and for colouring
 /// colour-less formats (DST, EXP, ...).
 pub fn generic_chart() -> ThreadChart {
-    chart(
-        "Generic",
-        &[
-            (0x1a3e8c, "Royal Blue", "G01"),
-            (0xd62828, "Red", "G02"),
-            (0x111111, "Black", "G03"),
-            (0xf6c90e, "Yellow", "G04"),
-            (0x2a9d4b, "Kelly Green", "G05"),
-            (0xfafafa, "White", "G06"),
-            (0xf77f00, "Orange", "G07"),
-            (0x6a2c91, "Purple", "G08"),
-            (0x0b1f44, "Navy", "G09"),
-            (0xc9a227, "Old Gold", "G10"),
-            (0x8d99ae, "Silver Grey", "G11"),
-            (0x6b3e26, "Brown", "G12"),
-            (0xf4a6c6, "Pink", "G13"),
-            (0x5fa8d3, "Sky Blue", "G14"),
-            (0x7a1f2b, "Maroon", "G15"),
-            (0x1b4d2e, "Forest Green", "G16"),
-            (0xe9d8a6, "Cream", "G17"),
-            (0x3d3d3d, "Charcoal", "G18"),
-            (0x00a6a6, "Teal", "G19"),
-            (0xb5e48c, "Mint", "G20"),
-            (0xe85d75, "Coral", "G21"),
-            (0xd4a373, "Tan", "G22"),
-            (0x9d4edd, "Lavender", "G23"),
-            (0xffd166, "Light Gold", "G24"),
-        ],
-    )
+    chart("Generic", &GENERIC)
+}
+
+/// The generic polyester colours: colour, name, code.
+const GENERIC: [(u32, &str, &str); 24] = [
+    (0x1a3e8c, "Royal Blue", "G01"),
+    (0xd62828, "Red", "G02"),
+    (0x111111, "Black", "G03"),
+    (0xf6c90e, "Yellow", "G04"),
+    (0x2a9d4b, "Kelly Green", "G05"),
+    (0xfafafa, "White", "G06"),
+    (0xf77f00, "Orange", "G07"),
+    (0x6a2c91, "Purple", "G08"),
+    (0x0b1f44, "Navy", "G09"),
+    (0xc9a227, "Old Gold", "G10"),
+    (0x8d99ae, "Silver Grey", "G11"),
+    (0x6b3e26, "Brown", "G12"),
+    (0xf4a6c6, "Pink", "G13"),
+    (0x5fa8d3, "Sky Blue", "G14"),
+    (0x7a1f2b, "Maroon", "G15"),
+    (0x1b4d2e, "Forest Green", "G16"),
+    (0xe9d8a6, "Cream", "G17"),
+    (0x3d3d3d, "Charcoal", "G18"),
+    (0x00a6a6, "Teal", "G19"),
+    (0xb5e48c, "Mint", "G20"),
+    (0xe85d75, "Coral", "G21"),
+    (0xd4a373, "Tan", "G22"),
+    (0x9d4edd, "Lavender", "G23"),
+    (0xffd166, "Light Gold", "G24"),
+];
+
+/// The name of the generic thread colour nearest `c` ("Sky Blue"): what to call a thread that
+/// has no name of its own.
+pub fn generic_name(c: Rgb) -> &'static str {
+    nearest_index(GENERIC.iter().map(|&(v, _, _)| Rgb::from_u32(v)), c).and_then(|i| GENERIC.get(i)).map_or("Black", |&(_, n, _)| n)
 }
 
 /// Brother PEC palette (index 0 is a placeholder; indices 1–64 are the machine colours).
@@ -692,6 +698,15 @@ pub fn hus_chart() -> ThreadChart {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn a_thread_without_a_name_is_called_after_the_nearest_generic_colour() {
+        use super::{Rgb, generic_name};
+        assert_eq!(generic_name(Rgb::from_u32(0x1a3e8c)), "Royal Blue");
+        assert_eq!(generic_name(Rgb::WHITE), "White");
+        assert_eq!(generic_name(Rgb::from_u32(0x4a90c8)), "Sky Blue");
+        assert_eq!(generic_name(Rgb::from_u32(0xe8a820)), "Old Gold");
+    }
 
     #[test]
     fn ciede2000_matches_the_published_test_pairs() {

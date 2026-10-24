@@ -167,18 +167,22 @@ pub fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
             ui.visuals_mut().widgets.inactive.bg_fill = t.input;
             ui.visuals_mut().widgets.inactive.bg_stroke = egui::Stroke::new(1.0, t.input_border);
             ui.label(RichText::new(format!("{} {} / {}", tl!("Step"), step.index() + 1, Step::ALL.len())).size(12.0).color(t.text_dim));
-            match step {
-                Step::What => what(app, ui, &t),
-                Step::Hoop => hoop(app, ui, &t),
-                Step::Details => details(app, ui, &t),
-                Step::Fabric => fabric(app, ui, &t),
-                Step::Colours => colours(app, ui, &t),
-                Step::Watch => watch(app, ui, &t),
-                Step::Save => save(app, ui, &t),
-            }
-            if let Some(e) = &app.guide.error {
-                ui.label(RichText::new(e).size(13.0).color(t.error));
-            }
+            // on a small screen or at a big text size the step scrolls, and Back and Next stay in view
+            let body = (ui.ctx().content_rect().height() - 170.0).max(200.0);
+            egui::ScrollArea::vertical().max_height(body).auto_shrink([false, true]).show(ui, |ui| {
+                match step {
+                    Step::What => what(app, ui, &t),
+                    Step::Hoop => hoop(app, ui, &t),
+                    Step::Details => details(app, ui, &t),
+                    Step::Fabric => fabric(app, ui, &t),
+                    Step::Colours => colours(app, ui, &t),
+                    Step::Watch => watch(app, ui, &t),
+                    Step::Save => save(app, ui, &t),
+                }
+                if let Some(e) = &app.guide.error {
+                    ui.label(RichText::new(e).size(13.0).color(t.error));
+                }
+            });
             ui.add_space(6.0);
             ui.separator();
             nav(app, ui);

@@ -6723,3 +6723,23 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 @msg	the video has no frames	ვიდეოს კადრები არ აქვს
 @msg	the video would be larger than 4 GB: lower the size or frames	ვიდეო 4 GB-ზე დიდი იქნებოდა: შეამცირეთ ზომა ან კადრები
 @msg	the video is too large	ვიდეო ძალიან დიდია
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	სამეფო ლურჯი
+	Kelly Green	ბალახისფერი მწვანე
+	Navy	მუქი ლურჯი
+	Old Gold	ძველი ოქრო
+	Silver Grey	ვერცხლისფერი ნაცრისფერი
+	Sky Blue	ცისფერი
+	Maroon	შინდისფერი
+	Forest Green	ტყის მწვანე
+	Cream	კრემისფერი
+	Teal	ზღვისფერი
+	Mint	პიტნისფერი
+	Tan	ღია ყავისფერი
+	Lavender	ლავანდისფერი
+	Light Gold	ღია ოქრო
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 დიზაინის ნაწილზე მის ასარჩევად  |  
+	 it to move it	 მის გადასატანად
+	Turn your words, shapes and pictures into designs for your embroidery machine.	აქციეთ თქვენი სიტყვები, ფორმები და სურათები ნაქარგის დიზაინებად თქვენი მანქანისთვის.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	ჯერ უთხარით StitchFoundry-ს, რომელი მანქანა გაქვთ, რომ დიზაინი შეინახოს იმ ტიპის ფაილში, რომელსაც ის კითხულობს. შემდეგ შესანახად დააჭირეთ „მზადაა“.

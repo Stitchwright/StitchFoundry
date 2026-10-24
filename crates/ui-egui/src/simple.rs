@@ -14,6 +14,9 @@ use crate::theme::{self, Tokens};
 
 /// The left column's width.
 const BAR: f32 = 176.0;
+/// The height kept at the column's foot for Text size, Show everything and Home until they have
+/// been drawn once (then their measured height is kept).
+const BOTTOM: f32 = 110.0;
 /// Your Design's width.
 const PANEL: f32 = 290.0;
 
@@ -59,54 +62,66 @@ pub fn left_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
     egui::Panel::left("simple-bar").resizable(false).exact_size(BAR).frame(frame).show(ui, |ui| {
         let doc = app.session.active().is_some();
         ui.spacing_mut().item_spacing.y = 8.0;
-        // the guide works with or without a design open
-        if big(ui, tl!("Make a Design…"), false).on_hover_text(tl!("Step by step: words, a shape, appliqué, a picture or a sample")).clicked() {
-            app.run("ui.makeDesign", json!({})).ok();
-        }
-        ui.add_space(6.0);
-        ui.add_enabled_ui(doc, |ui| {
-            if big(ui, tl!("Select"), false).on_hover_text(tl!("Click a part of the design to choose it, drag it to move it")).clicked() {
-                app.run("tool.select", json!({ "tool": "selection" })).ok();
-            }
-            if big(ui, tl!("Add Words…"), false).on_hover_text(tl!("A name or a few words, ready to sew")).clicked() {
-                open_words(app);
-            }
-            if big(ui, tl!("Add a Shape…"), false).on_hover_text(tl!("A heart, a star, a flower and more, ready to sew")).clicked() {
-                app.simple.shapes = Some(false);
-            }
-            if big(ui, tl!("Add Appliqué…"), false)
-                .on_hover_text(tl!("A fabric shape: the machine stops for you to lay the fabric, then sews it down"))
-                .clicked()
+        // the buttons scroll when the window is short (a small screen, or the biggest text size),
+        // so they never run under Text size and Home at the bottom
+        let foot_id = egui::Id::new("simple-bar-foot");
+        let foot = ui.ctx().data(|d| d.get_temp::<f32>(foot_id)).unwrap_or(BOTTOM);
+        let room = (ui.available_height() - foot - 12.0).max(120.0);
+        // a scroll bar that shows whenever the buttons don't all fit, not only under the pointer
+        ui.spacing_mut().scroll = egui::style::ScrollStyle::solid();
+        egui::ScrollArea::vertical().max_height(room).auto_shrink([false, true]).show(ui, |ui| {
+            // the guide works with or without a design open
+            if big(ui, tl!("Make a Design…"), false).on_hover_text(tl!("Step by step: words, a shape, appliqué, a picture or a sample")).clicked()
             {
-                app.simple.shapes = Some(true);
-            }
-            if big(ui, tl!("Add a Picture…"), false).on_hover_text(tl!("A photo or drawing to turn into stitches")).clicked() {
-                app.run("file.place", json!({})).ok();
+                app.run("ui.makeDesign", json!({})).ok();
             }
             ui.add_space(6.0);
-            if big(ui, tl!("Watch It Sew"), false).on_hover_text(tl!("See the design sew on screen, stitch by stitch")).clicked() {
-                let p = &mut app.embroidery.player;
-                (p.active, p.playing, p.pos) = (true, true, 0.0);
-            }
-            ui.horizontal(|ui| {
-                let half = vec2((ui.available_width() - 8.0) / 2.0, 40.0);
-                let undo = egui::Button::new(RichText::new(tl!("Undo")).size(15.0)).min_size(half).corner_radius(6.0);
-                if ui.add(undo).on_hover_text(tl!("Take back the last change")).clicked() {
-                    app.run("edit.undo", json!({})).ok();
+            ui.add_enabled_ui(doc, |ui| {
+                if big(ui, tl!("Select"), false).on_hover_text(tl!("Click a part of the design to choose it, drag it to move it")).clicked() {
+                    app.run("tool.select", json!({ "tool": "selection" })).ok();
                 }
-                let redo = egui::Button::new(RichText::new(tl!("Redo")).size(15.0)).min_size(half).corner_radius(6.0);
-                if ui.add(redo).on_hover_text(tl!("Put back what Undo took back")).clicked() {
-                    app.run("edit.redo", json!({})).ok();
+                if big(ui, tl!("Add Words…"), false).on_hover_text(tl!("A name or a few words, ready to sew")).clicked() {
+                    open_words(app);
+                }
+                if big(ui, tl!("Add a Shape…"), false).on_hover_text(tl!("A heart, a star, a flower and more, ready to sew")).clicked() {
+                    app.simple.shapes = Some(false);
+                }
+                if big(ui, tl!("Add Appliqué…"), false)
+                    .on_hover_text(tl!("A fabric shape: the machine stops for you to lay the fabric, then sews it down"))
+                    .clicked()
+                {
+                    app.simple.shapes = Some(true);
+                }
+                if big(ui, tl!("Add a Picture…"), false).on_hover_text(tl!("A photo or drawing to turn into stitches")).clicked() {
+                    app.run("file.place", json!({})).ok();
+                }
+                ui.add_space(6.0);
+                if big(ui, tl!("Watch It Sew"), false).on_hover_text(tl!("See the design sew on screen, stitch by stitch")).clicked() {
+                    let p = &mut app.embroidery.player;
+                    (p.active, p.playing, p.pos) = (true, true, 0.0);
+                }
+                ui.horizontal(|ui| {
+                    let half = vec2((ui.available_width() - 8.0) / 2.0, 40.0);
+                    let undo = egui::Button::new(RichText::new(tl!("Undo")).size(15.0)).min_size(half).corner_radius(6.0);
+                    if ui.add(undo).on_hover_text(tl!("Take back the last change")).clicked() {
+                        app.run("edit.undo", json!({})).ok();
+                    }
+                    let redo = egui::Button::new(RichText::new(tl!("Redo")).size(15.0)).min_size(half).corner_radius(6.0);
+                    if ui.add(redo).on_hover_text(tl!("Put back what Undo took back")).clicked() {
+                        app.run("edit.redo", json!({})).ok();
+                    }
+                });
+                if big(ui, tl!("Start Over…"), false).on_hover_text(tl!("Clear the design and begin again")).clicked() {
+                    app.simple.start_over = true;
+                }
+                ui.add_space(6.0);
+                if big(ui, tl!("Save for My Machine"), true)
+                    .on_hover_text(tl!("Write the design for your machine to its USB stick or folder"))
+                    .clicked()
+                {
+                    app.run("ui.saveForMyMachine", json!({})).ok();
                 }
             });
-            if big(ui, tl!("Start Over…"), false).on_hover_text(tl!("Clear the design and begin again")).clicked() {
-                app.simple.start_over = true;
-            }
-            ui.add_space(6.0);
-            if big(ui, tl!("Save for My Machine"), true).on_hover_text(tl!("Write the design for your machine to its USB stick or folder")).clicked()
-            {
-                app.run("ui.saveForMyMachine", json!({})).ok();
-            }
         });
         ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
             text_size(app, ui);
@@ -116,6 +131,8 @@ pub fn left_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
             if ui.link(tl!("Home")).clicked() {
                 app.run("app.home", json!({})).ok();
             }
+            let used = ui.min_rect().height();
+            ui.ctx().data_mut(|d| d.insert_temp(foot_id, used));
         });
     });
 }
@@ -125,14 +142,14 @@ fn text_size(app: &mut VectorcraftApp, ui: &mut Ui) {
     let now = app.session.prefs.ui_scaling;
     ui.horizontal(|ui| {
         for (i, scale) in TEXT_SIZES.into_iter().enumerate() {
-            let label = RichText::new("A").size(13.0 + 4.0 * i as f32);
+            let label = RichText::new("A").size(16.0 + 5.0 * i as f32);
             let on = (now - scale).abs() < 0.01;
             if ui.selectable_label(on, label).on_hover_text(tl!("Text size")).clicked() {
                 app.run("prefs.set", json!({ "key": "uiScaling", "value": scale })).ok();
             }
         }
     });
-    ui.label(RichText::new(tl!("Text size")).size(12.0));
+    ui.label(RichText::new(tl!("Text size")).size(14.0));
 }
 
 /// Keep Safe (E6): in simple mode, a design with changes is saved on its own every few minutes
@@ -305,8 +322,9 @@ fn design_summary(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
             ui.horizontal(|ui| {
                 let (r, _) = ui.allocate_exact_size(vec2(18.0, 18.0), egui::Sense::hover());
                 ui.painter().rect_filled(r, 4.0, Color32::from_rgb(rgb.r, rgb.g, rgb.b));
-                let name = c["name"].as_str().filter(|n| !n.trim().is_empty()).unwrap_or(hex);
-                ui.add(egui::Label::new(RichText::new(format!("{}. {name}", i + 1)).size(13.0).color(t.text)).wrap());
+                let name =
+                    crate::embroidery::thread_name(&vectorcraft_embroidery::sf_core::Thread::new(rgb, c["name"].as_str().unwrap_or("").trim()));
+                ui.add(egui::Label::new(RichText::new(format!("{}. {name}", i + 1)).size(14.0).color(t.text)).wrap());
             });
         }
         if info["stops"].as_u64().unwrap_or(0) > 0 {

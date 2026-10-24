@@ -2898,7 +2898,7 @@ fn home_body(app: &mut VectorcraftApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     ui.label(egui::RichText::new(tl!("Welcome to StitchFoundry")).font(theme::semibold(26.0)).color(t.text));
     ui.add_space(4.0);
-    ui.label(egui::RichText::new(tl!("Machine embroidery digitizing — fast, open, scriptable.")).size(14.0).color(t.text_dim));
+    ui.label(egui::RichText::new(tl!("Turn your words, shapes and pictures into designs for your embroidery machine.")).size(14.0).color(t.text_dim));
     ui.add_space(22.0);
     ui.horizontal(|ui| {
         // the step-by-step guide first: the easiest way in

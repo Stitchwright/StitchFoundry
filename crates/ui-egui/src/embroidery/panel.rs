@@ -3290,7 +3290,7 @@ fn thread_row(app: &mut VectorcraftApp, ui: &mut Ui, e: &Embroidery) {
         let all = vectorcraft_engine::cmd::embroidery_charts::all_charts(&app.session);
         let chart = all.iter().find(|c| c.name == chart_name).or(all.first());
         if let Some(chart) = chart {
-            let label = e.thread.as_ref().map(|t| t.label()).unwrap_or_else(|| tl!("Object color").to_string());
+            let label = e.thread.as_ref().map(super::thread_name).unwrap_or_else(|| tl!("Object color").to_string());
             egui::ComboBox::from_id_salt(("emb", "thread")).selected_text(label).width(150.0).height(320.0).show_ui(ui, |ui| {
                 for th in &chart.threads {
                     let c = th.color;

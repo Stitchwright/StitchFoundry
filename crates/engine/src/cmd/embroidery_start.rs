@@ -30,7 +30,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "New Design for Hoop",
             [],
             None,
-            "{hoop?: a hoop's name (embroidery.hoops) | {width, height, shape?: rect|oval} (mm) (default: My Machine's everyday hoop, else 130 × 180 mm, the 5×7)} a new document whose page is the hoop's sewing field, the hoop set, and My Machine's settings when one is chosen → {hoop, width, height} (mm)",
+            "{hoop?: a hoop's name (embroidery.hoops) | {width, height, shape?: rect|oval} (mm) (default: My Machine's everyday hoop, else 130 × 180 mm, the 5×7)} a new document whose page is the hoop's sewing field, the hoop set, and My Machine's settings when one is chosen; opens a new document → {hoop, width, height} (mm)",
             always,
             new_design
         ),

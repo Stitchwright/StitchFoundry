@@ -6908,3 +6908,23 @@ swatch	Bright Violet	Kirkas violetti
 @msg	the video has no frames	Videossa ei ole kuvia
 @msg	the video would be larger than 4 GB: lower the size or frames	Video olisi yli 4 Gt: pienennä kokoa tai kuvien määrää
 @msg	the video is too large	Video on liian suuri
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Kuninkaansininen
+	Kelly Green	Ruohonvihreä
+	Navy	Laivastonsininen
+	Old Gold	Vanha kulta
+	Silver Grey	Hopeanharmaa
+	Sky Blue	Taivaansininen
+	Maroon	Viininpunainen
+	Forest Green	Metsänvihreä
+	Cream	Kerma
+	Teal	Sinivihreä
+	Mint	Mintunvihreä
+	Tan	Vaaleanruskea
+	Lavender	Laventeli
+	Light Gold	Vaalea kulta
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 mallin osaa valitaksesi sen  |  
+	 it to move it	 siirtääksesi sitä
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Tee sanoistasi, muodoistasi ja kuvistasi malleja kirjontakoneellesi.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Kerro ensin StitchFoundrylle, mikä kone sinulla on, jotta malli tallennetaan sen lukemaan tiedostomuotoon. Tallenna sitten painamalla Valmis.

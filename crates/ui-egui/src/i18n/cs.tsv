@@ -6896,3 +6896,23 @@ mark-style	Japanese	Japonské
 @msg	the video has no frames	Video nemá žádné snímky
 @msg	the video would be larger than 4 GB: lower the size or frames	Video by mělo přes 4 GB: zmenšete velikost nebo počet snímků
 @msg	the video is too large	Video je příliš velké
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Královská modrá
+	Kelly Green	Travní zelená
+	Navy	Námořnická modrá
+	Old Gold	Staré zlato
+	Silver Grey	Stříbrošedá
+	Sky Blue	Nebeská modrá
+	Maroon	Vínová
+	Forest Green	Lesní zelená
+	Cream	Krémová
+	Teal	Petrolejová
+	Mint	Mátová
+	Tan	Světle hnědá
+	Lavender	Levandulová
+	Light Gold	Světlé zlato
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 na část vzoru a vyberete ji  |  
+	 it to move it	 a přesunete ji
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Proměňte svá slova, tvary a obrázky ve vzory pro svůj vyšívací stroj.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Nejdřív StitchFoundry řekněte, jaký stroj máte, aby se vzor uložil v druhu souboru, který čte. Pak uložte tlačítkem Hotovo.

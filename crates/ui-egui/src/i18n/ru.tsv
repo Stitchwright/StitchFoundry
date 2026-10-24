@@ -6531,3 +6531,26 @@ machine	Stop	Остановка
 @msg	the video has no frames	В видео нет кадров
 @msg	the video would be larger than 4 GB: lower the size or frames	Видео было бы больше 4 ГБ: уменьшите размер или число кадров
 @msg	the video is too large	Видео слишком большое
+# thread colour names (a thread with no name of its own is called after the nearest)
+	Royal Blue	Королевский синий
+	Kelly Green	Травяной зелёный
+	Orange	Оранжевый
+	Purple	Фиолетовый
+	Navy	Тёмно-синий
+	Old Gold	Старое золото
+	Silver Grey	Серебристо-серый
+	Brown	Коричневый
+	Sky Blue	Небесно-голубой
+	Maroon	Бордовый
+	Forest Green	Лесной зелёный
+	Cream	Кремовый
+	Teal	Бирюзовый
+	Mint	Мятный
+	Tan	Светло-коричневый
+	Lavender	Лавандовый
+	Light Gold	Светлое золото
+# QA-01: simple mode's hint and the Home tagline
+	 a part of the design to choose it  |  	 по части дизайна, чтобы выбрать её  |  
+	 it to move it	 чтобы переместить её
+	Turn your words, shapes and pictures into designs for your embroidery machine.	Превратите свои слова, фигуры и картинки в дизайны для вышивальной машины.
+	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Сначала укажите StitchFoundry, какая у вас машина, чтобы дизайн сохранился в том виде файла, который она читает. Затем нажмите «Готово», чтобы сохранить.

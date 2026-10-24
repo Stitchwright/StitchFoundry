@@ -91,6 +91,13 @@ impl TravelBy {
     }
 }
 
+/// A thread's name for people: its own ("1147 Royal Blue"), else, when it has none or only its
+/// colour code ("#5fa8d3"), the nearest generic thread colour's name, in the UI language.
+pub fn thread_name(t: &vectorcraft_embroidery::sf_core::Thread) -> String {
+    let own = t.label();
+    if own.starts_with('#') { tl!(vectorcraft_embroidery::sf_core::threads::generic_name(t.color)).to_string() } else { own }
+}
+
 /// Where the player lands one `by` step on from `pos` (records drawn so far), forwards
 /// or back: one stitch, the end of an object, just after a colour change, a trim, or any
 /// machine function (jump, trim, stop, colour change).

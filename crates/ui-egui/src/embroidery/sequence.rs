@@ -197,7 +197,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
                     last_color = Some(color);
                     let (r, _) = ui.allocate_exact_size(vec2(ui.available_width(), 20.0), Sense::hover());
                     swatch(ui, egui::Rect::from_center_size(r.left_center() + vec2(12.0, 0.0), vec2(14.0, 14.0)), color);
-                    let label = format!("{} {step} · {}", tl!("Color"), plan.design.thread(obj.color).label());
+                    let label = format!("{} {step} · {}", tl!("Color"), super::thread_name(&plan.design.thread(obj.color)));
                     ui.painter().text(
                         r.left_center() + vec2(26.0, 0.0),
                         egui::Align2::LEFT_CENTER,
