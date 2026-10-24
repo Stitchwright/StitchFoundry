@@ -6831,3 +6831,5 @@ machine	Stop	Stopp
 @msg	GitHub's answer isn't a list of releases	GitHubs svar är inte en lista med versioner
 @msg	this version ({current}) isn't one to compare	Den här versionen ({current}) kan inte jämföras
 @msg	`automatic` is true, false or "toggle"	`automatic` är true, false eller "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} har kommit: se startskärmen
+	StitchFoundry {version} is the newest	StitchFoundry {version} är den senaste

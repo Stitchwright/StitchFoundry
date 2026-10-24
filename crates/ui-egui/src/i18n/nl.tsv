@@ -6811,3 +6811,5 @@ swatch	Bright Violet	Felviolet
 @msg	GitHub's answer isn't a list of releases	Het antwoord van GitHub is geen lijst met versies
 @msg	this version ({current}) isn't one to compare	Deze versie ({current}) kan niet worden vergeleken
 @msg	`automatic` is true, false or "toggle"	`automatic` is true, false of "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} is uit: zie het startscherm
+	StitchFoundry {version} is the newest	StitchFoundry {version} is de nieuwste

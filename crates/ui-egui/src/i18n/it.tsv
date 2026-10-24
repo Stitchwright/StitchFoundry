@@ -6519,3 +6519,5 @@ machine	Stop	Arresto
 @msg	GitHub's answer isn't a list of releases	La risposta di GitHub non è un elenco di versioni
 @msg	this version ({current}) isn't one to compare	Questa versione ({current}) non si può confrontare
 @msg	`automatic` is true, false or "toggle"	`automatic` è true, false o "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	È uscito StitchFoundry {version}: lo trovi nella schermata Home
+	StitchFoundry {version} is the newest	StitchFoundry {version} è la più recente

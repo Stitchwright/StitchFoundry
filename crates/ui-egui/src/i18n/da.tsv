@@ -6769,3 +6769,5 @@ swatch	Bright Violet	Kraftig violet
 @msg	GitHub's answer isn't a list of releases	GitHubs svar er ikke en liste over udgivelser
 @msg	this version ({current}) isn't one to compare	Denne version ({current}) kan ikke sammenlignes
 @msg	`automatic` is true, false or "toggle"	`automatic` er true, false eller "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} er ude: se startskærmen
+	StitchFoundry {version} is the newest	StitchFoundry {version} er den nyeste

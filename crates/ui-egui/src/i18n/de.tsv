@@ -6485,3 +6485,5 @@ effect	Soft	Weich
 @msg	GitHub's answer isn't a list of releases	Die Antwort von GitHub ist keine Liste von Versionen
 @msg	this version ({current}) isn't one to compare	Diese Version ({current}) lässt sich nicht vergleichen
 @msg	`automatic` is true, false or "toggle"	`automatic` ist true, false oder "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} ist erschienen: siehe Startbildschirm
+	StitchFoundry {version} is the newest	StitchFoundry {version} ist die neueste Version

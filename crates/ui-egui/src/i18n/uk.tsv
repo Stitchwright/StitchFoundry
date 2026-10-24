@@ -6499,3 +6499,5 @@ machine	Stop	Зупинка
 @msg	GitHub's answer isn't a list of releases	Відповідь GitHub — не список випусків
 @msg	this version ({current}) isn't one to compare	Цю версію ({current}) не можна порівняти
 @msg	`automatic` is true, false or "toggle"	`automatic` — true, false або "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	Вийшов StitchFoundry {version}: див. початковий екран
+	StitchFoundry {version} is the newest	StitchFoundry {version} — найновіша версія

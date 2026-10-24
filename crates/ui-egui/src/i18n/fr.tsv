@@ -6892,3 +6892,5 @@ theme	Appearance	Apparence
 @msg	GitHub's answer isn't a list of releases	La réponse de GitHub n’est pas une liste de versions
 @msg	this version ({current}) isn't one to compare	Cette version ({current}) ne peut pas être comparée
 @msg	`automatic` is true, false or "toggle"	`automatic` vaut true, false ou "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} est sorti : voir l’écran d’accueil
+	StitchFoundry {version} is the newest	StitchFoundry {version} est la plus récente

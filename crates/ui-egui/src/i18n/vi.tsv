@@ -6475,3 +6475,5 @@ machine	Stop	Dừng máy
 @msg	GitHub's answer isn't a list of releases	Câu trả lời của GitHub không phải danh sách bản phát hành
 @msg	this version ({current}) isn't one to compare	Không thể so sánh phiên bản này ({current})
 @msg	`automatic` is true, false or "toggle"	`automatic` là true, false hoặc "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} đã ra mắt: xem màn hình chính
+	StitchFoundry {version} is the newest	StitchFoundry {version} là bản mới nhất

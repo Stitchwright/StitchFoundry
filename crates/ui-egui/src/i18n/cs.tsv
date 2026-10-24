@@ -6880,3 +6880,5 @@ mark-style	Japanese	Japonské
 @msg	GitHub's answer isn't a list of releases	Odpověď GitHubu není seznam vydání
 @msg	this version ({current}) isn't one to compare	Tuto verzi ({current}) nelze porovnat
 @msg	`automatic` is true, false or "toggle"	`automatic` je true, false nebo "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	Vyšel StitchFoundry {version}: najdete ho na úvodní obrazovce
+	StitchFoundry {version} is the newest	StitchFoundry {version} je nejnovější

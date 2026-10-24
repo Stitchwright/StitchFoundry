@@ -6479,3 +6479,5 @@ machine	Stop	停止
 @msg	GitHub's answer isn't a list of releases	GitHub 的回覆不是發布清單
 @msg	this version ({current}) isn't one to compare	無法比較此版本（{current}）
 @msg	`automatic` is true, false or "toggle"	`automatic` 為 true、false 或 "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} 已發布：請看主畫面
+	StitchFoundry {version} is the newest	StitchFoundry {version} 是最新版本

@@ -6827,3 +6827,5 @@ machine	Stop	Στάση
 @msg	GitHub's answer isn't a list of releases	Η απάντηση του GitHub δεν είναι λίστα εκδόσεων
 @msg	this version ({current}) isn't one to compare	Αυτή η έκδοση ({current}) δεν συγκρίνεται
 @msg	`automatic` is true, false or "toggle"	Το `automatic` είναι true, false ή "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	Κυκλοφόρησε το StitchFoundry {version}: δείτε την αρχική οθόνη
+	StitchFoundry {version} is the newest	Το StitchFoundry {version} είναι το νεότερο

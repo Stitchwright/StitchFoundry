@@ -6707,3 +6707,5 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 @msg	GitHub's answer isn't a list of releases	GitHub-ის პასუხი არ არის გამოშვებების სია
 @msg	this version ({current}) isn't one to compare	ამ ვერსიის ({current}) შედარება შეუძლებელია
 @msg	`automatic` is true, false or "toggle"	`automatic` არის true, false ან "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	გამოვიდა StitchFoundry {version}: იხილეთ მთავარი ეკრანი
+	StitchFoundry {version} is the newest	StitchFoundry {version} უახლესია

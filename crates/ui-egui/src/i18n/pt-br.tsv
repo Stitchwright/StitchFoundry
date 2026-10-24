@@ -6733,3 +6733,5 @@ mark-style	Japanese	Japonesas
 @msg	GitHub's answer isn't a list of releases	A resposta do GitHub não é uma lista de versões
 @msg	this version ({current}) isn't one to compare	Esta versão ({current}) não pode ser comparada
 @msg	`automatic` is true, false or "toggle"	`automatic` é true, false ou "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	Saiu o StitchFoundry {version}: veja a tela inicial
+	StitchFoundry {version} is the newest	O StitchFoundry {version} é o mais recente

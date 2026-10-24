@@ -6558,3 +6558,5 @@ machine	Stop	停止
 @msg	GitHub's answer isn't a list of releases	GitHub の応答がリリースの一覧ではありません
 @msg	this version ({current}) isn't one to compare	このバージョン ({current}) は比較できません
 @msg	`automatic` is true, false or "toggle"	`automatic` は true、false、または "toggle" です
+	StitchFoundry {version} is out: it's on the Home screen	StitchFoundry {version} が公開されました：ホーム画面をご覧ください
+	StitchFoundry {version} is the newest	StitchFoundry {version} が最新です

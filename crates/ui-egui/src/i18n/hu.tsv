@@ -6852,3 +6852,5 @@ machine	Stop	Megállás
 @msg	GitHub's answer isn't a list of releases	A GitHub válasza nem kiadások listája
 @msg	this version ({current}) isn't one to compare	Ez a verzió ({current}) nem hasonlítható össze
 @msg	`automatic` is true, false or "toggle"	Az `automatic` értéke true, false vagy "toggle"
+	StitchFoundry {version} is out: it's on the Home screen	Megjelent a StitchFoundry {version}: lásd a kezdőképernyőt
+	StitchFoundry {version} is the newest	A StitchFoundry {version} a legújabb
