@@ -19,6 +19,10 @@ const SAMPLES: &[(&str, &str, &str, &str)] = &[
     ("quilt-block", "Quilt block", "Brother 130 × 180 (5×7)", "A 5-inch quilt block, a heart in the middle, stippled round it"),
 ];
 
+/// The hoop a design gets when none is named and no machine is chosen: the 5×7 (130 × 180 mm)
+/// that most home embroidery machines take.
+const EVERYDAY_HOOP: &str = "Brother 130 × 180 (5×7)";
+
 pub fn specs() -> Vec<CommandSpec> {
     vec![
         cmd!(
@@ -26,7 +30,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "New Design for Hoop",
             [],
             None,
-            "{hoop?: a hoop's name (embroidery.hoops) | {width, height, shape?: rect|oval} (mm) (default: My Machine's everyday hoop)} a new document whose page is the hoop's sewing field, the hoop set, and My Machine's settings when one is chosen → {hoop, width, height} (mm)",
+            "{hoop?: a hoop's name (embroidery.hoops) | {width, height, shape?: rect|oval} (mm) (default: My Machine's everyday hoop, else 130 × 180 mm, the 5×7)} a new document whose page is the hoop's sewing field, the hoop set, and My Machine's settings when one is chosen → {hoop, width, height} (mm)",
             always,
             new_design
         ),
@@ -45,9 +49,9 @@ pub fn specs() -> Vec<CommandSpec> {
 
 fn new_design(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "embroidery.newDesign";
-    // no hoop: My Machine's everyday one
+    // no hoop: My Machine's everyday one, else the 5×7 most machines take
     let mine = super::embroidery_my_machine::mine(s);
-    let fallback = mine.and_then(|m| m.hoops.first()).map(|h| Value::String((*h).to_string()));
+    let fallback = Some(Value::String(mine.and_then(|m| m.hoops.first()).map_or(EVERYDAY_HOOP, |h| *h).to_string()));
     let hoop_param = p.get("hoop").cloned().or(fallback);
     let (name, w, h) = match &hoop_param {
         Some(Value::String(name)) => {

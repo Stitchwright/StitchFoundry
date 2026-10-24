@@ -91,7 +91,8 @@ mod tests {
         let mut s = Session::new();
         let none = s.execute("embroidery.myMachine", &json!({})).unwrap();
         assert!(none["machine"].is_null() && none["machines"].as_array().unwrap().len() >= 5);
-        assert!(s.execute("embroidery.newDesign", &json!({})).is_err(), "no hoop and no machine");
+        // no hoop and no machine: the 5×7 most machines take
+        assert_eq!(s.execute("embroidery.newDesign", &json!({})).unwrap()["hoop"], "Brother 130 × 180 (5×7)");
         let r = s.execute("embroidery.myMachine.set", &json!({"machine": "Husqvarna Viking Designer Diamond deLuxe"})).unwrap();
         assert_eq!(r["format"], "vp3");
         // the Crown hoop it comes with first
