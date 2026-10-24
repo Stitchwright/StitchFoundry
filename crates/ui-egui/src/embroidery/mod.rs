@@ -236,6 +236,8 @@ pub struct EmbroideryUi {
     /// Recolour: the scheme (an index), the hue turn (degrees) and the one colour.
     pub recolor_scheme: usize,
     pub recolor_degrees: f64,
+    /// Lighten, darken and tint: how far (%).
+    pub recolor_amount: f64,
     pub recolor_tone: [u8; 3],
     /// The name typed to keep the design as a template.
     pub template_name: String,
@@ -262,6 +264,9 @@ pub struct EmbroideryUi {
     pub font_name_editing: bool,
     pub font_add: String,
     pub kern_pair: String,
+    /// Kerning classes as typed: a class's name and glyphs; a group's left and right glyphs.
+    pub kern_class: (String, String),
+    pub kern_group: (String, String),
     pub font_test: String,
     pub font_family: String,
     pub font_other: String,
@@ -397,6 +402,7 @@ impl Default for EmbroideryUi {
             hoop_draft: (String::new(), 150.0, 150.0),
             recolor_scheme: 0,
             recolor_degrees: 60.0,
+            recolor_amount: 20.0,
             recolor_tone: [0x1d, 0x35, 0x57],
             template_name: String::new(),
             job_draft: (String::new(), 1, String::new()),
@@ -413,6 +419,8 @@ impl Default for EmbroideryUi {
             font_name_editing: false,
             font_add: String::new(),
             kern_pair: String::new(),
+            kern_class: (String::new(), String::new()),
+            kern_group: (String::new(), String::new()),
             font_test: String::new(),
             font_family: "Source Sans 3".into(),
             font_other: String::new(),

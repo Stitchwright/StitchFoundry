@@ -64,6 +64,15 @@ pub fn specs() -> Vec<CommandSpec> {
             edit
         ),
         cmd!(
+            "embroidery.removeShortStitches",
+            "Remove Short Stitches",
+            [],
+            None,
+            "{ids?, min?: mm (0.3; 0.1–2)} drop stitches shorter than `min` from the selected (else every) imported or hand-placed object's stitches, keeping where each run starts and ends; objects whose stitches come from their shapes are left as they are (their stitch length decides) → {removed, ids}",
+            has_doc,
+            remove_short
+        ),
+        cmd!(
             "embroidery.function.insert",
             "Insert Machine Function",
             [],
@@ -131,6 +140,73 @@ fn store(s: &mut Session, id: NodeId, label: &str, stitches: Vec<Stitch>) -> Res
         Ok(())
     })?;
     Ok(json!({ "id": id.0, "stitches": count }))
+}
+
+/// `st` without the stitches shorter than `min` (points) from the last one kept: a run's first and
+/// last penetrations stay, and so does every jump, trim and stop → (the stitches, how many went).
+fn without_short(st: &[Stitch], min: f64) -> (Vec<Stitch>, usize) {
+    let mut out: Vec<Stitch> = Vec::with_capacity(st.len());
+    let mut removed = 0;
+    for (i, q) in st.iter().enumerate() {
+        let last_of_run = st.get(i + 1).is_none_or(|n| n.cmd != Cmd::Stitch);
+        let short = match out.last() {
+            Some(prev) if q.cmd == Cmd::Stitch && prev.cmd == Cmd::Stitch => (q.x - prev.x).hypot(q.y - prev.y) < min,
+            _ => false,
+        };
+        if short && !last_of_run {
+            removed += 1;
+        } else {
+            out.push(*q);
+        }
+    }
+    (out, removed)
+}
+
+/// Remove Short Stitches (PU-18): imported and hand-placed stitches only, the way a viewer cleans
+/// a machine file; generated ones come from their shapes again on the next change.
+fn remove_short(s: &mut Session, p: &Value) -> Result<Value> {
+    const CMD: &str = "embroidery.removeShortStitches";
+    let min_mm = match p.get("min") {
+        None | Some(Value::Null) => 0.3,
+        Some(v) => v.as_f64().filter(|m| (0.1..=2.0).contains(m)).ok_or_else(|| bad(CMD, "`min` is 0.1 to 2 mm"))?,
+    };
+    let ids: Vec<NodeId> = if p.get("ids").is_none() && s.doc()?.selection.objects.is_empty() {
+        vectorcraft_embroidery::stitched_nodes(&s.doc()?.doc).iter().map(|n| n.id).collect()
+    } else {
+        stitched_targets(s, p)?
+    };
+    let mut cleaned = Vec::new();
+    let mut removed = 0;
+    for id in ids {
+        let hand = {
+            let d = &s.doc()?.doc;
+            d.node(id)
+                .and_then(|n| n.embroidery.as_deref())
+                .is_some_and(|e| e.frozen.is_some() || matches!(e.stitch, sf_core::attr::StitchType::Manual))
+        };
+        if !hand {
+            continue;
+        }
+        let (st, _) = current(s, id, CMD)?;
+        let (kept, gone) = without_short(&st, min_mm * PT_PER_MM);
+        if gone > 0 {
+            removed += gone;
+            cleaned.push((id, kept));
+        }
+    }
+    if !cleaned.is_empty() {
+        s.edit("Remove Short Stitches", |d, _| {
+            for (id, st) in &cleaned {
+                if let Some(e) = d.node_mut(*id).ok_or(EngineError::NoNode(*id))?.embroidery.as_deref_mut() {
+                    e.frozen = Some(st.clone());
+                }
+            }
+            Ok(())
+        })?;
+    }
+    let mut out = ids_json(&cleaned.iter().map(|c| c.0).collect::<Vec<_>>());
+    out["removed"] = json!(removed);
+    Ok(out)
 }
 
 fn round(v: f64) -> f64 {
@@ -327,4 +403,58 @@ fn function_clear(s: &mut Session, p: &Value) -> Result<Value> {
         Cmd::Stitch | Cmd::End => return Err(bad(CMD, format!("record {at} is a stitch: no machine function there"))),
     }
     store(s, id, "Clear Machine Function", st)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// PU-18: short stitches go, a run's ends and the machine functions stay.
+    #[test]
+    fn short_stitches_are_removed_and_ends_kept() {
+        let q = |x: f64, c: Cmd| Stitch::new(x, 0.0, c);
+        let st = [q(0.0, Cmd::Stitch), q(0.2, Cmd::Stitch), q(3.0, Cmd::Stitch), q(3.1, Cmd::Stitch), q(3.1, Cmd::Trim), q(9.0, Cmd::Stitch)];
+        let (kept, gone) = without_short(&st, 0.5);
+        assert_eq!(gone, 1, "{kept:?}");
+        assert_eq!(kept.iter().map(|k| k.x).collect::<Vec<_>>(), vec![0.0, 3.0, 3.1, 3.1, 9.0], "the run's last stitch stays");
+        // in a design: a frozen object cleaned, one generated from its shape left as it is
+        let mut s = Session::new();
+        s.execute("embroidery.newDesign", &json!({})).unwrap();
+        let a = s.execute("shape.rectangle", &json!({"x": 50, "y": 50, "width": 60, "height": 40})).unwrap()["id"].as_u64().unwrap();
+        s.execute("embroidery.set", &json!({"type": "run"})).unwrap();
+        s.execute("embroidery.freeze", &json!({"ids": [a]})).unwrap();
+        let first = s.execute("embroidery.stitches", &json!({"id": a})).unwrap()["stitches"][1].clone();
+        let at = [first[0].as_f64().unwrap() + 0.2, first[1].as_f64().unwrap()];
+        s.execute("embroidery.stitches.edit", &json!({"id": a, "ops": [{"op": "insert", "after": 1, "at": at}]})).unwrap();
+        let b = s.execute("shape.rectangle", &json!({"x": 150, "y": 50, "width": 60, "height": 40})).unwrap()["id"].as_u64().unwrap();
+        s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+        s.execute("select.none", &json!({})).unwrap();
+        let r = s.execute("embroidery.removeShortStitches", &json!({})).unwrap();
+        assert!(r["removed"].as_u64().unwrap() >= 1, "{r}");
+        assert_eq!(r["ids"], json!([a]), "the generated fill {b} is left: {r}");
+        assert!(s.execute("embroidery.removeShortStitches", &json!({"min": 5})).is_err());
+    }
+
+    /// PU-04, PU-05: a satin column's spacing along it and random density, through Stitch
+    /// Parameters.
+    #[test]
+    fn satin_density_along_the_column_and_at_random() {
+        let mut s = Session::new();
+        s.execute("embroidery.newDesign", &json!({})).unwrap();
+        let id = s.execute("path.create", &json!({"d": "M60 100 L260 100"})).unwrap()["id"].as_u64().unwrap();
+        s.execute("embroidery.set", &json!({"type": "satin", "ids": [id]})).unwrap();
+        s.execute(
+            "embroidery.setParams",
+            &json!({"ids": [id], "params": {"width": 4, "auto_spacing": false, "underlay": {"auto": false, "center_run": false}}}),
+        )
+        .unwrap();
+        let n = |s: &mut Session| s.execute("embroidery.stitches", &json!({"id": id})).unwrap()["stitches"].as_array().unwrap().len();
+        let even = n(&mut s);
+        s.execute("embroidery.setParams", &json!({"ids": [id], "params": {"spacing_along": [[0, 0.1], [1, 0.1]]}})).unwrap();
+        let dense = n(&mut s);
+        assert!(dense as f64 > even as f64 * 1.5, "{even} → {dense}");
+        s.execute("embroidery.setParams", &json!({"ids": [id], "params": {"spacing_along": [], "random_density": 0.5}})).unwrap();
+        let rough = n(&mut s);
+        assert!((rough as f64 - even as f64).abs() < even as f64 * 0.3, "{even} vs {rough}");
+    }
 }

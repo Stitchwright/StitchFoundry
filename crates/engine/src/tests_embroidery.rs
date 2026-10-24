@@ -4634,6 +4634,16 @@ fn embroidery_fonts_are_made_in_font_documents() {
     // properties and kerning
     s.execute("embroidery.fontDoc.setProps", &json!({"letterCase": "upper", "space": 5, "maxScale": 3})).unwrap();
     s.execute("embroidery.fontDoc.kern", &json!({"pair": "A B", "value": 2})).unwrap();
+    // PU-12: a kerning class, kerned against a glyph in one step
+    s.execute("embroidery.fontDoc.kernClass", &json!({"name": "both", "glyphs": "AB"})).unwrap();
+    let r = s.execute("embroidery.fontDoc.kern", &json!({"left": "@both", "right": "B", "value": 1.5})).unwrap();
+    assert_eq!(r["set"].as_u64(), Some(2), "{r}");
+    assert_eq!((r["pairs"]["A B"].as_f64(), r["pairs"]["B B"].as_f64()), (Some(1.5), Some(1.5)), "{r}");
+    assert!(s.execute("embroidery.fontDoc.kern", &json!({"left": "@nope", "right": "B", "value": 1})).is_err());
+    assert!(s.execute("embroidery.fontDoc.kernClass", &json!({"name": "@x", "glyphs": "A"})).is_err());
+    s.execute("embroidery.fontDoc.kernClass", &json!({"name": "both"})).unwrap();
+    s.execute("embroidery.fontDoc.kern", &json!({"pair": "A B", "value": 2})).unwrap();
+    s.execute("embroidery.fontDoc.kern", &json!({"pair": "B B", "value": 0})).unwrap();
     let info = s.execute("embroidery.fontDoc.info", &json!({})).unwrap();
     assert_eq!((info["missing"].as_u64(), info["glyphs"][0]["done"].as_bool()), (Some(1), Some(true)));
     assert_eq!(info["font"]["kerning"]["A B"].as_f64(), Some(2.0));

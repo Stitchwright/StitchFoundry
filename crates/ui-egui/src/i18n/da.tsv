@@ -6823,3 +6823,15 @@ swatch	Bright Violet	Kraftig violet
 	{h} h {m} min	{h} t {m} min
 	{m} min	{m} min
 	Light or dark screen	Lys eller mørk skærm
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Lysere
+	Darker	Mørkere
+	Tinted	Tonet
+	Remove Short Stitches	Fjern korte sting
+	Kerning classes	Knibningsklasser
+	Class name	Klassenavn
+	Its glyphs	Dens glyffer
+	Save Class	Gem klasse
+	Kern All	Knib alle
+	Every glyph on the left against every one on the right: letters, or a class as @name	Hver glyf til venstre mod hver til højre: bogstaver eller en klasse som @navn
+	Kerning Class	Knibningsklasse

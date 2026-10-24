@@ -6934,3 +6934,15 @@ mark-style	Japanese	Japonské
 	{h} h {m} min	{h} h {m} min
 	{m} min	{m} min
 	Light or dark screen	Světlá nebo tmavá obrazovka
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Světlejší
+	Darker	Tmavší
+	Tinted	Tónované
+	Remove Short Stitches	Odstranit krátké stehy
+	Kerning classes	Třídy vyrovnání
+	Class name	Název třídy
+	Its glyphs	Její glyfy
+	Save Class	Uložit třídu
+	Kern All	Vyrovnat vše
+	Every glyph on the left against every one on the right: letters, or a class as @name	Každý glyf vlevo s každým vpravo: písmena, nebo třída jako @název
+	Kerning Class	Třída vyrovnání

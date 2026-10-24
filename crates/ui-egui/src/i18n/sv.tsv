@@ -6885,3 +6885,15 @@ machine	Stop	Stopp
 	{h} h {m} min	{h} tim {m} min
 	{m} min	{m} min
 	Light or dark screen	Ljus eller mörk skärm
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Ljusare
+	Darker	Mörkare
+	Tinted	Tonad
+	Remove Short Stitches	Ta bort korta stygn
+	Kerning classes	Kerningklasser
+	Class name	Klassnamn
+	Its glyphs	Dess glyfer
+	Save Class	Spara klass
+	Kern All	Kerna alla
+	Every glyph on the left against every one on the right: letters, or a class as @name	Varje glyf till vänster mot varje till höger: bokstäver, eller en klass som @namn
+	Kerning Class	Kerningklass

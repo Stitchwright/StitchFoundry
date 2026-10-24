@@ -6787,3 +6787,15 @@ mark-style	Japanese	Japonesas
 	{h} h {m} min	{h} h {m} min
 	{m} min	{m} min
 	Light or dark screen	Tela clara ou escura
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Mais claro
+	Darker	Mais escuro
+	Tinted	Tingido
+	Remove Short Stitches	Remover pontos curtos
+	Kerning classes	Classes de kerning
+	Class name	Nome da classe
+	Its glyphs	Seus glifos
+	Save Class	Salvar classe
+	Kern All	Ajustar todos
+	Every glyph on the left against every one on the right: letters, or a class as @name	Cada glifo da esquerda com cada um da direita: letras, ou uma classe como @nome
+	Kerning Class	Classe de kerning

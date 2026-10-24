@@ -73,9 +73,18 @@ pub fn specs() -> Vec<CommandSpec> {
             "Kern Glyph Pair",
             [],
             None,
-            "{pair: \"A V\" (two glyphs, a space between), value: mm closer (negative: further apart; 0 removes it)} kerning for a pair of the font document's glyphs → {pairs}",
+            "{pair?: \"A V\" (two glyphs, a space between), left?: glyphs (\"AV\" or names with spaces between) or a kerning class's name after @ (\"@round\"; with `right` instead of `pair`: every left glyph against every right one), right?: as `left`, value: mm closer (negative: further apart; 0 removes it)} kerning for a pair of the font document's glyphs, or for whole classes of them at once → {pairs, set}",
             has_doc,
             kern
+        ),
+        cmd!(
+            "embroidery.fontDoc.kernClass",
+            "Kerning Class",
+            [],
+            None,
+            "{name, glyphs?: the class's glyphs (\"COQ\", or names with spaces between; empty or missing deletes the class)} a named set of the font document's glyphs, to kern against a glyph or another class in one step (embroidery.fontDoc.kern with @name) → {classes}",
+            has_doc,
+            kern_class
         ),
         cmd!(
             "embroidery.fontDoc.fromType",
@@ -344,27 +353,86 @@ fn set_props(s: &mut Session, p: &Value) -> Result<Value> {
 fn kern(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "embroidery.fontDoc.kern";
     let mut f = design(s, CMD)?;
-    let pair = str_param(p, "pair")
-        .map(|v| v.split_whitespace().collect::<Vec<_>>())
-        .filter(|v| v.len() == 2)
-        .ok_or_else(|| bad(CMD, "`pair` is two glyphs with a space between: \"A V\""))?;
-    let key = pair.join(" ");
+    let pairs: Vec<String> = match (str_param(p, "pair"), str_param(p, "left"), str_param(p, "right")) {
+        (Some(pair), _, _) => {
+            let v = pair.split_whitespace().collect::<Vec<_>>();
+            if v.len() != 2 {
+                return Err(bad(CMD, "`pair` is two glyphs with a space between: \"A V\""));
+            }
+            vec![v.join(" ")]
+        }
+        (None, Some(l), Some(r)) => {
+            let (l, r) = (glyph_set(&f, l, CMD)?, glyph_set(&f, r, CMD)?);
+            l.iter().flat_map(|a| r.iter().map(move |b| format!("{a} {b}"))).take(MAX_CLASS * MAX_CLASS).collect()
+        }
+        _ => return Err(bad(CMD, "give a `pair` (\"A V\"), or `left` and `right` glyphs or @classes")),
+    };
     let value = p
         .get("value")
         .and_then(Value::as_f64)
         .filter(|v| v.is_finite() && v.abs() <= f.size * 2.0)
         .ok_or_else(|| bad(CMD, format!("`value` is mm, at most {} either way", f.size * 2.0)))?;
-    if value == 0.0 {
-        f.kerning.remove(&key);
-    } else {
-        f.kerning.insert(key, value);
+    for key in &pairs {
+        if value == 0.0 {
+            f.kerning.remove(key);
+        } else {
+            f.kerning.insert(key.clone(), value);
+        }
     }
-    let pairs = json!(f.kerning);
+    let all = json!(f.kerning);
     s.edit("Kern Glyph Pair", |d, _| {
         d.embroidery.get_or_insert_with(Box::default).font = Some(f);
         Ok(())
     })?;
-    Ok(json!({ "pairs": pairs }))
+    Ok(json!({ "pairs": all, "set": pairs.len() }))
+}
+
+/// Glyphs in a kerning class at most, and classes in a font.
+const MAX_CLASS: usize = 128;
+
+/// The glyphs `text` names: a class (`@name`), glyph names with spaces between, or characters.
+fn glyph_set(f: &FontDesign, text: &str, cmd: &str) -> Result<Vec<String>> {
+    let text = text.trim();
+    let set: Vec<String> = if let Some(name) = text.strip_prefix('@') {
+        f.classes.get(name.trim()).cloned().ok_or_else(|| bad(cmd, format!("no kerning class `{}` (embroidery.fontDoc.kernClass)", name.trim())))?
+    } else if text.contains(char::is_whitespace) {
+        text.split_whitespace().map(str::to_string).collect()
+    } else {
+        text.chars().map(String::from).collect()
+    };
+    if set.is_empty() || set.len() > MAX_CLASS {
+        return Err(bad(cmd, format!("a set of glyphs is 1 to {MAX_CLASS}")));
+    }
+    Ok(set)
+}
+
+/// Kerning Class (PU-12): a named set of glyphs kerned together.
+fn kern_class(s: &mut Session, p: &Value) -> Result<Value> {
+    const CMD: &str = "embroidery.fontDoc.kernClass";
+    let mut f = design(s, CMD)?;
+    let name = str_param(p, "name").map(str::trim).filter(|n| !n.is_empty() && n.chars().count() <= 40 && !n.starts_with('@'));
+    let name = name.ok_or_else(|| bad(CMD, "`name` is 1 to 40 characters (without @)"))?.to_string();
+    match str_param(p, "glyphs").map(str::trim).filter(|g| !g.is_empty()) {
+        None => {
+            f.classes.remove(&name);
+        }
+        Some(g) => {
+            if g.starts_with('@') {
+                return Err(bad(CMD, "a class holds glyphs, not other classes"));
+            }
+            let set = glyph_set(&f, g, CMD)?;
+            if !f.classes.contains_key(&name) && f.classes.len() >= MAX_CLASS {
+                return Err(bad(CMD, format!("a font keeps at most {MAX_CLASS} kerning classes")));
+            }
+            f.classes.insert(name, set);
+        }
+    }
+    let classes = json!(f.classes);
+    s.edit("Kerning Class", |d, _| {
+        d.embroidery.get_or_insert_with(Box::default).font = Some(f);
+        Ok(())
+    })?;
+    Ok(json!({ "classes": classes }))
 }
 
 /// The glyphs of `font` (all, or those in `only`; by name), with their widths here (points, at
@@ -518,6 +586,7 @@ fn edit_font(s: &mut Session, p: &Value) -> Result<Value> {
         min_scale: i.min_scale,
         max_scale: i.max_scale,
         kerning: i.kerning_pairs.iter().map(|(k, v)| (k.split_whitespace().collect::<Vec<_>>().join(" "), mm(*v))).collect(),
+        classes: Default::default(),
         description: i.description.clone(),
         license: i.font_license.clone(),
     };

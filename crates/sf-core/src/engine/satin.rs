@@ -28,6 +28,61 @@ fn sample_pairs(col: &Column, half_step: impl Fn(f64) -> f64) -> Vec<(Point, Poi
     out
 }
 
+/// The spacing `profile` gives at `t` (0–1 along the column), straight between its points; the
+/// first or last point's before or after them.
+fn spacing_at(profile: &[[f64; 2]], t: f64, nominal: f64) -> f64 {
+    // at most 64 points: the profile comes from the design file or a command's params
+    let mut pts: Vec<[f64; 2]> = profile.iter().take(64).copied().filter(|[a, b]| a.is_finite() && b.is_finite()).collect();
+    pts.sort_by(|a, b| a[0].total_cmp(&b[0]));
+    let s = match (pts.first(), pts.last()) {
+        (None, _) | (_, None) => nominal,
+        (Some(f), _) if t <= f[0] => f[1],
+        (_, Some(l)) if t >= l[0] => l[1],
+        _ => pts.windows(2).find(|w| t >= w[0][0] && t <= w[1][0]).map_or(nominal, |w| {
+            let span = (w[1][0] - w[0][0]).max(1e-9);
+            w[0][1] + (w[1][1] - w[0][1]) * (t - w[0][0]) / span
+        }),
+    };
+    s.clamp(0.1, 5.0)
+}
+
+/// Rail pairs for variable or random density (PU-04, PU-05): sampled finely, then kept every half
+/// row along the column's middle, each row's spacing from `spacing_along` at that point (else
+/// `spacing`), changed by up to `random_density` of itself.
+fn varied_pairs(col: &Column, params: &SatinParams) -> Vec<(Point, Point)> {
+    const FINE: f64 = 0.025;
+    let dense = sample_pairs(col, |_| FINE);
+    let mids: Vec<Point> = dense.iter().map(|(a, b)| a.lerp(*b, 0.5)).collect();
+    let mut along = Vec::with_capacity(mids.len());
+    let mut d = 0.0;
+    for (i, m) in mids.iter().enumerate() {
+        if let Some(prev) = i.checked_sub(1).and_then(|j| mids.get(j)) {
+            d += prev.distance(*m);
+        }
+        along.push(d);
+    }
+    let total = d.max(1e-9);
+    let random = params.random_density.clamp(0.0, 0.9);
+    let mut rng = super::special::Rng::new((total * 1000.0) as u64 ^ 0x5a71);
+    let mut out = Vec::new();
+    let mut next = 0.0;
+    let last = dense.len().saturating_sub(1);
+    for (i, (pair, at)) in dense.iter().zip(&along).enumerate() {
+        if *at + 1e-9 >= next || i == last {
+            out.push(*pair);
+            let w = pair.0.distance(pair.1);
+            let base = if params.spacing_along.is_empty() {
+                effective_spacing(params, w)
+            } else {
+                spacing_at(&params.spacing_along, at / total, params.spacing)
+            };
+            let jitter = if random > 0.0 { 1.0 + random * (rng.unit() * 2.0 - 1.0) } else { 1.0 };
+            next = at + (base * jitter * 0.5).max(FINE);
+        }
+    }
+    out
+}
+
 /// Effective satin spacing for a column width (auto spacing opens up narrow
 /// columns so small lettering does not become bullet-proof).
 pub(crate) fn effective_spacing(params: &SatinParams, width: f64) -> f64 {
@@ -269,7 +324,11 @@ pub(crate) fn generate(col: &Column, params: &SatinParams, hint: Option<Point>, 
         col.reverse();
     }
 
-    let fine = pushed(sample_pairs(&col, |w| effective_spacing(params, w) * 0.5), params.push_comp);
+    let fine = if params.spacing_along.is_empty() && params.random_density <= 0.0 {
+        pushed(sample_pairs(&col, |w| effective_spacing(params, w) * 0.5), params.push_comp)
+    } else {
+        pushed(varied_pairs(&col, params), params.push_comp)
+    };
     if fine.len() < 2 {
         return Vec::new();
     }
@@ -557,6 +616,27 @@ mod tests {
             Rung::new(Point::new(0.0, 0.0), Point::new(0.0, width), NodeKind::Corner),
             Rung::new(Point::new(len, 0.0), Point::new(len, width), NodeKind::Corner),
         ])
+    }
+
+    #[test]
+    fn variable_and_random_density_along_a_column() {
+        // a straight column 40 mm long, 4 mm wide
+        let col = straight(4.0, 40.0);
+        let count = |params: &SatinParams, from: f64, to: f64| varied_pairs(&col, params).iter().filter(|(a, _)| a.x >= from && a.x < to).count();
+        let even = SatinParams { auto_spacing: false, ..Default::default() };
+        // dense (0.2) at the start, light (0.8) at the end
+        let graded = SatinParams { spacing_along: vec![[0.0, 0.2], [1.0, 0.8]], ..even.clone() };
+        assert!(count(&graded, 0.0, 10.0) > 2 * count(&graded, 30.0, 40.0), "denser at the start");
+        assert!((spacing_at(&graded.spacing_along, 0.5, 0.4) - 0.5).abs() < 1e-9);
+        // random: the same row count give or take, uneven gaps, the same every time
+        let rough = SatinParams { random_density: 0.5, ..even.clone() };
+        let a = varied_pairs(&col, &rough);
+        assert_eq!(a, varied_pairs(&col, &rough), "the same every time");
+        let gaps: Vec<f64> = a.windows(2).map(|w| w[1].0.distance(w[0].0)).collect();
+        let (lo, hi) = gaps.iter().fold((f64::MAX, 0.0_f64), |(l, h), g| (l.min(*g), h.max(*g)));
+        assert!(hi > lo * 1.5, "uneven: {lo} {hi}");
+        let n_even = count(&even, 0.0, 40.0) as f64;
+        assert!((count(&rough, 0.0, 40.0) as f64 - n_even).abs() < n_even * 0.25);
     }
 
     #[test]

@@ -926,6 +926,10 @@ pub struct FontDesign {
     /// How much closer a pair of glyphs ("A V") sits (mm).
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     pub kerning: BTreeMap<String, f64>,
+    /// Kerning classes: named sets of glyphs ("round": "COQ"), kerned against a glyph or another
+    /// class in one step.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub classes: BTreeMap<String, Vec<String>>,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub description: String,
     #[serde(skip_serializing_if = "String::is_empty")]
@@ -945,6 +949,7 @@ impl Default for FontDesign {
             min_scale: 0.5,
             max_scale: 2.0,
             kerning: BTreeMap::new(),
+            classes: BTreeMap::new(),
             description: String::new(),
             license: String::new(),
         }

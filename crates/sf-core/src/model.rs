@@ -1158,6 +1158,19 @@ pub struct SatinParams {
     /// 3D puff: sewn over foam, its ends capped (see [`Puff`]).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub puff: Option<Puff>,
+    /// Variable density: the spacing along the column as `[t, mm]` points, `t` from 0 at its
+    /// start to 1 at its end, straight between them (denser where it turns, lighter where it
+    /// fades out). Empty: `spacing` all along.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub spacing_along: Vec<[f64; 2]>,
+    /// Random density: each row's spacing changed by up to this share of it (0–0.9), at random
+    /// but the same every time, for a hand-sewn texture. 0: even.
+    #[serde(skip_serializing_if = "is_zero_f64")]
+    pub random_density: f64,
+}
+
+fn is_zero_f64(v: &f64) -> bool {
+    *v == 0.0
 }
 
 /// 3D puff: satin sewn over foam, dense enough to cut it along the column's sides, with caps
@@ -1353,6 +1366,8 @@ impl Default for SatinParams {
             underlay: SatinUnderlay::default(),
             motif_column: None,
             puff: None,
+            spacing_along: Vec::new(),
+            random_density: 0.0,
         }
     }
 }

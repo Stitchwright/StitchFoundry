@@ -6576,3 +6576,15 @@ machine	Stop	Arresto
 	{h} h {m} min	{h} h {m} min
 	{m} min	{m} min
 	Light or dark screen	Schermo chiaro o scuro
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Più chiaro
+	Darker	Più scuro
+	Tinted	Tinto
+	Remove Short Stitches	Rimuovi punti corti
+	Kerning classes	Classi di crenatura
+	Class name	Nome della classe
+	Its glyphs	I suoi glifi
+	Save Class	Salva classe
+	Kern All	Crenatura per tutti
+	Every glyph on the left against every one on the right: letters, or a class as @name	Ogni glifo a sinistra con ognuno a destra: lettere, o una classe come @nome
+	Kerning Class	Classe di crenatura

@@ -6946,3 +6946,15 @@ swatch	Bright Violet	Kirkas violetti
 	{h} h {m} min	{h} t {m} min
 	{m} min	{m} min
 	Light or dark screen	Vaalea tai tumma näyttö
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Vaaleampi
+	Darker	Tummempi
+	Tinted	Sävytetty
+	Remove Short Stitches	Poista lyhyet pistot
+	Kerning classes	Välistysluokat
+	Class name	Luokan nimi
+	Its glyphs	Sen merkit
+	Save Class	Tallenna luokka
+	Kern All	Välistä kaikki
+	Every glyph on the left against every one on the right: letters, or a class as @name	Jokainen vasen merkki jokaista oikeaa vastaan: kirjaimia tai luokka muodossa @nimi
+	Kerning Class	Välistysluokka

@@ -6543,3 +6543,15 @@ effect	Soft	Weich
 	{h} h {m} min	{h} Std. {m} Min.
 	{m} min	{m} Min.
 	Light or dark screen	Heller oder dunkler Bildschirm
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Heller
+	Darker	Dunkler
+	Tinted	Getönt
+	Remove Short Stitches	Kurze Stiche entfernen
+	Kerning classes	Unterschneidungsklassen
+	Class name	Klassenname
+	Its glyphs	Ihre Glyphen
+	Save Class	Klasse speichern
+	Kern All	Alle unterschneiden
+	Every glyph on the left against every one on the right: letters, or a class as @name	Jede Glyphe links gegen jede rechts: Buchstaben oder eine Klasse als @Name
+	Kerning Class	Unterschneidungsklasse

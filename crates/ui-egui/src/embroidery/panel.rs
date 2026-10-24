@@ -726,8 +726,8 @@ fn chart_rows(app: &mut VectorcraftApp, ui: &mut Ui, chart: &str) {
 
 /// Recolouring every thread at once by a scheme, matched to the design's chart.
 fn recolor_row(app: &mut VectorcraftApp, ui: &mut Ui) {
-    let schemes = ["hue", "mono", "grayscale", "invert"];
-    let names = [tl!("Turn the hue"), tl!("One colour"), tl!("Grey"), tl!("Inverted")];
+    let schemes = ["hue", "mono", "grayscale", "invert", "lighten", "darken", "tint"];
+    let names = [tl!("Turn the hue"), tl!("One colour"), tl!("Grey"), tl!("Inverted"), tl!("Lighter"), tl!("Darker"), tl!("Tinted")];
     let cur = app.embroidery.recolor_scheme.min(schemes.len() - 1);
     if let Some(i) = pick(ui, tl!("Recolour"), "recolor", cur, &names) {
         app.embroidery.recolor_scheme = i;
@@ -740,10 +740,18 @@ fn recolor_row(app: &mut VectorcraftApp, ui: &mut Ui) {
                 ui.add(egui::DragValue::new(&mut app.embroidery.recolor_degrees).range(-180.0..=180.0).suffix("°"));
                 p["degrees"] = json!(app.embroidery.recolor_degrees);
             }
-            "mono" => {
+            "mono" | "tint" => {
                 let c = &mut app.embroidery.recolor_tone;
                 ui.color_edit_button_srgb(c);
                 p["color"] = json!(format!("#{:02x}{:02x}{:02x}", c[0], c[1], c[2]));
+                if scheme == "tint" {
+                    ui.add(egui::DragValue::new(&mut app.embroidery.recolor_amount).range(1.0..=100.0).suffix("%"));
+                    p["amount"] = json!(app.embroidery.recolor_amount);
+                }
+            }
+            "lighten" | "darken" => {
+                ui.add(egui::DragValue::new(&mut app.embroidery.recolor_amount).range(1.0..=100.0).suffix("%"));
+                p["amount"] = json!(app.embroidery.recolor_amount);
             }
             _ => {}
         }
@@ -1177,6 +1185,31 @@ pub(crate) fn font_body(app: &mut VectorcraftApp, ui: &mut Ui) {
             let p = app.embroidery.kern_pair.trim().to_string();
             let pair = if p.contains(' ') { p } else { p.chars().map(String::from).collect::<Vec<_>>().join(" ") };
             font_cmd(app, "embroidery.fontDoc.kern", json!({ "pair": pair, "value": 1.0 }));
+        }
+    });
+    // kerning classes (PU-12): a named group of glyphs, then a glyph or class against another
+    ui.add_space(4.0);
+    ui.label(tl!("Kerning classes"));
+    for (name, glyphs) in &f.classes {
+        ui.label(egui::RichText::new(format!("@{name}: {}", glyphs.join(" "))).small());
+    }
+    ui.horizontal(|ui| {
+        ui.add(egui::TextEdit::singleline(&mut app.embroidery.kern_class.0).desired_width(70.0).hint_text(tl!("Class name")));
+        ui.add(egui::TextEdit::singleline(&mut app.embroidery.kern_class.1).desired_width(80.0).hint_text(tl!("Its glyphs")));
+        if button(ui, tl!("Save Class")).clicked() {
+            let (name, glyphs) = app.embroidery.kern_class.clone();
+            font_cmd(app, "embroidery.fontDoc.kernClass", json!({ "name": name.trim(), "glyphs": glyphs }));
+        }
+    });
+    ui.horizontal(|ui| {
+        ui.add(egui::TextEdit::singleline(&mut app.embroidery.kern_group.0).desired_width(70.0).hint_text(tl!("Left")));
+        ui.add(egui::TextEdit::singleline(&mut app.embroidery.kern_group.1).desired_width(70.0).hint_text(tl!("Right")));
+        if button(ui, tl!("Kern All"))
+            .on_hover_text(tl!("Every glyph on the left against every one on the right: letters, or a class as @name"))
+            .clicked()
+        {
+            let (left, right) = app.embroidery.kern_group.clone();
+            font_cmd(app, "embroidery.fontDoc.kern", json!({ "left": left, "right": right, "value": 1.0 }));
         }
     });
     // another font's glyphs this one hasn't yet

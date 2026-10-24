@@ -6753,3 +6753,15 @@ machine	Stop	停止
 	{h} h {m} min	{h} 小时 {m} 分钟
 	{m} min	{m} 分钟
 	Light or dark screen	亮色或暗色屏幕
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	更亮
+	Darker	更暗
+	Tinted	染色
+	Remove Short Stitches	删除短针迹
+	Kerning classes	字距类
+	Class name	类名
+	Its glyphs	其字形
+	Save Class	保存类
+	Kern All	全部调整字距
+	Every glyph on the left against every one on the right: letters, or a class as @name	左边每个字形对右边每个字形：字母，或用 @名称 表示类
+	Kerning Class	字距类

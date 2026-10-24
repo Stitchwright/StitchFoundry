@@ -6889,3 +6889,15 @@ machine	Stop	Спиране
 	{h} h {m} min	{h} ч {m} мин
 	{m} min	{m} мин
 	Light or dark screen	Светъл или тъмен екран
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	По-светло
+	Darker	По-тъмно
+	Tinted	Оцветено
+	Remove Short Stitches	Премахни късите бодове
+	Kerning classes	Класове за кернинг
+	Class name	Име на класа
+	Its glyphs	Нейните знаци
+	Save Class	Запиши класа
+	Kern All	Кернинг за всички
+	Every glyph on the left against every one on the right: letters, or a class as @name	Всеки знак отляво спрямо всеки отдясно: букви или клас като @име
+	Kerning Class	Клас за кернинг

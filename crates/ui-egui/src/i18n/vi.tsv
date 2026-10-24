@@ -6532,3 +6532,15 @@ machine	Stop	Dừng máy
 	{h} h {m} min	{h} giờ {m} phút
 	{m} min	{m} phút
 	Light or dark screen	Màn hình sáng hoặc tối
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Sáng hơn
+	Darker	Tối hơn
+	Tinted	Pha màu
+	Remove Short Stitches	Xóa mũi ngắn
+	Kerning classes	Nhóm kerning
+	Class name	Tên nhóm
+	Its glyphs	Các ký tự
+	Save Class	Lưu nhóm
+	Kern All	Kerning tất cả
+	Every glyph on the left against every one on the right: letters, or a class as @name	Mỗi ký tự bên trái với mỗi ký tự bên phải: chữ cái, hoặc nhóm dạng @tên
+	Kerning Class	Nhóm kerning

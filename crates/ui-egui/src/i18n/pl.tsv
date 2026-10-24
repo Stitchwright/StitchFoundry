@@ -6775,3 +6775,15 @@ machine	Stop	Zatrzymanie
 	{h} h {m} min	{h} godz. {m} min
 	{m} min	{m} min
 	Light or dark screen	Jasny lub ciemny ekran
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Jaśniejsze
+	Darker	Ciemniejsze
+	Tinted	Zabarwione
+	Remove Short Stitches	Usuń krótkie ściegi
+	Kerning classes	Klasy kerningu
+	Class name	Nazwa klasy
+	Its glyphs	Jej glify
+	Save Class	Zapisz klasę
+	Kern All	Kerning wszystkich
+	Every glyph on the left against every one on the right: letters, or a class as @name	Każdy glif po lewej z każdym po prawej: litery albo klasa jako @nazwa
+	Kerning Class	Klasa kerningu

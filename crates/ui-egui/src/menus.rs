@@ -284,6 +284,7 @@ fn embroidery_menu() -> Vec<Item> {
                 Sep,
                 c("Freeze Stitches", "embroidery.freeze"),
                 c("Regenerate Stitches", "embroidery.regenerate"),
+                c("Remove Short Stitches", "embroidery.removeShortStitches"),
             ],
         ),
         Sep,

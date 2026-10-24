@@ -17,7 +17,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Recolour Threads",
         [],
         None,
-        "{map?: [{from: \"#rrggbb\", to: \"#rrggbb\"}] (each thread of that colour), scheme?: grayscale|invert|mono|hue (instead of a map: grey by lightness, inverted, every thread in `color`'s hue at its own lightness, or the hue turned `degrees`), color?: \"#rrggbb\" (mono), degrees?: -360–360 (hue), chart?: a thread chart to match the new colours to, ids?, all?: bool (the selection's stitched objects; all of them with `all` or nothing selected), paint?: bool (true: repaint the art)} recolour the design's threads, one undo step → {changed, colors: [{from, to}]}",
+        "{map?: [{from: \"#rrggbb\", to: \"#rrggbb\"}] (each thread of that colour), scheme?: grayscale|invert|mono|hue|lighten|darken|tint (instead of a map: grey by lightness, inverted, every thread in `color`'s hue at its own lightness, the hue turned `degrees`, every thread lighter or darker by `amount`, or mixed `amount` toward `color`), color?: \"#rrggbb\" (mono, tint), degrees?: -360–360 (hue), amount?: % 1–100 (lighten, darken, tint: 20), chart?: a thread chart to match the new colours to, ids?, all?: bool (the selection's stitched objects; all of them with `all` or nothing selected), paint?: bool (true: repaint the art)} recolour the design's threads, one undo step → {changed, colors: [{from, to}]}",
         has_doc,
         recolor
     )]
@@ -60,9 +60,19 @@ fn from_hsl(h: f64, s: f64, l: f64) -> Rgb {
     Rgb::new(v(r), v(g), v(b))
 }
 
-/// The colour a scheme gives `c`.
-fn scheme(name: &str, c: Rgb, tone: Rgb, degrees: f64) -> Rgb {
+/// The colour a scheme gives `c`; `amount` (0–1) is how far lighten, darken and tint go.
+fn scheme(name: &str, c: Rgb, tone: Rgb, degrees: f64, amount: f64) -> Rgb {
     match name {
+        // ColorIT-style: lightness towards white or black, or the colour mixed towards `tone`
+        "lighten" => {
+            let (h, s, l) = to_hsl(c);
+            from_hsl(h, s, l + (1.0 - l) * amount)
+        }
+        "darken" => {
+            let (h, s, l) = to_hsl(c);
+            from_hsl(h, s, l * (1.0 - amount))
+        }
+        "tint" => c.mix(tone, amount),
         "grayscale" => {
             let y = (0.2126 * f64::from(c.r) + 0.7152 * f64::from(c.g) + 0.0722 * f64::from(c.b)).round().clamp(0.0, 255.0) as u8;
             Rgb::new(y, y, y)
@@ -90,21 +100,25 @@ fn recolor(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let scheme_name = str_param(p, "scheme");
     if let Some(n) = scheme_name
-        && !["grayscale", "invert", "mono", "hue"].contains(&n)
+        && !["grayscale", "invert", "mono", "hue", "lighten", "darken", "tint"].contains(&n)
     {
-        return Err(bad(CMD, "`scheme` is grayscale, invert, mono or hue"));
+        return Err(bad(CMD, "`scheme` is grayscale, invert, mono, hue, lighten, darken or tint"));
     }
     if map.is_empty() && scheme_name.is_none() {
         return Err(bad(CMD, "give a `map` of colours or a `scheme`"));
     }
     let tone = match (scheme_name, p.get("color")) {
-        (Some("mono"), Some(v)) => hex(v, "color")?,
-        (Some("mono"), None) => return Err(bad(CMD, "`mono` needs a `color`")),
+        (Some("mono" | "tint"), Some(v)) => hex(v, "color")?,
+        (Some(name @ ("mono" | "tint")), None) => return Err(bad(CMD, format!("`{name}` needs a `color`"))),
         _ => Rgb::new(0, 0, 0),
     };
     let degrees = match p.get("degrees") {
         None | Some(Value::Null) => 180.0,
         Some(v) => v.as_f64().filter(|d| (-360.0..=360.0).contains(d)).ok_or_else(|| bad(CMD, "`degrees` is -360 to 360"))?,
+    };
+    let amount = match p.get("amount") {
+        None | Some(Value::Null) => 0.2,
+        Some(v) => v.as_f64().filter(|a| (1.0..=100.0).contains(a)).ok_or_else(|| bad(CMD, "`amount` is 1 to 100 (%)"))? / 100.0,
     };
     let chart = match str_param(p, "chart") {
         None => None,
@@ -132,7 +146,7 @@ fn recolor(s: &mut Session, p: &Value) -> Result<Value> {
                 let to = match map.iter().find(|(from, _)| *from == now.color) {
                     Some((_, to)) => *to,
                     None => match scheme_name {
-                        Some(name) if map.is_empty() => scheme(name, now.color, tone, degrees),
+                        Some(name) if map.is_empty() => scheme(name, now.color, tone, degrees, amount),
                         _ => return None,
                     },
                 };
@@ -176,7 +190,30 @@ mod tests {
             let back = from_hsl(h, s, l);
             assert!((i32::from(back.r) - i32::from(c.r)).abs() <= 1 && (i32::from(back.g) - i32::from(c.g)).abs() <= 1, "{c:?} → {back:?}");
         }
-        assert_eq!(scheme("hue", Rgb::new(255, 0, 0), Rgb::new(0, 0, 0), 120.0), Rgb::new(0, 255, 0));
-        assert_eq!(scheme("invert", Rgb::new(255, 0, 10), Rgb::new(0, 0, 0), 0.0), Rgb::new(0, 255, 245));
+        assert_eq!(scheme("hue", Rgb::new(255, 0, 0), Rgb::new(0, 0, 0), 120.0, 0.0), Rgb::new(0, 255, 0));
+        assert_eq!(scheme("invert", Rgb::new(255, 0, 10), Rgb::new(0, 0, 0), 0.0, 0.0), Rgb::new(0, 255, 245));
+    }
+
+    /// PU-10 (Pulse's ColorIT): lighter, darker, or mixed towards a colour, by an amount.
+    #[test]
+    fn lighten_darken_and_tint() {
+        let red = Rgb::new(200, 40, 40);
+        let k = Rgb::new(0, 0, 0);
+        let (_, _, l) = to_hsl(red);
+        let (_, _, up) = to_hsl(scheme("lighten", red, k, 0.0, 0.5));
+        let (_, _, down) = to_hsl(scheme("darken", red, k, 0.0, 0.5));
+        assert!((up - (l + (1.0 - l) * 0.5)).abs() < 0.01 && (down - l * 0.5).abs() < 0.01, "{l} {up} {down}");
+        assert_eq!(scheme("lighten", red, k, 0.0, 1.0), Rgb::new(255, 255, 255));
+        assert_eq!(scheme("darken", red, k, 0.0, 1.0), Rgb::new(0, 0, 0));
+        assert_eq!(scheme("tint", red, Rgb::new(0, 0, 200), 0.0, 0.5), red.mix(Rgb::new(0, 0, 200), 0.5));
+        let mut s = Session::new();
+        s.execute("embroidery.newDesign", &json!({})).unwrap();
+        s.execute("shape.rectangle", &json!({"x": 50, "y": 50, "width": 100, "height": 60})).unwrap();
+        s.execute("embroidery.set", &json!({"type": "fill"})).unwrap();
+        s.execute("embroidery.setThread", &json!({"color": "#c82828"})).unwrap();
+        let r = s.execute("embroidery.recolor", &json!({"scheme": "lighten", "amount": 40, "all": true})).unwrap();
+        assert_eq!(r["changed"], 1, "{r}");
+        assert!(s.execute("embroidery.recolor", &json!({"scheme": "tint"})).is_err(), "tint needs a colour");
+        assert!(s.execute("embroidery.recolor", &json!({"scheme": "darken", "amount": 0})).is_err());
     }
 }

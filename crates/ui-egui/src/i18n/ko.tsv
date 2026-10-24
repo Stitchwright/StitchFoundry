@@ -6528,3 +6528,15 @@ machine	Stop	정지
 	{h} h {m} min	{h}시간 {m}분
 	{m} min	{m}분
 	Light or dark screen	밝은 화면 또는 어두운 화면
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	더 밝게
+	Darker	더 어둡게
+	Tinted	색조 더하기
+	Remove Short Stitches	짧은 땀 제거
+	Kerning classes	커닝 클래스
+	Class name	클래스 이름
+	Its glyphs	포함 글자
+	Save Class	클래스 저장
+	Kern All	모두 커닝
+	Every glyph on the left against every one on the right: letters, or a class as @name	왼쪽의 각 글자와 오른쪽의 각 글자: 글자 또는 @이름 형식의 클래스
+	Kerning Class	커닝 클래스

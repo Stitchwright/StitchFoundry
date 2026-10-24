@@ -6572,3 +6572,15 @@ machine	Stop	Остановка
 	{h} h {m} min	{h} ч {m} мин
 	{m} min	{m} мин
 	Light or dark screen	Светлый или тёмный экран
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Светлее
+	Darker	Темнее
+	Tinted	С оттенком
+	Remove Short Stitches	Удалить короткие стежки
+	Kerning classes	Классы кернинга
+	Class name	Имя класса
+	Its glyphs	Его глифы
+	Save Class	Сохранить класс
+	Kern All	Кернинг для всех
+	Every glyph on the left against every one on the right: letters, or a class as @name	Каждый глиф слева с каждым справа: буквы или класс как @имя
+	Kerning Class	Класс кернинга

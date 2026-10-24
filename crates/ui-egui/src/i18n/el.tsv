@@ -6881,3 +6881,15 @@ machine	Stop	Στάση
 	{h} h {m} min	{h} ώ {m} λ
 	{m} min	{m} λ
 	Light or dark screen	Φωτεινή ή σκοτεινή οθόνη
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Πιο ανοιχτό
+	Darker	Πιο σκούρο
+	Tinted	Με απόχρωση
+	Remove Short Stitches	Αφαίρεση κοντών βελονιών
+	Kerning classes	Κλάσεις διαστήματος
+	Class name	Όνομα κλάσης
+	Its glyphs	Οι χαρακτήρες της
+	Save Class	Αποθήκευση κλάσης
+	Kern All	Διάστημα για όλα
+	Every glyph on the left against every one on the right: letters, or a class as @name	Κάθε χαρακτήρας αριστερά με κάθε δεξιά: γράμματα ή κλάση ως @όνομα
+	Kerning Class	Κλάση διαστήματος

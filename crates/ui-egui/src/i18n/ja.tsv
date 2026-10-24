@@ -6615,3 +6615,15 @@ machine	Stop	停止
 	{h} h {m} min	{h} 時間 {m} 分
 	{m} min	{m} 分
 	Light or dark screen	明るい画面・暗い画面
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	明るく
+	Darker	暗く
+	Tinted	色味を足す
+	Remove Short Stitches	短い針目を削除
+	Kerning classes	カーニングクラス
+	Class name	クラス名
+	Its glyphs	含める文字
+	Save Class	クラスを保存
+	Kern All	まとめてカーニング
+	Every glyph on the left against every one on the right: letters, or a class as @name	左の各文字と右の各文字の組み合わせすべて：文字、または @名前 でクラス
+	Kerning Class	カーニングクラス

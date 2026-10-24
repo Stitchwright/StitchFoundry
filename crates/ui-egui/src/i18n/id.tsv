@@ -6823,3 +6823,15 @@ swatch	Bright Violet	Violet cerah
 	{h} h {m} min	{h} j {m} mnt
 	{m} min	{m} mnt
 	Light or dark screen	Layar terang atau gelap
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Lebih terang
+	Darker	Lebih gelap
+	Tinted	Diwarnai
+	Remove Short Stitches	Hapus jahitan pendek
+	Kerning classes	Kelas kerning
+	Class name	Nama kelas
+	Its glyphs	Glifnya
+	Save Class	Simpan kelas
+	Kern All	Kerning semua
+	Every glyph on the left against every one on the right: letters, or a class as @name	Setiap glif di kiri dengan setiap glif di kanan: huruf, atau kelas sebagai @nama
+	Kerning Class	Kelas kerning

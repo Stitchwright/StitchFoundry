@@ -6887,3 +6887,15 @@ mark-style	Japanese	Japonesas
 	{h} h {m} min	{h} h {m} min
 	{m} min	{m} min
 	Light or dark screen	Pantalla clara u oscura
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Más claro
+	Darker	Más oscuro
+	Tinted	Teñido
+	Remove Short Stitches	Quitar puntadas cortas
+	Kerning classes	Clases de interletraje
+	Class name	Nombre de la clase
+	Its glyphs	Sus glifos
+	Save Class	Guardar clase
+	Kern All	Ajustar todo
+	Every glyph on the left against every one on the right: letters, or a class as @name	Cada glifo de la izquierda con cada uno de la derecha: letras, o una clase como @nombre
+	Kerning Class	Clase de interletraje

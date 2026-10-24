@@ -6761,3 +6761,15 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	{h} h {m} min	{h} სთ {m} წთ
 	{m} min	{m} წთ
 	Light or dark screen	ღია ან მუქი ეკრანი
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	უფრო ღია
+	Darker	უფრო მუქი
+	Tinted	შეფერილი
+	Remove Short Stitches	მოკლე ნაკერების მოცილება
+	Kerning classes	კერნინგის კლასები
+	Class name	კლასის სახელი
+	Its glyphs	მისი გლიფები
+	Save Class	კლასის შენახვა
+	Kern All	ყველას კერნინგი
+	Every glyph on the left against every one on the right: letters, or a class as @name	ყოველი მარცხენა გლიფი ყოველ მარჯვენასთან: ასოები ან კლასი როგორც @სახელი
+	Kerning Class	კერნინგის კლასი

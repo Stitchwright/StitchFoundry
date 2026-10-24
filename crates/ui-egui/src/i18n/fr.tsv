@@ -6946,3 +6946,15 @@ theme	Appearance	Apparence
 	{h} h {m} min	{h} h {m} min
 	{m} min	{m} min
 	Light or dark screen	Écran clair ou sombre
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Plus clair
+	Darker	Plus foncé
+	Tinted	Teinté
+	Remove Short Stitches	Supprimer les points courts
+	Kerning classes	Classes d'approche
+	Class name	Nom de la classe
+	Its glyphs	Ses glyphes
+	Save Class	Enregistrer la classe
+	Kern All	Approcher tout
+	Every glyph on the left against every one on the right: letters, or a class as @name	Chaque glyphe de gauche avec chacun de droite : des lettres, ou une classe en @nom
+	Kerning Class	Classe d'approche

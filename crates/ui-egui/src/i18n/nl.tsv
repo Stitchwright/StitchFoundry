@@ -6865,3 +6865,15 @@ swatch	Bright Violet	Felviolet
 	{h} h {m} min	{h} u {m} min
 	{m} min	{m} min
 	Light or dark screen	Licht of donker scherm
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Lichter
+	Darker	Donkerder
+	Tinted	Getint
+	Remove Short Stitches	Korte steken verwijderen
+	Kerning classes	Kerningklassen
+	Class name	Klassenaam
+	Its glyphs	De glyphs
+	Save Class	Klasse bewaren
+	Kern All	Alles kernen
+	Every glyph on the left against every one on the right: letters, or a class as @name	Elke glyph links tegen elke rechts: letters, of een klasse als @naam
+	Kerning Class	Kerningklasse

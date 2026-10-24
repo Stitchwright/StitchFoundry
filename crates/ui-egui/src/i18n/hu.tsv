@@ -6906,3 +6906,15 @@ machine	Stop	Megállás
 	{h} h {m} min	{h} óra {m} perc
 	{m} min	{m} perc
 	Light or dark screen	Világos vagy sötét képernyő
+# PU: Pulse parity (docs/market-pulse.md)
+	Lighter	Világosabb
+	Darker	Sötétebb
+	Tinted	Színezett
+	Remove Short Stitches	Rövid öltések eltávolítása
+	Kerning classes	Alávágási osztályok
+	Class name	Osztály neve
+	Its glyphs	Karakterei
+	Save Class	Osztály mentése
+	Kern All	Mind alávágása
+	Every glyph on the left against every one on the right: letters, or a class as @name	Minden bal oldali karakter minden jobb oldalival: betűk, vagy osztály @névként
+	Kerning Class	Alávágási osztály
