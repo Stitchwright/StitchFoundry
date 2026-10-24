@@ -31,20 +31,23 @@
 ## Download
 
 <p align="center">
-  <a href="https://github.com/Stitchwright/StitchFoundry/releases/tag/latest-build"><b>⬇ Download the latest build</b></a>
-  (Windows, macOS, Linux) ·
+  <a href="https://github.com/Stitchwright/StitchFoundry/releases/tag/v0.14.0-rc.1"><b>⬇ Download StitchFoundry 0.14.0 (release candidate 1)</b></a>
+  (Windows, macOS, Linux; signed) ·
   <a href="https://stitchwright.github.io/StitchFoundry/"><b>Try it in your browser</b></a>
 </p>
 
 | System | File to download |
 |---|---|
-| Windows (64-bit) | `stitchfoundry-…-windows-x64.msi` (installer) or `…-portable.zip` |
+| Windows (64-bit, 32-bit or ARM) | `stitchfoundry-…-windows-x64.msi` (installer) or `…-portable.zip`; `…-x86` and `…-arm64` likewise |
 | macOS (Apple silicon and Intel) | `stitchfoundry-…-macos-universal.dmg` |
-| Linux (x86_64) | `.AppImage` (runs anywhere), `.deb` (Debian, Ubuntu) or `.rpm` (Fedora) |
+| Linux (x86_64 or ARM) | `.AppImage` (runs anywhere), `.deb` (Debian, Ubuntu), `.rpm` (Fedora) or `.flatpak` |
+| FreeBSD 14 | `stitchfoundry-…-freebsd-x86_64.tar.gz` |
 
-These builds are not signed yet. On Windows, if SmartScreen warns, choose **More info › Run
-anyway**; on macOS, right-click the app and choose **Open** the first time. The browser version is
-a demo: it can't download embroidery fonts.
+The Windows installers and programs are signed, and the Mac app is signed and notarized by
+Apple, so they open without a warning. The browser version is a demo: it can't download
+embroidery fonts. Builds of every change since the release, unsigned, are on the
+[latest build](https://github.com/Stitchwright/StitchFoundry/releases/tag/latest-build) page
+(Windows may warn: **More info › Run anyway**; on macOS right-click › **Open** the first time).
 
 <p align="center">
   <img src="docs/images/stitchfoundry-branching.png" alt="StitchFoundry: thirty satin petals and a fill vine sewn as one thread, with the Stitch Sequence panel" width="100%">
