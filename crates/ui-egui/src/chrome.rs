@@ -680,6 +680,10 @@ fn artboard_list(app: &VectorcraftApp, ui: &mut Ui, cur: usize) -> Option<usize>
 
 /// Draw the status message, bounded readouts and artboard navigation controls.
 pub fn status_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
+    if crate::simple::active(app) {
+        simple_status_bar(app, ui);
+        return;
+    }
     let t = Tokens::get(ui.ctx());
     egui::Panel::bottom("status_bar")
         .exact_size(24.0)
@@ -755,6 +759,41 @@ pub fn status_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
                     .unwrap_or("");
                 ui.label(egui::RichText::new(tool).size(11.5).color(t.text_dim));
                 status_readouts(app, ui, &t);
+            });
+        });
+}
+
+/// Simple mode's status bar: the view in words (See It All, Closer, Farther) and the last message,
+/// large; no zoom percentage, angle, artboards, coordinates or timings.
+fn simple_status_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
+    let t = Tokens::get(ui.ctx());
+    egui::Panel::bottom("status_bar")
+        .exact_size(36.0)
+        .frame(egui::Frame::NONE.fill(t.panel).inner_margin(egui::Margin::symmetric(10, 0)).stroke(Stroke::new(1.0, t.border)))
+        .show(ui, |ui| {
+            ui.horizontal_centered(|ui| {
+                let doc = app.session.active().is_some();
+                ui.add_enabled_ui(doc, |ui| {
+                    for (label, tip, id) in [
+                        (tl!("See It All"), tl!("Show the whole design"), "view.fitArtboard"),
+                        (tl!("Closer"), tl!("Look closer at the design"), "view.zoomIn"),
+                        (tl!("Farther"), tl!("See more of the design"), "view.zoomOut"),
+                    ] {
+                        if ui.add(egui::Button::new(egui::RichText::new(label).size(14.0)).min_size(vec2(0.0, 28.0))).on_hover_text(tip).clicked() {
+                            app.run(id, json!({})).ok();
+                        }
+                    }
+                });
+                ui.separator();
+                let busy = app.background.jobs.iter().find(|j| !j.label.is_empty() && !j.cancelled()).map(|j| j.label.clone());
+                let message = match busy {
+                    Some(job) => {
+                        ui.add(egui::Spinner::new().size(14.0).color(t.accent));
+                        format!("{}…", crate::i18n::msg(&job))
+                    }
+                    None => crate::i18n::msg(&app.ui.status),
+                };
+                ui.add(egui::Label::new(egui::RichText::new(message).size(14.0).color(t.text)).truncate());
             });
         });
 }

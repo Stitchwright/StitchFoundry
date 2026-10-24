@@ -6929,3 +6929,20 @@ swatch	Bright Violet	Kirkas violetti
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Tee sanoistasi, muodoistasi ja kuvistasi malleja kirjontakoneellesi.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Kerro ensin StitchFoundrylle, mikä kone sinulla on, jotta malli tallennetaan sen lukemaan tiedostomuotoon. Tallenna sitten painamalla Valmis.
 	The words were made smaller ({pct}%) to fit in the hoop.	Sanoja pienennettiin ({pct} %), jotta ne mahtuvat kehykseen.
+# QA-02: simple mode for people new to computers
+	Closer	Lähemmäs
+	Farther	Kauemmas
+	Look Again	Etsi uudelleen
+	Look closer at the design	Katso mallia lähempää
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Liitä USB-tikku, jonka viet koneellesi. Odota hetki ja paina sitten Etsi uudelleen.
+	Save on This Computer Instead…	Tallenna sen sijaan tälle tietokoneelle…
+	Save on {name}	Tallenna kohteeseen {name}
+	See It All	Näytä kaikki
+	See more of the design	Näe enemmän mallista
+	Show the whole design	Näytä koko malli
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Tämä on iso malli: noin {time} kirjontaa. Kuva, jossa on vähemmän värejä, kirjoutuu nopeammin.
+	Which USB stick should the design go on?	Mille USB-tikulle malli tallennetaan?
+	Your USB Stick	USB-tikkusi
+	{h} h {m} min	{h} t {m} min
+	{m} min	{m} min
+	Light or dark screen	Vaalea tai tumma näyttö

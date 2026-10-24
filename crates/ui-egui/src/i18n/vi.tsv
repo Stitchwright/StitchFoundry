@@ -6515,3 +6515,20 @@ machine	Stop	Dừng máy
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Biến chữ, hình và ảnh của bạn thành mẫu thêu cho máy thêu của bạn.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Trước tiên hãy cho StitchFoundry biết bạn có máy nào, để mẫu được lưu đúng loại tệp máy đọc được. Sau đó nhấn Xong để lưu.
 	The words were made smaller ({pct}%) to fit in the hoop.	Chữ đã được thu nhỏ ({pct}%) cho vừa khung thêu.
+# QA-02: simple mode for people new to computers
+	Closer	Gần hơn
+	Farther	Xa hơn
+	Look Again	Tìm lại
+	Look closer at the design	Xem mẫu gần hơn
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Cắm USB bạn mang tới máy thêu. Đợi một chút rồi nhấn Tìm lại.
+	Save on This Computer Instead…	Lưu vào máy tính này thay vào đó…
+	Save on {name}	Lưu vào {name}
+	See It All	Xem toàn bộ
+	See more of the design	Xem thêm mẫu
+	Show the whole design	Hiện toàn bộ mẫu
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Đây là mẫu lớn: khoảng {time} thêu. Ảnh ít màu hơn sẽ thêu nhanh hơn.
+	Which USB stick should the design go on?	Lưu mẫu vào USB nào?
+	Your USB Stick	USB của bạn
+	{h} h {m} min	{h} giờ {m} phút
+	{m} min	{m} phút
+	Light or dark screen	Màn hình sáng hoặc tối

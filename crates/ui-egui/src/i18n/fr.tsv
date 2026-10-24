@@ -6929,3 +6929,20 @@ theme	Appearance	Apparence
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Transformez vos mots, formes et images en motifs pour votre machine à broder.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Indiquez d'abord à StitchFoundry quelle machine vous avez, pour que le motif soit enregistré dans le type de fichier qu'elle lit. Appuyez ensuite sur Terminé pour enregistrer.
 	The words were made smaller ({pct}%) to fit in the hoop.	Les mots ont été réduits ({pct} %) pour tenir dans le cadre.
+# QA-02: simple mode for people new to computers
+	Closer	Plus près
+	Farther	Plus loin
+	Look Again	Chercher à nouveau
+	Look closer at the design	Regarder le motif de plus près
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Branchez la clé USB que vous emportez à votre machine. Attendez un instant, puis appuyez sur Chercher à nouveau.
+	Save on This Computer Instead…	Enregistrer plutôt sur cet ordinateur…
+	Save on {name}	Enregistrer sur {name}
+	See It All	Tout voir
+	See more of the design	Voir davantage du motif
+	Show the whole design	Afficher tout le motif
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	C'est un grand motif : environ {time} de broderie. Une image avec moins de couleurs se brode plus vite.
+	Which USB stick should the design go on?	Sur quelle clé USB mettre le motif ?
+	Your USB Stick	Votre clé USB
+	{h} h {m} min	{h} h {m} min
+	{m} min	{m} min
+	Light or dark screen	Écran clair ou sombre

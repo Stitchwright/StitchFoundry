@@ -6868,3 +6868,20 @@ machine	Stop	Stopp
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Gör dina ord, former och bilder till mönster för din broderimaskin.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Tala först om för StitchFoundry vilken maskin du har, så sparas mönstret i den sortens fil den läser. Tryck sedan på Klart för att spara.
 	The words were made smaller ({pct}%) to fit in the hoop.	Orden har gjorts mindre ({pct} %) så att de får plats i ramen.
+# QA-02: simple mode for people new to computers
+	Closer	Närmare
+	Farther	Längre bort
+	Look Again	Sök igen
+	Look closer at the design	Titta närmare på mönstret
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Sätt i USB-minnet som du tar med till maskinen. Vänta en stund och tryck sedan på Sök igen.
+	Save on This Computer Instead…	Spara på den här datorn i stället…
+	Save on {name}	Spara på {name}
+	See It All	Se allt
+	See more of the design	Se mer av mönstret
+	Show the whole design	Visa hela mönstret
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Det här är ett stort mönster: ungefär {time} att brodera. En bild med färre färger broderas snabbare.
+	Which USB stick should the design go on?	Vilket USB-minne ska mönstret på?
+	Your USB Stick	Ditt USB-minne
+	{h} h {m} min	{h} tim {m} min
+	{m} min	{m} min
+	Light or dark screen	Ljus eller mörk skärm

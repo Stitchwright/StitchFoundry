@@ -6806,3 +6806,20 @@ swatch	Bright Violet	Kraftig violet
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Gør dine ord, figurer og billeder til design til din broderimaskine.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Fortæl først StitchFoundry, hvilken maskine du har, så designet gemmes i den slags fil, den læser. Tryk derefter på Udført for at gemme.
 	The words were made smaller ({pct}%) to fit in the hoop.	Ordene er gjort mindre ({pct} %), så de passer i broderirammen.
+# QA-02: simple mode for people new to computers
+	Closer	Tættere på
+	Farther	Længere væk
+	Look Again	Søg igen
+	Look closer at the design	Se designet tættere på
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Sæt den USB-nøgle i, som du tager med til din maskine. Vent et øjeblik, og tryk så på Søg igen.
+	Save on This Computer Instead…	Gem på denne computer i stedet…
+	Save on {name}	Gem på {name}
+	See It All	Se det hele
+	See more of the design	Se mere af designet
+	Show the whole design	Vis hele designet
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Det er et stort design: cirka {time} at brodere. Et billede med færre farver broderes hurtigere.
+	Which USB stick should the design go on?	Hvilken USB-nøgle skal designet på?
+	Your USB Stick	Din USB-nøgle
+	{h} h {m} min	{h} t {m} min
+	{m} min	{m} min
+	Light or dark screen	Lys eller mørk skærm

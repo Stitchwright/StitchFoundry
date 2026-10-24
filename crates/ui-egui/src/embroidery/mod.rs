@@ -95,7 +95,19 @@ impl TravelBy {
 /// colour code ("#5fa8d3"), the nearest generic thread colour's name, in the UI language.
 pub fn thread_name(t: &vectorcraft_embroidery::sf_core::Thread) -> String {
     let own = t.label();
-    if own.starts_with('#') { tl!(vectorcraft_embroidery::sf_core::threads::generic_name(t.color)).to_string() } else { own }
+    if own.starts_with('#') {
+        return tl!(vectorcraft_embroidery::sf_core::threads::generic_name(t.color)).to_string();
+    }
+    // the generic chart's own codes ("G02 Red") mean nothing on a spool: its name alone, translated
+    match own.split_once(' ') {
+        Some((code, name))
+            if code.strip_prefix('G').is_some_and(|n| n.len() == 2 && n.chars().all(|c| c.is_ascii_digit()))
+                && vectorcraft_embroidery::sf_core::threads::generic_chart().threads.iter().any(|g| g.code == code && g.name == name) =>
+        {
+            tl!(name).to_string()
+        }
+        _ => own,
+    }
 }
 
 /// Where the player lands one `by` step on from `pos` (records drawn so far), forwards

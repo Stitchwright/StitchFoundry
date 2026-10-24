@@ -13,7 +13,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Make a Design",
         [],
         None,
-        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), pieceSize?: small|regular|large (ith), edge?: square|rounded|scalloped|round (ith), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6; 8 for a photo), photo?: bool (picture: whether it is a photo, guessed from its colours; a photo's colours are made flat before it is digitized), removeBackground?: bool (picture, a photo: true; its subject cut out of its background first, false: the whole photo stitched), border?: mm (picture: 0, none; else a filled band this wide round it, as embroidery.addBorder makes), sample?: an id from embroidery.samples} a new design made in one step: words or a shape in the middle of the hoop (words too long for it made smaller to fit), an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits, photo (picture), madeSmaller (words made smaller to fit: %)}",
+        "{what: words|shape|applique|picture|sample|ith|quilt, project? (ith: embroidery.ith.projects), pieceSize?: small|regular|large (ith), edge?: square|rounded|scalloped|round (ith), width?, height?, pattern?, spacing? (quilt: embroidery.quiltBlock), hoop?: a hoop's name (My Machine's first), text?, height?: mm (words), shape?: Heart|Star|… (shape, applique), size?: mm (shape, applique), path? | name? | dataBase64? (picture), colors?: 2-12 (picture, 6; 8 for a photo), photo?: bool (picture: whether it is a photo, guessed from its colours; a photo's colours are made flat before it is digitized), removeBackground?: bool (picture, a photo: true; its subject cut out of its background first, false: the whole photo stitched), border?: mm (picture: 0, none; else a filled band this wide round it, as embroidery.addBorder makes), sample?: an id from embroidery.samples} a new design made in one step: words or a shape in the middle of the hoop (words too long for it made smaller to fit), an appliqué piece, a picture turned into stitches at most four fifths of the hoop, or a sample design, or an in-the-hoop project (embroidery.ith.make) → {what, ids, stitches, colors, widthMm, heightMm, fits, time (h:mm:ss sewing), photo (picture), madeSmaller (words made smaller to fit: %)}",
         always,
         make_design
     )]
@@ -153,6 +153,7 @@ fn make_design(s: &mut Session, p: &Value) -> Result<Value> {
         "widthMm": info["widthMm"],
         "heightMm": info["heightMm"],
         "fits": info["fits"],
+        "time": info["time"],
     });
     if let Some(v) = photo {
         out["photo"] = json!(v);

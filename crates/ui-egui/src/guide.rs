@@ -11,7 +11,18 @@ use crate::VectorcraftApp;
 use crate::theme::{self, Tokens};
 
 /// The pictures the guide opens.
-const PICTURES: &[&str] = &["png", "jpg", "jpeg", "bmp", "gif", "tif", "tiff", "webp"];
+const PICTURES: &[&str] = &["png", "jpg", "jpeg", "heic", "heif", "bmp", "gif", "tif", "tiff", "webp"];
+
+/// Stitches above which Make a Design says a design will take a long time to sew (about an hour on
+/// a home machine).
+const BIG_DESIGN: u64 = 30_000;
+
+/// Choosing a picture: the file dialog opens in the Pictures folder, where photos usually are.
+pub(crate) fn picture_pick() -> crate::FilePick {
+    let home = std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE"));
+    let folder = home.map(|h| std::path::Path::new(&h).join("Pictures")).filter(|p| p.is_dir()).map(|p| p.to_string_lossy().into_owned());
+    crate::FilePick { folder, filters: vec![("Pictures", PICTURES)], ..Default::default() }
+}
 
 /// The steps, in order.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -330,8 +341,7 @@ fn details(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
             ui.checkbox(&mut app.guide.picture_border, tl!("Add a white border round it, like a sticker or patch"));
             if crate::widgets::primary_button(ui, tl!("Choose a Picture…")).clicked() {
                 crate::picks::button(app, |app| {
-                    let pick = crate::FilePick { filters: vec![("Pictures", PICTURES)], ..Default::default() };
-                    if let Some(path) = crate::picks::open(app, &pick) {
+                    if let Some(path) = crate::picks::open(app, &picture_pick()) {
                         app.guide.picture = Some(path.clone());
                         let border = if app.guide.picture_border { 4.0 } else { 0.0 };
                         let q = json!({ "what": "picture", "path": path, "hoop": app.guide.hoop, "removeBackground": app.guide.remove_background, "border": border });
@@ -599,6 +609,15 @@ pub(crate) fn make_it(app: &mut VectorcraftApp, q: Value) {
             app.guide.note = r["madeSmaller"]
                 .as_f64()
                 .map(|pct| crate::i18n::fmt(tl!("The words were made smaller ({pct}%) to fit in the hoop."), &[("pct", &format!("{pct:.0}"))]));
+            // a picture that sews for a long time: say so, while fewer colours can still help
+            if r["stitches"].as_u64().unwrap_or(0) > BIG_DESIGN
+                && let Some(time) = r["time"].as_str()
+            {
+                app.guide.note = Some(crate::i18n::fmt(
+                    tl!("This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly."),
+                    &[("time", &crate::simple::plain_time(time))],
+                ));
+            }
             app.run("select.none", json!({})).ok();
             app.run("view.fitArtboard", json!({})).ok();
             app.guide.error = None;

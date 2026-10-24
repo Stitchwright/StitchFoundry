@@ -6526,3 +6526,20 @@ effect	Soft	Weich
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Machen Sie aus Ihren Worten, Formen und Bildern Designs für Ihre Stickmaschine.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Sagen Sie StitchFoundry zuerst, welche Maschine Sie haben, damit das Design in der Dateiart gespeichert wird, die sie liest. Drücken Sie dann auf Fertig, um zu speichern.
 	The words were made smaller ({pct}%) to fit in the hoop.	Die Wörter wurden verkleinert ({pct} %), damit sie in den Stickrahmen passen.
+# QA-02: simple mode for people new to computers
+	Closer	Näher
+	Farther	Weiter weg
+	Look Again	Noch einmal suchen
+	Look closer at the design	Das Design näher ansehen
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Stecken Sie den USB-Stick ein, den Sie zu Ihrer Maschine mitnehmen. Warten Sie einen Moment und drücken Sie dann auf Noch einmal suchen.
+	Save on This Computer Instead…	Stattdessen auf diesem Computer speichern…
+	Save on {name}	Auf {name} speichern
+	See It All	Alles zeigen
+	See more of the design	Mehr vom Design sehen
+	Show the whole design	Das ganze Design zeigen
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Das ist ein großes Design: etwa {time} Nähzeit. Ein Bild mit weniger Farben ist schneller gestickt.
+	Which USB stick should the design go on?	Auf welchen USB-Stick soll das Design?
+	Your USB Stick	Ihr USB-Stick
+	{h} h {m} min	{h} Std. {m} Min.
+	{m} min	{m} Min.
+	Light or dark screen	Heller oder dunkler Bildschirm

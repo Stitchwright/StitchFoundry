@@ -6598,3 +6598,20 @@ machine	Stop	停止
 	Turn your words, shapes and pictures into designs for your embroidery machine.	文字や図形、写真を、お使いの刺しゅうミシン用のデザインにします。
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	まず、お使いのミシンを StitchFoundry に教えてください。ミシンが読める形式でデザインを保存します。そのあと「完了」を押すと保存されます。
 	The words were made smaller ({pct}%) to fit in the hoop.	刺繍枠に収まるように、文字を小さくしました（{pct}%）。
+# QA-02: simple mode for people new to computers
+	Closer	近くで見る
+	Farther	遠くから見る
+	Look Again	もう一度探す
+	Look closer at the design	デザインを近くで見ます
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	ミシンに持っていく USB メモリーを差し込んでください。少し待ってから「もう一度探す」を押してください。
+	Save on This Computer Instead…	代わりにこのコンピューターに保存…
+	Save on {name}	{name} に保存
+	See It All	全体を見る
+	See more of the design	デザインをもっと広く見ます
+	Show the whole design	デザイン全体を表示します
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	大きなデザインです：刺しゅうに約 {time} かかります。色の少ない画像のほうが早く仕上がります。
+	Which USB stick should the design go on?	どの USB メモリーに保存しますか？
+	Your USB Stick	USB メモリー
+	{h} h {m} min	{h} 時間 {m} 分
+	{m} min	{m} 分
+	Light or dark screen	明るい画面・暗い画面

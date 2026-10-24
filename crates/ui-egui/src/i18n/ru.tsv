@@ -6555,3 +6555,20 @@ machine	Stop	Остановка
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Превратите свои слова, фигуры и картинки в дизайны для вышивальной машины.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Сначала укажите StitchFoundry, какая у вас машина, чтобы дизайн сохранился в том виде файла, который она читает. Затем нажмите «Готово», чтобы сохранить.
 	The words were made smaller ({pct}%) to fit in the hoop.	Слова уменьшены ({pct}%), чтобы поместиться в пяльцы.
+# QA-02: simple mode for people new to computers
+	Closer	Ближе
+	Farther	Дальше
+	Look Again	Искать снова
+	Look closer at the design	Рассмотреть дизайн ближе
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Вставьте флешку, которую вы носите к машине. Подождите немного и нажмите «Искать снова».
+	Save on This Computer Instead…	Сохранить на этот компьютер…
+	Save on {name}	Сохранить на {name}
+	See It All	Показать всё
+	See more of the design	Увидеть больше дизайна
+	Show the whole design	Показать весь дизайн
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Это большой дизайн: около {time} вышивки. Картинка с меньшим числом цветов вышивается быстрее.
+	Which USB stick should the design go on?	На какую флешку сохранить дизайн?
+	Your USB Stick	Ваша флешка
+	{h} h {m} min	{h} ч {m} мин
+	{m} min	{m} мин
+	Light or dark screen	Светлый или тёмный экран

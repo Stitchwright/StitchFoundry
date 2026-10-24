@@ -6872,3 +6872,20 @@ machine	Stop	Спиране
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Превърнете думите, формите и снимките си в дизайни за вашата бродираща машина.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Първо кажете на StitchFoundry каква машина имате, за да се запише дизайнът във вида файл, който тя чете. След това натиснете Готово, за да запишете.
 	The words were made smaller ({pct}%) to fit in the hoop.	Думите са намалени ({pct}%), за да се поберат в гергефа.
+# QA-02: simple mode for people new to computers
+	Closer	По-близо
+	Farther	По-далеч
+	Look Again	Търси отново
+	Look closer at the design	Разгледайте дизайна отблизо
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Поставете USB флашката, която носите на машината. Изчакайте малко и натиснете Търси отново.
+	Save on This Computer Instead…	Запиши на този компютър вместо това…
+	Save on {name}	Запиши на {name}
+	See It All	Покажи всичко
+	See more of the design	Повече от дизайна
+	Show the whole design	Покажи целия дизайн
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Това е голям дизайн: около {time} бродиране. Картина с по-малко цветове се бродира по-бързо.
+	Which USB stick should the design go on?	На коя USB флашка да е дизайнът?
+	Your USB Stick	Вашата USB флашка
+	{h} h {m} min	{h} ч {m} мин
+	{m} min	{m} мин
+	Light or dark screen	Светъл или тъмен екран

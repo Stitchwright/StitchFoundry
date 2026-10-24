@@ -6758,3 +6758,20 @@ machine	Stop	Zatrzymanie
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Zamień swoje słowa, kształty i obrazy we wzory dla swojej hafciarki.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Najpierw powiedz StitchFoundry, jaką masz maszynę, aby wzór zapisał się w rodzaju pliku, który ona czyta. Potem naciśnij Gotowe, aby zapisać.
 	The words were made smaller ({pct}%) to fit in the hoop.	Słowa zostały zmniejszone ({pct}%), aby zmieściły się w tamborku.
+# QA-02: simple mode for people new to computers
+	Closer	Bliżej
+	Farther	Dalej
+	Look Again	Szukaj ponownie
+	Look closer at the design	Obejrzyj wzór z bliska
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Włóż pendrive, który zabierasz do maszyny. Poczekaj chwilę i naciśnij Szukaj ponownie.
+	Save on This Computer Instead…	Zapisz zamiast tego na tym komputerze…
+	Save on {name}	Zapisz na {name}
+	See It All	Pokaż wszystko
+	See more of the design	Zobacz więcej wzoru
+	Show the whole design	Pokaż cały wzór
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	To duży wzór: około {time} haftowania. Obraz z mniejszą liczbą kolorów haftuje się szybciej.
+	Which USB stick should the design go on?	Na który pendrive zapisać wzór?
+	Your USB Stick	Twój pendrive
+	{h} h {m} min	{h} godz. {m} min
+	{m} min	{m} min
+	Light or dark screen	Jasny lub ciemny ekran

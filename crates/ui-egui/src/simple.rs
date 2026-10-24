@@ -14,9 +14,9 @@ use crate::theme::{self, Tokens};
 
 /// The left column's width.
 const BAR: f32 = 176.0;
-/// The height kept at the column's foot for Text size, Show everything and Home until they have
-/// been drawn once (then their measured height is kept).
-const BOTTOM: f32 = 110.0;
+/// The height kept at the column's foot for Save for My Machine, Home, Show everything, the screen
+/// and Text size until they have been drawn once (then their measured height is kept).
+const BOTTOM: f32 = 220.0;
 /// Your Design's width.
 const PANEL: f32 = 290.0;
 
@@ -93,7 +93,7 @@ pub fn left_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
                     app.simple.shapes = Some(true);
                 }
                 if big(ui, tl!("Add a Picture…"), false).on_hover_text(tl!("A photo or drawing to turn into stitches")).clicked() {
-                    app.run("file.place", json!({})).ok();
+                    add_picture(app);
                 }
                 ui.add_space(6.0);
                 if big(ui, tl!("Watch It Sew"), false).on_hover_text(tl!("See the design sew on screen, stitch by stitch")).clicked() {
@@ -114,7 +114,20 @@ pub fn left_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
                 if big(ui, tl!("Start Over…"), false).on_hover_text(tl!("Clear the design and begin again")).clicked() {
                     app.simple.start_over = true;
                 }
-                ui.add_space(6.0);
+            });
+        });
+        ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
+            text_size(app, ui);
+            screen(app, ui);
+            if ui.link(tl!("Show everything")).clicked() {
+                app.run("window.experience", json!({ "level": "all" })).ok();
+            }
+            if ui.link(tl!("Home")).clicked() {
+                app.run("app.home", json!({})).ok();
+            }
+            // the one thing every design ends with: always in view, above the column's foot
+            ui.add_space(6.0);
+            ui.add_enabled_ui(doc, |ui| {
                 if big(ui, tl!("Save for My Machine"), true)
                     .on_hover_text(tl!("Write the design for your machine to its USB stick or folder"))
                     .clicked()
@@ -122,15 +135,6 @@ pub fn left_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
                     app.run("ui.saveForMyMachine", json!({})).ok();
                 }
             });
-        });
-        ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
-            text_size(app, ui);
-            if ui.link(tl!("Show everything")).clicked() {
-                app.run("window.experience", json!({ "level": "all" })).ok();
-            }
-            if ui.link(tl!("Home")).clicked() {
-                app.run("app.home", json!({})).ok();
-            }
             let used = ui.min_rect().height();
             ui.ctx().data_mut(|d| d.insert_temp(foot_id, used));
         });
@@ -150,6 +154,56 @@ fn text_size(app: &mut VectorcraftApp, ui: &mut Ui) {
         }
     });
     ui.label(RichText::new(tl!("Text size")).size(14.0));
+}
+
+/// Add a Picture: the file dialog opens in Pictures, and the picture chosen goes straight in, with
+/// none of the Place dialog's options (the web picks its own way).
+fn add_picture(app: &mut VectorcraftApp) {
+    if app.services.place_async.is_some() || app.services.pick_open.is_none() {
+        app.run("file.place", json!({})).ok();
+        return;
+    }
+    crate::picks::button(app, |app| {
+        if let Some(path) = crate::picks::open(app, &crate::guide::picture_pick())
+            && let Err(e) = app.run("file.place", json!({ "path": path }))
+        {
+            app.status(e);
+        }
+    });
+}
+
+/// A sewing time as people say it: "4 h 31 min", "12 min" (from h:mm:ss), else as given.
+pub(crate) fn plain_time(hms: &str) -> String {
+    let parts: Vec<u64> = hms.split(':').filter_map(|p| p.trim().parse().ok()).collect();
+    let (h, m, sec) = match parts.as_slice() {
+        [h, m, s] => (*h, *m, *s),
+        [m, s] => (0, *m, *s),
+        _ => return hms.to_string(),
+    };
+    // to the nearest minute, and never "0 min" for something that sews
+    let total = (h * 3600 + m * 60 + sec + 30) / 60;
+    let (h, m) = (total / 60, (total % 60).max(u64::from(total == 0)));
+    if h > 0 {
+        crate::i18n::fmt(tl!("{h} h {m} min"), &[("h", &h.to_string()), ("m", &m.to_string())])
+    } else {
+        crate::i18n::fmt(tl!("{m} min"), &[("m", &m.to_string())])
+    }
+}
+
+/// Screen: Light or Dark, for the whole window (Light reads more easily for many eyes).
+fn screen(app: &mut VectorcraftApp, ui: &mut Ui) {
+    use crate::theme::Brightness;
+    let now = app.ui.brightness;
+    ui.horizontal(|ui| {
+        for (b, label) in [(Brightness::Light, tl!("Light")), (Brightness::Dark, tl!("Dark"))] {
+            let on =
+                now == b || (b == Brightness::Dark && now == Brightness::MediumDark) || (b == Brightness::Light && now == Brightness::MediumLight);
+            if ui.selectable_label(on, RichText::new(label).size(15.0)).clicked() {
+                app.run("window.brightness", json!({ "brightness": b.id() })).ok();
+            }
+        }
+    });
+    ui.label(RichText::new(tl!("Light or dark screen")).size(14.0));
 }
 
 /// Keep Safe (E6): in simple mode, a design with changes is saved on its own every few minutes
@@ -307,7 +361,7 @@ fn design_summary(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
         row(ui, tl!("Stitches"), stitches.to_string());
         row(ui, tl!("Thread colours"), info["colors"].as_array().map_or(0, Vec::len).to_string());
         if let Some(time) = info["time"].as_str() {
-            row(ui, tl!("Sewing time"), time.to_string());
+            row(ui, tl!("Sewing time"), plain_time(time));
         }
         if info["fits"].as_bool() == Some(false) {
             ui.label(RichText::new(tl!("The design is bigger than the hoop: make it smaller before you sew.")).size(13.0).color(t.error));

@@ -566,6 +566,8 @@ fn services(parent: Parent, ui: egui::Context) -> Services {
         reveal: Some(Box::new(reveal)),
         // After Save for My Machine: eject the USB stick the machine folder is on.
         eject: Some(Box::new(eject::eject)),
+        // Save for My Machine: the USB sticks plugged in, so none has to be found in a folder dialog.
+        usb_sticks: Some(Box::new(eject::usb_sticks)),
         // Links panel: Edit Original; Package: Show Package. Relink to Folder and Package pick folders.
         open_file: Some(Box::new(open_file)),
         pick_folder: Some(Box::new(move || pick_now(PickRequest::Folder, &p4).into_iter().next())),

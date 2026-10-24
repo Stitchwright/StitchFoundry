@@ -6806,3 +6806,20 @@ swatch	Bright Violet	Violet cerah
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Ubah kata, bentuk, dan gambar Anda menjadi desain untuk mesin bordir Anda.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Beri tahu StitchFoundry dulu mesin apa yang Anda punya, agar desain disimpan dalam jenis file yang dibacanya. Lalu tekan Selesai untuk menyimpan.
 	The words were made smaller ({pct}%) to fit in the hoop.	Kata-kata diperkecil ({pct}%) agar muat di ram.
+# QA-02: simple mode for people new to computers
+	Closer	Lebih dekat
+	Farther	Lebih jauh
+	Look Again	Cari lagi
+	Look closer at the design	Lihat desain lebih dekat
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Colokkan flashdisk yang Anda bawa ke mesin. Tunggu sebentar, lalu tekan Cari lagi.
+	Save on This Computer Instead…	Simpan di komputer ini saja…
+	Save on {name}	Simpan di {name}
+	See It All	Lihat semua
+	See more of the design	Lihat lebih banyak desain
+	Show the whole design	Tampilkan seluruh desain
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Ini desain besar: sekitar {time} menjahit. Gambar dengan lebih sedikit warna lebih cepat dibordir.
+	Which USB stick should the design go on?	Desain disimpan ke flashdisk yang mana?
+	Your USB Stick	Flashdisk Anda
+	{h} h {m} min	{h} j {m} mnt
+	{m} min	{m} mnt
+	Light or dark screen	Layar terang atau gelap

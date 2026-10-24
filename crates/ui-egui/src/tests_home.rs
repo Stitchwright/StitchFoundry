@@ -427,6 +427,13 @@ fn simple_mode_names_threads_and_says_why_my_machine_opened() {
     let panel = strings(&mut app, crate::simple::right_panel);
     assert!(panel.iter().any(|t| t == "1. Sky Blue"), "{panel:?}");
     assert!(!panel.iter().any(|t| t.contains("#5fa8d3")), "{panel:?}");
+    // the generic chart's codes are left off: "Red", not "G02 Red"
+    app.run("embroidery.sample", json!({"id": "heart-patch"})).unwrap();
+    app.run("select.none", json!({})).unwrap();
+    let panel = strings(&mut app, crate::simple::right_panel);
+    assert!(panel.iter().any(|t| t == "1. Red"), "{panel:?}");
+    let bar = strings(&mut app, crate::simple::left_bar);
+    assert!(bar.iter().any(|t| t == "Save for My Machine"), "always in view: {bar:?}");
     // no machine yet: the window opens and says why, and Done goes on with the save
     assert_eq!(app.run("ui.saveForMyMachine", json!({})).unwrap()["open"], true);
     assert!(app.ui.my_machine.open && app.ui.my_machine.then_save);
@@ -447,6 +454,63 @@ fn the_guide_says_when_words_were_made_smaller() {
     assert!(note.starts_with("The words were made smaller (") && note.ends_with("%) to fit in the hoop."), "{note}");
     let s = guide_strings(&mut app);
     assert!(s.contains(&note), "{s:?}");
+}
+
+/// QA-02: Save for My Machine finds the USB stick: one plugged in, the design goes straight on
+/// it; none, or several, and Your USB Stick asks in plain words, with big buttons by name.
+#[test]
+fn save_for_my_machine_finds_the_usb_stick() {
+    use std::sync::{Arc, Mutex};
+    let stick = std::env::temp_dir().join(format!("sf-usb-stick-{}", std::process::id()));
+    std::fs::create_dir_all(&stick).unwrap();
+    let plugged: Arc<Mutex<Vec<(String, String)>>> = Arc::new(Mutex::new(vec![]));
+    let seen = plugged.clone();
+    let services = crate::Services { usb_sticks: Some(Box::new(move || seen.lock().unwrap().clone())), ..Default::default() };
+    let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), services);
+    app.run("embroidery.myMachine.set", json!({"machine": "Brother or Baby Lock"})).unwrap();
+    app.run("embroidery.newDesign", json!({})).unwrap();
+    app.run("shape.rectangle", json!({"x": 100, "y": 100, "width": 120, "height": 80})).unwrap();
+    app.run("embroidery.set", json!({"type": "fill"})).unwrap();
+    // none plugged in: asked to plug it in
+    let r = app.run("ui.saveForMyMachine", json!({"fabric": "Jersey knit (T-shirt)"})).unwrap();
+    assert_eq!(r["askStick"], true, "{r}");
+    let w = strings(&mut app, |app, ui| crate::dialogs::my_machine::show(app, ui.ctx()));
+    assert!(w.iter().any(|t| t.starts_with("Plug in the USB stick you take to your machine")), "{w:?}");
+    assert!(w.iter().any(|t| t == "Look Again") && w.iter().any(|t| t == "Save on This Computer Instead…"), "{w:?}");
+    // two: one button each, by name
+    *plugged.lock().unwrap() = vec![("KINGSTON (E:)".into(), stick.to_string_lossy().into()), ("NO NAME".into(), "/nowhere".into())];
+    app.ui.my_machine.stick_then = None;
+    let r = app.run("ui.saveForMyMachine", json!({"fabric": "Jersey knit (T-shirt)"})).unwrap();
+    assert_eq!(r["sticks"], 2, "{r}");
+    let w = strings(&mut app, |app, ui| crate::dialogs::my_machine::show(app, ui.ctx()));
+    assert!(w.iter().any(|t| t == "Save on KINGSTON (E:)") && w.iter().any(|t| t == "Save on NO NAME"), "{w:?}");
+    // one: straight on it, no question
+    app.ui.my_machine.stick_then = None;
+    *plugged.lock().unwrap() = vec![("KINGSTON (E:)".into(), stick.to_string_lossy().into())];
+    let r = app.run("ui.saveForMyMachine", json!({"fabric": "Jersey knit (T-shirt)"})).unwrap();
+    let path = r["path"].as_str().unwrap_or_default();
+    assert!(path.starts_with(stick.to_string_lossy().as_ref()) && path.ends_with(".pes"), "{r}");
+    assert!(app.ui.my_machine.stick_then.is_none());
+    std::fs::remove_dir_all(&stick).ok();
+}
+
+/// QA-02: simple mode's status bar speaks plainly: See It All, Closer, Farther and the message,
+/// no zoom percentage, angle or artboards; sewing times read "4 h 31 min".
+#[test]
+fn simple_mode_status_bar_and_times_are_plain() {
+    let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), crate::Services::default());
+    app.run("window.experience", json!({"level": "beginner"})).unwrap();
+    app.run("embroidery.newDesign", json!({})).unwrap();
+    app.status("Saved for your machine: x.pes");
+    let bar = strings(&mut app, crate::chrome::status_bar);
+    for want in ["See It All", "Closer", "Farther", "Saved for your machine: x.pes"] {
+        assert!(bar.iter().any(|t| t == want), "{want} in {bar:?}");
+    }
+    assert!(!bar.iter().any(|t| t.ends_with('%') || t.ends_with('°') || t.contains("Artboard")), "{bar:?}");
+    assert_eq!(crate::simple::plain_time("4:30:55"), "4 h 31 min");
+    assert_eq!(crate::simple::plain_time("0:07:12"), "7 min");
+    assert_eq!(crate::simple::plain_time("0:00:10"), "1 min");
+    assert_eq!(crate::simple::plain_time("soon"), "soon");
 }
 
 /// TB-01: the first start on a tablet turns on simple mode, unless a way of working was chosen.

@@ -6770,3 +6770,20 @@ mark-style	Japanese	Japonesas
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Transforme suas palavras, formas e imagens em desenhos para sua máquina de bordar.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Primeiro diga ao StitchFoundry qual máquina você tem, para o desenho ser salvo no tipo de arquivo que ela lê. Depois clique em Concluído para salvar.
 	The words were made smaller ({pct}%) to fit in the hoop.	As palavras foram diminuídas ({pct}%) para caber no bastidor.
+# QA-02: simple mode for people new to computers
+	Closer	Mais perto
+	Farther	Mais longe
+	Look Again	Procurar de novo
+	Look closer at the design	Ver o desenho mais de perto
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Conecte o pendrive que você leva para a máquina. Espere um pouco e clique em Procurar de novo.
+	Save on This Computer Instead…	Salvar neste computador…
+	Save on {name}	Salvar em {name}
+	See It All	Ver tudo
+	See more of the design	Ver mais do desenho
+	Show the whole design	Mostrar o desenho inteiro
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	É um desenho grande: cerca de {time} de bordado. Uma imagem com menos cores borda mais rápido.
+	Which USB stick should the design go on?	Em qual pendrive vai o desenho?
+	Your USB Stick	Seu pendrive
+	{h} h {m} min	{h} h {m} min
+	{m} min	{m} min
+	Light or dark screen	Tela clara ou escura

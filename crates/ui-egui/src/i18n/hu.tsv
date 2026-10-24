@@ -6889,3 +6889,20 @@ machine	Stop	Megállás
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Varázsolja szavait, formáit és képeit hímzőgépe mintáivá.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Először mondja meg a StitchFoundrynak, milyen gépe van, hogy a minta olyan fájlba kerüljön, amelyet a gép olvas. Ezután a mentéshez nyomja meg a Kész gombot.
 	The words were made smaller ({pct}%) to fit in the hoop.	A szavakat kisebbre vettük ({pct}%), hogy elférjenek a keretben.
+# QA-02: simple mode for people new to computers
+	Closer	Közelebb
+	Farther	Távolabb
+	Look Again	Keresés újra
+	Look closer at the design	A minta közelebbről
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Dugja be a pendrive-ot, amelyet a géphez visz. Várjon egy kicsit, majd nyomja meg a Keresés újra gombot.
+	Save on This Computer Instead…	Mentés inkább erre a számítógépre…
+	Save on {name}	Mentés ide: {name}
+	See It All	Az egész látszódjon
+	See more of the design	Több látszódjon a mintából
+	Show the whole design	Az egész minta mutatása
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Ez egy nagy minta: kb. {time} hímzés. A kevesebb színű kép gyorsabban elkészül.
+	Which USB stick should the design go on?	Melyik pendrive-ra kerüljön a minta?
+	Your USB Stick	Az Ön pendrive-ja
+	{h} h {m} min	{h} óra {m} perc
+	{m} min	{m} perc
+	Light or dark screen	Világos vagy sötét képernyő

@@ -229,6 +229,10 @@ pub type RevealFn = Box<dyn FnMut(&str) -> Result<(), String>>;
 /// the drive's name.
 pub type EjectFn = Box<dyn FnMut(&str) -> Result<String, String>>;
 
+/// The USB sticks (and other removable drives) plugged in now → (name, folder), so Save for My
+/// Machine can save to one without a folder dialog.
+pub type UsbSticksFn = Box<dyn FnMut() -> Vec<(String, String)>>;
+
 pub use vectorcraft_embroidery::sf_core::ai::{HttpRequest, Method};
 
 /// Sends an HTTPS POST and waits for the answer → (HTTP status, body), or why none came. Called
@@ -295,6 +299,8 @@ pub struct Services {
     pub reveal: Option<RevealFn>,
     /// Eject the USB stick a machine folder is on (desktop), after Save for My Machine.
     pub eject: Option<EjectFn>,
+    /// The USB sticks plugged in now (desktop), for Save for My Machine.
+    pub usb_sticks: Option<UsbSticksFn>,
     /// Write a file from any thread (desktop): lets Background Save and Export write off the UI
     /// thread ([`background`]). Without it they run at once.
     pub write_shared: Option<background::SharedWriteFn>,

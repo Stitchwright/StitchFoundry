@@ -6917,3 +6917,20 @@ mark-style	Japanese	Japonské
 	Turn your words, shapes and pictures into designs for your embroidery machine.	Proměňte svá slova, tvary a obrázky ve vzory pro svůj vyšívací stroj.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	Nejdřív StitchFoundry řekněte, jaký stroj máte, aby se vzor uložil v druhu souboru, který čte. Pak uložte tlačítkem Hotovo.
 	The words were made smaller ({pct}%) to fit in the hoop.	Slova byla zmenšena ({pct} %), aby se vešla do rámečku.
+# QA-02: simple mode for people new to computers
+	Closer	Blíž
+	Farther	Dál
+	Look Again	Hledat znovu
+	Look closer at the design	Prohlédnout vzor zblízka
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	Zasuňte USB flash disk, který nosíte ke stroji. Chvíli počkejte a pak stiskněte Hledat znovu.
+	Save on This Computer Instead…	Uložit místo toho do tohoto počítače…
+	Save on {name}	Uložit na {name}
+	See It All	Ukázat vše
+	See more of the design	Vidět víc ze vzoru
+	Show the whole design	Ukázat celý vzor
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	Je to velký vzor: asi {time} vyšívání. Obrázek s méně barvami se vyšije rychleji.
+	Which USB stick should the design go on?	Na který USB flash disk má vzor jít?
+	Your USB Stick	Váš USB flash disk
+	{h} h {m} min	{h} h {m} min
+	{m} min	{m} min
+	Light or dark screen	Světlá nebo tmavá obrazovka

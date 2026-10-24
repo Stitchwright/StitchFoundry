@@ -6519,3 +6519,20 @@ machine	Stop	停止
 	Turn your words, shapes and pictures into designs for your embroidery machine.	把您的文字、圖形和圖片變成繡花機可用的圖案。
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	請先告訴 StitchFoundry 您用的是哪台繡花機，這樣圖案會存成它能讀取的檔案類型。然後按「完成」儲存。
 	The words were made smaller ({pct}%) to fit in the hoop.	為了放進繡框，文字已縮小（{pct}%）。
+# QA-02: simple mode for people new to computers
+	Closer	拉近
+	Farther	拉遠
+	Look Again	再找一次
+	Look closer at the design	把圖案看得更近
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	請插上您帶到繡花機的隨身碟。稍等片刻，然後按「再找一次」。
+	Save on This Computer Instead…	改為儲存到這台電腦…
+	Save on {name}	儲存到 {name}
+	See It All	看全部
+	See more of the design	看到更多圖案
+	Show the whole design	顯示整個圖案
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	這是個大圖案：大約要繡 {time}。顏色少一些的圖片繡得更快。
+	Which USB stick should the design go on?	把圖案存到哪個隨身碟？
+	Your USB Stick	您的隨身碟
+	{h} h {m} min	{h} 小時 {m} 分鐘
+	{m} min	{m} 分鐘
+	Light or dark screen	亮色或暗色螢幕

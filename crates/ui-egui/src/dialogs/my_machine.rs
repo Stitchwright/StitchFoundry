@@ -31,6 +31,11 @@ pub struct MyMachineState {
     pub eject_status: Option<String>,
     /// Opened by Save for My Machine with no machine chosen: it says so, and Done goes on to save.
     pub then_save: bool,
+    /// Save for My Machine found no USB stick, or more than one: the save's params to go on with
+    /// once one is chosen (Your USB Stick asks).
+    pub stick_then: Option<Value>,
+    /// The USB sticks last found plugged in (name, folder).
+    pub sticks: Vec<(String, String)>,
 }
 
 /// A size typed in the units shown (`inches` or millimetres), in millimetres.
@@ -146,7 +151,18 @@ pub fn save(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     let folder = match p.get("folder").and_then(Value::as_str) {
         Some(f) => f.to_string(),
         None if ready == Some(true) => mine["folder"].as_str().unwrap_or_default().to_string(),
-        // none yet, or not there: pick one (the answer runs this again)
+        // none yet, or not there: the USB stick plugged in, else Your USB Stick asks for one
+        None if app.services.usb_sticks.is_some() => {
+            let sticks = find_sticks(app);
+            match sticks.as_slice() {
+                [(_, folder)] => folder.clone(),
+                _ => {
+                    app.ui.my_machine.stick_then = Some(p.clone());
+                    return Ok(json!({ "askStick": true, "sticks": sticks.len() }));
+                }
+            }
+        }
+        // no way to find them (the web, tests): pick a folder (the answer runs this again)
         None => match crate::picks::folder(app) {
             Some(f) => f,
             None => return Ok(Value::Null),
@@ -161,6 +177,84 @@ pub fn save(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
         app.ui.my_machine.eject_status = None;
     }
     Ok(r)
+}
+
+/// The USB sticks plugged in now, remembered for Your USB Stick.
+fn find_sticks(app: &mut VectorcraftApp) -> Vec<(String, String)> {
+    let found = app.services.usb_sticks.as_mut().map(|f| f()).unwrap_or_default();
+    app.ui.my_machine.sticks = found.clone();
+    found
+}
+
+/// Your USB Stick: Save for My Machine found none plugged in, or more than one. Big buttons, one a
+/// stick; Look Again after plugging one in; or save on this computer instead.
+fn stick_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    let Some(then) = app.ui.my_machine.stick_then.clone() else { return };
+    let mut open = true;
+    let mut chosen: Option<String> = None;
+    let mut computer = false;
+    egui::Window::new(tl!("Your USB Stick"))
+        .open(&mut open)
+        .collapsible(false)
+        .resizable(false)
+        .default_pos(ctx.content_rect().center() - egui::vec2(220.0, 140.0))
+        .show(ctx, |ui| {
+            let t = Tokens::get(ui.ctx());
+            ui.set_width(440.0);
+            ui.spacing_mut().item_spacing.y = 10.0;
+            let sticks = app.ui.my_machine.sticks.clone();
+            if sticks.is_empty() {
+                ui.label(
+                    egui::RichText::new(tl!("Plug in the USB stick you take to your machine. Wait a moment, then press Look Again."))
+                        .size(15.0)
+                        .color(t.text),
+                );
+            } else {
+                ui.label(egui::RichText::new(tl!("Which USB stick should the design go on?")).size(15.0).color(t.text));
+                for (name, folder) in &sticks {
+                    let label = egui::RichText::new(crate::i18n::fmt(tl!("Save on {name}"), &[("name", name)])).size(16.0);
+                    if ui.add(egui::Button::new(label).min_size(egui::vec2(ui.available_width(), 44.0))).clicked() {
+                        chosen = Some(folder.clone());
+                    }
+                }
+            }
+            ui.horizontal(|ui| {
+                if ui.add(egui::Button::new(egui::RichText::new(tl!("Look Again")).size(15.0)).min_size(egui::vec2(140.0, 40.0))).clicked() {
+                    let found = find_sticks(app);
+                    // just one now: straight on with the save
+                    if let [(_, folder)] = found.as_slice() {
+                        chosen = Some(folder.clone());
+                    }
+                }
+                if ui
+                    .add(egui::Button::new(egui::RichText::new(tl!("Save on This Computer Instead…")).size(14.0)).min_size(egui::vec2(0.0, 40.0)))
+                    .clicked()
+                {
+                    computer = true;
+                }
+            });
+        });
+    if let Some(folder) = chosen {
+        app.ui.my_machine.stick_then = None;
+        let mut q = then.clone();
+        q["folder"] = json!(folder);
+        if let Err(e) = app.run("ui.saveForMyMachine", q) {
+            app.status(e);
+        }
+    } else if computer {
+        app.ui.my_machine.stick_then = None;
+        crate::picks::button(app, move |app| {
+            if let Some(f) = crate::picks::folder(app) {
+                let mut q = then.clone();
+                q["folder"] = json!(f);
+                if let Err(e) = app.run("ui.saveForMyMachine", q) {
+                    app.status(e);
+                }
+            }
+        });
+    } else if !open || ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
+        app.ui.my_machine.stick_then = None;
+    }
 }
 
 /// `msg`, then what the machine may refuse or show otherwise (the file's warnings), if anything.
@@ -293,6 +387,7 @@ fn fabric_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
 pub(crate) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
     fabric_window(app, ctx);
     saved_window(app, ctx);
+    stick_window(app, ctx);
     if !app.ui.my_machine.open {
         return;
     }

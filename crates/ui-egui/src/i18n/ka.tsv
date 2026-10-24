@@ -6744,3 +6744,20 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	Turn your words, shapes and pictures into designs for your embroidery machine.	აქციეთ თქვენი სიტყვები, ფორმები და სურათები ნაქარგის დიზაინებად თქვენი მანქანისთვის.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	ჯერ უთხარით StitchFoundry-ს, რომელი მანქანა გაქვთ, რომ დიზაინი შეინახოს იმ ტიპის ფაილში, რომელსაც ის კითხულობს. შემდეგ შესანახად დააჭირეთ „მზადაა“.
 	The words were made smaller ({pct}%) to fit in the hoop.	სიტყვები შემცირდა ({pct}%), რომ ჩარჩოში მოთავსდეს.
+# QA-02: simple mode for people new to computers
+	Closer	ახლოს
+	Farther	შორს
+	Look Again	თავიდან ძებნა
+	Look closer at the design	დიზაინის ახლოდან ნახვა
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	შეაერთეთ USB ფლეშკა, რომელსაც მანქანასთან მიიტანთ. ცოტა მოიცადეთ და დააჭირეთ „თავიდან ძებნა“.
+	Save on This Computer Instead…	ამის ნაცვლად ამ კომპიუტერზე შენახვა…
+	Save on {name}	შენახვა: {name}
+	See It All	ყველაფრის ჩვენება
+	See more of the design	დიზაინის მეტი ნაწილის ნახვა
+	Show the whole design	მთელი დიზაინის ჩვენება
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	ეს დიდი დიზაინია: დაახლოებით {time} ქარგვა. ნაკლებფერიანი სურათი უფრო სწრაფად იქარგება.
+	Which USB stick should the design go on?	რომელ USB ფლეშკაზე შევინახოთ დიზაინი?
+	Your USB Stick	თქვენი USB ფლეშკა
+	{h} h {m} min	{h} სთ {m} წთ
+	{m} min	{m} წთ
+	Light or dark screen	ღია ან მუქი ეკრანი

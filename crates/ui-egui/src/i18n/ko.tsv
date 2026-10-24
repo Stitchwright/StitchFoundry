@@ -6511,3 +6511,20 @@ machine	Stop	정지
 	Turn your words, shapes and pictures into designs for your embroidery machine.	글자, 모양, 사진을 자수기용 디자인으로 바꿔 보세요.
 	First tell StitchFoundry which machine you have, so the design is saved in the kind of file it reads. Then press Done to save.	먼저 어떤 자수기를 쓰는지 StitchFoundry에 알려 주세요. 그 기계가 읽는 파일 형식으로 디자인을 저장합니다. 그런 다음 완료를 누르면 저장됩니다.
 	The words were made smaller ({pct}%) to fit in the hoop.	후프에 들어가도록 글자를 줄였습니다({pct}%).
+# QA-02: simple mode for people new to computers
+	Closer	가까이
+	Farther	멀리
+	Look Again	다시 찾기
+	Look closer at the design	디자인을 가까이서 봅니다
+	Plug in the USB stick you take to your machine. Wait a moment, then press Look Again.	재봉틀에 가져가는 USB 메모리를 꽂으세요. 잠시 기다린 다음 다시 찾기를 누르세요.
+	Save on This Computer Instead…	대신 이 컴퓨터에 저장…
+	Save on {name}	{name}에 저장
+	See It All	전체 보기
+	See more of the design	디자인을 더 넓게 봅니다
+	Show the whole design	디자인 전체를 보여 줍니다
+	This is a big design: about {time} of sewing. A picture with fewer colours sews more quickly.	큰 디자인입니다: 자수에 약 {time} 걸립니다. 색이 적은 그림은 더 빨리 수놓아집니다.
+	Which USB stick should the design go on?	어느 USB 메모리에 저장할까요?
+	Your USB Stick	내 USB 메모리
+	{h} h {m} min	{h}시간 {m}분
+	{m} min	{m}분
+	Light or dark screen	밝은 화면 또는 어두운 화면
