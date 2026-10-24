@@ -116,7 +116,7 @@ impl Mp4 {
     /// Adds a frame shown for `ms` milliseconds; every frame is the size of the first.
     pub(super) fn frame(&mut self, img: &image::RgbaImage, ms: u32) -> Result<(), String> {
         let (w, h) = (img.width(), img.height());
-        if w == 0 || h == 0 || w % 16 != 0 || h % 16 != 0 || w > 4096 || h > 4096 {
+        if w == 0 || h == 0 || !w.is_multiple_of(16) || !h.is_multiple_of(16) || w > 4096 || h > 4096 {
             return Err(format!("a video frame is {w} × {h}: it must be whole macroblocks, at most 4096 a side"));
         }
         if self.enc.is_some() && (w, h) != (self.width, self.height) {

@@ -410,7 +410,7 @@ mod tests {
         // as an MP4: H.264 frames in one video track, whole macroblocks
         let r = s.execute("embroidery.exportAnimation", &json!({"frames": 12, "ppmm": 2, "format": "mp4"})).unwrap();
         assert_eq!(r["format"], "mp4");
-        assert!(r["width"].as_u64().unwrap() % 16 == 0 && r["height"].as_u64().unwrap() % 16 == 0, "{r}");
+        assert!(r["width"].as_u64().unwrap().is_multiple_of(16) && r["height"].as_u64().unwrap().is_multiple_of(16), "{r}");
         let mp4 = vectorcraft_format::base64_decode(r["dataBase64"].as_str().unwrap()).unwrap();
         assert_eq!(&mp4[4..12], b"ftypisom");
         assert!(mp4.windows(4).any(|w| w == b"avcC"));
