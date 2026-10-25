@@ -1270,6 +1270,21 @@ Kiosk** takes the PIN. The kiosk stays on across restarts, so a counter computer
 PIN keeps the full app out of reach by mistake; it is not a security barrier, since the
 preferences file can be edited.
 
+## Online orders
+
+**Embroidery › Online Orders…** reads the orders from an online shop and makes each personalized
+item into a design: the name or text the customer typed, in the font and thread colour the rules
+give, fitted to the rule's template. Each item also gets a job order (the shop's order number,
+customer and quantity), its machine files and a worksheet with a barcode, all in the orders folder
+(My Designs/Orders unless another is chosen). Shopify and WooCommerce are read directly (the keys
+are kept in the system's password store); Etsy and other shops through their CSV order export.
+Each order line is made once; **Check every 15 minutes while open** keeps checking. **Find a job**
+takes a worksheet's barcode, a job number or the shop's order number. Rules: the first whose
+product text is in the item's name or SKU makes it; an order field named font or colour overrides
+the rule's. Setting up each shop: [`online-orders.md`](online-orders.md). Commands:
+`embroidery.orders.setup`, `embroidery.orders.import {source, data, dryRun?}`,
+`embroidery.job.find {code}`.
+
 ## Sequins, beads, rhinestones, cord and boring
 
 Seven stitch types decorate instead of stitching a fill (Embroidery panel › Stitch type, or

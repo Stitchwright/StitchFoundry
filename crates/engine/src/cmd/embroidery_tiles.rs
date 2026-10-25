@@ -841,7 +841,8 @@ fn quilt_set(s: &mut Session, p: &Value) -> Result<Value> {
                     zipped.push((name, bytes));
                 }
                 // the block's document is done with
-                s.execute("file.close", &json!({ "save": false })).ok();
+                // (closing can only fail without a document, and then there is none to close)
+                s.execute("file.close", &json!({})).ok();
             }
             Err(e) => skipped.push(json!({ "width": w, "height": h, "reason": e.to_string() })),
         }

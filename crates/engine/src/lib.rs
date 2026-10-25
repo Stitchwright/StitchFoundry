@@ -1078,6 +1078,10 @@ pub struct Prefs {
     /// The lettering kiosk (`embroidery.kiosk`): on or off, its PIN, and what it offers.
     #[serde(default, skip_serializing_if = "crate::cmd::embroidery_kiosk::KioskSetup::is_empty")]
     pub embroidery_kiosk: cmd::embroidery_kiosk::KioskSetup,
+    /// Online orders (`embroidery.orders.setup`): the shop, the rules making its orders into
+    /// designs, and the order lines made. The shop's keys are kept by the app's secret store.
+    #[serde(default, skip_serializing_if = "crate::cmd::embroidery_orders::OrderSetup::is_empty")]
+    pub embroidery_orders: cmd::embroidery_orders::OrderSetup,
     /// What every worksheet carries (`embroidery.worksheet.setup`): the shop's name, details and
     /// logo, and the sections left out.
     #[serde(default, skip_serializing_if = "crate::cmd::embroidery_sheet_setup::SheetSetup::is_empty")]
@@ -1298,6 +1302,7 @@ impl Default for Prefs {
             embroidery_queue: vec![],
             embroidery_sheet_setup: Default::default(),
             embroidery_kiosk: Default::default(),
+            embroidery_orders: Default::default(),
             embroidery_ai_effort: String::new(),
             embroidery_send_dirs: vec![],
             my_machine: String::new(),

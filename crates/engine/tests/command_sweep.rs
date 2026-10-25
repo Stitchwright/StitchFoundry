@@ -696,6 +696,17 @@ fn structured_junk() {
         ("embroidery.photoStitch", json!({"mode": "coral", "density": f64::NAN, "contrast": f64::INFINITY, "spacing": -1})),
         ("embroidery.kiosk", json!({"on": "x", "pin": 3, "templates": [1], "colors": ["red"], "format": "zzz"})),
         ("embroidery.kiosk.order", json!({"text": "\u{0}", "template": 3, "font": [], "size": f64::NAN})),
+        (
+            "embroidery.orders.setup",
+            json!({"shop": 3, "store": "\u{0}", "formats": ["zzz"], "rules": [{"size": f64::NAN, "color": []}], "forget": "x"}),
+        ),
+        ("embroidery.orders.import", json!({"source": "csv", "data": "order,product,name\n\"1,\"\"x\n,,\u{0}", "dryRun": "x"})),
+        ("embroidery.orders.import", json!({"source": "shopify", "data": {"data": {"orders": {"edges": [{"node": {"lineItems": 3}}]}}}})),
+        (
+            "embroidery.orders.import",
+            json!({"source": "woocommerce", "data": [{"line_items": [{"meta_data": [{"key": [], "value": {}}]}]}], "dryRun": true}),
+        ),
+        ("embroidery.job.find", json!({"code": "\u{0}"})),
         ("embroidery.colors.merge", json!({"tolerance": f64::NAN, "sequence": "x", "paint": []})),
         ("embroidery.worksheet.setup", json!({"company": 3, "logo": "\u{0}", "hide": [1, null]})),
         ("embroidery.visualize", json!({"image": "\u{0}", "imageWidth": f64::NAN, "at": [f64::INFINITY, 1]})),

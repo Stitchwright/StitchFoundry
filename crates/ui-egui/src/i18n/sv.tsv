@@ -6897,3 +6897,45 @@ machine	Stop	Stopp
 	Kern All	Kerna alla
 	Every glyph on the left against every one on the right: letters, or a class as @name	Varje glyf till vänster mot varje till höger: bokstäver, eller en klass som @namn
 	Kerning Class	Kerningklass
+# ORD-01: online orders
+	Find Job	Hitta jobb
+	Make Designs from Orders	Gör mönster av beställningar
+	Online Orders Setup	Ställ in onlinebeställningar
+	Online Orders…	Onlinebeställningar…
+	Add a Rule	Lägg till en regel
+	Another shop (CSV file)	Annan butik (CSV-fil)
+	Check every 15 minutes while open	Kolla var 15:e minut medan den är öppen
+	Check for New Orders	Hämta nya beställningar
+	Client ID	Klient-ID
+	Client secret	Klienthemlighet
+	Consumer key	Consumer key
+	Consumer secret	Consumer secret
+	Find a job	Hitta ett jobb
+	How to Connect	Så ansluter du
+	Machine files	Maskinfiler
+	Make Designs from a CSV File…	Gör mönster av en CSV-fil…
+	My Designs/Orders	Mina mönster/Beställningar
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Nya beställningar från din webbutik blir mönster: namnet eller texten kunden skrev, i typsnittet och trådfärgen reglerna anger, med ett jobb, maskinfiler och ett arbetsblad för var och en.
+	Online Orders	Onlinebeställningar
+	Online orders: {n} designs made	Onlinebeställningar: {n} mönster gjorda
+	Open the Design	Öppna mönstret
+	Remove this rule	Ta bort den här regeln
+	Rules	Regler
+	Save designs in	Spara mönster i
+	Scan a worksheet's barcode, or type J-0001 or #1001	Skanna ett arbetsblads streckkod, eller skriv J-0001 eller #1001
+	Size (mm)	Storlek (mm)
+	Store address	Butikens adress
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Den första regeln vars produkt stämmer gör artikeln. Lämna Produkt tom för att ta alla.
+	Your shop	Din butik
+	any	alla
+	first	första
+	fit	anpassa
+	{n} designs made, {m} to look at	{n} mönster gjorda, {m} att titta på
+@msg	Shopify gave no access token: check the client ID and secret	Shopify gav ingen åtkomsttoken: kontrollera klient-ID och hemlighet
+@msg	can't read {path}: {e}	kan inte läsa {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	skriv först butikens nycklar (Så ansluter du visar var du får dem)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	onlinebeställningar behöver skrivbordsappen (en webbläsare når inte en butiks admin-API)
+@msg	the shop didn't answer	butiken svarade inte
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	butikens adress börjar med https:// (nycklarna skickas bara över HTTPS)
+@msg	the store's address is name.myshopify.com	butikens adress är namn.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	den här butikens beställningar kommer från en CSV-fil: Gör mönster av en CSV-fil…

@@ -6893,3 +6893,45 @@ machine	Stop	Στάση
 	Kern All	Διάστημα για όλα
 	Every glyph on the left against every one on the right: letters, or a class as @name	Κάθε χαρακτήρας αριστερά με κάθε δεξιά: γράμματα ή κλάση ως @όνομα
 	Kerning Class	Κλάση διαστήματος
+# ORD-01: online orders
+	Find Job	Εύρεση εργασίας
+	Make Designs from Orders	Σχέδια από τις παραγγελίες
+	Online Orders Setup	Ρύθμιση διαδικτυακών παραγγελιών
+	Online Orders…	Διαδικτυακές παραγγελίες…
+	Add a Rule	Προσθήκη κανόνα
+	Another shop (CSV file)	Άλλο κατάστημα (αρχείο CSV)
+	Check every 15 minutes while open	Έλεγχος κάθε 15 λεπτά όσο είναι ανοιχτό
+	Check for New Orders	Λήψη νέων παραγγελιών
+	Client ID	Αναγνωριστικό πελάτη
+	Client secret	Μυστικό πελάτη
+	Consumer key	Κλειδί καταναλωτή
+	Consumer secret	Μυστικό καταναλωτή
+	Find a job	Εύρεση εργασίας
+	How to Connect	Πώς να συνδεθείτε
+	Machine files	Αρχεία μηχανής
+	Make Designs from a CSV File…	Σχέδια από αρχείο CSV…
+	My Designs/Orders	Τα σχέδιά μου/Παραγγελίες
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Οι νέες παραγγελίες του ηλεκτρονικού σας καταστήματος γίνονται σχέδια: το όνομα ή το κείμενο που έγραψε ο πελάτης, με τη γραμματοσειρά και το χρώμα κλωστής των κανόνων, με εργασία, αρχεία μηχανής και φύλλο εργασίας για την καθεμία.
+	Online Orders	Διαδικτυακές παραγγελίες
+	Online orders: {n} designs made	Διαδικτυακές παραγγελίες: έγιναν {n} σχέδια
+	Open the Design	Άνοιγμα του σχεδίου
+	Remove this rule	Αφαίρεση κανόνα
+	Rules	Κανόνες
+	Save designs in	Αποθήκευση σχεδίων σε
+	Scan a worksheet's barcode, or type J-0001 or #1001	Σαρώστε τον γραμμωτό κώδικα ενός φύλλου ή γράψτε J-0001 ή #1001
+	Size (mm)	Μέγεθος (mm)
+	Store address	Διεύθυνση καταστήματος
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Ο πρώτος κανόνας του οποίου το προϊόν ταιριάζει φτιάχνει το είδος. Αφήστε το Προϊόν κενό για όλα.
+	Your shop	Το κατάστημά σας
+	any	οποιοδήποτε
+	first	πρώτο
+	fit	προσαρμογή
+	{n} designs made, {m} to look at	έγιναν {n} σχέδια, {m} για έλεγχο
+@msg	Shopify gave no access token: check the client ID and secret	Το Shopify δεν έδωσε διακριτικό πρόσβασης: ελέγξτε το αναγνωριστικό πελάτη και το μυστικό
+@msg	can't read {path}: {e}	δεν διαβάζεται το {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	γράψτε πρώτα τα κλειδιά του καταστήματος (το Πώς να συνδεθείτε δείχνει πού θα τα βρείτε)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	οι διαδικτυακές παραγγελίες χρειάζονται την εφαρμογή υπολογιστή (ένα πρόγραμμα περιήγησης δεν φτάνει το API διαχείρισης)
+@msg	the shop didn't answer	το κατάστημα δεν απάντησε
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	η διεύθυνση του καταστήματος αρχίζει με https:// (τα κλειδιά του πάνε μόνο μέσω HTTPS)
+@msg	the store's address is name.myshopify.com	η διεύθυνση του καταστήματος είναι onoma.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	οι παραγγελίες αυτού του καταστήματος έρχονται από αρχείο CSV: Σχέδια από αρχείο CSV…

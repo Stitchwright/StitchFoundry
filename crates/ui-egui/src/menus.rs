@@ -118,6 +118,7 @@ fn embroidery_menu() -> Vec<Item> {
         c("Add Words…", "ui.addWords"),
         c("Save for My Machine", "ui.saveForMyMachine"),
         c("Save for a Memory Card…", "ui.saveForMemoryCard"),
+        c("Online Orders…", "ui.onlineOrders"),
         c("My Machine…", "ui.myMachine"),
         c("Ask About Embroidery…", "ui.askAboutEmbroidery"),
         c("Check My Sew-out…", "ui.checkSewout"),
@@ -870,6 +871,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "Save for My Machine",
         "",
         "{folder?} write the design in My Machine's format to its folder or USB stick (embroidery.send); with no machine chosen the My Machine window opens, with no folder (or the USB stick out) one is picked first → {path, format, bytes, stitches}",
+    ),
+    (
+        "ui.onlineOrders",
+        "Online Orders…",
+        "",
+        "{check?: bool (check the shop for new orders at once)} open Online Orders: the online shop's new orders (Shopify, WooCommerce, or a CSV export from any shop) made into designs, job orders, machine files and worksheets by the rules (embroidery.orders.setup, embroidery.orders.import); the shop's keys kept by the app's secret store (desktop) → {open, checking}",
     ),
     (
         "ui.saveForMemoryCard",
@@ -2077,6 +2084,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.calibrateLifeSize" => crate::dialogs::life_size::run(app, p),
         "ui.myMachine" => crate::dialogs::my_machine::open(app),
         "ui.saveForMemoryCard" => crate::dialogs::memory_card::run(app, p),
+        "ui.onlineOrders" => crate::dialogs::orders::run(app, p),
         "ui.fontLibrary" => crate::dialogs::font_library::open(app),
         "ui.compareDesigns" => crate::dialogs::compare::open(app, p),
         "ui.addWords" => Ok(crate::simple::open_words(app)),

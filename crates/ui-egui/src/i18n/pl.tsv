@@ -6787,3 +6787,45 @@ machine	Stop	Zatrzymanie
 	Kern All	Kerning wszystkich
 	Every glyph on the left against every one on the right: letters, or a class as @name	Każdy glif po lewej z każdym po prawej: litery albo klasa jako @nazwa
 	Kerning Class	Klasa kerningu
+# ORD-01: online orders
+	Find Job	Znajdź zlecenie
+	Make Designs from Orders	Utwórz wzory z zamówień
+	Online Orders Setup	Ustawienia zamówień online
+	Online Orders…	Zamówienia online…
+	Add a Rule	Dodaj regułę
+	Another shop (CSV file)	Inny sklep (plik CSV)
+	Check every 15 minutes while open	Sprawdzaj co 15 minut, gdy otwarte
+	Check for New Orders	Pobierz nowe zamówienia
+	Client ID	ID klienta
+	Client secret	Sekret klienta
+	Consumer key	Klucz konsumenta
+	Consumer secret	Sekret konsumenta
+	Find a job	Znajdź zlecenie
+	How to Connect	Jak połączyć
+	Machine files	Pliki maszyny
+	Make Designs from a CSV File…	Utwórz wzory z pliku CSV…
+	My Designs/Orders	Moje wzory/Zamówienia
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Nowe zamówienia z twojego sklepu internetowego stają się wzorami: imię lub tekst wpisany przez klienta, czcionką i kolorem nici z reguł, z zleceniem, plikami maszyny i kartą pracy dla każdego.
+	Online Orders	Zamówienia online
+	Online orders: {n} designs made	Zamówienia online: utworzono {n} wzorów
+	Open the Design	Otwórz wzór
+	Remove this rule	Usuń tę regułę
+	Rules	Reguły
+	Save designs in	Zapisuj wzory w
+	Scan a worksheet's barcode, or type J-0001 or #1001	Zeskanuj kod kreskowy karty albo wpisz J-0001 lub #1001
+	Size (mm)	Rozmiar (mm)
+	Store address	Adres sklepu
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Pierwsza reguła, której produkt pasuje, tworzy pozycję. Zostaw Produkt pusty, by brać każdy.
+	Your shop	Twój sklep
+	any	każdy
+	first	pierwsza
+	fit	dopasuj
+	{n} designs made, {m} to look at	utworzono {n} wzorów, {m} do sprawdzenia
+@msg	Shopify gave no access token: check the client ID and secret	Shopify nie dał tokenu dostępu: sprawdź ID klienta i sekret
+@msg	can't read {path}: {e}	nie można odczytać {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	najpierw wpisz klucze sklepu (Jak połączyć pokazuje, skąd je wziąć)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	zamówienia online wymagają aplikacji na komputer (przeglądarka nie dociera do API administracyjnego sklepu)
+@msg	the shop didn't answer	sklep nie odpowiedział
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	adres sklepu zaczyna się od https:// (klucze idą tylko przez HTTPS)
+@msg	the store's address is name.myshopify.com	adres sklepu to nazwa.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	zamówienia tego sklepu pochodzą z pliku CSV: Utwórz wzory z pliku CSV…

@@ -168,7 +168,6 @@ fn order(s: &mut Session, p: &Value) -> Result<Value> {
     let text = str_param(p, "text").map(str::trim).filter(|t| !t.is_empty()).ok_or_else(|| bad(CMD, "missing `text`: the name to sew"))?;
     let text: String = text.lines().map(str::trim).filter(|l| !l.is_empty()).take(MAX_LINES).collect::<Vec<_>>().join("\n");
     let text: String = text.chars().take(MAX_TEXT).collect();
-    let lines = text.lines().count().max(1);
     let template = match str_param(p, "template") {
         Some(t) => offered(&k.templates, t.trim()).ok_or_else(|| bad(CMD, format!("`{t}` isn't offered at this counter")))?,
         None => k.templates.first().cloned().unwrap_or_else(|| "Name tape 100 × 30".to_string()),
@@ -200,6 +199,15 @@ fn order(s: &mut Session, p: &Value) -> Result<Value> {
         None | Some(Value::Null) => None,
         Some(v) => Some(v.as_f64().filter(|v| (3.0..=200.0).contains(v)).ok_or_else(|| bad(CMD, "`size` is 3 to 200 mm"))?),
     };
+    lettered(s, &text, template, font, color, asked)
+}
+
+/// A new design from `template` with `text` (up to four lines) in `font` and thread `color`,
+/// centred in the template's area and made to fit it unless `asked` gives the size (mm): Kiosk
+/// Lettering's design, and an online order's ([`super::embroidery_orders`]).
+pub(crate) fn lettered(s: &mut Session, text: &str, template: String, font: String, color: String, asked: Option<f64>) -> Result<Value> {
+    const CMD: &str = "embroidery.kiosk.order";
+    let lines = text.lines().count().max(1);
     // as the template spells its name
     let made = s.execute("embroidery.template.new", &json!({ "name": template }))?;
     let template = made["template"].as_str().map_or(template, str::to_string);

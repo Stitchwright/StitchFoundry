@@ -6584,3 +6584,45 @@ machine	Stop	Остановка
 	Kern All	Кернинг для всех
 	Every glyph on the left against every one on the right: letters, or a class as @name	Каждый глиф слева с каждым справа: буквы или класс как @имя
 	Kerning Class	Класс кернинга
+# ORD-01: online orders
+	Find Job	Найти заказ
+	Make Designs from Orders	Сделать дизайны из заказов
+	Online Orders Setup	Настройка онлайн-заказов
+	Online Orders…	Онлайн-заказы…
+	Add a Rule	Добавить правило
+	Another shop (CSV file)	Другой магазин (файл CSV)
+	Check every 15 minutes while open	Проверять каждые 15 минут, пока открыто
+	Check for New Orders	Загрузить новые заказы
+	Client ID	ID клиента
+	Client secret	Секрет клиента
+	Consumer key	Ключ потребителя
+	Consumer secret	Секрет потребителя
+	Find a job	Найти заказ
+	How to Connect	Как подключить
+	Machine files	Файлы для машины
+	Make Designs from a CSV File…	Сделать дизайны из файла CSV…
+	My Designs/Orders	Мои дизайны/Заказы
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Новые заказы из вашего интернет-магазина становятся дизайнами: имя или текст, который ввёл покупатель, шрифтом и цветом нити по правилам, с заказом, файлами для машины и рабочим листом для каждого.
+	Online Orders	Онлайн-заказы
+	Online orders: {n} designs made	Онлайн-заказы: сделано дизайнов — {n}
+	Open the Design	Открыть дизайн
+	Remove this rule	Удалить это правило
+	Rules	Правила
+	Save designs in	Сохранять дизайны в
+	Scan a worksheet's barcode, or type J-0001 or #1001	Отсканируйте штрихкод рабочего листа или введите J-0001 или #1001
+	Size (mm)	Размер (мм)
+	Store address	Адрес магазина
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Первое правило, чьё изделие подходит, делает позицию. Оставьте Изделие пустым, чтобы брать любое.
+	Your shop	Ваш магазин
+	any	любое
+	first	первый
+	fit	по размеру
+	{n} designs made, {m} to look at	сделано дизайнов — {n}, проверить — {m}
+@msg	Shopify gave no access token: check the client ID and secret	Shopify не выдал токен доступа: проверьте ID клиента и секрет
+@msg	can't read {path}: {e}	не удаётся прочитать {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	сначала введите ключи магазина (Как подключить показывает, где их взять)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	онлайн-заказам нужно настольное приложение (браузер не достаёт до API администрирования магазина)
+@msg	the shop didn't answer	магазин не ответил
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	адрес магазина начинается с https:// (ключи передаются только по HTTPS)
+@msg	the store's address is name.myshopify.com	адрес магазина — имя.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	заказы этого магазина берутся из файла CSV: Сделать дизайны из файла CSV…

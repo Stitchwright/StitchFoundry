@@ -6918,3 +6918,45 @@ machine	Stop	Megállás
 	Kern All	Mind alávágása
 	Every glyph on the left against every one on the right: letters, or a class as @name	Minden bal oldali karakter minden jobb oldalival: betűk, vagy osztály @névként
 	Kerning Class	Alávágási osztály
+# ORD-01: online orders
+	Find Job	Munka keresése
+	Make Designs from Orders	Minták készítése rendelésekből
+	Online Orders Setup	Online rendelések beállítása
+	Online Orders…	Online rendelések…
+	Add a Rule	Szabály hozzáadása
+	Another shop (CSV file)	Más bolt (CSV-fájl)
+	Check every 15 minutes while open	Ellenőrzés 15 percenként, amíg nyitva van
+	Check for New Orders	Új rendelések lekérése
+	Client ID	Kliensazonosító
+	Client secret	Klienstitok
+	Consumer key	Fogyasztói kulcs
+	Consumer secret	Fogyasztói titok
+	Find a job	Munka keresése
+	How to Connect	Csatlakozás módja
+	Machine files	Gépfájlok
+	Make Designs from a CSV File…	Minták készítése CSV-fájlból…
+	My Designs/Orders	Mintáim/Rendelések
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Az online bolt új rendeléseiből minták lesznek: a vevő által beírt név vagy szöveg a szabályok szerinti betűtípussal és cérnaszínnel, mindegyikhez munkával, gépfájlokkal és munkalappal.
+	Online Orders	Online rendelések
+	Online orders: {n} designs made	Online rendelések: {n} minta elkészült
+	Open the Design	A minta megnyitása
+	Remove this rule	A szabály törlése
+	Rules	Szabályok
+	Save designs in	Minták mentése ide
+	Scan a worksheet's barcode, or type J-0001 or #1001	Olvassa be egy munkalap vonalkódját, vagy írja be: J-0001 vagy #1001
+	Size (mm)	Méret (mm)
+	Store address	A bolt címe
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Az első szabály, amelynek terméke illik, elkészíti a tételt. Hagyja üresen a Terméket, hogy mindenre vonatkozzon.
+	Your shop	Az Ön boltja
+	any	bármely
+	first	első
+	fit	illesztés
+	{n} designs made, {m} to look at	{n} minta elkészült, {m} átnézendő
+@msg	Shopify gave no access token: check the client ID and secret	A Shopify nem adott hozzáférési tokent: ellenőrizze a kliensazonosítót és a titkot
+@msg	can't read {path}: {e}	{path} nem olvasható: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	előbb adja meg a bolt kulcsait (a Csatlakozás módja mutatja, honnan szerezhetők)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	az online rendelésekhez az asztali alkalmazás kell (böngésző nem éri el a bolt admin API-ját)
+@msg	the shop didn't answer	a bolt nem válaszolt
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	a bolt címe https://-sel kezdődik (a kulcsai csak HTTPS-en mennek)
+@msg	the store's address is name.myshopify.com	a bolt címe nev.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	ennek a boltnak a rendelései CSV-fájlból jönnek: Minták készítése CSV-fájlból…

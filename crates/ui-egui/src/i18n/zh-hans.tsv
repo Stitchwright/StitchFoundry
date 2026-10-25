@@ -6765,3 +6765,45 @@ machine	Stop	停止
 	Kern All	全部调整字距
 	Every glyph on the left against every one on the right: letters, or a class as @name	左边每个字形对右边每个字形：字母，或用 @名称 表示类
 	Kerning Class	字距类
+# ORD-01: online orders
+	Find Job	查找工单
+	Make Designs from Orders	根据订单制作图案
+	Online Orders Setup	网店订单设置
+	Online Orders…	网店订单…
+	Add a Rule	添加规则
+	Another shop (CSV file)	其他网店（CSV 文件）
+	Check every 15 minutes while open	打开时每 15 分钟检查一次
+	Check for New Orders	获取新订单
+	Client ID	客户端 ID
+	Client secret	客户端密钥
+	Consumer key	消费者密钥
+	Consumer secret	消费者私钥
+	Find a job	查找工单
+	How to Connect	如何连接
+	Machine files	绣花机文件
+	Make Designs from a CSV File…	从 CSV 文件制作图案…
+	My Designs/Orders	我的图案/订单
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	把网店的新订单做成图案：顾客输入的名字或文字，按规则的字体和线色绣制，每单都附带工单、绣花机文件和工作单。
+	Online Orders	网店订单
+	Online orders: {n} designs made	网店订单：已制作 {n} 个图案
+	Open the Design	打开图案
+	Remove this rule	删除此规则
+	Rules	规则
+	Save designs in	图案保存到
+	Scan a worksheet's barcode, or type J-0001 or #1001	扫描工作单的条形码，或输入 J-0001 或 #1001
+	Size (mm)	尺寸（毫米）
+	Store address	网店地址
+	The first rule whose product matches makes the item. Leave Product empty to take any.	产品相符的第一条规则来制作该商品。产品留空则适用于所有商品。
+	Your shop	你的网店
+	any	任意
+	first	第一个
+	fit	适应
+	{n} designs made, {m} to look at	已制作 {n} 个图案，{m} 个需查看
+@msg	Shopify gave no access token: check the client ID and secret	Shopify 没有给出访问令牌：请检查客户端 ID 和密钥
+@msg	can't read {path}: {e}	无法读取 {path}：{e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	请先填写网店的密钥（如何连接里写了获取方法）
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	网店订单需要桌面版应用（浏览器无法访问网店的管理 API）
+@msg	the shop didn't answer	网店没有回应
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	网店地址以 https:// 开头（密钥只通过 HTTPS 发送）
+@msg	the store's address is name.myshopify.com	网店地址是 name.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	这家网店的订单来自 CSV 文件：从 CSV 文件制作图案…

@@ -6627,3 +6627,45 @@ machine	Stop	停止
 	Kern All	まとめてカーニング
 	Every glyph on the left against every one on the right: letters, or a class as @name	左の各文字と右の各文字の組み合わせすべて：文字、または @名前 でクラス
 	Kerning Class	カーニングクラス
+# ORD-01: online orders
+	Find Job	ジョブを探す
+	Make Designs from Orders	注文からデザインを作成
+	Online Orders Setup	オンライン注文の設定
+	Online Orders…	オンライン注文…
+	Add a Rule	ルールを追加
+	Another shop (CSV file)	ほかのショップ（CSV ファイル）
+	Check every 15 minutes while open	開いている間は15分ごとに確認
+	Check for New Orders	新しい注文を取得
+	Client ID	クライアント ID
+	Client secret	クライアントシークレット
+	Consumer key	コンシューマーキー
+	Consumer secret	コンシューマーシークレット
+	Find a job	ジョブを探す
+	How to Connect	接続のしかた
+	Machine files	ミシン用ファイル
+	Make Designs from a CSV File…	CSV ファイルからデザインを作成…
+	My Designs/Orders	マイデザイン/注文
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	オンラインショップの新しい注文をデザインにします。お客様が入力した名前や文字を、ルールのフォントと糸の色で。注文ごとにジョブ、ミシン用ファイル、作業シートも作ります。
+	Online Orders	オンライン注文
+	Online orders: {n} designs made	オンライン注文：{n} 件のデザインを作成
+	Open the Design	デザインを開く
+	Remove this rule	このルールを削除
+	Rules	ルール
+	Save designs in	デザインの保存先
+	Scan a worksheet's barcode, or type J-0001 or #1001	作業シートのバーコードを読み取るか、J-0001 や #1001 を入力
+	Size (mm)	サイズ（mm）
+	Store address	ショップのアドレス
+	The first rule whose product matches makes the item. Leave Product empty to take any.	製品が一致する最初のルールで作ります。製品を空欄にするとすべてに当てはまります。
+	Your shop	あなたのショップ
+	any	すべて
+	first	最初
+	fit	合わせる
+	{n} designs made, {m} to look at	{n} 件作成、{m} 件は要確認
+@msg	Shopify gave no access token: check the client ID and secret	Shopify からアクセストークンが届きません：クライアント ID とシークレットを確認してください
+@msg	can't read {path}: {e}	{path} を読めません：{e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	先にショップのキーを入力してください（接続のしかたに入手方法があります）
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	オンライン注文にはデスクトップアプリが必要です（ブラウザからはショップの管理 API に届きません）
+@msg	the shop didn't answer	ショップから応答がありません
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	ショップのアドレスは https:// で始まります（キーは HTTPS でのみ送ります）
+@msg	the store's address is name.myshopify.com	ショップのアドレスは name.myshopify.com です
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	このショップの注文は CSV ファイルから読み込みます：CSV ファイルからデザインを作成…

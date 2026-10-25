@@ -6901,3 +6901,45 @@ machine	Stop	Спиране
 	Kern All	Кернинг за всички
 	Every glyph on the left against every one on the right: letters, or a class as @name	Всеки знак отляво спрямо всеки отдясно: букви или клас като @име
 	Kerning Class	Клас за кернинг
+# ORD-01: online orders
+	Find Job	Намери поръчка
+	Make Designs from Orders	Направи дизайни от поръчките
+	Online Orders Setup	Настройки на онлайн поръчките
+	Online Orders…	Онлайн поръчки…
+	Add a Rule	Добави правило
+	Another shop (CSV file)	Друг магазин (CSV файл)
+	Check every 15 minutes while open	Проверявай на всеки 15 минути, докато е отворено
+	Check for New Orders	Изтегли новите поръчки
+	Client ID	ID на клиента
+	Client secret	Тайна на клиента
+	Consumer key	Ключ на потребителя
+	Consumer secret	Тайна на потребителя
+	Find a job	Намери поръчка
+	How to Connect	Как да свържете
+	Machine files	Файлове за машината
+	Make Designs from a CSV File…	Направи дизайни от CSV файл…
+	My Designs/Orders	Моите дизайни/Поръчки
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Новите поръчки от онлайн магазина ви стават дизайни: името или текстът, който клиентът е написал, с шрифта и цвета на конеца по правилата, с поръчка, файлове за машината и работен лист за всяка.
+	Online Orders	Онлайн поръчки
+	Online orders: {n} designs made	Онлайн поръчки: направени {n} дизайна
+	Open the Design	Отвори дизайна
+	Remove this rule	Премахни това правило
+	Rules	Правила
+	Save designs in	Записвай дизайните в
+	Scan a worksheet's barcode, or type J-0001 or #1001	Сканирайте баркода на работен лист или въведете J-0001 или #1001
+	Size (mm)	Размер (mm)
+	Store address	Адрес на магазина
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Първото правило, чийто продукт съвпада, прави артикула. Оставете Продукт празно, за да важи за всички.
+	Your shop	Вашият магазин
+	any	всеки
+	first	първо
+	fit	побиране
+	{n} designs made, {m} to look at	направени {n} дизайна, {m} за преглед
+@msg	Shopify gave no access token: check the client ID and secret	Shopify не даде токен за достъп: проверете ID на клиента и тайната
+@msg	can't read {path}: {e}	{path} не може да се прочете: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	първо въведете ключовете на магазина (Как да свържете показва откъде да ги вземете)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	онлайн поръчките изискват настолното приложение (браузър не стига до администраторския API на магазин)
+@msg	the shop didn't answer	магазинът не отговори
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	адресът на магазина започва с https:// (ключовете му минават само през HTTPS)
+@msg	the store's address is name.myshopify.com	адресът на магазина е ime.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	поръчките на този магазин идват от CSV файл: Направи дизайни от CSV файл…

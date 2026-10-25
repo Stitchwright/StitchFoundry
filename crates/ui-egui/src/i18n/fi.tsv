@@ -6958,3 +6958,45 @@ swatch	Bright Violet	Kirkas violetti
 	Kern All	Välistä kaikki
 	Every glyph on the left against every one on the right: letters, or a class as @name	Jokainen vasen merkki jokaista oikeaa vastaan: kirjaimia tai luokka muodossa @nimi
 	Kerning Class	Välistysluokka
+# ORD-01: online orders
+	Find Job	Etsi työ
+	Make Designs from Orders	Tee mallit tilauksista
+	Online Orders Setup	Verkkotilausten asetukset
+	Online Orders…	Verkkotilaukset…
+	Add a Rule	Lisää sääntö
+	Another shop (CSV file)	Muu kauppa (CSV-tiedosto)
+	Check every 15 minutes while open	Tarkista 15 minuutin välein, kun auki
+	Check for New Orders	Hae uudet tilaukset
+	Client ID	Asiakastunnus
+	Client secret	Asiakassalaisuus
+	Consumer key	Consumer key
+	Consumer secret	Consumer secret
+	Find a job	Etsi työ
+	How to Connect	Näin yhdistät
+	Machine files	Konetiedostot
+	Make Designs from a CSV File…	Tee mallit CSV-tiedostosta…
+	My Designs/Orders	Omat mallit/Tilaukset
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Verkkokauppasi uusista tilauksista tehdään malleja: asiakkaan kirjoittama nimi tai teksti sääntöjen fontilla ja langan värillä, jokaiselle työ, konetiedostot ja työlehti.
+	Online Orders	Verkkotilaukset
+	Online orders: {n} designs made	Verkkotilaukset: {n} mallia tehty
+	Open the Design	Avaa malli
+	Remove this rule	Poista tämä sääntö
+	Rules	Säännöt
+	Save designs in	Tallenna mallit kansioon
+	Scan a worksheet's barcode, or type J-0001 or #1001	Lue työlehden viivakoodi tai kirjoita J-0001 tai #1001
+	Size (mm)	Koko (mm)
+	Store address	Kaupan osoite
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Ensimmäinen sääntö, jonka tuote täsmää, tekee tuotteen. Jätä Tuote tyhjäksi, niin kaikki käyvät.
+	Your shop	Kauppasi
+	any	mikä tahansa
+	first	ensimmäinen
+	fit	sovita
+	{n} designs made, {m} to look at	{n} mallia tehty, {m} katsottavaa
+@msg	Shopify gave no access token: check the client ID and secret	Shopify ei antanut käyttötunnusta: tarkista asiakastunnus ja salaisuus
+@msg	can't read {path}: {e}	tiedostoa {path} ei voi lukea: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	kirjoita ensin kaupan avaimet (Näin yhdistät näyttää, mistä ne saa)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	verkkotilaukset tarvitsevat työpöytäsovelluksen (selain ei tavoita kaupan hallinta-APIa)
+@msg	the shop didn't answer	kauppa ei vastannut
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	kaupan osoite alkaa https:// (avaimet kulkevat vain HTTPS:llä)
+@msg	the store's address is name.myshopify.com	kaupan osoite on nimi.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	tämän kaupan tilaukset tulevat CSV-tiedostosta: Tee mallit CSV-tiedostosta…

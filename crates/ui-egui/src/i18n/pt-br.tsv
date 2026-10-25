@@ -6799,3 +6799,45 @@ mark-style	Japanese	Japonesas
 	Kern All	Ajustar todos
 	Every glyph on the left against every one on the right: letters, or a class as @name	Cada glifo da esquerda com cada um da direita: letras, ou uma classe como @nome
 	Kerning Class	Classe de kerning
+# ORD-01: online orders
+	Find Job	Encontrar pedido
+	Make Designs from Orders	Criar desenhos dos pedidos
+	Online Orders Setup	Configurar pedidos on-line
+	Online Orders…	Pedidos on-line…
+	Add a Rule	Adicionar regra
+	Another shop (CSV file)	Outra loja (arquivo CSV)
+	Check every 15 minutes while open	Verificar a cada 15 minutos enquanto aberto
+	Check for New Orders	Buscar pedidos novos
+	Client ID	ID do cliente
+	Client secret	Segredo do cliente
+	Consumer key	Chave do consumidor
+	Consumer secret	Segredo do consumidor
+	Find a job	Encontrar um pedido
+	How to Connect	Como conectar
+	Machine files	Arquivos de máquina
+	Make Designs from a CSV File…	Criar desenhos de um arquivo CSV…
+	My Designs/Orders	Meus desenhos/Pedidos
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Os pedidos novos da sua loja on-line viram desenhos: o nome ou texto que o cliente digitou, na fonte e na cor de linha das regras, com um pedido, os arquivos de máquina e uma ficha para cada um.
+	Online Orders	Pedidos on-line
+	Online orders: {n} designs made	Pedidos on-line: {n} desenhos criados
+	Open the Design	Abrir o desenho
+	Remove this rule	Remover esta regra
+	Rules	Regras
+	Save designs in	Salvar desenhos em
+	Scan a worksheet's barcode, or type J-0001 or #1001	Leia o código de barras de uma ficha ou digite J-0001 ou #1001
+	Size (mm)	Tamanho (mm)
+	Store address	Endereço da loja
+	The first rule whose product matches makes the item. Leave Product empty to take any.	A primeira regra cujo produto combina cria o item. Deixe Produto vazio para aceitar qualquer um.
+	Your shop	Sua loja
+	any	qualquer
+	first	primeira
+	fit	ajustar
+	{n} designs made, {m} to look at	{n} desenhos criados, {m} para conferir
+@msg	Shopify gave no access token: check the client ID and secret	O Shopify não deu um token de acesso: confira o ID do cliente e o segredo
+@msg	can't read {path}: {e}	não foi possível ler {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	digite primeiro as chaves da loja (Como conectar mostra onde obtê-las)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	pedidos on-line precisam do aplicativo para computador (um navegador não alcança a API de administração de uma loja)
+@msg	the shop didn't answer	a loja não respondeu
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	o endereço da loja começa com https:// (as chaves só vão por HTTPS)
+@msg	the store's address is name.myshopify.com	o endereço da loja é nome.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	os pedidos desta loja vêm de um arquivo CSV: Criar desenhos de um arquivo CSV…

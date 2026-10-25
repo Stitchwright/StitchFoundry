@@ -6548,3 +6548,45 @@ machine	Stop	停止
 	Kern All	全部調整字距
 	Every glyph on the left against every one on the right: letters, or a class as @name	左邊每個字形對右邊每個字形：字母，或用 @名稱 表示類別
 	Kerning Class	字距類別
+# ORD-01: online orders
+	Find Job	尋找工單
+	Make Designs from Orders	依訂單製作圖案
+	Online Orders Setup	網店訂單設定
+	Online Orders…	網店訂單…
+	Add a Rule	新增規則
+	Another shop (CSV file)	其他網店（CSV 檔案）
+	Check every 15 minutes while open	開啟時每 15 分鐘檢查一次
+	Check for New Orders	取得新訂單
+	Client ID	用戶端 ID
+	Client secret	用戶端密鑰
+	Consumer key	消費者金鑰
+	Consumer secret	消費者密鑰
+	Find a job	尋找工單
+	How to Connect	如何連線
+	Machine files	繡花機檔案
+	Make Designs from a CSV File…	從 CSV 檔案製作圖案…
+	My Designs/Orders	我的圖案/訂單
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	把網店的新訂單做成圖案：顧客輸入的名字或文字，依規則的字型和線色繡製，每張訂單都附上工單、繡花機檔案和工作單。
+	Online Orders	網店訂單
+	Online orders: {n} designs made	網店訂單：已製作 {n} 個圖案
+	Open the Design	開啟圖案
+	Remove this rule	移除此規則
+	Rules	規則
+	Save designs in	圖案儲存到
+	Scan a worksheet's barcode, or type J-0001 or #1001	掃描工作單的條碼，或輸入 J-0001 或 #1001
+	Size (mm)	尺寸（公釐）
+	Store address	網店網址
+	The first rule whose product matches makes the item. Leave Product empty to take any.	產品相符的第一條規則來製作該商品。產品留空則適用所有商品。
+	Your shop	你的網店
+	any	任何
+	first	第一個
+	fit	適應
+	{n} designs made, {m} to look at	已製作 {n} 個圖案，{m} 個需檢查
+@msg	Shopify gave no access token: check the client ID and secret	Shopify 沒有給出存取權杖：請檢查用戶端 ID 和密鑰
+@msg	can't read {path}: {e}	無法讀取 {path}：{e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	請先填寫網店的金鑰（如何連線說明了取得方法）
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	網店訂單需要桌面版應用程式（瀏覽器無法存取網店的管理 API）
+@msg	the shop didn't answer	網店沒有回應
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	網店網址以 https:// 開頭（金鑰只透過 HTTPS 傳送）
+@msg	the store's address is name.myshopify.com	網店網址是 name.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	這家網店的訂單來自 CSV 檔案：從 CSV 檔案製作圖案…

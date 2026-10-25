@@ -6877,3 +6877,45 @@ swatch	Bright Violet	Felviolet
 	Kern All	Alles kernen
 	Every glyph on the left against every one on the right: letters, or a class as @name	Elke glyph links tegen elke rechts: letters, of een klasse als @naam
 	Kerning Class	Kerningklasse
+# ORD-01: online orders
+	Find Job	Opdracht zoeken
+	Make Designs from Orders	Ontwerpen maken van bestellingen
+	Online Orders Setup	Onlinebestellingen instellen
+	Online Orders…	Onlinebestellingen…
+	Add a Rule	Regel toevoegen
+	Another shop (CSV file)	Andere winkel (CSV-bestand)
+	Check every 15 minutes while open	Elke 15 minuten kijken zolang open
+	Check for New Orders	Nieuwe bestellingen ophalen
+	Client ID	Client-ID
+	Client secret	Clientgeheim
+	Consumer key	Consumer key
+	Consumer secret	Consumer secret
+	Find a job	Een opdracht zoeken
+	How to Connect	Zo verbindt u
+	Machine files	Machinebestanden
+	Make Designs from a CSV File…	Ontwerpen maken van een CSV-bestand…
+	My Designs/Orders	Mijn ontwerpen/Bestellingen
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Nieuwe bestellingen uit uw webwinkel worden ontwerpen: de naam of tekst die de klant typte, in het lettertype en de garenkleur van de regels, met voor elk een opdracht, machinebestanden en een werkblad.
+	Online Orders	Onlinebestellingen
+	Online orders: {n} designs made	Onlinebestellingen: {n} ontwerpen gemaakt
+	Open the Design	Het ontwerp openen
+	Remove this rule	Deze regel verwijderen
+	Rules	Regels
+	Save designs in	Ontwerpen bewaren in
+	Scan a worksheet's barcode, or type J-0001 or #1001	Scan de streepjescode van een werkblad of typ J-0001 of #1001
+	Size (mm)	Grootte (mm)
+	Store address	Adres van de winkel
+	The first rule whose product matches makes the item. Leave Product empty to take any.	De eerste regel waarvan het product past, maakt het artikel. Laat Product leeg om alles te nemen.
+	Your shop	Uw winkel
+	any	elk
+	first	eerste
+	fit	passend
+	{n} designs made, {m} to look at	{n} ontwerpen gemaakt, {m} om na te kijken
+@msg	Shopify gave no access token: check the client ID and secret	Shopify gaf geen toegangstoken: controleer client-ID en geheim
+@msg	can't read {path}: {e}	{path} kan niet worden gelezen: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	vul eerst de sleutels van de winkel in (Zo verbindt u laat zien waar u ze krijgt)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	onlinebestellingen hebben de desktop-app nodig (een browser bereikt de beheer-API van een winkel niet)
+@msg	the shop didn't answer	de winkel antwoordde niet
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	het adres van de winkel begint met https:// (de sleutels gaan alleen via HTTPS)
+@msg	the store's address is name.myshopify.com	het adres van de winkel is naam.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	de bestellingen van deze winkel komen uit een CSV-bestand: Ontwerpen maken van een CSV-bestand…

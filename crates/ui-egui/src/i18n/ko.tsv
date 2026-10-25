@@ -6540,3 +6540,45 @@ machine	Stop	정지
 	Kern All	모두 커닝
 	Every glyph on the left against every one on the right: letters, or a class as @name	왼쪽의 각 글자와 오른쪽의 각 글자: 글자 또는 @이름 형식의 클래스
 	Kerning Class	커닝 클래스
+# ORD-01: online orders
+	Find Job	작업 찾기
+	Make Designs from Orders	주문으로 디자인 만들기
+	Online Orders Setup	온라인 주문 설정
+	Online Orders…	온라인 주문…
+	Add a Rule	규칙 추가
+	Another shop (CSV file)	다른 쇼핑몰(CSV 파일)
+	Check every 15 minutes while open	열려 있는 동안 15분마다 확인
+	Check for New Orders	새 주문 가져오기
+	Client ID	클라이언트 ID
+	Client secret	클라이언트 시크릿
+	Consumer key	소비자 키
+	Consumer secret	소비자 시크릿
+	Find a job	작업 찾기
+	How to Connect	연결 방법
+	Machine files	기계 파일
+	Make Designs from a CSV File…	CSV 파일로 디자인 만들기…
+	My Designs/Orders	내 디자인/주문
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	온라인 쇼핑몰의 새 주문을 디자인으로 만듭니다. 고객이 입력한 이름이나 글자를 규칙의 글꼴과 실 색으로, 주문마다 작업, 기계 파일, 작업지와 함께.
+	Online Orders	온라인 주문
+	Online orders: {n} designs made	온라인 주문: 디자인 {n}개 만듦
+	Open the Design	디자인 열기
+	Remove this rule	이 규칙 삭제
+	Rules	규칙
+	Save designs in	디자인 저장 위치
+	Scan a worksheet's barcode, or type J-0001 or #1001	작업지 바코드를 스캔하거나 J-0001 또는 #1001을 입력하세요
+	Size (mm)	크기(mm)
+	Store address	쇼핑몰 주소
+	The first rule whose product matches makes the item. Leave Product empty to take any.	제품이 맞는 첫 번째 규칙이 항목을 만듭니다. 제품을 비워 두면 모두에 적용됩니다.
+	Your shop	내 쇼핑몰
+	any	모두
+	first	첫 번째
+	fit	맞춤
+	{n} designs made, {m} to look at	디자인 {n}개 만듦, {m}개 확인 필요
+@msg	Shopify gave no access token: check the client ID and secret	Shopify가 액세스 토큰을 주지 않았습니다: 클라이언트 ID와 시크릿을 확인하세요
+@msg	can't read {path}: {e}	{path}을(를) 읽을 수 없습니다: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	먼저 쇼핑몰 키를 입력하세요(연결 방법에서 받는 곳을 볼 수 있습니다)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	온라인 주문에는 데스크톱 앱이 필요합니다(브라우저로는 쇼핑몰 관리 API에 닿을 수 없습니다)
+@msg	the shop didn't answer	쇼핑몰이 응답하지 않았습니다
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	쇼핑몰 주소는 https://로 시작합니다(키는 HTTPS로만 보냅니다)
+@msg	the store's address is name.myshopify.com	쇼핑몰 주소는 name.myshopify.com 입니다
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	이 쇼핑몰의 주문은 CSV 파일에서 옵니다: CSV 파일로 디자인 만들기…

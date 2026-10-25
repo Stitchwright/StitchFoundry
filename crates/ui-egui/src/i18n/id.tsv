@@ -6835,3 +6835,45 @@ swatch	Bright Violet	Violet cerah
 	Kern All	Kerning semua
 	Every glyph on the left against every one on the right: letters, or a class as @name	Setiap glif di kiri dengan setiap glif di kanan: huruf, atau kelas sebagai @nama
 	Kerning Class	Kelas kerning
+# ORD-01: online orders
+	Find Job	Cari pesanan
+	Make Designs from Orders	Buat desain dari pesanan
+	Online Orders Setup	Pengaturan pesanan online
+	Online Orders…	Pesanan online…
+	Add a Rule	Tambah aturan
+	Another shop (CSV file)	Toko lain (file CSV)
+	Check every 15 minutes while open	Periksa tiap 15 menit selama terbuka
+	Check for New Orders	Ambil pesanan baru
+	Client ID	ID klien
+	Client secret	Rahasia klien
+	Consumer key	Kunci konsumen
+	Consumer secret	Rahasia konsumen
+	Find a job	Cari pesanan
+	How to Connect	Cara menghubungkan
+	Machine files	File mesin
+	Make Designs from a CSV File…	Buat desain dari file CSV…
+	My Designs/Orders	Desain saya/Pesanan
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Pesanan baru dari toko online Anda dibuat menjadi desain: nama atau teks yang diketik pelanggan, dengan font dan warna benang sesuai aturan, masing-masing dengan pesanan kerja, file mesin, dan lembar kerja.
+	Online Orders	Pesanan online
+	Online orders: {n} designs made	Pesanan online: {n} desain dibuat
+	Open the Design	Buka desain
+	Remove this rule	Hapus aturan ini
+	Rules	Aturan
+	Save designs in	Simpan desain di
+	Scan a worksheet's barcode, or type J-0001 or #1001	Pindai kode batang lembar kerja, atau ketik J-0001 atau #1001
+	Size (mm)	Ukuran (mm)
+	Store address	Alamat toko
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Aturan pertama yang produknya cocok membuat barangnya. Kosongkan Produk agar berlaku untuk semua.
+	Your shop	Toko Anda
+	any	apa saja
+	first	pertama
+	fit	pas
+	{n} designs made, {m} to look at	{n} desain dibuat, {m} perlu dicek
+@msg	Shopify gave no access token: check the client ID and secret	Shopify tidak memberi token akses: periksa ID klien dan rahasianya
+@msg	can't read {path}: {e}	tidak dapat membaca {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	isi dulu kunci toko (Cara menghubungkan menunjukkan tempat mendapatkannya)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	pesanan online perlu aplikasi desktop (browser tidak dapat menjangkau API admin toko)
+@msg	the shop didn't answer	toko tidak menjawab
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	alamat toko diawali https:// (kuncinya hanya dikirim lewat HTTPS)
+@msg	the store's address is name.myshopify.com	alamat toko adalah nama.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	pesanan toko ini berasal dari file CSV: Buat desain dari file CSV…

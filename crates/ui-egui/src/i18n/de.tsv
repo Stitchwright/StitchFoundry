@@ -6555,3 +6555,45 @@ effect	Soft	Weich
 	Kern All	Alle unterschneiden
 	Every glyph on the left against every one on the right: letters, or a class as @name	Jede Glyphe links gegen jede rechts: Buchstaben oder eine Klasse als @Name
 	Kerning Class	Unterschneidungsklasse
+# ORD-01: online orders
+	Find Job	Auftrag finden
+	Make Designs from Orders	Designs aus Bestellungen machen
+	Online Orders Setup	Online-Bestellungen einrichten
+	Online Orders…	Online-Bestellungen…
+	Add a Rule	Regel hinzufügen
+	Another shop (CSV file)	Anderer Shop (CSV-Datei)
+	Check every 15 minutes while open	Alle 15 Minuten prüfen, solange geöffnet
+	Check for New Orders	Nach neuen Bestellungen sehen
+	Client ID	Client-ID
+	Client secret	Client-Secret
+	Consumer key	Consumer Key
+	Consumer secret	Consumer Secret
+	Find a job	Auftrag finden
+	How to Connect	So verbinden Sie
+	Machine files	Maschinendateien
+	Make Designs from a CSV File…	Designs aus einer CSV-Datei machen…
+	My Designs/Orders	Meine Designs/Bestellungen
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Neue Bestellungen aus Ihrem Online-Shop werden zu Designs: der Name oder Text, den der Kunde eingegeben hat, in Schrift und Garnfarbe nach den Regeln, mit Auftrag, Maschinendateien und Arbeitsblatt für jede.
+	Online Orders	Online-Bestellungen
+	Online orders: {n} designs made	Online-Bestellungen: {n} Designs gemacht
+	Open the Design	Design öffnen
+	Remove this rule	Diese Regel entfernen
+	Rules	Regeln
+	Save designs in	Designs speichern in
+	Scan a worksheet's barcode, or type J-0001 or #1001	Strichcode eines Arbeitsblatts scannen oder J-0001 bzw. #1001 eingeben
+	Size (mm)	Größe (mm)
+	Store address	Shop-Adresse
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Die erste Regel, deren Produkt passt, macht den Artikel. Lassen Sie Produkt leer, um jeden zu nehmen.
+	Your shop	Ihr Shop
+	any	alle
+	first	erste
+	fit	passend
+	{n} designs made, {m} to look at	{n} Designs gemacht, {m} zum Ansehen
+@msg	Shopify gave no access token: check the client ID and secret	Shopify gab kein Zugriffstoken: Client-ID und Secret prüfen
+@msg	can't read {path}: {e}	{path} kann nicht gelesen werden: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	zuerst die Schlüssel des Shops eingeben (So verbinden Sie zeigt, woher sie kommen)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	Online-Bestellungen brauchen die Desktop-App (ein Browser erreicht die Admin-API eines Shops nicht)
+@msg	the shop didn't answer	der Shop hat nicht geantwortet
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	die Adresse des Shops beginnt mit https:// (seine Schlüssel gehen nur über HTTPS)
+@msg	the store's address is name.myshopify.com	die Adresse des Shops ist name.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	die Bestellungen dieses Shops kommen aus einer CSV-Datei: Designs aus einer CSV-Datei machen…

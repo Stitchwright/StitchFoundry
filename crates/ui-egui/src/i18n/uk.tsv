@@ -6568,3 +6568,45 @@ machine	Stop	Зупинка
 	Kern All	Кернінг для всіх
 	Every glyph on the left against every one on the right: letters, or a class as @name	Кожен гліф ліворуч з кожним праворуч: літери або клас як @назва
 	Kerning Class	Клас кернінгу
+# ORD-01: online orders
+	Find Job	Знайти замовлення
+	Make Designs from Orders	Зробити дизайни із замовлень
+	Online Orders Setup	Налаштування онлайн-замовлень
+	Online Orders…	Онлайн-замовлення…
+	Add a Rule	Додати правило
+	Another shop (CSV file)	Інша крамниця (файл CSV)
+	Check every 15 minutes while open	Перевіряти кожні 15 хвилин, поки відкрито
+	Check for New Orders	Завантажити нові замовлення
+	Client ID	ID клієнта
+	Client secret	Секрет клієнта
+	Consumer key	Ключ споживача
+	Consumer secret	Секрет споживача
+	Find a job	Знайти замовлення
+	How to Connect	Як під'єднати
+	Machine files	Файли для машини
+	Make Designs from a CSV File…	Зробити дизайни з файлу CSV…
+	My Designs/Orders	Мої дизайни/Замовлення
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Нові замовлення з вашої інтернет-крамниці стають дизайнами: ім'я або текст, який увів покупець, шрифтом і кольором нитки за правилами, із замовленням, файлами для машини й робочим аркушем для кожного.
+	Online Orders	Онлайн-замовлення
+	Online orders: {n} designs made	Онлайн-замовлення: зроблено дизайнів — {n}
+	Open the Design	Відкрити дизайн
+	Remove this rule	Вилучити це правило
+	Rules	Правила
+	Save designs in	Зберігати дизайни в
+	Scan a worksheet's barcode, or type J-0001 or #1001	Відскануйте штрихкод робочого аркуша або введіть J-0001 чи #1001
+	Size (mm)	Розмір (мм)
+	Store address	Адреса крамниці
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Перше правило, чий виріб підходить, робить позицію. Залиште Виріб порожнім, щоб брати будь-який.
+	Your shop	Ваша крамниця
+	any	будь-який
+	first	перше
+	fit	за розміром
+	{n} designs made, {m} to look at	зроблено дизайнів — {n}, переглянути — {m}
+@msg	Shopify gave no access token: check the client ID and secret	Shopify не дав токен доступу: перевірте ID клієнта й секрет
+@msg	can't read {path}: {e}	не вдається прочитати {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	спершу введіть ключі крамниці (Як під'єднати показує, де їх узяти)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	онлайн-замовленням потрібен настільний застосунок (браузер не дістає до API адміністрування крамниці)
+@msg	the shop didn't answer	крамниця не відповіла
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	адреса крамниці починається з https:// (ключі передаються лише через HTTPS)
+@msg	the store's address is name.myshopify.com	адреса крамниці — назва.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	замовлення цієї крамниці беруться з файлу CSV: Зробити дизайни з файлу CSV…

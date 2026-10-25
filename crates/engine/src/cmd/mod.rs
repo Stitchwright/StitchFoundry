@@ -65,6 +65,7 @@ pub mod embroidery_monogram;
 pub mod embroidery_motifs;
 pub mod embroidery_mp4;
 pub mod embroidery_my_machine;
+pub mod embroidery_orders;
 pub mod embroidery_outline;
 pub mod embroidery_output;
 pub mod embroidery_patches;
@@ -332,6 +333,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(embroidery_queue::specs());
         v.extend(embroidery_ai::specs());
         v.extend(embroidery_kiosk::specs());
+        v.extend(embroidery_orders::specs());
         v.extend(embroidery_photo::specs());
         v.extend(embroidery_cutout::specs());
         v.extend(embroidery_lasso::specs());

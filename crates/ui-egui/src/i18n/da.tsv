@@ -6835,3 +6835,45 @@ swatch	Bright Violet	Kraftig violet
 	Kern All	Knib alle
 	Every glyph on the left against every one on the right: letters, or a class as @name	Hver glyf til venstre mod hver til højre: bogstaver eller en klasse som @navn
 	Kerning Class	Knibningsklasse
+# ORD-01: online orders
+	Find Job	Find ordre
+	Make Designs from Orders	Lav design af ordrer
+	Online Orders Setup	Indstil onlineordrer
+	Online Orders…	Onlineordrer…
+	Add a Rule	Tilføj en regel
+	Another shop (CSV file)	Anden butik (CSV-fil)
+	Check every 15 minutes while open	Tjek hvert 15. minut, mens den er åben
+	Check for New Orders	Hent nye ordrer
+	Client ID	Klient-id
+	Client secret	Klienthemmelighed
+	Consumer key	Consumer key
+	Consumer secret	Consumer secret
+	Find a job	Find en ordre
+	How to Connect	Sådan forbinder du
+	Machine files	Maskinfiler
+	Make Designs from a CSV File…	Lav design af en CSV-fil…
+	My Designs/Orders	Mine design/Ordrer
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Nye ordrer fra din webbutik bliver til design: navnet eller teksten, kunden skrev, i den skrift og trådfarve, reglerne giver, med en ordre, maskinfiler og et arbejdsark til hver.
+	Online Orders	Onlineordrer
+	Online orders: {n} designs made	Onlineordrer: {n} design lavet
+	Open the Design	Åbn designet
+	Remove this rule	Fjern denne regel
+	Rules	Regler
+	Save designs in	Gem design i
+	Scan a worksheet's barcode, or type J-0001 or #1001	Scan et arbejdsarks stregkode, eller skriv J-0001 eller #1001
+	Size (mm)	Størrelse (mm)
+	Store address	Butikkens adresse
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Den første regel, hvis produkt passer, laver varen. Lad Produkt være tom for at tage alle.
+	Your shop	Din butik
+	any	alle
+	first	første
+	fit	tilpas
+	{n} designs made, {m} to look at	{n} design lavet, {m} at se på
+@msg	Shopify gave no access token: check the client ID and secret	Shopify gav ingen adgangstoken: tjek klient-id og hemmelighed
+@msg	can't read {path}: {e}	kan ikke læse {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	skriv først butikkens nøgler (Sådan forbinder du viser, hvor du får dem)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	onlineordrer kræver desktopappen (en browser kan ikke nå en butiks admin-API)
+@msg	the shop didn't answer	butikken svarede ikke
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	butikkens adresse begynder med https:// (nøglerne sendes kun over HTTPS)
+@msg	the store's address is name.myshopify.com	butikkens adresse er navn.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	denne butiks ordrer kommer fra en CSV-fil: Lav design af en CSV-fil…

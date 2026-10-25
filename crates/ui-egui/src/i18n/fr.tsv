@@ -6958,3 +6958,45 @@ theme	Appearance	Apparence
 	Kern All	Approcher tout
 	Every glyph on the left against every one on the right: letters, or a class as @name	Chaque glyphe de gauche avec chacun de droite : des lettres, ou une classe en @nom
 	Kerning Class	Classe d'approche
+# ORD-01: online orders
+	Find Job	Trouver la commande
+	Make Designs from Orders	Créer les motifs des commandes
+	Online Orders Setup	Réglages des commandes en ligne
+	Online Orders…	Commandes en ligne…
+	Add a Rule	Ajouter une règle
+	Another shop (CSV file)	Autre boutique (fichier CSV)
+	Check every 15 minutes while open	Vérifier toutes les 15 minutes tant que c'est ouvert
+	Check for New Orders	Chercher les nouvelles commandes
+	Client ID	ID client
+	Client secret	Secret client
+	Consumer key	Clé client
+	Consumer secret	Secret client
+	Find a job	Trouver une commande
+	How to Connect	Comment se connecter
+	Machine files	Fichiers machine
+	Make Designs from a CSV File…	Créer les motifs d'un fichier CSV…
+	My Designs/Orders	Mes motifs/Commandes
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Les nouvelles commandes de votre boutique en ligne deviennent des motifs : le nom ou le texte saisi par le client, dans la police et la couleur de fil des règles, avec pour chacune une commande, les fichiers machine et une fiche.
+	Online Orders	Commandes en ligne
+	Online orders: {n} designs made	Commandes en ligne : {n} motifs créés
+	Open the Design	Ouvrir le motif
+	Remove this rule	Retirer cette règle
+	Rules	Règles
+	Save designs in	Enregistrer les motifs dans
+	Scan a worksheet's barcode, or type J-0001 or #1001	Scannez le code-barres d'une fiche, ou tapez J-0001 ou #1001
+	Size (mm)	Taille (mm)
+	Store address	Adresse de la boutique
+	The first rule whose product matches makes the item. Leave Product empty to take any.	La première règle dont le produit correspond crée l'article. Laissez Produit vide pour tout prendre.
+	Your shop	Votre boutique
+	any	tous
+	first	première
+	fit	ajusté
+	{n} designs made, {m} to look at	{n} motifs créés, {m} à vérifier
+@msg	Shopify gave no access token: check the client ID and secret	Shopify n'a pas donné de jeton d'accès : vérifiez l'ID client et le secret
+@msg	can't read {path}: {e}	impossible de lire {path} : {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	saisissez d'abord les clés de la boutique (Comment se connecter indique où les obtenir)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	les commandes en ligne demandent l'application de bureau (un navigateur ne peut pas joindre l'API d'administration d'une boutique)
+@msg	the shop didn't answer	la boutique n'a pas répondu
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	l'adresse de la boutique commence par https:// (ses clés ne passent qu'en HTTPS)
+@msg	the store's address is name.myshopify.com	l'adresse de la boutique est nom.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	les commandes de cette boutique viennent d'un fichier CSV : Créer les motifs d'un fichier CSV…

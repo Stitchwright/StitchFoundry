@@ -6544,3 +6544,45 @@ machine	Stop	Dừng máy
 	Kern All	Kerning tất cả
 	Every glyph on the left against every one on the right: letters, or a class as @name	Mỗi ký tự bên trái với mỗi ký tự bên phải: chữ cái, hoặc nhóm dạng @tên
 	Kerning Class	Nhóm kerning
+# ORD-01: online orders
+	Find Job	Tìm đơn
+	Make Designs from Orders	Tạo mẫu từ đơn hàng
+	Online Orders Setup	Cài đặt đơn hàng trực tuyến
+	Online Orders…	Đơn hàng trực tuyến…
+	Add a Rule	Thêm quy tắc
+	Another shop (CSV file)	Cửa hàng khác (tệp CSV)
+	Check every 15 minutes while open	Kiểm tra mỗi 15 phút khi đang mở
+	Check for New Orders	Lấy đơn hàng mới
+	Client ID	ID khách
+	Client secret	Mã bí mật khách
+	Consumer key	Khóa người dùng
+	Consumer secret	Mã bí mật người dùng
+	Find a job	Tìm một đơn
+	How to Connect	Cách kết nối
+	Machine files	Tệp máy thêu
+	Make Designs from a CSV File…	Tạo mẫu từ tệp CSV…
+	My Designs/Orders	Mẫu của tôi/Đơn hàng
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Đơn hàng mới từ cửa hàng trực tuyến được làm thành mẫu thêu: tên hoặc chữ khách gõ, theo phông chữ và màu chỉ của quy tắc, mỗi đơn kèm phiếu việc, tệp máy thêu và tờ hướng dẫn.
+	Online Orders	Đơn hàng trực tuyến
+	Online orders: {n} designs made	Đơn hàng trực tuyến: đã tạo {n} mẫu
+	Open the Design	Mở mẫu
+	Remove this rule	Bỏ quy tắc này
+	Rules	Quy tắc
+	Save designs in	Lưu mẫu vào
+	Scan a worksheet's barcode, or type J-0001 or #1001	Quét mã vạch trên tờ hướng dẫn, hoặc gõ J-0001 hay #1001
+	Size (mm)	Cỡ (mm)
+	Store address	Địa chỉ cửa hàng
+	The first rule whose product matches makes the item. Leave Product empty to take any.	Quy tắc đầu tiên có sản phẩm khớp sẽ làm món hàng. Để trống Sản phẩm để áp dụng cho mọi món.
+	Your shop	Cửa hàng của bạn
+	any	bất kỳ
+	first	đầu tiên
+	fit	vừa khít
+	{n} designs made, {m} to look at	đã tạo {n} mẫu, {m} cần xem
+@msg	Shopify gave no access token: check the client ID and secret	Shopify không cấp mã truy cập: kiểm tra ID khách và mã bí mật
+@msg	can't read {path}: {e}	không đọc được {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	hãy nhập khóa của cửa hàng trước (Cách kết nối chỉ chỗ lấy)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	đơn hàng trực tuyến cần ứng dụng máy tính (trình duyệt không truy cập được API quản trị của cửa hàng)
+@msg	the shop didn't answer	cửa hàng không trả lời
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	địa chỉ cửa hàng bắt đầu bằng https:// (khóa chỉ gửi qua HTTPS)
+@msg	the store's address is name.myshopify.com	địa chỉ cửa hàng là ten.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	đơn hàng của cửa hàng này lấy từ tệp CSV: Tạo mẫu từ tệp CSV…

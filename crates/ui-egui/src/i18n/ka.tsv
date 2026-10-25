@@ -6773,3 +6773,45 @@ file-filter	StitchFoundry Template	StitchFoundry-ის შაბლონი
 	Kern All	ყველას კერნინგი
 	Every glyph on the left against every one on the right: letters, or a class as @name	ყოველი მარცხენა გლიფი ყოველ მარჯვენასთან: ასოები ან კლასი როგორც @სახელი
 	Kerning Class	კერნინგის კლასი
+# ORD-01: online orders
+	Find Job	შეკვეთის პოვნა
+	Make Designs from Orders	დიზაინები შეკვეთებიდან
+	Online Orders Setup	ონლაინ შეკვეთების პარამეტრები
+	Online Orders…	ონლაინ შეკვეთები…
+	Add a Rule	წესის დამატება
+	Another shop (CSV file)	სხვა მაღაზია (CSV ფაილი)
+	Check every 15 minutes while open	შემოწმება ყოველ 15 წუთში, სანამ ღიაა
+	Check for New Orders	ახალი შეკვეთების მიღება
+	Client ID	კლიენტის ID
+	Client secret	კლიენტის საიდუმლო
+	Consumer key	მომხმარებლის გასაღები
+	Consumer secret	მომხმარებლის საიდუმლო
+	Find a job	შეკვეთის პოვნა
+	How to Connect	როგორ დავუკავშირდე
+	Machine files	მანქანის ფაილები
+	Make Designs from a CSV File…	დიზაინები CSV ფაილიდან…
+	My Designs/Orders	ჩემი დიზაინები/შეკვეთები
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	ონლაინ მაღაზიის ახალი შეკვეთები დიზაინებად იქცევა: მყიდველის აკრეფილი სახელი ან ტექსტი, წესებით მითითებული შრიფტითა და ძაფის ფერით, თითოეულისთვის შეკვეთით, მანქანის ფაილებითა და სამუშაო ფურცლით.
+	Online Orders	ონლაინ შეკვეთები
+	Online orders: {n} designs made	ონლაინ შეკვეთები: შეიქმნა {n} დიზაინი
+	Open the Design	დიზაინის გახსნა
+	Remove this rule	ამ წესის მოცილება
+	Rules	წესები
+	Save designs in	დიზაინების შენახვა
+	Scan a worksheet's barcode, or type J-0001 or #1001	დაასკანერეთ ფურცლის შტრიხკოდი ან აკრიფეთ J-0001 ან #1001
+	Size (mm)	ზომა (მმ)
+	Store address	მაღაზიის მისამართი
+	The first rule whose product matches makes the item. Leave Product empty to take any.	პირველი წესი, რომლის ნაკეთობაც ემთხვევა, ქმნის საქონელს. დატოვეთ ნაკეთობა ცარიელი, რომ ყველა მოიცვას.
+	Your shop	თქვენი მაღაზია
+	any	ნებისმიერი
+	first	პირველი
+	fit	მორგება
+	{n} designs made, {m} to look at	შეიქმნა {n} დიზაინი, სანახავია {m}
+@msg	Shopify gave no access token: check the client ID and secret	Shopify-მ წვდომის ტოკენი არ მისცა: შეამოწმეთ კლიენტის ID და საიდუმლო
+@msg	can't read {path}: {e}	{path} ვერ იკითხება: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	ჯერ შეიყვანეთ მაღაზიის გასაღებები (როგორ დავუკავშირდე გაჩვენებთ, სად აიღოთ)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	ონლაინ შეკვეთებს კომპიუტერის აპი სჭირდება (ბრაუზერი მაღაზიის ადმინ API-ს ვერ სწვდება)
+@msg	the shop didn't answer	მაღაზიამ არ უპასუხა
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	მაღაზიის მისამართი იწყება https://-ით (გასაღებები მხოლოდ HTTPS-ით იგზავნება)
+@msg	the store's address is name.myshopify.com	მაღაზიის მისამართია name.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	ამ მაღაზიის შეკვეთები CSV ფაილიდან მოდის: დიზაინები CSV ფაილიდან…

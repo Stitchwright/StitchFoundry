@@ -6588,3 +6588,45 @@ machine	Stop	Arresto
 	Kern All	Crenatura per tutti
 	Every glyph on the left against every one on the right: letters, or a class as @name	Ogni glifo a sinistra con ognuno a destra: lettere, o una classe come @nome
 	Kerning Class	Classe di crenatura
+# ORD-01: online orders
+	Find Job	Trova lavoro
+	Make Designs from Orders	Crea i disegni dagli ordini
+	Online Orders Setup	Impostazioni ordini online
+	Online Orders…	Ordini online…
+	Add a Rule	Aggiungi una regola
+	Another shop (CSV file)	Altro negozio (file CSV)
+	Check every 15 minutes while open	Controlla ogni 15 minuti finché è aperto
+	Check for New Orders	Cerca nuovi ordini
+	Client ID	ID client
+	Client secret	Segreto client
+	Consumer key	Chiave consumer
+	Consumer secret	Segreto consumer
+	Find a job	Trova un lavoro
+	How to Connect	Come collegarsi
+	Machine files	File macchina
+	Make Designs from a CSV File…	Crea i disegni da un file CSV…
+	My Designs/Orders	I miei disegni/Ordini
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	I nuovi ordini del tuo negozio online diventano disegni: il nome o il testo scritto dal cliente, nel font e nel colore del filo dati dalle regole, con un lavoro, i file macchina e una scheda per ognuno.
+	Online Orders	Ordini online
+	Online orders: {n} designs made	Ordini online: {n} disegni creati
+	Open the Design	Apri il disegno
+	Remove this rule	Rimuovi questa regola
+	Rules	Regole
+	Save designs in	Salva i disegni in
+	Scan a worksheet's barcode, or type J-0001 or #1001	Scansiona il codice a barre di una scheda, o scrivi J-0001 o #1001
+	Size (mm)	Dimensione (mm)
+	Store address	Indirizzo del negozio
+	The first rule whose product matches makes the item. Leave Product empty to take any.	La prima regola il cui prodotto corrisponde crea l'articolo. Lascia Prodotto vuoto per accettare tutto.
+	Your shop	Il tuo negozio
+	any	tutti
+	first	primo
+	fit	adatta
+	{n} designs made, {m} to look at	{n} disegni creati, {m} da controllare
+@msg	Shopify gave no access token: check the client ID and secret	Shopify non ha dato un token di accesso: controlla ID client e segreto
+@msg	can't read {path}: {e}	impossibile leggere {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	prima inserisci le chiavi del negozio (Come collegarsi mostra dove trovarle)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	gli ordini online richiedono l'app desktop (un browser non raggiunge l'API di amministrazione di un negozio)
+@msg	the shop didn't answer	il negozio non ha risposto
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	l'indirizzo del negozio inizia con https:// (le sue chiavi passano solo in HTTPS)
+@msg	the store's address is name.myshopify.com	l'indirizzo del negozio è nome.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	gli ordini di questo negozio arrivano da un file CSV: Crea i disegni da un file CSV…

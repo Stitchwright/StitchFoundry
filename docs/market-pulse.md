@@ -1,6 +1,6 @@
 # Tajima DG16 by Pulse against StitchFoundry
 
-Status: 2026-10-24 (PU-05, PU-10, PU-12, PU-18 and satin PU-04 done the same day). From public pages only: Pulse's level comparison
+Status: 2026-10-25 (PU-05, PU-10, PU-12, PU-18 and satin PU-04 done 2026-10-24; PU-14 mostly and PU-16 done 2026-10-25). From public pages only: Pulse's level comparison
 (<https://embroidery.pulsemicro.com/dg15-levels.html>), its product pages
 (<https://dgml14.pulsemicro.com/pulse-products.htm>,
 <https://dgml14.pulsemicro.com/pulse-products-12reasonsforpulse.htm>,
@@ -70,7 +70,7 @@ Ranked by how much the people who'd move to StitchFoundry miss them. Ids for the
 | PU-13 | **Autodigitizer: capped satin ends, satin columns down to 1 mm** (16.5) | Cleaner small lettering and narrow columns from pictures | S |
 | PU-14 | **Fonts: 170+ included, 150+ to buy; small lettering fonts (4 mm)** | StitchFoundry: 39 Foundry fonts built into the desktop app (34 added 2026-10-25: scripts, serifs, sans, display, western, gothic, a 5 mm small-text font), and Ink/Stitch's 131 hand-digitized fonts a click away (Get Embroidery Fonts): 170 in all | **Mostly done**; the Foundry fonts are generated and want sew tests; more to add |
 | PU-15 | **Direct machine connection**: Tajima LAN and Tajima Connect, Tajima serial, Barudan, SWF, Toyota, ZSK; machine status and production reports | Commercial shops send designs over the network and see what each head is doing | L; the protocols aren't published (owner's call, below) |
-| PU-16 | **PulseID-style personalization automation**: orders read from an online shop (Shopify, WooCommerce), rules pick the size, colour and font, designs pulled by barcode | Shops that sell personalized goods online | L; with MakerFoundry |
+| PU-16 | **PulseID-style personalization automation**: orders read from an online shop (Shopify, WooCommerce), rules pick the size, colour and font, designs pulled by barcode | Shops that sell personalized goods online | **Done** (Embroidery › Online Orders: Shopify, WooCommerce and CSV orders made into designs, jobs, machine files and worksheets by rules; jobs found by barcode; setup guide `docs/online-orders.md`) |
 | PU-17 | **Web design catalog, e-mailing designs and worksheets** | Share a design or its proof sheet with a customer in one step | S |
 | PU-18 | **Short stitch cleaning in the viewer** (Ambassador) | Remove stitches too short to sew from a machine file | **Done** (Remove Short Stitches) |
 
@@ -82,7 +82,7 @@ Ranked by how much the people who'd move to StitchFoundry miss them. Ids for the
   (which every one of these machines also reads).
 - **PU-14, fonts.** 39 built in and 131 more to download now (FONT-03). What's left is sewing
   them out: each Foundry font is digitized automatically and checked on screen only.
-- **PU-16, personalization automation.** Belongs with MakerFoundry's shop as much as the app.
+- **PU-16, personalization automation.** Done in the app (ORD-01, 2026-10-25). MakerFoundry orders could be read the same way once its shop sells personalized items.
 
 ## Suggested order
 
@@ -91,4 +91,4 @@ Ranked by how much the people who'd move to StitchFoundry miss them. Ids for the
    classes, PU-13 autodigitizer columns, PU-17 sharing.
 2. Look of the work: PU-01 Fur Stitch, PU-02 decorative fills, PU-03 elastic carving, PU-11 WordIT.
 3. Specialty heads: PU-06 sequins, PU-07 chenille.
-4. The owner's calls: PU-14 fonts, PU-15 networking, PU-16 automation.
+4. The owner's calls: PU-14 fonts (mostly done), PU-15 networking. PU-16 automation is done.

@@ -66,6 +66,7 @@ pub mod new_color_group;
 mod new_document;
 pub mod new_swatch;
 pub mod office_export;
+pub mod orders;
 pub mod package;
 pub(crate) mod path_ops;
 pub mod pdf_presets;
@@ -442,6 +443,7 @@ pub fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
     life_size::show(app, ctx);
     my_machine::show(app, ctx);
     memory_card::show(app, ctx);
+    orders::show(app, ctx);
     font_library::show(app, ctx);
     compare::show(app, ctx);
     crate::guide::show(app, ctx);

@@ -184,6 +184,8 @@ pub struct EmbroideryUi {
     pub new_type: String,
     /// Design from Prompt: the API key and the request on its way.
     pub prompt: prompt::PromptState,
+    /// Online Orders (`ui.onlineOrders`): the setup as typed, the shop's keys and a fetch on its way.
+    pub orders: crate::dialogs::orders::OrdersState,
     /// Ask About Embroidery: the conversation and the question on its way (NEW-07).
     pub ask: ask::AskState,
     /// Check My Sew-out: the photos and answers (SO-01).
@@ -435,6 +437,7 @@ impl Default for EmbroideryUi {
             send_folder: 0,
             send_status: String::new(),
             prompt: prompt::PromptState::default(),
+            orders: Default::default(),
             ask: Default::default(),
             sewout: Default::default(),
             account: Default::default(),

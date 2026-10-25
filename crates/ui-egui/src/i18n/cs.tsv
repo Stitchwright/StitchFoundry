@@ -6946,3 +6946,45 @@ mark-style	Japanese	Japonské
 	Kern All	Vyrovnat vše
 	Every glyph on the left against every one on the right: letters, or a class as @name	Každý glyf vlevo s každým vpravo: písmena, nebo třída jako @název
 	Kerning Class	Třída vyrovnání
+# ORD-01: online orders
+	Find Job	Najít zakázku
+	Make Designs from Orders	Vytvořit vzory z objednávek
+	Online Orders Setup	Nastavení online objednávek
+	Online Orders…	Online objednávky…
+	Add a Rule	Přidat pravidlo
+	Another shop (CSV file)	Jiný obchod (soubor CSV)
+	Check every 15 minutes while open	Kontrolovat každých 15 minut, dokud je otevřeno
+	Check for New Orders	Načíst nové objednávky
+	Client ID	ID klienta
+	Client secret	Tajný klíč klienta
+	Consumer key	Klíč spotřebitele
+	Consumer secret	Tajný klíč spotřebitele
+	Find a job	Najít zakázku
+	How to Connect	Jak se připojit
+	Machine files	Soubory pro stroj
+	Make Designs from a CSV File…	Vytvořit vzory ze souboru CSV…
+	My Designs/Orders	Moje vzory/Objednávky
+	New orders from your online shop made into designs: the name or text the customer typed, in the font and thread colour the rules give, with a job, machine files and a worksheet for each.	Nové objednávky z vašeho e-shopu se stanou vzory: jméno nebo text, který zákazník napsal, v písmu a barvě nitě podle pravidel, ke každé zakázka, soubory pro stroj a pracovní list.
+	Online Orders	Online objednávky
+	Online orders: {n} designs made	Online objednávky: vytvořeno {n} vzorů
+	Open the Design	Otevřít vzor
+	Remove this rule	Odebrat toto pravidlo
+	Rules	Pravidla
+	Save designs in	Ukládat vzory do
+	Scan a worksheet's barcode, or type J-0001 or #1001	Naskenujte čárový kód listu nebo napište J-0001 či #1001
+	Size (mm)	Velikost (mm)
+	Store address	Adresa obchodu
+	The first rule whose product matches makes the item. Leave Product empty to take any.	První pravidlo, jehož výrobek odpovídá, vytvoří položku. Nechte Výrobek prázdný, aby platilo pro všechny.
+	Your shop	Váš obchod
+	any	jakýkoli
+	first	první
+	fit	přizpůsobit
+	{n} designs made, {m} to look at	vytvořeno {n} vzorů, {m} k prohlédnutí
+@msg	Shopify gave no access token: check the client ID and secret	Shopify nedal přístupový token: zkontrolujte ID klienta a tajný klíč
+@msg	can't read {path}: {e}	nelze přečíst {path}: {e}
+@msg	enter the shop's keys first (How to Connect shows where to get them)	nejdřív zadejte klíče obchodu (Jak se připojit ukazuje, kde je získat)
+@msg	online orders need the desktop app (a browser can't reach a shop's admin API)	online objednávky potřebují aplikaci pro počítač (prohlížeč nedosáhne na administrační API obchodu)
+@msg	the shop didn't answer	obchod neodpověděl
+@msg	the shop's address starts https:// (its keys only go over HTTPS)	adresa obchodu začíná https:// (jeho klíče jdou jen přes HTTPS)
+@msg	the store's address is name.myshopify.com	adresa obchodu je nazev.myshopify.com
+@msg	this shop's orders come from a CSV file: Make Designs from a CSV File…	objednávky tohoto obchodu přicházejí ze souboru CSV: Vytvořit vzory ze souboru CSV…
