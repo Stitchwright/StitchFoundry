@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Stitchwright/stitchfoundry-fonts
-          ref: 09a35cd34884a9030ee5395e450a1eba08d44994
+          ref: 857ca33ffab22a3bfb976a0a301880b74dc57050
           path: stitchfoundry-fonts
           sparse-checkout: fonts
       - name: Build and test in a FreeBSD VM
@@ -96,7 +96,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Stitchwright/stitchfoundry-fonts
-          ref: 09a35cd34884a9030ee5395e450a1eba08d44994
+          ref: 857ca33ffab22a3bfb976a0a301880b74dc57050
           path: stitchfoundry-fonts
           sparse-checkout: fonts
       - name: Package in a FreeBSD VM
