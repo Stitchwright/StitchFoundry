@@ -1,6 +1,6 @@
 # Releasing VectorCraft
 
-> **Last updated:** 2026-10-20 · **Change:** minor (the `release` environment and its 12 secrets, how to test signing)
+> **Last updated:** 2026-10-25 · **Change:** minor (release notes come from `CHANGELOG.md`)
 
 Every push to the `release` branch runs `.github/workflows/release.yml`. The workflow builds
 installers for macOS, Windows, Linux (including Flatpak bundles and a RISC-V tarball) and FreeBSD, plus the web build, and creates or updates a
@@ -25,7 +25,12 @@ User-facing names say **VectorCraft**. Files, binaries and ids stay lowercase
 2. **Merge `main` into `release`** (or fast-forward it) and push. The workflow starts by itself.
 3. **Wait for the draft.** When every job is done (macOS notarization is the slow part), the
    Releases page has a draft `VectorCraft v0.4.0`, targeting the pushed commit, with every
-   artifact and `SHA256SUMS.txt`. The notes are generated from the merged pull requests.
+   artifact and `SHA256SUMS.txt`. The notes are the version's section of
+   [`CHANGELOG.md`](../CHANGELOG.md) (from its `## <version>` heading to the next `## `), followed by
+   GitHub's notes generated from the merged pull requests. Write that section before pushing, in
+   plain words for the people who sew: what's new, grouped, and what isn't in the build. Without
+   one the run warns and the release has the generated notes only (often just a changes link,
+   since most work lands on `main` directly).
 4. **Check it.** Download an installer or two and read the job summaries. A `::warning::` there
    means a signing secret was missing and that artifact is unsigned.
 5. **Publish** the draft in the GitHub UI. Publishing creates the `v0.4.0` tag. A version with a
@@ -299,6 +304,7 @@ app-specific password, set the secret again (no spaces or line breaks), and re-r
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-25 | minor | Release notes come from the version's section of `CHANGELOG.md`, ahead of the generated notes |
 | 2026-10-20 | minor | The `release` environment is the standard for every signing SiteSentrix/Stitchwright repo; its 12 secrets; how to test signing (the Release run's Signature check and Gatekeeper check); macOS releases on the standard `macos-15` runner |
 | 2026-10-14 | minor | RPM glibc floor names libm's `GLIBC_2.35`: RHEL 9's glibc 2.34 provides libc's through backports |
 | 2026-10-12 | minor | RPM dependencies use 64-bit runtime capabilities and enforce glibc 2.35 (#1275); real distro install/start-up checks remain pending |

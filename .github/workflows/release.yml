@@ -584,6 +584,23 @@ jobs:
         working-directory: artifacts
         run: |
           sha256sum -- * | tee SHA256SUMS.txt
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: src
+          sparse-checkout: CHANGELOG.md
+          sparse-checkout-cone-mode: false
+      - name: Release notes from CHANGELOG.md
+        run: |
+          # The version's section: from its "## <version>" heading to the next "## " heading.
+          awk -v v="$VERSION" '
+            /^## / { if (on) exit; on = (index($0, "## " v " ") == 1 || $0 == "## " v) ; next }
+            on { print }
+          ' src/CHANGELOG.md > notes.md
+          if [ -s notes.md ]; then
+            echo "Release notes: CHANGELOG.md's section for $VERSION ($(wc -l < notes.md) lines)"
+          else
+            echo "::warning::CHANGELOG.md has no section for $VERSION: the release gets GitHub's generated notes only."
+          fi
       - name: Create or update the draft release
         working-directory: artifacts
         run: |
@@ -600,11 +617,15 @@ jobs:
             gh release view "$tag" --json assets --jq '.assets[].name' | while read -r asset; do
               gh release delete-asset "$tag" "$asset" --yes
             done
-            gh release edit "$tag" --draft --title "$title" --target "$GITHUB_SHA" --prerelease="$PRERELEASE"
+            notes=()
+            if [ -s ../notes.md ]; then notes=(--notes-file ../notes.md); fi
+            gh release edit "$tag" --draft --title "$title" --target "$GITHUB_SHA" --prerelease="$PRERELEASE" "${notes[@]}"
             gh release upload "$tag" --clobber -- *
           else
             echo "Creating draft $tag"
-            gh release create "$tag" --draft --title "$title" --target "$GITHUB_SHA" --generate-notes "${pre[@]}" -- *
+            notes=()
+            if [ -s ../notes.md ]; then notes=(--notes-file ../notes.md); fi
+            gh release create "$tag" --draft --title "$title" --target "$GITHUB_SHA" --generate-notes "${notes[@]}" "${pre[@]}" -- *
           fi
           {
             echo "Draft release **$title** at \`${GITHUB_SHA::9}\`:"
