@@ -68,7 +68,7 @@ Ranked by how much the people who'd move to StitchFoundry miss them. Ids for the
 | PU-11 | **WordIT** | A word collage filling a simple shape (a heart of names) | M |
 | PU-12 | **Kerning classes** (16.5) | Kern a letter against a whole group of letters at once when making a font | **Done** (Kerning Class, Kern All) |
 | PU-13 | **Autodigitizer: capped satin ends, satin columns down to 1 mm** (16.5) | Cleaner small lettering and narrow columns from pictures | S |
-| PU-14 | **Fonts: 170+ included, 150+ to buy; small lettering fonts (4 mm)** | StitchFoundry's built-in fonts come from craft-fonts (OFL), far fewer | L (fonts) |
+| PU-14 | **Fonts: 170+ included, 150+ to buy; small lettering fonts (4 mm)** | StitchFoundry: 39 Foundry fonts built into the desktop app (34 added 2026-10-25: scripts, serifs, sans, display, western, gothic, a 5 mm small-text font), and Ink/Stitch's 131 hand-digitized fonts a click away (Get Embroidery Fonts): 170 in all | **Mostly done**; the Foundry fonts are generated and want sew tests; more to add |
 | PU-15 | **Direct machine connection**: Tajima LAN and Tajima Connect, Tajima serial, Barudan, SWF, Toyota, ZSK; machine status and production reports | Commercial shops send designs over the network and see what each head is doing | L; the protocols aren't published (owner's call, below) |
 | PU-16 | **PulseID-style personalization automation**: orders read from an online shop (Shopify, WooCommerce), rules pick the size, colour and font, designs pulled by barcode | Shops that sell personalized goods online | L; with MakerFoundry |
 | PU-17 | **Web design catalog, e-mailing designs and worksheets** | Share a design or its proof sheet with a customer in one step | S |
@@ -80,8 +80,8 @@ Ranked by how much the people who'd move to StitchFoundry miss them. Ids for the
   published. Building them clean-room means the machine makers' published SDKs or documentation,
   or a partnership; without that, StitchFoundry keeps to USB sticks, folders and network shares
   (which every one of these machines also reads).
-- **PU-14, fonts.** More fonts means more OFL fonts digitized into craft-fonts (FONT-01's way) and
-  sewn out; it is the biggest single piece of work on this list.
+- **PU-14, fonts.** 39 built in and 131 more to download now (FONT-03). What's left is sewing
+  them out: each Foundry font is digitized automatically and checked on screen only.
 - **PU-16, personalization automation.** Belongs with MakerFoundry's shop as much as the app.
 
 ## Suggested order

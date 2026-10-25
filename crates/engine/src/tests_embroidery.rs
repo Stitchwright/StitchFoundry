@@ -4756,12 +4756,37 @@ fn embroidery_fonts_start_from_type() {
     // the H artboard as wide as the family's own advance, wider than the i's
     let widths: Vec<f64> = info["glyphs"].as_array().unwrap().iter().map(|g| g["width"].as_f64().unwrap()).collect();
     assert!(widths[0] > widths[1] && widths[1] > 1.0, "{widths:?}");
+    // FONT-03: a space as wide as the family's (a lone space lays out as nothing)
+    let space = info["font"]["space"].as_f64().unwrap();
+    assert!(space > 0.15 * 20.0 && space < 0.6 * 20.0, "{space}");
     // saved: lettering in it
     s.execute("embroidery.fontDoc.save", &json!({})).unwrap();
     assert!(s.execute("embroidery.lettering", &json!({"text": "Hig", "font": "Source Sans 3"})).is_ok());
     // a family or style there isn't
     assert!(s.execute("embroidery.fontDoc.fromType", &json!({"family": "No Such Family"})).is_err());
     assert!(s.execute("embroidery.fontDoc.fromType", &json!({"family": "Source Sans 3", "style": "Hairline Oblique"})).is_err());
+}
+
+/// FONT-03: art whose middle is on no artboard (a script tail sweeping out past its letter) counts
+/// for the glyph whose artboard it overlaps most.
+#[test]
+fn glyph_art_off_its_artboard_counts_for_the_one_it_overlaps() {
+    let mut s = session();
+    s.execute("embroidery.fontDoc.new", &json!({"name": "Tails", "chars": "AB", "size": 20})).unwrap();
+    let b = s.doc().unwrap().doc.artboards[1].rect;
+    // from inside B's right half out far past it: the middle is beyond every artboard
+    let (y0, y1) = (b.y1 - 30.0, b.y1 - 20.0);
+    let d = format!(
+        "M {} {y0} L {} {y0} L {} {y1} L {} {y1} Z",
+        b.x1 - b.width() * 0.4,
+        b.x1 + 3.0 * b.width(),
+        b.x1 + 3.0 * b.width(),
+        b.x1 - b.width() * 0.4
+    );
+    let id = s.execute("path.create", &json!({"d": d})).unwrap()["id"].as_u64().unwrap();
+    s.execute("embroidery.set", &json!({"type": "fill", "ids": [id]})).unwrap();
+    let info = s.execute("embroidery.fontDoc.info", &json!({})).unwrap();
+    assert_eq!((info["glyphs"][0]["done"].as_bool(), info["glyphs"][1]["done"].as_bool()), (Some(false), Some(true)), "{info}");
 }
 
 #[test]

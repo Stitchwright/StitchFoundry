@@ -57,7 +57,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Stitchwright/stitchfoundry-fonts
-          ref: 185c21230b75a44c74f0adab233ced525e89f6e1
+          ref: 09a35cd34884a9030ee5395e450a1eba08d44994
           path: stitchfoundry-fonts
           sparse-checkout: fonts
       - uses: dtolnay/rust-toolchain@stable

@@ -533,7 +533,10 @@ fn from_type(s: &mut Session, p: &Value) -> Result<Value> {
     // room below the baseline for the deepest descender, a space as the family's
     let deepest = glyphs.iter().filter_map(|(_, path, _)| path.bounds()).map(|b| b.y1).fold(0.0f64, f64::max) / PT_PER_MM;
     f.descent = (deepest + 2.0).max(f.size * 0.2);
-    f.space = type_glyph(&family, &style, " ", points).1 / PT_PER_MM;
+    // a space as wide as the family's: measured between two letters (a lone space lays out as
+    // nothing), else three tenths of the size
+    let space = type_glyph(&family, &style, "H H", points).1 - type_glyph(&family, &style, "HH", points).1;
+    f.space = if space.is_finite() && space > 0.0 { space / PT_PER_MM } else { f.size * 0.3 };
     let widths: Vec<(String, f64)> = glyphs.iter().map(|(n, _, w)| (n.clone(), *w)).collect();
     let (boards, guides) = glyph_boards(&widths, &f, 0.0, 1);
     let mut doc = Document::new(100.0, 100.0);
@@ -652,21 +655,28 @@ fn merge_font(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 /// The art on each glyph's artboard: the top-level objects of the visible layers whose middle is
-/// inside it, by artboard.
+/// inside it, by artboard. An object whose middle is on no artboard (a script "j" whose tail
+/// sweeps back under the letters before it, an apostrophe above the capitals) goes to the artboard
+/// it overlaps most.
 fn glyph_art(d: &Document) -> Vec<(&Artboard, Vec<Arc<Node>>)> {
-    let tops: Vec<(Arc<Node>, vectorcraft_geom::Point)> = d
-        .layers
-        .iter()
-        .filter(|l| l.visible)
-        .flat_map(|l| l.children().into_iter().flatten())
-        .filter_map(|n| Some((n.clone(), n.geometric_bounds()?.center())))
-        .collect();
-    d.artboards
-        .iter()
-        .filter(|a| !a.name.trim().is_empty() && a.name.chars().count() <= MAX_NAME)
-        .take(MAX_DOC_GLYPHS)
-        .map(|a| (a, tops.iter().filter(|(_, c)| a.rect.contains(*c)).map(|(n, _)| n.clone()).collect()))
-        .collect()
+    let boards: Vec<&Artboard> =
+        d.artboards.iter().filter(|a| !a.name.trim().is_empty() && a.name.chars().count() <= MAX_NAME).take(MAX_DOC_GLYPHS).collect();
+    let mut art: Vec<Vec<Arc<Node>>> = vec![Vec::new(); boards.len()];
+    let tops = d.layers.iter().filter(|l| l.visible).flat_map(|l| l.children().into_iter().flatten());
+    for n in tops {
+        let Some(b) = n.geometric_bounds() else { continue };
+        let home = boards.iter().position(|a| a.rect.contains(b.center())).or_else(|| {
+            let overlap = |a: &Artboard| {
+                let i = a.rect.intersect(b);
+                i.width().max(0.0) * i.height().max(0.0)
+            };
+            boards.iter().enumerate().map(|(k, a)| (k, overlap(a))).filter(|(_, o)| *o > 0.0).max_by(|x, y| x.1.total_cmp(&y.1)).map(|(k, _)| k)
+        });
+        if let Some(list) = home.and_then(|k| art.get_mut(k)) {
+            list.push(n.clone());
+        }
+    }
+    boards.into_iter().zip(art).collect()
 }
 
 fn info(s: &mut Session, _: &Value) -> Result<Value> {

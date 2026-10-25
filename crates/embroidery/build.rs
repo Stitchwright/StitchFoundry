@@ -5,6 +5,8 @@
 //! unset, `BUNDLED_FONTS` is empty and fonts are loaded or downloaded as before. Font files never
 //! live in this repository. `STITCHFOUNDRY_FONTS_REQUIRED=1` turns a missing or bad checkout into a
 //! build error (release builds). Nothing is fetched: the build reads only the local checkout.
+//! The web build (wasm32) embeds only the folders `fonts/web.txt` lists, when there is one, so the
+//! page stays small to download.
 
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
@@ -12,7 +14,7 @@ use std::path::{Path, PathBuf};
 /// The largest file embedded (bytes): the Foundry fonts are well under a megabyte each.
 const MAX_FILE: u64 = 8 << 20;
 /// The most fonts embedded.
-const MAX_FONTS: usize = 32;
+const MAX_FONTS: usize = 64;
 
 fn main() {
     println!("cargo::rerun-if-env-changed=STITCHFOUNDRY_FONTS_DIR");
@@ -61,6 +63,14 @@ fn fonts(dir: &Path) -> Result<String, String> {
         .filter(|p| p.join("font.json").is_file() && p.join("glyphs.stitchfoundry").is_file())
         .collect();
     folders.sort();
+    // the web app: just the fonts `web.txt` names (a folder a line), when the checkout has one
+    let web = std::env::var("TARGET").is_ok_and(|t| t.starts_with("wasm32"));
+    let list = root.join("web.txt");
+    println!("cargo::rerun-if-changed={}", list.display());
+    if web && let Ok(text) = std::fs::read_to_string(&list) {
+        let wanted: Vec<&str> = text.lines().map(str::trim).filter(|l| !l.is_empty() && !l.starts_with('#')).collect();
+        folders.retain(|f| f.file_name().and_then(|n| n.to_str()).is_some_and(|n| wanted.contains(&n)));
+    }
     let mut out = String::new();
     for f in folders.iter().take(MAX_FONTS) {
         let name = f.file_name().and_then(|n| n.to_str()).ok_or_else(|| format!("{}: not a plain name", f.display()))?;
