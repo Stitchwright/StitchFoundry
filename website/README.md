@@ -1,6 +1,6 @@
 # stitchfoundry.app: website drafts (WEB-01)
 
-Status: draft, 2026-10-23. **Not published.** Anything public is the owner's decision, so these
+Status: draft, 2026-10-25 (features and screenshots brought up to date). **Not published.** Anything public is the owner's decision, so these
 pages wait for approval before they go anywhere.
 
 - `index.html`: the home page (what it does, features, machines and formats, questions).

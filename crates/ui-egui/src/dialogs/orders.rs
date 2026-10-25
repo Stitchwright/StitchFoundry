@@ -334,7 +334,13 @@ pub fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
             let t = Tokens::get(ui.ctx());
             ui.set_width(560.0);
             let body = (ui.ctx().content_rect().height() - 120.0).max(200.0);
-            egui::ScrollArea::vertical().max_height(body).auto_shrink([false, true]).show(ui, |ui| body_ui(app, ui, &t));
+            // as tall as the screen allows (up to 640 points): a scroll area that scrolls otherwise
+            // shrinks to its 64-point minimum
+            egui::ScrollArea::vertical()
+                .max_height(body)
+                .min_scrolled_height(body.min(640.0))
+                .auto_shrink([false, true])
+                .show(ui, |ui| body_ui(app, ui, &t));
         });
     if !open {
         if let Err(e) = save(app) {

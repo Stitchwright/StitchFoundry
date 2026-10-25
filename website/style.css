@@ -60,6 +60,11 @@ nav a { text-decoration: none; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
 .card h3 { margin: 0 0 8px; font-size: 19px; }
 .card p { margin: 0; color: var(--dim); }
+.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 24px 0 40px; }
+.gallery figure { margin: 0; }
+.gallery img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); display: block; }
+.gallery figcaption { margin-top: 8px; color: var(--dim); font-size: 15px; }
+.gallery figcaption b { color: var(--text); }
 h2 { font-size: 28px; margin: 48px 0 8px; }
 .lede { color: var(--dim); margin: 0 0 8px; max-width: 46em; }
 table { border-collapse: collapse; width: 100%; margin: 16px 0 32px; }

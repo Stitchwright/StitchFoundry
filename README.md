@@ -56,33 +56,91 @@ embroidery fonts. Builds of every change since the release, unsigned, are on the
 
 ## What it does
 
+### For everyone
+
+- **Make a Design, step by step.** Pick words, a shape, an appliqué, a picture, an in-the-hoop
+  project or quilting, then your hoop and fabric. StitchFoundry sets the density, underlay and pull
+  compensation, and makes words smaller when they're too long for the hoop.
+- **Simple mode** for people new to embroidery or to computers. It has big buttons, plain words and
+  a light or dark screen. Thread colours have names ("Red", "Sky Blue") and sewing times read
+  "7 min". **Save for My Machine** finds your USB stick and saves straight onto it.
+- **39 embroidery fonts built in**: scripts, wedding, varsity, western, gothic, bubble and a 5 mm
+  font for small text. 131 more are a free download away, and you can make your own in the font
+  creator.
+- **Photos to stitches.** Remove the background in one click (Select Subject, a cut-out brush),
+  trace with the Magnetic Lasso, and Auto-Digitize with as many threads as you choose. Photo stitch
+  styles include sepia, black and white and colour tiles.
+- **In-the-hoop projects**: zipper pouch, pencil case, phone case, passport holder, book cover,
+  key fob, luggage tag, bookmark, mug rug, coasters, ornaments and pillow fronts. Each comes with
+  its steps and cut sizes.
+- **Wizards**: Endless Border, Spiro, Repeat Design, Quilt Background, Quilt Block, Family Tree,
+  monograms and patches.
+- **Watch it sew** in the stitch player, and save it as a GIF or MP4. **See it on the product**:
+  a cap, T-shirt, polo, hoodie, tote or towel, life size.
+- **Nine sample designs** on Home, to sew and learn from.
+
+### For digitizers
+
 - **Stitch types on anything you draw.** Any path, shape or type can carry running stitches
-  (single, triple, bean, motif), satin and satin columns, tatami and other fills, or appliqué. Edit
-  the shape and the stitches follow.
+  (single, triple, bean, motif), satin and satin columns, tatami and other fills, or appliqué.
+  Edit the shape and the stitches follow.
 - **Direction placed for you, then yours to change.** Stitch angles are chosen automatically and
   stay editable on the canvas with inclination lines and start and stop beads.
-- **Fill textures.** Tatami fills take a texture pattern (diamonds, waves, herringbone, bricks,
-  circles, scales) or lines carved in from your own art: a drawn line, a shape's outline like a
-  carving stamp, or a curve repeated across the fill.
+- **Fills and effects:**
+  - texture patterns, carved lines, wave and radial fills, ragged edges;
+  - satin density that varies along a column, or uneven on purpose for texture;
+  - free-standing lace, eyelets, StumpWork, blackwork and candlewick motifs;
+  - sequins, beads, cord and chenille.
 - **Digitizing tools.** Column A/B digitizing, a radial digitizing widget with satin brushes,
-  lettering from any font, and Auto-Digitize for flat-colour images.
-- **Design from Prompt and Redraw Image.** Describe a design, or select a logo, and Claude draws
-  it as clean flat-colour art, which StitchFoundry digitizes in one step (desktop app, with your
-  own Anthropic API key).
-- **Stitch-level control.** Edit single stitches and machine functions, split objects, branch
-  objects into one thread run, sequence automatically, and keep objects alike with styles.
-- **Design checks** for dense areas, long stitches and lettering too small to sew, machine
-  profiles for each format, a hoop list, fabrics, thread charts and a stitch player.
-- **Machine files:** DST, PES and PEC, JEF, EXP, VP3, XXX and U01, to open and to export.
+  lettering from any font with kerning pairs and kerning classes, Fill Region from loose lines,
+  and Auto-Digitize.
+- **Stitch-level control.**
+  - Edit single stitches and machine functions.
+  - Split objects, and branch objects into one thread run.
+  - Sequence automatically, and keep objects alike with styles.
+  - Recolour a design lighter, darker or tinted, and remove stitches too short to sew.
+- **Design checks** for dense areas, long stitches and lettering too small to sew, plus machine
+  profiles, hoops, fabrics, thread charts and a design grade.
+- **Design from Prompt and Redraw Image.** Describe a design, or select a logo, and AI draws it as
+  clean flat-colour art that StitchFoundry digitizes in one step. Optional, paid in credits or
+  with your own key.
 
-[`docs/embroidery.md`](docs/embroidery.md) covers it all as you use it.
+### For embroidery businesses
+
+- **Online orders.** Shopify, WooCommerce or any shop's CSV export (Etsy and others). Each
+  personalized order becomes a design in the font and thread your rules choose. Each also gets a
+  job order, machine files and a worksheet with a barcode. Find a job by scanning its barcode.
+  Setup: [`docs/online-orders.md`](docs/online-orders.md).
+- **Production:** stitch counts, sewing time, thread and cost estimates, quotes, colourways,
+  batch output, hot folders and a lettering kiosk for the counter.
+
+### Machine files
+
+DST, PES and PEC, JEF, EXP, VP3, XXX, U01, PCS, TAP and DSB, to open and to save. Husqvarna HUS,
+Janome SEW and Pfaff VIP are experimental. **Save for a Memory Card** writes the right file for
+older machines' cards. Files StitchFoundry writes are checked against an independent reader.
+
+[`docs/embroidery.md`](docs/embroidery.md) covers it all as you use it, and
+[`CHANGELOG.md`](CHANGELOG.md) says what's new in each version.
 
 ## Screenshots
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/images/stitchfoundry-home.png" alt="The Home screen: start a design for your hoop, first steps, samples and tips"><br><sub><b>Home.</b> Start a design the size of your hoop, follow the first steps or open a sample.</sub></td>
-    <td width="50%"><img src="docs/images/stitchfoundry-sample.png" alt="The Sun and Moon sample: a satin-edged sun with a fill centre and a fill crescent moon"><br><sub><b>Stitches on the canvas.</b> The Sun and Moon sample, shown thread by thread as it will sew.</sub></td>
+    <td width="50%"><img src="docs/images/stitchfoundry-simple-mode.png" alt="Simple mode on the light screen: big buttons down the left, the appliqué star sample in the middle, its size, stitches and sewing time on the right"><br><sub><b>Simple mode.</b> Big buttons and plain words; Save for My Machine puts the design on your USB stick.</sub></td>
+    <td width="50%"><img src="docs/images/stitchfoundry-make-a-design.png" alt="The Make a Design window: a name or words, a shape, an appliqué, a picture, an in-the-hoop project, quilting for a tile or a sample"><br><sub><b>Make a Design.</b> Choose what to make and follow the steps.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/stitchfoundry-fonts.png" alt="Names stitched in eight built-in fonts: Emily in script, TIGERS in varsity, Rodeo in western, Gothic, Mr &amp; Mrs in wedding script, Bubbles, Slab Serif and Grandma in signature script"><br><sub><b>39 built-in fonts.</b> Eight of them, shown thread by thread as they will sew.</sub></td>
+    <td><img src="docs/images/stitchfoundry-in-the-hoop.png" alt="A zipper pouch in-the-hoop project: zipper and fabric placement lines, a heart and the words Sew Happy"><br><sub><b>In-the-hoop projects.</b> A zipper pouch, with every step and the cut sizes in its notes.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/stitchfoundry-online-orders.png" alt="The Online Orders window: a Shopify store, rules for towels, caps and everything else, machine files PES and DST"><br><sub><b>Online orders.</b> Rules turn each personalized order into a design, a job, machine files and a worksheet.</sub></td>
+    <td><img src="docs/images/stitchfoundry-memory-card.png" alt="The Save for a Memory Card window over the heart patch sample"><br><sub><b>Memory cards.</b> Pick the card your machine takes; StitchFoundry saves the right file.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/stitchfoundry-home.png" alt="The Home screen: start a design for your hoop, first steps, and samples shown as pictures"><br><sub><b>Home.</b> Start a design the size of your hoop, follow the first steps or open a sample.</sub></td>
+    <td><img src="docs/images/stitchfoundry-tartan-heart.png" alt="The tartan heart sample: woven-looking green, blue and gold stitches"><br><sub><b>Samples.</b> The tartan heart, one of nine finished designs.</sub></td>
   </tr>
   <tr>
     <td><img src="docs/images/stitchfoundry-applique-and-print.png" alt="Appliqué pieces in gingham, denim and plain fabric, a foil star, a printed band and coil and square-loop runs"><br><sub><b>Appliqué, foil and print.</b> Fabric pieces with their tack-down and cover stitches, a foil star, a printed band and two motif runs.</sub></td>
@@ -106,8 +164,8 @@ JSON control channel and an MCP server the way a person does.
 
 ## Free and open source
 
-StitchFoundry is free and open source. Its AI features (Design from Prompt, Redraw Image with
-Claude) run on your own Anthropic API key; optional cloud credits for them are planned.
+StitchFoundry is free and open source. Its optional AI features (Design from Prompt, Redraw Image)
+run on Foundry credits or your own AI provider's key.
 
 ## Build and run
 
