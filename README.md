@@ -31,7 +31,7 @@
 ## Download
 
 <p align="center">
-  <a href="https://github.com/Stitchwright/StitchFoundry/releases/tag/v0.13.1-rc.2"><b>⬇ Download StitchFoundry 0.13.1 (release candidate 2)</b></a>
+  <a href="https://github.com/Stitchwright/StitchFoundry/releases/tag/v0.14.0-rc.1"><b>⬇ Download StitchFoundry 0.14.0 (release candidate 1)</b></a>
   (Windows, macOS, Linux; signed) ·
   <a href="https://stitchwright.github.io/StitchFoundry/"><b>Try it in your browser</b></a>
 </p>
