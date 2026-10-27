@@ -31,7 +31,7 @@
 ## Download
 
 <p align="center">
-  <a href="https://github.com/Stitchwright/StitchFoundry/releases/tag/v0.14.0-rc.1"><b>⬇ Download StitchFoundry 0.14.0 (release candidate 1)</b></a>
+  <a href="https://github.com/Stitchwright/StitchFoundry/releases/tag/v0.13.1-rc.2"><b>⬇ Download StitchFoundry 0.13.1 (release candidate 2)</b></a>
   (Windows, macOS, Linux; signed) ·
   <a href="https://stitchwright.github.io/StitchFoundry/"><b>Try it in your browser</b></a>
 </p>
@@ -47,7 +47,8 @@ The Windows installers and programs are signed, and the Mac app is signed and no
 Apple, so they open without a warning. The browser version is a demo: it can't download
 embroidery fonts. Builds of every change since the release, unsigned, are on the
 [latest build](https://github.com/Stitchwright/StitchFoundry/releases/tag/latest-build) page
-(Windows may warn: **More info › Run anyway**; on macOS right-click › **Open** the first time).
+(Windows may warn: **More info › Run anyway**, and Smart App Control blocks them: use the signed
+release above; on macOS right-click › **Open** the first time).
 
 <p align="center">
   <img src="docs/images/stitchfoundry-branching.png" alt="StitchFoundry: thirty satin petals and a fill vine sewn as one thread, with the Stitch Sequence panel" width="100%">
