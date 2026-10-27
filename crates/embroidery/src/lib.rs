@@ -152,7 +152,7 @@ impl LiveCache {
             Some((key, out)) if Arc::ptr_eq(&key, n) => out,
             _ => match &n.kind {
                 NodeKind::Repeat(spec) => spec
-                    .transforms()
+                    .transforms(None)
                     .into_iter()
                     .take(MAX_REPEAT_INSTANCES)
                     .flat_map(|m| {

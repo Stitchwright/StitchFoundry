@@ -147,7 +147,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let mut open = true;
     let mut go = false;
     egui::Window::new(tl!("Family Tree"))
-        .id(egui::Id::new("family-tree"))
+        .id(egui::Id::unique("family-tree"))
         .open(&mut open)
         .collapsible(false)
         .resizable(false)

@@ -82,7 +82,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: storytold/craft-fonts
-          ref: a71c20e30af613287c504f7e685ca8fad77752bc
+          ref: b076417b5880bd4154bd22f00695b1d28c6bea83
           path: craft-fonts
       # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
       # only their fonts/ folder. Bump the commit deliberately.
@@ -170,7 +170,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: storytold/craft-fonts
-          ref: a71c20e30af613287c504f7e685ca8fad77752bc
+          ref: b076417b5880bd4154bd22f00695b1d28c6bea83
           path: craft-fonts
       # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
       # only their fonts/ folder. Bump the commit deliberately.
@@ -258,7 +258,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: storytold/craft-fonts
-          ref: a71c20e30af613287c504f7e685ca8fad77752bc
+          ref: b076417b5880bd4154bd22f00695b1d28c6bea83
           path: craft-fonts
       # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
       # only their fonts/ folder. Bump the commit deliberately.
@@ -370,7 +370,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: storytold/craft-fonts
-          ref: a71c20e30af613287c504f7e685ca8fad77752bc
+          ref: b076417b5880bd4154bd22f00695b1d28c6bea83
           path: craft-fonts
       # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
       # only their fonts/ folder. Bump the commit deliberately.
@@ -431,7 +431,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: storytold/craft-fonts
-          ref: a71c20e30af613287c504f7e685ca8fad77752bc
+          ref: b076417b5880bd4154bd22f00695b1d28c6bea83
           path: craft-fonts
       # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
       # only their fonts/ folder. Bump the commit deliberately.
@@ -488,7 +488,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: storytold/craft-fonts
-          ref: a71c20e30af613287c504f7e685ca8fad77752bc
+          ref: b076417b5880bd4154bd22f00695b1d28c6bea83
           path: craft-fonts
       # The Foundry embroidery fonts, embedded by crates/embroidery/build.rs (STITCHFOUNDRY_FONTS_DIR):
       # only their fonts/ folder. Bump the commit deliberately.

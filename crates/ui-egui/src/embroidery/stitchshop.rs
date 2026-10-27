@@ -411,7 +411,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
             .map(|j| format!("{}  {}", j["number"].as_str().unwrap_or_default(), j["customer"].as_str().unwrap_or_default()))
     });
     egui::Window::new(tl!("Send to StitchShop"))
-        .id(egui::Id::new("send-stitchshop"))
+        .id(egui::Id::unique("send-stitchshop"))
         .open(&mut open)
         .collapsible(false)
         .resizable(false)
@@ -433,7 +433,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                     ui.label(tl!("Shop"));
                     let any = tl!("Any of my shops").to_string();
                     let shown = st.shop.as_ref().and_then(|id| shops.iter().find(|s| &s.id == id)).map_or(any.clone(), |s| s.name.clone());
-                    egui::ComboBox::from_id_salt("stitchshop-shop").selected_text(shown).show_ui(ui, |ui| {
+                    craft_ui::ComboBox::from_id_salt("stitchshop-shop").selected_text(shown).show_ui(ui, |ui| {
                         ui.selectable_value(&mut st.shop, None, any);
                         for s in shops {
                             ui.selectable_value(&mut st.shop, Some(s.id.clone()), &s.name);
@@ -443,7 +443,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
             }
             ui.horizontal(|ui| {
                 ui.label(tl!("Format"));
-                egui::ComboBox::from_id_salt("stitchshop-format").selected_text(st.format.to_ascii_uppercase()).show_ui(ui, |ui| {
+                craft_ui::ComboBox::from_id_salt("stitchshop-format").selected_text(st.format.to_ascii_uppercase()).show_ui(ui, |ui| {
                     for f in FORMATS {
                         ui.selectable_value(&mut st.format, f.to_string(), f.to_ascii_uppercase());
                     }

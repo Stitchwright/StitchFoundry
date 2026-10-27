@@ -306,7 +306,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     super::account::load(app);
     let credits = super::account::paying_with_credits(app);
     egui::Window::new(tl!("Check My Sew-out"))
-        .id(egui::Id::new("check-my-sewout"))
+        .id(egui::Id::unique("check-my-sewout"))
         .open(&mut open)
         .collapsible(false)
         .resizable(false)
@@ -570,7 +570,7 @@ pub fn report_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let photos = app.embroidery.sewout.photos.len();
     let credits = super::account::paying_with_credits(app);
     egui::Window::new(tl!("Report to StitchFoundry"))
-        .id(egui::Id::new("report-sewout"))
+        .id(egui::Id::unique("report-sewout"))
         .open(&mut open)
         .collapsible(false)
         .resizable(false)

@@ -40,20 +40,21 @@ fn fill_region(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let given = p.get("ids").and_then(Value::as_array).map(|list| list.iter().filter_map(Value::as_u64).collect::<Vec<u64>>());
     let selected: Vec<u64> = s.active().map(|d| d.selection.objects.iter().map(|n| n.0).collect()).unwrap_or_default();
-    let ours = s.active().is_some_and(|d| d.undo_group.is_none());
+    // the active document's own group: an undo group open in another document stays open
+    let ours = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
     let mut tries = vec![given.clone().unwrap_or_else(|| selected.clone())];
     // selected lines that don't enclose the click (the line just drawn): every line instead
-    if ours && given.is_none() && !selected.is_empty() {
+    if ours.is_some() && given.is_none() && !selected.is_empty() {
         tries.push(Vec::new());
     }
     let mut last = Err(bad(CMD, "there are no lines to fill between"));
     for ids in tries {
-        if ours {
+        if ours.is_some() {
             s.begin_named_undo_group(Some("Fill Region".into()));
         }
         last = fill(s, ids, pt, gap, ty, color.as_deref());
-        if ours {
-            s.end_undo_group(last.is_err());
+        if let Some(uid) = ours {
+            s.end_document_undo_group(uid, last.is_err());
         }
         if last.is_ok() {
             break;

@@ -203,7 +203,17 @@ fn glyph_boards(glyphs: &[(String, f64)], f: &FontDesign, top: f64, next: u32) -
         for pos in [base, base - f.size * pt] {
             guides.push(Guide { vertical: false, pos, artboard: Some(id), layer: None });
         }
-        boards.push(Artboard { id, name: name.clone(), rect, show_center_mark: false, show_cross_hairs: false });
+        boards.push(Artboard {
+            id,
+            name: name.clone(),
+            rect,
+            show_center_mark: false,
+            show_cross_hairs: false,
+            locked: false,
+            show_video_safe_areas: false,
+            video_ruler_pixel_aspect_ratio: 1.0,
+            color: None,
+        });
         x += w + GAP * pt;
     }
     (boards, guides)

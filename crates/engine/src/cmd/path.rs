@@ -158,8 +158,11 @@ fn append_anchor(s: &mut Session, p: &Value) -> Result<Value> {
 
 fn close(s: &mut Session, p: &Value) -> Result<Value> {
     let id = id_param(p, "id").ok_or_else(|| bad("path.close", "missing id"))?;
-    let h_in = point_param(p, "in");
-    let independent = bool_or(p, "independent", false);
+    let h_in = match p.get("in").filter(|h| !h.is_null()) {
+        None => None,
+        Some(h) => Some(finite_numbers(h).map(|[x, y]| Point::new(x, y)).ok_or_else(|| bad("path.close", "`in` must be [x, y]"))?),
+    };
+    let independent = switch_or(p, "independent", false, "path.close")?;
     s.edit("Close Path", |d, sel| {
         let path = path_mut(d, id)?;
         let sp = path.subpaths.iter_mut().rev().find(|s| !s.closed).ok_or_else(|| EngineError::Other("path is already closed".into()))?;
@@ -178,7 +181,8 @@ fn close(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 pub(crate) fn move_anchors(s: &mut Session, p: &Value) -> Result<Value> {
-    let d = Vec2::new(f64_or(p, "dx", 0.0), f64_or(p, "dy", 0.0));
+    let d = Vec2::new(number_or(p, "dx", 0.0, "path.moveAnchors")?, number_or(p, "dy", 0.0, "path.moveAnchors")?);
+    check_switches(p, &["patterns"], "path.moveAnchors")?;
     // Objects selected whole move as objects, and their pattern tiles move with them when
     // `patterns` (default: General › Transform Pattern Tiles) is on.
     let whole = s.doc()?.selection.whole();
@@ -226,10 +230,10 @@ pub(crate) fn transform_anchors(s: &mut Session, label: &str, xf: vectorcraft_ge
 fn set_handle(s: &mut Session, p: &Value) -> Result<Value> {
     let id = id_param(p, "id").ok_or_else(|| bad("path.setHandle", "missing id"))?;
     let si = usize_opt(p, "subpath", "path.setHandle")?.unwrap_or(0);
-    let ai = p.get("anchor").and_then(Value::as_u64).ok_or_else(|| bad("path.setHandle", "missing anchor"))? as usize;
+    let ai = p.get("anchor").and_then(Value::as_u64).map(index).ok_or_else(|| bad("path.setHandle", "missing anchor"))?;
     let out = str_param(p, "which") != Some("in");
     let pos = Point::new(f64_req(p, "x", "path.setHandle")?, f64_req(p, "y", "path.setHandle")?);
-    let independent = bool_or(p, "independent", false);
+    let independent = switch_or(p, "independent", false, "path.setHandle")?;
     s.edit("Reshape", |d, _| {
         let path = path_mut(d, id)?;
         let a = path.anchor_mut(si, ai).ok_or_else(|| EngineError::Other("no such anchor".into()))?;
@@ -244,7 +248,7 @@ fn set_handle(s: &mut Session, p: &Value) -> Result<Value> {
 fn move_anchor(s: &mut Session, p: &Value) -> Result<Value> {
     let id = id_param(p, "id").ok_or_else(|| bad("path.moveAnchor", "missing id"))?;
     let si = usize_opt(p, "subpath", "path.moveAnchor")?.unwrap_or(0);
-    let ai = p.get("anchor").and_then(Value::as_u64).ok_or_else(|| bad("path.moveAnchor", "missing anchor"))? as usize;
+    let ai = p.get("anchor").and_then(Value::as_u64).map(index).ok_or_else(|| bad("path.moveAnchor", "missing anchor"))?;
     let pos = Point::new(f64_req(p, "x", "path.moveAnchor")?, f64_req(p, "y", "path.moveAnchor")?);
     s.edit("Move", |d, _| {
         let path = path_mut(d, id)?;
@@ -463,6 +467,9 @@ fn join(s: &mut Session, p: &Value) -> Result<Value> {
             if a == b {
                 return Err(bad(C, "join two different paths"));
             }
+            let st = s.doc()?;
+            let picked_a = st.selection.anchors.get(&a).cloned().unwrap_or_default();
+            let picked_b = st.selection.anchors.get(&b).cloned().unwrap_or_default();
             s.edit("Join", |d, sel| {
                 let pb = d.node(b).and_then(|n| n.path_data()).cloned().ok_or(EngineError::NoNode(b))?;
                 let pa = path_mut(d, a)?;
@@ -477,8 +484,24 @@ fn join(s: &mut Session, p: &Value) -> Result<Value> {
                 // The ends asked for, else the closest pair.
                 let cands =
                     [(xl.distance(yf), false, false), (xl.distance(yl), false, true), (xf.distance(yf), true, false), (xf.distance(yl), true, true)];
-                let (rx, ry) =
-                    ends.unwrap_or_else(|| cands.into_iter().min_by(|p, q| p.0.total_cmp(&q.0)).map_or((false, false), |(_, rx, ry)| (rx, ry)));
+                // Direct-selected end points decide which ends meet, before the closest pair does.
+                let end_of = |picked: &std::collections::BTreeSet<(usize, usize)>, si: usize, len: usize| {
+                    let last_ix = len.checked_sub(1)?;
+                    let first = picked.contains(&(si, 0));
+                    let last = picked.contains(&(si, last_ix));
+                    match (first, last) {
+                        (true, false) => Some(true),
+                        (false, true) => Some(false),
+                        _ => None,
+                    }
+                };
+                let by_selection = match (end_of(&picked_a, sa, x.anchors.len()), end_of(&picked_b, sb, y.anchors.len())) {
+                    (Some(fa), Some(fb)) => Some((fa, !fb)),
+                    _ => None,
+                };
+                let (rx, ry) = ends
+                    .or(by_selection)
+                    .unwrap_or_else(|| cands.into_iter().min_by(|p, q| p.0.total_cmp(&q.0)).map_or((false, false), |(_, rx, ry)| (rx, ry)));
                 if rx {
                     x.reverse();
                 }
@@ -725,6 +748,7 @@ fn open_run(mut anchors: Vec<vectorcraft_geom::Anchor>) -> Option<SubPath> {
 fn reshape(s: &mut Session, p: &Value) -> Result<Value> {
     let id = id_param(p, "id").ok_or_else(|| bad("path.reshape", "missing id"))?;
     let at = Point::new(f64_req(p, "x", "path.reshape")?, f64_req(p, "y", "path.reshape")?);
+    check_numbers(p, &["dx", "dy", "tol", "radius"], "path.reshape")?;
     let delta = Vec2::new(f64_or(p, "dx", 0.0), f64_or(p, "dy", 0.0));
     let tol = f64_or(p, "tol", 3.0).max(0.0);
     let radius = p.get("radius").and_then(Value::as_f64);
@@ -772,8 +796,8 @@ fn reshape(s: &mut Session, p: &Value) -> Result<Value> {
 fn insert_anchor(s: &mut Session, p: &Value) -> Result<Value> {
     let id = id_param(p, "id").ok_or_else(|| bad("path.insertAnchor", "missing id"))?;
     let si = usize_opt(p, "subpath", "path.insertAnchor")?.unwrap_or(0);
-    let seg = p.get("segment").and_then(Value::as_u64).ok_or_else(|| bad("path.insertAnchor", "missing segment"))? as usize;
-    let t = f64_or(p, "t", 0.5).clamp(0.0, 1.0);
+    let seg = p.get("segment").and_then(Value::as_u64).map(index).ok_or_else(|| bad("path.insertAnchor", "missing segment"))?;
+    let t = number_or(p, "t", 0.5, "path.insertAnchor")?.clamp(0.0, 1.0);
     let idx = s.edit("Add Anchor Point", |d, _| {
         let path = path_mut(d, id)?;
         let sp = path.subpaths.get_mut(si).ok_or_else(|| EngineError::Other("no such subpath".into()))?;

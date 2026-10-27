@@ -38,8 +38,9 @@ fn eyelet(s: &mut Session, p: &Value) -> Result<Value> {
         Some(list) => list.iter().filter_map(Value::as_u64).collect(),
         None => s.active().map(|d| d.selection.objects.iter().map(|n| n.0).collect()).unwrap_or_default(),
     };
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_named_undo_group(Some("Make Eyelets".into()));
     }
     let done = (|| -> Result<Vec<u64>> {
@@ -91,8 +92,8 @@ fn eyelet(s: &mut Session, p: &Value) -> Result<Value> {
         s.execute("select.set", &json!({ "ids": made }))?;
         Ok(made)
     })();
-    if group {
-        s.end_undo_group(done.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, done.is_err());
     }
     let made = done?;
     Ok(json!({ "eyelets": made.len() / 2, "ids": made }))

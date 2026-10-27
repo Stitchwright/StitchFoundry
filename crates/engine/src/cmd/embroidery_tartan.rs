@@ -126,8 +126,9 @@ fn tartan(s: &mut Session, p: &Value) -> Result<Value> {
     if shapes.is_empty() {
         return Err(bad(CMD, "select closed shapes to fill with tartan"));
     }
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_named_undo_group(Some("Tartan Fill".into()));
     }
     let done = (|| -> Result<Value> {
@@ -172,8 +173,8 @@ fn tartan(s: &mut Session, p: &Value) -> Result<Value> {
         let g = s.execute("object.group", &json!({}))?;
         Ok(json!({ "id": g["id"], "colors": colors, "objects": made.len() }))
     })();
-    if group {
-        s.end_undo_group(done.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, done.is_err());
     }
     done
 }

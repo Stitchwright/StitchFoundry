@@ -37,6 +37,8 @@ pub struct UpdateState {
     manual: bool,
     /// The automatic check ran (or was decided against) this run.
     tried: bool,
+    /// Frames drawn so far: the check waits for the window to be up.
+    frames: u32,
 }
 
 /// A version `major.minor.patch` with an optional `-rc.N`: a release sorts after its candidates.
@@ -124,7 +126,8 @@ pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
     if cfg!(target_arch = "wasm32") {
         return;
     }
-    if !app.updates.tried && app.frame > 2 {
+    app.updates.frames = app.updates.frames.saturating_add(1);
+    if !app.updates.tried && app.updates.frames > 2 {
         app.updates.tried = true;
         if app.ui.check_updates && now_secs().saturating_sub(app.ui.update_checked_at) >= EVERY {
             start(app);

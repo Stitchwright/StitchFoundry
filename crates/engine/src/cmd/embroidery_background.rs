@@ -194,8 +194,9 @@ fn quilt_background(s: &mut Session, p: &Value) -> Result<Value> {
         Some(c) => c,
         None => s.execute("embroidery.info", &json!({}))?["colors"].get(0).and_then(|c| c["color"].as_str()).unwrap_or("#1f2933").to_string(),
     };
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_named_undo_group(Some("Quilt Background".into()));
     }
     let done = (|| -> Result<u64> {
@@ -220,8 +221,8 @@ fn quilt_background(s: &mut Session, p: &Value) -> Result<Value> {
         })?;
         Ok(id)
     })();
-    if group {
-        s.end_undo_group(done.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, done.is_err());
     }
     let id = done?;
     Ok(json!({ "id": id, "fill": if echo { "echo" } else { "stipple" }, "lengthMm": length.round() }))

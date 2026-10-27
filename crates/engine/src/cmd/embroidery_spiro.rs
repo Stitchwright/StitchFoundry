@@ -111,13 +111,14 @@ fn spiro(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let radius = size / 2.0 * PT_PER_MM;
     // its layers, their stitching and the group: one undo step
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_named_undo_group(Some("Spiro".into()));
     }
     let done = make_layers(s, c, radius, (petals, shape, spacing, layers, passes), &colors);
-    if group {
-        s.end_undo_group(done.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, done.is_err());
     }
     let id = done?;
     Ok(json!({ "id": id, "petals": petals, "shape": shape, "spacing": spacing, "layers": layers }))

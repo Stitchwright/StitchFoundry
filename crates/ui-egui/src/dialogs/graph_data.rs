@@ -327,7 +327,7 @@ fn revert(app: &mut VectorcraftApp, d: &mut Dialog) -> Result<(), String> {
 
 /// Import Data: a tab-separated text file's rows into the sheet.
 fn import(app: &mut VectorcraftApp, d: &mut Dialog) -> Result<(), String> {
-    let pick = crate::FilePick { filters: vec![("Text", &["txt", "tsv", "csv"])], ..Default::default() };
+    let pick = crate::FilePick { filters: vec![crate::FilePick::filter("Text", &["txt", "tsv", "csv"])], ..Default::default() };
     let path = crate::picks::open(app, &pick).ok_or("cancelled")?;
     // The button is off where files can't be read.
     let Some(read) = app.services.read.as_ref() else { return Ok(()) };
@@ -336,8 +336,10 @@ fn import(app: &mut VectorcraftApp, d: &mut Dialog) -> Result<(), String> {
     Ok(())
 }
 
+/// Draw the graph-data sheet: keyboard cell movement, block paste, import, transpose, switch-x/y
+/// and revert actions, decimals and column width, and only the cells in view.
 fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
-    let entry_id = egui::Id::new("graph-data-entry");
+    let entry_id = egui::Id::unique("graph-data-entry");
     if ui.memory(|m| m.has_focus(entry_id)) {
         // Tab, Enter (Shift: the other way) and the arrow keys move the picked cell while the entry box
         // has the keys; the entry keeps them (egui would move the focus on with Tab).

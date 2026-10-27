@@ -125,8 +125,9 @@ fn endless(s: &mut Session, p: &Value) -> Result<Value> {
     let half_w = half_w.min((if vertical { field.width() } else { field.height() }) / 2.0 - 1.0 * PT_PER_MM);
     let sides: Vec<f64> = if both { vec![-1.0, 1.0] } else { vec![-1.0] };
     let pitch_mm = span / PT_PER_MM;
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_named_undo_group(Some("Endless Border".into()));
     }
     let done = (|| -> Result<u64> {
@@ -183,8 +184,8 @@ fn endless(s: &mut Session, p: &Value) -> Result<Value> {
             Ok(id.0)
         })
     })();
-    if group {
-        s.end_undo_group(done.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, done.is_err());
     }
     let id = done?;
     Ok(json!({ "id": id, "repeats": repeats, "pitch": pitch_mm }))

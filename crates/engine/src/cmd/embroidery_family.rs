@@ -270,13 +270,14 @@ fn family_tree(s: &mut Session, p: &Value) -> Result<Value> {
     let colors = (color_param(p, "color", "#1f2933")?, color_param(p, "frameColor", "#8a6d3b")?, color_param(p, "connectorColor", "#5b4636")?);
     let double = bool_or(p, "double", false);
     let fit = bool_or(p, "fit", true);
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_named_undo_group(Some("Family Tree".into()));
     }
     let done = make(s, &units, Style { height, frame, line, double, fit, colors, down: !ancestors });
-    if group {
-        s.end_undo_group(done.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, done.is_err());
     }
     let mut r = done?;
     r["people"] = count(&units).into();

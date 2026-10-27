@@ -419,8 +419,8 @@ fn body_ui(app: &mut VectorcraftApp, ui: &mut egui::Ui, t: &Tokens) {
         ui.end_row();
         for (i, r) in app.embroidery.orders.rules.iter_mut().enumerate() {
             ui.add(egui::TextEdit::singleline(&mut r.product).hint_text(tl!("any")).desired_width(90.0));
-            choose(ui, egui::Id::new(("orders-template", i)), &mut r.template, &templates, 120.0);
-            choose(ui, egui::Id::new(("orders-font", i)), &mut r.font, &fonts, 110.0);
+            choose(ui, egui::Id::unique(("orders-template", i)), &mut r.template, &templates, 120.0);
+            choose(ui, egui::Id::unique(("orders-font", i)), &mut r.font, &fonts, 110.0);
             ui.add(egui::TextEdit::singleline(&mut r.color).hint_text("Navy").desired_width(60.0));
             ui.add(egui::TextEdit::singleline(&mut r.size).hint_text(tl!("fit")).desired_width(40.0));
             if ui.small_button("✕").on_hover_text(tl!("Remove this rule")).clicked() {
@@ -462,7 +462,7 @@ fn body_ui(app: &mut VectorcraftApp, ui: &mut egui::Ui, t: &Tokens) {
                     app.embroidery.orders.result = Some(Err(e));
                 } else {
                     crate::picks::button(app, |app| {
-                        let pick = crate::FilePick { filters: vec![("CSV", &["csv", "txt"])], ..Default::default() };
+                        let pick = crate::FilePick { filters: vec![crate::FilePick::filter("CSV", &["csv", "txt"])], ..Default::default() };
                         if let Some(path) = crate::picks::open(app, &pick) {
                             match std::fs::read_to_string(&path) {
                                 Ok(text) => import(app, "csv", text),
@@ -570,7 +570,7 @@ fn body_ui(app: &mut VectorcraftApp, ui: &mut egui::Ui, t: &Tokens) {
 /// A text field with a list of choices beside it.
 fn choose(ui: &mut egui::Ui, id: egui::Id, value: &mut String, choices: &[String], width: f32) {
     let shown = if value.is_empty() { tl!("first").to_string() } else { value.clone() };
-    egui::ComboBox::from_id_salt(id).selected_text(shown).width(width).show_ui(ui, |ui| {
+    craft_ui::ComboBox::from_id_salt(id).selected_text(shown).width(width).show_ui(ui, |ui| {
         for c in choices {
             if ui.selectable_label(value == c, c).clicked() {
                 *value = c.clone();

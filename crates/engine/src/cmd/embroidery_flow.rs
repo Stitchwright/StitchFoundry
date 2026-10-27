@@ -90,8 +90,9 @@ fn wave_fill(s: &mut Session, p: &Value) -> Result<Value> {
         return Err(bad(CMD, "select the shapes to fill with waves"));
     }
     let shapes = super::embroidery_stumpwork::closed_shapes(s, &ids, CMD, "wave fills")?;
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_named_undo_group(Some("Wave Fill".into()));
     }
     let done = (|| -> Result<Vec<u64>> {
@@ -123,8 +124,8 @@ fn wave_fill(s: &mut Session, p: &Value) -> Result<Value> {
         }
         Ok(made)
     })();
-    if group {
-        s.end_undo_group(done.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, done.is_err());
     }
     let made = done?;
     s.execute("select.set", &json!({ "ids": made }))?;

@@ -222,7 +222,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let photos = app.embroidery.sewout.photos.len();
     let default = server(app).unwrap_or_else(|_| makerfoundry::DEFAULT_SERVER.to_string());
     egui::Window::new(tl!("Publish to MakerFoundry"))
-        .id(egui::Id::new("publish-makerfoundry"))
+        .id(egui::Id::unique("publish-makerfoundry"))
         .open(&mut open)
         .collapsible(false)
         .resizable(false)
@@ -238,7 +238,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
             ui.add_space(6.0);
             ui.horizontal(|ui| {
                 ui.label(tl!("Format"));
-                egui::ComboBox::from_id_salt("publish-format").selected_text(st.format.to_ascii_uppercase()).show_ui(ui, |ui| {
+                craft_ui::ComboBox::from_id_salt("publish-format").selected_text(st.format.to_ascii_uppercase()).show_ui(ui, |ui| {
                     for f in FORMATS {
                         ui.selectable_value(&mut st.format, f.to_string(), f.to_ascii_uppercase());
                     }

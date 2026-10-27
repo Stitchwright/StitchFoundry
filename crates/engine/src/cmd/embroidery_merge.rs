@@ -83,8 +83,9 @@ fn merge(s: &mut Session, p: &Value) -> Result<Value> {
         return Ok(json!({ "merged": [], "threads": [distinct.len(), distinct.len()], "blocks": [before, before] }));
     }
     // one undo step for the threads and the new order, unless a group is open already
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_named_undo_group(Some("Merge Colours".into()));
     }
     let new = super::embroidery::new_stitching(s);
@@ -97,8 +98,8 @@ fn merge(s: &mut Session, p: &Value) -> Result<Value> {
             Ok(())
         })
         .and_then(|_| if bool_or(p, "sequence", true) { s.execute("embroidery.autoSequence", &json!({})).map(|_| ()) } else { Ok(()) });
-    if group {
-        s.end_undo_group(done.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, done.is_err());
     }
     done?;
     let after = blocks(s);

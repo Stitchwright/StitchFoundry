@@ -61,13 +61,14 @@ fn lacework(s: &mut Session, p: &Value) -> Result<Value> {
         .into_iter()
         .map(|(id, n)| (id, n.embroidery.as_deref().and_then(|e| e.thread.as_ref()).map(|t| t.color.to_hex())))
         .collect();
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_named_undo_group(Some("Make Lacework".into()));
     }
     let done = make(s, &pieces, layers, spacing, edge, color.as_deref());
-    if group {
-        s.end_undo_group(done.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, done.is_err());
     }
     let made = done?;
     Ok(json!({ "pieces": pieces.len(), "layers": layers.len(), "ids": made }))

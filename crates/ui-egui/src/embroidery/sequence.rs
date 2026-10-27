@@ -37,13 +37,13 @@ enum RowAction {
 fn toggles(ui: &mut Ui, t: &Tokens, r: egui::Rect, id: u64, visible: bool, locked: bool, out: &mut Option<RowAction>) -> egui::Rect {
     let lock = egui::Rect::from_min_size(egui::pos2(r.right() - 22.0, r.top()), vec2(20.0, r.height()));
     let eye = egui::Rect::from_min_size(egui::pos2(lock.left() - 22.0, r.top()), vec2(20.0, r.height()));
-    let er = ui.interact(eye, ui.id().with(("seq-eye", id)), Sense::click()).on_hover_text(if visible { tl!("Hide") } else { tl!("Show") });
+    let er = ui.interact(eye, ui.scope_id().with(("seq-eye", id)), Sense::click()).on_hover_text(if visible { tl!("Hide") } else { tl!("Show") });
     let icon = if visible { "eye" } else { "eye-off" };
     icons::paint(ui, icon, egui::Rect::from_center_size(eye.center(), vec2(13.0, 13.0)), if er.hovered() { t.text } else { t.text_dim });
     if er.clicked() {
         *out = Some(RowAction::Visible(id, !visible));
     }
-    let lr = ui.interact(lock, ui.id().with(("seq-lock", id)), Sense::click()).on_hover_text(if locked { tl!("Unlock") } else { tl!("Lock") });
+    let lr = ui.interact(lock, ui.scope_id().with(("seq-lock", id)), Sense::click()).on_hover_text(if locked { tl!("Unlock") } else { tl!("Lock") });
     if locked || lr.hovered() {
         let tint = if locked { t.text } else { t.text_dim };
         icons::paint(ui, "lock", egui::Rect::from_center_size(lock.center(), vec2(11.0, 11.0)), tint);

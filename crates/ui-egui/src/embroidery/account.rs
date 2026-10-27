@@ -396,7 +396,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let mut todo: Option<Then> = None;
     let srv = server(app);
     egui::Window::new(tl!("Foundry Account"))
-        .id(egui::Id::new("foundry-account"))
+        .id(egui::Id::unique("foundry-account"))
         .open(&mut open)
         .collapsible(false)
         .resizable(false)

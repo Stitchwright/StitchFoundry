@@ -236,7 +236,7 @@ mod tests {
             let mut got = None;
             let mut out = ctx.run_ui(input, |ui| {
                 let before = ui.cursor().min;
-                got = show(ui, egui::Id::new("curve"), &accordion, d);
+                got = show(ui, egui::Id::unique("curve"), &accordion, d);
                 rect.set(Rect::from_min_max(before, ui.min_rect().max));
             });
             out.textures_delta.clear();

@@ -45,13 +45,14 @@ pub(crate) fn stitch_new_type(s: &mut Session, id: u64) -> Result<()> {
 
 /// `f`'s edits as one undo step (unless they are already part of an open one); undone if it fails.
 pub(crate) fn one_step<T>(s: &mut Session, f: impl FnOnce(&mut Session) -> Result<T>) -> Result<T> {
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_undo_group();
     }
     let res = f(s);
-    if group {
-        s.end_undo_group(res.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, res.is_err());
     }
     res
 }

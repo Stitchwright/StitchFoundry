@@ -1561,6 +1561,10 @@ fn hooping_sheets(
                 rect: vectorcraft_geom::Rect::new(ox, 0.0, ox + pw, ph),
                 show_center_mark: false,
                 show_cross_hairs: false,
+                locked: false,
+                show_video_safe_areas: false,
+                video_ruler_pixel_aspect_ratio: 1.0,
+                color: None,
             });
         }
         sheet_text(&mut doc, ox + 40.0, 56.0, &format!("Hooping {index} of {total}"), 20.0, black)?;
@@ -1738,13 +1742,14 @@ fn click_stitch(s: &mut Session, p: &Value) -> Result<Value> {
 
 fn auto_digitize(s: &mut Session, p: &Value) -> Result<Value> {
     // The trace and the stitch types are one undo step.
-    let group = s.active().is_some_and(|d| d.undo_group.is_none());
-    if group {
+    // the active document's own group: an undo group open in another document stays open
+    let group = s.active().filter(|d| d.undo_group.is_none()).map(|d| d.uid);
+    if group.is_some() {
         s.begin_undo_group();
     }
     let res = digitize_image(s, p);
-    if group {
-        s.end_undo_group(res.is_err());
+    if let Some(uid) = group {
+        s.end_document_undo_group(uid, res.is_err());
     }
     res
 }

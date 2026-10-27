@@ -326,6 +326,10 @@ fn catalogue(s: &mut Session, p: &Value) -> Result<Value> {
                 rect,
                 show_center_mark: false,
                 show_cross_hairs: false,
+                locked: false,
+                show_video_safe_areas: false,
+                video_ruler_pixel_aspect_ratio: 1.0,
+                color: None,
             });
         }
         sheet_text(&mut doc, ox + margin, 46.0, &name, 16.0, black)?;

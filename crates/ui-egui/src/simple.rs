@@ -64,7 +64,7 @@ pub fn left_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
         ui.spacing_mut().item_spacing.y = 8.0;
         // the buttons scroll when the window is short (a small screen, or the biggest text size),
         // so they never run under Text size and Home at the bottom
-        let foot_id = egui::Id::new("simple-bar-foot");
+        let foot_id = egui::Id::unique("simple-bar-foot");
         let foot = ui.ctx().data(|d| d.get_temp::<f32>(foot_id)).unwrap_or(BOTTOM);
         let room = (ui.available_height() - foot - 12.0).max(120.0);
         // a scroll bar that shows whenever the buttons don't all fit, not only under the pointer

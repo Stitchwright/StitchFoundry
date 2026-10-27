@@ -297,7 +297,7 @@ pub(super) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
             Some(s) => Some(s),
             None => {
                 let filters: &'static [&'static str] = vectorcraft_engine::cmd::embroidery::MACHINE_READ_EXTS;
-                let f = crate::FilePick { filters: vec![("Machine embroidery files", filters)], ..Default::default() };
+                let f = crate::FilePick { filters: vec![crate::FilePick::filter("Machine embroidery files", filters)], ..Default::default() };
                 crate::picks::open(app, &f).map(Side::File)
             }
         };

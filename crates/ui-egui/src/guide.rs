@@ -21,7 +21,7 @@ const BIG_DESIGN: u64 = 30_000;
 pub(crate) fn picture_pick() -> crate::FilePick {
     let home = std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE"));
     let folder = home.map(|h| std::path::Path::new(&h).join("Pictures")).filter(|p| p.is_dir()).map(|p| p.to_string_lossy().into_owned());
-    crate::FilePick { folder, filters: vec![("Pictures", PICTURES)], ..Default::default() }
+    crate::FilePick { folder, filters: vec![crate::FilePick::filter("Pictures", PICTURES)], ..Default::default() }
 }
 
 /// The steps, in order.
@@ -155,7 +155,7 @@ fn card(ui: &mut Ui, t: &Tokens, title: &str, line: &str, on: bool) -> egui::Res
                 ui.label(RichText::new(line).size(13.0).color(t.text_dim));
             }
         });
-    let r = ui.interact(inner.response.rect, ui.id().with(("guide-card", title)), egui::Sense::click());
+    let r = ui.interact(inner.response.rect, ui.scope_id().with(("guide-card", title)), egui::Sense::click());
     r.on_hover_cursor(egui::CursorIcon::PointingHand)
 }
 

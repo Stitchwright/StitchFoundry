@@ -698,7 +698,7 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let mut report = false;
     let title = if app.embroidery.ask.mode == Mode::SewOut { tl!("Check My Sew-out") } else { tl!("Ask About Embroidery") };
     egui::Window::new(title)
-        .id(egui::Id::new("ask-about-embroidery"))
+        .id(egui::Id::unique("ask-about-embroidery"))
         .open(&mut open)
         .collapsible(false)
         .resizable(true)

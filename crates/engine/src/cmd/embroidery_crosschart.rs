@@ -261,6 +261,10 @@ fn chart(s: &mut Session, p: &Value) -> Result<Value> {
             rect: Rect::new(x, 0.0, x + pw, ph),
             show_center_mark: false,
             show_cross_hairs: false,
+            locked: false,
+            show_video_safe_areas: false,
+            video_ruler_pixel_aspect_ratio: 1.0,
+            color: None,
         });
     }
     let cm = |cell_mm: f64, n: u32| f64::from(n) * cell_mm / 10.0;

@@ -704,7 +704,8 @@ fn chart_rows(app: &mut VectorcraftApp, ui: &mut Ui, chart: &str) {
                 .clicked()
         {
             crate::picks::button(app, |app| {
-                let pick = crate::FilePick { filters: vec![("CSV, GIMP palette", &["csv", "txt", "gpl"])], ..Default::default() };
+                let pick =
+                    crate::FilePick { filters: vec![crate::FilePick::filter("CSV, GIMP palette", &["csv", "txt", "gpl"])], ..Default::default() };
                 let Some(path) = crate::picks::open(app, &pick) else { return };
                 let name = std::path::Path::new(&path).file_stem().map(|s| s.to_string_lossy().to_string()).unwrap_or_else(|| "My chart".into());
                 match app.run("embroidery.chart.import", json!({ "name": name, "path": path })) {
@@ -1312,7 +1313,7 @@ pub(crate) fn team_names_body(app: &mut VectorcraftApp, ui: &mut Ui) {
         && button(ui, tl!("Import Names…")).on_hover_text(tl!("The first column of a CSV table, or a text file of one name a line")).clicked()
     {
         crate::picks::button(app, |app| {
-            let pick = crate::FilePick { filters: vec![("CSV, GIMP palette", &["csv", "txt", "gpl"])], ..Default::default() };
+            let pick = crate::FilePick { filters: vec![crate::FilePick::filter("CSV, GIMP palette", &["csv", "txt", "gpl"])], ..Default::default() };
             let Some(path) = crate::picks::open(app, &pick) else { return };
             match app.run("embroidery.teamNames.read", json!({ "path": path })) {
                 Ok(r) => {
@@ -2264,11 +2265,11 @@ fn cross_stitch_tool_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
     };
     // the selected pattern: a colour swapped for the thread colour, its fabric, its chart
     if !used.is_empty() {
-        let key = egui::Id::new("cross-replace-from");
+        let key = egui::Id::unique("cross-replace-from");
         let mut from: String = ui.ctx().data(|d| d.get_temp(key)).filter(|c| used.contains(c)).unwrap_or_else(|| used[0].clone());
         ui.horizontal_wrapped(|ui| {
             ui.label(tl!("Replace"));
-            egui::ComboBox::from_id_salt("cross-replace").selected_text(from.as_str()).show_ui(ui, |ui| {
+            craft_ui::ComboBox::from_id_salt("cross-replace").selected_text(from.as_str()).show_ui(ui, |ui| {
                 for c in &used {
                     ui.selectable_value(&mut from, c.clone(), c.as_str());
                 }
@@ -2289,7 +2290,7 @@ fn cross_stitch_tool_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
             || format!("{} mm", (info["cell"].as_f64().unwrap_or(0.0) * 100.0).round() / 100.0),
             |c| crate::i18n::fmt(tl!("{n}-count Aida"), &[("n", &format!("{c:.0}"))]),
         );
-        egui::ComboBox::from_id_salt("cross-count").selected_text(shown).show_ui(ui, |ui| {
+        craft_ui::ComboBox::from_id_salt("cross-count").selected_text(shown).show_ui(ui, |ui| {
             for c in [11u32, 14, 16, 18] {
                 let label = crate::i18n::fmt(tl!("{n}-count Aida"), &[("n", &c.to_string())]);
                 if ui.selectable_label((f64::from(c) - count).abs() < 0.05, label).clicked() {
@@ -2425,7 +2426,7 @@ fn digitize_row(app: &mut VectorcraftApp, ui: &mut Ui) {
             (tl!("Lengths (mm)"), "lengths", &mut w.lengths, 12.0),
         ] {
             label_row(ui, label, LABEL_W, |ui| {
-                let key = egui::Id::new(("emb-widget-list", id));
+                let key = egui::Id::unique(("emb-widget-list", id));
                 let mut text = ui.data(|d| d.get_temp::<String>(key)).unwrap_or_else(|| crate::embroidery::widget::format_values(list));
                 let resp = ui.add(egui::TextEdit::singleline(&mut text).desired_width(FIELD_W * 2.0));
                 if resp.lost_focus() {
@@ -3019,7 +3020,7 @@ fn profile_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, f: &FillP
         set(app, target, json!({ "spacing_profile": p }));
     }
     // the profile as a curve to reshape
-    if let Some(p) = super::profile_curve::show(ui, egui::Id::new("emb-profile-curve"), &f.spacing_profile, d) {
+    if let Some(p) = super::profile_curve::show(ui, egui::Id::unique("emb-profile-curve"), &f.spacing_profile, d) {
         set(app, target, json!({ "spacing_profile": p }));
     }
     // a Multi Blend's layers in their threads, and taking the blend out
@@ -3324,7 +3325,7 @@ fn thread_row(app: &mut VectorcraftApp, ui: &mut Ui, e: &Embroidery) {
         let chart = all.iter().find(|c| c.name == chart_name).or(all.first());
         if let Some(chart) = chart {
             let label = e.thread.as_ref().map(super::thread_name).unwrap_or_else(|| tl!("Object color").to_string());
-            egui::ComboBox::from_id_salt(("emb", "thread")).selected_text(label).width(150.0).height(320.0).show_ui(ui, |ui| {
+            craft_ui::ComboBox::from_id_salt(("emb", "thread")).selected_text(label).width(150.0).height(320.0).show_ui(ui, |ui| {
                 for th in &chart.threads {
                     let c = th.color;
                     let r = ui.horizontal(|ui| {
@@ -3420,7 +3421,10 @@ fn design_section(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens) {
             .clicked()
     {
         crate::picks::button(app, |app| {
-            let pick = crate::FilePick { filters: vec![("Images", &["png", "jpg", "jpeg", "webp", "tif", "tiff", "bmp"])], ..Default::default() };
+            let pick = crate::FilePick {
+                filters: vec![crate::FilePick::filter("Images", &["png", "jpg", "jpeg", "webp", "tif", "tiff", "bmp"])],
+                ..Default::default()
+            };
             let Some(path) = crate::picks::open(app, &pick) else { return };
             if let Err(e) = app.run("embroidery.background", json!({ "path": path })) {
                 app.status(e);
@@ -3769,7 +3773,7 @@ fn machine_profile_rows(app: &mut VectorcraftApp, ui: &mut Ui, machines: &[Value
     if let Some(m) = own {
         let name = m["name"].as_str().unwrap_or_default().to_string();
         label_row(ui, tl!("Name"), LABEL_W, |ui| {
-            let key = egui::Id::new("emb-machine-name");
+            let key = egui::Id::unique("emb-machine-name");
             let mut text = ui.data(|d| d.get_temp::<String>(key)).unwrap_or_else(|| name.clone());
             let resp = ui.add(egui::TextEdit::singleline(&mut text).desired_width(130.0));
             if resp.lost_focus() {

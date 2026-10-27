@@ -234,7 +234,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui, canvas: egui::Rect) {
     }
     let t = Tokens::get(ui.ctx());
     let (rect, center) = placement(canvas);
-    let resp = ui.interact(rect, ui.id().with("embroidery-widget"), Sense::click());
+    let resp = ui.interact(rect, ui.scope_id().with("embroidery-widget"), Sense::click());
     let painter = ui.painter_at(rect);
     let w = &app.embroidery.widget;
     let panel = Color32::from_rgba_unmultiplied(t.panel.r(), t.panel.g(), t.panel.b(), 236);

@@ -82,6 +82,37 @@ fn an_illustrator_ai_file_opens_from_its_editing_data() {
     assert_ne!(names(&s.doc().unwrap().doc.layers), ["Art", "Hidden"]);
 }
 
+/// A `.ai` file opens with the swatches its palette holds, spot colours the art doesn't use and colour
+/// groups included, in place of the default swatches; art painted with Registration (`XZ`) still
+/// opens from the editing data.
+#[test]
+fn an_ai_file_opens_with_the_swatches_of_its_palette() {
+    let palette = "%AI5_BeginPalette\n0 0 Pb\n0 0 0 0 1 1 1 Xa\n(White)\nPc\n0.04 0.3 0 0 81.96 21 -8 (Pink ink) 0 2 Xx\n(Pink ink)\nPc\n\
+                   0.06 0.98 1 0 (Red ink) 0 x\n(Red ink)\nPc\n1 (Inks) 1 Pg\n0.02 0.1 1 0 (Yellow ink) 0 x\n(Yellow ink)\nPc\nPB\n%AI5_EndPalette\n";
+    // The square the page draws, in the red ink, after a stroke colour of Registration.
+    let art = format!("0 0 0 0 0 0 0 ([Registration]) 0 1 XZ\n0.06 0.98 1 0 (Red ink) 0 x\n{}f\n", ai::rect(10.0, 50.0, 40.0, 90.0));
+    let data = ai::editing_data(200.0, 100.0, &format!("{palette}{}", ai::layer("Art", &art)));
+    let mut s = Session::new();
+    let r = open(&mut s, "inks.ai", &ai::ai(&compressed(data.as_bytes()), "1 0 0 rg 10 50 30 40 re f"), json!({})).unwrap();
+    assert_eq!(r["format"], json!("ai"), "{r}");
+    let doc = &s.doc().unwrap().doc;
+    assert_eq!(names(&doc.layers), ["Art"], "opened from the editing data: {r}");
+    let swatches: Vec<&str> = doc.swatches.iter().map(|s| s.name.as_str()).collect();
+    assert_eq!(swatches, ["[None]", "White", "Pink ink", "Red ink"]);
+    let pink = doc.swatch("Pink ink").unwrap();
+    assert!(pink.spot && pink.global);
+    assert_eq!(pink.paint.color(), Some(vectorcraft_color::Color::lab(81.96, 21.0, -8.0)), "a Lab ink keeps its Lab values");
+    let groups: Vec<&str> = doc.swatch_groups.iter().map(|g| g.name.as_str()).collect();
+    assert_eq!(groups, ["Inks"]);
+    assert!(doc.swatch("Yellow ink").is_some_and(|s| s.spot), "an ink the art doesn't use");
+    let red = &doc.layers[0].children().unwrap()[0];
+    assert!(
+        matches!(red.appearance.fill().map(|f| &f.paint), Some(vectorcraft_color::Paint::Solid { swatch: Some(n), .. }) if n == "Red ink"),
+        "{:?}",
+        red.appearance.fill()
+    );
+}
+
 /// A 1-bit RGB image opens from the editing data in the colors its PDF part shows.
 #[test]
 fn a_one_bit_rgb_image_opens_from_the_editing_data_in_its_colors() {
@@ -343,6 +374,77 @@ fn an_ai_file_saved_without_its_pdf_part_opens_with_pages_naming_every_page() {
     }
     // Without editing data, the placeholder still isn't opened as the art.
     let e = open(&mut Session::new(), "plain.ai", &ai::ai(b"", PLACEHOLDER), json!({"pages": "1"})).unwrap_err().to_string();
+    assert!(e.contains("placeholder"), "{e}");
+}
+
+/// [`PLACEHOLDER`]'s `.ai` files as `dataBase64`: the sample's editing data, damaged editing data
+/// and none.
+fn placeholder_files() -> [String; 3] {
+    [compressed(&ai::sample_data()), b"%AI12_CompressedData not zlib".to_vec(), vec![]]
+        .map(|private| vectorcraft_format::base64_encode(&ai::ai(&private, PLACEHOLDER)))
+}
+
+#[test]
+fn an_ai_file_saved_without_its_pdf_part_pastes_from_its_editing_data() {
+    let [sample, damaged, plain] = placeholder_files();
+    let mut s = Session::new();
+    s.execute("file.new", &json!({})).unwrap();
+    // clipboard.importPdf (the PDF flavor's command) takes every object of both layers, as
+    // document.open reads them.
+    let r = s.execute("clipboard.importPdf", &json!({"dataBase64": sample})).unwrap();
+    assert_eq!(r["count"], json!(7), "{r}");
+    s.execute("edit.paste", &json!({})).unwrap();
+    let art = s.doc().unwrap().doc.layers[0].children().unwrap().clone();
+    assert_eq!(names(&art), ["Pair", "Ring", "Window", "Shaded", "", "Sub", ""]);
+    assert_eq!(art.iter().map(|n| n.visible).collect::<Vec<_>>(), [true, true, true, false, false, false, false], "the hidden layer's objects");
+    let e = s.execute("clipboard.importPdf", &json!({"dataBase64": damaged})).unwrap_err().to_string();
+    assert!(e.contains("without PDF compatibility") && e.contains("zlib"), "{e}");
+    let e = s.execute("clipboard.importPdf", &json!({"dataBase64": plain})).unwrap_err().to_string();
+    assert!(e.contains("placeholder"), "{e}");
+}
+
+#[test]
+fn an_ai_file_saved_without_its_pdf_part_places_from_its_editing_data() {
+    let [sample, damaged, plain] = placeholder_files();
+    let mut s = Session::new();
+    s.execute("file.new", &json!({})).unwrap();
+    // The place takes the art of the layers that show on the artboard and clips it to the artboard.
+    let r = s.execute("file.place", &json!({"name": "art.ai", "dataBase64": sample, "link": false})).unwrap();
+    assert_eq!((r["width"].as_f64(), r["height"].as_f64()), (Some(200.0), Some(100.0)), "{r}");
+    let placed = s.doc().unwrap().doc.layers[0].children().unwrap()[0].clone();
+    let kids = placed.children().unwrap();
+    assert_eq!(names(&kids[1..]), ["Pair", "Ring", "Window"], "after the clipping path");
+    // With `crop: "bounding"` the size is the bounds of the art that shows. They run from the red
+    // square's left edge to the window's right one; the pair's hidden square, stroked 2 pt wide,
+    // is left out.
+    let r = s.execute("file.place.info", &json!({"name": "art.ai", "dataBase64": sample, "crop": "bounding"})).unwrap();
+    assert_eq!((r["width"].as_f64(), r["height"].as_f64()), (Some(170.0), Some(40.0)), "{r}");
+    // The place takes the art of both layers that show.
+    let square = |x: f64| format!("0 g\n{}f\n", ai::rect(x, 10.0, x + 40.0, 50.0));
+    let two = ai::editing_data(200.0, 100.0, &[ai::layer("Back", &square(10.0)), ai::layer("Front", &square(110.0))].concat());
+    let two = vectorcraft_format::base64_encode(&ai::ai(&compressed(two.as_bytes()), PLACEHOLDER));
+    let r = s.execute("file.place.info", &json!({"name": "two.ai", "dataBase64": two, "crop": "bounding"})).unwrap();
+    assert_eq!((r["width"].as_f64(), r["height"].as_f64()), (Some(140.0), Some(40.0)), "{r}");
+    // The file has two 100-point artboards and one placeholder page. The second artboard lies 50
+    // below the first. A square of 40 lies on the first and an oblong of 60 × 40 on the second.
+    let boards = "%_/Document :\n%_/Dictionary :\n%_/Array :\n\
+        %_/Dictionary :\n%_0 100 /RealPointRelToROrigin\n%_ (PositionPoint1) ,\n%_100 0 /RealPointRelToROrigin\n%_ (PositionPoint2) ,\n%_; ,\n\
+        %_/Dictionary :\n%_0 -50 /RealPointRelToROrigin\n%_ (PositionPoint1) ,\n%_100 -150 /RealPointRelToROrigin\n%_ (PositionPoint2) ,\n%_; ,\n\
+        %_; (ArtboardArray) ,\n%_; /NotRecorded ,\n%_;\n";
+    let art = format!("0 g\n{}f\n{}f\n", ai::rect(10.0, 10.0, 50.0, 50.0), ai::rect(10.0, -140.0, 70.0, -100.0));
+    let paged = ai::editing_data(100.0, 100.0, &(boards.to_string() + &ai::layer("Art", &art)));
+    let paged = vectorcraft_format::base64_encode(&ai::ai(&compressed(paged.as_bytes()), PLACEHOLDER));
+    let mut size = |page: u64| {
+        let r = s.execute("file.place.info", &json!({"name": "boards.ai", "dataBase64": paged, "page": page, "crop": "bounding"}));
+        r.map(|r| (r["width"].as_f64(), r["height"].as_f64())).map_err(|e| e.to_string())
+    };
+    assert_eq!(size(1), Ok((Some(40.0), Some(40.0))));
+    assert_eq!(size(2), Ok((Some(60.0), Some(40.0))));
+    let third = size(3);
+    assert!(third.as_ref().is_err_and(|e| e.contains("has 2 page(s)")), "{third:?}");
+    let e = s.execute("file.place", &json!({"name": "damaged.ai", "dataBase64": damaged})).unwrap_err().to_string();
+    assert!(e.contains("without PDF compatibility") && e.contains("zlib"), "{e}");
+    let e = s.execute("file.place", &json!({"name": "plain.ai", "dataBase64": plain})).unwrap_err().to_string();
     assert!(e.contains("placeholder"), "{e}");
 }
 

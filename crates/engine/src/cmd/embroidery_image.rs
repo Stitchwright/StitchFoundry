@@ -372,6 +372,10 @@ fn print_view(s: &mut Session, p: &Value) -> Result<Value> {
                 rect: vectorcraft_geom::Rect::new(x - margin, y - margin, x - margin + pw, y - margin + ph),
                 show_center_mark: false,
                 show_cross_hairs: false,
+                locked: false,
+                show_video_safe_areas: false,
+                video_ruler_pixel_aspect_ratio: 1.0,
+                color: None,
             });
         }
     }
