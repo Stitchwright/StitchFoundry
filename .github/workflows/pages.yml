@@ -85,6 +85,16 @@ jobs:
           fi
           # no Jekyll processing (it would hide files whose names start with _)
           touch dist/web/.nojekyll
+      - name: Smoke test in a browser (no panic)
+        # a panic kills the web app for good (std's clocks panic in the browser, which native
+        # tests can't see): the build is used for a while in headless Chromium first
+        run: |
+          python3 -m venv "$RUNNER_TEMP/pw"
+          "$RUNNER_TEMP/pw/bin/pip" install --quiet playwright==1.64.1
+          "$RUNNER_TEMP/pw/bin/python" -m playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory dist/web --bind 127.0.0.1 &
+          sleep 2
+          "$RUNNER_TEMP/pw/bin/python" packaging/web/smoke.py http://127.0.0.1:8000/ 40
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/web

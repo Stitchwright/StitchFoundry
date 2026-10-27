@@ -82,9 +82,17 @@ pub fn newest(body: &[u8], current: &str) -> Result<Option<Newer>, String> {
     }))
 }
 
-/// Seconds since 1970 (0 when the clock can't be read).
+/// Seconds since 1970 (0 when the clock can't be read). In the browser std's clock panics
+/// (`wasm32-unknown-unknown` has none), and the web app doesn't check, so there it's 0.
 fn now_secs() -> u64 {
-    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
+    #[cfg(target_arch = "wasm32")]
+    {
+        0
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
+    }
 }
 
 /// Starts a check in the background (desktop only: the web has no `http_get`).
@@ -112,6 +120,10 @@ fn start(app: &mut VectorcraftApp) -> bool {
 
 /// Each frame: the daily check when it is due, and a check's answer when it comes.
 pub fn poll(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    // the web app is always the newest
+    if cfg!(target_arch = "wasm32") {
+        return;
+    }
     if !app.updates.tried && app.frame > 2 {
         app.updates.tried = true;
         if app.ui.check_updates && now_secs().saturating_sub(app.ui.update_checked_at) >= EVERY {
