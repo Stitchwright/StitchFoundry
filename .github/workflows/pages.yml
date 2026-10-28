@@ -95,7 +95,7 @@ jobs:
           python3 -m http.server 8000 --directory dist/web --bind 127.0.0.1 &
           sleep 2
           "$RUNNER_TEMP/pw/bin/python" packaging/web/smoke.py http://127.0.0.1:8000/ 40
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist/web
 
@@ -108,4 +108,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
