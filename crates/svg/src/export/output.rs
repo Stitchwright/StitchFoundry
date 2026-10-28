@@ -131,13 +131,13 @@ impl Writer<'_> {
     }
 
     pub(super) fn fresh_id(&mut self, prefix: &str) -> String {
-        let mut i = 1;
+        let next = self.next_fresh.entry(prefix.to_owned()).or_insert(1);
         loop {
-            let id = format!("{}{prefix}-{i}", self.id_prefix);
+            let id = format!("{}{prefix}-{next}", self.id_prefix);
+            *next += 1;
             if self.used_ids.insert(id.clone()) {
                 return id;
             }
-            i += 1;
         }
     }
 

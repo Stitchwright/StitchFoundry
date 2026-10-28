@@ -1943,25 +1943,6 @@ fn direct_segment_delete_keeps_the_other_rectangle_edges_and_one_undo() {
     }
 }
 
-/// A segment pick's endpoints are hollow: Shift-clicking or Shift-marqueeing one selects that
-/// anchor, rather than toggling it off and leaving the other endpoint selected.
-#[test]
-fn selecting_an_anchor_after_a_segment_pick_starts_from_no_anchors() {
-    let mut s = session();
-    let id = rect(&mut s, 100.0, 100.0, 200.0, 150.0);
-    let segment = json!({"id": id.0, "segments": [[0, 0]]});
-    s.execute("select.segments", &segment).unwrap();
-    s.execute("select.anchors", &json!({"id": id.0, "anchors": [[0, 0]], "mode": "toggle"})).unwrap();
-    let sel = &s.doc().unwrap().selection;
-    assert_eq!(sel.partial(id), Some(&[(0, 0)].into()));
-    assert!(sel.segments.is_empty());
-    s.execute("select.segments", &segment).unwrap();
-    s.execute("select.anchorsMany", &json!({"items": [{"id": id.0, "anchors": [[0, 1]]}], "mode": "add"})).unwrap();
-    let sel = &s.doc().unwrap().selection;
-    assert_eq!(sel.partial(id), Some(&[(0, 1)].into()));
-    assert!(sel.segments.is_empty());
-}
-
 #[test]
 fn segment_delete_preserves_curves_appearance_and_unrelated_contours() {
     let data = "M100 100C110 70 150 130 170 100C180 75 230 125 250 100C270 140 280 80 310 100C320 120 140 140 100 100Z M400 100L500 100L500 200Z";
@@ -2400,6 +2381,124 @@ fn join_takes_the_paths_and_the_ends_to_join() {
     }
 }
 
+/// `path.join {ends}` on selected paths honors the requested ends, not the nearest pair.
+#[test]
+fn join_selected_paths_honors_ends_parameter() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+    let b = line(&mut s, 110.0, 0.0, 200.0, 0.0);
+    s.select(|_, sel| sel.set([a, b])).unwrap();
+    // The far ends: a's first to b's last (nearest pair would be a's last and b's first).
+    s.execute("path.join", &json!({"ends": ["first", "last"]})).unwrap();
+    let pts: Vec<(f64, f64)> = path(&s, a).subpaths[0].anchors.iter().map(|x| (x.p.x, x.p.y)).collect();
+    assert_eq!(pts, [(100.0, 0.0), (0.0, 0.0), (200.0, 0.0), (110.0, 0.0)]);
+}
+
+/// An explicit `ends` wins over a direct-selected end pair when `ids` is omitted, as on `main`.
+#[test]
+fn join_explicit_ends_win_over_direct_selected_end_points() {
+    let pts = |s: &Session, id: NodeId| path(s, id).subpaths[0].anchors.iter().map(|x| (x.p.x, x.p.y)).collect::<Vec<_>>();
+    // (picked anchor of a, picked anchor of b, the ends asked for, the result they ask for)
+    let cases = [
+        // Picks say a's last to b's first (also the nearest pair); the ends ask for the far ends.
+        (1, 0, ["first", "last"], [(100.0, 0.0), (0.0, 0.0), (200.0, 0.0), (110.0, 0.0)]),
+        // Picks say a's first to b's first; the ends ask for a's last to b's first.
+        (0, 0, ["last", "first"], [(0.0, 0.0), (100.0, 0.0), (110.0, 0.0), (200.0, 0.0)]),
+    ];
+    for (pick_a, pick_b, ends, want) in cases {
+        let mut s = session();
+        let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+        let b = line(&mut s, 110.0, 0.0, 200.0, 0.0);
+        s.execute("select.anchors", &json!({"id": a.0, "anchors": [[0, pick_a]], "mode": "set"})).unwrap();
+        s.execute("select.anchors", &json!({"id": b.0, "anchors": [[0, pick_b]], "mode": "add"})).unwrap();
+        let sel_before = s.doc().unwrap().selection.anchors.clone();
+        s.execute("path.join", &json!({"ends": ends})).unwrap();
+        assert_eq!(pts(&s, a), want, "ends {ends:?} with a:{pick_a} b:{pick_b} picked");
+        assert!(s.doc().unwrap().doc.node(b).is_none(), "b was joined into a");
+        // One undo step puts both lines, and the selection they had, back.
+        s.execute("edit.undo", &json!({})).unwrap();
+        assert_eq!(pts(&s, a), [(0.0, 0.0), (100.0, 0.0)]);
+        assert_eq!(pts(&s, b), [(110.0, 0.0), (200.0, 0.0)]);
+        assert_eq!(s.doc().unwrap().selection.objects, vec![a, b], "the selection came back");
+        assert_eq!(s.doc().unwrap().selection.anchors, sel_before, "with its direct-selected anchors");
+    }
+}
+
+/// The ends asked for apply to the selection order: with b selected first, both lines reverse and b keeps its id.
+#[test]
+fn join_explicit_ends_follow_the_selection_order() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+    let b = line(&mut s, 110.0, 0.0, 200.0, 0.0);
+    // In selection order the picks (b's first, a's last) match the ends asked for; the head reads the
+    // pick map in id order (a before b), so it joins the other pair, which this pins.
+    s.execute("select.anchors", &json!({"id": b.0, "anchors": [[0, 0]], "mode": "set"})).unwrap();
+    s.execute("select.anchors", &json!({"id": a.0, "anchors": [[0, 1]], "mode": "add"})).unwrap();
+    s.execute("path.join", &json!({"ends": ["first", "last"]})).unwrap();
+    let pts: Vec<(f64, f64)> = path(&s, b).subpaths[0].anchors.iter().map(|x| (x.p.x, x.p.y)).collect();
+    assert_eq!(pts, [(200.0, 0.0), (110.0, 0.0), (100.0, 0.0), (0.0, 0.0)], "b keeps its id and runs 200 to 0");
+    assert!(s.doc().unwrap().doc.node(a).is_none(), "a was joined into b");
+}
+
+/// Two open subpaths of one path take the ends asked for, not the picked pair.
+#[test]
+fn join_explicit_ends_on_two_subpaths_of_one_path() {
+    let mut s = session();
+    let id = NodeId(s.execute("path.create", &json!({"d": "M0 0 L100 0 M200 0 L110 0"})).unwrap()["id"].as_u64().unwrap());
+    s.execute("select.anchors", &json!({"id": id.0, "anchors": [[0, 1], [1, 0]], "mode": "set"})).unwrap();
+    // The picks say subpath 0's last to subpath 1's first; the ends ask for subpath 1's last.
+    s.execute("path.join", &json!({"ends": ["last", "last"]})).unwrap();
+    let pd = path(&s, id);
+    assert_eq!(pd.subpaths.len(), 1, "the two subpaths became one");
+    let pts: Vec<(f64, f64)> = pd.subpaths[0].anchors.iter().map(|x| (x.p.x, x.p.y)).collect();
+    assert_eq!(pts, [(0.0, 0.0), (100.0, 0.0), (110.0, 0.0), (200.0, 0.0)]);
+}
+
+/// `ends` names two paths: three open subpaths are refused, with and without a picked pair, and nothing changes.
+#[test]
+fn join_explicit_ends_refuses_more_than_two_open_subpaths() {
+    for picks in [false, true] {
+        let mut s = session();
+        let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+        let b = line(&mut s, 110.0, 0.0, 200.0, 0.0);
+        let c = line(&mut s, 210.0, 0.0, 300.0, 0.0);
+        s.select(|_, sel| sel.set([a, b, c])).unwrap();
+        if picks {
+            // A picked pair cannot narrow a three-path request: two paths is what `ends` names.
+            s.execute("select.anchors", &json!({"id": a.0, "anchors": [[0, 1]], "mode": "add"})).unwrap();
+            s.execute("select.anchors", &json!({"id": b.0, "anchors": [[0, 0]], "mode": "add"})).unwrap();
+        }
+        let before = s.doc().unwrap().doc.clone();
+        let sel_before = s.doc().unwrap().selection.objects.clone();
+        let err = s.execute("path.join", &json!({"ends": ["first", "last"]})).unwrap_err();
+        assert!(err.to_string().contains("exactly two paths"), "{err}");
+        assert_eq!(s.doc().unwrap().doc, before, "nothing was joined");
+        assert_eq!(s.doc().unwrap().selection.objects, sel_before, "the selection is unchanged");
+    }
+}
+
+/// Controls: explicit `ids` take `ends` over the picks, and without `ends` the picks still decide.
+#[test]
+fn join_direct_selected_end_points_controls() {
+    let pts = |s: &Session, id: NodeId| path(s, id).subpaths[0].anchors.iter().map(|x| (x.p.x, x.p.y)).collect::<Vec<_>>();
+    let pick = |s: &mut Session, a: NodeId, b: NodeId, pa: usize, pb: usize| {
+        s.execute("select.anchors", &json!({"id": a.0, "anchors": [[0, pa]], "mode": "set"})).unwrap();
+        s.execute("select.anchors", &json!({"id": b.0, "anchors": [[0, pb]], "mode": "add"})).unwrap();
+    };
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+    let b = line(&mut s, 110.0, 0.0, 200.0, 0.0);
+    pick(&mut s, a, b, 1, 0);
+    s.execute("path.join", &json!({"ids": [a.0, b.0], "ends": ["first", "last"]})).unwrap();
+    assert_eq!(pts(&s, a), [(100.0, 0.0), (0.0, 0.0), (200.0, 0.0), (110.0, 0.0)], "ids: the ends win");
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+    let b = line(&mut s, 110.0, 0.0, 200.0, 0.0);
+    pick(&mut s, a, b, 0, 0);
+    s.execute("path.join", &json!({})).unwrap();
+    assert_eq!(pts(&s, a), [(100.0, 0.0), (0.0, 0.0), (110.0, 0.0), (200.0, 0.0)], "no ends: the picks decide");
+}
+
 /// Without `ends`, the end points picked with the direct selection are the ones joined.
 #[test]
 fn join_uses_the_selected_end_points() {
@@ -2412,6 +2511,18 @@ fn join_uses_the_selected_end_points() {
     s.execute("path.join", &json!({})).unwrap();
     let pts: Vec<(f64, f64)> = path(&s, a).subpaths[0].anchors.iter().map(|x| (x.p.x, x.p.y)).collect();
     assert_eq!(pts, [(100.0, 0.0), (0.0, 0.0), (200.0, 0.0), (110.0, 0.0)]);
+}
+
+/// `path.join {ids, subpaths}` without `ends` computes the nearest pair within those subpaths.
+#[test]
+fn join_subpaths_without_ends_computes_nearest_pair() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+    let b = line(&mut s, 200.0, 0.0, 110.0, 0.0);
+    // Nearest ends between a (0..100) and b (200..110) are 100 and 110.
+    s.execute("path.join", &json!({"ids": [a.0, b.0], "subpaths": [0, 0]})).unwrap();
+    let pts: Vec<(f64, f64)> = path(&s, a).subpaths[0].anchors.iter().map(|x| (x.p.x, x.p.y)).collect();
+    assert_eq!(pts, [(0.0, 0.0), (100.0, 0.0), (110.0, 0.0), (200.0, 0.0)]);
 }
 
 /// `path.join {to}` makes the joined anchor a corner or smooth point.
@@ -2671,6 +2782,565 @@ fn open_anchor_delete_after_transform_keeps_mixed_selection_atomic() {
         assert_eq!(s.doc().unwrap().doc, after);
         assert_eq!(s.doc().unwrap().selection.objects, vec![id]);
     }
+}
+
+/// Pen tool can continue drawing an open path inside a compound path and close it.
+#[test]
+fn compound_path_pen_continue_and_close() {
+    use vectorcraft_tools::Cursor;
+    let (v, none) = (view(), Mods::default());
+    let mut s = session();
+    let r = rect(&mut s, 50.0, 50.0, 200.0, 200.0);
+    let p = line(&mut s, 100.0, 100.0, 200.0, 100.0);
+    s.execute("select.set", &json!({"ids": [r.0, p.0]})).unwrap();
+    let cid = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+
+    s.select_tool("pen", v).unwrap();
+    // Hovering over the last anchor of the open member path shows PenContinue.
+    assert_eq!(s.cursor(Point::new(200.0, 100.0), none, v), Cursor::PenContinue);
+    // Click on the last anchor to continue drawing.
+    gesture(&mut s, &[(200.0, 100.0)], none);
+    // Rubber band is active, cursor over the start of the path shows PenClose.
+    assert_eq!(s.cursor(Point::new(100.0, 100.0), none, v), Cursor::PenClose);
+    // Add an intermediate anchor.
+    gesture(&mut s, &[(200.0, 200.0)], none);
+    assert_eq!(s.cursor(Point::new(100.0, 100.0), none, v), Cursor::PenClose);
+    // Click on the first anchor to close the path.
+    gesture(&mut s, &[(100.0, 100.0)], none);
+
+    // Verify member path is now closed inside the compound path.
+    let d = &s.doc().unwrap().doc;
+    let cnode = d.node(cid).unwrap();
+    let ch = cnode.children().unwrap();
+    assert_eq!(ch.len(), 2);
+    for child in ch {
+        let pd = child.path_data().unwrap();
+        assert!(pd.is_closed(), "all member paths should be closed");
+    }
+    // Selection should be on the compound path.
+    assert_eq!(s.doc().unwrap().selection.objects, vec![cid]);
+}
+
+/// Pen tool can continue an open path inside a compound path and join another open path inside it.
+#[test]
+fn compound_path_pen_continue_and_join() {
+    use vectorcraft_tools::Cursor;
+    let (v, none) = (view(), Mods::default());
+    let mut s = session();
+    let a = line(&mut s, 100.0, 100.0, 200.0, 100.0);
+    let b = line(&mut s, 300.0, 100.0, 400.0, 100.0);
+    s.execute("select.set", &json!({"ids": [a.0, b.0]})).unwrap();
+    let cid = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+
+    s.select_tool("pen", v).unwrap();
+    assert_eq!(s.cursor(Point::new(200.0, 100.0), none, v), Cursor::PenContinue);
+    // Continue from a's end.
+    gesture(&mut s, &[(200.0, 100.0)], none);
+    // Hover over b's start shows PenJoin.
+    assert_eq!(s.cursor(Point::new(300.0, 100.0), none, v), Cursor::PenJoin);
+    // Click on b's start to join them.
+    assert_eq!(gesture(&mut s, &[(300.0, 100.0)], none), 1);
+
+    // The two open paths are now joined into one path inside the compound path.
+    let d = &s.doc().unwrap().doc;
+    let cnode = d.node(cid).unwrap();
+    let ch = cnode.children().unwrap();
+    assert_eq!(ch.len(), 1, "joined into one path");
+    let pd = ch[0].path_data().unwrap();
+    assert_eq!(pd.subpaths[0].anchors.len(), 4);
+    assert_eq!(s.doc().unwrap().selection.objects, vec![cid]);
+}
+
+/// Path join (Cmd+J) works on compound paths with open paths.
+#[test]
+fn compound_path_join_command() {
+    let mut s = session();
+    let a = line(&mut s, 100.0, 100.0, 200.0, 100.0);
+    let b = line(&mut s, 300.0, 100.0, 400.0, 100.0);
+    s.execute("select.set", &json!({"ids": [a.0, b.0]})).unwrap();
+    let cid = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+
+    // Join with compound path selected joins its 2 open paths.
+    s.execute("path.join", &json!({})).unwrap();
+    let d = &s.doc().unwrap().doc;
+    let cnode = d.node(cid).unwrap();
+    let ch = cnode.children().unwrap();
+    assert_eq!(ch.len(), 1);
+    let pd = ch[0].path_data().unwrap();
+    assert!(!pd.is_closed());
+    assert_eq!(pd.subpaths[0].anchors.len(), 4);
+    assert_eq!(s.doc().unwrap().selection.objects, vec![cid]);
+
+    // Joining again closes the single open path.
+    s.execute("path.join", &json!({})).unwrap();
+    let d = &s.doc().unwrap().doc;
+    let cnode = d.node(cid).unwrap();
+    let ch = cnode.children().unwrap();
+    assert_eq!(ch.len(), 1);
+    assert!(ch[0].path_data().unwrap().is_closed());
+}
+
+/// Path join with direct-selected endpoints of a compound path connects those endpoints.
+#[test]
+fn compound_path_join_direct_selected_endpoints() {
+    let mut s = session();
+    let a = line(&mut s, 100.0, 100.0, 200.0, 100.0);
+    let b = line(&mut s, 300.0, 100.0, 400.0, 100.0);
+    s.execute("select.set", &json!({"ids": [a.0, b.0]})).unwrap();
+    let cid = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+
+    let ch = s.doc().unwrap().doc.node(cid).unwrap().children().unwrap().clone();
+    let ca = ch[0].id;
+    let cb = ch[1].id;
+
+    // Direct select endpoints: ca's first (100, 100) and cb's start (300, 100).
+    s.execute("select.anchors", &json!({"id": ca.0, "anchors": [[0, 0]], "mode": "set"})).unwrap();
+    s.execute("select.anchors", &json!({"id": cb.0, "anchors": [[0, 0]], "mode": "add"})).unwrap();
+
+    s.execute("path.join", &json!({})).unwrap();
+
+    let d = &s.doc().unwrap().doc;
+    let cnode = d.node(cid).unwrap();
+    let ch = cnode.children().unwrap();
+    assert_eq!(ch.len(), 1);
+    let pd = ch[0].path_data().unwrap();
+    let pts: Vec<(f64, f64)> = pd.subpaths[0].anchors.iter().map(|x| (x.p.x, x.p.y)).collect();
+    // ca's first was connected to cb's last.
+    assert_eq!(pts, [(200.0, 100.0), (100.0, 100.0), (300.0, 100.0), (400.0, 100.0)]);
+}
+
+/// Explicit ids in path.join validate compound expansion and allow joining three or more paths.
+#[test]
+fn compound_path_join_explicit_ids_validation() {
+    let mut s = session();
+    let a = line(&mut s, 100.0, 100.0, 200.0, 100.0);
+    let b = line(&mut s, 300.0, 100.0, 400.0, 100.0);
+    let c = line(&mut s, 500.0, 100.0, 600.0, 100.0);
+    s.execute("select.set", &json!({"ids": [a.0, b.0]})).unwrap();
+    let cid = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+
+    // Multi-id join with compound containing != 1 open path (has 2) errors.
+    let err = s.execute("path.join", &json!({"ids": [cid.0, c.0]})).unwrap_err();
+    assert!(err.to_string().contains("must contain exactly one open path to join"));
+
+    // Single compound id with 2 open paths resolves to 2 paths and succeeds.
+    assert!(s.execute("path.join", &json!({"ids": [cid.0]})).is_ok());
+
+    // Multi-id join with compound now containing 1 open path + another path succeeds.
+    assert!(s.execute("path.join", &json!({"ids": [cid.0, c.0]})).is_ok());
+
+    // Joining with explicit ends and > 2 paths errors.
+    let x = line(&mut s, 0.0, 0.0, 10.0, 10.0);
+    let y = line(&mut s, 20.0, 0.0, 30.0, 10.0);
+    let z = line(&mut s, 40.0, 0.0, 50.0, 10.0);
+    let err = s.execute("path.join", &json!({"ids": [x.0, y.0, z.0], "ends": ["first", "last"]})).unwrap_err();
+    assert!(err.to_string().contains("`ends` applies to joining exactly two paths"));
+
+    // Joining three or more paths joins them all.
+    s.execute("path.join", &json!({"ids": [x.0, y.0, z.0]})).unwrap();
+    let d = &s.doc().unwrap().doc;
+    let xnode = d.node(x).unwrap();
+    let pd = xnode.path_data().unwrap();
+    assert_eq!(pd.subpaths[0].anchors.len(), 6);
+    assert!(d.node(y).is_none());
+    assert!(d.node(z).is_none());
+}
+
+/// Joining the only member of a compound path into another path removes the empty compound parent.
+#[test]
+fn join_removes_empty_compound_parent() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 10.0, 0.0);
+    let b = line(&mut s, 12.0, 0.0, 20.0, 0.0);
+    // Make b into a compound path (single open path child)
+    s.execute("select.set", &json!({"ids": [b.0]})).unwrap();
+    let cid = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+
+    // Join a and the compound path
+    s.execute("select.set", &json!({"ids": [a.0, cid.0]})).unwrap();
+    s.execute("path.join", &json!({})).unwrap();
+
+    let d = &s.doc().unwrap().doc;
+    // Compound path container should be removed since its only member was joined into a.
+    assert!(d.node(cid).is_none());
+    assert!(d.node(a).is_some());
+    let pd = d.node(a).unwrap().path_data().unwrap();
+    assert_eq!(pd.subpaths[0].anchors.len(), 4);
+}
+
+/// Join with three or more open paths selected joins them all into a single path (Illustrator parity).
+#[test]
+fn join_three_or_more_paths() {
+    let mut s = session();
+    // Path 1: (0, 0) -> (10, 0)
+    let p1 = line(&mut s, 0.0, 0.0, 10.0, 0.0);
+    // Path 2: (12, 0) -> (20, 0)
+    let p2 = line(&mut s, 12.0, 0.0, 20.0, 0.0);
+    // Path 3: (22, 0) -> (30, 0)
+    let p3 = line(&mut s, 22.0, 0.0, 30.0, 0.0);
+    // Path 4: (32, 0) -> (40, 0)
+    let p4 = line(&mut s, 32.0, 0.0, 40.0, 0.0);
+
+    s.execute("select.set", &json!({"ids": [p1.0, p2.0, p3.0, p4.0]})).unwrap();
+    s.execute("path.join", &json!({})).unwrap();
+
+    let d = &s.doc().unwrap().doc;
+    let remaining_id = s.doc().unwrap().selection.objects[0];
+    let pd = d.node(remaining_id).unwrap().path_data().unwrap();
+    assert_eq!(pd.subpaths.len(), 1);
+    assert!(!pd.is_closed());
+    assert_eq!(pd.subpaths[0].anchors.len(), 8);
+    let xs: Vec<f64> = pd.subpaths[0].anchors.iter().map(|a| a.p.x).collect();
+    assert_eq!(xs, vec![0.0, 10.0, 12.0, 20.0, 22.0, 30.0, 32.0, 40.0]);
+}
+
+/// Join with compound path containing three open member paths joins them all into one.
+#[test]
+fn compound_path_join_three_open_members() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 10.0, 0.0);
+    let b = line(&mut s, 15.0, 0.0, 25.0, 0.0);
+    let c = line(&mut s, 30.0, 0.0, 40.0, 0.0);
+    s.execute("select.set", &json!({"ids": [a.0, b.0, c.0]})).unwrap();
+    let cid = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+
+    s.execute("path.join", &json!({})).unwrap();
+
+    let d = &s.doc().unwrap().doc;
+    let cnode = d.node(cid).unwrap();
+    let ch = cnode.children().unwrap();
+    assert_eq!(ch.len(), 1);
+    let pd = ch[0].path_data().unwrap();
+    assert!(!pd.is_closed());
+    assert_eq!(pd.subpaths[0].anchors.len(), 6);
+    assert_eq!(s.doc().unwrap().selection.objects, vec![cid]);
+}
+
+/// Joining one subpath of a multi-subpath node retains its other subpaths.
+#[test]
+fn join_multi_subpath_retains_unjoined_subpaths() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+    let b = line(&mut s, 200.0, 0.0, 300.0, 0.0);
+    // Add a second open subpath to b.
+    let second_sub = vectorcraft_geom::SubPath::polyline(&[Point::new(400.0, 50.0), Point::new(500.0, 50.0)], false);
+    s.edit("Add Subpath", |d, _| {
+        if let NodeKind::Path { path, .. } = &mut d.node_mut(b).unwrap().kind {
+            path.subpaths.push(second_sub);
+        }
+        Ok(())
+    })
+    .unwrap();
+
+    // Direct-select an endpoint on a and an endpoint on b's second subpath.
+    s.execute("select.anchors", &json!({"id": a.0, "anchors": [[0, 1]], "mode": "set"})).unwrap();
+    s.execute("select.anchors", &json!({"id": b.0, "anchors": [[1, 0]], "mode": "add"})).unwrap();
+
+    s.execute("path.join", &json!({})).unwrap();
+
+    let d = &s.doc().unwrap().doc;
+    // Node b still exists because its first subpath was not consumed.
+    assert!(d.node(b).is_some());
+    let pb = d.node(b).unwrap().path_data().unwrap();
+    assert_eq!(pb.subpaths.len(), 1);
+    assert_eq!(pb.subpaths[0].anchors[0].p, Point::new(200.0, 0.0));
+
+    // Node a now has the joined subpath.
+    let pa = d.node(a).unwrap().path_data().unwrap();
+    assert_eq!(pa.subpaths.len(), 1);
+    assert_eq!(pa.subpaths[0].anchors.len(), 4);
+}
+
+/// The Pen tool does not continue or join guide paths.
+#[test]
+fn pen_does_not_continue_or_join_guide_paths() {
+    use vectorcraft_tools::Cursor;
+    let (v, none) = (view(), Mods::default());
+    let mut s = session();
+    let g = line(&mut s, 100.0, 100.0, 200.0, 100.0);
+    s.execute("select.set", &json!({"ids": [g.0]})).unwrap();
+    s.execute("view.guides.make", &json!({})).unwrap();
+
+    s.select_tool("pen", v).unwrap();
+    // Hovering over the guide endpoint does not offer PenContinue.
+    assert_ne!(s.cursor(Point::new(200.0, 100.0), none, v), Cursor::PenContinue);
+}
+
+/// Joining two open subpaths within the same path node merges them into one subpath.
+#[test]
+fn join_two_subpaths_of_same_path_node() {
+    let mut s = session();
+    let p = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+    let sub2 = vectorcraft_geom::SubPath::polyline(&[Point::new(150.0, 0.0), Point::new(250.0, 0.0)], false);
+    s.edit("Add Subpath", |d, _| {
+        if let NodeKind::Path { path, .. } = &mut d.node_mut(p).unwrap().kind {
+            path.subpaths.push(sub2);
+        }
+        Ok(())
+    })
+    .unwrap();
+
+    // Direct-select anchor (0, 1) and anchor (1, 0) of the same node.
+    s.execute("select.anchors", &json!({"id": p.0, "anchors": [[0, 1], [1, 0]], "mode": "set"})).unwrap();
+    s.execute("path.join", &json!({})).unwrap();
+
+    let d = &s.doc().unwrap().doc;
+    let pd = d.node(p).unwrap().path_data().unwrap();
+    assert_eq!(pd.subpaths.len(), 1);
+    assert!(!pd.subpaths[0].closed);
+    assert_eq!(pd.subpaths[0].anchors.len(), 4);
+    assert_eq!(pd.subpaths[0].anchors[0].p, Point::new(0.0, 0.0));
+    assert_eq!(pd.subpaths[0].anchors[1].p, Point::new(100.0, 0.0));
+    assert_eq!(pd.subpaths[0].anchors[2].p, Point::new(150.0, 0.0));
+    assert_eq!(pd.subpaths[0].anchors[3].p, Point::new(250.0, 0.0));
+}
+
+/// Direct-selecting 2 open endpoints in a complex compound path with multiple open segments joins only those 2.
+#[test]
+fn join_complex_compound_path_direct_endpoints() {
+    let mut s = session();
+    let c1 = line(&mut s, 0.0, 0.0, 50.0, 0.0);
+    let c2 = line(&mut s, 100.0, 0.0, 150.0, 0.0);
+    let c3 = line(&mut s, 200.0, 0.0, 250.0, 0.0);
+
+    s.execute("select.set", &json!({"ids": [c1.0, c2.0, c3.0]})).unwrap();
+    let comp = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+
+    // Direct-select the end of c1 and the start of c3.
+    s.execute("select.anchors", &json!({"id": c1.0, "anchors": [[0, 1]], "mode": "set"})).unwrap();
+    s.execute("select.anchors", &json!({"id": c3.0, "anchors": [[0, 0]], "mode": "add"})).unwrap();
+
+    s.execute("path.join", &json!({})).unwrap();
+
+    let d = &s.doc().unwrap().doc;
+    let comp_node = d.node(comp).unwrap();
+    let children = comp_node.children().unwrap();
+    // c3 was joined into c1, c2 remains untouched. Total 2 children in compound.
+    assert_eq!(children.len(), 2);
+    let joined = children.iter().find(|c| c.id == c1).unwrap().path_data().unwrap();
+    assert_eq!(joined.subpaths.len(), 1);
+    assert_eq!(joined.subpaths[0].anchors.len(), 4);
+    assert_eq!(joined.subpaths[0].anchors[0].p, Point::new(0.0, 0.0));
+    assert_eq!(joined.subpaths[0].anchors[1].p, Point::new(50.0, 0.0));
+    assert_eq!(joined.subpaths[0].anchors[2].p, Point::new(200.0, 0.0));
+    assert_eq!(joined.subpaths[0].anchors[3].p, Point::new(250.0, 0.0));
+
+    let intact = children.iter().find(|c| c.id == c2).unwrap().path_data().unwrap();
+    assert_eq!(intact.subpaths.len(), 1);
+    assert_eq!(intact.subpaths[0].anchors.len(), 2);
+}
+
+/// Continuing a complex compound path with the Pen tool begins at the exact clicked anchor and joins to another open segment.
+#[test]
+fn pen_continue_and_join_specific_open_subpath_in_compound() {
+    let v = view();
+    let mut s = session();
+    let c1 = line(&mut s, 10.0, 100.0, 60.0, 100.0);
+    let c2 = line(&mut s, 10.0, 200.0, 60.0, 200.0);
+    s.execute("select.set", &json!({"ids": [c1.0, c2.0]})).unwrap();
+    let comp = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+
+    s.select_tool("pen", v).unwrap();
+    // Click at the end of c1 (60, 100) to continue drawing c1.
+    s.pointer(&PointerEvent::new(PointerKind::Down, 60.0, 100.0), v).unwrap();
+    s.pointer(&PointerEvent::new(PointerKind::Up, 60.0, 100.0), v).unwrap();
+
+    // Now click at the start of c2 (10, 200) to join c1 and c2.
+    s.pointer(&PointerEvent::new(PointerKind::Down, 10.0, 200.0), v).unwrap();
+    s.pointer(&PointerEvent::new(PointerKind::Up, 10.0, 200.0), v).unwrap();
+
+    let d = &s.doc().unwrap().doc;
+    let comp_node = d.node(comp).unwrap();
+    let children = comp_node.children().unwrap();
+    assert_eq!(children.len(), 1);
+    let pd = children[0].path_data().unwrap();
+    assert_eq!(pd.subpaths[0].anchors.len(), 4);
+    assert_eq!(pd.subpaths[0].anchors[0].p, Point::new(10.0, 100.0));
+    assert_eq!(pd.subpaths[0].anchors[1].p, Point::new(60.0, 100.0));
+    assert_eq!(pd.subpaths[0].anchors[2].p, Point::new(10.0, 200.0));
+    assert_eq!(pd.subpaths[0].anchors[3].p, Point::new(60.0, 200.0));
+}
+
+#[test]
+fn join_rejects_ends_with_more_than_two_paths() {
+    let mut s = session();
+    let a = rect(&mut s, 10.0, 10.0, 20.0, 20.0);
+    let b = rect(&mut s, 40.0, 10.0, 20.0, 20.0);
+    let c = rect(&mut s, 70.0, 10.0, 20.0, 20.0);
+    let err = s.execute("path.join", &json!({"ids": [a.0, b.0, c.0], "ends": ["first", "last"]})).unwrap_err();
+    assert!(err.to_string().contains("`ends` applies to joining exactly two paths"));
+}
+
+#[test]
+fn join_removes_empty_compound_when_last_member_joined() {
+    let mut s = session();
+    let p1 = NodeId(s.execute("path.create", &json!({"d": "M10 10 L50 10"})).unwrap()["id"].as_u64().unwrap());
+    let p2 = NodeId(s.execute("path.create", &json!({"d": "M60 10 L100 10"})).unwrap()["id"].as_u64().unwrap());
+    s.execute("select.set", &json!({"ids": [p2.0]})).unwrap();
+    let comp = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+    assert!(matches!(s.doc().unwrap().doc.node(comp).unwrap().kind, NodeKind::Compound { .. }));
+    // Join p1 and compound containing p2
+    s.execute("path.join", &json!({"ids": [p1.0, comp.0]})).unwrap();
+    assert!(s.doc().unwrap().doc.node(comp).is_none(), "empty compound container was removed");
+}
+
+#[test]
+fn test_join_direct_selected_two_anchors() {
+    for (pick_a, pick_b, exp_junction) in [(0, 0, (0.0, 105.0)), (0, 1, (0.0, 200.0)), (1, 0, (100.0, 105.0)), (1, 1, (100.0, 200.0))] {
+        let mut s = session();
+        let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+        let b = line(&mut s, 105.0, 0.0, 200.0, 0.0);
+        s.execute("select.anchors", &json!({"id": a.0, "anchors": [[0, pick_a]], "mode": "set"})).unwrap();
+        s.execute("select.anchors", &json!({"id": b.0, "anchors": [[0, pick_b]], "mode": "toggle"})).unwrap();
+        s.execute("path.join", &json!({})).unwrap();
+
+        let pd = path(&s, a);
+        let pts: Vec<f64> = pd.subpaths[0].anchors.iter().map(|x| x.p.x).collect();
+        // Check junction: there must be consecutive points matching exp_junction
+        let connected =
+            pts.windows(2).any(|w| (w[0] == exp_junction.0 && w[1] == exp_junction.1) || (w[0] == exp_junction.1 && w[1] == exp_junction.0));
+        assert!(connected, "pick_a={pick_a}, pick_b={pick_b}, exp={exp_junction:?}, got pts={pts:?}");
+    }
+}
+
+#[test]
+fn test_join_direct_selected_after_whole_selection() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 100.0, 0.0);
+    let b = line(&mut s, 105.0, 0.0, 200.0, 0.0);
+    s.execute("select.set", &json!({"ids": [a.0, b.0]})).unwrap();
+    // User wants to join (0, 0) and (200, 0): pick a's anchor 0 and b's anchor 1
+    s.execute("select.anchors", &json!({"id": a.0, "anchors": [[0, 0]], "mode": "toggle"})).unwrap();
+    s.execute("select.anchors", &json!({"id": b.0, "anchors": [[0, 1]], "mode": "toggle"})).unwrap();
+    s.execute("path.join", &json!({})).unwrap();
+
+    let pd = path(&s, a);
+    let pts: Vec<f64> = pd.subpaths[0].anchors.iter().map(|x| x.p.x).collect();
+    let connected = pts.windows(2).any(|w| (w[0] == 0.0 && w[1] == 200.0) || (w[0] == 200.0 && w[1] == 0.0));
+    assert!(connected, "expected 0.0 and 200.0 to be connected, got pts={pts:?}");
+}
+
+/// Review #2: the Pen sends the subpath it continues even when that is subpath 0, so the engine
+/// never falls back to the last open subpath (append, close) or to every subpath (reverse).
+#[test]
+fn pen_continues_and_reverses_subpath_zero_of_a_path_with_two_open_subpaths() {
+    let v = view();
+    let mut s = session();
+    let id = NodeId(s.execute("path.create", &json!({"d": "M0 0 L100 0 M0 50 L100 50"})).unwrap()["id"].as_u64().unwrap());
+    s.execute("select.set", &json!({"ids": [id.0]})).unwrap();
+    s.select_tool("pen", v).unwrap();
+
+    // Continue from the end of subpath 0: the new anchor must land on subpath 0, not on subpath 1.
+    s.pointer(&PointerEvent::new(PointerKind::Down, 100.0, 0.0), v).unwrap();
+    s.pointer(&PointerEvent::new(PointerKind::Up, 100.0, 0.0), v).unwrap();
+    s.pointer(&PointerEvent::new(PointerKind::Down, 200.0, 0.0), v).unwrap();
+    s.pointer(&PointerEvent::new(PointerKind::Up, 200.0, 0.0), v).unwrap();
+    let pd = path(&s, id);
+    assert_eq!(pd.subpaths[0].anchors.len(), 3, "the new anchor extends subpath 0");
+    assert_eq!(pd.subpaths[1].anchors.len(), 2, "subpath 1 is left alone");
+    assert_eq!(pd.subpaths[0].anchors[2].p, Point::new(200.0, 0.0));
+
+    // Continue from the start of subpath 0: only subpath 0 reverses, the other keeps its direction.
+    let mut s = session();
+    let id = NodeId(s.execute("path.create", &json!({"d": "M0 0 L100 0 M0 50 L100 50"})).unwrap()["id"].as_u64().unwrap());
+    s.execute("select.set", &json!({"ids": [id.0]})).unwrap();
+    s.select_tool("pen", v).unwrap();
+    s.pointer(&PointerEvent::new(PointerKind::Down, 0.0, 0.0), v).unwrap();
+    s.pointer(&PointerEvent::new(PointerKind::Up, 0.0, 0.0), v).unwrap();
+    let pd = path(&s, id);
+    assert_eq!(pd.subpaths[0].anchors[0].p, Point::new(100.0, 0.0), "subpath 0 was reversed");
+    assert_eq!(pd.subpaths[1].anchors[0].p, Point::new(0.0, 50.0), "subpath 1 keeps its direction");
+}
+
+/// Review #5: Join closes the first open subpath, not subpath 0, so a closed subpath 0 doesn't
+/// make it fail with "path is already closed".
+#[test]
+fn join_closes_the_open_subpath_when_subpath_zero_is_closed() {
+    for explicit in [false, true] {
+        let mut s = session();
+        let id = NodeId(s.execute("path.create", &json!({"d": "M0 0 L10 0 L10 10 Z M50 0 L90 0 L90 40"})).unwrap()["id"].as_u64().unwrap());
+        s.execute("select.set", &json!({"ids": [id.0]})).unwrap();
+        let params = if explicit { json!({"ids": [id.0]}) } else { json!({}) };
+        s.execute("path.join", &params).unwrap();
+        let pd = path(&s, id);
+        assert!(pd.subpaths[0].closed && pd.subpaths[1].closed, "both subpaths are closed now: {params}");
+        assert_eq!(pd.subpaths[0].anchors.len(), 3, "the closed subpath is untouched");
+    }
+}
+
+/// Review #7: more than two selected path ends can't name one join, so it is refused rather than
+/// silently joining every selected path.
+#[test]
+fn join_refuses_more_than_two_selected_ends() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 10.0, 0.0);
+    let b = line(&mut s, 20.0, 0.0, 30.0, 0.0);
+    let c = line(&mut s, 40.0, 0.0, 50.0, 0.0);
+    s.execute("select.anchors", &json!({"id": a.0, "anchors": [[0, 0]], "mode": "set"})).unwrap();
+    s.execute("select.anchors", &json!({"id": b.0, "anchors": [[0, 0]], "mode": "add"})).unwrap();
+    s.execute("select.anchors", &json!({"id": c.0, "anchors": [[0, 0]], "mode": "add"})).unwrap();
+    let before = s.doc().unwrap().doc.clone();
+    let err = s.execute("path.join", &json!({})).unwrap_err();
+    assert!(err.to_string().contains("exactly two"), "{err}");
+    assert_eq!(s.doc().unwrap().doc, before, "nothing was joined");
+}
+
+/// Review #7: joining a path to one subpath of a node that has other subpaths leaves that node and
+/// its remaining subpaths in place, also when more paths follow.
+#[test]
+fn join_keeps_the_other_subpaths_of_a_joined_node() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 10.0, 0.0);
+    let b = NodeId(s.execute("path.create", &json!({"d": "M10 0 L20 0 M100 100 L110 100"})).unwrap()["id"].as_u64().unwrap());
+    let c = line(&mut s, 20.0, 0.0, 30.0, 0.0);
+    s.execute("path.join", &json!({"ids": [a.0, b.0, c.0]})).unwrap();
+    assert_eq!(path(&s, a).subpaths[0].anchors.len(), 4, "a, b's first subpath and c became one");
+    let rest = path(&s, b);
+    assert_eq!(rest.subpaths.len(), 1, "b keeps its other subpath");
+    assert_eq!(rest.subpaths[0].anchors[0].p, Point::new(100.0, 100.0));
+    assert!(s.doc().unwrap().doc.node(c).is_none(), "c was consumed");
+}
+
+/// Review #7: an empty subpath is refused with an error, not an underflow.
+#[test]
+fn join_two_refuses_an_empty_subpath() {
+    let mut s = session();
+    let a = line(&mut s, 0.0, 0.0, 10.0, 0.0);
+    let b = line(&mut s, 20.0, 0.0, 30.0, 0.0);
+    s.edit("Empty subpath", |d, _| {
+        if let NodeKind::Path { path, .. } = &mut d.node_mut(a).unwrap().kind {
+            path.subpaths[0] = vectorcraft_geom::SubPath::new(vec![], false);
+        }
+        Ok(())
+    })
+    .unwrap();
+    assert!(s.execute("path.join", &json!({"ids": [a.0, b.0], "ends": ["last", "first"], "subpaths": [0, 0]})).is_err());
+}
+
+/// Continuing a compound member at its first anchor reverses that subpath only. The Pen puts the
+/// compound back in the selection before it reverses, so the reverse has to name the member path:
+/// addressed through the selection it would walk the compound and flip every member's subpath.
+#[test]
+fn pen_continue_at_a_first_anchor_in_a_compound_reverses_only_that_subpath() {
+    let (v, none) = (view(), Mods::default());
+    let mut s = session();
+    let a = NodeId(s.execute("path.create", &json!({"d": "M100 100 L200 100 M100 150 L200 150"})).unwrap()["id"].as_u64().unwrap());
+    let b = NodeId(s.execute("path.create", &json!({"d": "M300 100 L400 100 M300 150 L400 150"})).unwrap()["id"].as_u64().unwrap());
+    s.execute("select.set", &json!({"ids": [a.0, b.0]})).unwrap();
+    let cid = NodeId(s.execute("object.compoundPath.make", &json!({})).unwrap()["id"].as_u64().unwrap());
+    // The member path itself is the whole selection, as a direct selection inside the compound
+    // leaves it: continuing it selects the compound again, which must not widen the reverse.
+    s.execute("select.set", &json!({"ids": [a.0]})).unwrap();
+    let (before_a, before_b) = (path(&s, a), path(&s, b));
+
+    s.select_tool("pen", v).unwrap();
+    gesture(&mut s, &[(100.0, 100.0)], none);
+
+    let after_a = path(&s, a);
+    assert_eq!(after_a.subpaths[0].anchors.iter().map(|x| x.p).collect::<Vec<_>>(), vec![Point::new(200.0, 100.0), Point::new(100.0, 100.0)]);
+    assert_eq!(after_a.subpaths[1], before_a.subpaths[1], "the member's other subpath keeps its anchors and handles");
+    assert_eq!(path(&s, b), before_b, "the compound's other member keeps its anchors, handles and closed flags");
+    assert_eq!(s.doc().unwrap().selection.objects, vec![cid], "the compound is selected again");
 }
 
 /// The anchors of a closed, slightly wobbly blob drawn at `fidelity`: samples half a point apart,

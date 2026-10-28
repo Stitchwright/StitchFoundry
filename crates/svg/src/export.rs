@@ -66,6 +66,7 @@ fn write(doc: &Document, opts: &ExportOptions, native: Option<&[u8]>, id_prefix:
         class_ids: HashMap::new(),
         used_ids: HashSet::new(),
         next_suffix: HashMap::new(),
+        next_fresh: HashMap::new(),
         linked_names: HashSet::new(),
         names: HashMap::new(),
         depth: 1,
@@ -207,6 +208,8 @@ struct Writer<'a> {
     used_ids: HashSet<String>,
     /// The next suffix to try for a base name, so a repeated name doesn't probe the ones taken again.
     next_suffix: HashMap<String, usize>,
+    /// The next number [`Writer::fresh_id`] tries for a prefix (every lower one is taken).
+    next_fresh: HashMap<String, usize>,
     /// The names in `linked`.
     linked_names: HashSet<String>,
     names: HashMap<NodeId, String>,
