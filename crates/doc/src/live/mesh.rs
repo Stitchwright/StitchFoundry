@@ -1,6 +1,9 @@
 use super::envelope::{EnvelopeKind, H_DOWN, H_LEFT, H_RIGHT, H_UP, envelope_grid, mesh_at};
 use super::warp::{WarpStyle, flatten_subpath, resample, warp_point};
-use super::*;
+use super::{
+    Affine, Anchor, Arc, Color, CubicBez, Deserialize, Node, ParamCurve, PathData, Point, Rect, Serialize, Shape, SubPath, Vec2, fifty, lerp_color,
+    one,
+};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MeshPoint {

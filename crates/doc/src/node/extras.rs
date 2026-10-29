@@ -2,7 +2,7 @@ use super::attributes::ObjectAttributes;
 use super::kind::NodeKind;
 use super::live_shape::LiveShape;
 use super::opacity::OpacityMask;
-use super::*;
+use super::{Node, PathData};
 
 /// The parts of a [`Node`] that few objects have: kept out of line, so that the nodes without
 /// them stay small ([`Node::extras`]).
@@ -23,6 +23,9 @@ pub struct NodeExtras {
     /// The group holds the glyph outlines of type. Geometry effects that reshape it move and scale
     /// the placed gradients in it with the outlines.
     pub type_outlines: bool,
+    /// An image drawn without smoothing: each pixel of the picture takes the color of the image
+    /// pixel nearest to it (an envelope's distorted image with Envelope Options › Anti-Alias off).
+    pub pixelated: bool,
     /// Editable Shaper composition; the original art is retained in its source child.
     pub shaper: Option<Box<crate::shaper::ShaperSpec>>,
     /// The [`crate::GraphicStyle::id`] last applied to this object. It stays linked while it keeps
@@ -56,6 +59,7 @@ pub(super) static NO_EXTRAS: NodeExtras = NodeExtras {
     graph: None,
     series_index: None,
     type_outlines: false,
+    pixelated: false,
     shaper: None,
     graphic_style: None,
     attrs: None,

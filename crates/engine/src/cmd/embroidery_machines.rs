@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use sf_core::machines::{self, MachineAdvanced, MachineProfile};
 use sf_core::model::TieStyle;
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

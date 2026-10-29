@@ -164,7 +164,9 @@ mod win {
 
     use clipboard_win::{formats, options::NoClear, raw};
 
-    use super::*;
+    use super::{
+        BITMAP, Cursor, Flavour, PNG, SVG, SystemClipboard, TEXT, copied_file, decode_png, dib_image, png_flavour, text_of, windows_formats,
+    };
 
     /// The device-independent bitmaps, the one that carries alpha first. Each is there whenever the
     /// other or a `CF_BITMAP` is: the system converts between them.
@@ -309,7 +311,7 @@ mod win {
 mod portable {
     use std::borrow::Cow;
 
-    use super::*;
+    use super::{BITMAP, Flavour, PNG, SystemClipboard, TEXT, copied_file, decode_png, png_flavour, text_of};
 
     /// What our last write put on the clipboard.
     enum Ours {
@@ -413,7 +415,7 @@ mod mac {
     use objc2_app_kit::NSPasteboard;
     use objc2_foundation::{NSArray, NSString};
 
-    use super::*;
+    use super::{Flavour, pasteboard_types};
 
     /// Does the pasteboard hold one of `mimes` ([`pasteboard_types`])? Asks for its types only.
     pub fn has(mimes: &[&'static str]) -> bool {

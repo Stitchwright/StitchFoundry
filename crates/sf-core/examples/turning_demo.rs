@@ -4,7 +4,7 @@
 
 use sf_core::direction::{Guide, auto_guides};
 use sf_core::geom::{Point, Polygon, Shape};
-use sf_core::model::*;
+use sf_core::model::{Design, FillObject, FillParams, ObjectKind};
 
 fn s_band() -> Vec<Point> {
     // centreline of an "S": upper arc (centre (0,-6)) from the right, over the top,

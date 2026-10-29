@@ -1,5 +1,8 @@
 use super::cid::{CidText, FontInfo};
-use super::*;
+use super::{
+    Affine, Arc, BezPath, BlendMode, Colors, Dash, Families, FillRule, FontNames, FunctionBudget, HashMap, HashSet, ImageBlob, LineCap, LineFacts,
+    LineJoin, LumaData, MaskSpec, Node, NodeId, Paint, PathEl, PatternDef, Rect, Scan, StrokeLayer, StrokeProps, TextAs, TextLine,
+};
 
 /// Decoded RGBA pixels, width, height and hayro's scale factors.
 pub(super) type Decoded = (Vec<u8>, u32, u32, (f32, f32));

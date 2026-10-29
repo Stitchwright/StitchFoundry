@@ -11,7 +11,7 @@ use vectorcraft_embroidery::PT_PER_MM;
 use vectorcraft_geom::path::{PathData, SubPath};
 
 use super::embroidery::{ids_json, stitched_targets};
-use super::*;
+use super::{CommandSpec, Point, Result, Session, always, bad, cmd, f64_or, has_doc, has_selection, point_param, str_param, unique_name};
 use crate::EngineError;
 
 const CMD: &str = "embroidery.placeMotif";

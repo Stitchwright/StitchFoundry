@@ -14,7 +14,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, has_doc, str_param};
 use crate::EngineError;
 
 const CMD: &str = "embroidery.memoryCard.save";

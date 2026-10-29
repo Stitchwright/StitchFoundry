@@ -1956,6 +1956,10 @@ file-filter	Templates	Sablonok
 	Ink Outlines	Tuskontúrok
 	Ink Outlines…	Tuskontúrok…
 	Inner Corner Tile	Belső sarokcsempe
+	Auto-Centered	Auto: középre
+	Auto-Between	Auto: közé
+	Auto-Sliced	Auto: szeletelt
+	Auto-Overlap	Auto: átfedés
 	Inner Glow…	Belső ragyogás…
 	Input Black	Bemeneti fekete
 	Input White	Bemeneti fehér
@@ -3089,6 +3093,10 @@ mark-style	Japanese	Japán
 	Release Opacity Mask	Átlátszósági maszk megszüntetése
 	Release Selection	Kijelölés felszabadítása
 	Release Shaper Group	Alakformáló csoport megszüntetése
+	Remove from Shaper Group	Eltávolítás az alakformáló csoportból
+@msg	source must be the id of a Shaper Group's original shape	A source értékének egy alakformáló csoport eredeti alakzatának azonosítójának kell lennie
+@msg	group must be the id of a Shaper Group	A group értékének egy alakformáló csoport azonosítójának kell lennie
+@msg	the shape is not an editable original shape of that Shaper Group	Az alakzat nem szerkeszthető eredeti alakzata ennek az alakformáló csoportnak
 	Release Text Wrap	Körbefuttatás megszüntetése
 	Release to Layers (Build)	Szétosztás rétegekre (építkezve)
 	Release to Layers (Sequence)	Szétosztás rétegekre (sorozatként)
@@ -3629,6 +3637,7 @@ mark-style	Japanese	Japán
 	Show Original Path	Eredeti útvonal megjelenítése
 	Open this dialog with these settings next time	Legközelebb ez a párbeszédablak nyíljon meg ezekkel a beállításokkal
 	Auto-Simplify	Automatikus egyszerűsítés
+	Auto-Smooth	Automatikus simítás
 	Color Panel Options	Szín panel beállításai
 	Show Package	Csomag megjelenítése
 	Show Panel	Panel megjelenítése
@@ -3672,6 +3681,7 @@ mark-style	Japanese	Japán
 	Simplify	Egyszerűsítés
 	Simplify:	Egyszerűsítés:
 	Simplify…	Egyszerűsítés…
+	Smooth…	Simítás…
 	Simulate	Szimulálás
 	Simulate Colored Paper	Színes papír szimulálása
 	Simulate Paper	Papír szimulálása
@@ -3890,6 +3900,7 @@ mark-style	Japanese	Japán
 	Swatch Options…	Színminta beállításai…
 	Swatch Tiles	Színmintacsempék
 	Swatches	Színminták
+	Switch Units	Mértékegységek váltása
 	Switch workspace	Munkaterület váltása
 	Symbol	Szimbólum
 	Symbol Instance	Szimbólumpéldány
@@ -4155,6 +4166,7 @@ mark-style	Japanese	Japán
 	Unlock Variables	Változók zárolásának feloldása
 	Unnamed Objects	Névtelen objektumok
 	Unprintable margin:	Nem nyomtatható margó:
+	Unselected Artwork	A nem kijelölt grafika
 	Unsharp Mask	Életlenítő maszk
 	Unsharp Mask…	Életlenítő maszk…
 	Unshift	Eltolás visszavonása
@@ -4445,6 +4457,7 @@ imageTrace	Outline	Körvonal
 @msg	`{key}` must be between {min} and {max} (got {x})	`{key}`: {min} és {max} közötti érték kell (kapott érték: {x})
 @msg	`{key}` must be one of {_1}	`{key}`: ezek egyike kell: {_1}
 @msg	`{key}` must be true or false	`{key}`: true vagy false kell
+@msg	`top` and `below` can't both be true	`top` és `below` nem lehet egyszerre true
 @msg	`select` must be true or false	`select`: true vagy false kell
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors` és `maxAnchors`: egész szám kell
 @msg	`{key}` must be a number not below 0	`{key}`: legalább 0 értékű szám kell
@@ -4546,6 +4559,7 @@ imageTrace	Outline	Körvonal
 @msg	videoRulerPixelAspectRatio must be a number from 0.1 to 10	videoRulerPixelAspectRatio: 0,1 és 10 közötti szám kell
 @msg	the Color Picker is not open	a Színválasztó nincs megnyitva
 @msg	the Simplify slider is not open	az Egyszerűsítés csúszka nincs megnyitva
+@msg	the Smooth slider is not open	a Simítás csúszka nincs megnyitva
 @msg	the screen color sampler is already open	a képernyős színmintavevő már nyitva van
 @msg	this system has no screen color sampler	ezen a rendszeren nincs képernyős színmintavevő
 @msg	bad colour `{hex}` (#rrggbb)	hibás szín: `{hex}` (#rrggbb)
@@ -4722,6 +4736,7 @@ imageTrace	Outline	Körvonal
 @msg	missing `id` (see plugin.list)	hiányzik: `id` (lásd: plugin.list)
 @msg	missing `name`	hiányzik: `name`
 @msg	missing `tool`	hiányzik: `tool`
+@msg	missing id	hiányzik az id
 @msg	missing index	hiányzik az index
 @msg	missing number `{key}`	hiányzik a szám: `{key}`
 @msg	missing integer `{key}`	hiányzik az egész szám: `{key}`
@@ -4755,6 +4770,7 @@ imageTrace	Outline	Körvonal
 @msg	no current layer	nincs aktuális réteg
 @msg	no data	nincs adat
 @msg	no dialog open	nincs nyitott párbeszédablak
+@msg	the open dialog has no Reset	a nyitott párbeszédablakban nincs Visszaállít gomb
 @msg	no document	nincs dokumentum
 @msg	no document open	nincs megnyitott dokumentum
 @msg	no effect applied yet	még nincs alkalmazott effektus
@@ -4848,6 +4864,7 @@ imageTrace	Outline	Körvonal
 @msg	not in pattern editing mode	nem mintázatszerkesztő módban vagy
 @msg	nothing encoded	nincs kódolt adat
 @msg	nothing selected	nincs kijelölés
+@msg	nothing selected is in a group	a kijelölésből semmi sincs csoportban
 @msg	nothing to align	nincs mit igazítani
 @msg	nothing to distort	nincs mit torzítani
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	nincs mit exportálni: a dokumentumban nincs látható grafika (vagy kapcsold be a Rajztáblák használata beállítást)
@@ -4962,6 +4979,7 @@ imageTrace	Outline	Körvonal
 @msg	select an object in perspective	jelölj ki egy perspektivikus objektumot
 @msg	select artwork (or a colour group) to recolor	jelölj ki átszínezendő grafikát (vagy színcsoportot)
 @msg	select at least two objects	jelölj ki legalább két objektumot
+@msg	exit isolation mode first	előbb lépj ki az elkülönítési módból
 @msg	select objects, not layers	objektumokat jelölj ki, rétegeket ne
 @msg	select one path, or give its `id`	jelölj ki egy útvonalat, vagy add meg az `id` értékét
 @msg	select paths or anchor points	jelölj ki útvonalakat vagy horgonypontokat
@@ -5035,6 +5053,7 @@ imageTrace	Outline	Körvonal
 @msg	the object already has an opacity mask	az objektumnak már van átlátszósági maszkja
 @msg	the object has no geometry	az objektumnak nincs geometriája
 @msg	the object has no opacity mask	az objektumnak nincs átlátszósági maszkja
+@msg	stop editing the opacity mask first	előbb fejezd be az átlátszósági maszk szerkesztését
 @msg	the object has no stroke	az objektumnak nincs körvonala
 @msg	the object is beyond the plane's horizon	az objektum a sík horizontján túl van
 @msg	the object isn't in perspective	az objektum nincs perspektívában
@@ -5064,6 +5083,9 @@ imageTrace	Outline	Körvonal
 @msg	the spine has no segments	a gerincnek nincsenek szakaszai
 @msg	the stroke has no weight	a körvonalnak nincs vastagsága
 @msg	the target layer is locked or hidden	a célréteg zárolt vagy rejtett
+@msg	the object is hidden or locked	az objektum rejtett vagy zárolt
+@msg	the object is outside the isolated group	az objektum az elkülönített csoporton kívül van
+@msg	type objects can't be isolated	a szövegobjektumok nem különíthetők el
 @msg	the thumbnail image is malformed	a bélyegkép hibás
 @msg	the top object must be a path, compound path or text object to use as a clipping mask	a vágómaszkhoz a legfelső objektum útvonal, összetett útvonal vagy szövegobjektum kell legyen
 @msg	the WMF header is damaged	a WMF-fejléc sérült

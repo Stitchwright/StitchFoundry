@@ -20,7 +20,7 @@ use vectorcraft_embroidery::{MM_PER_PT, PT_PER_MM};
 use vectorcraft_geom::PathData;
 
 use super::embroidery_photo::{Picture, chart, main_colors, majority, quantise, sample};
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 
 /// The data key marking a pattern's group: `"cols rows style"`.
 pub const PATTERN_KEY: &str = "crossStitch";

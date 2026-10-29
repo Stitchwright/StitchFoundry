@@ -74,7 +74,7 @@ mod ops;
 mod types;
 
 use art::preview_png;
-pub use document::{VariableLibrary, artboards, variables};
+pub use document::{PaletteSwatches, VariableLibrary, artboards, palette, variables};
 pub(crate) use document::{slot_frame, slot_of};
 pub use types::IMAGE_TOO_LARGE;
 use types::{BLEND_BUDGET, FLIP, Frame, GState, Kind, PatternHead, Place, Raster};

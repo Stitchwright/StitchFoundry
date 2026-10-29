@@ -1,4 +1,5 @@
-use super::*;
+use super::align::choice;
+use super::{Document, EngineError, Node, NodeId, NodeKind, Result, Session, Value, bad, id_param, json, ok, selected_roots};
 
 pub(super) enum Arrange {
     Front,
@@ -172,8 +173,42 @@ fn collect_flag(d: &Document, f: impl Fn(&Node) -> bool) -> Vec<NodeId> {
     v
 }
 
-pub(super) fn unlock_all(s: &mut Session, _: &Value) -> Result<Value> {
-    let ids = collect_flag(&s.doc()?.doc, |n| n.locked);
+/// The objects that `f` picks for `object.unlockAll` and `object.showAll` (`cmd`): in the whole
+/// document, or with `scope: "group"` inside the groups that hold the selected objects. A selected
+/// group is the group that holds its own members, and the objects of a group inside another such
+/// group are taken once. With `scope: "group"` and no selected object in a group, it returns an
+/// error.
+fn collect_flag_in_scope(s: &Session, cmd: &str, p: &Value, f: impl Fn(&Node) -> bool) -> Result<Vec<NodeId>> {
+    let st = s.doc()?;
+    let d = &st.doc;
+    if choice(p, cmd, "scope", &["document", "group"])? != Some("group") {
+        return Ok(collect_flag(d, f));
+    }
+    let is_group = |id: &NodeId| d.node(*id).is_some_and(|n| matches!(n.kind, NodeKind::Group { .. }));
+    let mut groups: Vec<NodeId> = st.selection.objects.iter().filter_map(|id| d.ancestry(*id)?.into_iter().rev().find(is_group)).collect();
+    groups.sort();
+    groups.dedup();
+    if groups.is_empty() {
+        return Err(EngineError::Other("nothing selected is in a group".into()));
+    }
+    let mut v = vec![];
+    for g in &groups {
+        if d.ancestry(*g).is_some_and(|a| a.iter().any(|up| up != g && groups.contains(up))) {
+            continue;
+        }
+        for c in d.node(*g).and_then(Node::children).into_iter().flatten() {
+            c.walk(&mut |n| {
+                if !n.is_layer() && f(n) {
+                    v.push(n.id)
+                }
+            });
+        }
+    }
+    Ok(v)
+}
+
+pub(super) fn unlock_all(s: &mut Session, p: &Value) -> Result<Value> {
+    let ids = collect_flag_in_scope(s, "object.unlockAll", p, |n| n.locked)?;
     // With nothing locked, the document, the selection and the undo history stay as they are.
     if ids.is_empty() {
         return Ok(json!({ "count": 0 }));
@@ -211,8 +246,8 @@ pub(super) fn hide(s: &mut Session, _: &Value) -> Result<Value> {
     ok()
 }
 
-pub(super) fn show_all(s: &mut Session, _: &Value) -> Result<Value> {
-    let ids = collect_flag(&s.doc()?.doc, |n| !n.visible);
+pub(super) fn show_all(s: &mut Session, p: &Value) -> Result<Value> {
+    let ids = collect_flag_in_scope(s, "object.showAll", p, |n| !n.visible)?;
     // With nothing hidden, the document, the selection and the undo history stay as they are.
     if ids.is_empty() {
         return Ok(json!({ "count": 0 }));

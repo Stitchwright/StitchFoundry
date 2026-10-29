@@ -18,7 +18,7 @@ use sf_core::geom::{Polygon, poly};
 use sf_core::model::{CHENILLE_HEIGHTS, Chenille, ChenilleStitch, FillKind, Motif, RunKind};
 use vectorcraft_doc::NodeId;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, cmd, has_doc, has_selection, str_param};
 
 /// Most borders before or after a compound chenille fill.
 const MAX_BORDERS: u64 = 3;

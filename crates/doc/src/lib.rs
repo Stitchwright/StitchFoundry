@@ -117,6 +117,7 @@ use vectorcraft_color::{Swatch, SwatchGroup};
 use vectorcraft_geom::{Affine, Point, Rect, Vec2};
 
 mod artboard;
+mod canvas_range;
 mod document;
 mod document_ext;
 mod document_guides;
@@ -127,6 +128,7 @@ mod records;
 mod units;
 
 pub use artboard::{Artboard, LockedArtboards, RetiredArtboardId, VIDEO_PIXEL_ASPECT_RANGE, VIDEO_SAFE_INSETS};
+pub use canvas_range::BeyondCanvas;
 #[cfg(test)]
 use document_ext::free_id;
 pub use graphic_style::{DEFAULT_GRAPHIC_STYLE, GraphicStyle};

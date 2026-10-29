@@ -5,7 +5,7 @@
 use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, always, bad, cmd, str_param};
 
 const CMD: &str = "embroidery.testSew";
 /// The word the lettering tests sew.

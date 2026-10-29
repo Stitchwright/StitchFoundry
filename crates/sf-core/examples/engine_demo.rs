@@ -4,7 +4,9 @@
 //! `cargo run -p sf-core --example engine_demo > pattern.json`
 
 use sf_core::geom::{Column, Contour, Node, NodeKind, Point, Polygon, Rung, Shape};
-use sf_core::model::*;
+use sf_core::model::{
+    AppliqueObject, AppliqueParams, Design, FillKind, FillObject, FillParams, ObjectKind, RunKind, RunObject, RunParams, SatinObject, SatinParams,
+};
 
 fn main() {
     let mut d = Design::new();

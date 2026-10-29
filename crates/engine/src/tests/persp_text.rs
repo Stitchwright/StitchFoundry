@@ -141,6 +141,23 @@ fn edit_text_shows_it_flat_in_isolation_then_projects_it_again() {
     assert!(s2.execute("perspective.editText", &json!({"id": rect.0})).is_err());
 }
 
+/// Edit Text, which shows the type in isolation mode, is off while an opacity mask is edited.
+#[test]
+fn edit_text_is_off_while_an_opacity_mask_is_edited() {
+    let (mut s, rect) = persp_session();
+    let id = persp_text(&mut s);
+    s.execute("transparency.makeOpacityMask", &json!({"ids": [rect.0]})).unwrap();
+    let layer = s.doc().unwrap().isolation;
+    assert!(layer.is_some(), "editing the new empty mask");
+    let err = s.execute("perspective.editText", &json!({"id": id.0})).unwrap_err();
+    assert!(matches!(&err, EngineError::Disabled(_, why) if why == "stop editing the opacity mask first"), "{err}");
+    assert_eq!(s.doc().unwrap().isolation, layer);
+    assert!(node(&s, id).projection().is_some(), "still projected");
+    s.execute("transparency.stopEditingOpacityMask", &json!({})).unwrap();
+    s.execute("perspective.editText", &json!({"id": id.0})).unwrap();
+    assert_eq!(s.doc().unwrap().isolation, Some(id));
+}
+
 /// Edit Text ending while a background save writes the file leaves the document saved once the
 /// file is written: the flat view is never saved. Saved while editing and edited after: undoing
 /// the edit once Edit Text has ended is back at what the file holds.

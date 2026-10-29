@@ -1966,6 +1966,10 @@ file-filter	Templates	Шаблони
 	Outer Corner Tile	Фрагмент зовнішнього кута
 	Side Tile	Бічний фрагмент
 	Inner Corner Tile	Фрагмент внутрішнього кута
+	Auto-Centered	Авто: по центру
+	Auto-Between	Авто: між
+	Auto-Sliced	Авто: зріз
+	Auto-Overlap	Авто: перекриття
 	Start Tile	Початковий фрагмент
 	End Tile	Кінцевий фрагмент
 	Fit	Припасування
@@ -3026,6 +3030,7 @@ mark-style	Japanese	Японський
 	Show Original Path	Показати початковий контур
 	Open this dialog with these settings next time	Наступного разу відкривати це діалогове вікно з цими параметрами
 	Auto-Simplify	Автоматичне спрощення
+	Auto-Smooth	Автоматичне згладжування
 	Color Panel Options	Параметри панелі «Колір»
 	Show Package	Показати пакет
 	Show Panel	Показати панель
@@ -3062,6 +3067,7 @@ mark-style	Japanese	Японський
 	Simplify	Спростити
 	Simplify:	Спростити:
 	Simplify…	Спростити…
+	Smooth…	Згладити…
 	Simulate Colored Paper	Імітувати кольоровий папір
 	Simulate Paper	Імітувати папір
 	Double Column	Подвійний стовпець
@@ -3239,6 +3245,7 @@ effect	Points	Точки
 	Swatch Options…	Параметри зразка…
 	Swatch Tiles	Плитки зразків
 	Swatches	Зразки
+	Switch Units	Переключити одиниці
 	Switch workspace	Переключити робоче середовище
 	Add Content	Додати вміст
 	Click to apply to the selected type	Клацніть, щоб застосувати до виділеного тексту
@@ -3473,6 +3480,7 @@ effect	Points	Точки
 	Unlock Guides	Розблокувати напрямні
 	Unnamed Objects	Об’єкти без імені
 	Unprintable margin:	Недруковане поле:
+	Unselected Artwork	Невиділений малюнок
 	Unshift	Скасувати зсув
 	Untitled	Без назви
 	Update Link	Оновити зв’язок
@@ -3926,6 +3934,7 @@ axis	Both	Обидві
 @msg	`{key}` must be between {min} and {max} (got {x})	`{key}` має бути від {min} до {max} (отримано {x})
 @msg	`{key}` must be one of {_1}	`{key}` має бути одним з: {_1}
 @msg	`{key}` must be true or false	`{key}` має бути true або false
+@msg	`top` and `below` can't both be true	`top` і `below` не можуть одночасно бути true
 @msg	`select` must be true or false	`select` має бути true або false
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors` і `maxAnchors` мають бути цілими числами
 @msg	`{key}` must be a number not below 0	`{key}` має бути числом, не меншим за 0
@@ -4003,6 +4012,7 @@ axis	Both	Обидві
 @msg	videoRulerPixelAspectRatio must be a number from 0.1 to 10	videoRulerPixelAspectRatio має бути числом від 0,1 до 10
 @msg	the Color Picker is not open	палітра кольорів не відкрита
 @msg	the Simplify slider is not open	повзунок «Спростити» не відкрито
+@msg	the Smooth slider is not open	повзунок «Згладити» не відкрито
 @msg	the screen color sampler is already open	засіб вибору кольору з екрана вже відкритий
 @msg	this system has no screen color sampler	у цій системі немає засобу вибору кольору з екрана
 @msg	bad colour `{hex}` (#rrggbb)	неприпустимий колір `{hex}` (#rrggbb)
@@ -4070,6 +4080,7 @@ axis	Both	Обидві
 @msg	missing `id` (see plugin.list)	відсутня `id` (див. plugin.list)
 @msg	missing `name`	відсутня `name`
 @msg	missing `tool`	відсутня `tool`
+@msg	missing id	відсутній id
 @msg	missing index	відсутня index
 @msg	missing number `{key}`	відсутнє число `{key}`
 @msg	missing integer `{key}`	відсутнє ціле число `{key}`
@@ -4102,6 +4113,7 @@ axis	Both	Обидві
 @msg	no current layer	немає поточного шару
 @msg	no data	немає даних
 @msg	no dialog open	немає відкритого діалогового вікна
+@msg	the open dialog has no Reset	у відкритому діалоговому вікні немає кнопки «Скинути»
 @msg	no document	немає документа
 @msg	no document open	немає відкритого документа
 @msg	no effect applied yet	ефект ще не застосований
@@ -4184,6 +4196,7 @@ axis	Both	Обидві
 @msg	not in pattern editing mode	не в режимі редагування візерунка
 @msg	nothing encoded	нічого не закодовано
 @msg	nothing selected	нічого не виділено
+@msg	nothing selected is in a group	нічого з виділеного не перебуває в групі
 @msg	nothing to align	нічого вирівнювати
 @msg	nothing to distort	нічого спотворювати
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	нема чого експортувати: у документі немає видимого малюнка (або увімкніть «Використовувати монтажні області»)
@@ -4257,6 +4270,7 @@ axis	Both	Обидві
 @msg	select an object in perspective	виділіть об’єкт у перспективі
 @msg	select artwork (or a colour group) to recolor	виділіть малюнок (або колірну групу) для перефарбовування
 @msg	select at least two objects	виділіть як мінімум два об’єкти
+@msg	exit isolation mode first	спочатку вийдіть з режиму ізоляції
 @msg	select objects, not layers	виділіть об’єкти, а не шари
 @msg	select one path, or give its `id`	виділіть один контур або вкажіть його `id`
 @msg	select paths to join	виділіть контури для з’єднання
@@ -4309,10 +4323,14 @@ axis	Both	Обидві
 @msg	the layer or group is locked	шар чи група заблоковані
 @msg	the guide is on a hidden or locked layer	напрямна розташована на прихованому або заблокованому шарі
 @msg	the target layer is locked or hidden	цільовий шар заблокований або прихований
+@msg	the object is hidden or locked	об’єкт прихований або заблокований
+@msg	the object is outside the isolated group	об’єкт поза ізольованою групою
+@msg	type objects can't be isolated	текстові об’єкти не можна ізолювати
 @msg	the layer to flatten into is hidden	шар для об’єднання прихований
 @msg	the object already has an opacity mask	об’єкт вже має маску непрозорості.
 @msg	the object has no geometry	об’єкт не має геометрії
 @msg	the object has no opacity mask	об’єкт не має маски непрозорості
+@msg	stop editing the opacity mask first	спочатку припиніть редагування маски непрозорості
 @msg	the object has no stroke	об’єкт не має обведення
 @msg	the object is beyond the plane's horizon	об’єкт знаходиться за горизонтом площини
 @msg	the object isn't in perspective	об’єкт не в перспективі
@@ -4494,6 +4512,10 @@ axis	Both	Обидві
 	Shaper	Формоутворення
 	Expand Shaper Group	Розібрати групу формоутворення
 	Release Shaper Group	Звільнити групу формоутворення
+	Remove from Shaper Group	Вилучити з групи формоутворення
+@msg	source must be the id of a Shaper Group's original shape	source має бути ідентифікатором вихідної фігури групи формоутворення
+@msg	group must be the id of a Shaper Group	group має бути ідентифікатором групи формоутворення
+@msg	the shape is not an editable original shape of that Shaper Group	фігура не є редагованою вихідною фігурою цієї групи формоутворення
 	Select Shaper Face	Виділити область формоутворення
 	Constrain	Обмежити
 	Free Transform	Вільне трансформування

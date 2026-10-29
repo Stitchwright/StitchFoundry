@@ -5,7 +5,10 @@ use vectorcraft_doc::{Appearance, CharStyle, LiveShape, Node, NodeKind, TextObje
 use vectorcraft_geom::{Affine, Anchor, AnchorKind, FillRule, PathData, Point, Rect, SubPath, shapes};
 
 use super::newart::NewArt;
-use super::*;
+use super::{
+    CommandSpec, NodeId, Result, Session, bad, bool_or, check_numbers, check_switches, cmd, color_value, f64_or, f64_req, finite_numbers, has_doc,
+    number_or, str_param, switch_or,
+};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![
@@ -588,11 +591,12 @@ fn grid_group(s: &mut Session, label: &str, (paths, bbox_angle): (Vec<PathData>,
 }
 
 /// A grid's divider count `count` (an error unless it is a number or null; 5 unless it is a JSON
-/// integer of 0 or more, so 4.0 and 2.5 give 5; at most 999) with its skew `key` in percent (0 when
+/// whole number of 0 or more, so 4.0 gives 4 and 2.5 gives 5; at most 999) with its skew `key` in percent (0 when
 /// absent, clamped to ±[`shapes::GRID_SKEW_MAX`]).
 fn dividers(p: &Value, count: &str, key: &str, cmd: &str) -> Result<(u32, f64)> {
     check_numbers(p, &[count], cmd)?;
-    let n = p.get(count).and_then(Value::as_u64).unwrap_or(5).min(999) as u32;
+    let whole = |v: &Value| v.as_u64().or_else(|| v.as_f64().filter(|f| f.is_finite() && *f >= 0.0 && f.fract() == 0.0).map(|f| f as u64));
+    let n = p.get(count).and_then(whole).unwrap_or(5).min(999) as u32;
     let skew = match p.get(key) {
         None | Some(Value::Null) => 0.0,
         Some(v) => v.as_f64().filter(|v| v.is_finite()).ok_or_else(|| bad(cmd, format!("`{key}` must be a number")))?,

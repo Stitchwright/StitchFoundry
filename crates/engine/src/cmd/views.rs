@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 use vectorcraft_doc::SavedView;
 use vectorcraft_geom::Point;
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, bool_or, cmd, f64_req, finite_numbers, has_doc, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

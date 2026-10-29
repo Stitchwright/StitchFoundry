@@ -17,7 +17,9 @@ use vectorcraft_pathops::{Cap, Join};
 use crate::{Action, Tool, ToolContext};
 
 pub use anchor::AnchorTool;
-pub use curvature::{CurvatureTool, EndCurve, curvature_close, curvature_extend, curvature_insert, curvature_move, curvature_smooth};
+pub use curvature::{
+    CurvatureTool, EndCurve, curvature_close, curvature_extend, curvature_insert, curvature_move, curvature_remove, curvature_smooth,
+};
 pub use family::FamilyTool;
 pub use gesture::GestureTool;
 

@@ -44,7 +44,7 @@ use vectorcraft_geom::{Affine, Point, Rect, shapes};
 use vectorcraft_pdf::CropTo;
 
 use super::fileio::{self, Format, RasterImage};
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, bool_or, cmd, finite_numbers, has_doc, id_param, str_param, unique_name};
 use crate::{EngineError, MAX_COORD};
 
 const PLACE: &str = "file.place";

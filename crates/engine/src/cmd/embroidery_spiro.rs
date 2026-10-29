@@ -9,7 +9,7 @@ use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
 use super::embroidery_lettering::ranged;
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 
 /// Points a layer is drawn with at most.
 const MAX_POINTS: usize = 6000;

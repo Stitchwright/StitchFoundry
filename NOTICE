@@ -54,11 +54,6 @@ based in part on the work of the Independent JPEG Group.
 WebAssembly plug-ins run in the wasmi interpreter (MIT OR Apache-2.0); its wasmparser dependency is
 under the Apache License 2.0 with the LLVM exception.
 
-The experimental Windows 7 build (packaging/windows/windows7.ps1) compiles a modified copy of the
-windows-link crate 0.2.1 (vendor/windows-link; Microsoft, MIT OR Apache-2.0) that binds CoTaskMemFree
-through ole32.dll. Its license texts are in vendor/windows-link and ship in that build's ZIP; every
-other build uses the unmodified crate from crates.io.
-
 Builds made with the StitchFoundry fonts (the STITCHFOUNDRY_FONTS_DIR build option; all official
 releases) embed the Foundry embroidery fonts of https://github.com/Stitchwright/stitchfoundry-fonts
 (Foundry Block, Varsity, Script, Slab and Sans, digitized from Anton, Graduate, Pacifico, Alfa Slab

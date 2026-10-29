@@ -5,7 +5,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, bool_or, cmd, has_doc, str_param};
 
 /// Designs waiting or sent kept, at most, and the largest machine file queued (bytes).
 const MAX_ITEMS: usize = 100;

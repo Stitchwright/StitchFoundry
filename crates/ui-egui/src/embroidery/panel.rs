@@ -7,8 +7,8 @@ use serde_json::{Value, json};
 use vectorcraft_embroidery::sf_core::attr::{Embroidery, FontDesign, LetterAdjust, Lettering, StitchType};
 use vectorcraft_embroidery::sf_core::brush::WidthProfile;
 use vectorcraft_embroidery::sf_core::model::{
-    Corners, CoverKind, CrossStyle, CustomMotif, FillKind, FillParams, JaggedSides, MAX_PASSES, Motif, MotifColumn, MotifWarp, RunKind, SatinParams,
-    TATAMI_LENGTH, TackdownKind, TexturePattern, TieStyle, WarpKind,
+    AppliqueParams, Corners, CoverKind, CrossStyle, CustomMotif, FillKind, FillParams, JaggedSides, MAX_PASSES, Motif, MotifColumn, MotifWarp,
+    RunKind, RunParams, SatinParams, TATAMI_LENGTH, TackdownKind, TexturePattern, TieStyle, WarpKind,
 };
 use vectorcraft_embroidery::sf_core::threads::Rgb;
 
@@ -348,18 +348,10 @@ fn selected_lettering(app: &VectorcraftApp) -> Option<(u64, Lettering)> {
     })
 }
 
-/// The Embroidery Lettering section's rows: new lettering, or the selected lettering to change.
-pub(crate) fn lettering_body(app: &mut VectorcraftApp, ui: &mut Ui) {
-    // the font folders remembered from earlier sessions, loaded the first time
-    if !std::mem::replace(&mut app.embroidery.fonts_listed, true)
-        && let Ok(r) = app.run("embroidery.fonts", json!({}))
-        && let Some(w) = r["warnings"].as_array().and_then(|w| w.first()).and_then(Value::as_str)
-    {
-        app.status(w);
-    }
-    // a lettering selected: what it says fills the rows
-    let selected = selected_lettering(app);
-    match &selected {
+/// Fills the lettering rows from the selected lettering `selected` the first time it is
+/// selected, and forgets which lettering they were filled from when none is.
+fn fill_from_lettering(app: &mut VectorcraftApp, selected: Option<&(u64, Lettering)>) {
+    match selected {
         Some((id, l)) if app.embroidery.lettering_for != Some(*id) => {
             app.embroidery.lettering_for = Some(*id);
             app.embroidery.lettering_text = l.text.clone();
@@ -377,6 +369,10 @@ pub(crate) fn lettering_body(app: &mut VectorcraftApp, ui: &mut Ui) {
         None => app.embroidery.lettering_for = None,
         _ => {}
     }
+}
+
+/// The buttons that load an embroidery font from a folder or get one from a font library.
+fn font_buttons(app: &mut VectorcraftApp, ui: &mut Ui) {
     if app.services.pick_folder.is_some()
         && button(ui, tl!("Load Embroidery Font…")).on_hover_text(tl!("A font folder in Ink/Stitch's format: font.json and its glyphs")).clicked()
     {
@@ -399,6 +395,49 @@ pub(crate) fn lettering_body(app: &mut VectorcraftApp, ui: &mut Ui) {
     {
         app.run("ui.fontLibrary", json!({})).ok();
     }
+}
+
+/// The lettering's sew order, how its letters join and where the thread is cut.
+fn sew_rows(app: &mut VectorcraftApp, ui: &mut Ui) {
+    use vectorcraft_embroidery::sf_core::attr::{LetterJoin, LetterOrder, LetterTrim};
+    let sew = &mut app.embroidery.lettering_sew;
+    let orders = [LetterOrder::Left, LetterOrder::Right, LetterOrder::Centre];
+    let cur = orders.iter().position(|o| *o == sew.order).unwrap_or(0);
+    if let Some(i) = pick(ui, tl!("Sew order"), "let-order", cur, &[tl!("Left to right"), tl!("Right to left"), tl!("Centre out")])
+        && let Some(o) = orders.get(i)
+    {
+        sew.order = *o;
+    }
+    let joins = [LetterJoin::Closest, LetterJoin::Baseline];
+    let cur = joins.iter().position(|j| *j == sew.join).unwrap_or(0);
+    if let Some(i) = pick(ui, tl!("Join"), "let-join", cur, &[tl!("Closest"), tl!("Along the baseline")])
+        && let Some(j) = joins.get(i)
+    {
+        sew.join = *j;
+    }
+    let trims = [LetterTrim::Auto, LetterTrim::Letter, LetterTrim::Word, LetterTrim::Line];
+    let cur = trims.iter().position(|t| *t == sew.trim).unwrap_or(0);
+    if let Some(i) =
+        pick(ui, tl!("Trims"), "let-trim", cur, &[tl!("Where needed"), tl!("After each letter"), tl!("After each word"), tl!("After each line")])
+        && let Some(t) = trims.get(i)
+    {
+        sew.trim = *t;
+    }
+}
+
+/// The Embroidery Lettering section's rows: new lettering, or the selected lettering to change.
+pub(crate) fn lettering_body(app: &mut VectorcraftApp, ui: &mut Ui) {
+    // the font folders remembered from earlier sessions, loaded the first time
+    if !std::mem::replace(&mut app.embroidery.fonts_listed, true)
+        && let Ok(r) = app.run("embroidery.fonts", json!({}))
+        && let Some(w) = r["warnings"].as_array().and_then(|w| w.first()).and_then(Value::as_str)
+    {
+        app.status(w);
+    }
+    // a lettering selected: what it says fills the rows
+    let selected = selected_lettering(app);
+    fill_from_lettering(app, selected.as_ref());
+    font_buttons(app, ui);
     let fonts: Vec<(String, Option<f64>, Option<f64>, f64)> = app
         .session
         .embroidery_fonts
@@ -477,30 +516,7 @@ pub(crate) fn lettering_body(app: &mut VectorcraftApp, ui: &mut Ui) {
     }
     let spiral = if app.embroidery.lettering_arc != 0.0 { app.embroidery.lettering_spiral } else { 0.0 };
     // the order the letters are sewn in, how they join, where the thread is cut
-    use vectorcraft_embroidery::sf_core::attr::{LetterJoin, LetterOrder, LetterTrim};
-    let sew = &mut app.embroidery.lettering_sew;
-    let orders = [LetterOrder::Left, LetterOrder::Right, LetterOrder::Centre];
-    let cur = orders.iter().position(|o| *o == sew.order).unwrap_or(0);
-    if let Some(i) = pick(ui, tl!("Sew order"), "let-order", cur, &[tl!("Left to right"), tl!("Right to left"), tl!("Centre out")])
-        && let Some(o) = orders.get(i)
-    {
-        sew.order = *o;
-    }
-    let joins = [LetterJoin::Closest, LetterJoin::Baseline];
-    let cur = joins.iter().position(|j| *j == sew.join).unwrap_or(0);
-    if let Some(i) = pick(ui, tl!("Join"), "let-join", cur, &[tl!("Closest"), tl!("Along the baseline")])
-        && let Some(j) = joins.get(i)
-    {
-        sew.join = *j;
-    }
-    let trims = [LetterTrim::Auto, LetterTrim::Letter, LetterTrim::Word, LetterTrim::Line];
-    let cur = trims.iter().position(|t| *t == sew.trim).unwrap_or(0);
-    if let Some(i) =
-        pick(ui, tl!("Trims"), "let-trim", cur, &[tl!("Where needed"), tl!("After each letter"), tl!("After each word"), tl!("After each line")])
-        && let Some(t) = trims.get(i)
-    {
-        sew.trim = *t;
-    }
+    sew_rows(app, ui);
     ui.checkbox(&mut app.embroidery.lettering_puff, tl!("3D puff"))
         .on_hover_text(tl!("Satin sewn over foam: dense, no underlay, its ends capped. Sew it in a colour of its own, to lay the foam at the stop"));
     // how the letters are stitched, and small text
@@ -2560,396 +2576,465 @@ fn current_section(app: &mut VectorcraftApp, ui: &mut Ui) {
 /// line) or for new objects.
 fn props_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, e: &Embroidery, open: bool) {
     match &e.stitch {
-        StitchType::Run(r) => {
-            let kinds = [
-                tl!("Single"),
-                tl!("Triple"),
-                tl!("Blanket"),
-                tl!("Zigzag"),
-                tl!("Motif"),
-                tl!("Backstitch"),
-                tl!("Stem stitch"),
-                tl!("Hand stitch"),
-                tl!("Sculpture run"),
-                tl!("String stitch"),
-            ];
-            let cur = RunKind::ALL.iter().position(|k| *k == r.kind).unwrap_or(0);
-            if let Some(i) = pick(ui, tl!("Run style"), "runkind", cur, &kinds)
-                && let Some(k) = RunKind::ALL.get(i)
-            {
-                // string stitching starts with long strings close together
-                let params = if *k == RunKind::String { json!({ "kind": k, "width": 8.0, "spacing": 1.0 }) } else { json!({ "kind": k }) };
-                set(app, target, params);
-            }
-            // a sculpture run's stitch length is its triple stitches'
-            let length = if r.kind == RunKind::Sculpture { tl!("Triple stitch length") } else { tl!("Stitch length") };
-            if let Some(v) = num(ui, length, "len", r.stitch_length, " mm", 2) {
-                set(app, target, json!({ "stitch_length": v }));
-            }
-            // a string stitch's width is how much of the line each string spans
-            let width = if r.kind == RunKind::String { tl!("Chord length") } else { tl!("Width") };
-            if matches!(r.kind, RunKind::Blanket | RunKind::Zigzag | RunKind::Motif | RunKind::Stem | RunKind::String)
-                && let Some(v) = num(ui, width, "rw", r.width, " mm", 2)
-            {
-                set(app, target, json!({ "width": v }));
-            }
-            // a hand stitch's spacing is the gap between its stitches, a sculpture run's the length
-            // of its single stitches
-            let spacing = match r.kind {
-                RunKind::Hand => tl!("Gap"),
-                RunKind::Sculpture => tl!("Single stitch length"),
-                _ => tl!("Spacing"),
-            };
-            if matches!(r.kind, RunKind::Blanket | RunKind::Zigzag | RunKind::Motif | RunKind::Hand | RunKind::Sculpture | RunKind::String)
-                && let Some(v) = num(ui, spacing, "rs", r.spacing, " mm", 2)
-            {
-                set(app, target, json!({ "spacing": v }));
-            }
-            if r.kind == RunKind::Sculpture {
-                let [triple, single] = r.groups;
-                if let Some(v) = num(ui, tl!("Triple stitches"), "rgt", f64::from(triple), "", 0) {
-                    set(app, target, json!({ "groups": [v.round().clamp(0.0, 20.0) as u32, single] }));
-                }
-                if let Some(v) = num(ui, tl!("Single stitches"), "rgs", f64::from(single), "", 0) {
-                    set(app, target, json!({ "groups": [triple, v.round().clamp(0.0, 20.0) as u32] }));
-                }
-            }
-            if matches!(r.kind, RunKind::Blanket | RunKind::Motif | RunKind::Stem)
-                && let Some(v) = check(ui, tl!("Flip to the other side"), r.flip)
-            {
-                set(app, target, json!({ "flip": v }));
-            }
-            let passes = num(ui, tl!("Passes"), "passes", f64::from(r.passes), "", 0);
-            if let Some(v) = passes {
-                set(app, target, json!({ "passes": v.round().clamp(1.0, f64::from(MAX_PASSES)) as u32 }));
-            }
-            if r.kind == RunKind::Motif {
-                motif_rows(app, ui, target, r.motif, r.custom_motif.as_ref());
-                // Graded: the motifs grow or shrink to another width along the line.
-                if let Some(v) = check(ui, tl!("Graded"), r.width_end.is_some()) {
-                    set(app, target, json!({ "width_end": if v { json!(r.width * 2.0) } else { Value::Null } }));
-                }
-                if let Some(w) = r.width_end
-                    && let Some(v) = num(ui, tl!("Width at end"), "rwend", w, " mm", 2)
-                {
-                    set(app, target, json!({ "width_end": v.clamp(0.5, 50.0) }));
-                }
-            }
-        }
-        StitchType::Satin(s) => {
-            if open {
-                let w = e.width.unwrap_or(3.0);
-                if let Some(v) = num(ui, tl!("Width"), "sw", w, " mm", 2) {
-                    set(app, target, json!({ "width": v }));
-                }
-                let profiles = [tl!("Constant"), tl!("Tapered"), tl!("Calligraphy")];
-                let cur = match e.profile {
-                    WidthProfile::Constant | WidthProfile::Pressure(_) => 0,
-                    WidthProfile::Tapered => 1,
-                    WidthProfile::Calligraphy { .. } => 2,
-                };
-                if let Some(i) = pick(ui, tl!("Width profile"), "profile", cur, &profiles) {
-                    let p = match i {
-                        1 => json!("Tapered"),
-                        2 => json!({ "Calligraphy": { "nib_angle": 145.0 } }),
-                        _ => json!("Constant"),
-                    };
-                    set(app, target, json!({ "profile": p }));
-                }
-                let corners = [tl!("Automatic"), tl!("Turn"), tl!("Miter"), tl!("Capped")];
-                let cur = Corners::ALL.iter().position(|c| *c == s.corners).unwrap_or(0);
-                if let Some(i) = pick(ui, tl!("Corners"), "corners", cur, &corners)
-                    && let Some(c) = Corners::ALL.get(i)
-                {
-                    set(app, target, json!({ "corners": c }));
-                }
-            }
-            // a motif column: motifs as wide as the column instead of satin
-            let column = s.motif_column.as_deref();
-            let sew_as = [tl!("Satin"), tl!("Motifs")];
-            if let Some(i) = pick(ui, tl!("Sew as"), "sewas", usize::from(column.is_some()), &sew_as) {
-                set(app, target, json!({ "motif_column": if i == 1 { json!(MotifColumn::default()) } else { Value::Null } }));
-            }
-            if let Some(m) = column {
-                let names: Vec<&str> = Motif::ALL.iter().map(|x| motif_name(*x)).collect();
-                let cur = Motif::ALL.iter().position(|x| *x == m.motif).unwrap_or(0);
-                if let Some(i) = pick(ui, tl!("Motif"), "colmotif", cur, &names)
-                    && let Some(x) = Motif::ALL.get(i)
-                {
-                    set(app, target, json!({ "motif_column": { "motif": x, "custom_motif": null } }));
-                }
-                if let Some(v) = num(ui, tl!("Motif length (× width)"), "collen", m.length, "", 2) {
-                    set(app, target, json!({ "motif_column": { "length": v.clamp(0.2, 10.0) } }));
-                }
-            }
-            if let Some(v) = num(ui, tl!("Density"), "sd", s.spacing, " mm", 2) {
-                set(app, target, json!({ "spacing": v }));
-            }
-            let twin = s.pull_comp_2.is_some();
-            let label = if twin { tl!("Pull comp., side 1") } else { tl!("Pull compensation") };
-            if let Some(v) = num(ui, label, "spc", s.pull_comp, " mm", 2) {
-                set(app, target, json!({ "pull_comp": v }));
-            }
-            if let Some(side2) = s.pull_comp_2
-                && let Some(v) = num(ui, tl!("Pull comp., side 2"), "spc2", side2, " mm", 2)
-            {
-                set(app, target, json!({ "pull_comp_2": v }));
-            }
-            if let Some(v) = check(ui, tl!("Different on each side"), twin) {
-                set(app, target, json!({ "pull_comp_2": if v { json!(s.pull_comp) } else { Value::Null } }));
-            }
-            if let Some(v) = num(ui, tl!("Push compensation"), "spush", s.push_comp, " mm", 2) {
-                set(app, target, json!({ "push_comp": v.clamp(0.0, 5.0) }));
-            }
-            // a tatami border: rows across the column split at the stitch length
-            if let Some(v) = check(ui, tl!("Tatami stitches"), s.tatami) {
-                let len = if v { TATAMI_LENGTH } else { SatinParams::default().split_length };
-                set(app, target, json!({ "tatami": v, "split_length": len }));
-            }
-            let split = if s.tatami { tl!("Stitch length") } else { tl!("Auto split") };
-            if let Some(v) = num(ui, split, "split", s.split_length, " mm", 1) {
-                set(app, target, json!({ "split_length": v }));
-            }
-            let preserve = check(ui, tl!("Preserve long stitches"), s.preserve_long);
-            if let Some(v) = preserve {
-                set(app, target, json!({ "preserve_long": v }));
-            }
-            if let Some(v) = check(ui, tl!("Auto spacing"), s.auto_spacing) {
-                set(app, target, json!({ "auto_spacing": v }));
-            }
-            if let Some(v) = check(ui, tl!("Short stitches on curves"), s.short_stitches) {
-                set(app, target, json!({ "short_stitches": v }));
-            }
-            // Jagged edges: stitches end short of the edge at random (fur, grass, feathers).
-            let sides = [tl!("None"), tl!("Both sides"), tl!("Side 1"), tl!("Side 2")];
-            let cur = s.jagged.and_then(|j| JaggedSides::ALL.iter().position(|x| *x == j.sides)).map_or(0, |i| i + 1);
-            if let Some(i) = pick(ui, tl!("Jagged edges"), "jagged", cur, &sides) {
-                let depth = s.jagged.unwrap_or_default().depth;
-                let v = i.checked_sub(1).and_then(|k| JaggedSides::ALL.get(k)).map_or(Value::Null, |side| json!({ "sides": side, "depth": depth }));
-                set(app, target, json!({ "jagged": v }));
-            }
-            if let Some(j) = s.jagged
-                && let Some(v) = num(ui, tl!("Jag depth"), "jagdepth", j.depth, " mm", 1)
-            {
-                set(app, target, json!({ "jagged": { "depth": v.clamp(0.0, 20.0) } }));
-            }
-            let u = &s.underlay;
-            if let Some(v) = check(ui, tl!("Automatic underlay"), u.auto) {
-                set(app, target, json!({ "underlay": { "auto": v } }));
-            }
-            if !u.auto {
-                ui.horizontal(|ui| {
-                    for (label, key, val) in [
-                        (tl!("Centre run"), "center_run", u.center_run),
-                        (tl!("Edge run"), "edge_run", u.edge_run),
-                        (tl!("Zigzag"), "zigzag", u.zigzag),
-                    ] {
-                        if let Some(v) = check(ui, label, val) {
-                            set(app, target, json!({ "underlay": { key: v } }));
-                        }
-                    }
-                });
-                if u.zigzag
-                    && let Some(v) = check(ui, tl!("Double zigzag"), u.double_zigzag)
-                {
-                    set(app, target, json!({ "underlay": { "double_zigzag": v } }));
-                }
-            }
-            if !open && let Target::Selection(id) = target {
-                direction_rows(app, ui, id, e);
-            }
-        }
-        StitchType::Fill(f) => {
-            let kinds: Vec<&str> = FillKind::ALL.iter().map(|k| tl!(k.label())).collect();
-            let cur = FillKind::ALL.iter().position(|k| *k == f.kind).unwrap_or(0);
-            if let Some(i) = pick(ui, tl!("Fill style"), "fillkind", cur, &kinds)
-                && let Some(k) = FillKind::ALL.get(i)
-            {
-                set(app, target, json!({ "kind": k }));
-            }
-            let (spacing_label, decimals) = match f.kind {
-                FillKind::Meander => (tl!("Path spacing"), 1),
-                FillKind::Motif => (tl!("Row spacing"), 1),
-                _ => (tl!("Density"), 2),
-            };
-            if let Some(v) = num(ui, spacing_label, "fd", f.spacing, " mm", decimals) {
-                set(app, target, json!({ "spacing": v }));
-            }
-            if !matches!(f.kind, FillKind::Satin | FillKind::Radial) {
-                let label = if f.kind == FillKind::Cross { tl!("Cell size") } else { tl!("Stitch length") };
-                if let Some(v) = num(ui, label, "fl", f.stitch_length, " mm", 2) {
-                    set(app, target, json!({ "stitch_length": v }));
-                }
-            }
-            if f.kind == FillKind::Cross {
-                let styles = [tl!("Full cross"), tl!("Half cross"), tl!("Upright cross"), tl!("Double cross")];
-                let cur = CrossStyle::ALL.iter().position(|c| *c == f.cross).unwrap_or(0);
-                if let Some(i) = pick(ui, tl!("Cross style"), "fcross", cur, &styles)
-                    && let Some(c) = CrossStyle::ALL.get(i)
-                {
-                    set(app, target, json!({ "cross": c }));
-                }
-            }
-            // an offset fill: only so many rings in from the outline
-            if f.kind == FillKind::Contour
-                && let Some(v) = num(ui, tl!("Rings (0: all)"), "frings", f64::from(f.rings), "", 0)
-            {
-                set(app, target, json!({ "rings": v.round().clamp(0.0, 500.0) as u32 }));
-            }
-            if f.kind == FillKind::Motif {
-                motif_rows(app, ui, target, f.motif, f.custom_motif.as_ref());
-                // a paired motif fill: a second motif in turn with the first along the rows
-                let mut pairs = vec![tl!("None")];
-                pairs.extend(Motif::ALL.iter().map(|m| motif_name(*m)));
-                let cur = f.motif_pair.and_then(|m| Motif::ALL.iter().position(|x| *x == m)).map_or(0, |i| i + 1);
-                if let Some(i) = pick(ui, tl!("Paired with"), "fpair", cur, &pairs) {
-                    let v = i.checked_sub(1).and_then(|k| Motif::ALL.get(k)).map_or(Value::Null, |m| json!(m));
-                    set(app, target, json!({ "motif_pair": v }));
-                }
-                if let Some(v) = num(ui, tl!("Motif size"), "fms", f.motif_size, " mm", 1) {
-                    set(app, target, json!({ "motif_size": v.clamp(1.0, 50.0) }));
-                }
-                if let Some(v) = num(ui, tl!("Row offset"), "fmo", f.offset, "", 2) {
-                    set(app, target, json!({ "offset": v }));
-                }
-                // a 3D motif fill: sculpted as a dome or a bowl, or receding
-                let warps = [tl!("None"), tl!("Globe out"), tl!("Globe in"), tl!("Perspective")];
-                let cur = f.warp.and_then(|w| WarpKind::ALL.iter().position(|k| *k == w.kind)).map_or(0, |i| i + 1);
-                if let Some(i) = pick(ui, tl!("3D effect"), "fwarp", cur, &warps) {
-                    let v = i
-                        .checked_sub(1)
-                        .and_then(|k| WarpKind::ALL.get(k))
-                        .map_or(Value::Null, |k| json!(MotifWarp { kind: *k, ..f.warp.unwrap_or_default() }));
-                    set(app, target, json!({ "warp": v }));
-                }
-                if let Some(w) = f.warp {
-                    if let Some(v) = num(ui, tl!("Strength"), "fwamt", w.amount, "", 2) {
-                        set(app, target, json!({ "warp": { "amount": v.clamp(0.0, 0.8) } }));
-                    }
-                    if w.kind == WarpKind::Perspective
-                        && let Some(v) = num(ui, tl!("Direction"), "fwang", w.angle, "°", 0)
-                    {
-                        set(app, target, json!({ "warp": { "angle": v } }));
-                    }
-                }
-            }
-            if f.kind == FillKind::Tatami {
-                if let Some(v) = num(ui, tl!("Row offset"), "fo", f.offset, "", 2) {
-                    set(app, target, json!({ "offset": v }));
-                }
-                // a spacing profile replaces the gradient
-                if f.spacing_profile.is_empty()
-                    && let Some(v) = num(ui, tl!("Gradient to"), "fg", f.spacing_end, " mm", 2)
-                {
-                    set(app, target, json!({ "spacing_end": v }));
-                }
-                profile_rows(app, ui, target, f);
-            }
-            if matches!(f.kind, FillKind::Tatami | FillKind::Meander)
-                && let Some(v) = num(ui, tl!("Randomness"), "fr", f.random, "", 2)
-            {
-                set(app, target, json!({ "random": v }));
-            }
-            // a satin that turns (two inclination lines or more) takes a pattern pressed in along it
-            if f.kind == FillKind::Satin && e.guides.len() >= 2 {
-                texture_rows(app, ui, target, f, e);
-            }
-            if f.kind == FillKind::Tatami {
-                texture_rows(app, ui, target, f, e);
-                if let Some(v) = check(ui, tl!("Trapunto (travel along the outline)"), f.trapunto) {
-                    set(app, target, json!({ "trapunto": v }));
-                }
-                if let Some(v) = num(ui, tl!("Ragged edge"), "frag", f.ragged, " mm", 1) {
-                    set(app, target, json!({ "ragged": v }));
-                }
-            }
-            if f.kind == FillKind::Satin
-                && let Some(v) = num(ui, tl!("Auto split"), "fsplit", f.split_length, " mm", 1)
-            {
-                set(app, target, json!({ "split_length": v }));
-            }
-            if let Some(v) = num(ui, tl!("Pull compensation"), "fpc", f.pull_comp, " mm", 2) {
-                set(app, target, json!({ "pull_comp": v }));
-            }
-            if let Some(v) = num(ui, tl!("Push compensation"), "fpush", f.push_comp, " mm", 2) {
-                set(app, target, json!({ "push_comp": v.clamp(0.0, 5.0) }));
-            }
-            // cross, meander and motif fills are sewn without underlay
-            let u = &f.underlay;
-            if !matches!(f.kind, FillKind::Cross | FillKind::Meander | FillKind::Motif) {
-                ui.horizontal(|ui| {
-                    if let Some(v) = check(ui, tl!("Edge run underlay"), u.edge_run) {
-                        set(app, target, json!({ "underlay": { "edge_run": v } }));
-                    }
-                    if let Some(v) = check(ui, tl!("Tatami underlay"), u.tatami) {
-                        set(app, target, json!({ "underlay": { "tatami": v } }));
-                    }
-                });
-            }
-            if matches!(f.kind, FillKind::Tatami | FillKind::Satin | FillKind::Cross)
-                && let Target::Selection(id) = target
-            {
-                direction_rows(app, ui, id, e);
-            }
-        }
-        StitchType::Applique(a) => {
-            if let Some(v) = check(ui, tl!("Placement line and stop"), a.placement) {
-                set(app, target, json!({ "placement": v }));
-            }
-            let tack = [tl!("None"), tl!("Run"), tl!("Zigzag"), tl!("Blanket")];
-            let cur = [TackdownKind::None, TackdownKind::Run, TackdownKind::Zigzag, TackdownKind::Blanket]
-                .iter()
-                .position(|k| *k == a.tackdown)
-                .unwrap_or(2);
-            if let Some(i) = pick(ui, tl!("Tack-down"), "tack", cur, &tack) {
-                let k = [TackdownKind::None, TackdownKind::Run, TackdownKind::Zigzag, TackdownKind::Blanket].get(i).copied().unwrap_or_default();
-                set(app, target, json!({ "tackdown": k }));
-            }
-            if let Some(v) = check(ui, tl!("Stop to trim fabric"), a.trim_stop) {
-                set(app, target, json!({ "trim_stop": v }));
-            }
-            let covers = [CoverKind::None, CoverKind::Satin, CoverKind::Blanket, CoverKind::Zigzag, CoverKind::Triple];
-            let cover = [tl!("None"), tl!("Satin"), tl!("Blanket"), tl!("Zigzag"), tl!("Triple run")];
-            let cur = covers.iter().position(|k| *k == a.cover).unwrap_or(1);
-            if let Some(i) = pick(ui, tl!("Cover stitch"), "cover", cur, &cover) {
-                let k = covers.get(i).copied().unwrap_or_default();
-                set(app, target, json!({ "cover": k }));
-            }
-            if let Some(v) = check(ui, tl!("Partial cover"), a.partial) {
-                set(app, target, json!({ "partial": v }));
-            }
-            if let Some(v) = num(ui, tl!("Cover width"), "cw", a.cover_width, " mm", 2) {
-                set(app, target, json!({ "cover_width": v }));
-            }
-            if let Some(v) = num(ui, tl!("Density"), "cd", a.cover_spacing, " mm", 2) {
-                set(app, target, json!({ "cover_spacing": v }));
-            }
-            if let Some(v) = check(ui, tl!("Sew the pieces together"), a.combine) {
-                set(app, target, json!({ "combine": v }));
-            }
-            applique_fabric_rows(app, ui, target, a);
-        }
+        StitchType::Run(r) => run_rows(app, ui, target, r),
+        StitchType::Satin(s) => satin_rows(app, ui, target, e, s, open),
+        StitchType::Fill(f) => fill_rows(app, ui, target, e, f),
+        StitchType::Applique(a) => applique_rows(app, ui, target, a),
         StitchType::Manual => {
             ui.label(tl!("Each anchor point is a needle penetration."));
         }
         StitchType::Decoration(d) => decoration_rows(app, ui, target, d),
         StitchType::Branch | StitchType::Lettering(_) => {}
-        StitchType::Redwork(r) => {
-            // redwork lines are sewn in one of the outline stitches
-            let kinds = [RunKind::Single, RunKind::Triple, RunKind::Back, RunKind::Stem];
-            let names = [tl!("Single"), tl!("Triple"), tl!("Backstitch"), tl!("Stem stitch")];
-            let cur = kinds.iter().position(|k| *k == r.kind).unwrap_or(0);
-            if let Some(i) = pick(ui, tl!("Run style"), "rwkind", cur, &names)
-                && let Some(k) = kinds.get(i)
-            {
-                set(app, target, json!({ "kind": k }));
-            }
-            if let Some(v) = num(ui, tl!("Stitch length"), "rwlen", r.stitch_length, " mm", 2) {
-                set(app, target, json!({ "stitch_length": v }));
-            }
-            ui.label(tl!("Sewn as one line that ends where it starts; the way between lines is retraced along them."));
+        StitchType::Redwork(r) => redwork_rows(app, ui, target, r),
+    }
+    common_rows(app, ui, target, e);
+}
+
+/// A running stitch's rows: its style, stitch length, width and spacing, then what the style
+/// adds.
+fn run_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, r: &RunParams) {
+    let kinds = [
+        tl!("Single"),
+        tl!("Triple"),
+        tl!("Blanket"),
+        tl!("Zigzag"),
+        tl!("Motif"),
+        tl!("Backstitch"),
+        tl!("Stem stitch"),
+        tl!("Hand stitch"),
+        tl!("Sculpture run"),
+        tl!("String stitch"),
+    ];
+    let cur = RunKind::ALL.iter().position(|k| *k == r.kind).unwrap_or(0);
+    if let Some(i) = pick(ui, tl!("Run style"), "runkind", cur, &kinds)
+        && let Some(k) = RunKind::ALL.get(i)
+    {
+        // string stitching starts with long strings close together
+        let params = if *k == RunKind::String { json!({ "kind": k, "width": 8.0, "spacing": 1.0 }) } else { json!({ "kind": k }) };
+        set(app, target, params);
+    }
+    // a sculpture run's stitch length is its triple stitches'
+    let length = if r.kind == RunKind::Sculpture { tl!("Triple stitch length") } else { tl!("Stitch length") };
+    if let Some(v) = num(ui, length, "len", r.stitch_length, " mm", 2) {
+        set(app, target, json!({ "stitch_length": v }));
+    }
+    // a string stitch's width is how much of the line each string spans
+    let width = if r.kind == RunKind::String { tl!("Chord length") } else { tl!("Width") };
+    if matches!(r.kind, RunKind::Blanket | RunKind::Zigzag | RunKind::Motif | RunKind::Stem | RunKind::String)
+        && let Some(v) = num(ui, width, "rw", r.width, " mm", 2)
+    {
+        set(app, target, json!({ "width": v }));
+    }
+    // a hand stitch's spacing is the gap between its stitches, a sculpture run's the length
+    // of its single stitches
+    let spacing = match r.kind {
+        RunKind::Hand => tl!("Gap"),
+        RunKind::Sculpture => tl!("Single stitch length"),
+        _ => tl!("Spacing"),
+    };
+    if matches!(r.kind, RunKind::Blanket | RunKind::Zigzag | RunKind::Motif | RunKind::Hand | RunKind::Sculpture | RunKind::String)
+        && let Some(v) = num(ui, spacing, "rs", r.spacing, " mm", 2)
+    {
+        set(app, target, json!({ "spacing": v }));
+    }
+    run_style_rows(app, ui, target, r);
+}
+
+/// The rows a run style adds: a sculpture run's stitch groups, the side to flip to, the
+/// passes, and a motif run's motif and grading.
+fn run_style_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, r: &RunParams) {
+    if r.kind == RunKind::Sculpture {
+        let [triple, single] = r.groups;
+        if let Some(v) = num(ui, tl!("Triple stitches"), "rgt", f64::from(triple), "", 0) {
+            set(app, target, json!({ "groups": [v.round().clamp(0.0, 20.0) as u32, single] }));
+        }
+        if let Some(v) = num(ui, tl!("Single stitches"), "rgs", f64::from(single), "", 0) {
+            set(app, target, json!({ "groups": [triple, v.round().clamp(0.0, 20.0) as u32] }));
         }
     }
+    if matches!(r.kind, RunKind::Blanket | RunKind::Motif | RunKind::Stem)
+        && let Some(v) = check(ui, tl!("Flip to the other side"), r.flip)
+    {
+        set(app, target, json!({ "flip": v }));
+    }
+    let passes = num(ui, tl!("Passes"), "passes", f64::from(r.passes), "", 0);
+    if let Some(v) = passes {
+        set(app, target, json!({ "passes": v.round().clamp(1.0, f64::from(MAX_PASSES)) as u32 }));
+    }
+    if r.kind == RunKind::Motif {
+        motif_rows(app, ui, target, r.motif, r.custom_motif.as_ref());
+        // Graded: the motifs grow or shrink to another width along the line.
+        if let Some(v) = check(ui, tl!("Graded"), r.width_end.is_some()) {
+            set(app, target, json!({ "width_end": if v { json!(r.width * 2.0) } else { Value::Null } }));
+        }
+        if let Some(w) = r.width_end
+            && let Some(v) = num(ui, tl!("Width at end"), "rwend", w, " mm", 2)
+        {
+            set(app, target, json!({ "width_end": v.clamp(0.5, 50.0) }));
+        }
+    }
+}
+
+/// A satin's rows: a satin line's width, profile and corners, what it is sewn as, its density
+/// and compensation, its edges, its underlay and (selected, not a line) its direction.
+fn satin_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, e: &Embroidery, s: &SatinParams, open: bool) {
+    if open {
+        satin_line_rows(app, ui, target, e, s);
+    }
+    satin_column_rows(app, ui, target, s);
+    satin_comp_rows(app, ui, target, s);
+    satin_edge_rows(app, ui, target, s);
+    satin_underlay_rows(app, ui, target, s);
+    if !open && let Target::Selection(id) = target {
+        direction_rows(app, ui, id, e);
+    }
+}
+
+/// A satin line's width, width profile and corners.
+fn satin_line_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, e: &Embroidery, s: &SatinParams) {
+    let w = e.width.unwrap_or(3.0);
+    if let Some(v) = num(ui, tl!("Width"), "sw", w, " mm", 2) {
+        set(app, target, json!({ "width": v }));
+    }
+    let profiles = [tl!("Constant"), tl!("Tapered"), tl!("Calligraphy")];
+    let cur = match e.profile {
+        WidthProfile::Constant | WidthProfile::Pressure(_) => 0,
+        WidthProfile::Tapered => 1,
+        WidthProfile::Calligraphy { .. } => 2,
+    };
+    if let Some(i) = pick(ui, tl!("Width profile"), "profile", cur, &profiles) {
+        let p = match i {
+            1 => json!("Tapered"),
+            2 => json!({ "Calligraphy": { "nib_angle": 145.0 } }),
+            _ => json!("Constant"),
+        };
+        set(app, target, json!({ "profile": p }));
+    }
+    let corners = [tl!("Automatic"), tl!("Turn"), tl!("Miter"), tl!("Capped")];
+    let cur = Corners::ALL.iter().position(|c| *c == s.corners).unwrap_or(0);
+    if let Some(i) = pick(ui, tl!("Corners"), "corners", cur, &corners)
+        && let Some(c) = Corners::ALL.get(i)
+    {
+        set(app, target, json!({ "corners": c }));
+    }
+}
+
+/// What a satin is sewn as: satin, or a motif column (motifs as wide as the column) with its
+/// motif and length.
+fn satin_column_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, s: &SatinParams) {
+    let column = s.motif_column.as_deref();
+    let sew_as = [tl!("Satin"), tl!("Motifs")];
+    if let Some(i) = pick(ui, tl!("Sew as"), "sewas", usize::from(column.is_some()), &sew_as) {
+        set(app, target, json!({ "motif_column": if i == 1 { json!(MotifColumn::default()) } else { Value::Null } }));
+    }
+    if let Some(m) = column {
+        let names: Vec<&str> = Motif::ALL.iter().map(|x| motif_name(*x)).collect();
+        let cur = Motif::ALL.iter().position(|x| *x == m.motif).unwrap_or(0);
+        if let Some(i) = pick(ui, tl!("Motif"), "colmotif", cur, &names)
+            && let Some(x) = Motif::ALL.get(i)
+        {
+            set(app, target, json!({ "motif_column": { "motif": x, "custom_motif": null } }));
+        }
+        if let Some(v) = num(ui, tl!("Motif length (× width)"), "collen", m.length, "", 2) {
+            set(app, target, json!({ "motif_column": { "length": v.clamp(0.2, 10.0) } }));
+        }
+    }
+}
+
+/// A satin's density, pull and push compensation, tatami stitches, split and spacing.
+fn satin_comp_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, s: &SatinParams) {
+    if let Some(v) = num(ui, tl!("Density"), "sd", s.spacing, " mm", 2) {
+        set(app, target, json!({ "spacing": v }));
+    }
+    let twin = s.pull_comp_2.is_some();
+    let label = if twin { tl!("Pull comp., side 1") } else { tl!("Pull compensation") };
+    if let Some(v) = num(ui, label, "spc", s.pull_comp, " mm", 2) {
+        set(app, target, json!({ "pull_comp": v }));
+    }
+    if let Some(side2) = s.pull_comp_2
+        && let Some(v) = num(ui, tl!("Pull comp., side 2"), "spc2", side2, " mm", 2)
+    {
+        set(app, target, json!({ "pull_comp_2": v }));
+    }
+    if let Some(v) = check(ui, tl!("Different on each side"), twin) {
+        set(app, target, json!({ "pull_comp_2": if v { json!(s.pull_comp) } else { Value::Null } }));
+    }
+    if let Some(v) = num(ui, tl!("Push compensation"), "spush", s.push_comp, " mm", 2) {
+        set(app, target, json!({ "push_comp": v.clamp(0.0, 5.0) }));
+    }
+    // a tatami border: rows across the column split at the stitch length
+    if let Some(v) = check(ui, tl!("Tatami stitches"), s.tatami) {
+        let len = if v { TATAMI_LENGTH } else { SatinParams::default().split_length };
+        set(app, target, json!({ "tatami": v, "split_length": len }));
+    }
+    let split = if s.tatami { tl!("Stitch length") } else { tl!("Auto split") };
+    if let Some(v) = num(ui, split, "split", s.split_length, " mm", 1) {
+        set(app, target, json!({ "split_length": v }));
+    }
+    let preserve = check(ui, tl!("Preserve long stitches"), s.preserve_long);
+    if let Some(v) = preserve {
+        set(app, target, json!({ "preserve_long": v }));
+    }
+    if let Some(v) = check(ui, tl!("Auto spacing"), s.auto_spacing) {
+        set(app, target, json!({ "auto_spacing": v }));
+    }
+    if let Some(v) = check(ui, tl!("Short stitches on curves"), s.short_stitches) {
+        set(app, target, json!({ "short_stitches": v }));
+    }
+}
+
+/// A satin's jagged edges: stitches end short of the edge at random (fur, grass, feathers).
+fn satin_edge_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, s: &SatinParams) {
+    let sides = [tl!("None"), tl!("Both sides"), tl!("Side 1"), tl!("Side 2")];
+    let cur = s.jagged.and_then(|j| JaggedSides::ALL.iter().position(|x| *x == j.sides)).map_or(0, |i| i + 1);
+    if let Some(i) = pick(ui, tl!("Jagged edges"), "jagged", cur, &sides) {
+        let depth = s.jagged.unwrap_or_default().depth;
+        let v = i.checked_sub(1).and_then(|k| JaggedSides::ALL.get(k)).map_or(Value::Null, |side| json!({ "sides": side, "depth": depth }));
+        set(app, target, json!({ "jagged": v }));
+    }
+    if let Some(j) = s.jagged
+        && let Some(v) = num(ui, tl!("Jag depth"), "jagdepth", j.depth, " mm", 1)
+    {
+        set(app, target, json!({ "jagged": { "depth": v.clamp(0.0, 20.0) } }));
+    }
+}
+
+/// A satin's underlay: automatic, or the runs and zigzags chosen.
+fn satin_underlay_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, s: &SatinParams) {
+    let u = &s.underlay;
+    if let Some(v) = check(ui, tl!("Automatic underlay"), u.auto) {
+        set(app, target, json!({ "underlay": { "auto": v } }));
+    }
+    if u.auto {
+        return;
+    }
+    ui.horizontal(|ui| {
+        for (label, key, val) in
+            [(tl!("Centre run"), "center_run", u.center_run), (tl!("Edge run"), "edge_run", u.edge_run), (tl!("Zigzag"), "zigzag", u.zigzag)]
+        {
+            if let Some(v) = check(ui, label, val) {
+                set(app, target, json!({ "underlay": { key: v } }));
+            }
+        }
+    });
+    if u.zigzag
+        && let Some(v) = check(ui, tl!("Double zigzag"), u.double_zigzag)
+    {
+        set(app, target, json!({ "underlay": { "double_zigzag": v } }));
+    }
+}
+
+/// A fill's rows: its style and spacing, what the style adds, its compensation, underlay and
+/// (selected) direction.
+fn fill_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, e: &Embroidery, f: &FillParams) {
+    fill_kind_rows(app, ui, target, f);
+    if f.kind == FillKind::Motif {
+        fill_motif_rows(app, ui, target, f);
+    }
+    fill_texture_rows(app, ui, target, e, f);
+    fill_comp_rows(app, ui, target, e, f);
+}
+
+/// A fill's style, spacing, stitch length, cross style and rings.
+fn fill_kind_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, f: &FillParams) {
+    let kinds: Vec<&str> = FillKind::ALL.iter().map(|k| tl!(k.label())).collect();
+    let cur = FillKind::ALL.iter().position(|k| *k == f.kind).unwrap_or(0);
+    if let Some(i) = pick(ui, tl!("Fill style"), "fillkind", cur, &kinds)
+        && let Some(k) = FillKind::ALL.get(i)
+    {
+        set(app, target, json!({ "kind": k }));
+    }
+    let (spacing_label, decimals) = match f.kind {
+        FillKind::Meander => (tl!("Path spacing"), 1),
+        FillKind::Motif => (tl!("Row spacing"), 1),
+        _ => (tl!("Density"), 2),
+    };
+    if let Some(v) = num(ui, spacing_label, "fd", f.spacing, " mm", decimals) {
+        set(app, target, json!({ "spacing": v }));
+    }
+    if !matches!(f.kind, FillKind::Satin | FillKind::Radial) {
+        let label = if f.kind == FillKind::Cross { tl!("Cell size") } else { tl!("Stitch length") };
+        if let Some(v) = num(ui, label, "fl", f.stitch_length, " mm", 2) {
+            set(app, target, json!({ "stitch_length": v }));
+        }
+    }
+    if f.kind == FillKind::Cross {
+        let styles = [tl!("Full cross"), tl!("Half cross"), tl!("Upright cross"), tl!("Double cross")];
+        let cur = CrossStyle::ALL.iter().position(|c| *c == f.cross).unwrap_or(0);
+        if let Some(i) = pick(ui, tl!("Cross style"), "fcross", cur, &styles)
+            && let Some(c) = CrossStyle::ALL.get(i)
+        {
+            set(app, target, json!({ "cross": c }));
+        }
+    }
+    // an offset fill: only so many rings in from the outline
+    if f.kind == FillKind::Contour
+        && let Some(v) = num(ui, tl!("Rings (0: all)"), "frings", f64::from(f.rings), "", 0)
+    {
+        set(app, target, json!({ "rings": v.round().clamp(0.0, 500.0) as u32 }));
+    }
+}
+
+/// A motif fill's motif, the motif paired with it, its size, row offset and 3D effect.
+fn fill_motif_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, f: &FillParams) {
+    motif_rows(app, ui, target, f.motif, f.custom_motif.as_ref());
+    // a paired motif fill: a second motif in turn with the first along the rows
+    let mut pairs = vec![tl!("None")];
+    pairs.extend(Motif::ALL.iter().map(|m| motif_name(*m)));
+    let cur = f.motif_pair.and_then(|m| Motif::ALL.iter().position(|x| *x == m)).map_or(0, |i| i + 1);
+    if let Some(i) = pick(ui, tl!("Paired with"), "fpair", cur, &pairs) {
+        let v = i.checked_sub(1).and_then(|k| Motif::ALL.get(k)).map_or(Value::Null, |m| json!(m));
+        set(app, target, json!({ "motif_pair": v }));
+    }
+    if let Some(v) = num(ui, tl!("Motif size"), "fms", f.motif_size, " mm", 1) {
+        set(app, target, json!({ "motif_size": v.clamp(1.0, 50.0) }));
+    }
+    if let Some(v) = num(ui, tl!("Row offset"), "fmo", f.offset, "", 2) {
+        set(app, target, json!({ "offset": v }));
+    }
+    // a 3D motif fill: sculpted as a dome or a bowl, or receding
+    let warps = [tl!("None"), tl!("Globe out"), tl!("Globe in"), tl!("Perspective")];
+    let cur = f.warp.and_then(|w| WarpKind::ALL.iter().position(|k| *k == w.kind)).map_or(0, |i| i + 1);
+    if let Some(i) = pick(ui, tl!("3D effect"), "fwarp", cur, &warps) {
+        let v =
+            i.checked_sub(1).and_then(|k| WarpKind::ALL.get(k)).map_or(Value::Null, |k| json!(MotifWarp { kind: *k, ..f.warp.unwrap_or_default() }));
+        set(app, target, json!({ "warp": v }));
+    }
+    if let Some(w) = f.warp {
+        if let Some(v) = num(ui, tl!("Strength"), "fwamt", w.amount, "", 2) {
+            set(app, target, json!({ "warp": { "amount": v.clamp(0.0, 0.8) } }));
+        }
+        if w.kind == WarpKind::Perspective
+            && let Some(v) = num(ui, tl!("Direction"), "fwang", w.angle, "°", 0)
+        {
+            set(app, target, json!({ "warp": { "angle": v } }));
+        }
+    }
+}
+
+/// A tatami fill's row offset, gradient, spacing profile, randomness, texture, trapunto and
+/// ragged edge, and a satin fill's texture and split.
+fn fill_texture_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, e: &Embroidery, f: &FillParams) {
+    if f.kind == FillKind::Tatami {
+        if let Some(v) = num(ui, tl!("Row offset"), "fo", f.offset, "", 2) {
+            set(app, target, json!({ "offset": v }));
+        }
+        // a spacing profile replaces the gradient
+        if f.spacing_profile.is_empty()
+            && let Some(v) = num(ui, tl!("Gradient to"), "fg", f.spacing_end, " mm", 2)
+        {
+            set(app, target, json!({ "spacing_end": v }));
+        }
+        profile_rows(app, ui, target, f);
+    }
+    if matches!(f.kind, FillKind::Tatami | FillKind::Meander)
+        && let Some(v) = num(ui, tl!("Randomness"), "fr", f.random, "", 2)
+    {
+        set(app, target, json!({ "random": v }));
+    }
+    // a satin that turns (two inclination lines or more) takes a pattern pressed in along it
+    if f.kind == FillKind::Satin && e.guides.len() >= 2 {
+        texture_rows(app, ui, target, f, e);
+    }
+    if f.kind == FillKind::Tatami {
+        texture_rows(app, ui, target, f, e);
+        if let Some(v) = check(ui, tl!("Trapunto (travel along the outline)"), f.trapunto) {
+            set(app, target, json!({ "trapunto": v }));
+        }
+        if let Some(v) = num(ui, tl!("Ragged edge"), "frag", f.ragged, " mm", 1) {
+            set(app, target, json!({ "ragged": v }));
+        }
+    }
+    if f.kind == FillKind::Satin
+        && let Some(v) = num(ui, tl!("Auto split"), "fsplit", f.split_length, " mm", 1)
+    {
+        set(app, target, json!({ "split_length": v }));
+    }
+}
+
+/// A fill's pull and push compensation, underlay and (selected) direction.
+fn fill_comp_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, e: &Embroidery, f: &FillParams) {
+    if let Some(v) = num(ui, tl!("Pull compensation"), "fpc", f.pull_comp, " mm", 2) {
+        set(app, target, json!({ "pull_comp": v }));
+    }
+    if let Some(v) = num(ui, tl!("Push compensation"), "fpush", f.push_comp, " mm", 2) {
+        set(app, target, json!({ "push_comp": v.clamp(0.0, 5.0) }));
+    }
+    // cross, meander and motif fills are sewn without underlay
+    let u = &f.underlay;
+    if !matches!(f.kind, FillKind::Cross | FillKind::Meander | FillKind::Motif) {
+        ui.horizontal(|ui| {
+            if let Some(v) = check(ui, tl!("Edge run underlay"), u.edge_run) {
+                set(app, target, json!({ "underlay": { "edge_run": v } }));
+            }
+            if let Some(v) = check(ui, tl!("Tatami underlay"), u.tatami) {
+                set(app, target, json!({ "underlay": { "tatami": v } }));
+            }
+        });
+    }
+    if matches!(f.kind, FillKind::Tatami | FillKind::Satin | FillKind::Cross)
+        && let Target::Selection(id) = target
+    {
+        direction_rows(app, ui, id, e);
+    }
+}
+
+/// An appliqué's rows: placement, tack-down, trim stop, cover stitch and the fabric.
+fn applique_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, a: &AppliqueParams) {
+    if let Some(v) = check(ui, tl!("Placement line and stop"), a.placement) {
+        set(app, target, json!({ "placement": v }));
+    }
+    let tack = [tl!("None"), tl!("Run"), tl!("Zigzag"), tl!("Blanket")];
+    let cur = [TackdownKind::None, TackdownKind::Run, TackdownKind::Zigzag, TackdownKind::Blanket].iter().position(|k| *k == a.tackdown).unwrap_or(2);
+    if let Some(i) = pick(ui, tl!("Tack-down"), "tack", cur, &tack) {
+        let k = [TackdownKind::None, TackdownKind::Run, TackdownKind::Zigzag, TackdownKind::Blanket].get(i).copied().unwrap_or_default();
+        set(app, target, json!({ "tackdown": k }));
+    }
+    if let Some(v) = check(ui, tl!("Stop to trim fabric"), a.trim_stop) {
+        set(app, target, json!({ "trim_stop": v }));
+    }
+    let covers = [CoverKind::None, CoverKind::Satin, CoverKind::Blanket, CoverKind::Zigzag, CoverKind::Triple];
+    let cover = [tl!("None"), tl!("Satin"), tl!("Blanket"), tl!("Zigzag"), tl!("Triple run")];
+    let cur = covers.iter().position(|k| *k == a.cover).unwrap_or(1);
+    if let Some(i) = pick(ui, tl!("Cover stitch"), "cover", cur, &cover) {
+        let k = covers.get(i).copied().unwrap_or_default();
+        set(app, target, json!({ "cover": k }));
+    }
+    if let Some(v) = check(ui, tl!("Partial cover"), a.partial) {
+        set(app, target, json!({ "partial": v }));
+    }
+    if let Some(v) = num(ui, tl!("Cover width"), "cw", a.cover_width, " mm", 2) {
+        set(app, target, json!({ "cover_width": v }));
+    }
+    if let Some(v) = num(ui, tl!("Density"), "cd", a.cover_spacing, " mm", 2) {
+        set(app, target, json!({ "cover_spacing": v }));
+    }
+    if let Some(v) = check(ui, tl!("Sew the pieces together"), a.combine) {
+        set(app, target, json!({ "combine": v }));
+    }
+    applique_fabric_rows(app, ui, target, a);
+}
+
+/// A redwork's rows: its run style and stitch length.
+fn redwork_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, r: &RunParams) {
+    // redwork lines are sewn in one of the outline stitches
+    let kinds = [RunKind::Single, RunKind::Triple, RunKind::Back, RunKind::Stem];
+    let names = [tl!("Single"), tl!("Triple"), tl!("Backstitch"), tl!("Stem stitch")];
+    let cur = kinds.iter().position(|k| *k == r.kind).unwrap_or(0);
+    if let Some(i) = pick(ui, tl!("Run style"), "rwkind", cur, &names)
+        && let Some(k) = kinds.get(i)
+    {
+        set(app, target, json!({ "kind": k }));
+    }
+    if let Some(v) = num(ui, tl!("Stitch length"), "rwlen", r.stitch_length, " mm", 2) {
+        set(app, target, json!({ "stitch_length": v }));
+    }
+    ui.label(tl!("Sewn as one line that ends where it starts; the way between lines is retraced along them."));
+}
+
+/// The rows every stitch type has: start and stop, trims and stops, ties, chenille (selected)
+/// and removing the stitching underneath.
+fn common_rows(app: &mut VectorcraftApp, ui: &mut Ui, target: Target, e: &Embroidery) {
     ui.add_space(4.0);
     ui.horizontal(|ui| {
         if let Target::Selection(id) = target

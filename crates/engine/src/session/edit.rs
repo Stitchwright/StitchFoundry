@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    Arc, Document, EngineError, Interaction, LastTransform, NamedStep, Result, Selection, Session, TOO_DEEP, Value, cmd, deselect_hidden, doc_sane,
+    objects_in_range,
+};
 
 impl Session {
     /// Run `f` on a mutable copy of the active document. Outside an interaction this records one
@@ -248,6 +251,11 @@ impl Session {
         // A preview that left the document as it was records no Transform Again either (as
         // `keep_interaction` records no undo step): the last real transformation stands.
         let changed = !Arc::ptr_eq(&it.doc, &st.doc);
+        // How far a drag of direct-selected anchors moved them (`path.moveAnchors`).
+        let moved = vectorcraft_geom::Vec2::new(
+            preview.1.get("dx").and_then(Value::as_f64).unwrap_or(0.0),
+            preview.1.get("dy").and_then(Value::as_f64).unwrap_or(0.0),
+        );
         st.keep_interaction(it);
         if preview.0 == "object.transform" {
             let m = cmd::matrix_param(&preview.1, "matrix");
@@ -262,6 +270,16 @@ impl Session {
                 st.last_transform = Some(LastTransform::Matrix(m, options));
                 st.last_perspective = None;
             }
+        } else if preview.0 == "path.moveAnchors" && (moved.x != 0.0 || moved.y != 0.0) {
+            // A drag of direct-selected anchors (from an anchor, or from a fill with anchors
+            // selected): Transform Again moves the selected anchors and the objects selected whole
+            // by the same distance. A drag that ends where it began leaves the last transform.
+            let mut options = serde_json::json!({ "copy": false });
+            if let Some(patterns) = preview.1.get("patterns") {
+                options["patterns"] = patterns.clone();
+            }
+            st.last_transform = Some(LastTransform::Matrix(vectorcraft_geom::Affine::translate(moved), options));
+            st.last_perspective = None;
         } else if preview.0 == "object.transformEach" && changed {
             // Transform Again repeats it as it stood when OK was pressed.
             st.last_transform = Some(LastTransform::Each(preview.1.clone()));

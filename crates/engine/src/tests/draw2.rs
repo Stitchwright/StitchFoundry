@@ -465,6 +465,132 @@ fn blob_brush_merges_only_with_the_selection_and_keep_selected_off_deselects() {
     assert!(s.doc().unwrap().doc.node(all).is_some() && s.doc().unwrap().doc.node(other).is_some());
 }
 
+/// A Blob Brush stroke merges with the topmost matching path it touches and with the touched
+/// matching paths next to it in stacking order in the same group or layer; matching paths in other
+/// layers or groups, or below an object of another kind, are left alone.
+#[test]
+fn blob_brush_merges_with_the_topmost_match_and_its_neighbors() {
+    let blob = |s: &mut Session, x: f64| {
+        NodeId(s.execute("path.blob", &json!({"points": [[x, 60], [x, 140]], "size": 20})).unwrap()["id"].as_u64().unwrap())
+    };
+    let across = json!({"points": [[50, 100], [450, 100]], "size": 10});
+    let parent = |s: &Session, id: NodeId| s.doc().unwrap().doc.parent_of(id);
+
+    // Two layers: only the path on the upper layer merges.
+    let mut s = session();
+    let low = blob(&mut s, 100.0);
+    let upper = NodeId(s.execute("layer.new", &json!({})).unwrap()["id"].as_u64().unwrap());
+    let high = blob(&mut s, 200.0);
+    let area_low = area(&path(&s, low));
+    let id = NodeId(s.execute("path.blob", &across).unwrap()["id"].as_u64().unwrap());
+    assert_eq!(id, high);
+    assert_eq!(parent(&s, high), Some(upper));
+    assert_eq!(paths(&s).len(), 2);
+    assert_eq!(area(&path(&s, low)), area_low, "the path on the lower layer is left as it was");
+
+    // A path of another color between two matches: only the upper one merges.
+    let mut s = session();
+    let below = blob(&mut s, 100.0);
+    s.execute("paint.setStroke", &json!({"color": "#ff0000"})).unwrap();
+    let red = NodeId(s.execute("path.blob", &json!({"points": [[100, 400], [200, 400]], "size": 10})).unwrap()["id"].as_u64().unwrap());
+    s.execute("paint.setStroke", &json!({"color": "#000000"})).unwrap();
+    let above = blob(&mut s, 200.0);
+    let (area_below, area_red) = (area(&path(&s, below)), area(&path(&s, red)));
+    let id = NodeId(s.execute("path.blob", &across).unwrap()["id"].as_u64().unwrap());
+    assert_eq!(id, above);
+    assert_eq!(paths(&s).len(), 3);
+    assert_eq!(area(&path(&s, below)), area_below, "the path below the red one is left as it was");
+    assert_eq!(area(&path(&s, red)), area_red);
+
+    // A matching path the stroke does not touch, between two it touches: both touched ones merge,
+    // and the untouched one is left as it was.
+    let mut s = session();
+    let lower = blob(&mut s, 100.0);
+    let untouched = NodeId(s.execute("path.blob", &json!({"points": [[200, 300], [200, 380]], "size": 20})).unwrap()["id"].as_u64().unwrap());
+    let upper = blob(&mut s, 300.0);
+    let area_untouched = area(&path(&s, untouched));
+    let id = NodeId(s.execute("path.blob", &across).unwrap()["id"].as_u64().unwrap());
+    assert_eq!(id, upper);
+    assert!(s.doc().unwrap().doc.node(lower).is_none(), "the lower path joined the upper one");
+    assert_eq!(area(&path(&s, untouched)), area_untouched);
+    assert_eq!(paths(&s).len(), 2);
+
+    // Two adjacent matches in a group both merge; a match outside the group is left alone.
+    let mut s = session();
+    let outside = blob(&mut s, 100.0);
+    let a = blob(&mut s, 200.0);
+    let b = blob(&mut s, 300.0);
+    s.execute("select.set", &json!({"ids": [a.0, b.0]})).unwrap();
+    let g = NodeId(s.execute("object.group", &json!({})).unwrap()["id"].as_u64().unwrap());
+    s.execute("select.none", &json!({})).unwrap();
+    let area_outside = area(&path(&s, outside));
+    let id = NodeId(s.execute("path.blob", &across).unwrap()["id"].as_u64().unwrap());
+    assert_eq!(id, b, "the topmost match keeps its id");
+    assert!(s.doc().unwrap().doc.node(a).is_none(), "a joined b");
+    assert_eq!(parent(&s, b), Some(g));
+    assert_eq!(paths(&s).len(), 2);
+    assert_eq!(area(&path(&s, outside)), area_outside, "the path outside the group is left as it was");
+}
+
+/// Blob Brush Fidelity: the brush of `path.blob` follows the stroke fitted at `fidelity` points, as
+/// `path.freehand` fits a Pencil stroke; without `fidelity` it follows every point. On a jittery
+/// stroke, 0.01 pt keeps the jitter and 1.5 pt and 10 pt smooth it away, with fewer anchors and a
+/// shape of about the same area. The tool's Fidelity is 1.5 pt by default.
+#[test]
+fn blob_brush_fidelity_fits_the_stroke_the_brush_follows() {
+    let mut s = session();
+    // A wave drawn with a hand's jitter: every other point 1 pt off.
+    let wave: Vec<[f64; 2]> =
+        (0..=80).map(|i| [20.0 + f64::from(i) * 4.0, 200.0 + 30.0 * (f64::from(i) * 0.125).sin() + if i % 2 == 0 { 1.0 } else { -1.0 }]).collect();
+    // The anchors and area of the blob the wave paints at height `dy` with `fidelity` (None: left out).
+    let mut blob = |dy: f64, fidelity: Option<f64>| {
+        let pts: Vec<[f64; 2]> = wave.iter().map(|q| [q[0], q[1] + dy]).collect();
+        let mut p = json!({"points": pts, "size": 20, "merge": false});
+        if let Some(f) = fidelity {
+            p["fidelity"] = json!(f);
+        }
+        let id = NodeId(s.execute("path.blob", &p).unwrap()["id"].as_u64().unwrap());
+        let pd = path(&s, id);
+        (pd.subpaths.iter().map(|sp| sp.anchors.len()).sum::<usize>(), area(&pd))
+    };
+    let (unfitted, unfitted_area) = blob(0.0, None);
+    let (default, default_area) = blob(100.0, Some(1.5));
+    let (smooth, smooth_area) = blob(200.0, Some(10.0));
+    let (accurate, _) = blob(300.0, Some(0.01));
+    assert!(default < unfitted, "{default} anchors at 1.5 pt, {unfitted} unfitted");
+    assert!(smooth < default, "{smooth} anchors at 10 pt, {default} at 1.5 pt, {unfitted} unfitted");
+    assert!(default < accurate, "{default} anchors at 1.5 pt, {accurate} at 0.01 pt");
+    for (a, f) in [(default_area, 1.5), (smooth_area, 10.0)] {
+        assert!((a - unfitted_area).abs() < unfitted_area * 0.05, "{a} pt² at {f} pt, {unfitted_area} pt² unfitted");
+    }
+    // A short stroke back to its start that the fit leaves with no length still paints.
+    let back = json!({"points": [[100, 600], [110, 600], [100, 600]], "size": 10, "fidelity": 100, "merge": false});
+    let dab = NodeId(s.execute("path.blob", &back).unwrap()["id"].as_u64().unwrap());
+    assert!(area(&path(&s, dab)) > 70.0, "{}", area(&path(&s, dab)));
+    s.select_tool("blobBrush", view()).unwrap();
+    assert_eq!(s.tool_options()["fidelity"], json!(1.5));
+}
+
+/// A stroke fitted at its Fidelity can curve outside its points, and it still merges with a blob
+/// of its color that the curve covers there.
+#[test]
+fn blob_brush_merges_with_a_blob_its_fitted_stroke_curves_over() {
+    let stroke = json!({"points": [[100, 100], [600, 100], [600, 600]], "size": 10, "fidelity": 1.5});
+    // Where the fitted shape reaches farthest outside the points' bounds padded by the size.
+    let mut first = session();
+    let id = NodeId(first.execute("path.blob", &with(&stroke, json!({"merge": false}))).unwrap()["id"].as_u64().unwrap());
+    let outside = |p: Point| (90.0 - p.x).max(p.x - 610.0).max(90.0 - p.y).max(p.y - 610.0);
+    let far =
+        path(&first, id).subpaths.iter().flat_map(|sp| sp.anchors.iter().map(|a| a.p)).max_by(|a, b| outside(*a).total_cmp(&outside(*b))).unwrap();
+    assert!(outside(far) > 5.0, "the fitted stroke curves {} pt past the padded bounds", outside(far));
+    // A small blob there merges with the stroke.
+    let mut s = session();
+    let small = NodeId(s.execute("path.blob", &json!({"points": [[far.x, far.y]], "size": 6, "merge": false})).unwrap()["id"].as_u64().unwrap());
+    let merged = NodeId(s.execute("path.blob", &stroke).unwrap()["id"].as_u64().unwrap());
+    assert_eq!(merged, small);
+    assert_eq!(paths(&s).len(), 1);
+}
+
 /// Three points already curve in the saved path: both ends carry a handle into the curve.
 #[test]
 fn path_curvature_with_three_points_saves_end_handles() {
@@ -595,6 +721,40 @@ fn curvature_click_first_point_closes() {
     let p = &paths(&s)[0].1;
     assert!(p.is_closed());
     assert_eq!(p.anchor_count(), 3);
+}
+
+/// Delete on a point of a finished Curvature path re-curves the rest through the remaining points,
+/// as if they had been drawn without it, in one undo step.
+#[test]
+fn curvature_delete_curves_through_the_remaining_points() {
+    let mut s = session();
+    let v = view();
+    s.select_tool("curvature", v).unwrap();
+    let pts = [(100.0, 300.0), (200.0, 200.0), (300.0, 320.0), (400.0, 220.0), (500.0, 300.0)];
+    for (x, y) in pts {
+        gesture(&mut s, &[(x, y)], Mods::default());
+    }
+    s.tool_key(ToolKey::Escape, Mods::default(), v).unwrap();
+    let id = paths(&s)[0].0;
+    let before = path(&s, id).subpaths[0].clone();
+    let remaining = |gone: usize| -> Vec<(Point, bool)> {
+        pts.iter().enumerate().filter(|&(i, _)| i != gone).map(|(_, &(x, y))| (Point::new(x, y), false)).collect()
+    };
+    for (gone, &(x, y)) in pts.iter().enumerate() {
+        s.execute("select.set", &json!({"ids": [id.0]})).unwrap();
+        let steps = undo_steps(&s);
+        gesture(&mut s, &[(x, y)], Mods::default());
+        s.tool_key(ToolKey::Delete, Mods::default(), v).unwrap();
+        assert_eq!(undo_steps(&s), steps + 1, "one step");
+        let want = vectorcraft_tools::draw2::curvature_spline(&remaining(gone), false);
+        let got = path(&s, id).subpaths[0].clone();
+        assert_eq!(got.anchors.len(), want.anchors.len());
+        for (a, b) in got.anchors.iter().zip(&want.anchors) {
+            assert!(a.p.distance(b.p) < 1e-9 && a.h_in.distance(b.h_in) < 1e-6 && a.h_out.distance(b.h_out) < 1e-6, "point {gone}: {a:?} != {b:?}");
+        }
+        s.execute("edit.undo", &json!({})).unwrap();
+        assert_eq!(path(&s, id).subpaths[0], before);
+    }
 }
 
 /// The Curvature tool edits a path another tool drew (#798), one undo step per edit, keeping its
@@ -740,6 +900,26 @@ fn scissors_opens_closed_path() {
     assert!(near(p.subpaths[0].anchors[5].p, Point::new(200.0, 150.0)));
 }
 
+/// Alt held with the Scissors tool switches it to the Add Anchor Point tool: a click adds an anchor
+/// in one undo step and the path stays closed. Once Alt is let go, a click cuts again.
+#[test]
+fn scissors_with_alt_adds_an_anchor_point() {
+    let mut s = session();
+    let id = rect(&mut s, 100.0, 100.0, 100.0, 100.0);
+    s.select_tool("scissors", view()).unwrap();
+    assert_eq!(gesture(&mut s, &[(200.0, 150.0)], Mods { alt: true, ..Mods::default() }), 1);
+    let p = path(&s, id);
+    assert_eq!(paths(&s).len(), 1);
+    assert!(p.is_closed());
+    assert_eq!(p.anchor_count(), 5);
+    assert!(near(p.subpaths[0].anchors[2].p, Point::new(200.0, 150.0)));
+    assert_eq!(s.tool_id(), "scissors");
+    gesture(&mut s, &[(150.0, 200.0)], Mods::default());
+    let p = path(&s, id);
+    assert!(!p.is_closed());
+    assert_eq!(p.anchor_count(), 7);
+}
+
 #[test]
 fn scissors_splits_open_path_in_two() {
     let mut s = session();
@@ -807,6 +987,52 @@ fn eraser_removes_small_shape_entirely() {
     s.execute("select.none", &json!({})).unwrap();
     s.execute("path.eraseRegion", &json!({"points": [[102, 102]], "size": 20})).unwrap();
     assert!(paths(&s).is_empty());
+}
+
+/// #4495: the Eraser cuts a compound path as one shape: its hole stays empty, the erased area is
+/// empty, and the rest stays filled, with either fill rule. A notch inside the ring keeps one
+/// compound path; a drag through the whole ring leaves compound paths whose holes stay holes.
+#[test]
+fn eraser_keeps_the_holes_of_a_compound_path() {
+    for rule in ["nonZero", "evenOdd"] {
+        for (drag, erased) in [([[200, 110], [200, 120]], (200.0, 115.0)), ([[200, 80], [200, 320]], (200.0, 120.0))] {
+            let mut s = session();
+            let outer = rect(&mut s, 100.0, 100.0, 200.0, 200.0);
+            let inner = rect(&mut s, 150.0, 150.0, 100.0, 100.0);
+            s.execute("select.set", &json!({"ids": [outer.0, inner.0]})).unwrap();
+            s.execute("object.compoundPath.make", &json!({})).unwrap();
+            s.execute("path.setFillRule", &json!({"rule": rule})).unwrap();
+            s.execute("select.none", &json!({})).unwrap();
+            s.execute("path.eraseRegion", &json!({"points": drag, "size": 10})).unwrap();
+            // Whether any top-level shape fills `p`, a compound path with all its members at once.
+            let filled = |x: f64, y: f64| {
+                let doc = &s.doc().unwrap().doc;
+                let mut hit = false;
+                for layer in &doc.layers {
+                    for n in layer.children().unwrap() {
+                        let (subs, rule) = match &n.kind {
+                            NodeKind::Path { path, rule, .. } => (path.subpaths.clone(), *rule),
+                            NodeKind::Compound { children, rule } => {
+                                (children.iter().flat_map(|c| c.path_data().unwrap().subpaths.clone()).collect(), *rule)
+                            }
+                            _ => continue,
+                        };
+                        hit |= vectorcraft_geom::hit::fill_contains(&PathData::new(subs).to_bezpath(), rule, Point::new(x, y));
+                    }
+                }
+                hit
+            };
+            assert!(!filled(170.0, 200.0), "{rule} {drag:?}: the hole stays empty");
+            assert!(!filled(erased.0, erased.1), "{rule} {drag:?}: the erased area is empty");
+            assert!(filled(120.0, 200.0) && filled(280.0, 200.0), "{rule} {drag:?}: the ring stays filled");
+            if drag[1][1] == 120 {
+                let doc = &s.doc().unwrap().doc;
+                let tops: Vec<_> = doc.layers.iter().flat_map(|l| l.children().unwrap().iter().cloned()).collect();
+                assert_eq!(tops.len(), 1, "{rule}: one object");
+                assert!(matches!(tops[0].kind, NodeKind::Compound { .. }), "{rule}: still a compound path");
+            }
+        }
+    }
 }
 
 /// The Eraser's tip is an ellipse `size` across its long axis, at `angle` counter-clockwise from
@@ -974,6 +1200,22 @@ fn line_family_tools_draw_and_click_asks_dialog() {
     assert_eq!(ui, vec![UiRequest::Dialog("polarGrid".into(), json!({"x": 10.0, "y": 10.0}))]);
 }
 
+/// A closed `shape.arc` with Base Along Y runs from the box's bottom-left corner to its top-right
+/// one and closes through the top-left corner, the X-base arc's sector mirrored top to bottom.
+#[test]
+fn shape_arc_closed_along_y_closes_through_the_top_left_corner() {
+    let mut s = session();
+    let p = json!({"x": 100, "y": 50, "lengthX": 80, "lengthY": 40, "baseAlong": "y", "slope": 100, "closed": true});
+    let id = NodeId(s.execute("shape.arc", &p).unwrap()["id"].as_u64().unwrap());
+    let path = s.doc().unwrap().doc.node(id).unwrap().path_data().unwrap().clone();
+    let sp = &path.subpaths[0];
+    assert!(sp.closed);
+    let ends: Vec<Point> = sp.anchors.iter().map(|a| a.p).collect();
+    assert_eq!(ends, [Point::new(100.0, 90.0), Point::new(180.0, 50.0), Point::new(100.0, 50.0)]);
+    let area = sp.signed_area().abs() / (80.0 * 40.0);
+    assert!((area - std::f64::consts::FRAC_PI_4).abs() < 0.01, "{area}");
+}
+
 /// The children of the grid a `shape.rectangularGrid` / `shape.polarGrid` call made, bottom first.
 fn grid(s: &mut Session, cmd: &str, p: serde_json::Value) -> Vec<std::sync::Arc<vectorcraft_doc::Node>> {
     let id = NodeId(s.execute(cmd, &p).unwrap()["id"].as_u64().unwrap());
@@ -1074,6 +1316,22 @@ fn polar_grid_options_compound_fill_and_skew() {
     let inward = grid(&mut s, CMD, with(&base, json!({"concentricSkew": -100, "radialSkew": -500})));
     assert!((width(&inward[1]) - 56.25).abs() < 1e-6);
     assert!(tips(&inward)[1..].iter().all(|t| t.x < 50.0), "counterclockwise of the top: {:?}", tips(&inward));
+}
+
+/// A divider count written as a whole float (`3.0`) is the same as `3`; a fraction gives the default 5.
+#[test]
+fn grid_divider_counts_accept_whole_floats() {
+    let mut s = session();
+    let size = json!({"x": 0, "y": 0, "width": 100, "height": 100});
+    let float = grid(&mut s, "shape.rectangularGrid", with(&size, json!({"rows": 3.0, "columns": 3.0})));
+    let int = grid(&mut s, "shape.rectangularGrid", with(&size, json!({"rows": 3, "columns": 3})));
+    assert_eq!(float.len(), int.len());
+    assert_eq!(float.len(), 7);
+    let float = grid(&mut s, "shape.polarGrid", with(&size, json!({"concentric": 2.0, "radial": 3.0})));
+    let int = grid(&mut s, "shape.polarGrid", with(&size, json!({"concentric": 2, "radial": 3})));
+    assert_eq!(float.len(), int.len());
+    let frac = grid(&mut s, "shape.rectangularGrid", with(&size, json!({"rows": 2.5, "columns": 2.5})));
+    assert_eq!(frac.len(), 11);
 }
 
 /// The grid options are checked: a divider count or a skew is a number and a switch true or false,
@@ -1190,6 +1448,7 @@ fn drawing_commands_refuse_a_size_given_as_text() {
         ("path.smoothRegion", "fidelity"),
         ("path.joinScrub", "tolerance"),
         ("path.blob", "size"),
+        ("path.blob", "fidelity"),
     ] {
         refuses_a_number_given_as_text(&mut s, cmd, &stroke, key);
     }
@@ -1735,6 +1994,30 @@ fn remove_anchor_points_keeps_the_paths_closed() {
     assert_eq!(path(&s, c).subpaths[0].anchors.len(), 3);
     let spec = find_command("path.removeAnchors").unwrap();
     assert_eq!(spec.menu, &["Object", "Path"][..]);
+}
+
+#[test]
+fn add_anchor_point_selects_the_path_it_was_added_to() {
+    // #4237: an anchor added to a path that wasn't selected selects that path, the new anchor
+    // direct-selected, so it shows at once; undo puts the old selection back. A path already
+    // selected (the Pen's Auto Add) keeps its selection.
+    let mut s = session();
+    let other = rect(&mut s, 300.0, 0.0, 50.0, 50.0);
+    let line = |s: &mut Session| {
+        NodeId(s.execute("path.create", &json!({"anchors": [{"x": 0, "y": 0}, {"x": 100, "y": 0}]})).unwrap()["id"].as_u64().unwrap())
+    };
+    let id = line(&mut s);
+    s.execute("select.set", &json!({"ids": [other.0]})).unwrap();
+    s.execute("path.insertAnchor", &json!({"id": id.0, "segment": 0, "t": 0.5})).unwrap();
+    assert_eq!(s.doc().unwrap().selection.objects, [id]);
+    assert_eq!(selected_anchors(&s, id), [(0, 1)]);
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!(s.doc().unwrap().selection.objects, [other]);
+    let kept = line(&mut s);
+    s.execute("select.set", &json!({"ids": [kept.0]})).unwrap();
+    s.execute("path.insertAnchor", &json!({"id": kept.0, "segment": 0, "t": 0.5})).unwrap();
+    assert_eq!(s.doc().unwrap().selection.objects, [kept]);
+    assert!(selected_anchors(&s, kept).is_empty(), "a path selected as a whole stays so");
 }
 
 fn selected_anchors(s: &Session, id: NodeId) -> Vec<(usize, usize)> {

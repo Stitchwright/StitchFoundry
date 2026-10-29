@@ -17,7 +17,7 @@ use vectorcraft_doc::{Appearance, NodeId, NodeKind};
 use vectorcraft_embroidery::PT_PER_MM;
 use vectorcraft_trace::Raster;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 
 /// The most points a photo stitch makes, and the longest side (cells) its colour grid has.
 const MAX_POINTS: usize = 200_000;

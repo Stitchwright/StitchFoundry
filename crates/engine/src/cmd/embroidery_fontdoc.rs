@@ -17,7 +17,7 @@ use vectorcraft_geom::path::PathData;
 use vectorcraft_geom::{Affine, Rect};
 
 use super::embroidery_lettering::{GLYPHS_FILE, add_font, describe, ensure_fonts, loaded, not_loaded, ranged, remember_folder};
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, always, bad, cmd, has_doc, str_param, targets};
 
 const NEW: &str = "embroidery.fontDoc.new";
 const SAVE: &str = "embroidery.fontDoc.save";

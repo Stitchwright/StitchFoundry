@@ -3,7 +3,7 @@ use super::ids::{LayerColor, NodeId};
 use super::kind::NodeKind;
 use super::live_shape::{Scaling, moves_only};
 use super::opacity::Knockout;
-use super::*;
+use super::{Affine, Appearance, Arc, BlendMode, EnvelopeKind, FillRule, Node, PathData, Point, Rect, RepeatSpec, SYMBOL_SQUARE, Shape, SymbolBoxes};
 
 impl Node {
     pub fn new(id: NodeId, kind: NodeKind) -> Self {

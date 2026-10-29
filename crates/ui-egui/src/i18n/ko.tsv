@@ -192,6 +192,7 @@ font-technology	Variable	가변
 	Other Layers	다른 레이어
 	Unlock All	모두 잠금 해제
 	Hide	숨기기
+	Unselected Artwork	선택되지 않은 아트워크
 	Show All	모두 표시
 	Expand…	확장…
 	Expand Appearance	모양새 확장
@@ -224,6 +225,7 @@ font-technology	Variable	가변
 	Offset Path…	패스 오프셋…
 	Reverse Path Direction	패스 방향 반전
 	Simplify…	단순화…
+	Smooth…	매끄럽게…
 	Add Anchor Points	앵커 포인트 추가
 	Remove Anchor Points	앵커 포인트 제거
 	Divide Objects Below	아래 개체 나누기
@@ -2097,6 +2099,10 @@ font-technology	Variable	가변
 	Outer Corner Tile	바깥쪽 모서리 타일
 	Side Tile	측면 타일
 	Inner Corner Tile	안쪽 모서리 타일
+	Auto-Centered	자동(가운데)
+	Auto-Between	자동(사이)
+	Auto-Sliced	자동(자르기)
+	Auto-Overlap	자동(겹치기)
 	Start Tile	시작 타일
 	End Tile	끝 타일
 	Fit	맞춤
@@ -2836,6 +2842,7 @@ mark-style	Japanese	일본식
 	Show Original Path	원래 패스 표시
 	Open this dialog with these settings next time	다음에 이 설정으로 이 대화상자 열기
 	Auto-Simplify	자동 단순화
+	Auto-Smooth	자동 매끄럽게
 	Color Panel Options	색상 패널 옵션
 	Show Package	패키지 표시
 	Show Panel	패널 표시
@@ -2971,6 +2978,7 @@ mark-style	Japanese	일본식
 	Swatch Options	견본 옵션
 	Swatch Options…	견본 옵션…
 	Swatch Tiles	견본 타일
+	Switch Units	단위 전환
 	Switch workspace	작업 영역 전환
 	Add Content	콘텐츠 추가
 	Click to apply to the selected type	클릭하면 선택한 문자에 적용
@@ -3764,6 +3772,10 @@ theme	Appearance	외관
 	Shaper	셰이퍼
 	Expand Shaper Group	셰이퍼 그룹 확장
 	Release Shaper Group	셰이퍼 그룹 해제
+	Remove from Shaper Group	셰이퍼 그룹에서 제거
+@msg	source must be the id of a Shaper Group's original shape	source는 셰이퍼 그룹의 원본 모양 ID여야 합니다
+@msg	group must be the id of a Shaper Group	group은 셰이퍼 그룹의 ID여야 합니다
+@msg	the shape is not an editable original shape of that Shaper Group	모양이 해당 셰이퍼 그룹의 편집 가능한 원본 모양이 아닙니다
 	Select Shaper Face	셰이퍼 면 선택
 	Constrain	제한
 	Free Transform	자유 변형
@@ -3999,6 +4011,9 @@ theme	Appearance	외관
 @msg	the layer or group is locked	레이어 또는 그룹이 잠겨 있습니다
 @msg	the guide is on a hidden or locked layer	안내선이 숨겨졌거나 잠긴 레이어에 있습니다
 @msg	the target layer is locked or hidden	대상 레이어가 잠겼거나 숨겨져 있습니다
+@msg	the object is hidden or locked	개체가 숨겨졌거나 잠겨 있습니다
+@msg	the object is outside the isolated group	개체가 격리된 그룹 밖에 있습니다
+@msg	type objects can't be isolated	문자 개체는 격리할 수 없습니다
 @msg	the layer to flatten into is hidden	병합 대상 레이어가 숨겨져 있습니다
 @msg	there are no objects to release	해제할 개체가 없습니다
 @msg	no library `{id}`	`{id}` 라이브러리가 없습니다
@@ -4011,12 +4026,14 @@ theme	Appearance	외관
 @msg	select a blend or give `id`	블렌드를 선택하거나 `id`를 지정하세요
 @msg	select a gradient mesh	그레이디언트 메시를 선택하세요
 @msg	the object has no opacity mask	개체에 불투명 마스크가 없습니다
+@msg	stop editing the opacity mask first	먼저 불투명 마스크 편집을 종료하세요
 @msg	Convert to Artboards: selection has no area	아트보드로 변환: 선택 항목에 면적이 없습니다
 @msg	Convert to Shape: no rectangles or ellipses selected	모양으로 변환: 선택한 사각형이나 타원이 없습니다
 @msg	image would be too large; lower the resolution	이미지가 너무 커집니다. 해상도를 낮추세요
 @msg	clipboard is empty	클립보드가 비어 있습니다
 @msg	no anchor points selected	선택한 앵커 포인트가 없습니다
 @msg	select at least two objects	개체를 두 개 이상 선택하세요
+@msg	exit isolation mode first	먼저 격리 모드를 종료하세요
 @msg	no saved presets	저장된 프리셋이 없습니다
 @msg	compound paths can only contain paths	컴파운드 패스에는 패스만 넣을 수 있습니다
 @msg	no bounds	경계가 없습니다
@@ -4284,6 +4301,7 @@ theme	Appearance	외관
 @msg	videoRulerPixelAspectRatio must be a number from 0.1 to 10	videoRulerPixelAspectRatio은(는) 0.1에서 10 사이의 숫자여야 합니다
 @msg	the Color Picker is not open	색상 피커가 열려 있지 않습니다
 @msg	the Simplify slider is not open	단순화 슬라이더가 열려 있지 않습니다
+@msg	the Smooth slider is not open	매끄럽게 슬라이더가 열려 있지 않습니다
 @msg	the screen color sampler is already open	화면 색상 추출기가 이미 열려 있습니다
 @msg	this system has no screen color sampler	이 시스템에는 화면 색상 추출기가 없습니다
 @msg	Corners edits the corners of a path	모퉁이는 패스의 모퉁이를 편집합니다
@@ -4387,6 +4405,7 @@ theme	Appearance	외관
 @msg	`command` must be a command whose menu item opens a dialog (see ui.menuDialog)	`command`는 메뉴 항목이 대화상자를 여는 명령이어야 합니다(ui.menuDialog 참조)
 @msg	`mode` must be grayscale, rgb, hsb, cmyk or websafe	`mode`은(는) grayscale, rgb, hsb, cmyk, websafe 중 하나여야 합니다
 @msg	`{key}` must be true or false	`{key}`은(는) true 또는 false여야 합니다
+@msg	`top` and `below` can't both be true	`top`과 `below`를 동시에 true로 지정할 수 없습니다
 @msg	`select` must be true or false	`select`은(는) true 또는 false여야 합니다
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors`와 `maxAnchors`는 정수여야 합니다
 @msg	`{key}` must be a number not below 0	`{key}`은(는) 0 이상의 숫자여야 합니다
@@ -4400,6 +4419,7 @@ theme	Appearance	외관
 @msg	lang must be one of {_1}	lang은 {_1} 중 하나여야 합니다
 @msg	missing `name`	`name`이 없습니다
 @msg	missing `tool`	`tool`이 없습니다
+@msg	missing id	id가 없습니다
 @msg	missing index	index가 없습니다
 @msg	missing number `{key}`	숫자 `{key}`이(가) 없습니다
 @msg	missing integer `{key}`	정수 `{key}`이(가) 없습니다
@@ -4463,6 +4483,7 @@ theme	Appearance	외관
 @msg	can't parse shortcut `{c}`	단축키 `{c}`을(를) 해석할 수 없습니다
 @msg	can't parse shortcut `{s}` for `{k}`	`{k}`의 단축키 `{s}`을(를) 해석할 수 없습니다
 @msg	no dialog open	열린 대화상자가 없습니다
+@msg	the open dialog has no Reset	열린 대화상자에 재설정 단추가 없습니다
 @msg	no file reader	파일 판독기가 없습니다
 @msg	no file writer	파일 기록기가 없습니다
 @msg	not a StitchFoundry shortcut set (missing `overrides`)	StitchFoundry 단축키 세트가 아닙니다(`overrides`가 없음)
@@ -4479,6 +4500,7 @@ theme	Appearance	외관
 @msg	Couldn't copy to the system clipboard: {e}	시스템 클립보드로 복사할 수 없습니다: {e}
 @msg	Couldn't paste from the clipboard: {e}	클립보드에서 붙여넣을 수 없습니다: {e}
 @msg	nothing selected	선택된 항목이 없습니다
+@msg	nothing selected is in a group	선택한 항목 중 그룹에 속한 항목이 없습니다
 @msg	the {tool} tool has no options	{tool} 도구에는 옵션이 없습니다
 @msg	unknown tool `{tool}`	알 수 없는 도구 `{tool}`
 @msg	{tool} isn't in a toolbar group of several tools	{tool}은(는) 여러 도구가 있는 도구 모음 그룹에 속하지 않습니다

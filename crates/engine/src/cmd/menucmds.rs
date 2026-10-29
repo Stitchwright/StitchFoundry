@@ -13,8 +13,11 @@ use vectorcraft_geom::{Affine, Anchor, PathData, Point, Rect, Vec2};
 use vectorcraft_render::AntiAlias;
 use vectorcraft_render::encode::{RasterExportOptions, RasterFormat};
 
-use super::edit::{duplicate_in, selected_roots};
-use super::*;
+use super::edit::{duplicate_in, selected_roots, selected_roots_to_transform};
+use super::{
+    CommandSpec, EngineError, Result, Session, bad, check_numbers, check_switches, cmd, f64_or, fileio, find_command, has_doc, has_selection,
+    has_selection_outside_isolation, switch_or,
+};
 
 /// Session-level (not saved) state owned by the menu commands.
 #[derive(Clone, Debug, Default)]
@@ -41,7 +44,7 @@ pub fn specs() -> Vec<CommandSpec> {
             ["Object", "Lock"],
             None,
             "{} lock objects in the same layer that are above and overlap the selection, deselecting every selected object left locked or hidden (the key object too) → {count}",
-            has_selection,
+            has_selection_outside_isolation,
             |s, _| above(s, true)
         ),
         cmd!(
@@ -50,7 +53,7 @@ pub fn specs() -> Vec<CommandSpec> {
             ["Object", "Lock"],
             None,
             "{} lock every layer that holds no selected object → {count}",
-            has_selection,
+            has_selection_outside_isolation,
             |s, _| other_layers(s, true)
         ),
         cmd!(
@@ -59,7 +62,7 @@ pub fn specs() -> Vec<CommandSpec> {
             ["Object", "Hide"],
             None,
             "{} hide objects in the same layer that are above and overlap the selection, deselecting every selected object left hidden or locked (the key object too) → {count}",
-            has_selection,
+            has_selection_outside_isolation,
             |s, _| above(s, false)
         ),
         cmd!(
@@ -68,8 +71,17 @@ pub fn specs() -> Vec<CommandSpec> {
             ["Object", "Hide"],
             None,
             "{} hide every layer that holds no selected object → {count}",
-            has_selection,
+            has_selection_outside_isolation,
             |s, _| other_layers(s, false)
+        ),
+        cmd!(
+            "object.hide.unselected",
+            "Unselected Artwork",
+            ["Object", "Hide"],
+            Some("Cmd+Alt+Shift+3"),
+            "{} hide, in one undo step, every object select.all takes that is not selected and holds no selected object; in a group that holds one it hides the other members one by one, and a clip group, compound path or other object that holds one stays as it is; guide paths stay as they are while Lock Guides is on; object.showAll shows them again; disabled in isolation mode → {count}",
+            has_selection_outside_isolation,
+            hide_unselected
         ),
         cmd!(
             "object.transformEach",
@@ -307,6 +319,46 @@ fn other_layers(s: &mut Session, lock: bool) -> Result<Value> {
         Ok(())
     })?;
     Ok(json!({ "count": n }))
+}
+
+/// The objects [`super::select::walk_selectable`] visits that are not among the selected objects `roots` and hold none of
+/// them. The walk goes into a plain group that holds one of `roots`; a clip group, a Shaper group, a compound path and
+/// every other object that holds one is left out with its members. Guide paths are left out while `guides_locked`.
+fn unselected(d: &vectorcraft_doc::Document, iso: Option<NodeId>, roots: &[NodeId], guides_locked: bool) -> Vec<NodeId> {
+    let holds: HashSet<NodeId> = d.index_paths(roots.iter().copied()).values().filter_map(|p| d.ancestry_at(p)).flatten().collect();
+    let roots: HashSet<NodeId> = roots.iter().copied().collect();
+    let mut out = vec![];
+    super::select::walk_selectable(d, iso, |n| {
+        if !holds.contains(&n.id) {
+            if !(guides_locked && matches!(n.kind, NodeKind::Path { guide: true, .. })) {
+                out.push(n.id);
+            }
+            return false;
+        }
+        !roots.contains(&n.id) && matches!(n.kind, NodeKind::Group { clip: false, .. }) && n.extras().shaper.is_none()
+    });
+    out
+}
+
+fn hide_unselected(s: &mut Session, _: &Value) -> Result<Value> {
+    let roots = selected_roots_to_transform(s)?;
+    let guides_locked = s.menu.guides_locked;
+    let st = s.doc()?;
+    let ids = unselected(&st.doc, st.isolation, &roots, guides_locked);
+    // With nothing to hide, the document and its undo history stay as they are.
+    if !ids.is_empty() {
+        s.edit("Hide", |d, _| {
+            // Hiding moves no node in the tree, so the paths found up front stay right.
+            let paths = d.index_paths(ids.iter().copied());
+            for id in &ids {
+                if let Some(n) = paths.get(id).and_then(|p| d.node_mut_at(p)) {
+                    n.visible = false;
+                }
+            }
+            Ok(())
+        })?;
+    }
+    Ok(json!({ "count": ids.len() }))
 }
 
 // ---------- Transform Each ----------

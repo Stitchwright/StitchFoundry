@@ -1,5 +1,8 @@
 use super::bounds::{describe, is_container, mask_extent, nodes_bounds, pages, rect, tree_bounds, union};
-use super::*;
+use super::{
+    Affine, Archive, BTreeMap, Blend, Document, Effect, Error, HashSet, Image, Kind, Limits, Node, ObjId, Paint, Path, Point, Rect, Spread, Stream,
+    Tag, paint, stream,
+};
 
 /// Largest embedded colour profile kept (real CMYK profiles are a few megabytes).
 const MAX_PROFILE_BYTES: usize = 32 << 20;

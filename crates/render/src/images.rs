@@ -117,6 +117,9 @@ pub(crate) struct ImageStore {
     budget: usize,
     /// Request counter: the least recently used entries go first.
     tick: u64,
+    /// How many entries and undecodable notes have been added: it changes whenever the store
+    /// holds pixels, or notes an image as undecodable, that it did not before.
+    added: u64,
     /// [`BlobId`]s per blob byte buffer, by address (the `Weak` keeps it from being reused).
     ids: HashMap<usize, (Weak<Vec<u8>>, BlobId)>,
     /// The content keys of images whose pixels can't be decoded ([`Undecoded::Unreadable`]), so
@@ -132,7 +135,12 @@ fn pixmap_bytes(pm: &Pixmap) -> usize {
 
 impl ImageStore {
     pub(crate) fn new(budget: usize) -> Self {
-        Self { entries: HashMap::new(), bytes: 0, budget, tick: 0, ids: HashMap::new(), undecodable: HashMap::new() }
+        Self { entries: HashMap::new(), bytes: 0, budget, tick: 0, added: 0, ids: HashMap::new(), undecodable: HashMap::new() }
+    }
+
+    /// How many entries and undecodable notes have been added to the store.
+    pub(crate) fn added(&self) -> u64 {
+        self.added
     }
 
     /// Whether the image with content key `content` is known not to decode.
@@ -146,7 +154,10 @@ impl ImageStore {
         if self.undecodable.len() >= 1024 {
             self.undecodable.clear();
         }
-        self.undecodable.entry(content).or_insert(false);
+        if !self.undecodable.contains_key(&content) {
+            self.added += 1;
+            self.undecodable.insert(content, false);
+        }
     }
 
     /// The pixels of `key`, marked as just used.
@@ -181,6 +192,7 @@ impl ImageStore {
             return e.pm.clone();
         }
         self.bytes += pixmap_bytes(&pm);
+        self.added += 1;
         self.entries.insert(key, Entry { pm: pm.clone(), used: tick });
         self.evict();
         pm

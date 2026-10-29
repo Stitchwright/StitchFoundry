@@ -15,7 +15,7 @@ use vectorcraft_render::effects;
 use super::appearance::{ItemTarget, aligned, appearance_targets, index_param, item_target, item_target_at, shared_stack};
 use super::expand::has_seeded;
 use super::rasterfx;
-use super::*;
+use super::{CommandSpec, EngineError, NodeId, Result, Session, always, bad, cmd, fileio, has_doc, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

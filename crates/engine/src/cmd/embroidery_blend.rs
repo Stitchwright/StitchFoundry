@@ -10,7 +10,7 @@ use sf_core::threads::{Rgb, Thread};
 use vectorcraft_color::Paint;
 use vectorcraft_doc::{Document, NodeId};
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, color_value, has_selection};
 use crate::EngineError;
 
 const CMD: &str = "embroidery.makeBlend";

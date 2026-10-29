@@ -28,8 +28,11 @@ use vectorcraft_geom::Rect;
 use super::edit::{outermost, selected_roots};
 use super::opacitymask::percent;
 use super::paint::paint_from;
-use super::*;
 use super::{AppearanceAttrs, EyedropperAttrs, FillAttrs, StrokeAttrs};
+use super::{
+    CommandSpec, NodeId, Result, Session, bad, check_numbers, check_switches, cmd, has_doc, has_selection, id_param, ids_param, index, leaf_targets,
+    ok, paint_targets, str_param, switch_or, targets,
+};
 use crate::EngineError;
 
 pub fn specs() -> Vec<CommandSpec> {

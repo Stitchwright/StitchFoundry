@@ -79,6 +79,7 @@
 	Check Script	Tarkista komentosarja
 	Other Script…	Muu komentosarja…
 	Document Setup…	Asiakirjan asetukset…
+	Switch Units	Vaihda yksiköitä
 	Document Color Mode	Asiakirjan väritila
 	CMYK Color	CMYK-väri
 	RGB Color	RGB-väri
@@ -197,6 +198,7 @@
 	Other Layers	Muut tasot
 	Unlock All	Avaa kaikki lukitukset
 	Hide	Piilota
+	Unselected Artwork	Valitsematon kuvitus
 	Show All	Näytä kaikki
 	Expand…	Laajenna…
 	Expand Appearance	Laajenna ulkoasu
@@ -230,6 +232,7 @@
 	Offset Path…	Siirrä polkua…
 	Reverse Path Direction	Käännä polun suunta
 	Simplify…	Yksinkertaista…
+	Smooth…	Tasoita…
 	Add Anchor Points	Lisää ankkuripisteitä
 	Remove Anchor Points	Poista ankkuripisteitä
 	Divide Objects Below	Jaa alla olevat objektit
@@ -804,6 +807,10 @@
 	Shaper	Muotoilija
 	Expand Shaper Group	Laajenna muotoilijaryhmä
 	Release Shaper Group	Vapauta muotoilijaryhmä
+	Remove from Shaper Group	Poista muotoilijaryhmästä
+@msg	source must be the id of a Shaper Group's original shape	source-arvon on oltava muotoilijaryhmän alkuperäisen muodon tunnus
+@msg	group must be the id of a Shaper Group	group-arvon on oltava muotoilijaryhmän tunnus
+@msg	the shape is not an editable original shape of that Shaper Group	muoto ei ole kyseisen muotoilijaryhmän muokattava alkuperäinen muoto
 	Select Shaper Face	Valitse muotoilijan pinta
 	Constrain	Rajoita
 	Free Transform	Vapaa muunnos
@@ -1715,6 +1722,7 @@ lighting	Light	Valo
 	Show Original Path	Näytä alkuperäinen polku
 	Open this dialog with these settings next time	Avaa tämä valintaikkuna näillä asetuksilla ensi kerralla
 	Auto-Simplify	Yksinkertaista automaattisesti
+	Auto-Smooth	Tasoita automaattisesti
 	Transparency Options	Läpinäkyvyysasetukset
 	Color Mixer (Shift-click the chip)	Värisekoitin (Vaihto-napsauta värilaattaa)
 	Fill: click for swatches, Shift-click for the color mixer	Täyttö: napsauta avataksesi värimallit, Vaihto-napsauta avataksesi värisekoittimen
@@ -2028,6 +2036,10 @@ lighting	Light	Valo
 	Outer Corner Tile	Ulkokulman ruutu
 	Side Tile	Sivuruutu
 	Inner Corner Tile	Sisäkulman ruutu
+	Auto-Centered	Autom. keskitetty
+	Auto-Between	Autom. välissä
+	Auto-Sliced	Autom. viistetty
+	Auto-Overlap	Autom. limittäin
 	Start Tile	Alkuruutu
 	End Tile	Loppuruutu
 	Fit	Sovita
@@ -4135,6 +4147,7 @@ imageTrace	Outline	Ääriviiva
 @msg	`{key}` must be between {min} and {max} (got {x})	`{key}` on oltava väliltä {min}–{max} (saatiin {x})
 @msg	`{key}` must be one of {_1}	`{key}` on oltava jokin seuraavista: {_1}
 @msg	`{key}` must be true or false	`{key}` on oltava true tai false
+@msg	`top` and `below` can't both be true	`top` ja `below` eivät voi olla molemmat true
 @msg	`select` must be true or false	`select` on oltava true tai false
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors` ja `maxAnchors` on oltava kokonaislukuja
 @msg	`{key}` must be a number not below 0	`{key}` on oltava luku, joka on vähintään 0
@@ -4279,6 +4292,7 @@ imageTrace	Outline	Ääriviiva
 @msg	missing `id` (see plugin.list)	`id` puuttuu (ks. plugin.list)
 @msg	missing `name`	`name` puuttuu
 @msg	missing `tool`	`tool` puuttuu
+@msg	missing id	id puuttuu
 @msg	missing index	indeksi puuttuu
 @msg	missing number `{key}`	luku `{key}` puuttuu
 @msg	missing integer `{key}`	kokonaisluku `{key}` puuttuu
@@ -4311,6 +4325,7 @@ imageTrace	Outline	Ääriviiva
 @msg	no current layer	ei nykyistä tasoa
 @msg	no data	ei dataa
 @msg	no dialog open	valintaikkunaa ei ole auki
+@msg	the open dialog has no Reset	avoimessa valintaikkunassa ei ole Palauta-painiketta
 @msg	no document	ei asiakirjaa
 @msg	no document open	asiakirjaa ei ole auki
 @msg	no effect applied yet	tehostetta ei ole vielä käytetty
@@ -4394,6 +4409,7 @@ imageTrace	Outline	Ääriviiva
 @msg	not in pattern editing mode	ei kuvion muokkaustilassa
 @msg	nothing encoded	mitään ei koodattu
 @msg	nothing selected	mitään ei ole valittu
+@msg	nothing selected is in a group	mikään valituista ei ole ryhmässä
 @msg	nothing to align	ei tasattavaa
 @msg	nothing to distort	ei vääristettävää
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	ei vietävää: asiakirjassa ei ole näkyvää kuvitusta (tai ota Käytä piirtoalustoja käyttöön)
@@ -4461,6 +4477,7 @@ imageTrace	Outline	Ääriviiva
 @msg	select an object in perspective	valitse perspektiivissä oleva objekti
 @msg	select artwork (or a colour group) to recolor	valitse uudelleenväritettävä kuvitus (tai väriryhmä)
 @msg	select at least two objects	valitse vähintään kaksi objektia
+@msg	exit isolation mode first	poistu ensin eristystilasta
 @msg	select objects, not layers	valitse objekteja, ei tasoja
 @msg	select one path, or give its `id`	valitse yksi polku tai anna sen `id`
 @msg	select paths to join	valitse liitettävät polut
@@ -4513,10 +4530,14 @@ imageTrace	Outline	Ääriviiva
 @msg	the layer or group is locked	taso tai ryhmä on lukittu
 @msg	the guide is on a hidden or locked layer	apuviiva on piilotetulla tai lukitulla tasolla
 @msg	the target layer is locked or hidden	kohdetaso on lukittu tai piilotettu
+@msg	the object is hidden or locked	objekti on piilotettu tai lukittu
+@msg	the object is outside the isolated group	objekti on eristetyn ryhmän ulkopuolella
+@msg	type objects can't be isolated	tekstiobjekteja ei voi eristää
 @msg	the layer to flatten into is hidden	taso, johon litistetään, on piilotettu
 @msg	the object already has an opacity mask	objektilla on jo peittävyysmaski
 @msg	the object has no geometry	objektilla ei ole geometriaa
 @msg	the object has no opacity mask	objektilla ei ole peittävyysmaskia
+@msg	stop editing the opacity mask first	lopeta ensin peittävyysmaskin muokkaus
 @msg	the object has no stroke	objektilla ei ole viivaa
 @msg	the object is beyond the plane's horizon	objekti on tason horisontin takana
 @msg	the object isn't in perspective	objekti ei ole perspektiivissä
@@ -5294,6 +5315,7 @@ mark-style	Japanese	Japanilainen
 @msg	span: "selection" places the gradient itself: leave out `start` and `end` (they already place it in document coordinates)	span: "selection" sijoittaa itse liukuvärin: jätä pois `start` ja `end` (ne sijoittavat sen jo asiakirjan koordinaatteihin)
 @msg	the Color Picker is not open	värinvalitsin ei ole auki
 @msg	the Simplify slider is not open	Yksinkertaista-liukusäädin ei ole auki
+@msg	the Smooth slider is not open	Tasoita-liukusäädin ei ole auki
 @msg	the action has no steps	toiminnossa ei ole vaiheita
 @msg	the file's layers weren't read ({_1}): it comes in as its page, in one layer	tiedoston tasoja ei luettu ({_1}): se tuodaan sivunaan yhdelle tasolle
 @msg	the file's layers weren't read from its editing data ({_1}): they come from its PDF part	tiedoston tasoja ei luettu sen muokkaustiedoista ({_1}): ne tulevat sen PDF-osasta

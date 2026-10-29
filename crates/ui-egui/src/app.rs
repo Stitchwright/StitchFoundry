@@ -8,7 +8,12 @@ use super::state::{
     CaptureEpoch, GeometryStamp, InputGeneration, MAX_PENDING_SCREENSHOTS, MAX_SCREENSHOT_BYTES, MAX_SCREENSHOT_TOTAL_BYTES, PendingScreenshot,
     QueuedScreenshot, SCREENSHOT_SETTLE_FRAMES, SCREENSHOT_TIMEOUT_ERROR, SCREENSHOT_TIMEOUT_MS, SYSTEM_CLIPBOARD_POLL, take_frame_once,
 };
-use super::*;
+use super::{
+    Arc, AutomationRoots, ControlRequest, Ordering, Receiver, Session, UiState, Value, VectorcraftApp, View, ViewInfo, background, canvas, chrome,
+    clipboard_probe, dialogs, embroidery, export_progress, file_access, fileio, font_menu, graphics, guide, i18n, io, json, menus, native_menu,
+    opening, palette, panel_docking, panels, picks, place, placing, plugin_runs, prefs_dialog, recovery, screen_color, scrub, shortcut_editor,
+    shortcuts, simple, theme, titlebar, toolbar, tools_float, unsaved, updates, updates_ui, widgets,
+};
 
 mod clipboard;
 mod commands;
@@ -54,6 +59,8 @@ impl VectorcraftApp {
                 from_worker: false,
                 waits_for_still: cfg!(target_arch = "wasm32"),
                 still: None,
+                fill: None,
+                fill_worker: None,
                 worker: None,
                 worker_started: false,
                 slices: None,

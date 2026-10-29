@@ -710,79 +710,101 @@ fn artboard_navigation_properties_frame(app: &mut crate::VectorcraftApp, ctx: &e
         .collect()
 }
 
+/// Delete the shown artboard with `key`, or with Properties' Delete Artboard button.
+fn trigger_artboard_delete(app: &mut crate::VectorcraftApp, ctx: &egui::Context, key: Option<egui::Key>, before: &vectorcraft_doc::Document) {
+    if let Some(key) = key {
+        let ev = egui::Event::Key { key, physical_key: None, pressed: true, repeat: false, modifiers: Default::default() };
+        let screen = egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1200.0, 300.0));
+        let mut out = ctx.run_ui(egui::RawInput { screen_rect: Some(screen), events: vec![ev], ..Default::default() }, |ui| {
+            crate::shortcuts::handle(app, ui.ctx());
+            super::status_bar(app, ui);
+        });
+        out.textures_delta.clear();
+    } else {
+        artboard_navigation_properties_frame(app, ctx, vec![]);
+        let texts = artboard_navigation_properties_frame(app, ctx, vec![]);
+        assert!(texts.iter().any(|(label, _)| label == &before.artboards[1].name), "Properties shows the navigated board");
+        let at = texts.iter().find(|(label, _)| label == "Delete Artboard").map(|(_, rect)| rect.center()).expect("Properties Delete button");
+        assert!(!app.canvas_rect.unwrap().contains(at));
+        let button = |pressed| egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() };
+        for event in [egui::Event::PointerMoved(at), button(true), button(false)] {
+            artboard_navigation_properties_frame(app, ctx, vec![event]);
+        }
+    }
+}
+
 /// None clicks Properties' Delete Artboard; Some routes the real key through shortcuts.
 fn artboard_navigation_delete(key: Option<egui::Key>) {
     for multiple in [false, true] {
-        let (mut app, id) = artboard_navigation_app("artboard");
-        let selected = if multiple { json!([0, 2]) } else { json!([0]) };
-        app.session.set_tool_option("selected", &selected);
-        assert_eq!(app.view().unwrap().artboard, 0);
-        assert_eq!(app.session.tool_options()["active"], json!(0));
-        assert_eq!(app.session.tool_options()["selected"], selected);
-        app.session.active_mut().unwrap().mark_saved();
-        let st = app.session.active().unwrap();
-        let before = st.doc.clone();
-        let selection = st.selection.clone();
-        let undo = st.history.undo.len();
-        let ctx = egui::Context::default();
-        crate::theme::install_fonts(&ctx);
-
-        artboard_navigation_next(&mut app, &ctx);
-
-        assert_eq!(app.view().unwrap().artboard, 1, "Next shows board 2");
-        assert_eq!(app.session.tool_options()["active"], json!(1), "Next must change the destructive target before deletion");
-        assert_eq!(app.session.tool_options()["selected"], json!([1]), "navigation replaces the old artboard multiselection");
-        assert_eq!(app.view().unwrap().center, before.artboards[1].rect.center());
-        let st = app.session.active().unwrap();
-        assert_eq!(st.doc, before, "navigation only changes view and tool state");
-        assert_eq!(st.selection, selection, "ordinary artwork stays selected");
-        assert_eq!(st.history.undo.len(), undo);
-        assert!(st.history.redo.is_empty());
-        assert!(!st.is_dirty());
-
-        if let Some(key) = key {
-            let ev = egui::Event::Key { key, physical_key: None, pressed: true, repeat: false, modifiers: Default::default() };
-            let screen = egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1200.0, 300.0));
-            let mut out = ctx.run_ui(egui::RawInput { screen_rect: Some(screen), events: vec![ev], ..Default::default() }, |ui| {
-                crate::shortcuts::handle(&mut app, ui.ctx());
-                super::status_bar(&mut app, ui);
-            });
-            out.textures_delta.clear();
-        } else {
-            artboard_navigation_properties_frame(&mut app, &ctx, vec![]);
-            let texts = artboard_navigation_properties_frame(&mut app, &ctx, vec![]);
-            assert!(texts.iter().any(|(label, _)| label == &before.artboards[1].name), "Properties shows the navigated board");
-            let at = texts.iter().find(|(label, _)| label == "Delete Artboard").map(|(_, rect)| rect.center()).expect("Properties Delete button");
-            assert!(!app.canvas_rect.unwrap().contains(at));
-            let button =
-                |pressed| egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() };
-            for event in [egui::Event::PointerMoved(at), button(true), button(false)] {
-                artboard_navigation_properties_frame(&mut app, &ctx, vec![event]);
-            }
-        }
-
-        let st = app.session.active().unwrap();
-        assert_eq!(
-            st.doc.artboards,
-            vec![before.artboards[0].clone(), before.artboards[2].clone()],
-            "first and third original board records survive"
-        );
-        assert_eq!(st.doc.node(id), before.node(id), "selected artwork survives unchanged");
-        assert_eq!(st.selection, selection);
-        assert_eq!(st.history.undo.len(), undo + 1);
-        assert_eq!(st.history.undo.last().unwrap().label, "Delete Artboard");
-        assert!(st.history.redo.is_empty());
-        assert!(st.is_dirty());
-        let deleted = st.doc.clone();
-        app.run("edit.undo", json!({})).unwrap();
-        let st = app.session.active().unwrap();
-        assert_eq!(st.doc, before, "one Undo restores every board and the artwork");
-        assert_eq!(st.selection, selection);
-        assert_eq!((st.history.undo.len(), st.history.redo.len()), (undo, 1));
-        assert!(!st.is_dirty());
-        app.run("edit.redo", json!({})).unwrap();
-        assert_eq!(app.session.active().unwrap().doc, deleted);
+        artboard_navigation_delete_case(key, multiple);
     }
+}
+
+fn artboard_navigation_delete_case(key: Option<egui::Key>, multiple: bool) {
+    let (mut app, id) = artboard_navigation_app("artboard");
+    let selected = if multiple { json!([0, 2]) } else { json!([0]) };
+    app.session.set_tool_option("selected", &selected);
+    assert_eq!(app.view().unwrap().artboard, 0);
+    assert_eq!(app.session.tool_options()["active"], json!(0));
+    assert_eq!(app.session.tool_options()["selected"], selected);
+    app.session.active_mut().unwrap().mark_saved();
+    let st = app.session.active().unwrap();
+    let before = st.doc.clone();
+    let selection = st.selection.clone();
+    let undo = st.history.undo.len();
+    let ctx = egui::Context::default();
+    crate::theme::install_fonts(&ctx);
+    navigate_to_next_board(&mut app, &ctx, &before, &selection, undo);
+    delete_navigated_board(&mut app, &ctx, key, id, &before, &selection, undo);
+}
+
+fn navigate_to_next_board(
+    app: &mut crate::VectorcraftApp,
+    ctx: &egui::Context,
+    before: &vectorcraft_doc::Document,
+    selection: &vectorcraft_doc::Selection,
+    undo: usize,
+) {
+    artboard_navigation_next(app, ctx);
+    assert_eq!(app.view().unwrap().artboard, 1, "Next shows board 2");
+    assert_eq!(app.session.tool_options()["active"], json!(1), "Next must change the destructive target before deletion");
+    assert_eq!(app.session.tool_options()["selected"], json!([1]), "navigation replaces the old artboard multiselection");
+    assert_eq!(app.view().unwrap().center, before.artboards[1].rect.center());
+    let st = app.session.active().unwrap();
+    assert_eq!(st.doc.as_ref(), before, "navigation only changes view and tool state");
+    assert_eq!(&st.selection, selection, "ordinary artwork stays selected");
+    assert_eq!(st.history.undo.len(), undo);
+    assert!(st.history.redo.is_empty());
+    assert!(!st.is_dirty());
+}
+
+fn delete_navigated_board(
+    app: &mut crate::VectorcraftApp,
+    ctx: &egui::Context,
+    key: Option<egui::Key>,
+    id: vectorcraft_doc::NodeId,
+    before: &vectorcraft_doc::Document,
+    selection: &vectorcraft_doc::Selection,
+    undo: usize,
+) {
+    trigger_artboard_delete(app, ctx, key, before);
+    let st = app.session.active().unwrap();
+    assert_eq!(st.doc.artboards, vec![before.artboards[0].clone(), before.artboards[2].clone()], "first and third original board records survive");
+    assert_eq!(st.doc.node(id), before.node(id), "selected artwork survives unchanged");
+    assert_eq!(&st.selection, selection);
+    assert_eq!(st.history.undo.len(), undo + 1);
+    assert_eq!(st.history.undo.last().unwrap().label, "Delete Artboard");
+    assert!(st.history.redo.is_empty());
+    assert!(st.is_dirty());
+    let deleted = st.doc.clone();
+    app.run("edit.undo", json!({})).unwrap();
+    let st = app.session.active().unwrap();
+    assert_eq!(st.doc.as_ref(), before, "one Undo restores every board and the artwork");
+    assert_eq!(&st.selection, selection);
+    assert_eq!((st.history.undo.len(), st.history.redo.len()), (undo, 1));
+    assert!(!st.is_dirty());
+    app.run("edit.redo", json!({})).unwrap();
+    assert_eq!(app.session.active().unwrap().doc, deleted);
 }
 
 #[test]
@@ -1204,59 +1226,54 @@ fn artboard_document_tab_roundtrip_preserves_other_tools() {
     }
 }
 
-#[test]
-fn artboard_close_active_tab_properties_delete_uses_shown_board() {
-    let (mut app, ctx) = artboard_document_app();
-    let history = |st: &vectorcraft_engine::DocState| {
-        let entries = |items: &[vectorcraft_engine::HistoryEntry]| {
-            items.iter().map(|e| (e.label.clone(), e.doc.clone(), e.selection.clone())).collect::<Vec<_>>()
-        };
-        (entries(&st.history.undo), entries(&st.history.redo))
-    };
-    let outside_canvas = |app: &crate::VectorcraftApp| {
-        let p = ctx.input(|i| i.pointer.hover_pos()).expect("a real chrome or panel pointer position");
-        assert!(!app.canvas_rect.unwrap().contains(p), "the pointer must stay outside the canvas: {p:?}");
-    };
-    app.select_tool("artboard");
-    app.run("tool.setOption", json!({"key": "moveArt", "value": false})).unwrap();
-    app.run("tool.setOption", json!({"key": "scaleArt", "value": true})).unwrap();
-    artboard_navigation_next(&mut app, &ctx);
-    outside_canvas(&app);
-    assert_eq!(app.view().unwrap().artboard, 1);
-    assert_eq!(app.session.tool_options()["selected"], json!([1]), "the initial navigator action targets Shown");
-    app.session.active_mut().unwrap().mark_saved();
-    let st = app.session.active().unwrap();
-    let (uid, revision) = (st.uid, st.revision);
-    let before = st.doc.clone();
-    let selection = st.selection.clone();
-    let history_before = history(st);
-    let history_limits = (st.history.limit, st.history.byte_budget);
-    assert_eq!(before.artboards.iter().map(|a| a.name.as_str()).collect::<Vec<_>>(), vec!["Keep", "Shown"]);
-    assert_eq!(before.guides.len(), 2);
-    assert!(!selection.objects.is_empty());
-    assert!(history_before.1.is_empty());
-    assert!(!st.is_dirty());
-    let mut expected = before.as_ref().clone();
-    expected.artboards = vec![before.artboards[0].clone()];
-    expected.guides = vec![before.guides[0].clone()];
+/// One history entry: its label, document and selection.
+type HistoryRow = (String, Arc<vectorcraft_doc::Document>, Arc<vectorcraft_doc::Selection>);
 
+/// The undo and redo entries of a document.
+type HistoryDump = (Vec<HistoryRow>, Vec<HistoryRow>);
+
+fn history_of(st: &vectorcraft_engine::DocState) -> HistoryDump {
+    let entries =
+        |items: &[vectorcraft_engine::HistoryEntry]| items.iter().map(|e| (e.label.clone(), e.doc.clone(), e.selection.clone())).collect::<Vec<_>>();
+    (entries(&st.history.undo), entries(&st.history.redo))
+}
+
+fn assert_outside_canvas(app: &crate::VectorcraftApp, ctx: &egui::Context) {
+    let p = ctx.input(|i| i.pointer.hover_pos()).expect("a real chrome or panel pointer position");
+    assert!(!app.canvas_rect.unwrap().contains(p), "the pointer must stay outside the canvas: {p:?}");
+}
+
+/// Document A as it was saved, before its second tab closed and its shown board was deleted.
+struct Baseline {
+    uid: u64,
+    revision: u64,
+    before: Arc<vectorcraft_doc::Document>,
+    selection: vectorcraft_doc::Selection,
+    history_before: HistoryDump,
+    history_limits: (usize, usize),
+    expected: vectorcraft_doc::Document,
+}
+
+/// Close document B's tab with its close box, leaving A as it was.
+fn close_b_tab(app: &mut crate::VectorcraftApp, ctx: &egui::Context, base: &Baseline) {
+    let Baseline { uid, revision, before, selection, history_before, history_limits, expected: _ } = base;
     // Route from the status bar along the panel edge to the tab strip, never through canvas.
     for at in [egui::pos2(1000.0, 280.0), egui::pos2(1000.0, 20.0)] {
-        artboard_document_tabs_frame(&mut app, &ctx, vec![egui::Event::PointerMoved(at)]);
-        outside_canvas(&app);
+        artboard_document_tabs_frame(app, ctx, vec![egui::Event::PointerMoved(at)]);
+        assert_outside_canvas(app, ctx);
     }
-    artboard_document_click_tab(&mut app, &ctx, 1);
-    outside_canvas(&app);
+    artboard_document_click_tab(app, ctx, 1);
+    assert_outside_canvas(app, ctx);
     app.session.active_mut().unwrap().mark_saved();
     let other_uid = app.session.active().unwrap().uid;
-    assert_ne!(other_uid, uid);
+    assert_ne!(other_uid, *uid);
     assert!(app.session.documents().iter().all(|d| !d.is_dirty()), "both ordinary documents are in saved state");
     assert!(app.ui.dialog.is_none());
     eprintln!("ARTBOARD_CLOSE_TARGET_SETUP_READY");
 
     // The actual B tab x, using the existing close-box test's title-relative hit position.
-    let titles = artboard_document_tabs_frame(&mut app, &ctx, vec![]);
-    outside_canvas(&app);
+    let titles = artboard_document_tabs_frame(app, ctx, vec![]);
+    assert_outside_canvas(app, ctx);
     assert_eq!(titles.len(), 2);
     let title = titles[1];
     let x = if super::CLOSE_BEFORE_TITLE { title.left() - 16.0 } else { title.right() + 20.0 };
@@ -1264,35 +1281,39 @@ fn artboard_close_active_tab_properties_delete_uses_shown_board() {
     assert!(!app.canvas_rect.unwrap().contains(at));
     let button = |pressed| egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() };
     for event in [egui::Event::PointerMoved(at), button(true), button(false)] {
-        artboard_document_tabs_frame(&mut app, &ctx, vec![event]);
-        outside_canvas(&app);
+        artboard_document_tabs_frame(app, ctx, vec![event]);
+        assert_outside_canvas(app, ctx);
     }
     assert_eq!(app.session.documents().len(), 1, "B tab x must really close B");
     assert_eq!(app.session.active_index(), Some(0));
-    assert_eq!(app.session.active().unwrap().uid, uid, "the survivor is the original A, not a replacement document");
+    assert_eq!(app.session.active().unwrap().uid, *uid, "the survivor is the original A, not a replacement document");
     assert!(app.session.documents().iter().all(|d| d.uid != other_uid));
     assert!(app.ui.dialog.is_none(), "a clean close must not leave a save/discard modal");
     for _ in 0..2 {
-        artboard_document_tabs_frame(&mut app, &ctx, vec![]);
-        outside_canvas(&app);
+        artboard_document_tabs_frame(app, ctx, vec![]);
+        assert_outside_canvas(app, ctx);
     }
     let st = app.session.active().unwrap();
-    assert_eq!(st.doc, before, "closing B must not edit A");
-    assert_eq!(st.selection, selection);
-    assert_eq!(history(st), history_before, "closing B preserves all A Undo/Redo entries");
-    assert_eq!(st.revision, revision);
-    assert_eq!((st.history.limit, st.history.byte_budget), history_limits);
+    assert_eq!(st.doc.as_ref(), before.as_ref(), "closing B must not edit A");
+    assert_eq!(&st.selection, selection);
+    assert_eq!(history_of(st), *history_before, "closing B preserves all A Undo/Redo entries");
+    assert_eq!(st.revision, *revision);
+    assert_eq!((st.history.limit, st.history.byte_budget), *history_limits);
     assert!(!st.is_dirty());
     assert_eq!(app.view().unwrap().artboard, 1);
     eprintln!("ARTBOARD_CLOSE_TARGET_CLOSED_B");
+}
 
+/// Delete the board Properties shows, then Undo and Redo it.
+fn delete_shown_board(app: &mut crate::VectorcraftApp, ctx: &egui::Context, base: &Baseline) {
+    let Baseline { uid, revision, before, selection, history_before, history_limits, expected } = base;
     // Cross the tab strip to the Properties panel before moving down to its Delete control.
     app.sync_views();
-    artboard_navigation_properties_frame(&mut app, &ctx, vec![egui::Event::PointerMoved(egui::pos2(1000.0, 20.0))]);
-    outside_canvas(&app);
+    artboard_navigation_properties_frame(app, ctx, vec![egui::Event::PointerMoved(egui::pos2(1000.0, 20.0))]);
+    assert_outside_canvas(app, ctx);
     app.sync_views();
-    let texts = artboard_navigation_properties_frame(&mut app, &ctx, vec![]);
-    outside_canvas(&app);
+    let texts = artboard_navigation_properties_frame(app, ctx, vec![]);
+    assert_outside_canvas(app, ctx);
     assert!(texts.iter().any(|(label, _)| label == "Shown"), "actual Properties must display Shown before deletion");
     assert_eq!(app.view().unwrap().artboard, 1);
     let tool_before_delete = app.session.tool_options();
@@ -1303,14 +1324,15 @@ fn artboard_close_active_tab_properties_delete_uses_shown_board() {
     let commands = app.run_count;
     for event in [egui::Event::PointerMoved(at), button(true), button(false)] {
         app.sync_views();
-        artboard_navigation_properties_frame(&mut app, &ctx, vec![event]);
-        outside_canvas(&app);
+        artboard_navigation_properties_frame(app, ctx, vec![event]);
+        assert_outside_canvas(app, ctx);
     }
     let st = app.session.active().unwrap();
     assert_eq!(app.run_count, commands.wrapping_add(1), "the actual Properties click executes one command");
     assert_eq!(st.doc.artboards.len(), 1, "the real Delete action removed one board");
     assert_eq!(st.history.undo.len(), history_before.0.len() + 1);
     assert_eq!(st.history.undo.last().unwrap().label, "Delete Artboard");
+    assert_eq!((st.history.limit, st.history.byte_budget), *history_limits);
     eprintln!("ARTBOARD_CLOSE_TARGET_DELETE_CLICKED tool_before={tool_before_delete}");
     // Do not assert tool alignment before this destructive-action oracle: it must expose the wrong deletion.
     assert_eq!(
@@ -1318,40 +1340,77 @@ fn artboard_close_active_tab_properties_delete_uses_shown_board() {
         vec!["Keep"],
         "ARTBOARD_CLOSE_TARGET_WRONG_SURVIVOR: Properties showing Shown must delete Shown after closing B"
     );
-    assert_eq!(st.doc.as_ref(), &expected, "only Shown and its attached guide may be removed from the full document");
+    assert_eq!(st.doc.as_ref(), expected, "only Shown and its attached guide may be removed from the full document");
     assert_eq!(st.doc.layers, before.layers, "all artwork and symbol instances stay unchanged");
     assert_eq!(st.doc.symbols, before.symbols);
     assert_eq!(st.doc.guides, vec![before.guides[0].clone()]);
-    assert_eq!(st.selection, selection);
-    assert_eq!(st.uid, uid);
+    assert_eq!(&st.selection, selection);
+    assert_eq!(st.uid, *uid);
     assert_eq!(st.revision, revision + 1);
-    let history_after = history(st);
+    undo_and_redo_the_deletion(app, base);
+}
+
+/// Undo and Redo of the deletion that [`delete_shown_board`] made.
+fn undo_and_redo_the_deletion(app: &mut crate::VectorcraftApp, base: &Baseline) {
+    let Baseline { uid, before, selection, history_before, history_limits, expected, revision: _ } = base;
+    let st = app.session.active().unwrap();
+    let history_after = history_of(st);
     assert_eq!(&history_after.0[..history_before.0.len()], history_before.0.as_slice());
     let entry = history_after.0.last().unwrap();
-    assert_eq!(entry.1, before);
-    assert_eq!(entry.2.as_ref(), &selection);
+    assert_eq!(entry.1.as_ref(), before.as_ref());
+    assert_eq!(entry.2.as_ref(), selection);
     assert!(history_after.1.is_empty());
     assert!(st.is_dirty());
     let deleted = st.doc.clone();
     app.run("edit.undo", json!({})).unwrap();
     let st = app.session.active().unwrap();
-    assert_eq!(st.uid, uid);
-    assert_eq!(st.doc, before, "one Undo restores the full saved A including both boards, guides and artwork");
-    assert_eq!(st.selection, selection);
-    assert_eq!(history(st).0, history_before.0);
+    assert_eq!(st.uid, *uid);
+    assert_eq!(st.doc.as_ref(), before.as_ref(), "one Undo restores the full saved A including both boards, guides and artwork");
+    assert_eq!(&st.selection, selection);
+    assert_eq!(history_of(st).0, history_before.0);
     assert_eq!(st.history.redo.len(), 1);
     assert_eq!(st.history.redo[0].label, "Delete Artboard");
-    assert_eq!(st.history.redo[0].doc, deleted);
-    assert_eq!(st.history.redo[0].selection.as_ref(), &selection);
+    assert_eq!(st.history.redo[0].doc.as_ref(), deleted.as_ref());
+    assert_eq!(st.history.redo[0].selection.as_ref(), selection);
     assert!(!st.is_dirty());
     app.run("edit.redo", json!({})).unwrap();
     let st = app.session.active().unwrap();
-    assert_eq!(st.uid, uid);
-    assert_eq!(st.doc.as_ref(), &expected, "one Redo repeats only the correct deletion");
-    assert_eq!(st.selection, selection);
-    assert_eq!(history(st), history_after);
-    assert_eq!((st.history.limit, st.history.byte_budget), history_limits);
+    assert_eq!(st.uid, *uid);
+    assert_eq!(st.doc.as_ref(), expected, "one Redo repeats only the correct deletion");
+    assert_eq!(&st.selection, selection);
+    assert_eq!(history_of(st), history_after);
+    assert_eq!((st.history.limit, st.history.byte_budget), *history_limits);
     assert!(st.is_dirty());
     assert_eq!(app.session.documents().len(), 1, "Undo/Redo do not reopen B");
     eprintln!("ARTBOARD_CLOSE_TARGET_MODEL_AND_HISTORY_PRESERVED");
+}
+
+#[test]
+fn artboard_close_active_tab_properties_delete_uses_shown_board() {
+    let (mut app, ctx) = artboard_document_app();
+    app.select_tool("artboard");
+    app.run("tool.setOption", json!({"key": "moveArt", "value": false})).unwrap();
+    app.run("tool.setOption", json!({"key": "scaleArt", "value": true})).unwrap();
+    artboard_navigation_next(&mut app, &ctx);
+    assert_outside_canvas(&app, &ctx);
+    assert_eq!(app.view().unwrap().artboard, 1);
+    assert_eq!(app.session.tool_options()["selected"], json!([1]), "the initial navigator action targets Shown");
+    app.session.active_mut().unwrap().mark_saved();
+    let st = app.session.active().unwrap();
+    let (uid, revision) = (st.uid, st.revision);
+    let before = st.doc.clone();
+    let selection = st.selection.clone();
+    let history_before = history_of(st);
+    let history_limits = (st.history.limit, st.history.byte_budget);
+    assert_eq!(before.artboards.iter().map(|a| a.name.as_str()).collect::<Vec<_>>(), vec!["Keep", "Shown"]);
+    assert_eq!(before.guides.len(), 2);
+    assert!(!selection.objects.is_empty());
+    assert!(history_before.1.is_empty());
+    assert!(!st.is_dirty());
+    let mut expected = before.as_ref().clone();
+    expected.artboards = vec![before.artboards[0].clone()];
+    expected.guides = vec![before.guides[0].clone()];
+    let base = Baseline { uid, revision, before, selection, history_before, history_limits, expected };
+    close_b_tab(&mut app, &ctx, &base);
+    delete_shown_board(&mut app, &ctx, &base);
 }

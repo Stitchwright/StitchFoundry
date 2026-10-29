@@ -136,6 +136,9 @@ pub struct PositionedGlyph {
     /// the path ([`GlyphBend`]) so it meets its neighbours, and `xf` is only the straight glyph
     /// nearest it (for the caret, hit testing and tools). `None`: the glyph is drawn through `xf`.
     pub bend: Option<GlyphBend>,
+    /// Font units → font units: `xf * unturned` places the glyph as it would be placed without
+    /// its Character Rotation. The identity for a glyph without one.
+    pub unturned: Affine,
 }
 
 /// How a glyph on a path is bent along it: a point of its pen space (x along its advance from its

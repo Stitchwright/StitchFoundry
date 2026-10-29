@@ -1,5 +1,6 @@
 //! Headless frames of the Transparency panel's mask thumbnail (M3.86): Alt-click views only the
-//! mask (and edits it), Alt-click again shows the artwork.
+//! mask (and edits it), Alt-click again shows the artwork. In isolation mode neither a click nor an
+//! Alt-click edits the mask.
 
 use serde_json::json;
 use vectorcraft_engine::Session;
@@ -44,4 +45,58 @@ fn alt_clicking_the_mask_thumbnail_views_only_the_mask() {
     assert_eq!(viewed(&app), None);
     click_mask(&ctx, &mut app, egui::Modifiers::ALT);
     assert_eq!(viewed(&app), Some(a));
+}
+
+/// Where the panel painted `label`, in a frame of it.
+fn label_at(ctx: &egui::Context, app: &mut VectorcraftApp, label: &str) -> egui::Pos2 {
+    let mut out = ctx.run_ui(egui::RawInput::default(), |ui| transparency::show(app, ui));
+    out.textures_delta.clear();
+    let at = out.shapes.iter().find_map(|c| match &c.shape {
+        egui::Shape::Text(t) if t.galley.text() == label => Some(t.visual_bounding_rect().center()),
+        _ => None,
+    });
+    at.unwrap_or_else(|| panic!("the panel draws {label:?}"))
+}
+
+/// In isolation mode a click or an Alt-click on the mask thumbnail does not edit the mask, and the
+/// status bar says to exit isolation mode first. Make Mask is off for one object, which it would
+/// take into mask editing. After Exit Isolation Mode a click edits the mask.
+#[test]
+fn the_mask_thumbnail_does_not_edit_the_mask_in_isolation_mode() {
+    let mut app = VectorcraftApp::new(Session::new(), Default::default());
+    let run = |app: &mut VectorcraftApp, id: &str, p: serde_json::Value| app.session.execute(id, &p).unwrap();
+    run(&mut app, "file.new", json!({"width": 100, "height": 100}));
+    let a = run(&mut app, "shape.rectangle", json!({"x": 0, "y": 0, "width": 50, "height": 50}))["id"].as_u64().unwrap();
+    let b = run(&mut app, "shape.rectangle", json!({"x": 10, "y": 10, "width": 20, "height": 20}))["id"].clone();
+    run(&mut app, "select.set", json!({"ids": [a, b]}));
+    run(&mut app, "transparency.makeOpacityMask", json!({}));
+    let c = run(&mut app, "shape.rectangle", json!({"x": 60, "y": 0, "width": 30, "height": 30}))["id"].clone();
+    run(&mut app, "select.set", json!({"ids": [a, c]}));
+    let g = run(&mut app, "object.group", json!({}))["id"].as_u64().unwrap();
+    run(&mut app, "object.isolate", json!({"id": g}));
+    run(&mut app, "select.set", json!({"ids": [a]}));
+    let ctx = egui::Context::default();
+    for modifiers in [egui::Modifiers::NONE, egui::Modifiers::ALT] {
+        app.ui.status.clear();
+        click_mask(&ctx, &mut app, modifiers);
+        let st = app.session.active().unwrap();
+        assert!(st.doc.mask_edit.is_none() && st.shown_mask().is_none(), "{modifiers:?}");
+        assert_eq!(st.isolation.map(|i| i.0), Some(g));
+        assert!(app.ui.status.ends_with("exit isolation mode first"), "{modifiers:?}: {}", app.ui.status);
+    }
+    // One object without a mask: Make Mask is off, and a click on it does nothing.
+    run(&mut app, "select.set", json!({"ids": [c]}));
+    app.ui.status.clear();
+    frame(&ctx, &mut app, vec![], egui::Modifiers::NONE);
+    let at = label_at(&ctx, &mut app, "Make Mask");
+    let button = |pressed| egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: egui::Modifiers::NONE };
+    frame(&ctx, &mut app, vec![egui::Event::PointerMoved(at), button(true), button(false)], egui::Modifiers::NONE);
+    let st = app.session.active().unwrap();
+    let id = vectorcraft_doc::NodeId(c.as_u64().unwrap());
+    assert!(st.doc.node(id).unwrap().extras().mask.is_none() && st.doc.mask_edit.is_none());
+    assert_eq!(app.ui.status, "", "the button is off");
+    run(&mut app, "object.exitIsolation", json!({}));
+    run(&mut app, "select.set", json!({"ids": [a]}));
+    click_mask(&ctx, &mut app, egui::Modifiers::NONE);
+    assert_eq!(app.session.active().unwrap().doc.mask_edit.map(|e| e.object.0), Some(a));
 }

@@ -12,7 +12,7 @@ use vectorcraft_geom::{Affine, Point};
 
 use super::super::fileio;
 use super::super::place::pt_per_px;
-use super::*;
+use super::{Clipboard, CommandSpec, Result, Session, always, bad, cmd, f64_or, has_doc, looks_like_svg, point_param, str_param};
 
 /// Plain text: a type-only copy's text, else the SVG markup (Include SVG Code).
 pub const TEXT: &str = "text/plain";

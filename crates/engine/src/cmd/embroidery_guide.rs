@@ -5,7 +5,7 @@
 use serde_json::{Value, json};
 
 use super::embroidery_photo::{Picture, looks_like_photo};
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![cmd!(

@@ -5,7 +5,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd};
 
 const CMD: &str = "embroidery.compare";
 

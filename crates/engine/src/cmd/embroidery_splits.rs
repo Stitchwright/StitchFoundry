@@ -13,7 +13,9 @@ use vectorcraft_doc::{Document, NodeId};
 use vectorcraft_embroidery::{PT_PER_MM, outlines_mm, regions_mm};
 
 use super::embroidery::{ids_json, stitched_targets};
-use super::*;
+use super::{
+    CommandSpec, Result, Session, always, bad, bool_or, cmd, has_doc, has_selection, id_param, leaf_targets, point_param, str_param, targets,
+};
 use crate::EngineError;
 
 /// Most split lines one fill keeps, and points in all of them together.

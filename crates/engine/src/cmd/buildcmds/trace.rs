@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    Appearance, AppearanceItem, Arc, Beside, Color, Document, EngineError, LineCap, LineJoin, LiveShape, Node, NodeId, NodeKind, Paint, Point,
+    Result, Session, StrokeLayer, TRACE_NAME, TraceView, Value, bad, fill_only, ids_json, json, root_ids, shape_node, str_param, switch_or, tr,
+};
 
 // ---------- Image Trace ----------
 

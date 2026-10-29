@@ -51,6 +51,7 @@
 //! layout; where a byte's meaning is uncertain it says so, the writer uses the
 //! most common value and the reader ignores it.
 
+#![forbid(unsafe_code)]
 mod bytes;
 mod dsb;
 mod dst;

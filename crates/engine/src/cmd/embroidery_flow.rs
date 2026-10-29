@@ -12,7 +12,7 @@ use vectorcraft_doc::{Document, NodeId};
 use vectorcraft_embroidery::{PT_PER_MM, outlines_mm};
 
 use super::embroidery::{ids_json, stitched_targets};
-use super::*;
+use super::{CommandSpec, Result, Session, bad, bool_or, cmd, has_doc, has_selection, id_param, leaf_targets, targets};
 use crate::EngineError;
 
 /// Flow lines one fill keeps, and points in each.

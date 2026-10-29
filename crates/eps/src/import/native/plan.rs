@@ -1,6 +1,44 @@
 use super::layers::closed_where_ends_meet;
 use super::slots::{Content, SlotInfo, assign, covered, extent, join_pieces, letters, same_type};
-use super::*;
+use super::{Affine, Arc, Node, NodeId, NodeKind, Point, Rect, Story, TextKind};
+
+/// Match page objects to the nearest slot whose story describes them, including hidden slots.
+fn match_page_objects(infos: &[SlotInfo], lines: &[Option<Vec<(String, Point)>>], shown: &[Vec<Arc<Node>>]) -> Vec<Option<usize>> {
+    let mut pairs: Vec<(f64, usize, usize)> = vec![];
+    for (k, _) in infos.iter().enumerate() {
+        let Some(l) = lines.get(k).and_then(Option::as_ref) else { continue };
+        for (j, object) in shown.iter().enumerate() {
+            if let Some(d) = object.iter().filter_map(|n| same_type(n, l)).min_by(f64::total_cmp) {
+                pairs.push((d, k, j));
+            }
+        }
+    }
+    pairs.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let mut owner = vec![None; shown.len()];
+    for (_, k, j) in pairs {
+        if let Some(o) = owner.get_mut(j).filter(|o| o.is_none()) {
+            *o = Some(k);
+        }
+    }
+    owner
+}
+
+fn frame_text_from_art(info: &SlotInfo, node: &mut Node, region: &mut Option<Rect>) {
+    if let (Some(path), NodeKind::Text(text)) = (&info.art_path, &mut node.kind) {
+        let size = text.runs.iter().map(|r| r.style.size).fold(0.0, f64::max);
+        match &mut text.kind {
+            TextKind::Area { frame } => {
+                *frame = path.clone();
+                *region = path.bounds();
+            }
+            TextKind::OnPath { path: on, .. } => {
+                *on = closed_where_ends_meet(path.clone());
+                *region = path.bounds().map(|r| r.inflate(size * 1.5, size * 1.5));
+            }
+            TextKind::Point => {}
+        }
+    }
+}
 
 /// What goes into each of `infos`' slots: the page's type that the file's text document puts where the
 /// page has it, else type made from the text document, else (for a file whose text document can't say)
@@ -21,24 +59,7 @@ pub(super) fn plan(
             Some(s.line_starts(t).into_iter().map(|(text, (x, y))| (text, to_doc * Point::new(x, y))).collect())
         })
         .collect();
-    // The page's objects that are where a slot's lines are, nearest first. A slot that doesn't show
-    // has them too: a file's page may draw what its layers have hidden since.
-    let mut pairs: Vec<(f64, usize, usize)> = vec![];
-    for (k, _) in infos.iter().enumerate() {
-        let Some(l) = lines.get(k).and_then(Option::as_ref) else { continue };
-        for (j, object) in shown.iter().enumerate() {
-            if let Some(d) = object.iter().filter_map(|n| same_type(n, l)).min_by(f64::total_cmp) {
-                pairs.push((d, k, j));
-            }
-        }
-    }
-    pairs.sort_by(|a, b| a.0.total_cmp(&b.0));
-    let mut owner: Vec<Option<usize>> = vec![None; shown.len()];
-    for (_, k, j) in pairs {
-        if let Some(o) = owner.get_mut(j).filter(|o| o.is_none()) {
-            *o = Some(k);
-        }
-    }
+    let owner = match_page_objects(infos, &lines, shown);
     // Type the text document makes, shown or not: the page's pieces of it aren't needed.
     let mut content: Vec<Content> = infos.iter().map(|_| Content::Empty).collect();
     // Where the made type that doesn't show lies, by slot.
@@ -51,20 +72,7 @@ pub(super) fn plan(
             let mut region = story.region(t, to_doc);
             // Area type and type on a path in the object's own frame: the text document's frame
             // of a copied object keeps its original's path.
-            if let (Some(path), NodeKind::Text(text)) = (&info.art_path, &mut node.kind) {
-                let size = text.runs.iter().map(|r| r.style.size).fold(0.0, f64::max);
-                match &mut text.kind {
-                    TextKind::Area { frame } => {
-                        *frame = path.clone();
-                        region = path.bounds();
-                    }
-                    TextKind::OnPath { path: on, .. } => {
-                        *on = closed_where_ends_meet(path.clone());
-                        region = path.bounds().map(|r| r.inflate(size * 1.5, size * 1.5));
-                    }
-                    TextKind::Point => {}
-                }
-            }
+            frame_text_from_art(info, &mut node, &mut region);
             if let (false, Some(r)) = (info.shown, region) {
                 hidden_at.push((k, r));
             }

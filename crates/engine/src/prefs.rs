@@ -1,4 +1,4 @@
-use super::*;
+use super::{Color, EyedropperOptions, PathfinderOptions, Value, cmd};
 
 /// Where new art goes (Illustrator's drawing modes, Shift+D cycles).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

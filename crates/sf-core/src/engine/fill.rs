@@ -624,13 +624,10 @@ impl Plan {
     }
 }
 
-/// Builds rows, spans, sections and the travel graph in row space.
-fn plan(rings: &[Vec<Point>], cfg: &ScanConfig) -> Option<Plan> {
-    let bb = rings.first().map(|r| polyline::bbox(r))?;
-    if bb.is_empty() {
-        return None;
-    }
-    let (y0, y1) = (bb.min.y, bb.max.y);
+/// The heights of the fill's rows between `y0` and `y1`: along the density profile, evenly
+/// spaced and centred, or with the spacing changing from start to end. `None` when a profile asks
+/// for no rows anywhere.
+fn row_heights(y0: f64, y1: f64, cfg: &ScanConfig) -> Option<Vec<f64>> {
     let s0 = cfg.row_spacing.max(0.05);
     let s1 = if cfg.row_spacing_end > 0.0 { cfg.row_spacing_end.max(0.05) } else { s0 };
     let height = y1 - y0;
@@ -671,9 +668,16 @@ fn plan(rings: &[Vec<Point>], cfg: &ScanConfig) -> Option<Plan> {
     if ys.is_empty() && !profiled {
         ys.push((y0 + y1) * 0.5);
     }
-    if ys.is_empty() {
+    (!ys.is_empty()).then_some(ys)
+}
+
+/// Builds rows, spans, sections and the travel graph in row space.
+fn plan(rings: &[Vec<Point>], cfg: &ScanConfig) -> Option<Plan> {
+    let bb = rings.first().map(|r| polyline::bbox(r))?;
+    if bb.is_empty() {
         return None;
     }
+    let mut ys = row_heights(bb.min.y, bb.max.y, cfg)?;
     // Nudge rows off exact vertex heights to avoid degenerate crossings.
     for y in &mut ys {
         if rings.iter().any(|r| r.iter().any(|p| (p.y - *y).abs() < 1e-9)) {

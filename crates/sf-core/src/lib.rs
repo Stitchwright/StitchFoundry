@@ -16,6 +16,7 @@
 //! * [`io`] – native `.sfd` design files.
 //! * [`ai`] – Design from Prompt: the request for stitchable art and reading the reply.
 
+#![forbid(unsafe_code)]
 pub mod ai;
 pub mod attr;
 pub mod barcode;

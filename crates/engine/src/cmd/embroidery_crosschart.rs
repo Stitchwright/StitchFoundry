@@ -14,7 +14,7 @@ use vectorcraft_geom::{PathData, Rect};
 
 use super::embroidery::{SHEET, sheet_lines, sheet_text};
 use super::embroidery_crossstitch::{Pattern, chosen, style_name};
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 
 /// The page margin (points).
 const MARGIN: f64 = 36.0;

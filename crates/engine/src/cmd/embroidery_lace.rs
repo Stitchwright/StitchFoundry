@@ -9,7 +9,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, has_doc, str_param};
 
 const CMD: &str = "embroidery.lacework";
 /// What to do with it, added to the design's notes once.
@@ -125,6 +125,7 @@ fn make(s: &mut Session, pieces: &[(u64, Option<String>)], layers: &[f64], spaci
 mod tests {
     use super::*;
     use sf_core::attr::StitchType;
+    use vectorcraft_doc::NodeId;
 
     #[test]
     fn a_shape_becomes_open_crossing_rows_and_a_satin_edge() {

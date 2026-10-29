@@ -13,7 +13,7 @@ use vectorcraft_geom::Rect;
 use vectorcraft_geom::path::{PathData, SubPath};
 
 use super::embroidery::stitched_targets;
-use super::*;
+use super::{CommandSpec, Point, Result, Session, bad, cmd, has_selection, str_param};
 use crate::EngineError;
 
 const CMD: &str = "embroidery.addOutline";

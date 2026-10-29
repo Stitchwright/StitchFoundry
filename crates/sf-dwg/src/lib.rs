@@ -8,6 +8,7 @@
 //! [`serve_if_helper`]) with a time limit, and a failed helper only fails the open. Native only: on
 //! the web [`dwg_to_dxf`] answers an error.
 
+#![forbid(unsafe_code)]
 /// Does `bytes` start as a DWG drawing does (`AC10` and two digits: `AC1015` is 2000, `AC1032`
 /// 2018)?
 pub fn is_dwg(bytes: &[u8]) -> bool {

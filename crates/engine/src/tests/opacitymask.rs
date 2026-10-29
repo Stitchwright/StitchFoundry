@@ -1,6 +1,7 @@
 //! Opacity-mask editing and the Transparency panel's command reach (M3.25): commands act on the
 //! masked object while its mask is edited, accept ids without a selection, take opacity in percent,
-//! report mixed values, and saves and exports never carry the editing layer.
+//! report mixed values, and saves and exports never carry the editing layer. Mask editing is not
+//! entered in isolation mode, and isolation mode is not entered while a mask is edited.
 
 use serde_json::{Value, json};
 use vectorcraft_geom::Affine;
@@ -226,6 +227,103 @@ fn one_object_gets_an_empty_mask_drawn_in_editing_mode() {
     assert_eq!(s.doc().unwrap().isolation, None);
     s.execute("edit.redo", &json!({})).unwrap();
     assert_eq!((s.doc().unwrap().isolation, s.doc().unwrap().active_layer), (Some(layer), Some(layer)));
+}
+
+/// The command `cmd` with `p` is off, for `why`.
+fn off(s: &mut Session, cmd: &str, p: Value, why: &str) {
+    let err = s.execute(cmd, &p).unwrap_err();
+    assert!(matches!(&err, EngineError::Disabled(id, w) if id == cmd && w == why), "{cmd} {p}: {err}");
+}
+
+/// Isolation mode is not entered while an opacity mask is edited: Enter Isolation Mode is off for
+/// a group in the mask art and for one outside it, and mask editing goes on. After Stop Editing
+/// Opacity Mask it isolates again.
+#[test]
+fn isolation_mode_is_not_entered_while_an_opacity_mask_is_edited() {
+    let mut s = session();
+    let group = |s: &mut Session, x: f64| {
+        let (a, b) = (rect(s, x, 20.0), rect(s, x + 30.0, 20.0));
+        s.execute("select.set", &json!({"ids": [a.0, b.0]})).unwrap();
+        NodeId(s.execute("object.group", &json!({})).unwrap()["id"].as_u64().unwrap())
+    };
+    let outside = group(&mut s, 220.0);
+    editing_mask(&mut s);
+    let layer = s.doc().unwrap().isolation;
+    let inside = group(&mut s, 0.0);
+    for id in [inside, outside] {
+        off(&mut s, "object.isolate", json!({"id": id.0}), "stop editing the opacity mask first");
+        assert_eq!(s.doc().unwrap().isolation, layer);
+        assert!(doc(&s).mask_edit.is_some(), "still editing");
+    }
+    s.execute("select.set", &json!({"ids": [inside.0]})).unwrap();
+    off(&mut s, "object.isolate", json!({}), "stop editing the opacity mask first");
+    s.execute("transparency.stopEditingOpacityMask", &json!({})).unwrap();
+    s.execute("object.isolate", &json!({"id": outside.0})).unwrap();
+    assert_eq!(s.doc().unwrap().isolation, Some(outside));
+}
+
+/// Opacity mask editing is not entered in isolation mode: Edit Opacity Mask and View Opacity Mask
+/// are off, and so is Make Opacity Mask for one object, which would edit its new empty mask. Make
+/// Opacity Mask with two objects still masks one with the other. After Exit Isolation Mode the mask
+/// is edited again.
+#[test]
+fn opacity_mask_editing_is_not_entered_in_isolation_mode() {
+    let mut s = session();
+    let (obj, m) = (rect(&mut s, 0.0, 200.0), rect(&mut s, 0.0, 100.0));
+    s.execute("transparency.makeOpacityMask", &json!({"ids": [obj.0, m.0]})).unwrap();
+    let other = rect(&mut s, 220.0, 30.0);
+    s.execute("select.set", &json!({"ids": [obj.0, other.0]})).unwrap();
+    let g = NodeId(s.execute("object.group", &json!({})).unwrap()["id"].as_u64().unwrap());
+    s.execute("object.isolate", &json!({"id": g.0})).unwrap();
+    s.execute("select.set", &json!({"ids": [obj.0]})).unwrap();
+    let why = "exit isolation mode first";
+    off(&mut s, "transparency.editOpacityMask", json!({}), why);
+    off(&mut s, "transparency.editOpacityMask", json!({"id": obj.0}), why);
+    off(&mut s, "transparency.viewOpacityMask", json!({}), why);
+    off(&mut s, "transparency.viewOpacityMask", json!({"on": true, "id": obj.0}), why);
+    s.execute("select.set", &json!({"ids": [other.0]})).unwrap();
+    off(&mut s, "transparency.makeOpacityMask", json!({}), why);
+    off(&mut s, "transparency.makeOpacityMask", json!({"ids": [other.0]}), why);
+    // A layer given as the one target is refused too.
+    let layer = doc(&s).layers[0].id;
+    let err = s.execute("transparency.makeOpacityMask", &json!({"ids": [layer.0]})).unwrap_err();
+    assert!(err.to_string().ends_with(why), "{err}");
+    let st = s.doc().unwrap();
+    assert!(st.doc.mask_edit.is_none() && st.mask_view.is_none() && mask(&s, other).is_none());
+    assert_eq!(s.doc().unwrap().isolation, Some(g));
+    // Two objects: the top one masks the other, without mask editing.
+    let top = rect(&mut s, 220.0, 10.0);
+    let r = s.execute("transparency.makeOpacityMask", &json!({"ids": [other.0, top.0]})).unwrap();
+    assert_eq!(r, json!({"id": other.0, "editing": false}));
+    assert_eq!(s.doc().unwrap().isolation, Some(g));
+    // Two members of a compound path given in `ids` are two objects: one masks the other.
+    let (c1, c2) = (rect(&mut s, 250.0, 10.0), rect(&mut s, 265.0, 10.0));
+    s.execute("select.set", &json!({"ids": [c1.0, c2.0]})).unwrap();
+    s.execute("object.compoundPath.make", &json!({})).unwrap();
+    let r = s.execute("transparency.makeOpacityMask", &json!({"ids": [c1.0, c2.0]})).unwrap();
+    assert_eq!(r["editing"], json!(false));
+    assert!(doc(&s).mask_edit.is_none());
+    s.execute("object.exitIsolation", &json!({})).unwrap();
+    s.execute("transparency.editOpacityMask", &json!({"id": obj.0})).unwrap();
+    assert_eq!(doc(&s).mask_edit.map(|e| e.object), Some(obj));
+}
+
+/// In isolation mode, Make Opacity Mask is off for a targeted sublayer that holds two objects:
+/// the sublayer is its one target, which would get an empty mask and enter mask editing.
+#[test]
+fn make_opacity_mask_is_off_for_a_targeted_sublayer_in_isolation_mode() {
+    let mut s = session();
+    let layer = doc(&s).layers[0].id;
+    let sub = NodeId(s.execute("layer.newSublayer", &json!({"parent": layer.0})).unwrap()["id"].as_u64().unwrap());
+    s.execute("layer.setCurrent", &json!({"id": sub.0})).unwrap();
+    let (a, b) = (rect(&mut s, 0.0, 20.0), rect(&mut s, 40.0, 20.0));
+    s.execute("object.isolate", &json!({"id": layer.0})).unwrap();
+    s.execute("layer.target", &json!({"id": sub.0})).unwrap();
+    assert_eq!(s.doc().unwrap().selection.target, Some(sub));
+    off(&mut s, "transparency.makeOpacityMask", json!({}), "exit isolation mode first");
+    // Two objects given in `ids` still mask one with the other.
+    let r = s.execute("transparency.makeOpacityMask", &json!({"ids": [a.0, b.0]})).unwrap();
+    assert_eq!(r["editing"], json!(false));
 }
 
 #[test]

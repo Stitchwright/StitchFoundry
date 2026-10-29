@@ -1106,7 +1106,7 @@ font-technology	Variable	Değişken
 	Decrease Font Size by Five Steps	Yazı Tipi Boyutunu Beş Adım Azaltın
 	Increase Font Size	Yazı Tipi Boyutunu Artır
 	Increase Font Size by Five Steps	Yazı Tipi Boyutunu Beş Adım Artırın
-	Reset Tracking and Kerning	İzlemeyi ve Karakter Aralığını Sıfırla
+	Reset Tracking and Kerning	Takip ve Karakter Aralığını Sıfırla
 	Reset Horizontal Scale	Yatay Ölçeği Sıfırla
 	Spacing	Aralık
 	Step Type	Adım Türü
@@ -1524,7 +1524,7 @@ font-technology	Variable	Değişken
 	Layers Panel Options	Katmanlar Paneli Seçenekleri
 	Layout:	Düzen:
 	Leader:	Lider:
-	Leading	Lider
+	Leading	Satır Aralığı
 	Left	Sol
 	Left Grid:	Sol Izgara:
 	Left in Front	Sol Önde
@@ -1796,6 +1796,10 @@ font-technology	Variable	Değişken
 	Outer Corner Tile	Dış Köşe Döşemesi
 	Side Tile	Yan Kiremit
 	Inner Corner Tile	İç Köşe Döşemesi
+	Auto-Centered	Otomatik Ortalı
+	Auto-Between	Otomatik Arada
+	Auto-Sliced	Otomatik Dilimli
+	Auto-Overlap	Otomatik Örtüşen
 	Start Tile	Döşemeyi Başlat
 	End Tile	Son Döşeme
 	Fit	Uygun
@@ -2887,6 +2891,7 @@ font-technology	Variable	Değişken
 	Simplify	Basitleştir
 	Simplify:	Basitleştirin:
 	Simplify…	Basitleştir…
+	Smooth…	Düzgünleştir…
 	Simulate Colored Paper	Renkli Kağıdı Simüle Et
 	Simulate Paper	Kağıdı Simüle Et
 	Double Column	Çift Sütun
@@ -2897,7 +2902,7 @@ font-technology	Variable	Değişken
 	Sixth Space	Altıncı Uzay
 	Size	Boyut
 	Size Tile to Art	Sanata Boyut Döşeme
-	Size/Leading	Boyut/Öncülük
+	Size/Leading	Boyut/Satır Aralığı
 	Size:	Boyut:
 	Ridges per segment:	Segment başına sırtlar:
 	Size: {size}  Tracking: {tracking}	Boyut: {size} Takip: {tracking}
@@ -3051,6 +3056,7 @@ font-technology	Variable	Değişken
 	Swatch Options…	Renk Örneği Seçenekleri…
 	Swatch Tiles	Renk Örneği Fayansları
 	Swatches	Renk Örnekleri
+	Switch Units	Birimleri değiştir
 	Switch workspace	Çalışma alanını değiştir
 	Add Content	İçerik Ekle
 	Click to apply to the selected type	Seçilen türe uygulamak için tıklayın
@@ -3282,6 +3288,7 @@ font-technology	Variable	Değişken
 	Unlock Guides	Kılavuzların Kilidini Aç
 	Unnamed Objects	Adsız Nesneler
 	Unprintable margin:	Yazdırılamayan kenar boşluğu:
+	Unselected Artwork	Seçili Olmayan Sanat Eserleri
 	Unshift	Kaydırmayı kaldır
 	Untitled	İsimsiz
 	Update Link	Bağlantıyı Güncelle
@@ -3556,8 +3563,8 @@ imageTrace	Outline	Kontur
 	  — {n} characters from another font	  — Başka bir yazı tipinden {n} karakterler
 	[Normal Character Style]	[Normal Karakter Stili]
 	[Normal Paragraph Style]	[Normal Paragraf Stili]
-	Top-to-Top Leading	Tepeden Tepeye Liderlik
-	Bottom-to-Bottom Leading	Aşağıdan Aşağıya Öncülük
+	Top-to-Top Leading	Tepeden Tepeye Satır Aralığı
+	Bottom-to-Bottom Leading	Aşağıdan Aşağıya Satır Aralığı
 	Burasagari	Burasagari
 	Force	kuvvet
 	About	Hakkında
@@ -3724,6 +3731,7 @@ axis	Both	Her İkisi
 @msg	`{key}` must be between {min} and {max} (got {x})	`{key}`, {min} ile {max} arasında olmalıdır ({x}'yi aldı)
 @msg	`{key}` must be one of {_1}	`{key}`, {_1}'den biri olmalıdır
 @msg	`{key}` must be true or false	"{key}" doğru veya yanlış olmalıdır
+@msg	`top` and `below` can't both be true	`top` ve `below` aynı anda true olamaz
 @msg	`select` must be true or false	`select` true veya false olmalıdır
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors` ve `maxAnchors` tam sayı olmalıdır
 @msg	`{key}` must be a number not below 0	`{key}` 0'dan küçük olmayan bir sayı olmalıdır
@@ -3850,6 +3858,7 @@ axis	Both	Her İkisi
 @msg	missing `id` (see plugin.list)	`kimlik` eksik (bkz. eklenti.liste)
 @msg	missing `name`	"isim" eksik
 @msg	missing `tool`	'araç' eksik
+@msg	missing id	id eksik
 @msg	missing index	eksik dizin
 @msg	New Window isn't available yet: a document opens in one window	Yeni Pencere henüz kullanılamıyor: bir belge tek pencerede açılır
 @msg	name the file	dosyayı adlandırın
@@ -3878,6 +3887,7 @@ axis	Both	Her İkisi
 @msg	no current layer	geçerli katman yok
 @msg	no data	veri yok
 @msg	no dialog open	iletişim kutusu açık değil
+@msg	the open dialog has no Reset	açık iletişim kutusunda Sıfırla düğmesi yok
 @msg	no document	belge yok
 @msg	no document open	hiçbir belge açık değil
 @msg	no effect applied yet	henüz hiçbir efekt uygulanmadı
@@ -3957,6 +3967,7 @@ axis	Both	Her İkisi
 @msg	not in pattern editing mode	desen düzenleme modunda değil
 @msg	nothing encoded	kodlanmış hiçbir şey yok
 @msg	nothing selected	hiçbir şey seçilmedi
+@msg	nothing selected is in a group	seçilenlerin hiçbiri bir grupta değil
 @msg	nothing to align	hizalanacak hiçbir şey yok
 @msg	nothing to distort	çarpıtılacak hiçbir şey yok
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	dışa aktarılacak bir şey yok: belgede görünür resim yok (veya Çalışma Yüzeylerini Kullan'ı açın)
@@ -4022,6 +4033,7 @@ axis	Both	Her İkisi
 @msg	select an object in perspective	perspektifte bir nesne seç
 @msg	select artwork (or a colour group) to recolor	yeniden renklendirilecek resmi (veya bir renk grubunu) seçin
 @msg	select at least two objects	en az iki nesne seç
+@msg	exit isolation mode first	önce izolasyon modundan çık
 @msg	select objects, not layers	katmanları değil nesneleri seçin
 @msg	select one path, or give its `id`	bir yol seçin veya "kimliğini" verin
 @msg	select paths to join	katılmak için yolları seçin
@@ -4072,10 +4084,14 @@ axis	Both	Her İkisi
 @msg	the layer or group is locked	katman veya grup kilitli
 @msg	the guide is on a hidden or locked layer	kılavuz gizli veya kilitli bir katmandadır
 @msg	the target layer is locked or hidden	hedef katman kilitli veya gizli
+@msg	the object is hidden or locked	nesne gizli veya kilitli
+@msg	the object is outside the isolated group	nesne izole edilen grubun dışında
+@msg	type objects can't be isolated	metin nesneleri izole edilemez
 @msg	the layer to flatten into is hidden	düzleştirilecek katman gizli
 @msg	the object already has an opacity mask	nesnenin zaten bir opaklık maskesi var
 @msg	the object has no geometry	nesnenin geometrisi yoktur
 @msg	the object has no opacity mask	nesnenin opaklık maskesi yok
+@msg	stop editing the opacity mask first	önce opaklık maskesini düzenlemeyi durdur
 @msg	the object has no stroke	nesnenin konturu yok
 @msg	the object is beyond the plane's horizon	nesne uçağın ufkunun ötesinde
 @msg	the object isn't in perspective	nesne perspektifte değil
@@ -4255,6 +4271,10 @@ axis	Both	Her İkisi
 	Shaper	Şekillendirici
 	Expand Shaper Group	Shaper Grubunu Genişlet
 	Release Shaper Group	Şekillendirici Grubunu Yayınla
+	Remove from Shaper Group	Şekillendirici Grubundan Kaldır
+@msg	source must be the id of a Shaper Group's original shape	source, bir Şekillendirici Grubunun özgün şeklinin kimliği olmalıdır
+@msg	group must be the id of a Shaper Group	group, bir Şekillendirici Grubunun kimliği olmalıdır
+@msg	the shape is not an editable original shape of that Shaper Group	şekil, o Şekillendirici Grubunun düzenlenebilir özgün şekli değil
 	Select Shaper Face	Şekillendirici Yüz'ü seçin
 	Drag art, colors and text styles here to reuse them across documents. Libraries are stored on this machine — no account required.	Resimleri, renkleri ve metin stillerini belgelerde yeniden kullanmak için buraya sürükleyin. Kitaplıklar bu makinede depolanır; hesap gerekmez.
 	1 Color Job	1 Renk İşi
@@ -5236,11 +5256,13 @@ theme	Appearance	Görünüm
 @msg	nothing in data set {name} was applied: no object is bound to a variable it has a value for	{name} veri kümesinden hiçbir şey uygulanmadı: değer içerdiği bir değişkene bağlı hiçbir nesne yok
 @msg	select an Objects on Path group	bir Yol Üzerindeki Nesneler grubu seçin
 @msg	the Simplify slider is not open	Basitleştirme kaydırıcısı açık değil
+@msg	the Smooth slider is not open	Düzgünleştirme kaydırıcısı açık değil
 @msg	{_1} is an exporter (File › Export › Export As…)	{_1} bir dışa aktarma eklentisidir (Dosya › Dışa Aktar › Farklı Dışa Aktar…)
 @msg	`documentData` is {size} bytes (limit {MAX_DOCUMENT_DATA})	`documentData` {size} bayt (sınır {MAX_DOCUMENT_DATA})
 	Alt key toggles to Smooth Tool	Alt tuşu Düzleştirme Aracına geçiş yapar
 	Live curve fitting	Çizerken eğri uydurma
 	Auto-Simplify	Otomatik Basitleştir
+	Auto-Smooth	Otomatik Düzgünleştir
 	Drag an item here, or right-click one, to put it in this group.	Bu gruba eklemek için bir öğeyi buraya sürükleyin veya sağ tıklayın.
 	Drop here to take it out of its group	Grup dışına çıkarmak için buraya bırakın
 	Locate Selected Objects	Seçili Nesneleri Bul

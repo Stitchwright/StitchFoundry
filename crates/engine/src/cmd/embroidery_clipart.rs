@@ -7,7 +7,7 @@ use std::fmt::Write as _;
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, has_doc, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

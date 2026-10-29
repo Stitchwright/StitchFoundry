@@ -4,7 +4,7 @@ use super::slots::{
     ART_LEFT_OUT, Content, MAX_PAIRS, MAX_SLOTS, MAX_TEXT, OUTLINE_REACH, TEXT_LEFT_OUT, TYPE_LEFT_OUT, collect_slots, extent, few, fill_slots,
     text_objects,
 };
-use super::*;
+use super::{Affine, Arc, BTreeSet, Document, Node, NodeId, NodeKind, PathData, Rect, Scaling, Story, Structure, Texts, Unit, Vec2, ai};
 
 /// Which box of the editing copy is the page.
 #[derive(Clone, Copy)]

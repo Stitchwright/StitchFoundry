@@ -3,7 +3,10 @@ use super::layers::{INKSCAPE, marked_layer};
 
 /// Ink/Stitch's namespace: its embroidery settings, kept as `inkstitch-*` data.
 const INKSTITCH: &str = "http://inkstitch.org/namespace";
-use super::*;
+use super::{
+    Cow, ForeignAttribute, HashMap, HashSet, ImportOptions, MAX_SVG_SCRIPTS, Node, SVG_EVENTS, XNode, css, css_transform, files, roxmltree,
+    symbol_units, vector_effect,
+};
 
 /// What usvg would lose, found in the XML before it runs ([`prepass`]).
 #[derive(Default)]

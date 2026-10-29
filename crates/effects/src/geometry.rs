@@ -1,5 +1,8 @@
 use super::params::{is_geometry, merged_params};
-use super::*;
+use super::{
+    Appearance, AppearanceItem, BezPath, Effect, FillRule, Node, NodeKind, PathData, Rect, StrokeLayer, Value, WarpStyle, distort, stroke, stylize,
+    util, warp,
+};
 
 /// Context the geometry effects may need from the object's appearance.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -167,7 +170,7 @@ fn builds_within(id: &str) -> bool {
 
 /// [`apply_one`] whose result may pass `max` when the effect doesn't build within it.
 fn apply_unchecked(id: &str, p: &Value, path: &PathData, b: Rect, ctx: &GeomContext, max: usize) -> PathData {
-    use util::*;
+    use util::{join, num};
     if let Some(plugin) = vectorcraft_plugins::effect::plugin_id(id) {
         let paints = vectorcraft_plugins::effect::Paints { appearance: ctx.appearance, item: ctx.item };
         return vectorcraft_plugins::effect::apply(plugin, p, path, b, ctx.rule, paints).unwrap_or_else(|| path.clone());

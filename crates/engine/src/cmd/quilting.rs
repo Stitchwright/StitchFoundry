@@ -14,7 +14,7 @@ use vectorcraft_doc::{Appearance, Document, Node, NodeId};
 use vectorcraft_embroidery::PT_PER_MM;
 use vectorcraft_geom::PathData;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, has_doc, has_selection, str_param, targets};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

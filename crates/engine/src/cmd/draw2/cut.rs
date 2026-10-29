@@ -1,7 +1,11 @@
 use super::common::{
-    dist_to_polyline, ids_json, path_mut, path_of, points_param, poly_bounds, replace_with_pieces, sibling_with, target_paths, usize_opt,
+    dist_to_polyline, fill_targets, ids_json, path_mut, path_of, points_param, poly_bounds, replace_with_pieces, sibling_with, target_paths,
+    usize_opt,
 };
-use super::*;
+use super::{
+    Anchor, AnchorKind, Beside, BezPath, BoolOp, Cap, EngineError, FillRule, Join, NodeId, ParamCurve, PathData, Point, Result, Session, SubPath,
+    Value, bad, eraser_area, eraser_tip, f64_or, fill_contains, id_param, json, number_or, po,
+};
 
 /// Split a filled path into connected pieces (each outer contour with its holes).
 pub(in super::super) fn components(pd: &PathData) -> Vec<PathData> {
@@ -233,8 +237,7 @@ pub(super) fn knife(s: &mut Session, p: &Value) -> Result<Value> {
     let st = s.doc()?;
     let strip = po::outline_stroke(&PathData::single(SubPath::polyline(&pts, false)), KNIFE_GAP, Cap::Butt, Join::Round, 4.0);
     let mut plan: Vec<(NodeId, Vec<PathData>)> = vec![];
-    for id in target_paths(&st.doc, &st.selection, poly_bounds(&pts, 1.0)) {
-        let (pd, rule) = path_of(&st.doc, id)?;
+    for (id, pd, rule) in fill_targets(&st.doc, &st.selection, poly_bounds(&pts, 1.0))? {
         if !pd.is_closed() {
             continue;
         }
@@ -278,8 +281,7 @@ pub(super) fn erase_region(s: &mut Session, p: &Value) -> Result<Value> {
     let squash = eraser_tip(angle, roundness).inverse();
     let round: Vec<Point> = pts.iter().map(|q| squash * *q).collect();
     let mut plan: Vec<(NodeId, Vec<PathData>)> = vec![];
-    for id in target_paths(&st.doc, &st.selection, poly_bounds(&pts, r)) {
-        let (pd, rule) = path_of(&st.doc, id)?;
+    for (id, pd, rule) in fill_targets(&st.doc, &st.selection, poly_bounds(&pts, r))? {
         if pd.is_closed() {
             if po::area(&po::boolean(&pd, rule, &region, FillRule::NonZero, BoolOp::Intersect), FillRule::NonZero) <= 1e-6 {
                 continue;

@@ -98,7 +98,8 @@ fn each_tool_shows_its_options_and_ok_sets_them() {
     let pb_text = painted(&mut app);
     assert!(pb_text.contains("Paintbrush Tool Options"));
     assert!(!pb_text.contains("Alt key toggles to Smooth Tool") && !pb_text.contains("Live preview"), "{pb_text}");
-    // Smooth has Fidelity only, the Eraser Size only, and the Blob Brush Size, Keep selected and Merge only with selection.
+    // Smooth has Fidelity only, the Eraser Size only, and the Blob Brush Fidelity, Size, Keep selected and Merge only
+    // with selection.
     app.run("tool.options", json!({"tool": "smooth"})).unwrap();
     let text = painted(&mut app);
     assert!(text.contains("Smooth Tool Options") && text.contains("Fidelity:"), "{text}");
@@ -112,9 +113,10 @@ fn each_tool_shows_its_options_and_ok_sets_them() {
     for tool in ["blobBrush", "eraser"] {
         app.run("tool.options", json!({"tool": tool})).unwrap();
         let text = painted(&mut app);
-        assert!(text.contains("Size:") && !text.contains("Fidelity:"), "{tool}: {text}");
-        // The Blob Brush also has Keep selected and Merge only with selection.
+        // The Blob Brush also has Fidelity, Keep selected and Merge only with selection.
         let blob = tool == "blobBrush";
+        assert!(text.contains("Size:"), "{tool}: {text}");
+        assert_eq!(text.contains("Fidelity:"), blob, "{tool}: {text}");
         assert_eq!((text.contains("Keep selected"), text.contains("Merge only with selection")), (blob, blob), "{tool}: {text}");
         // The Eraser also has Angle and Roundness.
         assert_eq!((text.contains("Angle:"), text.contains("Roundness:")), (!blob, !blob), "{tool}: {text}");
@@ -198,6 +200,39 @@ fn a_new_fidelity_changes_what_the_pencil_draws() {
     super::super::confirm(&mut app).unwrap();
     let smooth = anchors(&mut app, 200.0);
     assert!(smooth < precise, "{smooth} anchors at fidelity 12, {precise} at the default");
+}
+
+/// The Blob Brush's Fidelity, set in its Tool Options, changes the shape its strokes paint: at
+/// 0.01 pt the brush follows a stroke's jitter, and at the default 1.5 pt it smooths it away.
+#[test]
+fn a_new_fidelity_changes_what_the_blob_brush_draws() {
+    let mut app = app();
+    // The anchors of the blob a jittery wave paints around height `y0`.
+    let anchors = |app: &mut VectorcraftApp, y0: f64| {
+        app.select_tool("blobBrush");
+        let view = app.view_info();
+        let jitter = |i: i32| if i % 2 == 0 { 1.0 } else { -1.0 };
+        let pts: Vec<_> = (0..=40).map(|i| (20.0 + f64::from(i) * 8.0, y0 + 30.0 * (f64::from(i) * 0.25).sin() + jitter(i))).collect();
+        let pointer = |kind, (x, y)| vectorcraft_tools::PointerEvent::new(kind, x, y);
+        crate::canvas::dispatch(app, &pointer(vectorcraft_tools::PointerKind::Down, pts[0]), view);
+        for p in &pts[1..] {
+            crate::canvas::dispatch(app, &pointer(vectorcraft_tools::PointerKind::Drag, *p), view);
+        }
+        crate::canvas::dispatch(app, &pointer(vectorcraft_tools::PointerKind::Up, pts[40]), view);
+        let doc = &app.session.doc().unwrap().doc;
+        doc.layers[0].children().unwrap().last().unwrap().path_data().map_or(0, |p| p.subpaths.iter().map(|s| s.anchors.len()).sum::<usize>())
+    };
+    app.run("tool.options", json!({"tool": "blobBrush"})).unwrap();
+    assert_eq!(app.ui.dialog.as_ref().unwrap().f64("fidelity", 0.0), 1.5);
+    super::super::confirm(&mut app).unwrap();
+    let smooth = anchors(&mut app, 100.0);
+    app.run("tool.options", json!({"tool": "blobBrush"})).unwrap();
+    app.ui.dialog.as_mut().unwrap().fields.insert("fidelity".into(), json!(0.01));
+    super::super::confirm(&mut app).unwrap();
+    app.select_tool("selection");
+    assert_eq!(app.session.tool_options_of("blobBrush")["fidelity"].as_f64(), Some(0.01), "it lasts while another tool is chosen");
+    let precise = anchors(&mut app, 200.0);
+    assert!(smooth > 0 && smooth < precise, "{smooth} anchors at the default, {precise} at fidelity 0.01");
 }
 
 #[test]

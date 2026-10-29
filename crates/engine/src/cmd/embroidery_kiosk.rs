@@ -6,7 +6,7 @@
 use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, str_param};
 
 /// Most templates, fonts and threads offered, and the longest name typed.
 const MAX_OFFERED: usize = 60;

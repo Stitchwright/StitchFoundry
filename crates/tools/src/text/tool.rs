@@ -3,7 +3,10 @@ use super::plain::{
     plain_len, step_key,
 };
 use super::ports::{ported, ports, ports_shown};
-use super::*;
+use super::{
+    Action, BezPath, Cursor, ImeSurrounding, Mode, Mods, NodeId, Overlay, Point, PointerEvent, PointerKind, Preedit, Range, Rect, Shape,
+    SurroundingUnit, TextKind, TextRun, Tool, ToolContext, ToolKey, TypeTool, Value, edit, json,
+};
 
 impl Tool for TypeTool {
     fn id(&self) -> &'static str {
@@ -51,6 +54,7 @@ impl Tool for TypeTool {
                     return out;
                 }
                 self.press = Some((ev.pos, self.snap.press(cx, ev.pos, self.editing.as_slice(), None)));
+                self.held = Some(self.acting(ev.mods));
                 self.drag = None;
                 vec![]
             }
@@ -452,6 +456,7 @@ impl Tool for TypeTool {
     /// goes before the paragraph's text.
     fn after_command(&mut self, cx: &ToolContext) -> Vec<Action> {
         self.after_typed_list(cx);
+        self.after_outside_command(cx);
         let Some(id) = self.editing else { return vec![] };
         let mut cur = Some(id).filter(|i| cx.doc.node(*i).is_some());
         while let Some(c) = cur {
@@ -462,12 +467,19 @@ impl Tool for TypeTool {
         }
         self.finish(cx)
     }
-    /// After `text.create` / `text.createInPath` the engine selects the new object; edit it.
+    /// After `text.create` / `text.createInPath` the engine selects the new object; edit it. After
+    /// `edit.undo` / `edit.redo` the caret goes to where the step changed the edited text. The
+    /// `batch.*` notices keep what a failed `command.batch` changed from staying ([`TypeTool::batch_notice`]).
     fn notify(&mut self, cx: &ToolContext, what: &str) {
-        if what == "text.editNew"
+        if matches!(what, "edit.undo" | "edit.redo") {
+            self.after_history_step(cx, what == "edit.undo");
+        } else if what.starts_with("batch.") {
+            self.batch_notice(what);
+        } else if what == "text.editNew"
             && let Some(id) = cx.selection.objects.first().copied()
         {
             self.start_editing(id, 0);
+            self.remember(cx);
             let t = Self::text(cx, id);
             self.fresh = t.filter(|t| matches!(t.kind, TextKind::Point)).map(|_| id);
             // Placeholder text comes selected: typing replaces it.
@@ -623,10 +635,16 @@ impl Tool for TypeTool {
         }
         o
     }
-    fn cursor(&self, cx: &ToolContext, p: Point, _m: Mods) -> Cursor {
-        if self.mode != Mode::Type && Self::path_at(cx, p, self.mode == Mode::Area).is_some() {
+    /// The pointer of the Type tool that a press would act as with the keys held, or, while a
+    /// press is held, of the one it acts as ([`TypeTool::acting`]).
+    fn cursor(&self, cx: &ToolContext, p: Point, m: Mods) -> Cursor {
+        let (mode, vertical) = match (self.press, self.held) {
+            (Some(_), Some(held)) => held,
+            _ => self.acting(m),
+        };
+        if mode != Mode::Type && Self::path_at(cx, p, mode == Mode::Area).is_some() {
             return Cursor::Crosshair;
         }
-        if self.vertical { Cursor::TypeVertical } else { Cursor::Text }
+        if vertical { Cursor::TypeVertical } else { Cursor::Text }
     }
 }

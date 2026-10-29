@@ -16,7 +16,7 @@ use vectorcraft_doc::{Appearance, Document, Node, NodeId, NodeKind};
 use vectorcraft_embroidery::fonts::{EmbFont, MAX_TEXT};
 use vectorcraft_geom::Affine;
 
-use super::*;
+use super::{CommandSpec, EngineError, Point, Result, Session, always, bad, bool_or, cmd, has_doc, has_selection, point_param, str_param, targets};
 
 const LOAD: &str = "embroidery.font.load";
 const SET: &str = "embroidery.lettering";

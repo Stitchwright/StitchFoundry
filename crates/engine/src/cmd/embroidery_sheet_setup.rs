@@ -3,7 +3,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd};
 
 /// The sections a worksheet can leave out.
 pub const SECTIONS: [&str; 5] = ["figures", "colors", "colorways", "notes", "barcode"];

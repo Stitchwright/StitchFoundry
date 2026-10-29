@@ -1,5 +1,8 @@
 use super::targets::{Targets, span};
-use super::*;
+use super::{
+    Affine, GuideStyle, Handle, HitOptions, Line, NodeId, OrientedBox, Overlay, ParamCurve, ParamCurveDeriv, ParamCurveNearest, PathSeg, Point, Rect,
+    ScreenFrame, ToolContext, Vec2, constrain_angle_from, hit_test,
+};
 
 /// Where curves `a` and `b` cross near `p`: a point projected from one onto the other and back
 /// settles where they meet (none when they don't nearby).
@@ -304,7 +307,7 @@ impl SnapKey {
             exclude: exclude.to_vec(),
             screen: cx.screen,
             view: [cx.smart_guides, cx.snap_to_point, cx.snap_to_pixel, cx.snap_to_grid, cx.guides, cx.snap_tangent, cx.snap_perpendicular],
-            snap_to_glyph: cx.snap_to_glyph && cx.alignment_guides,
+            snap_to_glyph: cx.snap_to_glyph && cx.smart_guides && cx.alignment_guides,
             style: GuideStyle::of(cx),
             tolerances: [cx.snapping_tolerance, cx.snap_tolerance],
         }

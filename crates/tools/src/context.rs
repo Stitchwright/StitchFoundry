@@ -1,4 +1,4 @@
-use super::*;
+use super::{Document, NodeId, Paint, Point, Selection, Unit, Vec2, distort, select, xform};
 
 /// Paint defaults for new art (the fill/stroke proxy) and the rest of the new-art template.
 #[derive(Clone, Debug, PartialEq)]
@@ -102,7 +102,8 @@ pub struct ToolContext<'a> {
     pub snap_tangent: bool,
     /// View → Snapping → Snap to Perpendicular: likewise where it meets a nearby segment square.
     pub snap_perpendicular: bool,
-    /// View → Snap to Glyph: drawn points snap to live-text baselines and glyph bounds (with Smart Guides).
+    /// View → Snap to Glyph: drawn points snap to live-text glyph bounds, and on a single line of type
+    /// to its baseline, x-height, character widths and glyph anchor points (with Smart Guides).
     pub snap_to_glyph: bool,
     /// View → Show Corner Widget: paths show draggable Live Corners widgets in their corners.
     pub corner_widgets: bool,

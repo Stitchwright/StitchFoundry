@@ -4,7 +4,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, fileio, has_doc, str_param};
 
 /// The extension Keep Safe saves with.
 const EXT: &str = "stitchfoundry";

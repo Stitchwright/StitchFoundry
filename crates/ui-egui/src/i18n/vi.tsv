@@ -1833,6 +1833,10 @@ file-filter	Templates	Mẫu
 	Ink Outlines	Đường bao mực
 	Ink Outlines…	Đường bao mực…
 	Inner Corner Tile	Ô góc trong
+	Auto-Centered	Tự động - Giữa
+	Auto-Between	Tự động - Ở giữa hai cạnh
+	Auto-Sliced	Tự động - Cắt chéo
+	Auto-Overlap	Tự động - Chồng lấp
 	Inner Glow…	Phát sáng trong…
 	Input Black	Đầu vào đen
 	Input White	Đầu vào trắng
@@ -2865,6 +2869,10 @@ mark-style	Japanese	Kiểu Nhật
 	Release Opacity Mask	Giải phóng mặt nạ độ mờ
 	Release Selection	Giải phóng vùng chọn
 	Release Shaper Group	Giải phóng nhóm Shaper
+	Remove from Shaper Group	Xóa khỏi nhóm Shaper
+@msg	source must be the id of a Shaper Group's original shape	source phải là mã định danh của một hình gốc trong nhóm Shaper
+@msg	group must be the id of a Shaper Group	group phải là mã định danh của một nhóm Shaper
+@msg	the shape is not an editable original shape of that Shaper Group	hình này không phải là hình gốc có thể chỉnh sửa của nhóm Shaper đó
 	Release to Layers (Build)	Giải phóng ra các lớp (Xây dựng)
 	Release to Layers (Sequence)	Giải phóng ra các lớp (Chuỗi)
 	Release with Perspective	Giải phóng với phối cảnh
@@ -3370,6 +3378,7 @@ mark-style	Japanese	Kiểu Nhật
 	Show Original Path	Hiện đường dẫn gốc
 	Open this dialog with these settings next time	Lần sau mở hộp thoại này với các cài đặt này
 	Auto-Simplify	Tự động đơn giản hóa
+	Auto-Smooth	Tự động làm mượt
 	Color Panel Options	Tùy chọn bảng màu
 	Show Package	Hiện gói
 	Show Panel	Hiện bảng
@@ -3410,6 +3419,7 @@ mark-style	Japanese	Kiểu Nhật
 	Simplify	Đơn giản hóa
 	Simplify:	Đơn giản hóa:
 	Simplify…	Đơn giản hóa…
+	Smooth…	Làm mượt…
 	Simulate Colored Paper	Giả lập giấy có màu
 	Simulate Paper	Giả lập giấy
 	Single Left Quotation Mark	Dấu nháy đơn mở
@@ -3607,6 +3617,7 @@ mark-style	Japanese	Kiểu Nhật
 	Swatch Options…	Tùy chọn mẫu màu…
 	Swatch Tiles	Ô mẫu màu
 	Swatches	Mẫu màu
+	Switch Units	Chuyển đơn vị
 	Switch workspace	Chuyển không gian làm việc
 	Switch x/y	Đổi x/y
 	Symbol Instance	Thực thể ký hiệu
@@ -3848,6 +3859,7 @@ mark-style	Japanese	Kiểu Nhật
 	Unlock Variables	Mở khóa biến số
 	Unnamed Objects	Đối tượng chưa đặt tên
 	Unprintable margin:	Lề không in được:
+	Unselected Artwork	Tác phẩm không được chọn
 	Unsharp Mask	Tăng độ sắc nét
 	Unsharp Mask…	Tăng độ sắc nét…
 	Unshift	Bỏ dịch chuyển
@@ -3994,7 +4006,9 @@ mark-style	Japanese	Kiểu Nhật
 	X11 (XWayland) When a Pen Is Attached	X11 (XWayland) khi có bút được kết nối
 	If a drawing tablet's pen doesn't draw, choose an X11 (XWayland) option.	Nếu bút của bảng vẽ không vẽ được, hãy chọn một tùy chọn X11 (XWayland).
 	X11 (XWayland)	X11 (XWayland)
+	X:	X:
 	XML ID	XML ID
+	Y:	Y:
 	Yards	Yard
 	Yellow	Vàng
 	Your browser downloads the files (several as one .zip).	Trình duyệt của bạn tải xuống các tệp (một số tệp gộp thành một .zip).
@@ -4094,6 +4108,7 @@ theme	Appearance	Giao diện
 @msg	`{key}` must be between {min} and {max} (got {x})	`{key}` phải nằm trong khoảng {min} đến {max} (nhận được {x})
 @msg	`{key}` must be one of {_1}	`{key}` phải là một trong {_1}
 @msg	`{key}` must be true or false	`{key}` phải là true hoặc false
+@msg	`top` and `below` can't both be true	`top` và `below` không thể cùng là true
 @msg	`select` must be true or false	`select` phải là true hoặc false
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors` và `maxAnchors` phải là số nguyên
 @msg	`{key}` must be a number not below 0	`{key}` phải là một số không nhỏ hơn 0
@@ -4195,6 +4210,7 @@ theme	Appearance	Giao diện
 @msg	videoRulerPixelAspectRatio must be a number from 0.1 to 10	videoRulerPixelAspectRatio phải là một số từ 0,1 đến 10
 @msg	the Color Picker is not open	Bộ chọn màu chưa được mở
 @msg	the Simplify slider is not open	Thanh trượt Đơn giản hóa chưa được mở
+@msg	the Smooth slider is not open	Thanh trượt Làm mượt chưa được mở
 @msg	the screen color sampler is already open	công cụ lấy mẫu màu trên màn hình đã được mở
 @msg	this system has no screen color sampler	hệ thống này không có công cụ lấy mẫu màu trên màn hình
 @msg	bad colour `{hex}` (#rrggbb)	màu không hợp lệ `{hex}` (#rrggbb)
@@ -4369,6 +4385,7 @@ theme	Appearance	Giao diện
 @msg	missing `id` (see plugin.list)	thiếu `id` (xem plugin.list)
 @msg	missing `name`	thiếu `name`
 @msg	missing `tool`	thiếu `tool`
+@msg	missing id	thiếu id
 @msg	missing index	thiếu chỉ mục
 @msg	missing number `{key}`	thiếu số `{key}`
 @msg	missing integer `{key}`	thiếu số nguyên `{key}`
@@ -4402,6 +4419,7 @@ theme	Appearance	Giao diện
 @msg	no current layer	không có lớp hiện tại
 @msg	no data	không có dữ liệu
 @msg	no dialog open	không có hộp thoại đang mở
+@msg	the open dialog has no Reset	hộp thoại đang mở không có nút Đặt lại
 @msg	no document	không có tài liệu
 @msg	no document open	không có tài liệu nào đang mở
 @msg	no effect applied yet	chưa áp dụng hiệu ứng
@@ -4496,6 +4514,7 @@ theme	Appearance	Giao diện
 @msg	not in pattern editing mode	không ở chế độ chỉnh sửa họa tiết
 @msg	nothing encoded	không có gì được mã hóa
 @msg	nothing selected	chưa chọn gì
+@msg	nothing selected is in a group	không mục nào được chọn nằm trong nhóm
 @msg	nothing to align	không có gì để căn chỉnh
 @msg	nothing to distort	không có gì để làm méo
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	không có gì để xuất: tài liệu không có tác phẩm hiển thị (hoặc bật Dùng bảng vẽ)
@@ -4611,6 +4630,7 @@ theme	Appearance	Giao diện
 @msg	select an object in perspective	hãy chọn đối tượng trong phối cảnh
 @msg	select artwork (or a colour group) to recolor	hãy chọn tác phẩm (hoặc nhóm màu) để tô lại
 @msg	select at least two objects	hãy chọn ít nhất hai đối tượng
+@msg	exit isolation mode first	hãy thoát chế độ cô lập trước
 @msg	select objects, not layers	hãy chọn đối tượng, không phải lớp
 @msg	select one path, or give its `id`	hãy chọn một đường dẫn hoặc cung cấp `id` của nó
 @msg	select paths or anchor points	chọn đường dẫn hoặc điểm neo
@@ -4690,6 +4710,7 @@ theme	Appearance	Giao diện
 @msg	the object already has an opacity mask	đối tượng đã có mặt nạ độ mờ
 @msg	the object has no geometry	đối tượng không có hình học
 @msg	the object has no opacity mask	đối tượng không có mặt nạ độ mờ
+@msg	stop editing the opacity mask first	hãy dừng chỉnh sửa mặt nạ độ mờ trước
 @msg	the object has no stroke	đối tượng không có nét
 @msg	the object is beyond the plane's horizon	đối tượng vượt qua đường chân trời của mặt phẳng
 @msg	the object isn't in perspective	đối tượng không ở trong phối cảnh
@@ -4720,6 +4741,9 @@ theme	Appearance	Giao diện
 @msg	the spine has no segments	trục không có đoạn nào
 @msg	the stroke has no weight	nét không có độ dày
 @msg	the target layer is locked or hidden	lớp đích bị khóa hoặc ẩn
+@msg	the object is hidden or locked	đối tượng bị ẩn hoặc bị khóa
+@msg	the object is outside the isolated group	đối tượng nằm ngoài nhóm đang tách biệt
+@msg	type objects can't be isolated	không thể tách biệt đối tượng chữ
 @msg	the thumbnail image is malformed	ảnh thu nhỏ bị sai định dạng
 @msg	the top object must be a path, compound path or text object to use as a clipping mask	đối tượng trên cùng phải là đường dẫn, đường dẫn phức hoặc đối tượng văn bản để dùng làm mặt nạ cắt
 @msg	the WMF header is damaged	tiêu đề WMF bị hỏng
@@ -6192,8 +6216,6 @@ machine	Stop	Dừng máy
 	Top thread (m)	Chỉ trên (m)
 	Width (mm)	Chiều rộng (mm)
 	same	giống nhau
-	X:	X:
-	Y:	Y:
 	Direction	Hướng
 	Along the selected line	Dọc theo đường đã chọn
 	Add to Design	Thêm vào mẫu thêu
@@ -6399,7 +6421,7 @@ machine	Stop	Dừng máy
 	Word Spacing:	Khoảng cách từ:
 	Letter Spacing:	Khoảng cách chữ:
 	Glyph Scaling:	Tỷ lệ glyph:
-	Auto Leading:	Khoảng cách dòng tự động:
+	Auto Leading:	Giãn dòng tự động:
 	Single Word Justification:	Căn đều một từ:
 	Full Justify	Căn đều hoàn toàn
 	Minimum must not exceed Desired, nor Desired Maximum.	Giá trị tối thiểu không được vượt quá giá trị mong muốn, và giá trị mong muốn không được vượt quá tối đa.

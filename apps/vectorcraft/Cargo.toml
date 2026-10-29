@@ -19,8 +19,6 @@ workspace = true
 default = ["wgpu", "accessibility"]
 wgpu = ["eframe/wgpu", "dep:winsafe"]
 accessibility = ["eframe/accesskit"]
-# Build with --no-default-features --features windows7 and the win7 Rust target.
-windows7 = ["eframe/glow"]
 # HEIC/HEIF photos (`cargo build -p vectorcraft --features heif`): off in official builds for now,
 # HEVC being patent-encumbered in some countries (the engine's `heif` feature).
 heif = ["vectorcraft-engine/heif"]
@@ -52,9 +50,6 @@ winit = { version = "0.30", default-features = false }
 # its own. TLS by rustls, checking certificates against the system's own (so a company proxy's
 # certificate is trusted where the system trusts it). MIT OR Apache-2.0.
 ureq = { version = "3.4", default-features = false, features = ["rustls", "platform-verifier"] }
-
-# The win7 target retains the viewer fallback; craft-print's WinRT PDF renderer needs newer Windows.
-[target.'cfg(all(not(target_arch = "wasm32"), not(target_vendor = "win7")))'.dependencies]
 craft-print = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
@@ -71,7 +66,6 @@ winsafe = { version = "0.0.29", default-features = false, features = ["user"], o
 # Win32_UI_WindowsAndMessaging has `MSG` and `WM_POINTERDOWN`, which src/windows_stylus.rs uses to
 # read a pen's barrel button from its pointer messages. Win32_UI_Input_Pointer has
 # `GetPointerPenInfo`, which it uses to read the pen's pressure and which end of the pen is down.
-[target.'cfg(all(windows, not(target_vendor = "win7")))'.dependencies]
 windows = { version = "0.62", features = ["Win32_Graphics_DirectWrite", "Win32_Graphics_Gdi", "Win32_UI_Input_Pointer", "Win32_UI_WindowsAndMessaging"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -79,7 +73,7 @@ windows = { version = "0.62", features = ["Win32_Graphics_DirectWrite", "Win32_G
 # with default features off). Pinned exactly: review the diff before bumping.
 muda = { version = "=0.21.2", default-features = false }
 objc2 = "0.6"
-objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "block2", "objc2-core-foundation", "NSApplication", "NSButton", "NSColor", "NSColorSampler", "NSColorSpace", "NSControl", "NSMenu", "NSEvent", "NSPasteboard", "NSPopUpButton", "NSResponder", "NSSavePanel", "NSTextField", "NSTextInputContext", "NSView", "NSWindow"] }
+objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "block2", "objc2-core-foundation", "objc2-quartz-core", "NSApplication", "NSButton", "NSColor", "NSColorSampler", "NSColorSpace", "NSControl", "NSMenu", "NSEvent", "NSPasteboard", "NSPopUpButton", "NSResponder", "NSSavePanel", "NSTextField", "NSTextInputContext", "NSView", "NSWindow"] }
 # Files opened from Finder and the Dock (src/open_documents.rs), pasted bitmaps (src/clipboard.rs) and the control channel's App Nap activity (src/control_server.rs); both already come with winit, muda and rfd.
 objc2-foundation = { version = "0.3", default-features = false, features = ["std", "block2", "NSArray", "NSData", "NSGeometry", "NSNotification", "NSOperation", "NSProcessInfo", "NSString", "NSURL"] }
 block2 = "0.6"
@@ -91,6 +85,10 @@ raw-window-handle = "0.6"
 # objc2-foundation.
 objc2-core-foundation = { version = "0.3", default-features = false, features = ["std", "CFArray", "CFString", "CFURL"] }
 objc2-core-text = { version = "0.3", default-features = false, features = ["std", "CTFontManager"] }
+# The windows' Metal layers and the sRGB color space they are tagged with (src/mac_color_space.rs).
+# Zlib OR Apache-2.0 OR MIT, already in the build through wgpu with these features.
+objc2-quartz-core = { version = "0.3", default-features = false, features = ["std", "objc2-core-foundation", "objc2-core-graphics", "CALayer", "CAMetalLayer"] }
+objc2-core-graphics = { version = "0.3", default-features = false, features = ["std", "CGColorSpace"] }
 # Waits for the answer of a file dialog shown as a sheet (src/main.rs, #867). MIT OR Apache-2.0,
 # already in the build through eframe.
 pollster = "1"

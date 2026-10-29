@@ -1374,7 +1374,7 @@
 	Keep Plain Text	Manter Texto Simples
 	Keep both sides the same width	Manter os dois lados com a mesma largura
 	Keep this row's colors (exclude)	Manter as cores desta linha (excluir)
-	Kerning (0 = Auto)	Entrelinhamento (0 = Automático)
+	Kerning (0 = Auto)	Kerning (0 = Automático)
 	Keyboard Increment	Incremento do Teclado
 	Keyboard Shortcut Conflicts	Conflitos de Atalhos de Teclado
 	Keyboard Shortcut Set	Conjunto de Atalhos de Teclado
@@ -2487,6 +2487,7 @@
 	Show Original Path	Mostrar Caminho Original
 	Open this dialog with these settings next time	Abrir este diálogo com estas configurações na próxima vez
 	Auto-Simplify	Simplificar Automaticamente
+	Auto-Smooth	Suavizar Automaticamente
 	Show Package	Mostrar Pacote
 	Show Panel	Mostrar Painel
 	Show Perspective Grid	Mostrar Grade de Perspectiva
@@ -2524,6 +2525,7 @@
 	Simplify	Simplificar
 	Simplify:	Simplificar:
 	Simplify…	Simplificar…
+	Smooth…	Suavizar…
 	Simulate Colored Paper	Simular Papel Colorido
 	Simulate Paper	Simular Papel
 	Double Column	Coluna Dupla
@@ -2649,6 +2651,7 @@
 	Swatch Tiles	Blocos de Amostra
 	Swatch exchange files keep solid colors only.	Arquivos de intercâmbio de amostras mantêm apenas cores sólidas.
 	Swatches	Amostras
+	Switch Units	Trocar Unidades
 	Switch workspace	Trocar espaço de trabalho
 	Symbol Instance	Instância de Símbolo
 	Symbol Libraries	Bibliotecas de Símbolos
@@ -2813,6 +2816,7 @@
 	Unlock Guides	Desbloquear Guias
 	Unnamed Objects	Objetos Sem Nome
 	Unprintable margin:	Margem não imprimível:
+	Unselected Artwork	Arte Não Selecionada
 	Unshift	Desfazer Mudança de Cor
 	Update Link	Atualizar Link
 	Update Links	Atualizar Links
@@ -3047,6 +3051,10 @@ imageTrace	Outline	Contorno
 	Shaper	Formador
 	Expand Shaper Group	Expandir Grupo Formador
 	Release Shaper Group	Liberar Grupo Formador
+	Remove from Shaper Group	Remover do Grupo Formador
+@msg	source must be the id of a Shaper Group's original shape	source deve ser o ID de uma forma original de um Grupo Formador
+@msg	group must be the id of a Shaper Group	group deve ser o ID de um Grupo Formador
+@msg	the shape is not an editable original shape of that Shaper Group	a forma não é uma forma original editável desse Grupo Formador
 	Select Shaper Face	Selecionar Face do Formador
 	Constrain	Restringir
 	Free Transform	Transformação Livre
@@ -3220,6 +3228,10 @@ font-technology	Variable	Variáveis
 	Outer Corner Tile	Ladrilho de canto externo
 	Side Tile	Ladrilho lateral
 	Inner Corner Tile	Ladrilho de canto interno
+	Auto-Centered	Auto-centralizado
+	Auto-Between	Auto-entre
+	Auto-Sliced	Auto-fatiado
+	Auto-Overlap	Auto-sobreposto
 	Start Tile	Ladrilho inicial
 	End Tile	Ladrilho final
 	Fit	Ajustar
@@ -3345,8 +3357,8 @@ font-technology	Variable	Variáveis
 	New Name	Novo nome
 	no variable to rename	nenhuma variável para renomear
 	no data set to rename	nenhum conjunto de dados para renomear
-	Top-to-Top Leading	Entrelinha de topo a topo
-	Bottom-to-Bottom Leading	Entrelinha de base a base
+	Top-to-Top Leading	Entrelinhamento de topo a topo
+	Bottom-to-Bottom Leading	Entrelinhamento de base a base
 	Burasagari	Burasagari
 	Force	Forçar
 	Miter	Ponta
@@ -3483,6 +3495,7 @@ axis	Both	Ambos
 @msg	`{key}` must be between {min} and {max} (got {x})	`{key}` deve estar entre {min} e {max} (recebido {x})
 @msg	`{key}` must be one of {_1}	`{key}` deve ser um de {_1}
 @msg	`{key}` must be true or false	`{key}` deve ser true ou false
+@msg	`top` and `below` can't both be true	`top` e `below` não podem ser true ao mesmo tempo
 @msg	`select` must be true or false	`select` deve ser true ou false
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors` e `maxAnchors` devem ser números inteiros
 @msg	`{key}` must be a number not below 0	`{key}` deve ser um número não inferior a 0
@@ -3625,6 +3638,7 @@ axis	Both	Ambos
 @msg	missing `id` (see plugin.list)	falta `id` (veja plugin.list)
 @msg	missing `name`	falta `name`
 @msg	missing `tool`	falta `tool`
+@msg	missing id	falta o id
 @msg	missing index	falta o índice
 @msg	missing number `{key}`	falta o número `{key}`
 @msg	missing integer `{key}`	falta o número inteiro `{key}`
@@ -3657,6 +3671,7 @@ axis	Both	Ambos
 @msg	no current layer	nenhuma camada atual
 @msg	no data	sem dados
 @msg	no dialog open	nenhuma caixa de diálogo aberta
+@msg	the open dialog has no Reset	a caixa de diálogo aberta não tem o botão Redefinir
 @msg	no document	nenhum documento
 @msg	no document open	nenhum documento aberto
 @msg	no effect applied yet	nenhum efeito aplicado ainda
@@ -3739,6 +3754,7 @@ axis	Both	Ambos
 @msg	not in pattern editing mode	não está no modo de edição de padrão
 @msg	nothing encoded	nada codificado
 @msg	nothing selected	nada selecionado
+@msg	nothing selected is in a group	nada do que está selecionado está em um grupo
 @msg	nothing to align	nada para alinhar
 @msg	nothing to distort	nada para distorcer
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	nada para exportar: o documento não tem arte visível (ou ative Usar pranchetas)
@@ -3811,6 +3827,7 @@ axis	Both	Ambos
 @msg	select an object in perspective	selecione um objeto em perspectiva
 @msg	select artwork (or a colour group) to recolor	selecione uma arte-final (ou um grupo de cores) para recolorir
 @msg	select at least two objects	selecione pelo menos dois objetos
+@msg	exit isolation mode first	saia do modo de isolamento primeiro
 @msg	select objects, not layers	selecione objetos, não camadas
 @msg	select one path, or give its `id`	selecione um traçado ou informe seu `id`
 @msg	select paths to join	selecione traçados para unir
@@ -3863,10 +3880,14 @@ axis	Both	Ambos
 @msg	the layer or group is locked	a camada ou o grupo está bloqueado
 @msg	the guide is on a hidden or locked layer	a guia está em uma camada oculta ou bloqueada
 @msg	the target layer is locked or hidden	a camada de destino está bloqueada ou oculta
+@msg	the object is hidden or locked	o objeto está oculto ou bloqueado
+@msg	the object is outside the isolated group	o objeto está fora do grupo isolado
+@msg	type objects can't be isolated	objetos de texto não podem ser isolados
 @msg	the layer to flatten into is hidden	a camada de destino do achatamento está oculta
 @msg	the object already has an opacity mask	o objeto já tem uma máscara de opacidade
 @msg	the object has no geometry	o objeto não tem geometria
 @msg	the object has no opacity mask	o objeto não tem máscara de opacidade
+@msg	stop editing the opacity mask first	pare de editar a máscara de opacidade primeiro
 @msg	the object has no stroke	o objeto não tem traço
 @msg	the object is beyond the plane's horizon	o objeto está além do horizonte do plano
 @msg	the object isn't in perspective	o objeto não está em perspectiva
@@ -6132,6 +6153,7 @@ mark-style	Japanese	Japonesas
 @msg	Unknown dimension option {k}	Opção de cota desconhecida {k}
 @msg	the Color Picker is not open	o Seletor de Cores não está aberto
 @msg	the Simplify slider is not open	o controle deslizante Simplificar não está aberto
+@msg	the Smooth slider is not open	o controle deslizante Suavizar não está aberto
 @msg	the screen color sampler is already open	o coletor de cores da tela já está aberto
 @msg	this system has no screen color sampler	este sistema não tem coletor de cores da tela
 	Darkness	Escuridão
@@ -6258,7 +6280,7 @@ mark-style	Japanese	Japonesas
 	Word Spacing:	Espaçamento entre Palavras:
 	Letter Spacing:	Espaçamento entre Letras:
 	Glyph Scaling:	Dimensionamento de Glifos:
-	Auto Leading:	Entrelinha Automática:
+	Auto Leading:	Entrelinhamento Automático:
 	Single Word Justification:	Justificação de Palavra Única:
 	Full Justify	Justificação Completa
 	Minimum must not exceed Desired, nor Desired Maximum.	O mínimo não pode passar do desejado, nem o desejado do máximo.

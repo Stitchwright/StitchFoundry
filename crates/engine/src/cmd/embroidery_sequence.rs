@@ -15,7 +15,7 @@ use vectorcraft_embroidery::parts;
 use vectorcraft_geom::path::{PathData, SubPath};
 
 use super::embroidery::ids_json;
-use super::*;
+use super::{CommandSpec, Point, Result, Session, bad, checked_ids_param, cmd, has_doc, has_selection, str_param};
 use crate::EngineError;
 
 pub fn specs() -> Vec<CommandSpec> {

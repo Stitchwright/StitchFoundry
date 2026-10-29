@@ -1,5 +1,5 @@
 use super::build::MADE;
-use super::*;
+use super::{AppearanceItem, Arc, BTreeSet, BlendMode, Document, Node, NodeId, NodeKind, PathData, Point, Rect, ai, slot_of};
 
 /// The notes that say the import left out something the file has (see [`is_loss`]).
 pub(super) const TEXT_LEFT_OUT: &str = "text objects on hidden layers or hidden objects couldn't be read, so they are left out";

@@ -266,6 +266,68 @@ fn an_ai_file_with_an_image_too_large_for_its_editing_data_comes_in_as_its_pdf_p
     assert!(read, "{warnings:?}");
 }
 
+/// A palette of `[None]` and White, and a color group `Inks` holding a spot color, Red ink.
+const PALETTE: &str =
+    "%AI5_BeginPalette\n0 0 Pb\n0 0 0 0 1 1 1 Xa\n(White)\nPc\n1 (Inks) 1 Pg\n0.06 0.98 1 0 (Red ink) 0 x\n(Red ink)\nPc\nPB\n%AI5_EndPalette\n";
+
+/// A `.ai` that comes in as its PDF part, whose layers can't be used, still gets the swatches and
+/// color groups of its editing data's palette in place of the defaults, and keeps the inks its PDF
+/// part's art paints with that the palette doesn't have.
+#[test]
+fn an_ai_file_that_comes_in_as_its_pdf_part_keeps_the_swatches_of_its_palette() {
+    let image = "%AI5_File:\n%AI5_BeginRaster\n() 1 XG\n/DeviceGray XN\n[ 1 0 0 1 0 100 ] 6000 6000 0 Xh\n\
+         [ 1 0 0 1 0 100 ] 0 0 6000 6000 6000 6000 8 1 0 0 1 0 4 4 0 0\n%%BeginData: 1\rXI\n\u{0}%%EndData\r\nXH\r\n%AI5_EndRaster\r\nN";
+    let art = native(&format!("{PALETTE}{}", layer("Texture", true, &format!("{}\n{image}", square(10, 10)))));
+    let mut part = pdf_part(10.0, 86.0);
+    let gold = vectorcraft_color::Paint::solid(vectorcraft_color::Color::cmyk(0.0, 0.2, 0.9, 0.1));
+    part.swatches.push(vectorcraft_color::swatch::Swatch { name: "Gold ink".into(), paint: gold, global: true, spot: true });
+    let (d, warnings, read) = crate::layered_ai(&private(&art), part, vec![], false, true, 1.0);
+    assert!(!read, "the PDF part is used: {warnings:?}");
+    let swatches: Vec<&str> = d.swatches.iter().map(|s| s.name.as_str()).collect();
+    assert_eq!(swatches, ["[None]", "White", "Gold ink"], "{warnings:?}");
+    let groups: Vec<&str> = d.swatch_groups.iter().map(|g| g.name.as_str()).collect();
+    assert_eq!(groups, ["Inks"]);
+    assert!(d.swatch("Red ink").is_some_and(|s| s.spot));
+}
+
+/// A `.ai` pattern library (a palette of pattern swatches and no layers) whose PDF part defines no
+/// pattern gets the patterns its editing data defines with the palette's pattern swatches.
+#[test]
+fn an_ai_file_without_layers_keeps_the_patterns_of_its_palette() {
+    let dots = "%AI3_BeginPattern: (Dots)\n(Dots) 0 0 4 4\n%_0 0 0 1 k\n%_1 1 m\n%_3 1 L\n%_3 3 L\n%_1 3 L\n%_f\nE\n%AI3_EndPattern\n";
+    let palette =
+        "%AI5_BeginPalette\n0 0 Pb\n0 0 0 0 1 1 1 Xa\n(White)\nPc\n(Dots) 0 0 1 1 0 0 0 0 0 [1 0 0 1 0 0] p\n(Dots)\nPc\nPB\n%AI5_EndPalette\n";
+    let art = native(&format!("{dots}{palette}"));
+    let (d, warnings, read) = crate::layered_ai(&private(&art), pdf_part(10.0, 86.0), vec![], false, true, 1.0);
+    assert!(!read, "{warnings:?}");
+    let swatches: Vec<&str> = d.swatches.iter().map(|s| s.name.as_str()).collect();
+    assert_eq!(swatches, ["[None]", "White", "Dots"], "{warnings:?}");
+    assert!(matches!(&d.swatch("Dots").map(|s| &s.paint), Some(vectorcraft_color::Paint::Pattern { pattern, .. }) if pattern == "Dots"));
+    assert!(d.pattern("Dots").is_some_and(|p| !p.art.is_empty()));
+
+    // A pattern that shows an image brings the image's data with it.
+    let pic = "%AI3_BeginPattern: (Pic)\n(Pic) 0 0 4 4\n%AI5_File:\n%AI5_BeginRaster\n() 1 XG\n/DeviceGray XN\n[ 4 0 0 4 0 4 ] 1 1 0 Xh\n\
+               [ 4 0 0 4 0 4 ] 0 0 1 1 1 1 8 1 0 0 1 0 4 4 0 0\n%%BeginData: 1\rXI\n\u{0}%%EndData\r\nXH\r\n%AI5_EndRaster\r\nN\nE\n%AI3_EndPattern\n";
+    let art = native(&format!("{pic}{}", palette.replace("(Dots)", "(Pic)")));
+    let (d, warnings, _) = crate::layered_ai(&private(&art), pdf_part(10.0, 86.0), vec![], false, true, 1.0);
+    let mut keys = vec![];
+    d.visit_images(|_, im| keys.push(im.key.clone()));
+    assert_eq!(keys.len(), 1, "{warnings:?}");
+    assert!(keys.iter().all(|k| d.images.contains_key(k)), "{keys:?}");
+}
+
+/// An EPS whose editing data can't be used, a palette with no layers among others, comes in as its
+/// page with the swatches and color groups of that palette in place of the defaults.
+#[test]
+fn an_eps_that_comes_in_as_its_page_keeps_the_swatches_of_its_palette() {
+    let r = import(&eps(&page_square(10, 10), &native(PALETTE))).unwrap();
+    assert_eq!(names(&r.document), ["Layer 1"], "{:?}", r.warnings);
+    let swatches: Vec<&str> = r.document.swatches.iter().map(|s| s.name.as_str()).collect();
+    assert_eq!(swatches, ["[None]", "White"], "{:?}", r.warnings);
+    let groups: Vec<&str> = r.document.swatch_groups.iter().map(|g| g.name.as_str()).collect();
+    assert_eq!(groups, ["Inks"]);
+}
+
 #[test]
 fn an_ai_file_gets_its_layers_and_the_art_outside_its_artboard() {
     // A square on the artboard, and one above it (the artboard is y 0 to 100 here).

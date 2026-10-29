@@ -13,7 +13,7 @@ use vectorcraft_doc::swatches::{node_colors, node_paints};
 use vectorcraft_doc::{Document, Node, NodeId, NodeKind};
 
 use super::colorcmds::{Recolor, Scope};
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, bool_or, checked_ids_param, cmd, color_value, has_doc, index, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

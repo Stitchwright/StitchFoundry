@@ -19,7 +19,10 @@ use vectorcraft_geom::Rect;
 
 use super::edit::{outermost, selected_roots};
 use super::pathops::Beside;
-use super::*;
+use super::{
+    CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, f64_or, has_doc, has_selection, ids_param, matrix_param, ok, point_param,
+    str_param, targets,
+};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

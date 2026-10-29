@@ -3,6 +3,7 @@
 //! the app; whoever runs it sets its keys and prices in the environment ([`config`]). The app keeps
 //! working without it: every AI feature also takes the user's own Anthropic key.
 
+#![forbid(unsafe_code)]
 pub mod api;
 pub mod auth;
 pub mod config;

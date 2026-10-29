@@ -1318,6 +1318,60 @@ mod ask_about_embroidery {
         assert_eq!(sent.lock().unwrap().len(), 5);
     }
 
+    /// The hub's answer to an offer: the address to upload the file to, and the preview's too
+    /// when `preview`.
+    fn stitchshop_slots(preview: bool) -> (u16, String) {
+        let mut v = json!({"id": "it_1", "url": "https://store.example/inbox/9/it_1?X-Amz-Signature=ab", "method": "PUT", "expiresIn": 900, "headers": {"x-amz-checksum-sha256": "q83v"}});
+        if preview {
+            v["preview"] =
+                json!({"url": "https://store.example/inbox/9/it_1.preview?s=1", "method": "PUT", "headers": {"content-type": "image/png"}});
+        }
+        (200, v.to_string())
+    }
+
+    /// Polls Send to StitchShop until it is no longer sending.
+    fn stitchshop_wait(app: &mut VectorcraftApp) {
+        use crate::embroidery::stitchshop;
+        let ctx = egui::Context::default();
+        for _ in 0..400 {
+            stitchshop::poll(app, &ctx);
+            if !app.run(stitchshop::COMMAND, json!({})).unwrap()["sending"].as_bool().unwrap() {
+                return;
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        panic!("no answer");
+    }
+
+    /// Checks the job order's design was offered to shop s2 with its details, its file and preview
+    /// uploaded where the hub said, and the offer marked done; returns the file name offered.
+    fn assert_offered_and_uploaded(log: &[HttpRequest]) -> String {
+        use crate::Method;
+        use vectorcraft_embroidery::sf_core::ai::stitchshop::sha256_hex;
+        assert_eq!(log[1].url, "https://hub.stitchbench.app/v1/inbox/put");
+        let b: Value = serde_json::from_str(&log[1].body).unwrap();
+        let name = b["fileName"].as_str().unwrap();
+        assert!(name.starts_with("J-0001 ") && name.ends_with(".dst"), "{name}");
+        assert_eq!(b["toShopId"], "s2");
+        let m = &b["meta"];
+        assert_eq!((m["job"].as_str(), m["customer"].as_str(), m["quantity"].as_u64()), (Some("J-0001"), Some("Rovers FC"), Some(24)));
+        assert_eq!((m["placement"].as_str(), m["due"].as_str(), m["notes"].as_str()), (Some("left-chest"), Some("2026-11-01"), Some("Club crest")));
+        assert_eq!((m["program"].as_str(), m["format"].as_str()), (Some("StitchFoundry"), Some("dst")));
+        assert!(m["stitches"].as_u64().unwrap() > 100 && m["widthMm"].as_f64().unwrap() > 30.0, "{m}");
+        // the file goes to the store as announced, with the hub's headers; then the preview
+        let file = log[2].bytes.clone().unwrap();
+        assert_eq!((log[2].method, log[2].url.as_str()), (Method::Put, "https://store.example/inbox/9/it_1?X-Amz-Signature=ab"));
+        assert!(file.starts_with(b"LA:"), "a DST file");
+        assert_eq!((b["size"].as_u64(), b["sha256"].as_str()), (Some(file.len() as u64), Some(sha256_hex(&file).as_str())));
+        assert_eq!(log[2].headers, vec![("x-amz-checksum-sha256", "q83v".to_string())]);
+        let png = log[3].bytes.clone().unwrap();
+        assert_eq!(log[3].url, "https://store.example/inbox/9/it_1.preview?s=1");
+        assert!(png.starts_with(b"\x89PNG"));
+        assert_eq!(b["preview"], json!({"size": png.len(), "sha256": sha256_hex(&png), "type": "image/png"}));
+        assert_eq!((log[4].url.as_str(), log[4].body.as_str()), ("https://hub.stitchbench.app/v1/inbox/done", r#"{"id":"it_1"}"#));
+        name.to_string()
+    }
+
     /// SHOP-01: Send to StitchShop asks the hub for the account's shops, offers the design (DST,
     /// its preview and its details, the job order's too), uploads the file and the preview to the
     /// addresses the hub signed, and says it is done; Take It Back retracts it. The hub's
@@ -1326,16 +1380,8 @@ mod ask_about_embroidery {
     fn a_design_is_sent_to_the_shops_stitchshop_inbox() {
         use crate::Method;
         use crate::embroidery::stitchshop;
-        use vectorcraft_embroidery::sf_core::ai::stitchshop::sha256_hex;
         let said = |status: u16, m: &str| (status, json!({"error": m}).to_string());
-        let slots = |preview: bool| {
-            let mut v = json!({"id": "it_1", "url": "https://store.example/inbox/9/it_1?X-Amz-Signature=ab", "method": "PUT", "expiresIn": 900, "headers": {"x-amz-checksum-sha256": "q83v"}});
-            if preview {
-                v["preview"] =
-                    json!({"url": "https://store.example/inbox/9/it_1.preview?s=1", "method": "PUT", "headers": {"content-type": "image/png"}});
-            }
-            (200, v.to_string())
-        };
+        let slots = stitchshop_slots;
         let linked = "No StitchHub account is linked to this Foundry Account yet. In your shop's Settings, Foundry Account, link it, or sign in at the hub's account page with it.";
         let (mut app, sent, keys) = app(vec![
             (200, json!({"shops": [{"id": "s1", "name": "Main St", "program": "StitchShop"}, {"id": "s2", "name": "Back Room", "program": "StitchBench"}]}).to_string()),
@@ -1349,17 +1395,7 @@ mod ask_about_embroidery {
             (403, "<Error><Code>SignatureDoesNotMatch</Code></Error>".into()),
             said(401, "The Foundry Account service doesn't know that token: sign in to StitchFoundry again."),
         ]);
-        let wait = |app: &mut VectorcraftApp| {
-            let ctx = egui::Context::default();
-            for _ in 0..400 {
-                stitchshop::poll(app, &ctx);
-                if !app.run(stitchshop::COMMAND, json!({})).unwrap()["sending"].as_bool().unwrap() {
-                    return;
-                }
-                std::thread::sleep(Duration::from_millis(5));
-            }
-            panic!("no answer");
-        };
+        let wait = stitchshop_wait;
         // nothing stitched, or signed out: not now
         assert!(!crate::menus::enabled(&app, stitchshop::COMMAND));
         rectangle(&mut app);
@@ -1387,28 +1423,8 @@ mod ask_about_embroidery {
         app.run(stitchshop::COMMAND, json!({"job": job["id"], "shop": "s2", "send": true})).unwrap();
         wait(&mut app);
         assert_eq!(app.embroidery.stitchshop.error, None);
-        let log = sent.lock().unwrap().clone();
-        assert_eq!(log[1].url, "https://hub.stitchbench.app/v1/inbox/put");
-        let b: Value = serde_json::from_str(&log[1].body).unwrap();
-        let name = b["fileName"].as_str().unwrap();
-        assert!(name.starts_with("J-0001 ") && name.ends_with(".dst"), "{name}");
-        assert_eq!(b["toShopId"], "s2");
-        let m = &b["meta"];
-        assert_eq!((m["job"].as_str(), m["customer"].as_str(), m["quantity"].as_u64()), (Some("J-0001"), Some("Rovers FC"), Some(24)));
-        assert_eq!((m["placement"].as_str(), m["due"].as_str(), m["notes"].as_str()), (Some("left-chest"), Some("2026-11-01"), Some("Club crest")));
-        assert_eq!((m["program"].as_str(), m["format"].as_str()), (Some("StitchFoundry"), Some("dst")));
-        assert!(m["stitches"].as_u64().unwrap() > 100 && m["widthMm"].as_f64().unwrap() > 30.0, "{m}");
-        // the file goes to the store as announced, with the hub's headers; then the preview
-        let file = log[2].bytes.clone().unwrap();
-        assert_eq!((log[2].method, log[2].url.as_str()), (Method::Put, "https://store.example/inbox/9/it_1?X-Amz-Signature=ab"));
-        assert!(file.starts_with(b"LA:"), "a DST file");
-        assert_eq!((b["size"].as_u64(), b["sha256"].as_str()), (Some(file.len() as u64), Some(sha256_hex(&file).as_str())));
-        assert_eq!(log[2].headers, vec![("x-amz-checksum-sha256", "q83v".to_string())]);
-        let png = log[3].bytes.clone().unwrap();
-        assert_eq!(log[3].url, "https://store.example/inbox/9/it_1.preview?s=1");
-        assert!(png.starts_with(b"\x89PNG"));
-        assert_eq!(b["preview"], json!({"size": png.len(), "sha256": sha256_hex(&png), "type": "image/png"}));
-        assert_eq!((log[4].url.as_str(), log[4].body.as_str()), ("https://hub.stitchbench.app/v1/inbox/done", r#"{"id":"it_1"}"#));
+        let name = assert_offered_and_uploaded(&sent.lock().unwrap());
+        let name = name.as_str();
         let st = app.run(stitchshop::COMMAND, json!({})).unwrap();
         assert_eq!(st["sent"]["shop"], "Back Room");
 

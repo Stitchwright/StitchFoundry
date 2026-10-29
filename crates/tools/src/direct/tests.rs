@@ -697,6 +697,41 @@ fn escape_cancels_a_drag() {
     assert_eq!(t.key(&cx, ToolKey::Escape, Mods::default()), vec![], "nothing to cancel");
 }
 
+/// Escape also cancels a corner widget drag and a drag of the brackets of type on a path, and
+/// the release after it does nothing. After a press on a widget that has not moved, Escape drops
+/// the press, so its release selects no corner.
+#[test]
+fn escape_cancels_a_corner_widget_or_bracket_drag() {
+    let p = paint();
+    let (d, rect) = doc_with_rect();
+    let mut s = Selection::default();
+    s.set([rect]);
+    let corners = cx(&d, &s, &p);
+    let (d2, text) = doc_with_path_type();
+    let mut s2 = Selection::default();
+    s2.add(text);
+    let brackets = cx(&d2, &s2, &p);
+    // (what, its context, the press, the drag's first step)
+    for (what, c, from, to) in [
+        ("corner widget", &corners, Point::new(110.0, 110.0), Point::new(120.0, 120.0)),
+        ("bracket", &brackets, Point::new(400.0, 290.0), Point::new(340.0, 290.0)),
+    ] {
+        let mut t = DirectSelectionTool::new(false);
+        assert!(t.pointer(c, &PointerEvent::new(PointerKind::Down, from.x, from.y)).is_empty(), "{what}");
+        let a = t.pointer(c, &PointerEvent::new(PointerKind::Drag, to.x, to.y));
+        assert!(matches!(a.first(), Some(Action::Begin(_))), "{what}: {a:?}");
+        assert!(t.busy(), "{what}");
+        assert_eq!(t.key(c, ToolKey::Escape, Mods::default()), vec![Action::Cancel], "{what}: Escape cancels the drag");
+        assert!(!t.busy(), "{what}");
+        assert!(t.pointer(c, &PointerEvent::new(PointerKind::Drag, to.x - 5.0, to.y)).is_empty(), "{what}: the drag is over");
+        assert!(t.pointer(c, &PointerEvent::new(PointerKind::Up, to.x - 5.0, to.y)).is_empty(), "{what}: the release does nothing");
+    }
+    let mut t = DirectSelectionTool::new(false);
+    t.pointer(&corners, &PointerEvent::new(PointerKind::Down, 110.0, 110.0));
+    assert_eq!(t.key(&corners, ToolKey::Escape, Mods::default()), vec![Action::Cancel]);
+    assert!(t.pointer(&corners, &PointerEvent::new(PointerKind::Up, 110.0, 110.0)).is_empty(), "the click selects no corner");
+}
+
 #[test]
 fn dragging_a_curved_segment_reshapes_it_and_a_straight_one_moves_its_anchors() {
     let (d, arch) = arch_doc();
@@ -997,6 +1032,92 @@ fn alt_during_a_drag_by_an_anchor_toggles_the_copy() {
     t.pointer(&c, &PointerEvent::new(PointerKind::Down, 300.0, 300.0));
     let a = t.pointer(&c, &PointerEvent::new(PointerKind::Drag, 250.0, 260.0).with_mods(alt));
     assert!(matches!(a.last(), Some(Action::Preview(c, _)) if c == "path.moveAnchors"), "{a:?}");
+}
+
+/// A drag from the fill of a path selected whole, while another path has some anchors selected,
+/// moves the selected anchors and the paths selected whole (`path.moveAnchors`), as a drag of
+/// an anchor does, with Direct Selection and Group Selection alike. Alt, pressed or released at
+/// any time during the drag, turns the copy of the selected objects on and off, and a selection
+/// of whole paths only still moves as objects.
+#[test]
+fn a_drag_from_a_fill_with_anchors_selected_moves_the_anchors() {
+    let (d, a, b) = two_squares();
+    let p = paint();
+    let mut mixed = anchors_of(b, &[(0, 0)]);
+    mixed.objects.insert(0, a);
+    let mut whole = Selection::default();
+    whole.set([a, b]);
+    let alt = Mods { alt: true, ..Default::default() };
+    for group in [false, true] {
+        let c = cx(&d, &mixed, &p);
+        let mut t = DirectSelectionTool::new(group);
+        assert!(t.pointer(&c, &PointerEvent::new(PointerKind::Down, 150.0, 150.0)).is_empty(), "group: {group}");
+        let out = t.pointer(&c, &PointerEvent::new(PointerKind::Drag, 171.0, 153.0));
+        assert_eq!(
+            out,
+            vec![Action::Begin("Move".into()), Action::Preview("path.moveAnchors".into(), json!({"dx": 21.0, "dy": 3.0}))],
+            "group: {group}"
+        );
+        assert_eq!(t.pointer(&c, &PointerEvent::new(PointerKind::Up, 171.0, 153.0)), vec![Action::Commit]);
+        // Alt held at the start, released and pressed again: a copy, a move, a copy.
+        t.pointer(&c, &PointerEvent::new(PointerKind::Down, 150.0, 150.0).with_mods(alt));
+        let out = t.pointer(&c, &PointerEvent::new(PointerKind::Drag, 171.0, 153.0).with_mods(alt));
+        assert!(matches!(out.last(), Some(Action::Preview(c, v)) if c == "object.transform" && v["copy"] == true), "group: {group} {out:?}");
+        assert_eq!(out.first(), Some(&Action::Begin("Move".into())), "the history names it by the last preview");
+        let out = t.pointer(&c, &PointerEvent::new(PointerKind::Drag, 172.0, 153.0));
+        assert_eq!(out, vec![Action::Preview("path.moveAnchors".into(), json!({"dx": 22.0, "dy": 3.0}))], "group: {group}");
+        let out = t.pointer(&c, &PointerEvent::new(PointerKind::Drag, 173.0, 153.0).with_mods(alt));
+        assert!(matches!(out.as_slice(), [Action::Preview(c, v)] if c == "object.transform" && v["copy"] == true), "group: {group} {out:?}");
+        t.pointer(&c, &PointerEvent::new(PointerKind::Up, 173.0, 153.0).with_mods(alt));
+        let c = cx(&d, &whole, &p);
+        t.pointer(&c, &PointerEvent::new(PointerKind::Down, 150.0, 150.0));
+        let out = t.pointer(&c, &PointerEvent::new(PointerKind::Drag, 171.0, 153.0));
+        assert!(matches!(out.last(), Some(Action::Preview(c, _)) if c == "object.transform"), "group: {group} {out:?}");
+    }
+}
+
+/// A drag from the fill of A, selected whole, while B's top-left anchor is selected snaps the
+/// point it holds as a dragged anchor does: near an anchor of B that stays put, it lands on it.
+/// With Snap to Grid on, the box around A and B's selected anchor, (100, 100)–(300, 300), lands an
+/// edge on the 9 pt grid instead: moved by (21, 3), its right side and bottom (321, 303) are
+/// nearest the gridlines 324 and 306, and with Shift the level move by 13 lands the right side on
+/// 315.
+#[test]
+fn a_drag_from_a_fill_with_anchors_selected_snaps() {
+    let (d, a, b) = two_squares();
+    let p = paint();
+    let mut mixed = anchors_of(b, &[(0, 0)]);
+    mixed.objects.insert(0, a);
+    let none = Mods::default();
+    for group in [false, true] {
+        let mut t = DirectSelectionTool::new(group);
+        let c = cx(&d, &mixed, &p);
+        let (v, labels) = drag(&mut t, &c, (150.0, 150.0), (298.0, 401.0), none);
+        assert_eq!((v, labels), (json!({"dx": 150.0, "dy": 250.0}), vec!["anchor".to_string()]), "group: {group}");
+        t.pointer(&c, &PointerEvent::new(PointerKind::Up, 298.0, 401.0));
+        let c = ToolContext { snap_to_grid: true, ..cx(&d, &mixed, &p) };
+        assert_eq!(drag(&mut t, &c, (150.0, 150.0), (171.0, 153.0), none).0, json!({"dx": 24.0, "dy": 6.0}), "group: {group}");
+        t.pointer(&c, &PointerEvent::new(PointerKind::Up, 171.0, 153.0));
+        let (v, _) = drag(&mut t, &c, (150.0, 150.0), (163.0, 151.0), Mods { shift: true, ..none });
+        let (x, y) = (v["dx"].as_f64().unwrap(), v["dy"].as_f64().unwrap());
+        assert!((x - 15.0).abs() < 1e-9 && y.abs() < 1e-9, "group: {group}: {v}");
+        t.pointer(&c, &PointerEvent::new(PointerKind::Up, 163.0, 151.0));
+    }
+}
+
+/// A path inside a selected group moves whole with the group, even with some of its anchors
+/// direct-selected, so a drag from a fill does not snap to its other anchors: here to the
+/// bottom-right corner (400, 400) of the path at (300, 300)–(400, 400).
+#[test]
+fn a_drag_from_a_fill_skips_the_anchors_of_a_path_in_a_selected_group() {
+    let (d, _, outside, _, outer) = nested_group_doc();
+    let p = paint();
+    let mut sel = anchors_of(outside, &[(0, 0)]);
+    sel.objects.insert(0, outer);
+    let c = cx(&d, &sel, &p);
+    let mut t = DirectSelectionTool::new(true);
+    let (v, labels) = drag(&mut t, &c, (150.0, 150.0), (398.0, 401.0), Mods::default());
+    assert_eq!((v, labels), (json!({"dx": 248.0, "dy": 251.0}), Vec::<String>::new()));
 }
 
 /// A dragged anchor lands on another path's anchor or segment, lines up with the other anchors

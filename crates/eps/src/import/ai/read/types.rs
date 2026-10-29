@@ -1,4 +1,4 @@
-use super::*;
+use super::{Affine, BlendMode, Dash, FillRule, Knockout, LayerColor, LineCap, LineJoin, Node, Obj, Paint, Rect, V};
 
 /// Deepest nesting of layers, groups and dictionaries.
 pub(super) const MAX_DEPTH: usize = 256;

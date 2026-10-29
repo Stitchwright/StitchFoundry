@@ -10,7 +10,7 @@
 use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, always, bad, bool_or, cmd, str_param};
 
 /// mm in an inch.
 const IN: f64 = 25.4;
@@ -345,33 +345,7 @@ fn corner(a: f64, gap: f64, m: &Motif) -> Vec<(f64, f64)> {
 /// From the stitches themselves, so any art (words, shapes, appliqué, a picture) gives its true
 /// outline.
 fn sewn_rings(s: &Session, ids: &[u64], clearance: f64) -> Vec<Vec<(f64, f64)>> {
-    let Some(plan) = s.embroidery_plan() else { return Vec::new() };
-    // the art and everything in it
-    let mut nodes = std::collections::HashSet::new();
-    if let Ok(st) = s.doc() {
-        let mut stack: Vec<vectorcraft_doc::NodeId> = ids.iter().map(|&i| vectorcraft_doc::NodeId(i)).collect();
-        while let Some(id) = stack.pop() {
-            if nodes.insert(id)
-                && let Some(kids) = st.doc.node(id).and_then(|n| n.children())
-            {
-                stack.extend(kids.iter().map(|k| k.id));
-            }
-        }
-    }
-    // its stitches as line pieces
-    let stitches = &plan.pattern().stitches;
-    let mut segs: Vec<((f64, f64), (f64, f64))> = Vec::new();
-    let mut last: Option<(f64, f64)> = None;
-    for (i, st) in stitches.iter().enumerate() {
-        let ours = st.cmd == sf_core::Cmd::Stitch && plan.node_at_record(i).is_some_and(|n| nodes.contains(&n));
-        if !ours {
-            last = None;
-            continue;
-        }
-        let p = (st.x, st.y);
-        segs.push((last.unwrap_or(p), p));
-        last = Some(p);
-    }
+    let segs = sewn_segments(s, ids);
     if segs.is_empty() {
         return Vec::new();
     }
@@ -400,8 +374,45 @@ fn sewn_rings(s: &Session, ids: &[u64], clearance: f64) -> Vec<Vec<(f64, f64)>> 
             }
         }
     }
-    // widen by the clearance (a disc round every sewn cell)
-    let r = (clearance / cell).ceil() as i64;
+    let keep = widened(&sewn, cols, rows, (clearance / cell).ceil() as i64);
+    let outside = reached_from_edge(&keep, cols, rows);
+    trace_rings(&outside, cols, rows, (ox, oy, cell))
+}
+
+/// The art nodes `ids` sew and everything in them, as their stitches as line pieces (mm).
+fn sewn_segments(s: &Session, ids: &[u64]) -> Vec<((f64, f64), (f64, f64))> {
+    let Some(plan) = s.embroidery_plan() else { return Vec::new() };
+    // the art and everything in it
+    let mut nodes = std::collections::HashSet::new();
+    if let Ok(st) = s.doc() {
+        let mut stack: Vec<vectorcraft_doc::NodeId> = ids.iter().map(|&i| vectorcraft_doc::NodeId(i)).collect();
+        while let Some(id) = stack.pop() {
+            if nodes.insert(id)
+                && let Some(kids) = st.doc.node(id).and_then(|n| n.children())
+            {
+                stack.extend(kids.iter().map(|k| k.id));
+            }
+        }
+    }
+    // its stitches as line pieces
+    let stitches = &plan.pattern().stitches;
+    let mut segs: Vec<((f64, f64), (f64, f64))> = Vec::new();
+    let mut last: Option<(f64, f64)> = None;
+    for (i, st) in stitches.iter().enumerate() {
+        let ours = st.cmd == sf_core::Cmd::Stitch && plan.node_at_record(i).is_some_and(|n| nodes.contains(&n));
+        if !ours {
+            last = None;
+            continue;
+        }
+        let p = (st.x, st.y);
+        segs.push((last.unwrap_or(p), p));
+        last = Some(p);
+    }
+    segs
+}
+
+/// The `cols` × `rows` grid `sewn` widened by `r` cells (a disc round every sewn cell).
+fn widened(sewn: &[bool], cols: usize, rows: usize, r: i64) -> Vec<bool> {
     let disc: Vec<(i64, i64)> = (-r..=r).flat_map(|dy| (-r..=r).map(move |dx| (dx, dy))).filter(|(dx, dy)| dx * dx + dy * dy <= r * r).collect();
     let mut keep = vec![false; cols * rows];
     for (c, _) in sewn.iter().enumerate().filter(|(_, s)| **s) {
@@ -413,7 +424,12 @@ fn sewn_rings(s: &Session, ids: &[u64], clearance: f64) -> Vec<Vec<(f64, f64)>> 
             }
         }
     }
-    // holes filled: whatever the outside can't reach is kept clear
+    keep
+}
+
+/// The cells of the `cols` × `rows` grid the outside reaches without crossing a `keep` cell:
+/// whatever it can't reach (the holes) is kept clear.
+fn reached_from_edge(keep: &[bool], cols: usize, rows: usize) -> Vec<bool> {
     let mut outside = vec![false; cols * rows];
     let mut stack: Vec<usize> = (0..cols)
         .chain((0..cols).map(|i| (rows - 1) * cols + i))
@@ -439,6 +455,13 @@ fn sewn_rings(s: &Session, ids: &[u64], clearance: f64) -> Vec<Vec<(f64, f64)>> 
             stack.push(c + cols);
         }
     }
+    outside
+}
+
+/// The edges between the cells the outside doesn't reach and those it does, chained into rings
+/// in mm (the grid's origin and cell size in `grid`) and smoothed.
+fn trace_rings(outside: &[bool], cols: usize, rows: usize, grid: (f64, f64, f64)) -> Vec<Vec<(f64, f64)>> {
+    let (ox, oy, cell) = grid;
     let solid = |i: i64, j: i64| i >= 0 && j >= 0 && (i as usize) < cols && (j as usize) < rows && !outside[j as usize * cols + i as usize];
     // the edges between kept and outside cells, chained into rings
     let mut next_of: std::collections::HashMap<(i64, i64), (i64, i64)> = std::collections::HashMap::new();
@@ -479,20 +502,24 @@ fn sewn_rings(s: &Session, ids: &[u64], clearance: f64) -> Vec<Vec<(f64, f64)>> 
             }
         }
         if ring.len() >= 8 {
-            // rounded off (Chaikin), the grid's steps gone
-            for _ in 0..3 {
-                let n = ring.len();
-                ring = (0..n)
-                    .flat_map(|i| {
-                        let (a, b) = (ring[i], ring[(i + 1) % n]);
-                        [(a.0 * 0.75 + b.0 * 0.25, a.1 * 0.75 + b.1 * 0.25), (a.0 * 0.25 + b.0 * 0.75, a.1 * 0.25 + b.1 * 0.75)]
-                    })
-                    .collect();
-            }
-            rings.push(ring);
+            rings.push(smoothed(ring));
         }
     }
     rings
+}
+
+/// The ring rounded off (Chaikin), the grid's steps gone.
+fn smoothed(mut ring: Vec<(f64, f64)>) -> Vec<(f64, f64)> {
+    for _ in 0..3 {
+        let n = ring.len();
+        ring = (0..n)
+            .flat_map(|i| {
+                let (a, b) = (ring[i], ring[(i + 1) % n]);
+                [(a.0 * 0.75 + b.0 * 0.25, a.1 * 0.75 + b.1 * 0.25), (a.0 * 0.25 + b.0 * 0.75, a.1 * 0.25 + b.1 * 0.75)]
+            })
+            .collect();
+    }
+    ring
 }
 
 /// Whether `p` is inside the ring.

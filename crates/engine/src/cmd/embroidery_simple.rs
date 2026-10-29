@@ -4,7 +4,7 @@
 use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 
 /// The shapes Add a Shape offers (built-in clipart).
 pub const SIMPLE_SHAPES: &[&str] = &["Heart", "Star", "Flower", "Leaf", "Sun", "Moon", "Paw", "Crown", "Snowflake"];

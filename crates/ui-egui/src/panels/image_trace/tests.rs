@@ -782,3 +782,10 @@ fn panel_and_menu_draw_headless() {
         out.textures_delta.clear();
     }
 }
+
+#[test]
+fn ignore_color_rejects_signs_in_hex() {
+    assert_eq!(ignore_color(&json!({"ignoreColor": "#+f+f+f"})), [255; 3]);
+    assert_eq!(ignore_color(&json!({"ignoreColor": "+0+0+0"})), [255; 3]);
+    assert_eq!(ignore_color(&json!({"ignoreColor": "#ff00ff"})), [255, 0, 255]);
+}

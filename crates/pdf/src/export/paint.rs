@@ -1,5 +1,8 @@
 use super::exporter::{MAX_FIELD_PX, MAX_GRADIENT_PX, MAX_PATTERN_DEPTH, color, ctm, in_range, norm, q, to_path, writable, xf};
-use super::*;
+use super::{
+    Affine, Color, Exporter, GradientKind, LinearGradient, Paint, RadialGradient, Rect, SepColor, SeparationColorant, SeparationSpace, Shape, Size,
+    SpreadMethod, Stop, Surface, Vec2, cmyk, krilla, rgb,
+};
 
 impl Exporter<'_> {
     /// A colour for the page, as the Output settings write it ([`ColorOut::color`]): without

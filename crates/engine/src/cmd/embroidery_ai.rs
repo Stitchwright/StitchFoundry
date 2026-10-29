@@ -5,7 +5,7 @@
 use serde_json::{Value, json};
 use sf_core::ai::Effort;
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, f64_or, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

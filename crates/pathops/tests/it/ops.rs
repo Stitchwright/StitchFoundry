@@ -1,7 +1,7 @@
 use std::f64::consts::PI;
 
 use kurbo::{ParamCurve, Point, Rect, Shape as _};
-use vectorcraft_geom::{FillRule, PathData, SubPath};
+use vectorcraft_geom::{AnchorKind, FillRule, PathData, SubPath};
 use vectorcraft_pathops::*;
 
 const NZ: FillRule = FillRule::NonZero;
@@ -295,6 +295,28 @@ fn offset_rect_joins() {
 }
 
 #[test]
+fn offset_of_an_open_path_whose_ends_meet_is_the_closed_shape_offset() {
+    // Issue #3773: an open path whose last anchor sits on its first offsets like the closed shape,
+    // not as a ring around its outline.
+    let corners = [Point::new(0.0, 0.0), Point::new(20.0, 0.0), Point::new(20.0, 10.0), Point::new(0.0, 10.0), Point::new(0.0, 0.0)];
+    let r = PathData::single(SubPath::polyline(&corners, false));
+    let grown = offset_path(&r, 2.0, Join::Miter, 4.0);
+    assert!(close(ar(&grown), 24.0 * 14.0, 1e-6), "{}", ar(&grown));
+    assert_eq!(grown.subpaths.len(), 1);
+    assert_eq!(grown.anchor_count(), 4);
+    assert!(close(ar(&offset_path(&r, -2.0, Join::Miter, 4.0)), 16.0 * 6.0, 1e-6));
+    // A curved outline: the last anchor's in-handle shapes the closing curve.
+    let mut sp = circle(0.0, 0.0, 10.0).subpaths.remove(0);
+    let first = sp.anchors[0];
+    sp.anchors.push(vectorcraft_geom::Anchor::with_handles(first.p, first.h_in, first.p));
+    sp.anchors[0].h_in = first.p;
+    sp.closed = false;
+    let o = offset_path(&PathData::single(sp), 3.0, Join::Round, 4.0);
+    assert!(close(ar(&o), PI * 169.0, 2e-3), "{}", ar(&o));
+    assert_eq!(o.subpaths.len(), 1);
+}
+
+#[test]
 fn outline_stroke_of_line() {
     let l = PathData::single(SubPath::polyline(&[Point::new(0.0, 0.0), Point::new(30.0, 40.0)], false));
     let o = outline_stroke(&l, 4.0, Cap::Butt, Join::Miter, 4.0);
@@ -406,6 +428,21 @@ fn smooth_rounds_corners() {
     assert!(s.anchors().all(|(_, _, a)| a.has_in() && a.has_out()));
     let same = smooth(&rect(0.0, 0.0, 10.0, 10.0), 0.0);
     assert_eq!(same, rect(0.0, 0.0, 10.0, 10.0));
+}
+
+/// Object › Path › Smooth: a rectangle, whose corners no curve rounds within the tolerance, stays as
+/// it is even at maximum smoothing; a polygon of 16 sides becomes a closed curve of fewer anchors once the tolerance
+/// passes its 0.96 pt sagitta, smooth all round.
+#[test]
+fn smooth_level_keeps_corners_it_cannot_round_and_curves_polygons() {
+    let r = rect(0.0, 0.0, 100.0, 50.0);
+    assert_eq!(smooth_level(&r, 100.0), r);
+    let pts: Vec<Point> = (0..16).map(|i| Point::new(50.0 * (f64::from(i) * PI / 8.0).cos(), 50.0 * (f64::from(i) * PI / 8.0).sin())).collect();
+    let polygon = PathData::single(SubPath::polyline(&pts, true));
+    let s = smooth_level(&polygon, SMOOTH_AUTO_LEVEL);
+    assert!(s.subpaths.len() == 1 && s.subpaths[0].closed && s.anchor_count() < 8, "{}", s.anchor_count());
+    assert!(s.subpaths[0].anchors.iter().all(|a| a.kind == AnchorKind::Smooth), "no kink, its start included: {s:?}");
+    assert_eq!(smooth_level(&polygon, 0.0), polygon, "0.1 pt is less than the sagitta");
 }
 
 #[test]

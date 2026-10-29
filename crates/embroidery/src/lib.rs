@@ -9,6 +9,7 @@
 //! Units: documents are in points (y down); the embroidery engine works in
 //! millimetres (y down). [`mm`] and [`pt`] convert between them.
 
+#![forbid(unsafe_code)]
 mod convert;
 pub mod font_library;
 pub mod fonts;

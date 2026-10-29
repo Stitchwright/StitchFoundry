@@ -87,6 +87,9 @@ fn shown(f: &Format) -> impl Iterator<Item = &'static FormatOption> {
             || (range && o.name == "artboard")
             || (separate && o.name == "range")
             || (matches!(f.id, "ai" | "ait") && o.name == "useArtboards")
+            // EPS Save keeps a page and the complete editing document; cropped and
+            // selected-only output belongs to Export, never this save dialog.
+            || (f.id == "eps" && matches!(o.name, "useArtboards" | "selectedOnly"))
             || (f.id == "ait" && o.name == "aiVersion"))
     })
 }

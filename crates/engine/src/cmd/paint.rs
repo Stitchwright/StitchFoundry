@@ -6,7 +6,10 @@ use vectorcraft_doc::{Appearance, CharStyle, Document, Node, NodeId, NodeKind};
 
 use super::appearance::{ItemTarget, appearance_targets, edit_items, edit_items_then, item_target};
 use super::gradient::{item_paint_bounds, place_paint, place_run_paint, run_paint_mut, run_stroke_weight, unplaced};
-use super::*;
+use super::{
+    Affine, CommandSpec, Result, Session, always, bad, bool_or, check_numbers, check_switches, cmd, color_value, has_doc, leaf_targets, ok,
+    paint_targets, str_param, switch_or,
+};
 use crate::{DocState, EngineError};
 
 pub fn specs() -> Vec<CommandSpec> {
@@ -68,7 +71,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Transparency",
             ["Window", "Transparency"],
             None,
-            "{ids?|id?, opacity?: 0..100, blend?: name, isolate?, knockout?: \"on\"|\"off\"|\"neutral\"|bool (true = on, false = neutral), knockoutShape?: bool, item?: appearance item index|null, target?: \"object\"|\"contents\", aligned?: bool (index and item are rows of the first target's stack: each other target edits its equal one, as the Appearance panel does for a mixed selection)} for `ids`, the selection, or the object whose opacity mask is being edited; opacity and blend go to the targeted fill/stroke item (omitted: the Appearance panel's active item, else the objects)",
+            "{ids?|id?, opacity?: 0..100, blend?: name, isolate?, knockout?: \"on\"|\"off\"|\"neutral\"|bool (true = on, false = neutral), knockoutShape?: bool, item?: appearance item index|null, target?: \"object\"|\"contents\", aligned?: bool (index and item are rows of the first target's stack: each other target edits its equal one, as the Appearance panel does for a mixed selection)} for `ids`, the selection, or the object whose opacity mask is being edited; opacity and blend go to the targeted fill/stroke item (omitted: the Appearance panel's active item, else the objects; a gradient mesh point last clicked with the Mesh tool or Direct Selection takes the opacity itself)",
             has_doc,
             transparency
         ),
@@ -599,6 +602,14 @@ fn focused_mesh_point(s: &Session) -> Option<(NodeId, usize)> {
     Some((NodeId(pt.get("id")?.as_u64()?), usize::try_from(pt.get("index")?.as_u64()?).ok()?))
 }
 
+/// The focused mesh point (see [`focused_mesh_point`]) with its opacity, when `ids` is just the
+/// gradient mesh it belongs to.
+pub(crate) fn focused_mesh_point_of(s: &Session, ids: &[NodeId]) -> Option<(NodeId, usize, f32)> {
+    let (id, index) = focused_mesh_point(s).filter(|(id, _)| ids == [*id])?;
+    let NodeKind::Mesh(m) = &s.doc().ok()?.doc.node(id)?.kind else { return None };
+    Some((id, index, m.points.get(index)?.opacity))
+}
+
 /// A type run's stroke; a painted stroke on a run without one gets 1 pt.
 fn set_run_stroke(style: &mut CharStyle, paint: Paint) {
     if !paint.is_none() {
@@ -742,6 +753,19 @@ fn transparency(s: &mut Session, p: &Value) -> Result<Value> {
     q.remove("item");
     q.remove("id");
     q.insert("ids".into(), json!(ids.iter().map(|id| id.0).collect::<Vec<_>>()));
+    // The gradient mesh point last clicked with the Mesh tool or Direct Selection takes the
+    // opacity itself, so only the mesh around it fades (#4206).
+    if matches!(item, ItemTarget::Top)
+        && let Some(o) = q.get("opacity").and_then(Value::as_f64)
+        && let Some((id, index, _)) = focused_mesh_point_of(s, &ids)
+    {
+        q.remove("opacity");
+        let opacity = f64::from(super::opacitymask::percent(o));
+        s.execute("object.mesh.setPointColor", &json!({"id": id.0, "index": index, "opacity": opacity}))?;
+        if q.keys().all(|k| k == "ids") {
+            return ok();
+        }
+    }
     let ItemTarget::Item { index, explicit, aligned } = item else {
         return s.execute("object.setProps", &Value::Object(q));
     };

@@ -135,7 +135,7 @@ mod platform {
 
 #[cfg(target_os = "linux")]
 mod platform {
-    use super::*;
+    use super::{Command, NOT_REMOVABLE, linux_mount, linux_sticks, run};
 
     pub fn eject(folder: &str) -> Result<String, String> {
         let mounts = std::fs::read_to_string("/proc/mounts").map_err(|e| format!("can't eject: {e}"))?;

@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use sf_core::attr::{Colorway, DocEmbroidery, MAX_COLORWAYS};
 use sf_core::{Rgb, Thread};
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, has_doc, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

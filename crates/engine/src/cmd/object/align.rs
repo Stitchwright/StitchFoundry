@@ -1,5 +1,8 @@
 use super::transform::transform_patterns;
-use super::*;
+use super::{
+    Affine, Document, EngineError, NodeId, OrientedBox, Point, Rect, Result, Scaling, Session, Value, Vec2, bad, check_numbers, check_switches,
+    effects, has_multi, ok, selected_roots, str_param,
+};
 
 impl Session {
     /// The bounds of `ids` the Transform panel, the bounding box, Align and Distribute measure:
@@ -23,8 +26,8 @@ fn preview_bounds(s: &Session, p: &Value, cmd: &str) -> Result<bool> {
     }
 }
 
-/// Param `key` of the Align commands, Shear and `text.setFormat`'s lists: one of `values`, or
-/// `None` when it is missing or null. Any other value is an error that lists `values`.
+/// Param `key` of the Align commands, Shear, Unlock All, Show All and `text.setFormat`'s lists: one
+/// of `values`, or `None` when it is missing or null. Any other value is an error that lists `values`.
 pub(crate) fn choice<'a>(p: &'a Value, cmd: &str, key: &str, values: &[&str]) -> Result<Option<&'a str>> {
     let Some(v) = p.get(key).filter(|v| !v.is_null()) else { return Ok(None) };
     match v.as_str() {

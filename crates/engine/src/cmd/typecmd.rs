@@ -9,7 +9,10 @@ use vectorcraft_geom::{Affine, PathData, Vec2};
 
 use super::edit::selected_roots;
 use super::pathops::{len_param, num_param, shape_node};
-use super::*;
+use super::{
+    CommandSpec, EngineError, Result, Session, bad, check_numbers, cmd, color_value, f64_req, has_doc, has_selection, id_param, index, number_or, ok,
+    str_param, switch_or, targets,
+};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

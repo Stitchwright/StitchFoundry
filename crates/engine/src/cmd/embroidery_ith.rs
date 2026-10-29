@@ -15,7 +15,7 @@
 use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, EngineError, NodeId, Result, Session, always, bad, bool_or, cmd, str_param};
 
 /// mm in an inch.
 const IN: f64 = 25.4;
@@ -349,8 +349,76 @@ fn step(s: &mut Session, id: u64, ty: &str, params: Value, thread: (&str, &str))
     Ok(())
 }
 
-fn make(s: &mut Session, p: &Value) -> Result<Value> {
-    const CMD: &str = "embroidery.ith.make";
+/// The command `make` runs as, for its errors.
+const MAKE: &str = "embroidery.ith.make";
+
+/// What `embroidery.ith.make` was asked for, checked.
+struct Ask {
+    pr: &'static Project,
+    text: Option<String>,
+    shape: Option<String>,
+    color: String,
+    ribbon: bool,
+    vinyl: bool,
+    button: bool,
+    /// Sewn with a zipper across it (a pouch).
+    zipper: bool,
+    /// The share of its height a pocket takes, when it has one.
+    pocket: Option<f64>,
+    /// A sleeve sewn inside out and turned (a phone or passport case).
+    case: bool,
+    scale: f64,
+    finished: (f64, f64),
+    edge: Edge,
+}
+
+/// The piece sewn in the hoop: its middle on the page (points), its size and the zipper's middle
+/// from its centre (mm, down is +).
+struct Piece {
+    c: kurbo::Point,
+    pw: f64,
+    ph: f64,
+    zip_y: f64,
+}
+
+impl Piece {
+    /// The point `dy` mm below the piece's middle.
+    fn at(&self, dy: f64) -> kurbo::Point {
+        kurbo::Point::new(self.c.x, self.c.y + dy * PT_PER_MM)
+    }
+}
+
+/// Where the design goes (mm from the piece's middle, down is +) and how it's laid out.
+struct Room {
+    top: f64,
+    bottom: f64,
+    /// The size the design is made to.
+    inner: f64,
+    /// A narrow piece (a key fob, a bookmark): sized by its width, its words turned along it.
+    narrow: bool,
+    /// Both a shape and words.
+    both: bool,
+    /// The shape at the left, the words beside it.
+    side_by_side: bool,
+}
+
+/// A step of the instructions: its thread and what to do.
+fn add_step(steps: &mut Vec<Value>, thread: &str, what: &str) {
+    steps.push(json!({ "step": steps.len() + 1, "thread": thread, "what": what }));
+}
+
+/// A line through `pts` (mm from the piece's middle `c`), as a new path.
+fn line(s: &mut Session, c: kurbo::Point, pts: &[(f64, f64)]) -> Result<u64> {
+    let mut d = String::new();
+    for (i, (x, y)) in pts.iter().enumerate() {
+        d.push_str(&format!("{}{:.3} {:.3} ", if i == 0 { "M" } else { "L" }, c.x + x * PT_PER_MM, c.y + y * PT_PER_MM));
+    }
+    s.execute("path.create", &json!({ "d": d }))?["id"].as_u64().ok_or_else(|| bad(MAKE, "a step wasn't made"))
+}
+
+/// The params of `embroidery.ith.make`, checked.
+fn ask(p: &Value) -> Result<Ask> {
+    const CMD: &str = MAKE;
     let id = str_param(p, "project").ok_or_else(|| bad(CMD, "missing `project`: see embroidery.ith.projects"))?;
     let pr = PROJECTS.iter().find(|x| x.id == id).ok_or_else(|| bad(CMD, format!("no project `{id}`: see embroidery.ith.projects")))?;
     let text = str_param(p, "text").map(str::trim).filter(|t| !t.is_empty()).map(str::to_string);
@@ -378,9 +446,19 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
     // the edge: square, rounded, scalloped or round, for the pieces finished in the hoop with
     // nothing sewn into their edge
     let shaped = !pr.panel && !zipper && !case && pocket.is_none();
-    let edge_name = str_param(p, "edge");
+    let edge = edge_of(p, pr, shaped, finished)?;
+    if (zipper || case) && (vinyl || ribbon) {
+        return Err(bad(CMD, "this piece is sewn inside out and turned, so it takes no ribbon or vinyl"));
+    }
+    Ok(Ask { pr, text, shape, color, ribbon, vinyl, button, zipper, pocket, case, scale, finished, edge })
+}
+
+/// The edge asked for in `p`: the project's own unless it's `shaped` (finished in the hoop with
+/// nothing sewn into its edge).
+fn edge_of(p: &Value, pr: &Project, shaped: bool, finished: (f64, f64)) -> Result<Edge> {
+    const CMD: &str = MAKE;
     let base = if pr.round { "round" } else { "square" };
-    let edge = match edge_name.unwrap_or(base) {
+    Ok(match str_param(p, "edge").unwrap_or(base) {
         e if e == base => {
             if pr.round {
                 Edge::Round
@@ -397,28 +475,35 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
             Edge::Scalloped(nx, ny)
         }
         _ => return Err(bad(CMD, "`edge` is square, rounded, scalloped or round")),
-    };
-    if (zipper || case) && (vinyl || ribbon) {
-        return Err(bad(CMD, "this piece is sewn inside out and turned, so it takes no ribbon or vinyl"));
+    })
+}
+
+/// The piece sewn in a field `fw` × `fh` (mm): a panel as big as the field allows (no bigger than
+/// the front), or the finished piece itself.
+fn piece_size(a: &Ask, fw: f64, fh: f64) -> (f64, f64) {
+    let finished = a.finished;
+    if !a.pr.panel {
+        return finished;
     }
-    // a panel needs a 5×7-class hoop; a finished piece its own size
-    let need = if pr.panel { (118.0 + 2.0 * MARGIN, 160.0 + 2.0 * MARGIN) } else { (finished.0 + 2.0 * MARGIN, finished.1 + 2.0 * MARGIN) };
-    let (hoop, fw, fh) = pick_hoop(s, p, need, CMD)?;
     let (long, short) = (fw.max(fh) - 2.0 * MARGIN, fw.min(fh) - 2.0 * MARGIN);
-    // the piece sewn in the hoop: a panel as big as the field allows (no bigger than the front),
-    // or the finished piece itself
     let landscape = finished.0 >= finished.1;
-    let (pw, ph) = if pr.panel {
-        if (finished.0 - finished.1).abs() < 1.0 {
-            let side = short.min(finished.0);
-            (side, side)
-        } else {
-            let (a, b) = (long.min(finished.0.max(finished.1)), short.min(finished.0.min(finished.1)));
-            if landscape { (a, b) } else { (b, a) }
-        }
+    if (finished.0 - finished.1).abs() < 1.0 {
+        let side = short.min(finished.0);
+        (side, side)
     } else {
-        finished
-    };
+        let (a, b) = (long.min(finished.0.max(finished.1)), short.min(finished.0.min(finished.1)));
+        if landscape { (a, b) } else { (b, a) }
+    }
+}
+
+fn make(s: &mut Session, p: &Value) -> Result<Value> {
+    const CMD: &str = MAKE;
+    let a = ask(p)?;
+    let pr = a.pr;
+    // a panel needs a 5×7-class hoop; a finished piece its own size
+    let need = if pr.panel { (118.0 + 2.0 * MARGIN, 160.0 + 2.0 * MARGIN) } else { (a.finished.0 + 2.0 * MARGIN, a.finished.1 + 2.0 * MARGIN) };
+    let (hoop, fw, fh) = pick_hoop(s, p, need, CMD)?;
+    let (pw, ph) = piece_size(&a, fw, fh);
     // the hoop turned to the piece's way round
     let hoop = if (pw > ph) != (fw > fh) && (pw - ph).abs() > 1.0 { json!({ "width": fh, "height": fw }) } else { hoop };
     let made = s.execute("embroidery.newDesign", &json!({ "hoop": hoop }))?;
@@ -426,373 +511,522 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         let d = &s.doc()?.doc;
         d.artboards.first().map(|a| a.rect.center()).ok_or_else(|| EngineError::Other("the design has no page".into()))?
     };
-    let mut steps: Vec<Value> = Vec::new();
-    let mut add_step = |thread: &str, what: &str| {
-        steps.push(json!({ "step": steps.len() + 1, "thread": thread, "what": what }));
-    };
-    // 1: where the piece goes
     // the zipper's middle, from the pouch's centre (mm, down is +)
-    let zip_y = -ph / 2.0 + ZIPPER_DOWN;
-    let at = |dy: f64| kurbo::Point::new(c.x, c.y + dy * PT_PER_MM);
-    if zipper {
+    let pc = Piece { c, pw, ph, zip_y: -ph / 2.0 + ZIPPER_DOWN };
+    let mut steps: Vec<Value> = Vec::new();
+    // 1: where the piece goes
+    placement(s, &a, &pc, &mut steps)?;
+    // 2: the design in the middle (above the words when both)
+    let design = design(s, p, &a, &pc, &mut steps)?;
+    // the extras: a ribbon band across a panel, vinyl over a finished piece, a button mark
+    extras(s, &a, &pc, &mut steps)?;
+    // 3: finishing in the hoop
+    finishing(s, &a, &pc, &mut steps)?;
+    // the supplies and cut sizes
+    let mut supplies = vec![format!("Hoop: {} (field {})", made["hoop"].as_str().unwrap_or("custom"), size(fw, fh))];
+    // the pieces to cut, for the cutting templates
+    let mut pieces: Vec<(String, f64, f64)> = Vec::new();
+    let cut = (&mut supplies, &mut pieces);
+    if pr.panel {
+        panel_supplies(&a, &pc, (fw, fh), cut, &mut steps);
+    } else if a.case {
+        case_supplies(&a, &pc, cut);
+    } else if a.zipper {
+        pouch_supplies(&pc, cut);
+    } else {
+        piece_supplies(&a, &pc, cut);
+    }
+    let title = if a.scale == 1.0 { pr.name.to_string() } else { format!("{}, made {}", pr.name, size(pw, ph)) };
+    let notes = notes(title, &supplies, &steps);
+    s.execute("embroidery.settings", &json!({ "notes": notes }))?;
+    s.execute("select.none", &json!({}))?;
+    if a.button {
+        supplies.push("A button, ½″ to ¾″".into());
+    }
+    let pieces: Vec<Value> = pieces.into_iter().map(|(name, w, h)| json!({ "name": name, "widthMm": w, "heightMm": h })).collect();
+    Ok(json!({ "project": pr.id, "hoop": made["hoop"], "design": design, "steps": steps, "supplies": supplies, "pieces": pieces, "notes": notes }))
+}
+
+/// Step 1: where the piece goes, and the fabrics laid on it.
+fn placement(s: &mut Session, a: &Ask, pc: &Piece, steps: &mut Vec<Value>) -> Result<()> {
+    let (c, pw, ph, zip_y) = (pc.c, pc.pw, pc.ph, pc.zip_y);
+    if a.zipper {
         // the outline and the zipper line in one: one stop
         let (x0, x1, y0, y1) = (c.x - pw / 2.0 * PT_PER_MM, c.x + pw / 2.0 * PT_PER_MM, c.y - ph / 2.0 * PT_PER_MM, c.y + ph / 2.0 * PT_PER_MM);
         let zy = c.y + zip_y * PT_PER_MM;
         let d = format!("M{x0:.3} {y0:.3} L{x1:.3} {y0:.3} L{x1:.3} {y1:.3} L{x0:.3} {y1:.3} Z M{x0:.3} {zy:.3} L{x1:.3} {zy:.3}");
-        let o = s.execute("path.create", &json!({ "d": d }))?["id"].as_u64().ok_or_else(|| bad(CMD, "the outline wasn't made"))?;
+        let o = s.execute("path.create", &json!({ "d": d }))?["id"].as_u64().ok_or_else(|| bad(MAKE, "the outline wasn't made"))?;
         step(s, o, "run", json!({}), POUCH_PLACEMENT)?;
-        add_step(POUCH_PLACEMENT.1, "Hoop tear-away stabilizer and sew the pouch's outline and the zipper line across it.");
+        add_step(steps, POUCH_PLACEMENT.1, "Hoop tear-away stabilizer and sew the pouch's outline and the zipper line across it.");
         // the front below the line, the top strip above: their edges meet on it, under the zipper
         let (front_top, bottom) = (zip_y + 4.0, ph / 2.0);
-        let o = outline(s, at((front_top + bottom) / 2.0), pw, bottom - front_top, Edge::Square)?;
+        let o = outline(s, pc.at((front_top + bottom) / 2.0), pw, bottom - front_top, Edge::Square)?;
         step(s, o, "run", json!({}), POUCH_FRONT)?;
         add_step(
+            steps,
             POUCH_FRONT.1,
             "Lay the front fabric right side up with its top edge on the zipper line, covering the outline below it; the machine tacks it down.",
         );
         let (top, strip_bottom) = (-ph / 2.0, zip_y - 4.0);
-        let o = outline(s, at((top + strip_bottom) / 2.0), pw, strip_bottom - top, Edge::Square)?;
+        let o = outline(s, pc.at((top + strip_bottom) / 2.0), pw, strip_bottom - top, Edge::Square)?;
         step(s, o, "run", json!({}), POUCH_TOP)?;
         add_step(
+            steps,
             POUCH_TOP.1,
             "Lay the top strip right side up with its bottom edge on the zipper line, covering the outline above it; the machine tacks it down.",
         );
-    } else if case {
+    } else if a.case {
         let o = outline(s, c, pw, ph, Edge::Square)?;
         step(s, o, "run", json!({}), CASE_PLACEMENT)?;
-        add_step(CASE_PLACEMENT.1, "Hoop tear-away stabilizer and sew the case's outline.");
+        add_step(steps, CASE_PLACEMENT.1, "Hoop tear-away stabilizer and sew the case's outline.");
         let o = outline(s, c, pw - 3.0, ph - 3.0, Edge::Square)?;
         step(s, o, "run", json!({}), CASE_FRONT)?;
         add_step(
+            steps,
             CASE_FRONT.1,
             "Fold the front fabric's top edge ½″ to the wrong side and press. Lay it right side up, the fold on the outline's top and the rest past the outline (fusible fleece under it, if you like); the machine tacks it down.",
         );
-    } else if pr.panel {
-        let o = outline(s, c, pw, ph, edge)?;
+    } else if a.pr.panel {
+        let o = outline(s, c, pw, ph, a.edge)?;
         step(s, o, "run", json!({}), TRIM_LINE)?;
-        add_step(TRIM_LINE.1, "Hoop the top fabric with tear-away stabilizer. This line marks the panel; trim on it after.");
+        add_step(steps, TRIM_LINE.1, "Hoop the top fabric with tear-away stabilizer. This line marks the panel; trim on it after.");
     } else {
-        let o = outline(s, c, pw, ph, edge)?;
+        let o = outline(s, c, pw, ph, a.edge)?;
         step(s, o, "applique", json!({ "placement": true, "tackdown": "Run", "trim_stop": false, "cover": "None" }), PLACEMENT)?;
         add_step(
+            steps,
             PLACEMENT.1,
             "Hoop cut-away stabilizer and sew the line. Lay the batting, then the top fabric right side up over it; the machine tacks them down.",
         );
     }
-    // 2: the design in the middle (above the words when both). A narrow piece (a key fob, a
-    // bookmark) is sized by its width, its words turned to run along it.
+    Ok(())
+}
+
+/// The pocket's fold line (mm from the piece's middle, down is +), when it has one.
+fn fold_y(a: &Ask, pc: &Piece) -> Option<f64> {
+    a.pocket.map(|share| pc.ph / 2.0 - pc.ph * share)
+}
+
+/// Where the design goes: a pouch's on the front below the zipper, a pocketed piece's above the
+/// pocket.
+fn room(a: &Ask, pc: &Piece) -> Room {
+    let (pw, ph, zip_y) = (pc.pw, pc.ph, pc.zip_y);
+    // A narrow piece (a key fob, a bookmark) is sized by its width, its words turned to run along it.
     let narrow = pw < ph * 0.5;
-    // where the design goes (mm from the middle, down is +): a pouch's on the front below the
-    // zipper, a pocketed piece's above the pocket
     let front_h = ph / 2.0 - zip_y;
-    let fold_y = pocket.map(|share| ph / 2.0 - ph * share);
-    let (area_top, area_bottom) = match (zipper, fold_y) {
+    let fold_y = fold_y(a, pc);
+    let (top, bottom) = match (a.zipper, fold_y) {
         (true, _) => (zip_y, ph / 2.0),
         (false, Some(f)) => (-ph / 2.0, f),
         (false, None) => (-ph / 2.0, ph / 2.0),
     };
-    let area_h = area_bottom - area_top;
-    let inner = match (zipper, fold_y) {
+    let area_h = bottom - top;
+    let inner = match (a.zipper, fold_y) {
         (true, _) => (pw.min(front_h) - 20.0).max(10.0),
         (false, Some(_)) => (pw.min(area_h) - 12.0).max(10.0),
         (false, None) => (pw.min(ph) - 24.0).max(10.0),
     };
-    let mut design: Vec<u64> = Vec::new();
-    let both = text.is_some() && shape.is_some();
+    let both = a.text.is_some() && a.shape.is_some();
     // a wide, short space (above a card holder's pocket): the shape at the left, the words beside
     // it, rather than one over the other, too small
     let side_by_side = both && !narrow && pw > 2.2 * area_h;
+    Room { top, bottom, inner, narrow, both, side_by_side }
+}
+
+/// Step 2: the design in the middle (above the words when both), moved into its room; its ids.
+fn design(s: &mut Session, p: &Value, a: &Ask, pc: &Piece, steps: &mut Vec<Value>) -> Result<Vec<u64>> {
+    let r = room(a, pc);
+    let mut design: Vec<u64> = Vec::new();
     let mut shape_size = 0.0;
-    if let Some(name) = &shape {
-        let size = match (narrow, both) {
-            _ if side_by_side => (area_h - 10.0).max(8.0),
-            (true, _) => (pw - 14.0).max(8.0),
-            (false, true) => inner * 0.5,
-            (false, false) => inner * 0.7,
-        };
+    if let Some(name) = &a.shape {
+        let (id, size) = add_shape(s, pc, &r, name)?;
         shape_size = size;
-        let r = s.execute("embroidery.addShape", &json!({ "name": name, "size": size }))?;
-        design.extend(r["id"].as_u64());
-        if both && let Some(sid) = r["id"].as_u64() {
-            let (dx, dy) = match narrow {
-                _ if side_by_side => (-(pw / 2.0 - 8.0 - size / 2.0), 0.0),
-                true => (0.0, -(ph * 0.25)),
-                false => (0.0, -inner * 0.18),
-            };
-            on(s, sid, "object.move", json!({ "dx": dx * PT_PER_MM, "dy": dy * PT_PER_MM }))?;
-        }
-        add_step("The design", "Sew the shape in its colours.");
+        design.extend(id);
+        add_step(steps, "The design", "Sew the shape in its colours.");
     }
-    if let Some(t) = &text {
-        let height = match p.get("height").and_then(Value::as_f64) {
-            Some(h) => h.clamp(5.0, 80.0),
-            None if narrow => ((pw - 14.0) * 0.55).clamp(6.0, 40.0),
-            None if side_by_side => ((area_h - 10.0) * 0.45).clamp(6.0, 40.0),
-            None => (inner * if both { 0.18 } else { 0.28 }).clamp(6.0, 40.0),
-        };
-        let r = s.execute("embroidery.addWords", &json!({ "text": t, "height": height, "color": color }))?;
-        design.extend(r["id"].as_u64());
-        if let Some(wid) = r["id"].as_u64() {
-            if narrow {
-                // reading upwards, the way a strip is held; kept within the piece's length
-                on(s, wid, "object.rotate", json!({ "angle": 90.0 }))?;
-                let room = ph * if both { 0.45 } else { 0.7 };
-                let long = {
-                    let d = &s.doc()?.doc;
-                    d.node(NodeId(wid)).and_then(|n| n.geometric_bounds()).map_or(0.0, |b| b.height() / PT_PER_MM)
-                };
-                if long > room && long > 0.0 {
-                    let k = room / long * 100.0;
-                    on(s, wid, "object.scale", json!({ "sx": k, "sy": k }))?;
-                }
-                if both {
-                    on(s, wid, "object.move", json!({ "dx": 0.0, "dy": ph * 0.15 * PT_PER_MM }))?;
-                }
-            } else if side_by_side {
-                // in the room right of the shape, made smaller if they don't fit it
-                let (left, right) = (-pw / 2.0 + 8.0 + shape_size + 5.0, pw / 2.0 - 8.0);
-                let wide = {
-                    let d = &s.doc()?.doc;
-                    d.node(NodeId(wid)).and_then(|n| n.geometric_bounds()).map_or(0.0, |b| b.width() / PT_PER_MM)
-                };
-                if wide > right - left && wide > 0.0 {
-                    let k = (right - left) / wide * 100.0;
-                    on(s, wid, "object.scale", json!({ "sx": k, "sy": k }))?;
-                }
-                on(s, wid, "object.move", json!({ "dx": (left + right) / 2.0 * PT_PER_MM, "dy": 0.0 }))?;
-            } else if both {
-                on(s, wid, "object.move", json!({ "dx": 0.0, "dy": inner * 0.3 * PT_PER_MM }))?;
-            }
-        }
-        add_step("The words", "Sew the words.");
+    if let Some(t) = &a.text {
+        design.extend(add_words(s, p, a, pc, &r, t, shape_size)?);
+        add_step(steps, "The words", "Sew the words.");
     }
-    let area_mid = (area_top + area_bottom) / 2.0;
+    let area_mid = (r.top + r.bottom) / 2.0;
     if area_mid.abs() > 0.5 && !design.is_empty() {
         s.execute("select.set", &json!({ "ids": design }))?;
         s.execute("object.move", &json!({ "dx": 0.0, "dy": area_mid * PT_PER_MM }))?;
     }
-    // the extras: a ribbon band across a panel, vinyl over a finished piece, a button mark
-    let line = |s: &mut Session, pts: &[(f64, f64)]| -> Result<u64> {
-        let mut d = String::new();
-        for (i, (x, y)) in pts.iter().enumerate() {
-            d.push_str(&format!("{}{:.3} {:.3} ", if i == 0 { "M" } else { "L" }, c.x + x * PT_PER_MM, c.y + y * PT_PER_MM));
-        }
-        s.execute("path.create", &json!({ "d": d }))?["id"].as_u64().ok_or_else(|| bad(CMD, "a step wasn't made"))
+    Ok(design)
+}
+
+/// The shape `name`, sized and placed for the room: its id and size (mm).
+fn add_shape(s: &mut Session, pc: &Piece, r: &Room, name: &str) -> Result<(Option<u64>, f64)> {
+    let (pw, ph, inner) = (pc.pw, pc.ph, r.inner);
+    let size = match (r.narrow, r.both) {
+        _ if r.side_by_side => (r.bottom - r.top - 10.0).max(8.0),
+        (true, _) => (pw - 14.0).max(8.0),
+        (false, true) => inner * 0.5,
+        (false, false) => inner * 0.7,
     };
-    const RIBBON_W: f64 = 16.0;
-    if let Some(f) = fold_y {
-        // the pocket: its fold on the line, its raw edges at the bottom; tacked on three sides,
-        // the backing and the satin edge close them
-        let mark = line(s, &[(-pw / 2.0, f), (pw / 2.0, f)])?;
-        step(s, mark, "run", json!({}), POCKET_MARK)?;
-        add_step(
-            POCKET_MARK.1,
-            "Fold the pocket fabric in half, wrong sides together, and press. Lay it with the fold on the line and the raw edges past the bottom of the piece; tape it.",
-        );
-        let (x0, x1, b) = (-pw / 2.0 + 1.5, pw / 2.0 - 1.5, ph / 2.0 - 1.5);
-        let tack = line(s, &[(x0, f), (x0, b), (x1, b), (x1, f)])?;
-        step(s, tack, "run", json!({}), POCKET_TACK)?;
-        add_step(POCKET_TACK.1, "The machine tacks the pocket's sides and bottom; its fold stays open for cards.");
+    let made = s.execute("embroidery.addShape", &json!({ "name": name, "size": size }))?;
+    let id = made["id"].as_u64();
+    if r.both
+        && let Some(sid) = id
+    {
+        let (dx, dy) = match r.narrow {
+            _ if r.side_by_side => (-(pw / 2.0 - 8.0 - size / 2.0), 0.0),
+            true => (0.0, -(ph * 0.25)),
+            false => (0.0, -inner * 0.18),
+        };
+        on(s, sid, "object.move", json!({ "dx": dx * PT_PER_MM, "dy": dy * PT_PER_MM }))?;
     }
-    if zipper {
-        // both tapes sewn down, over the fabrics' edges: two lines, a jump between
-        let (x0, x1) = (c.x - pw / 2.0 * PT_PER_MM, c.x + pw / 2.0 * PT_PER_MM);
-        let (ya, yb) = (c.y + (zip_y - 7.0) * PT_PER_MM, c.y + (zip_y + 7.0) * PT_PER_MM);
-        let d = format!("M{x0:.3} {ya:.3} L{x1:.3} {ya:.3} M{x1:.3} {yb:.3} L{x0:.3} {yb:.3}");
-        let z = s.execute("path.create", &json!({ "d": d }))?["id"].as_u64().ok_or_else(|| bad(CMD, "a step wasn't made"))?;
-        step(s, z, "run", json!({ "passes": 3 }), ZIPPER)?;
-        add_step(
-            ZIPPER.1,
-            "Lay the zipper face up with its teeth on the line, its pull inside the outline and its ends past both sides; tape the ends. The machine sews both tapes down, covering the fabrics' edges.",
-        );
+    Ok((id, size))
+}
+
+/// The words `t`, sized and placed for the room (beside a shape `shape_size` mm wide when side by
+/// side): their id.
+fn add_words(s: &mut Session, p: &Value, a: &Ask, pc: &Piece, r: &Room, t: &str, shape_size: f64) -> Result<Option<u64>> {
+    let (pw, area_h) = (pc.pw, r.bottom - r.top);
+    let height = match p.get("height").and_then(Value::as_f64) {
+        Some(h) => h.clamp(5.0, 80.0),
+        None if r.narrow => ((pw - 14.0) * 0.55).clamp(6.0, 40.0),
+        None if r.side_by_side => ((area_h - 10.0) * 0.45).clamp(6.0, 40.0),
+        None => (r.inner * if r.both { 0.18 } else { 0.28 }).clamp(6.0, 40.0),
+    };
+    let made = s.execute("embroidery.addWords", &json!({ "text": t, "height": height, "color": a.color }))?;
+    let id = made["id"].as_u64();
+    if let Some(wid) = id {
+        if r.narrow {
+            along_strip(s, wid, pc, r)?;
+        } else if r.side_by_side {
+            beside_shape(s, wid, pc, shape_size)?;
+        } else if r.both {
+            on(s, wid, "object.move", json!({ "dx": 0.0, "dy": r.inner * 0.3 * PT_PER_MM }))?;
+        }
     }
-    if ribbon && pr.panel {
-        // a band below the design: where its top edge goes, then both its edges sewn down
-        let (x0, x1, y) = (-pw / 2.0, pw / 2.0, ph / 2.0 - 16.0 - RIBBON_W);
-        let mark = line(s, &[(x0, y), (x1, y)])?;
-        step(s, mark, "run", json!({}), RIBBON_MARK)?;
-        add_step(RIBBON_MARK.1, "Lay the ribbon across the panel with its top edge on the line, ends past the trim line; tape the ends.");
-        let tack = line(s, &[(x1, y + 1.5), (x0, y + 1.5), (x0, y + RIBBON_W - 1.5), (x1, y + RIBBON_W - 1.5)])?;
-        step(s, tack, "run", json!({ "passes": 2 }), RIBBON_TACK)?;
-        add_step(RIBBON_TACK.1, "The machine sews the ribbon down along both its edges.");
+    Ok(id)
+}
+
+/// The size of node `id`'s bounds (mm), none when it has none.
+fn bounds_mm(s: &Session, id: u64) -> Result<(f64, f64)> {
+    let d = &s.doc()?.doc;
+    Ok(d.node(NodeId(id)).and_then(|n| n.geometric_bounds()).map_or((0.0, 0.0), |b| (b.width() / PT_PER_MM, b.height() / PT_PER_MM)))
+}
+
+/// The words `wid` on a narrow piece: reading upwards, the way a strip is held; kept within the
+/// piece's length.
+fn along_strip(s: &mut Session, wid: u64, pc: &Piece, r: &Room) -> Result<()> {
+    let ph = pc.ph;
+    on(s, wid, "object.rotate", json!({ "angle": 90.0 }))?;
+    let room = ph * if r.both { 0.45 } else { 0.7 };
+    let long = bounds_mm(s, wid)?.1;
+    if long > room && long > 0.0 {
+        let k = room / long * 100.0;
+        on(s, wid, "object.scale", json!({ "sx": k, "sy": k }))?;
     }
-    if vinyl {
-        let v = outline(s, c, pw - 4.0, ph - 4.0, edge)?;
+    if r.both {
+        on(s, wid, "object.move", json!({ "dx": 0.0, "dy": ph * 0.15 * PT_PER_MM }))?;
+    }
+    Ok(())
+}
+
+/// The words `wid` in the room right of a shape `shape_size` mm wide, made smaller if they don't
+/// fit it.
+fn beside_shape(s: &mut Session, wid: u64, pc: &Piece, shape_size: f64) -> Result<()> {
+    let pw = pc.pw;
+    let (left, right) = (-pw / 2.0 + 8.0 + shape_size + 5.0, pw / 2.0 - 8.0);
+    let wide = bounds_mm(s, wid)?.0;
+    if wide > right - left && wide > 0.0 {
+        let k = (right - left) / wide * 100.0;
+        on(s, wid, "object.scale", json!({ "sx": k, "sy": k }))?;
+    }
+    on(s, wid, "object.move", json!({ "dx": (left + right) / 2.0 * PT_PER_MM, "dy": 0.0 }))?;
+    Ok(())
+}
+
+/// The extras sewn into the piece: a pocket, a zipper, a ribbon band or loop, vinyl, a button mark.
+fn extras(s: &mut Session, a: &Ask, pc: &Piece, steps: &mut Vec<Value>) -> Result<()> {
+    if let Some(f) = fold_y(a, pc) {
+        pocket_steps(s, pc, f, steps)?;
+    }
+    if a.zipper {
+        zipper_steps(s, pc, steps)?;
+    }
+    if a.ribbon && a.pr.panel {
+        ribbon_band(s, pc, steps)?;
+    }
+    if a.vinyl {
+        let v = outline(s, pc.c, pc.pw - 4.0, pc.ph - 4.0, a.edge)?;
         step(s, v, "run", json!({ "stitch_length": 4.0 }), VINYL)?;
         add_step(
+            steps,
             VINYL.1,
             "Lay clear vinyl over the whole piece and tape it outside the stitching; the machine tacks it down with long stitches, which don't tear it.",
         );
     }
-    if ribbon && !pr.panel {
-        // a hanging loop at the top: its ends inside the edge, the loop out beyond it
-        let top = -ph / 2.0;
-        let mark = line(s, &[(-6.0, top + 14.0), (-6.0, top), (6.0, top), (6.0, top + 14.0)])?;
-        step(s, mark, "run", json!({}), RIBBON_MARK)?;
-        add_step(
-            RIBBON_MARK.1,
-            "Fold a 6″ ribbon in half; lay its ends inside the mark and the loop out beyond the top edge, and tape the loop out of the way of the edge.",
-        );
-        let tack = line(s, &[(-8.0, top + 6.0), (8.0, top + 6.0), (8.0, top + 9.0), (-8.0, top + 9.0)])?;
-        step(s, tack, "run", json!({ "passes": 2 }), RIBBON_TACK)?;
-        add_step(RIBBON_TACK.1, "The machine tacks the ribbon's ends down; the backing covers them.");
+    if a.ribbon && !a.pr.panel {
+        ribbon_loop(s, pc, steps)?;
     }
-    if button {
-        let (bx, by) = (pw / 2.0 - 16.0, ph / 2.0 - 16.0);
-        let cross = line(s, &[(bx - 3.0, by - 3.0), (bx + 3.0, by + 3.0), (bx + 3.0, by - 3.0), (bx - 3.0, by + 3.0)])?;
+    if a.button {
+        let (bx, by) = (pc.pw / 2.0 - 16.0, pc.ph / 2.0 - 16.0);
+        let cross = line(s, pc.c, &[(bx - 3.0, by - 3.0), (bx + 3.0, by + 3.0), (bx + 3.0, by - 3.0), (bx - 3.0, by + 3.0)])?;
         step(s, cross, "run", json!({ "stitch_length": 1.5 }), BUTTON)?;
-        add_step(BUTTON.1, "The machine marks the spot with a small cross; sew a button over it by hand when the piece is done.");
+        add_step(steps, BUTTON.1, "The machine marks the spot with a small cross; sew a button over it by hand when the piece is done.");
     }
-    // 3: finishing in the hoop
-    if case {
+    Ok(())
+}
+
+/// The pocket: its fold on the line `f`, its raw edges at the bottom; tacked on three sides, the
+/// backing and the satin edge close them.
+fn pocket_steps(s: &mut Session, pc: &Piece, f: f64, steps: &mut Vec<Value>) -> Result<()> {
+    let (c, pw, ph) = (pc.c, pc.pw, pc.ph);
+    let mark = line(s, c, &[(-pw / 2.0, f), (pw / 2.0, f)])?;
+    step(s, mark, "run", json!({}), POCKET_MARK)?;
+    add_step(
+        steps,
+        POCKET_MARK.1,
+        "Fold the pocket fabric in half, wrong sides together, and press. Lay it with the fold on the line and the raw edges past the bottom of the piece; tape it.",
+    );
+    let (x0, x1, b) = (-pw / 2.0 + 1.5, pw / 2.0 - 1.5, ph / 2.0 - 1.5);
+    let tack = line(s, c, &[(x0, f), (x0, b), (x1, b), (x1, f)])?;
+    step(s, tack, "run", json!({}), POCKET_TACK)?;
+    add_step(steps, POCKET_TACK.1, "The machine tacks the pocket's sides and bottom; its fold stays open for cards.");
+    Ok(())
+}
+
+/// The zipper: both tapes sewn down, over the fabrics' edges: two lines, a jump between.
+fn zipper_steps(s: &mut Session, pc: &Piece, steps: &mut Vec<Value>) -> Result<()> {
+    let (c, pw, zip_y) = (pc.c, pc.pw, pc.zip_y);
+    let (x0, x1) = (c.x - pw / 2.0 * PT_PER_MM, c.x + pw / 2.0 * PT_PER_MM);
+    let (ya, yb) = (c.y + (zip_y - 7.0) * PT_PER_MM, c.y + (zip_y + 7.0) * PT_PER_MM);
+    let d = format!("M{x0:.3} {ya:.3} L{x1:.3} {ya:.3} M{x1:.3} {yb:.3} L{x0:.3} {yb:.3}");
+    let z = s.execute("path.create", &json!({ "d": d }))?["id"].as_u64().ok_or_else(|| bad(MAKE, "a step wasn't made"))?;
+    step(s, z, "run", json!({ "passes": 3 }), ZIPPER)?;
+    add_step(
+        steps,
+        ZIPPER.1,
+        "Lay the zipper face up with its teeth on the line, its pull inside the outline and its ends past both sides; tape the ends. The machine sews both tapes down, covering the fabrics' edges.",
+    );
+    Ok(())
+}
+
+/// How wide a panel's ribbon band is (mm).
+const RIBBON_W: f64 = 16.0;
+
+/// A ribbon band across a panel, below the design: where its top edge goes, then both its edges
+/// sewn down.
+fn ribbon_band(s: &mut Session, pc: &Piece, steps: &mut Vec<Value>) -> Result<()> {
+    let (x0, x1, y) = (-pc.pw / 2.0, pc.pw / 2.0, pc.ph / 2.0 - 16.0 - RIBBON_W);
+    let mark = line(s, pc.c, &[(x0, y), (x1, y)])?;
+    step(s, mark, "run", json!({}), RIBBON_MARK)?;
+    add_step(steps, RIBBON_MARK.1, "Lay the ribbon across the panel with its top edge on the line, ends past the trim line; tape the ends.");
+    let tack = line(s, pc.c, &[(x1, y + 1.5), (x0, y + 1.5), (x0, y + RIBBON_W - 1.5), (x1, y + RIBBON_W - 1.5)])?;
+    step(s, tack, "run", json!({ "passes": 2 }), RIBBON_TACK)?;
+    add_step(steps, RIBBON_TACK.1, "The machine sews the ribbon down along both its edges.");
+    Ok(())
+}
+
+/// A hanging loop at the top: its ends inside the edge, the loop out beyond it.
+fn ribbon_loop(s: &mut Session, pc: &Piece, steps: &mut Vec<Value>) -> Result<()> {
+    let top = -pc.ph / 2.0;
+    let mark = line(s, pc.c, &[(-6.0, top + 14.0), (-6.0, top), (6.0, top), (6.0, top + 14.0)])?;
+    step(s, mark, "run", json!({}), RIBBON_MARK)?;
+    add_step(
+        steps,
+        RIBBON_MARK.1,
+        "Fold a 6″ ribbon in half; lay its ends inside the mark and the loop out beyond the top edge, and tape the loop out of the way of the edge.",
+    );
+    let tack = line(s, pc.c, &[(-8.0, top + 6.0), (8.0, top + 6.0), (8.0, top + 9.0), (-8.0, top + 9.0)])?;
+    step(s, tack, "run", json!({ "passes": 2 }), RIBBON_TACK)?;
+    add_step(steps, RIBBON_TACK.1, "The machine tacks the ribbon's ends down; the backing covers them.");
+    Ok(())
+}
+
+/// Step 3: finishing in the hoop.
+fn finishing(s: &mut Session, a: &Ask, pc: &Piece, steps: &mut Vec<Value>) -> Result<()> {
+    let (c, pw, ph, edge) = (pc.c, pc.pw, pc.ph, a.edge);
+    if a.case {
         // sides and bottom, the top left open
         let (x0, x1, t, b) = (-pw / 2.0, pw / 2.0, -ph / 2.0, ph / 2.0);
-        let seam = line(s, &[(x0, t), (x0, b), (x1, b), (x1, t)])?;
+        let seam = line(s, c, &[(x0, t), (x0, b), (x1, b), (x1, t)])?;
         step(s, seam, "run", json!({ "stitch_length": 2.0, "passes": 3 }), CASE_BACK)?;
         add_step(
+            steps,
             CASE_BACK.1,
             "Fold the back fabric's top edge ½″ to the wrong side and press. Lay it right side down over the front, the folds together at the top; tape it. The machine sews the sides and the bottom, leaving the top open.",
         );
         add_step(
+            steps,
             "Turn it out",
             "Take it out of the hoop and tear the stabilizer away. Trim ¼″ outside the stitching, clip the bottom corners, turn the case out through the top and press. Topstitch the top closed by machine or slipstitch it by hand.",
         );
-    } else if zipper {
+    } else if a.zipper {
         let back = outline(s, c, pw, ph, Edge::Square)?;
         step(s, back, "run", json!({ "stitch_length": 2.0, "passes": 3 }), POUCH_BACK)?;
         add_step(
+            steps,
             POUCH_BACK.1,
             "Open the zipper halfway (you turn the pouch out through it). Lay the back fabric right side down over everything and tape it; the machine sews all round.",
         );
         add_step(
+            steps,
             "Turn it out",
             "Take it out of the hoop and tear the stabilizer away. Trim ¼″ outside the stitching and cut the zipper's ends off there, clip the corners, turn the pouch out through the zipper and press.",
         );
-    } else if pr.panel {
+    } else if a.pr.panel {
         let o = outline(s, c, pw - 16.0, ph - 16.0, edge)?;
         step(s, o, "run", json!({ "passes": 3 }), FRAME)?;
-        add_step(FRAME.1, "A triple-stitch frame round the design. Take the panel out of the hoop and tear the stabilizer away.");
+        add_step(steps, FRAME.1, "A triple-stitch frame round the design. Take the panel out of the hoop and tear the stabilizer away.");
     } else {
         let back = outline(s, c, pw, ph, edge)?;
         step(s, back, "applique", json!({ "placement": false, "tackdown": "Run", "trim_stop": true, "cover": "None" }), BACKING)?;
         add_step(
+            steps,
             BACKING.1,
             "Take the hoop off the machine without unhooping. Tape the backing fabric right side out under the hoop over the piece, put the hoop back; the machine tacks it on, then stops: trim all the layers close to the stitching, front and back.",
         );
         let edge = outline(s, c, pw, ph, edge)?;
         step(s, edge, "applique", json!({ "placement": false, "tackdown": "None", "trim_stop": false, "cover": "Satin", "cover_width": 4.0 }), EDGE)?;
-        add_step(EDGE.1, "A satin edge all round covers the cut edges. Take it out of the hoop and cut the stabilizer away close to the satin.");
+        add_step(
+            steps,
+            EDGE.1,
+            "A satin edge all round covers the cut edges. Take it out of the hoop and cut the stabilizer away close to the satin.",
+        );
     }
-    // the supplies and cut sizes
-    let mut supplies = vec![format!("Hoop: {} (field {})", made["hoop"].as_str().unwrap_or("custom"), size(fw, fh))];
-    // the pieces to cut, for the cutting templates
-    let mut pieces: Vec<(String, f64, f64)> = Vec::new();
-    if pr.panel {
-        let (w, h) = finished;
-        let (side, topb) = (((w - pw) / 2.0).max(0.0), ((h - ph) / 2.0).max(0.0));
-        supplies.push(format!("Top fabric for hooping: {}", size(fw + 2.0 * IN, fh + 2.0 * IN)));
-        supplies.push("Tear-away stabilizer, the size of the hoop".into());
-        supplies.push(format!("Trim the embroidered panel to {} (¼″ seams)", size(pw + 2.0 * SEAM, ph + 2.0 * SEAM)));
-        pieces.push(("Embroidered panel, trimmed".into(), pw + 2.0 * SEAM, ph + 2.0 * SEAM));
-        if side > 1.0 {
-            supplies.push(format!("Side borders: 2 strips {}", size(side + 2.0 * SEAM, ph + 2.0 * SEAM)));
-            pieces.push(("Side border (cut 2)".into(), side + 2.0 * SEAM, ph + 2.0 * SEAM));
-        }
-        if topb > 1.0 {
-            supplies.push(format!("Top and bottom borders: 2 strips {}", size(w + 2.0 * SEAM, topb + 2.0 * SEAM)));
-            pieces.push(("Top and bottom border (cut 2)".into(), w + 2.0 * SEAM, topb + 2.0 * SEAM));
-        }
-        if ribbon {
-            supplies.push(format!("Ribbon ⅝″ wide, {} long", inches(pw + 2.0 * IN)));
-        }
-        if pr.id == BOOK_COVER {
-            // the front, then the spine and back, side by side; a lining as big; a flap folded
-            // in half at each end
-            let (flat_w, cut_h) = (2.0 * w + SPINE + 2.0 * SEAM, h + 2.0 * SEAM);
-            let flap = 3.0 * IN;
-            supplies.push(format!("Back and spine: 1 piece {}", size(w + SPINE + 2.0 * SEAM, cut_h)));
-            supplies.push(format!("Lining: 1 piece {}", size(flat_w, cut_h)));
-            supplies.push(format!("Flaps: 2 pieces {}, folded in half to {}", size(2.0 * flap, cut_h), size(flap, cut_h)));
-            supplies.push(format!("For a book {} with a {} spine; the cover lies flat at {}", size(w, h), inches(SPINE), size(2.0 * w + SPINE, h)));
-            pieces.push(("Back and spine".into(), w + SPINE + 2.0 * SEAM, cut_h));
-            pieces.push(("Lining".into(), flat_w, cut_h));
-            pieces.push(("Flap (cut 2, fold in half)".into(), 2.0 * flap, cut_h));
-            add_step(
-                "Sew the front",
-                "Sew the side borders on, then the top and bottom ones, ¼″ seams; press. The front measures the book's cover plus ¼″ all round.",
-            );
-            add_step("Join the back", "Sew the back and spine piece to the front's left edge, ¼″ seam; press the seam open.");
-            add_step(
-                "Sew the cover",
-                "Fold the flaps in half, wrong sides together, and lay one at each end of the cover, raw edges together. Lay the lining right side down over them; sew all round with a ¼″ seam, leaving 4″ open at the bottom. Clip the corners, turn out, press, and topstitch the opening closed. Slide the book's covers into the flaps.",
-            );
-        } else {
-            let back_h = (h * 0.65 + IN).round();
-            supplies.push(format!("Envelope back: 2 pieces {} (hem one long edge of each, overlap them)", size(w + 2.0 * SEAM, back_h)));
-            pieces.push(("Envelope back (cut 2)".into(), w + 2.0 * SEAM, back_h));
-            supplies.push(format!("Pillow form {} finished", size(w, h)));
-            add_step(
-                "Sew the front",
-                "Sew the side borders on, then the top and bottom ones, ¼″ seams; press. The front measures the pillow's size plus ¼″ all round.",
-            );
-            add_step(
-                "Sew the cover",
-                "Lay the two hemmed back pieces right side down on the front, overlapping; sew all round with a ¼″ seam, clip the corners, turn out and put the form in.",
-            );
-        }
-    } else if case {
-        // a ½″ fold at the top, ½″ round the rest to trim to ¼″
-        let cut = (pw + IN, ph + IN);
-        supplies.push("Tear-away stabilizer, the size of the hoop".into());
-        supplies.push(format!("Front fabric {}; back fabric {}; fusible fleece {} (optional)", size(cut.0, cut.1), size(cut.0, cut.1), size(pw, ph)));
-        supplies.push(format!("Finished size {}", size(pw, ph)));
-        pieces.push(("Front fabric".into(), cut.0, cut.1));
-        pieces.push(("Back fabric".into(), cut.0, cut.1));
-        if !pr.extra.is_empty() {
-            supplies.push(pr.extra.into());
-        }
-    } else if zipper {
-        let front = (pw + IN, ph / 2.0 - zip_y + IN);
-        let strip = (pw + IN, ZIPPER_DOWN + IN / 2.0);
-        supplies.push("Tear-away stabilizer, the size of the hoop".into());
-        supplies.push(format!(
-            "Front fabric {}; top strip {}; back fabric {}",
-            size(front.0, front.1),
-            size(strip.0, strip.1),
-            size(pw + IN, ph + IN)
-        ));
-        supplies
-            .push(format!("A nylon coil zipper at least {} long (the needle sews over its ends; metal teeth break needles)", inches(pw + 2.0 * IN)));
-        supplies.push(format!("Finished size {}", size(pw, ph)));
-        pieces.push(("Front fabric".into(), front.0, front.1));
-        pieces.push(("Top strip".into(), strip.0, strip.1));
-        pieces.push(("Back fabric".into(), pw + IN, ph + IN));
+    Ok(())
+}
+
+/// The supplies list and the pieces to cut (name, width, height in mm), added to.
+type Cut<'a> = (&'a mut Vec<String>, &'a mut Vec<(String, f64, f64)>);
+
+/// A panel's supplies and pieces, in a field `field` (mm), and the steps that sew it into its
+/// cover.
+fn panel_supplies(a: &Ask, pc: &Piece, field: (f64, f64), cut: Cut<'_>, steps: &mut Vec<Value>) {
+    let (supplies, pieces) = cut;
+    let (pw, ph) = (pc.pw, pc.ph);
+    let (fw, fh) = field;
+    let (w, h) = a.finished;
+    let (side, topb) = (((w - pw) / 2.0).max(0.0), ((h - ph) / 2.0).max(0.0));
+    supplies.push(format!("Top fabric for hooping: {}", size(fw + 2.0 * IN, fh + 2.0 * IN)));
+    supplies.push("Tear-away stabilizer, the size of the hoop".into());
+    supplies.push(format!("Trim the embroidered panel to {} (¼″ seams)", size(pw + 2.0 * SEAM, ph + 2.0 * SEAM)));
+    pieces.push(("Embroidered panel, trimmed".into(), pw + 2.0 * SEAM, ph + 2.0 * SEAM));
+    if side > 1.0 {
+        supplies.push(format!("Side borders: 2 strips {}", size(side + 2.0 * SEAM, ph + 2.0 * SEAM)));
+        pieces.push(("Side border (cut 2)".into(), side + 2.0 * SEAM, ph + 2.0 * SEAM));
+    }
+    if topb > 1.0 {
+        supplies.push(format!("Top and bottom borders: 2 strips {}", size(w + 2.0 * SEAM, topb + 2.0 * SEAM)));
+        pieces.push(("Top and bottom border (cut 2)".into(), w + 2.0 * SEAM, topb + 2.0 * SEAM));
+    }
+    if a.ribbon {
+        supplies.push(format!("Ribbon ⅝″ wide, {} long", inches(pw + 2.0 * IN)));
+    }
+    if a.pr.id == BOOK_COVER {
+        book_cover_supplies((w, h), (supplies, pieces), steps);
     } else {
-        supplies.push(format!("Cut-away stabilizer, the size of the hoop; batting {}", size(pw + IN, ph + IN)));
-        supplies.push(format!("Top fabric {}; backing fabric {}", size(pw + IN, ph + IN), size(pw + IN, ph + IN)));
-        supplies.push(format!("Finished size {}", size(pw, ph)));
-        let cut = (pw + IN, ph + IN);
-        for name in ["Top fabric", "Batting", "Backing"] {
-            pieces.push((name.into(), cut.0, cut.1));
-        }
-        if vinyl {
-            supplies.push(format!("Clear vinyl {}", size(cut.0, cut.1)));
-            pieces.push(("Clear vinyl".into(), cut.0, cut.1));
-        }
-        if ribbon {
-            supplies.push("Ribbon ⅜″ wide, 6″ long, for the hanging loop".into());
-        }
-        if let Some(share) = pocket {
-            let folded = (pw + IN, 2.0 * ph * share + IN / 2.0);
-            supplies.push(format!("Pocket fabric {}, folded in half to {}", size(folded.0, folded.1), size(folded.0, folded.1 / 2.0)));
-            pieces.push(("Pocket (fold in half)".into(), folded.0, folded.1));
-        }
-        if !pr.extra.is_empty() {
-            supplies.push(pr.extra.into());
-        }
+        let back_h = (h * 0.65 + IN).round();
+        supplies.push(format!("Envelope back: 2 pieces {} (hem one long edge of each, overlap them)", size(w + 2.0 * SEAM, back_h)));
+        pieces.push(("Envelope back (cut 2)".into(), w + 2.0 * SEAM, back_h));
+        supplies.push(format!("Pillow form {} finished", size(w, h)));
+        add_step(
+            steps,
+            "Sew the front",
+            "Sew the side borders on, then the top and bottom ones, ¼″ seams; press. The front measures the pillow's size plus ¼″ all round.",
+        );
+        add_step(
+            steps,
+            "Sew the cover",
+            "Lay the two hemmed back pieces right side down on the front, overlapping; sew all round with a ¼″ seam, clip the corners, turn out and put the form in.",
+        );
     }
-    let title = if scale == 1.0 { pr.name.to_string() } else { format!("{}, made {}", pr.name, size(pw, ph)) };
-    let notes: String = std::iter::once(title)
+}
+
+/// A book cover's pieces past the front (`finished` w × h mm): the spine and back beside it, a
+/// lining as big, a flap folded in half at each end; and the steps that sew it.
+fn book_cover_supplies(finished: (f64, f64), cut: Cut<'_>, steps: &mut Vec<Value>) {
+    let (supplies, pieces) = cut;
+    let (w, h) = finished;
+    let (flat_w, cut_h) = (2.0 * w + SPINE + 2.0 * SEAM, h + 2.0 * SEAM);
+    let flap = 3.0 * IN;
+    supplies.push(format!("Back and spine: 1 piece {}", size(w + SPINE + 2.0 * SEAM, cut_h)));
+    supplies.push(format!("Lining: 1 piece {}", size(flat_w, cut_h)));
+    supplies.push(format!("Flaps: 2 pieces {}, folded in half to {}", size(2.0 * flap, cut_h), size(flap, cut_h)));
+    supplies.push(format!("For a book {} with a {} spine; the cover lies flat at {}", size(w, h), inches(SPINE), size(2.0 * w + SPINE, h)));
+    pieces.push(("Back and spine".into(), w + SPINE + 2.0 * SEAM, cut_h));
+    pieces.push(("Lining".into(), flat_w, cut_h));
+    pieces.push(("Flap (cut 2, fold in half)".into(), 2.0 * flap, cut_h));
+    add_step(
+        steps,
+        "Sew the front",
+        "Sew the side borders on, then the top and bottom ones, ¼″ seams; press. The front measures the book's cover plus ¼″ all round.",
+    );
+    add_step(steps, "Join the back", "Sew the back and spine piece to the front's left edge, ¼″ seam; press the seam open.");
+    add_step(
+        steps,
+        "Sew the cover",
+        "Fold the flaps in half, wrong sides together, and lay one at each end of the cover, raw edges together. Lay the lining right side down over them; sew all round with a ¼″ seam, leaving 4″ open at the bottom. Clip the corners, turn out, press, and topstitch the opening closed. Slide the book's covers into the flaps.",
+    );
+}
+
+/// A case's supplies and pieces: a ½″ fold at the top, ½″ round the rest to trim to ¼″.
+fn case_supplies(a: &Ask, pc: &Piece, cut: Cut<'_>) {
+    let (supplies, pieces) = cut;
+    let (pw, ph) = (pc.pw, pc.ph);
+    let cut = (pw + IN, ph + IN);
+    supplies.push("Tear-away stabilizer, the size of the hoop".into());
+    supplies.push(format!("Front fabric {}; back fabric {}; fusible fleece {} (optional)", size(cut.0, cut.1), size(cut.0, cut.1), size(pw, ph)));
+    supplies.push(format!("Finished size {}", size(pw, ph)));
+    pieces.push(("Front fabric".into(), cut.0, cut.1));
+    pieces.push(("Back fabric".into(), cut.0, cut.1));
+    if !a.pr.extra.is_empty() {
+        supplies.push(a.pr.extra.into());
+    }
+}
+
+/// A zippered pouch's supplies and pieces.
+fn pouch_supplies(pc: &Piece, cut: Cut<'_>) {
+    let (supplies, pieces) = cut;
+    let (pw, ph, zip_y) = (pc.pw, pc.ph, pc.zip_y);
+    let front = (pw + IN, ph / 2.0 - zip_y + IN);
+    let strip = (pw + IN, ZIPPER_DOWN + IN / 2.0);
+    supplies.push("Tear-away stabilizer, the size of the hoop".into());
+    supplies.push(format!("Front fabric {}; top strip {}; back fabric {}", size(front.0, front.1), size(strip.0, strip.1), size(pw + IN, ph + IN)));
+    supplies.push(format!("A nylon coil zipper at least {} long (the needle sews over its ends; metal teeth break needles)", inches(pw + 2.0 * IN)));
+    supplies.push(format!("Finished size {}", size(pw, ph)));
+    pieces.push(("Front fabric".into(), front.0, front.1));
+    pieces.push(("Top strip".into(), strip.0, strip.1));
+    pieces.push(("Back fabric".into(), pw + IN, ph + IN));
+}
+
+/// The supplies and pieces of a piece finished in the hoop.
+fn piece_supplies(a: &Ask, pc: &Piece, cut: Cut<'_>) {
+    let (supplies, pieces) = cut;
+    let (pw, ph) = (pc.pw, pc.ph);
+    supplies.push(format!("Cut-away stabilizer, the size of the hoop; batting {}", size(pw + IN, ph + IN)));
+    supplies.push(format!("Top fabric {}; backing fabric {}", size(pw + IN, ph + IN), size(pw + IN, ph + IN)));
+    supplies.push(format!("Finished size {}", size(pw, ph)));
+    let cut = (pw + IN, ph + IN);
+    for name in ["Top fabric", "Batting", "Backing"] {
+        pieces.push((name.into(), cut.0, cut.1));
+    }
+    if a.vinyl {
+        supplies.push(format!("Clear vinyl {}", size(cut.0, cut.1)));
+        pieces.push(("Clear vinyl".into(), cut.0, cut.1));
+    }
+    if a.ribbon {
+        supplies.push("Ribbon ⅜″ wide, 6″ long, for the hanging loop".into());
+    }
+    if let Some(share) = a.pocket {
+        let folded = (pw + IN, 2.0 * ph * share + IN / 2.0);
+        supplies.push(format!("Pocket fabric {}, folded in half to {}", size(folded.0, folded.1), size(folded.0, folded.1 / 2.0)));
+        pieces.push(("Pocket (fold in half)".into(), folded.0, folded.1));
+    }
+    if !a.pr.extra.is_empty() {
+        supplies.push(a.pr.extra.into());
+    }
+}
+
+/// The design's notes: its title, what you need and the steps, at most 2000 characters.
+fn notes(title: String, supplies: &[String], steps: &[Value]) -> String {
+    std::iter::once(title)
         .chain(std::iter::once(String::new()))
         .chain(std::iter::once("You need:".to_string()))
         .chain(supplies.iter().map(|x| format!("- {x}")))
@@ -807,14 +1041,7 @@ fn make(s: &mut Session, p: &Value) -> Result<Value> {
         .join("\n")
         .chars()
         .take(2000)
-        .collect();
-    s.execute("embroidery.settings", &json!({ "notes": notes }))?;
-    s.execute("select.none", &json!({}))?;
-    if button {
-        supplies.push("A button, ½″ to ¾″".into());
-    }
-    let pieces: Vec<Value> = pieces.into_iter().map(|(name, w, h)| json!({ "name": name, "widthMm": w, "heightMm": h })).collect();
-    Ok(json!({ "project": pr.id, "hoop": made["hoop"], "design": design, "steps": steps, "supplies": supplies, "pieces": pieces, "notes": notes }))
+        .collect()
 }
 
 /// Cutting templates: the project made to find its pieces, then a Letter document with each piece
@@ -1086,6 +1313,26 @@ mod tests {
         assert_eq!(r["what"], "ith");
     }
 
+    /// The first and last threads of project `pr`'s steps (and the stops between them), by kind.
+    fn thread_order(pr: &Project, threads: &[String], info: &Value) {
+        if SLEEVES.contains(&pr.id) {
+            assert_eq!(threads.first().map(String::as_str), Some(CASE_PLACEMENT.1), "{}: {threads:?}", pr.id);
+            assert_eq!(threads.last().map(String::as_str), Some(CASE_BACK.1), "{}: {threads:?}", pr.id);
+        } else if ZIPPERED.contains(&pr.id) {
+            assert_eq!(threads.first().map(String::as_str), Some(POUCH_PLACEMENT.1), "{}: {threads:?}", pr.id);
+            assert_eq!(threads.last().map(String::as_str), Some(POUCH_BACK.1), "{}: {threads:?}", pr.id);
+        } else if pr.panel {
+            assert_eq!(threads.first().map(String::as_str), Some(TRIM_LINE.1), "{}: {threads:?}", pr.id);
+            assert_eq!(threads.last().map(String::as_str), Some(FRAME.1), "{}: {threads:?}", pr.id);
+        } else {
+            assert_eq!(threads.first().map(String::as_str), Some(PLACEMENT.1), "{}: {threads:?}", pr.id);
+            assert_eq!(threads.last().map(String::as_str), Some(EDGE.1), "{}: {threads:?}", pr.id);
+            assert!(threads.iter().any(|t| t == BACKING.1), "{}: {threads:?}", pr.id);
+            // placement, tack-down and trim stops: the machine stops for each layer
+            assert!(info["stops"].as_u64().unwrap_or(0) + info["colorChanges"].as_u64().unwrap_or(0) >= 4, "{}: {info}", pr.id);
+        }
+    }
+
     #[test]
     fn each_project_sews_step_by_step_in_a_hoop_it_fits() {
         let mut s = Session::new();
@@ -1098,22 +1345,7 @@ mod tests {
             let info = s.execute("embroidery.info", &json!({})).unwrap();
             assert_eq!(info["fits"], true, "{}: {info}", pr.id);
             let threads: Vec<String> = info["colors"].as_array().unwrap().iter().map(|c| c["name"].as_str().unwrap_or("").to_string()).collect();
-            if SLEEVES.contains(&pr.id) {
-                assert_eq!(threads.first().map(String::as_str), Some(CASE_PLACEMENT.1), "{}: {threads:?}", pr.id);
-                assert_eq!(threads.last().map(String::as_str), Some(CASE_BACK.1), "{}: {threads:?}", pr.id);
-            } else if ZIPPERED.contains(&pr.id) {
-                assert_eq!(threads.first().map(String::as_str), Some(POUCH_PLACEMENT.1), "{}: {threads:?}", pr.id);
-                assert_eq!(threads.last().map(String::as_str), Some(POUCH_BACK.1), "{}: {threads:?}", pr.id);
-            } else if pr.panel {
-                assert_eq!(threads.first().map(String::as_str), Some(TRIM_LINE.1), "{}: {threads:?}", pr.id);
-                assert_eq!(threads.last().map(String::as_str), Some(FRAME.1), "{}: {threads:?}", pr.id);
-            } else {
-                assert_eq!(threads.first().map(String::as_str), Some(PLACEMENT.1), "{}: {threads:?}", pr.id);
-                assert_eq!(threads.last().map(String::as_str), Some(EDGE.1), "{}: {threads:?}", pr.id);
-                assert!(threads.iter().any(|t| t == BACKING.1), "{}: {threads:?}", pr.id);
-                // placement, tack-down and trim stops: the machine stops for each layer
-                assert!(info["stops"].as_u64().unwrap_or(0) + info["colorChanges"].as_u64().unwrap_or(0) >= 4, "{}: {info}", pr.id);
-            }
+            thread_order(pr, &threads, &info);
             assert!(r["steps"].as_array().unwrap().len() >= 4, "{r}");
             assert!(info["notes"].as_str().unwrap().contains("You need:"), "{info}");
         }

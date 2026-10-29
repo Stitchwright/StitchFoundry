@@ -10,7 +10,7 @@ use vectorcraft_embroidery::{PT_PER_MM, node_thread, stitched_nodes};
 use vectorcraft_geom::path::{PathData, SubPath};
 
 use super::embroidery::{ids_json, stitched_targets};
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, has_doc, has_selection, targets};
 use crate::EngineError;
 
 pub fn specs() -> Vec<CommandSpec> {
@@ -505,17 +505,15 @@ fn finding(kind: &str, severity: &str, message: String, ids: &[NodeId], at: Opti
     v
 }
 
-fn check(s: &mut Session, _p: &Value) -> Result<Value> {
-    const CMD: &str = "embroidery.check";
-    let plan = s.embroidery_plan().ok_or_else(|| bad(CMD, "no document"))?;
-    let st = s.doc()?;
-    let doc = &st.doc;
+/// [`check`]'s findings for each stitched object: no stitches, tiny (`tiny` mm across) and lettering
+/// under `small_lettering` mm tall.
+fn object_findings(
+    doc: &vectorcraft_doc::Document,
+    plan: &vectorcraft_embroidery::StitchPlan,
+    (tiny, small_lettering): (f64, f64),
+    findings: &mut Vec<Value>,
+) {
     let pat = plan.pattern();
-    let lim = doc.embroidery.as_deref().map(|e| e.checks.clone()).unwrap_or_default();
-    let (dense_layers, long_stitch, small_lettering, tiny) = (lim.dense_layers, lim.long_stitch, lim.small_lettering, lim.tiny_object);
-    let mut findings: Vec<Value> = Vec::new();
-
-    // Objects: no stitches, tiny, small lettering.
     for n in stitched_nodes(doc) {
         // a branch group only says how its members are sewn, lettering what they say
         if n.embroidery.as_deref().is_some_and(|e| matches!(e.stitch, sf_core::attr::StitchType::Branch | sf_core::attr::StitchType::Lettering(_))) {
@@ -541,6 +539,20 @@ fn check(s: &mut Session, _p: &Value) -> Result<Value> {
             ));
         }
     }
+}
+
+fn check(s: &mut Session, _p: &Value) -> Result<Value> {
+    const CMD: &str = "embroidery.check";
+    let plan = s.embroidery_plan().ok_or_else(|| bad(CMD, "no document"))?;
+    let st = s.doc()?;
+    let doc = &st.doc;
+    let pat = plan.pattern();
+    let lim = doc.embroidery.as_deref().map(|e| e.checks.clone()).unwrap_or_default();
+    let (dense_layers, long_stitch, small_lettering, tiny) = (lim.dense_layers, lim.long_stitch, lim.small_lettering, lim.tiny_object);
+    let mut findings: Vec<Value> = Vec::new();
+
+    // Objects: no stitches, tiny, small lettering.
+    object_findings(doc, &plan, (tiny, small_lettering), &mut findings);
 
     // Satin too narrow to sit up; tatami stitches short enough to ripple after washing.
     let mut flagged: Vec<(NodeId, &str)> = Vec::new();

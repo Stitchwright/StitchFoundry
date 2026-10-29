@@ -92,7 +92,7 @@ pub use svg::options_map as svg_options;
 #[cfg(not(target_arch = "wasm32"))]
 pub use vectorcraft_format::write_atomic;
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, has_doc, has_selection};
 use crate::EngineError;
 
 mod access;

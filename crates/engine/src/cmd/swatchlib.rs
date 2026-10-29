@@ -17,8 +17,8 @@ use vectorcraft_color::{Paint, Swatch, SwatchGroup, SwatchLibrary, default_swatc
 use super::fileio::{create_dir, extension, read_file, write_file, write_new_file};
 use super::menucmds::squash;
 use super::package::free_name;
-use super::swatch::{map_default_paints, str_list, swatch_json};
-use super::*;
+use super::swatch::{map_default_paints, map_swatch_links, str_list, swatch_json};
+use super::{Color, CommandSpec, Result, Session, always, bad, bool_or, cmd, has_doc, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![
@@ -644,7 +644,7 @@ fn reset_defaults(s: &mut Session, p: &Value) -> Result<Value> {
             (d.swatches, d.swatch_groups) = (defaults.into(), groups.into());
             added.extend(d.swatches_iter().filter(|w| !before.contains(&w.name)).map(|w| w.name.clone()));
             live.extend(d.swatches_iter().filter(|w| w.global).map(|w| w.name.clone()));
-            d.map_solid_paints(&mut |_, l, _| unlink_dead(&live, l));
+            map_swatch_links(d, &mut |_, l, _| unlink_dead(&live, l));
             return Ok(added);
         }
         for (i, w) in defaults.into_iter().enumerate() {

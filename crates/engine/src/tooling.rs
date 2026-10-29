@@ -27,7 +27,8 @@ pub struct ViewInfo {
     pub snap_to_pixel: bool,
     /// View → Snap to Point: picked points (a transform's reference point) land on anchors.
     pub snap_to_point: bool,
-    /// View → Snap to Glyph: drawing snaps to live-text baselines and glyph bounds (needs Smart Guides).
+    /// View → Snap to Glyph: drawing snaps to live-text glyph bounds, and on a single line of type to
+    /// its baseline, x-height, character widths and glyph anchor points (needs Smart Guides).
     pub snap_to_glyph: bool,
     /// View → Show Corner Widget.
     pub corner_widgets: bool,
@@ -181,7 +182,7 @@ impl Session {
         let r = self.apply_actions(acts);
         self.keep_tool_settings();
         self.tool = lender;
-        self.after_command();
+        self.after_command(None);
         r.map(drop)
     }
 
@@ -683,15 +684,31 @@ impl Session {
 
     /// Let the active tool finish work a command from outside it ended ([`vectorcraft_tools::Tool::after_command`]):
     /// the Type tool and the Eyedropper clear a character range whose text is no longer selected.
-    pub(crate) fn after_command(&mut self) {
+    /// After `edit.undo` or `edit.redo` (`cmd`), the tool is told first, so the Type tool puts the
+    /// caret where the step changed the text.
+    pub(crate) fn after_command(&mut self, cmd: Option<&str>) {
         if self.in_tool_actions || (!self.tool.wants_text() && self.tool.id() != "eyedropper") {
             return;
+        }
+        if let Some(cmd @ ("edit.undo" | "edit.redo")) = cmd {
+            self.notify_text_tool(cmd);
         }
         let acts = self.with_tool_cx(self.last_view, |t, cx| t.after_command(cx));
         // The command itself succeeded: a failure here only leaves the edit as it was.
         if let Err(e) = self.apply_actions(acts) {
             log::warn!("ending the text edit: {e}");
         }
+    }
+
+    /// Tell the active tool that `edit.undo` or `edit.redo` ran, on its own or as a step of
+    /// `command.batch`, so the Type tool puts the caret where the step changed the text; or that a
+    /// `command.batch` began, ended or was rolled back (`batch.begin`, `batch.end`,
+    /// `batch.rollBack`), so the Type tool puts back what its Undo and Redo steps changed when it fails.
+    pub(crate) fn notify_text_tool(&mut self, what: &str) {
+        if self.in_tool_actions || (!self.tool.wants_text() && self.tool.id() != "eyedropper") {
+            return;
+        }
+        self.with_tool_cx(self.last_view, |t, cx| t.notify(cx, what));
     }
 
     /// Apply tool actions. Errors from previews are reported but keep the interaction alive.

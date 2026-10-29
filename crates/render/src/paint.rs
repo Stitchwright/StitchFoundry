@@ -5,7 +5,7 @@ use vectorcraft_geom::{Rect, Vec2};
 use vello_cpu::RenderContext;
 use vello_cpu::peniko::{self, ColorStop};
 
-use super::*;
+use super::{BlendMode, Compose, FillRule, Mix, vello_cpu};
 use crate::Frame;
 
 /// Set the context paint (colours as frame `f` paints them). Returns false if nothing should be
@@ -20,7 +20,10 @@ pub(crate) fn set_paint(ctx: &mut RenderContext, p: &Paint, bounds: Rect, f: &Fr
         Paint::Gradient(g) if g.gradient.kind == GradientKind::Freeform => crate::freeform::set_freeform_paint(ctx, g, bounds, f.ink),
         Paint::Gradient(g) => {
             let geom = g.resolve(bounds);
-            let stops: Vec<ColorStop> = g.gradient.expanded_stops().iter().map(|(o, c, a)| ColorStop::from((*o, f.ink.color(c, *a)))).collect();
+            let adjusted = f.ink.gradient(&g.gradient);
+            let gradient = adjusted.as_ref().unwrap_or(&g.gradient);
+            let ink = if adjusted.is_some() { f.ink.base() } else { f.ink };
+            let stops: Vec<ColorStop> = gradient.expanded_stops().iter().map(|(o, c, a)| ColorStop::from((*o, ink.color(c, *a)))).collect();
             if stops.is_empty() {
                 return false;
             }

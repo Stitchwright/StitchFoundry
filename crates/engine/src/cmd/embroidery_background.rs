@@ -14,7 +14,7 @@ use sf_core::geom::{Point as MmPoint, Polygon, poly, polyline};
 use vectorcraft_embroidery::{MM_PER_PT, PT_PER_MM};
 
 use super::embroidery_lettering::ranged;
-use super::*;
+use super::{CommandSpec, NodeId, Result, Session, bad, cmd, has_selection, str_param, targets};
 
 /// Echo rings made at most.
 const MAX_RINGS: usize = 400;

@@ -3,6 +3,7 @@
 //! nginx, a cloud load balancer) so the app reaches it over HTTPS. Settings: see `config.rs` and
 //! `docs/cloud.md`.
 
+#![forbid(unsafe_code)]
 use std::io::Read;
 use std::sync::Arc;
 

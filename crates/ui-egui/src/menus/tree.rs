@@ -3,7 +3,7 @@ use super::submenus::{
     INSERT_BREAK, INSERT_SPECIAL, INSERT_WHITESPACE, PATH_EFFECTS, TYPE_SIZES, effect_menu, embroidery_menu, font_items, insert_items,
     machine_file_items,
 };
-use super::*;
+use super::{Item, Sep, c, cp, json, sub, todo, todos};
 
 /// The in-window and native menu tree. The in-window bar skips the VectorCraft menu (see
 /// `menu_bar`); the native Mac bar is composed from the whole tree (see `native_menu`).
@@ -178,7 +178,12 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                 c("Unlock All", "object.unlockAll"),
                 sub(
                     "Hide",
-                    vec![c("Selection", "object.hide"), c("All Artwork Above", "object.hide.above"), c("Other Layers", "object.hide.otherLayers")],
+                    vec![
+                        c("Selection", "object.hide"),
+                        c("All Artwork Above", "object.hide.above"),
+                        c("Other Layers", "object.hide.otherLayers"),
+                        c("Unselected Artwork", "object.hide.unselected"),
+                    ],
                 ),
                 c("Show All", "object.showAll"),
                 Sep,
@@ -227,6 +232,7 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                         c("Reverse Path Direction", "path.reverse"),
                         Sep,
                         c("Simplify…", "object.path.simplify"),
+                        c("Smooth…", "object.path.smooth"),
                         c("Add Anchor Points", "object.path.addAnchorPoints"),
                         c("Remove Anchor Points", "path.removeAnchors"),
                         c("Divide Objects Below", "object.path.divideObjectsBelow"),
@@ -610,9 +616,8 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
             v.extend(SAVED_VIEW_IDS.iter().map(|id| c("Saved View", id)));
             v
         }),
-        (
-            "Window",
-            vec![
+        ("Window", {
+            let mut window_items = vec![
                 c("New Window", "window.newWindow"),
                 sub("Arrange", vec![todo("Cascade"), todo("Tile"), todo("Float in Window"), todo("Consolidate All Windows")]),
                 sub("Workspace", crate::workspaces::menu_items()),
@@ -644,21 +649,26 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                 panel("Stitch List", "stitchList"),
                 panel("Embroidery Styles", "embroideryStyles"),
                 Sep,
-                panel("Layers", "layers"),
-                panel("Properties", "properties"),
-                panel("Swatches", "swatches"),
-                panel("Color", "color"),
-                panel("Stroke", "stroke"),
+            ];
+            // the everyday panels, in the interface language's alphabetical order (#4143)
+            window_items.extend(sorted(vec![
                 panel("Align", "align"),
-                panel("Transform", "transform"),
-                panel("Pathfinder", "pathfinder"),
                 panel("Appearance", "appearance"),
                 panel("Artboards", "artboards"),
+                panel("Color", "color"),
                 panel("History", "history"),
+                panel("Layers", "layers"),
+                panel("Pathfinder", "pathfinder"),
+                panel("Properties", "properties"),
+                panel("Stroke", "stroke"),
+                panel("Swatches", "swatches"),
+                panel("Transform", "transform"),
+            ]));
+            window_items.extend(vec![
                 Sep,
                 sub(
                     "Paint",
-                    vec![
+                    sorted(vec![
                         panel("Blend", crate::panels::blend::ID),
                         panel("Brushes", "brushes"),
                         panel("Color Guide", "colorGuide"),
@@ -668,11 +678,11 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                         panel("Pattern Options", "patternOptions"),
                         panel("Symbols", "symbols"),
                         panel("Transparency", "transparency"),
-                    ],
+                    ]),
                 ),
                 sub(
                     "Type",
-                    vec![
+                    sorted(vec![
                         panel("Character", "character"),
                         panel("Character Styles", "charStyles"),
                         panel("Glyphs", "glyphs"),
@@ -680,29 +690,32 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                         panel("Paragraph", "paragraph"),
                         panel("Paragraph Styles", "paraStyles"),
                         panel("Tabs", "tabs"),
-                    ],
+                    ]),
                 ),
-                sub("Images", vec![panel("Image Trace", "imageTrace"), panel("Magic Wand", "magicWand"), panel("Links", crate::panels::links::ID)]),
+                sub(
+                    "Images",
+                    sorted(vec![panel("Image Trace", "imageTrace"), panel("Magic Wand", "magicWand"), panel("Links", crate::panels::links::ID)]),
+                ),
                 sub(
                     "Document",
-                    vec![
+                    sorted(vec![
                         panel("Info", "info"),
                         panel("Document Info", "docInfo"),
                         panel("Navigator", "navigator"),
                         panel("Attributes", "attributes"),
                         panel("Variables", crate::panels::variables::ID),
                         panel("Actions", "actions"),
-                    ],
+                    ]),
                 ),
                 sub(
                     "Print and Export",
-                    vec![
+                    sorted(vec![
                         panel("Separations Preview", "separations"),
                         panel("Flattener Preview", crate::panels::flattener_preview::ID),
                         panel("Asset Export", crate::panels::asset_export::ID),
                         panel("CSS Properties", crate::panels::css_properties::ID),
                         panel("SVG Interactivity", crate::panels::svg_interactivity::ID),
-                    ],
+                    ]),
                 ),
                 sub(
                     "Libraries",
@@ -715,8 +728,9 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                         sub("Symbol Libraries", crate::panels::symbols::window_menu()),
                     ],
                 ),
-            ],
-        ),
+            ]);
+            window_items
+        }),
         (
             "Help",
             vec![
@@ -765,4 +779,29 @@ pub(super) fn arrange_items() -> Vec<Item> {
         Sep,
         c("Send to Current Layer", "object.arrange.sendToCurrentLayer"),
     ]
+}
+
+/// `items` in the order of their labels in the interface language (StitchFoundry's Window submenus).
+fn sorted(mut items: Vec<Item>) -> Vec<Item> {
+    sort_by_localized_label(&mut items, crate::i18n::current());
+    items
+}
+
+/// Sort menu items alphabetically by their display label in `lang`, folding Latin accents so
+/// panels and submenus appear in the expected alphabetical order in every interface language (#4143).
+fn sort_by_localized_label(items: &mut [Item], lang: crate::i18n::Lang) {
+    items.sort_by_cached_key(|it| {
+        let label = match it {
+            Item::Cmd(l, id, _) => crate::i18n::tr_id(lang, id, l),
+            Item::Sub(l, _) | Item::Todo(l, _) | Item::Header(l) => crate::i18n::tr(lang, l),
+            Item::Sep => "",
+        };
+        (
+            crate::i18n::name_sort_key(label),
+            match it {
+                Item::Cmd(l, ..) | Item::Sub(l, ..) | Item::Todo(l, ..) | Item::Header(l) => *l,
+                Item::Sep => "",
+            },
+        )
+    });
 }

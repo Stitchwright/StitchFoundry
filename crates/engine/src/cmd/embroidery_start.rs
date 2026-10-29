@@ -4,7 +4,7 @@
 use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, str_param};
 
 /// The sample designs: id, name, the hoop they are made for, what it shows.
 const SAMPLES: &[(&str, &str, &str, &str)] = &[

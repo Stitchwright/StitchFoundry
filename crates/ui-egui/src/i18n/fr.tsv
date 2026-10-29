@@ -1944,6 +1944,10 @@ font-technology	Variable	Variables
 	Outer Corner Tile	Carreau d'angle extérieur
 	Side Tile	Carreau latéral
 	Inner Corner Tile	Carreau d'angle intérieur
+	Auto-Centered	Auto-centré
+	Auto-Between	Auto-entre
+	Auto-Sliced	Auto-biseauté
+	Auto-Overlap	Auto-chevauchement
 	Start Tile	Carreau de début
 	End Tile	Carreau de fin
 	Fit	Ajustement
@@ -2997,6 +3001,7 @@ font-technology	Variable	Variables
 	Show Original Path	Afficher le tracé d’origine
 	Open this dialog with these settings next time	Ouvrir cette boîte de dialogue avec ces réglages la prochaine fois
 	Auto-Simplify	Simplifier automatiquement
+	Auto-Smooth	Lisser automatiquement
 	Color Panel Options	Options du panneau Couleur
 	Show Package	Afficher le dossier d’assemblage
 	Show Panel	Afficher le panneau
@@ -3033,6 +3038,7 @@ font-technology	Variable	Variables
 	Simplify	Simplifier
 	Simplify:	Simplifier :
 	Simplify…	Simplifier…
+	Smooth…	Lisser…
 	Simulate Colored Paper	Simuler un papier de couleur
 	Simulate Paper	Simuler le papier
 	Double Column	Deux colonnes
@@ -3209,6 +3215,7 @@ font-technology	Variable	Variables
 	Swatch Options…	Options de nuance…
 	Swatch Tiles	Carreaux de nuances
 	Swatches	Nuancier
+	Switch Units	Changer d’unités
 	Switch workspace	Changer d’espace de travail
 	Add Content	Ajouter du contenu
 	Click to apply to the selected type	Cliquez pour l’appliquer au texte sélectionné
@@ -3442,6 +3449,7 @@ font-technology	Variable	Variables
 	Unlock Guides	Déverrouiller les repères
 	Unnamed Objects	Objets sans nom
 	Unprintable margin:	Marge non imprimable :
+	Unselected Artwork	Illustration non sélectionnée
 	Unshift	Annuler le décalage
 	Untitled	Sans titre
 	Update Link	Mettre à jour le lien
@@ -3899,6 +3907,7 @@ axis	Both	Les deux
 @msg	`{key}` must be between {min} and {max} (got {x})	`{key}` doit être compris entre {min} et {max} (reçu : {x})
 @msg	`{key}` must be one of {_1}	`{key}` doit valoir l’une de ces valeurs : {_1}
 @msg	`{key}` must be true or false	`{key}` doit valoir true ou false
+@msg	`top` and `below` can't both be true	`top` et `below` ne peuvent pas valoir true tous les deux
 @msg	`select` must be true or false	`select` doit valoir true ou false
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors` et `maxAnchors` doivent être des nombres entiers
 @msg	`{key}` must be a number not below 0	`{key}` doit être un nombre supérieur ou égal à 0
@@ -3976,6 +3985,7 @@ axis	Both	Les deux
 @msg	videoRulerPixelAspectRatio must be a number from 0.1 to 10	videoRulerPixelAspectRatio doit être un nombre de 0,1 à 10
 @msg	the Color Picker is not open	le Sélecteur de couleurs n’est pas ouvert
 @msg	the Simplify slider is not open	le curseur Simplifier n’est pas ouvert
+@msg	the Smooth slider is not open	le curseur Lisser n’est pas ouvert
 @msg	the screen color sampler is already open	l’outil de prélèvement de couleur à l’écran est déjà ouvert
 @msg	this system has no screen color sampler	ce système n’a pas d’outil de prélèvement de couleur à l’écran
 @msg	bad colour `{hex}` (#rrggbb)	couleur non valide `{hex}` (#rrggbb)
@@ -4043,6 +4053,7 @@ axis	Both	Les deux
 @msg	missing `id` (see plugin.list)	`id` manquant (voir plugin.list)
 @msg	missing `name`	`name` manquant
 @msg	missing `tool`	`tool` manquant
+@msg	missing id	id manquant
 @msg	missing index	index manquant
 @msg	missing number `{key}`	nombre `{key}` manquant
 @msg	missing integer `{key}`	nombre entier `{key}` manquant
@@ -4075,6 +4086,7 @@ axis	Both	Les deux
 @msg	no current layer	aucun calque actif
 @msg	no data	aucune donnée
 @msg	no dialog open	aucune boîte de dialogue ouverte
+@msg	the open dialog has no Reset	la boîte de dialogue ouverte n’a pas de bouton Réinitialiser
 @msg	no document	aucun document
 @msg	no document open	aucun document ouvert
 @msg	no effect applied yet	aucun effet appliqué pour l’instant
@@ -4157,6 +4169,7 @@ axis	Both	Les deux
 @msg	not in pattern editing mode	pas en mode d’édition de motif
 @msg	nothing encoded	rien n’a été encodé
 @msg	nothing selected	aucune sélection
+@msg	nothing selected is in a group	aucun élément sélectionné ne se trouve dans un groupe
 @msg	nothing to align	rien à aligner
 @msg	nothing to distort	rien à déformer
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	rien à exporter : le document n’a aucune illustration visible (ou activez Utiliser les plans de travail)
@@ -4230,6 +4243,7 @@ axis	Both	Les deux
 @msg	select an object in perspective	sélectionnez un objet en perspective
 @msg	select artwork (or a colour group) to recolor	sélectionnez l’illustration (ou un groupe de couleurs) dont redéfinir les couleurs
 @msg	select at least two objects	sélectionnez au moins deux objets
+@msg	exit isolation mode first	quittez d’abord le mode Isolation
 @msg	select objects, not layers	sélectionnez des objets, pas des calques
 @msg	select one path, or give its `id`	sélectionnez un tracé ou indiquez son `id`
 @msg	select paths to join	sélectionnez les tracés à joindre
@@ -4282,10 +4296,14 @@ axis	Both	Les deux
 @msg	the layer or group is locked	le calque ou le groupe est verrouillé
 @msg	the guide is on a hidden or locked layer	le repère se trouve sur un calque masqué ou verrouillé
 @msg	the target layer is locked or hidden	le calque cible est verrouillé ou masqué
+@msg	the object is hidden or locked	l’objet est masqué ou verrouillé
+@msg	the object is outside the isolated group	l’objet est en dehors du groupe isolé
+@msg	type objects can't be isolated	les objets texte ne peuvent pas être isolés
 @msg	the layer to flatten into is hidden	le calque de destination de l’aplatissement est masqué
 @msg	the object already has an opacity mask	l’objet a déjà un masque d’opacité
 @msg	the object has no geometry	l’objet n’a pas de géométrie
 @msg	the object has no opacity mask	l’objet n’a pas de masque d’opacité
+@msg	stop editing the opacity mask first	arrêtez d’abord la modification du masque d’opacité
 @msg	the object has no stroke	l’objet n’a pas de contour
 @msg	the object is beyond the plane's horizon	l’objet est au-delà de l’horizon du plan
 @msg	the object isn't in perspective	l’objet n’est pas en perspective
@@ -4469,6 +4487,10 @@ axis	Both	Les deux
 	Shaper	Shaper
 	Expand Shaper Group	Décomposer le groupe Shaper
 	Release Shaper Group	Annuler le groupe Shaper
+	Remove from Shaper Group	Retirer du groupe Shaper
+@msg	source must be the id of a Shaper Group's original shape	source doit être l’identifiant d’une forme d’origine d’un groupe Shaper
+@msg	group must be the id of a Shaper Group	group doit être l’identifiant d’un groupe Shaper
+@msg	the shape is not an editable original shape of that Shaper Group	la forme n’est pas une forme d’origine modifiable de ce groupe Shaper
 	Select Shaper Face	Sélectionner la face Shaper
 	Drag art, colors and text styles here to reuse them across documents. Libraries are stored on this machine — no account required.	Faites glisser ici des illustrations, des couleurs et des styles de texte pour les réutiliser d’un document à l’autre. Les bibliothèques sont enregistrées sur cet ordinateur — aucun compte n’est nécessaire.
 	1 Color Job	Travail 1 couleur

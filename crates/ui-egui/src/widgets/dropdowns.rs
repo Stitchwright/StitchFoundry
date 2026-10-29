@@ -1,6 +1,6 @@
 use super::drag::PanelDrag;
 use super::labels::{PreviousLabel, label_field, name_field, take_previous_label};
-use super::*;
+use super::{CornerRadius, HashOnly, Rect, Response, Sense, Stroke, StrokeKind, Tokens, Ui, Vec2, id_with, vec2};
 
 /// A compact dropdown of interface labels (shown in the UI language). Returns the chosen index.
 pub fn dropdown(ui: &mut Ui, id: impl std::hash::Hash, current: &str, options: &[&str], width: f32) -> Option<usize> {

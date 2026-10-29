@@ -4,7 +4,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, has_doc};
 
 /// Exports remembered, at most.
 const MAX: usize = 100;

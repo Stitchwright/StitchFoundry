@@ -5,7 +5,7 @@
 use serde_json::{Value, json};
 use sf_core::threads::{MAX_CHART_THREADS, Rgb, Thread, ThreadChart};
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, str_param};
 
 /// Charts of one's own kept, at most.
 const MAX_CHARTS: usize = 50;

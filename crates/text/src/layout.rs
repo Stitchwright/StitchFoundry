@@ -216,6 +216,12 @@ impl Ctx<'_> {
                 Affine::rotate(-g.rotation.to_radians()) * Affine::translate((g.dx - lead, g.dy - g.bshift)) * Affine::scale_non_uniform(g.sx, g.sy)
             }
         };
+        let unturned = if g.inline.is_none() && g.rotation != 0.0 && g.sx != 0.0 && g.sy != 0.0 {
+            let placed = Affine::translate((g.dx - lead, g.dy - g.bshift)) * Affine::scale_non_uniform(g.sx, g.sy);
+            placed.inverse() * Affine::rotate(g.rotation.to_radians()) * placed
+        } else {
+            Affine::IDENTITY
+        };
         let mut m = pre * local;
         if self.vertical && self.on_path {
             // Vertical path type keeps the baseline path and turns each glyph across it.
@@ -271,6 +277,7 @@ impl Ctx<'_> {
             image,
             colour,
             bend: None,
+            unturned,
         });
     }
 

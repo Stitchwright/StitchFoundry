@@ -9,7 +9,7 @@ use sf_core::threads::Thread;
 use vectorcraft_color::Color;
 use vectorcraft_doc::{NodeId, NodeKind};
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![cmd!(

@@ -627,6 +627,37 @@ fn the_paint_and_drawing_mode_buttons_fit_the_toolbar_width() {
     assert_eq!(app.session.draw_mode, vectorcraft_engine::DrawMode::Behind);
 }
 
+/// A click on the Gradient button applies the last gradient; Cmd/Ctrl-click resets the active
+/// proxy's gradient to the linear White, Black gradient instead, as one undo step.
+#[test]
+fn cmd_click_on_the_gradient_button_resets_to_the_linear_white_black_gradient() {
+    // StitchFoundry's toolbar, with the embroidery tools, puts the paint buttons below 900 points.
+    const TALL: f32 = 1200.0;
+    let mut app = VectorcraftApp::new(Session::new(), Default::default());
+    app.run("file.new", json!({"width": 300, "height": 300})).unwrap();
+    app.run("shape.rectangle", json!({"x": 100, "y": 100, "width": 100, "height": 100})).unwrap();
+    let stops = json!([{"offset": 0, "color": "#ff0000"}, {"offset": 1, "color": "#0000ff"}]);
+    app.run("paint.setFill", json!({"gradient": {"kind": "radial", "stops": stops}})).unwrap();
+    app.run("paint.setFill", json!({"color": "#336699"})).unwrap();
+    let fill = |app: &VectorcraftApp| match crate::panels::current_paints(app).0 {
+        Paint::Gradient(g) => (g.gradient.kind, g.gradient.stops.iter().map(|s| s.color.to_hex()).collect::<Vec<_>>()),
+        p => panic!("expected a gradient fill, got {p:?}"),
+    };
+    let ctx = egui::Context::default();
+    frame_in(&mut app, &ctx, 0.0, vec![], TALL);
+    let gradient = widget_rects(&ctx, vec2(11.0, 11.0))[1].center();
+    click_in(&mut app, &ctx, 1.0, gradient, PointerButton::Primary, TALL);
+    assert_eq!(fill(&app), (vectorcraft_color::GradientKind::Radial, vec!["#ff0000".into(), "#0000ff".into()]), "the last gradient");
+    let m = egui::Modifiers::COMMAND;
+    let b = |pressed| Event::PointerButton { pos: gradient, button: PointerButton::Primary, pressed, modifiers: m };
+    frame_in(&mut app, &ctx, 2.0, vec![Event::ModifiersChanged(m), Event::PointerMoved(gradient), b(true)], TALL);
+    frame_in(&mut app, &ctx, 2.05, vec![b(false)], TALL);
+    frame_in(&mut app, &ctx, 2.1, vec![Event::ModifiersChanged(egui::Modifiers::NONE)], TALL);
+    assert_eq!(fill(&app), (vectorcraft_color::GradientKind::Linear, vec!["#ffffff".into(), "#000000".into()]));
+    app.run("edit.undo", json!({})).unwrap();
+    assert_eq!(fill(&app).0, vectorcraft_color::GradientKind::Radial, "one undo step");
+}
+
 /// How many columns of tool buttons `rects` make.
 fn columns(rects: &[egui::Rect]) -> usize {
     let mut lefts: Vec<i32> = rects.iter().map(|r| r.left().round() as i32).collect();

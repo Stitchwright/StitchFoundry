@@ -2,6 +2,32 @@ use super::*;
 use vectorcraft_engine::Session;
 use vectorcraft_geom::Shape as _;
 
+#[test]
+fn subpixel_dock_layout_does_not_change_pointer_document_coordinates() {
+    let mut observed = Vec::new();
+    for width in [1324.0 + 29.0 / 32.0, 1324.875, 1325.875] {
+        let mut app = VectorcraftApp::new(Session::new(), Default::default());
+        app.session.execute("file.new", &json!({"width": 800, "height": 600, "created": 0})).unwrap();
+        let ctx = egui::Context::default();
+        ctx.set_pixels_per_point(2.0);
+        let raw = egui::RawInput {
+            screen_rect: Some(egui::Rect::from_min_size(Pos2::ZERO, vec2(1800.0, 900.0))),
+            max_texture_side: Some(8192),
+            ..Default::default()
+        };
+        let mut out = ctx.run_ui(raw, |ui| {
+            let area = egui::Rect::from_min_size(pos2(54.0, 72.0), vec2(width + SCROLL_BAR, 636.0 + SCROLL_BAR));
+            let mut child = ui.new_child(egui::UiBuilder::new().max_rect(area));
+            show(&mut app, &mut child);
+        });
+        out.textures_delta.clear();
+        let rect = app.canvas_rect.unwrap();
+        observed.push((rect, Xf::new(rect, app.view().unwrap()).to_doc(pos2(440.0, 330.0))));
+    }
+    assert_eq!(observed[0], observed[1], "the same physical canvas must map the same pointer identically");
+    assert_ne!(observed[0], observed[2], "a real device-pixel resize must still change the mapping");
+}
+
 /// A rendered raster becomes the image egui's own conversion makes of it, half-transparent
 /// edges and all; one whose bytes don't match its size becomes an empty image of that size.
 #[test]
@@ -2307,6 +2333,129 @@ fn a_turned_view_draws_the_last_frame_turned_until_its_own_arrives() {
     let at = Xf::new(rect, app.view().unwrap()).to_screen(Point::new(x0 as f64, y0 as f64));
     assert!((mesh.vertices[0].pos - at).length() < 0.01, "{:?} at {at:?}", mesh.vertices[0].pos);
     app.canvas.worker = None;
+}
+
+/// While the worker renders the frame for a panned view, the fill worker renders a
+/// low-resolution frame, and the part of the canvas the last frame no longer covers shows the
+/// art from it, drawn only there. When the worker's frame arrives, it covers the canvas and the
+/// fill is dropped.
+#[test]
+fn a_pan_fills_the_area_the_last_frame_leaves_until_the_worker_frame_arrives() {
+    let ctx = egui::Context::default();
+    let mut app = VectorcraftApp::new(Session::new(), Default::default());
+    app.session.execute("file.new", &json!({"width": 400, "height": 300})).unwrap();
+    app.session.execute("shape.rectangle", &json!({"x": 300, "y": 100, "width": 80, "height": 100})).unwrap();
+    app.canvas.worker_started = true; // render on this thread
+    app.ui.view.rulers = false;
+    app.ui.screen_mode = 2; // no scroll bars: the canvas is the window
+    // One frame → the meshes drawn and the fill's pixels, when this frame uploaded them.
+    let frame = |app: &mut VectorcraftApp| {
+        let (shapes, mut delta) = frame_output(app, &ctx);
+        let fill = app.canvas.fill.as_ref().map(|f| f.tex.id());
+        let pixels = delta.set.iter().find(|(id, _)| Some(**id) == fill).and_then(|(_, d)| d.last()).map(|d| match &d.image {
+            egui::ImageData::Color(img) => img.clone(),
+        });
+        delta.clear();
+        let meshes: Vec<egui::Mesh> = shapes
+            .into_iter()
+            .filter_map(|s| match s {
+                Shape::Mesh(m) => Some(std::sync::Arc::unwrap_or_clone(m)),
+                _ => None,
+            })
+            .collect();
+        (meshes, pixels)
+    };
+    frame(&mut app);
+    {
+        let v = app.view_mut().unwrap();
+        v.zoom = 4.0;
+        v.center = Point::new(100.0, 150.0);
+    }
+    frame(&mut app); // the art from about x 0 to 200, without the rectangle
+    let old = app.canvas.key.clone().unwrap();
+    let before = Xf::new(app.canvas_rect.unwrap(), app.view().unwrap());
+    assert!(app.canvas.fill.is_none());
+    let (worker, jobs, completed) = crate::render_worker::Worker::test_channel();
+    app.canvas.worker = Some(worker);
+    let (fill_worker, fill_jobs, fill_completed) = crate::render_worker::Worker::test_channel();
+    app.canvas.fill_worker = Some(fill_worker);
+    app.canvas.last_ms = 50.0;
+    // Pan right by 150 pt: the last frame covers the canvas's left quarter, and the rectangle
+    // comes into its right quarter.
+    app.view_mut().unwrap().center = Point::new(250.0, 150.0);
+    frame(&mut app);
+    assert_eq!(app.canvas.key.as_ref(), Some(&old), "the last frame is still shown");
+    let job = jobs.try_recv().expect("the frame for the new view is on the worker");
+    let fill_job = fill_jobs.try_recv().expect("the fill is on the fill worker");
+    let (fw, fh, _) = fill_view(&job.key);
+    assert!(fill_job.opts.kept_images_only && (fill_job.w, fill_job.h) == (fw, fh), "{:?}", (fill_job.w, fill_job.h));
+    assert!(app.canvas.fill.is_none(), "nothing to draw until the fill arrives");
+    // The fill arrives; the next frame draws it, and asks for no other fill.
+    let img = app.canvas.renderer.render(&fill_job.doc, fill_job.w, fill_job.h, fill_job.view, &fill_job.opts);
+    let (doc, opts) = (fill_job.doc, fill_job.opts);
+    fill_completed.send(crate::render_worker::Done { key: fill_job.key, doc, opts, img, ms: 5.0, moved: 0 }).unwrap();
+    let (meshes, pixels) = frame(&mut app);
+    assert!(fill_jobs.try_recv().is_err(), "the fill covers the canvas");
+    assert_eq!(app.canvas.key.as_ref(), Some(&old), "the last frame is still shown");
+    let fill = app.canvas.fill.as_ref().expect("the fill is kept");
+    let mesh = meshes.iter().find(|m| m.texture_id == fill.tex.id()).expect("the fill is drawn");
+    let rect = app.canvas_rect.unwrap();
+    let xf = Xf::new(rect, app.view().unwrap());
+    let edge = xf.to_screen(before.to_doc(rect.right_top())).x; // the last frame's right edge
+    assert!(edge > rect.left() + 100.0 && edge < xf.to_screen(Point::new(300.0, 0.0)).x, "{edge} in {rect:?}");
+    assert!(
+        mesh.vertices.iter().all(|v| v.pos.x >= edge - 1e-3 && rect.expand(1e-3).contains(v.pos)),
+        "only right of the last frame: {:?}",
+        mesh.vertices
+    );
+    let area: f32 = mesh.indices.as_chunks::<3>().0.iter().map(|t| polygon_area(&t.map(|i| mesh.vertices[i as usize].pos))).sum();
+    let uncovered = (rect.right() - edge) * rect.height();
+    assert!((area - uncovered).abs() < 1.0, "the whole uncovered area, {uncovered} square points: {area}");
+    // The fill's pixel under a point of the canvas, from the uv the mesh gives that point.
+    let img = pixels.expect("the fill's pixels were uploaded");
+    let to_uv = Affine::scale_non_uniform(1.0 / fill.size.0 as f64, 1.0 / fill.size.1 as f64) * fill.view * xf.affine().inverse();
+    let alpha = |p: Pos2| {
+        let uv = to_uv * Point::new(p.x as f64, p.y as f64);
+        img.pixels[(uv.y * img.size[1] as f64) as usize * img.size[0] + (uv.x * img.size[0] as f64) as usize].a()
+    };
+    assert!(alpha(xf.to_screen(Point::new(340.0, 150.0))) > 0, "the rectangle, in the uncovered area");
+    assert_eq!(alpha(xf.to_screen(Point::new(250.0, 150.0))), 0, "no art there");
+    for v in &mesh.vertices {
+        assert!((to_uv * Point::new(v.pos.x as f64, v.pos.y as f64) - Point::new(v.uv.x as f64, v.uv.y as f64)).hypot() < 1e-4);
+    }
+    // Panned until the fill reaches only the canvas's left half: it is drawn only there, and the
+    // fill for the new view is asked for.
+    let fill_tex = fill.tex.id();
+    let reach = fill.view.inverse() * Point::new(fill.size.0 as f64, 0.0); // the fill's right edge
+    app.view_mut().unwrap().center = Point::new(reach.x, 150.0);
+    let (meshes, _) = frame(&mut app);
+    let right = Xf::new(rect, app.view().unwrap()).to_screen(reach).x;
+    assert!((right - rect.center().x).abs() < 1.0, "{right} in {rect:?}");
+    let mesh = meshes.iter().find(|m| m.texture_id == fill_tex).expect("the fill is drawn where it reaches");
+    assert!(mesh.vertices.iter().all(|v| v.pos.x <= right + 1e-3), "only where the fill reaches: {:?}", mesh.vertices);
+    let next = fill_jobs.try_recv().expect("the next fill");
+    assert_eq!(Some(&next.key), app.canvas.worker.as_ref().unwrap().pending.as_ref());
+    app.view_mut().unwrap().center = Point::new(250.0, 150.0);
+    // That fill finishes after the worker's frame: it is taken and not kept.
+    let img = app.canvas.renderer.render(&next.doc, next.w, next.h, next.view, &next.opts);
+    fill_completed.send(crate::render_worker::Done { key: next.key, doc: next.doc, opts: next.opts, img, ms: 5.0, moved: 0 }).unwrap();
+    // The worker's frame arrives: it covers the canvas, and the fill is no longer drawn or kept.
+    let img = app.canvas.renderer.render(&job.doc, job.w, job.h, job.view, &job.opts);
+    let expected = job.key.clone();
+    completed.send(crate::render_worker::Done { key: job.key, doc: job.doc, opts: job.opts, img, ms: 50.0, moved: 0 }).unwrap();
+    let (meshes, _) = frame(&mut app);
+    assert_eq!(app.canvas.key.as_ref(), Some(&expected), "the worker's frame is shown");
+    assert!(app.canvas.fill.is_none() && meshes.iter().all(|m| m.texture_id != fill_tex), "the fill is dropped");
+    assert!(app.canvas.fill_worker.as_ref().unwrap().pending.is_none(), "the late fill was taken");
+    // A pan with Outline turned on: the frame shown's options are not the ones asked for, and
+    // no fill is asked for.
+    app.ui.view.outline = true;
+    app.view_mut().unwrap().center = Point::new(400.0, 150.0);
+    frame(&mut app);
+    assert!(jobs.try_iter().last().is_some_and(|j| j.key.outline), "the outline frame is on the worker");
+    assert!(fill_jobs.try_recv().is_err() && app.canvas.fill.is_none(), "no fill");
+    app.canvas.worker = None;
+    app.canvas.fill_worker = None;
 }
 
 /// With the web build's setting (`waits_for_still`, no render worker), a heavy document's canvas
@@ -6076,6 +6225,121 @@ fn a_pen_tap_within_one_frame_clicks_where_it_tapped() {
     assert_eq!(doc.doc.art_bounds(), before, "the tap moved nothing");
 }
 
+/// The Contextual Task Bar shows a Stroke chip beside the Fill chip, drawn with the selection's
+/// stroke paint. A click on it brings the Stroke proxy forward and opens Swatches, as a click on
+/// the Fill chip does for the Fill proxy.
+#[test]
+fn the_task_bar_shows_a_stroke_chip_beside_fill() {
+    let mut app = VectorcraftApp::new(Session::new(), Default::default());
+    app.session.execute("file.new", &json!({"width": 400, "height": 300})).unwrap();
+    let id = app.session.execute("shape.rectangle", &json!({"x": 180, "y": 130, "width": 40, "height": 40})).unwrap()["id"].clone();
+    app.session.execute("paint.setFill", &json!({"ids": [id], "color": "#cc3322"})).unwrap();
+    app.session.execute("paint.setStroke", &json!({"ids": [id], "color": "#2244cc"})).unwrap();
+    app.select_tool("selection");
+    let ctx = egui::Context::default();
+    // Past the bar's fade-in, so its chips draw at full opacity.
+    for _ in 0..30 {
+        frame(&mut app, &ctx, vec![]);
+    }
+    let raw = egui::RawInput { screen_rect: Some(egui::Rect::from_min_size(Pos2::ZERO, vec2(800.0, 600.0))), ..Default::default() };
+    let mut out = ctx.run_ui(raw, |ui| show(&mut app, ui));
+    out.textures_delta.clear();
+    let bar = task_bar_rect(&ctx).expect("the task bar shows");
+    // Right to left: the frame's margin, More Options, Lock, Recolor, then Stroke and Fill.
+    let stroke_x = bar.right() - 8.0 - 3.0 * (30.0 + 6.0) - 13.0;
+    let fill_x = stroke_x - 26.0 - 6.0;
+    let blue = Color32::from_rgb(0x22, 0x44, 0xcc);
+    let chip_with = |x: f32| {
+        out.shapes.iter().any(|c| match &c.shape {
+            egui::Shape::Rect(r) => r.fill == blue && bar.contains(r.rect.center()) && (r.rect.center().x - x).abs() < 4.0,
+            _ => false,
+        })
+    };
+    assert!(chip_with(stroke_x), "the Stroke chip is drawn with the stroke color");
+    assert!(!chip_with(fill_x), "the Fill chip is not");
+
+    let click = |app: &mut VectorcraftApp, x: f32| {
+        let at = pos2(x, bar.center().y);
+        let button = |pressed| egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() };
+        frame(app, &ctx, vec![egui::Event::PointerMoved(at)]);
+        frame(app, &ctx, vec![button(true)]);
+        frame(app, &ctx, vec![button(false)]);
+    };
+    app.session.fill_active = true;
+    click(&mut app, stroke_x);
+    assert!(!app.session.fill_active, "the Stroke proxy is in front");
+    assert_eq!(app.ui.open_panel.as_deref(), Some("swatches"));
+    app.ui.open_panel = None;
+    click(&mut app, fill_x);
+    assert!(app.session.fill_active, "the Fill proxy is in front");
+    assert_eq!(app.ui.open_panel.as_deref(), Some("swatches"));
+}
+
+/// The Contextual Task Bar's Fill and Stroke chips show the paints the proxies show: a group's
+/// painted art, and "?" when the selected objects' paints differ. A click on a chip shows the
+/// Swatches panel wherever it is, closed included.
+#[test]
+fn the_task_bar_chips_follow_the_proxies_and_show_swatches_anywhere() {
+    let mut app = VectorcraftApp::new(Session::new(), Default::default());
+    app.session.execute("file.new", &json!({"width": 400, "height": 300})).unwrap();
+    let mut square = |x: f64, stroke: &str| {
+        let id = app.session.execute("shape.rectangle", &json!({"x": x, "y": 130, "width": 40, "height": 40})).unwrap()["id"].clone();
+        app.session.execute("paint.setFill", &json!({"ids": [id], "color": "#cc3322"})).unwrap();
+        app.session.execute("paint.setStroke", &json!({"ids": [id], "color": stroke})).unwrap();
+        id
+    };
+    square(160.0, "#2244cc");
+    let second = square(220.0, "#22cc44");
+    app.select_tool("selection");
+    app.session.execute("select.all", &json!({})).unwrap();
+    let ctx = egui::Context::default();
+    let shapes = |app: &mut VectorcraftApp| {
+        for _ in 0..30 {
+            frame(app, &ctx, vec![]);
+        }
+        let raw = egui::RawInput { screen_rect: Some(egui::Rect::from_min_size(Pos2::ZERO, vec2(800.0, 600.0))), ..Default::default() };
+        let mut out = ctx.run_ui(raw, |ui| show(app, ui));
+        out.textures_delta.clear();
+        out.shapes
+    };
+    // Right to left: the frame's margin, More Options, Lock, Recolor, then Stroke and Fill.
+    let stroke_x = |bar: egui::Rect| bar.right() - 8.0 - 3.0 * (30.0 + 6.0) - 13.0;
+    let chip_with = |shapes: &[egui::epaint::ClippedShape], bar: egui::Rect, x: f32, color: Color32| {
+        shapes.iter().any(|c| match &c.shape {
+            egui::Shape::Rect(r) => r.fill == color && bar.contains(r.rect.center()) && (r.rect.center().x - x).abs() < 4.0,
+            _ => false,
+        })
+    };
+    let (blue, green) = (Color32::from_rgb(0x22, 0x44, 0xcc), Color32::from_rgb(0x22, 0xcc, 0x44));
+
+    // Two strokes that differ: "?" on white, as the proxy shows them.
+    let out = shapes(&mut app);
+    let bar = task_bar_rect(&ctx).expect("the task bar shows");
+    assert!(chip_with(&out, bar, stroke_x(bar), Color32::WHITE), "the Stroke chip shows the strokes differ");
+    assert!(!chip_with(&out, bar, stroke_x(bar), blue), "the Stroke chip does not show the first object's stroke");
+
+    // A group shows its painted art's stroke, as the proxy does.
+    app.session.execute("paint.setStroke", &json!({"ids": [second], "color": "#2244cc"})).unwrap();
+    app.session.execute("select.all", &json!({})).unwrap();
+    app.session.execute("object.group", &json!({})).unwrap();
+    let out = shapes(&mut app);
+    let bar = task_bar_rect(&ctx).expect("the task bar shows");
+    assert!(chip_with(&out, bar, stroke_x(bar), blue), "the Stroke chip shows the group's art's stroke");
+    assert!(!chip_with(&out, bar, stroke_x(bar), green));
+
+    // Swatches closed: a click on the Stroke chip shows it.
+    app.run("window.panel.close", json!({"panel": "swatches"})).unwrap();
+    assert!(!crate::panel_docking::showing(&app.ui, "swatches"));
+    let at = pos2(stroke_x(bar), bar.center().y);
+    let button = |pressed| egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() };
+    frame(&mut app, &ctx, vec![egui::Event::PointerMoved(at)]);
+    frame(&mut app, &ctx, vec![button(true)]);
+    frame(&mut app, &ctx, vec![button(false)]);
+    frame(&mut app, &ctx, vec![]);
+    assert!(!app.session.fill_active, "the Stroke proxy is in front");
+    assert!(crate::panel_docking::showing(&app.ui, "swatches"), "the Swatches panel shows");
+}
+
 /// The Contextual Task Bar shows Recolor Artwork (a palette) when the selection has colours,
 /// and it opens the Recolor Artwork dialog; art painted with None has no button.
 #[test]
@@ -6109,6 +6373,43 @@ fn the_task_bar_recolors_coloured_art() {
     assert!(!has_colors(&st.doc, &st.selection.objects), "None paints have no colours");
     click(&mut app);
     assert!(app.ui.dialog.is_none(), "no Recolor button without colours");
+}
+
+/// The Contextual Task Bar's Lock button is off in isolation mode, as Object › Lock › Selection
+/// is: a click locks nothing and shows no error. Outside isolation mode it locks the selection.
+#[test]
+fn the_task_bar_lock_button_is_off_in_isolation_mode() {
+    let mut app = VectorcraftApp::new(Session::new(), Default::default());
+    app.session.execute("file.new", &json!({"width": 400, "height": 300})).unwrap();
+    let a = app.session.execute("shape.rectangle", &json!({"x": 150, "y": 130, "width": 40, "height": 40})).unwrap()["id"].clone();
+    let b = app.session.execute("shape.rectangle", &json!({"x": 210, "y": 130, "width": 40, "height": 40})).unwrap()["id"].clone();
+    app.session.execute("select.set", &json!({"ids": [a.clone(), b]})).unwrap();
+    let g = app.session.execute("object.group", &json!({})).unwrap()["id"].clone();
+    app.select_tool("selection");
+    let ctx = egui::Context::default();
+    let click_lock = |app: &mut VectorcraftApp| {
+        frame(app, &ctx, vec![]);
+        frame(app, &ctx, vec![]);
+        let bar = task_bar_rect(&ctx).expect("the task bar shows");
+        // Right to left: the frame's margin, More Options, then Lock.
+        let at = pos2(bar.right() - 8.0 - 30.0 - 6.0 - 15.0, bar.center().y);
+        let button = |pressed| egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() };
+        frame(app, &ctx, vec![egui::Event::PointerMoved(at)]);
+        frame(app, &ctx, vec![button(true)]);
+        frame(app, &ctx, vec![button(false)]);
+    };
+    let locked = |app: &VectorcraftApp, id: &serde_json::Value| {
+        app.session.active().unwrap().doc.node(vectorcraft_doc::NodeId(id.as_u64().unwrap())).unwrap().locked
+    };
+    app.session.execute("object.isolate", &json!({"id": g.clone()})).unwrap();
+    app.session.execute("select.set", &json!({"ids": [a.clone()]})).unwrap();
+    click_lock(&mut app);
+    assert!(!locked(&app, &a), "nothing is locked in isolation mode");
+    assert_eq!(app.ui.status, "", "no error");
+    app.session.execute("object.exitIsolation", &json!({})).unwrap();
+    app.session.execute("select.set", &json!({"ids": [g.clone()]})).unwrap();
+    click_lock(&mut app);
+    assert!(locked(&app, &g), "the group is locked outside isolation mode");
 }
 
 /// The Contextual Task Bar shows Image Trace first for a selected image: it traces the image
@@ -6209,6 +6510,32 @@ fn the_task_bar_offers_the_artboard_tools_actions() {
     assert_eq!(names(&mut app), ["Resize", "Duplicate", "Export"]);
 }
 
+/// A selected group's Contextual Task Bar offers Ungroup and Isolate. While an opacity mask is
+/// edited, when Enter Isolation Mode is off, a group in the mask art gets Ungroup without Isolate.
+#[test]
+fn the_task_bar_leaves_isolate_out_while_an_opacity_mask_is_edited() {
+    let mut app = VectorcraftApp::new(Session::new(), Default::default());
+    app.session.execute("file.new", &json!({"width": 400, "height": 300})).unwrap();
+    app.select_tool("selection");
+    let ctx = egui::Context::default();
+    let names = |app: &mut VectorcraftApp| task_bar_labels(app, &ctx).into_iter().map(|(t, _)| t).collect::<Vec<_>>();
+    let rect = |app: &mut VectorcraftApp, x: f64| {
+        app.session.execute("shape.rectangle", &json!({"x": x, "y": 100, "width": 40, "height": 40})).unwrap()["id"].clone()
+    };
+    let group = |app: &mut VectorcraftApp, x: f64| {
+        let (a, b) = (rect(app, x), rect(app, x + 50.0));
+        app.session.execute("select.set", &json!({"ids": [a, b]})).unwrap();
+        app.session.execute("object.group", &json!({})).unwrap();
+    };
+    group(&mut app, 20.0);
+    assert_eq!(names(&mut app), ["Ungroup", "Isolate", "Duplicate"]);
+    let (obj, m) = (rect(&mut app, 200.0), rect(&mut app, 200.0));
+    app.session.execute("transparency.makeOpacityMask", &json!({"ids": [obj, m]})).unwrap();
+    app.session.execute("transparency.editOpacityMask", &json!({"id": obj})).unwrap();
+    group(&mut app, 200.0);
+    assert_eq!(names(&mut app), ["Ungroup", "Duplicate"]);
+}
+
 /// The Artboard tool's Contextual Task Bar buttons act on its selected artboards: Resize opens
 /// Artboard Options for the active one, Rearrange All opens Rearrange All Artboards, Export opens
 /// Export for Screens with the selected artboards checked, and Duplicate copies each selected
@@ -6300,7 +6627,7 @@ fn the_task_bar_is_dragged_by_its_handle_pinned_and_reset() {
     app.session.execute("file.new", &json!({"width": 400, "height": 300})).unwrap();
     let mut square =
         |x: f64, y: f64| app.session.execute("shape.rectangle", &json!({"x": x, "y": y, "width": 40, "height": 40})).unwrap()["id"].clone();
-    let (a, b) = (square(120.0, 40.0), square(160.0, 150.0));
+    let (a, b) = (square(140.0, 40.0), square(160.0, 150.0));
     app.select_tool("selection");
     let ctx = egui::Context::default();
     let bar = || task_bar_rect(&ctx).expect("the task bar shows");

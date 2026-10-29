@@ -1,5 +1,8 @@
 use super::snap::{Leave, meeting, seg_direction, touch_params};
-use super::*;
+use super::{
+    Affine, Arc, BezPath, Document, FontDb, GuideStyle, Handle, HashSet, Line, Node, NodeId, NodeKind, OrientedBox, Overlay, ParamCurve,
+    ParamCurveNearest, PathSeg, Point, Rect, Ruler, Selection, Shape, SubPath, ToolContext, Vec2, layout_text,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(super) enum Kind {
@@ -47,6 +50,10 @@ pub struct Targets {
     /// it ends, as the end that stays put and the unit direction towards the dragged one
     /// ([`Self::for_anchor_drag`]).
     pub(super) extensions: Vec<(Point, Vec2)>,
+    /// Snap to Glyph's guides that run at an angle (in rotated type, or along a glyph's slanted
+    /// segments), as a point on each and its unit direction: a drawn point lands on the nearest
+    /// ([`Self::for_drawing`]).
+    pub(super) angled: Vec<(Point, Vec2)>,
     /// Snap to Tangent and Snap to Perpendicular: a drawn line from an anchor lands where it
     /// grazes a curve, or meets a segment square ([`Self::touching`]).
     pub(super) tangent: bool,
@@ -209,12 +216,34 @@ impl Targets {
         self.ys.push((a.y, a, Kind::Anchor));
     }
 
-    /// Live-text baselines and glyph bounds (View › Snap to Glyph).
+    /// A glyph guide through `at` along `dir` (on the page): a line the art lines up with when it
+    /// runs across or down the page, else an angled line a point lands on.
+    fn push_glyph_line(&mut self, at: Point, dir: Vec2) {
+        let len = dir.hypot();
+        if !(len.is_finite() && len > 1e-12 && at.is_finite()) {
+            return;
+        }
+        let d = dir / len;
+        if d.y.abs() <= 1e-9 {
+            self.ys.push((at.y, at, Kind::Glyph));
+        } else if d.x.abs() <= 1e-9 {
+            self.xs.push((at.x, at, Kind::Glyph));
+        } else {
+            self.angled.push((at, d));
+        }
+    }
+
+    /// Live text as View › Snap to Glyph shows it: the glyph bounds of every text object, and for
+    /// a single line of type also its baseline and x-height, the proximity guides at the edges of
+    /// each character's advance width, and its glyphs' anchor points. In rotated type these
+    /// guides run at its angle (angular guides), and type of one glyph also has angular guides
+    /// along the glyph's slanted straight segments.
     fn push_glyphs(&mut self, doc: &Document, exclude: &[NodeId], visible: Option<Rect>) {
         let skip: HashSet<NodeId> = exclude.iter().copied().collect();
         let db = FontDb::global();
         let kind = Kind::Glyph;
         let mut budget = BUDGET / 4;
+        let (mut anchors, mut angular) = (BUDGET, BUDGET / 4);
         walk_but(&doc.layers, &skip, &mut |n| {
             if budget == 0 || !n.visible {
                 return;
@@ -231,25 +260,84 @@ impl Targets {
             {
                 return;
             }
+            // A paragraph shows glyph bounds only.
+            let single = lay.lines.len() == 1;
+            // Angular guides along a glyph's slanted segments: type of one glyph only.
+            let one_glyph = lay.glyphs.iter().filter(|g| !g.outline.elements().is_empty()).count() == 1;
+            // Text space → the page, and a direction in text space → one on the page.
             let to_doc = |p: Point| t.xf * p;
-            for line in &lay.lines {
-                let at = to_doc(Point::new(line.x0, line.baseline));
-                self.ys.push((at.y, at, kind));
+            let along = |m: Affine, v: Vec2| (m * v.to_point()) - (m * Point::ZERO);
+            if single {
+                let line_doc = t.xf * lay.line_xf;
+                for line in &lay.lines {
+                    self.push_glyph_line(line_doc * Point::new(line.x0, line.baseline), along(line_doc, Vec2::new(1.0, 0.0)));
+                }
             }
+            // The last x-height pushed, to push each run of glyphs alike once.
+            let mut last_x_height: Option<(Point, Vec2)> = None;
             for g in &lay.glyphs {
                 if budget == 0 {
                     break;
                 }
+                // Glyphs that draw nothing (spaces) give no guides.
                 let bb = g.outline.bounding_box();
                 if !(bb.width() > 0.0 && bb.height() > 0.0) {
                     continue;
+                }
+                budget -= 1;
+                // Horizontal type and type on a path: the baseline runs from where the pen stood
+                // along the glyph's angle (not the glyph's own drawing, which Character Rotation
+                // turns), up being to its left.
+                if single
+                    && !lay.vertical
+                    && let Some(face) = db.face_by_id(g.font_id)
+                {
+                    let ahead = Vec2::new(g.angle.cos(), g.angle.sin());
+                    let up = Vec2::new(ahead.y, -ahead.x);
+                    let dir = along(t.xf, ahead);
+                    // The x-height of the glyph as placed without its Character Rotation (raised or
+                    // lowered by its baseline shift), measured across the baseline.
+                    let top = g.xf * g.unturned * Point::new(0.0, -face.x_height());
+                    let at = to_doc(g.origin + up * (top - g.origin).dot(up));
+                    let same = last_x_height.is_some_and(|(a, d)| {
+                        let (l, k) = (d.hypot(), dir.hypot());
+                        l > 1e-12 && k > 1e-12 && (d / l - dir / k).hypot() <= 1e-9 && ((at - a).cross(d / l)).abs() <= 1e-6
+                    });
+                    if face.x_height() > 0.0 && !same {
+                        self.push_glyph_line(at, dir);
+                        last_x_height = Some((at, dir));
+                    }
+                    // Proximity guides: across the baseline at both edges of the width the layout
+                    // gives the character (its advance with tracking and kerning).
+                    for e in [g.origin, g.origin + ahead * g.advance] {
+                        self.push_glyph_line(to_doc(e), along(t.xf, up));
+                    }
+                }
+                if single {
+                    for seg in g.outline.segments() {
+                        if anchors > 0 {
+                            self.points.push((to_doc(seg.start()), Kind::Anchor));
+                            anchors -= 1;
+                        }
+                        if one_glyph
+                            && angular > 0
+                            && let PathSeg::Line(l) = seg
+                        {
+                            let (p, q) = (to_doc(l.p0), to_doc(l.p1));
+                            let d = q - p;
+                            let len = d.hypot();
+                            if len > 1e-6 && d.x.abs() > 1e-9 * len && d.y.abs() > 1e-9 * len {
+                                self.push_glyph_line(p, d);
+                                angular -= 1;
+                            }
+                        }
+                    }
                 }
                 let r = t.xf.transform_rect_bbox(bb);
                 for p in [Point::new(r.x0, r.y0), Point::new(r.x1, r.y0), Point::new(r.x1, r.y1), Point::new(r.x0, r.y1)] {
                     self.xs.push((p.x, p, kind));
                     self.ys.push((p.y, p, kind));
                 }
-                budget -= 1;
             }
         });
     }
@@ -287,7 +375,11 @@ impl Targets {
         // With several anchors moving, the one under the pointer is not known here, and the
         // others' extensions don't run through it.
         let single = sel.objects.len() <= 1 && sel.anchors.values().map(|s| s.len()).sum::<usize>() == 1;
-        for (id, set) in &sel.anchors {
+        // A path inside another selected object, such as a path in a selected group, moves whole
+        // with that object, so none of its anchors or segments stay put.
+        let selected: HashSet<NodeId> = sel.objects.iter().copied().collect();
+        let inside_selected = |id: NodeId| doc.ancestry(id).is_some_and(|a| a.iter().rev().skip(1).any(|p| selected.contains(p)));
+        for (id, set) in sel.anchors.iter().filter(|(id, _)| !inside_selected(**id)) {
             let Some(path) = doc.node(*id).and_then(|n| n.path_data()) else { continue };
             for (si, sp) in path.subpaths.iter().enumerate() {
                 let moving = |ai: usize| set.contains(&(si, ai));
@@ -400,6 +492,7 @@ impl Targets {
         self.ys.clear();
         self.segments.clear();
         self.extensions.clear();
+        self.angled.clear();
         self
     }
 
@@ -509,7 +602,11 @@ impl Targets {
         }
         // A construction guide through the point it leaves, else a dragged segment's extension:
         // it lands on the guide, sliding into line with a target crossing it nearby.
-        if let Some((at, dir, q)) = from.and_then(|f| f.construction(p, tol).map(|(dir, q)| (f.at, dir, q))).or_else(|| self.extension(p, tol)) {
+        if let Some((at, dir, q)) = from
+            .and_then(|f| f.construction(p, tol).map(|(dir, q)| (f.at, dir, q)))
+            .or_else(|| self.extension(p, tol))
+            .or_else(|| self.on_angled(p, tol))
+        {
             let construction = |q: Point| Overlay::Line { a: at, b: q, color: self.style.color, dashed: false };
             return match self.slide(at, dir, q, tol, false) {
                 Some((q, target)) => (q, std::iter::once(construction(q)).chain(self.lined_up(q, target)).collect()),
@@ -607,6 +704,18 @@ impl Targets {
             .map(|(at, d, q, _)| (at, d, q))
     }
 
+    /// The angled glyph guide ([`Self::angled`]) nearest `p`, within `tol` of it: a point on it, its
+    /// direction and where `p` lands on it.
+    fn on_angled(&self, p: Point, tol: f64) -> Option<(Point, Vec2, Point)> {
+        self.angled
+            .iter()
+            .map(|&(at, d)| (at, d, at + d * (p - at).dot(d)))
+            .map(|(at, d, q)| (at, d, q, q.distance(p)))
+            .filter(|(.., dist)| *dist <= tol)
+            .min_by(|a, b| a.3.total_cmp(&b.3))
+            .map(|(at, d, q, _)| (at, d, q))
+    }
+
     /// The anchor or centre nearest `p`, within `tol`.
     /// Is a target point (an anchor, a centre) within `tol` of `p`?
     pub(crate) fn has_point_near(&self, p: Point, tol: f64) -> bool {
@@ -622,7 +731,7 @@ impl Targets {
     }
 
     /// Slide `q`, on the line through `at` along `dir` (beyond `at` only, for a `ray`), to where
-    /// the nearest target line crosses it, at most twice `tol` away: where it lands and the
+    /// the nearest target line or angled glyph guide crosses it, at most twice `tol` away: where it lands and the
     /// target's own point (where its line starts).
     fn slide(&self, at: Point, dir: Vec2, q: Point, tol: f64, ray: bool) -> Option<(Point, Point)> {
         if !dir.hypot2().is_finite() || dir.hypot2() <= 1e-18 {
@@ -645,6 +754,19 @@ impl Targets {
                 if moved <= reach && (!ray || s > 0.0) && best.is_none_or(|b| moved < b.0) {
                     best = Some((moved, hit, *from));
                 }
+            }
+        }
+        // The angled glyph guides it crosses.
+        for &(on, e) in &self.angled {
+            let across = dir.cross(e);
+            if across.abs() <= 1e-9 * dir.hypot() {
+                continue;
+            }
+            let s = (on - at).cross(e) / across;
+            let hit = at + dir * s;
+            let moved = hit.distance(q);
+            if moved <= reach && (!ray || s > 0.0) && best.is_none_or(|b| moved < b.0) {
+                best = Some((moved, hit, on));
             }
         }
         best.map(|(_, hit, from)| (hit, from))

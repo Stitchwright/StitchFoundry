@@ -11,7 +11,7 @@ use vectorcraft_doc::{Appearance, Node, NodeId};
 use vectorcraft_embroidery::PT_PER_MM;
 use vectorcraft_geom::path::{PathData, SubPath};
 
-use super::*;
+use super::{CommandSpec, Point, Result, Session, bad, cmd, has_doc, point_param, str_param};
 
 const CMD: &str = "embroidery.addButtonholes";
 /// Most buttonholes in one string.

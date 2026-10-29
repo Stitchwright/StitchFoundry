@@ -1,6 +1,6 @@
 use super::flow::flow;
 use super::region::Region;
-use super::*;
+use super::{Affine, Ctx, Punct, Range, Rect, SGlyph, Shape, Tcy, TextLayout, TextObject, VerticalAlign, is_cjk, punct};
 
 /// System Layout on or Fractional Widths off: each character that takes space advances by a whole
 /// number of points, at least one, so small type does not collapse onto itself. A zero advance (a

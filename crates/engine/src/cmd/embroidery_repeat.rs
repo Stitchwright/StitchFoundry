@@ -14,7 +14,7 @@ use vectorcraft_embroidery::PT_PER_MM;
 use vectorcraft_geom::{Affine, Point, Vec2};
 
 use super::embroidery_lettering::ranged;
-use super::*;
+use super::{CommandSpec, NodeId, Result, Session, bad, bool_or, cmd, has_selection, str_param, targets};
 
 /// Copies made at most.
 const MAX_REPEATS: usize = 360;

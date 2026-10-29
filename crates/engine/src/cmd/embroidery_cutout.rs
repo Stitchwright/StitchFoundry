@@ -11,7 +11,7 @@ use serde_json::{Value, json};
 use vectorcraft_trace::Raster;
 
 use super::embroidery_photo::{Picture, add_image_copy};
-use super::*;
+use super::{CommandSpec, Result, Session, bad, bool_or, cmd, f64_or, has_doc};
 
 /// The share of each side of the image the default box leaves out, as background.
 const MARGIN: f64 = 0.02;

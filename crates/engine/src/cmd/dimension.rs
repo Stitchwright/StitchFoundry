@@ -1,5 +1,5 @@
 //! Linked dimensions: generated groups share the existing text/path render and export pipeline.
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, cmd, has_doc};
 use serde_json::{Value, json};
 use std::sync::Arc;
 use vectorcraft_color::{Color, Paint};

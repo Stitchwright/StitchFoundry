@@ -5,7 +5,7 @@
 use serde_json::{Value, json};
 
 use super::embroidery::{MACHINE_EXTS, TEXT_EXTS};
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, always, bad, bool_or, cmd, has_doc, str_param};
 
 /// Output profiles kept at most.
 const MAX_PROFILES: usize = 50;

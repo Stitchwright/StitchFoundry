@@ -16,7 +16,10 @@ use vectorcraft_color::{Color, Paint};
 use vectorcraft_doc::{Appearance, Document, NodeId, NodeKind};
 use vectorcraft_embroidery::{MM_PER_PT, PT_PER_MM, Planner, StitchPlan, contour_to_path, is_line_art, is_open, regions_mm, stitchable};
 
-use super::*;
+use super::{
+    CommandSpec, Point, Result, Session, always, bad, bool_or, cmd, color_value, f64_or, has_doc, has_selection, id_param, leaf_targets, point_param,
+    str_param, targets,
+};
 use crate::EngineError;
 
 /// Per-document stitch planner, shared by commands and the canvas.
@@ -1262,6 +1265,122 @@ fn marks_of(cells: &[sf_core::BBox], cols: usize, rows: usize, col: usize, row: 
     out
 }
 
+/// A multi-position hoop's fields: the frame centred on the design, a field at each position.
+fn position_cells(positions: &[[f64; 2]], c: sf_core::Point, field: (f64, f64)) -> Vec<sf_core::BBox> {
+    positions
+        .iter()
+        .map(|[x, y]| {
+            let m = sf_core::Point::new(c.x + x, c.y + y);
+            sf_core::BBox::new(
+                sf_core::Point::new(m.x - field.0 / 2.0, m.y - field.1 / 2.0),
+                sf_core::Point::new(m.x + field.0 / 2.0, m.y + field.1 / 2.0),
+            )
+        })
+        .collect()
+}
+
+/// The grid of hoopings from `origin`, row by row.
+fn grid_cells(origin: sf_core::Point, (cols, rows): (usize, usize), (step_x, step_y): (f64, f64), field: (f64, f64)) -> Vec<sf_core::BBox> {
+    (0..rows)
+        .flat_map(|r| (0..cols).map(move |k| (k, r)))
+        .map(|(k, r)| {
+            let min = sf_core::Point::new(origin.x + k as f64 * step_x, origin.y + r as f64 * step_y);
+            sf_core::BBox::new(min, sf_core::Point::new(min.x + field.0, min.y + field.1))
+        })
+        .collect()
+}
+
+/// An object split over the hoopings: each stitch in the hooping whose middle is nearest its
+/// middle, the runs kept whole, as (hooping, run).
+fn split_over_hoopings(stitches: &[sf_core::Stitch], cells: &[sf_core::BBox]) -> Result<Vec<(usize, Vec<sf_core::Point>)>> {
+    const CMD: &str = "embroidery.multiHoop";
+    let middles: Vec<sf_core::Point> = cells.iter().map(|c| sf_core::Point::new((c.min.x + c.max.x) / 2.0, (c.min.y + c.max.y) / 2.0)).collect();
+    let nearest = |q: sf_core::Point| middles.iter().enumerate().min_by(|a, b| a.1.distance(q).total_cmp(&b.1.distance(q))).map_or(0, |(i, _)| i);
+    let inside =
+        |c: &sf_core::BBox, q: sf_core::Point| q.x >= c.min.x - 1e-6 && q.y >= c.min.y - 1e-6 && q.x <= c.max.x + 1e-6 && q.y <= c.max.y + 1e-6;
+    let mut out = Vec::new();
+    let mut cur: Option<(usize, Vec<sf_core::Point>)> = None;
+    let mut prev: Option<sf_core::Point> = None;
+    let mut flush = |cur: &mut Option<(usize, Vec<sf_core::Point>)>| {
+        if let Some((c, run)) = cur.take()
+            && run.len() >= 2
+            && c < cells.len()
+        {
+            out.push((c, run));
+        }
+    };
+    for st in stitches {
+        let q = st.pos();
+        if st.cmd != sf_core::Cmd::Stitch {
+            flush(&mut cur);
+            prev = None;
+            continue;
+        }
+        if let Some(a) = prev {
+            let c = nearest(sf_core::Point::new((a.x + q.x) / 2.0, (a.y + q.y) / 2.0));
+            if !cells.get(c).is_some_and(|cell| inside(cell, a) && inside(cell, q)) {
+                return Err(bad(CMD, "a stitch is longer than the hoopings' overlap: widen the overlap"));
+            }
+            match &mut cur {
+                Some((cc, run)) if *cc == c && run.last().is_some_and(|l| l.distance(a) < 1e-9) => run.push(q),
+                _ => {
+                    flush(&mut cur);
+                    cur = Some((c, vec![a, q]));
+                }
+            }
+        }
+        prev = Some(q);
+    }
+    flush(&mut cur);
+    Ok(out)
+}
+
+/// Sews a piece of a split object into a hooping centred on `centre`, tied in and off.
+fn sew_piece(hp: &mut sf_core::Pattern, run: &[sf_core::Point], centre: sf_core::Point) {
+    let local = |q: sf_core::Point| sf_core::Point::new(q.x - centre.x, q.y - centre.y);
+    let (Some(a), Some(b)) = (run.first().copied().map(local), run.get(1).copied().map(local)) else { return };
+    let toward = |from: sf_core::Point, to: sf_core::Point| {
+        let d = from.distance(to).max(1e-9);
+        let t = (0.4 / d).min(0.5);
+        sf_core::Point::new(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t)
+    };
+    hp.jump(a);
+    hp.stitch(a);
+    hp.stitch(toward(a, b));
+    hp.stitch(a);
+    for q in run.iter().skip(1) {
+        hp.stitch(local(*q));
+    }
+    if let (Some(z), Some(y)) = (run.last().copied().map(local), run.len().checked_sub(2).and_then(|i| run.get(i)).copied().map(local)) {
+        hp.stitch(toward(z, y));
+        hp.stitch(z);
+    }
+    hp.trim();
+}
+
+/// Sews a whole object into a hooping centred on `centre`, without the travel in to it.
+fn sew_object(hp: &mut sf_core::Pattern, stitches: &[sf_core::Stitch], centre: sf_core::Point) {
+    let mut first = true;
+    for st in stitches {
+        let q = sf_core::Point::new(st.pos().x - centre.x, st.pos().y - centre.y);
+        match st.cmd {
+            sf_core::Cmd::Stitch if first => {
+                hp.jump(q);
+                hp.stitch(q);
+                first = false;
+            }
+            sf_core::Cmd::Stitch => hp.stitch(q),
+            // the travel in from the object before, perhaps in another hooping
+            sf_core::Cmd::Jump | sf_core::Cmd::Trim if first => {}
+            sf_core::Cmd::Jump => hp.jump(q),
+            sf_core::Cmd::Trim => hp.trim(),
+            sf_core::Cmd::Stop => hp.stop(),
+            sf_core::Cmd::ColorChange | sf_core::Cmd::End => {}
+        }
+    }
+    hp.trim();
+}
+
 fn multi_hoop(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "embroidery.multiHoop";
     let cfg = s.doc()?.doc.embroidery.as_deref().cloned().unwrap_or_default();
@@ -1302,37 +1421,14 @@ fn multi_hoop(s: &mut Session, p: &Value) -> Result<Value> {
     let span = (cols as f64 * step_x + overlap, rows as f64 * step_y + overlap);
     let c = sf_core::Point::new((b.min.x + b.max.x) / 2.0, (b.min.y + b.max.y) / 2.0);
     let origin = sf_core::Point::new(c.x - span.0 / 2.0, c.y - span.1 / 2.0);
-    let cells: Vec<sf_core::BBox> = if multi_position {
-        // the frame centred on the design, a field at each of its positions
-        positions
-            .iter()
-            .map(|[x, y]| {
-                let m = sf_core::Point::new(c.x + x, c.y + y);
-                sf_core::BBox::new(
-                    sf_core::Point::new(m.x - field.0 / 2.0, m.y - field.1 / 2.0),
-                    sf_core::Point::new(m.x + field.0 / 2.0, m.y + field.1 / 2.0),
-                )
-            })
-            .collect()
-    } else {
-        (0..rows)
-            .flat_map(|r| (0..cols).map(move |k| (k, r)))
-            .map(|(k, r)| {
-                let min = sf_core::Point::new(origin.x + k as f64 * step_x, origin.y + r as f64 * step_y);
-                sf_core::BBox::new(min, sf_core::Point::new(min.x + field.0, min.y + field.1))
-            })
-            .collect()
-    };
+    let cells: Vec<sf_core::BBox> =
+        if multi_position { position_cells(&positions, c, field) } else { grid_cells(origin, (cols, rows), (step_x, step_y), field) };
     // each object whole in the first hooping that holds it (its stitches: the travel in may be far off)
     let pattern = &plan.built.pattern;
     let mut assigned: Vec<Vec<usize>> = vec![Vec::new(); cells.len()];
     // the pieces of objects split over hoopings: (object, its stitches in that hooping)
     let mut parts: Vec<Vec<(usize, Vec<sf_core::Point>)>> = vec![Vec::new(); cells.len()];
     let split = bool_or(p, "split", true);
-    let middles: Vec<sf_core::Point> = cells.iter().map(|c| sf_core::Point::new((c.min.x + c.max.x) / 2.0, (c.min.y + c.max.y) / 2.0)).collect();
-    let nearest = |q: sf_core::Point| middles.iter().enumerate().min_by(|a, b| a.1.distance(q).total_cmp(&b.1.distance(q))).map_or(0, |(i, _)| i);
-    let inside =
-        |c: &sf_core::BBox, q: sf_core::Point| q.x >= c.min.x - 1e-6 && q.y >= c.min.y - 1e-6 && q.x <= c.max.x + 1e-6 && q.y <= c.max.y + 1e-6;
     for (k, span) in plan.built.spans.iter().enumerate() {
         let pts: Vec<sf_core::Point> =
             pattern.stitches.get(span.range.clone()).unwrap_or_default().iter().filter(|s| s.cmd == sf_core::Cmd::Stitch).map(|s| s.pos()).collect();
@@ -1342,43 +1438,11 @@ fn multi_hoop(s: &mut Session, p: &Value) -> Result<Value> {
         };
         let Some(i) = cells.iter().position(fits) else {
             if split {
-                // each stitch in the hooping whose middle is nearest its middle, the runs kept whole
-                let mut cur: Option<(usize, Vec<sf_core::Point>)> = None;
-                let mut prev: Option<sf_core::Point> = None;
-                let mut flush = |cur: &mut Option<(usize, Vec<sf_core::Point>)>| {
-                    if let Some((c, run)) = cur.take()
-                        && run.len() >= 2
-                        && let Some(slot) = parts.get_mut(c)
-                    {
+                for (c, run) in split_over_hoopings(pattern.stitches.get(span.range.clone()).unwrap_or_default(), &cells)? {
+                    if let Some(slot) = parts.get_mut(c) {
                         slot.push((k, run));
                     }
-                };
-                for st in pattern.stitches.get(span.range.clone()).unwrap_or_default() {
-                    let q = st.pos();
-                    match st.cmd {
-                        sf_core::Cmd::Stitch => {
-                            if let Some(a) = prev {
-                                let c = nearest(sf_core::Point::new((a.x + q.x) / 2.0, (a.y + q.y) / 2.0));
-                                if !cells.get(c).is_some_and(|cell| inside(cell, a) && inside(cell, q)) {
-                                    return Err(bad(CMD, "a stitch is longer than the hoopings' overlap: widen the overlap"));
-                                }
-                                match &mut cur {
-                                    Some((cc, run)) if *cc == c && run.last().is_some_and(|l| l.distance(a) < 1e-9) => run.push(q),
-                                    _ => {
-                                        flush(&mut cur);
-                                        cur = Some((c, vec![a, q]));
-                                    }
-                                }
-                            }
-                            prev = Some(q);
-                        }
-                        _ => {
-                            flush(&mut cur);
-                            prev = None;
-                        }
-                    }
                 }
-                flush(&mut cur);
                 continue;
             }
             return Err(bad(
@@ -1464,48 +1528,11 @@ fn multi_hoop(s: &mut Session, p: &Value) -> Result<Value> {
             if !objs.contains(k) {
                 // a split object's pieces in this hooping, each tied in and off
                 for (_, run) in pieces.iter().filter(|(o, _)| o == k) {
-                    let (Some(a), Some(b)) = (run.first().copied().map(local), run.get(1).copied().map(local)) else { continue };
-                    let toward = |from: sf_core::Point, to: sf_core::Point| {
-                        let d = from.distance(to).max(1e-9);
-                        let t = (0.4 / d).min(0.5);
-                        sf_core::Point::new(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t)
-                    };
-                    hp.jump(a);
-                    hp.stitch(a);
-                    hp.stitch(toward(a, b));
-                    hp.stitch(a);
-                    for q in run.iter().skip(1) {
-                        hp.stitch(local(*q));
-                    }
-                    if let (Some(z), Some(y)) =
-                        (run.last().copied().map(local), run.len().checked_sub(2).and_then(|i| run.get(i)).copied().map(local))
-                    {
-                        hp.stitch(toward(z, y));
-                        hp.stitch(z);
-                    }
-                    hp.trim();
+                    sew_piece(&mut hp, run, centre);
                 }
                 continue;
             }
-            let mut first = true;
-            for st in pattern.stitches.get(span.range.clone()).unwrap_or_default() {
-                let q = local(st.pos());
-                match st.cmd {
-                    sf_core::Cmd::Stitch if first => {
-                        hp.jump(q);
-                        hp.stitch(q);
-                        first = false;
-                    }
-                    sf_core::Cmd::Stitch => hp.stitch(q),
-                    // the travel in from the object before, perhaps in another hooping
-                    sf_core::Cmd::Jump | sf_core::Cmd::Trim if first => {}
-                    sf_core::Cmd::Jump => hp.jump(q),
-                    sf_core::Cmd::Trim => hp.trim(),
-                    sf_core::Cmd::Stop => hp.stop(),
-                    sf_core::Cmd::ColorChange | sf_core::Cmd::End => {}
-                }
-            }
-            hp.trim();
+            sew_object(&mut hp, pattern.stitches.get(span.range.clone()).unwrap_or_default(), centre);
         }
         hp.ensure_end();
         let stitches = hp.stitch_count();
@@ -2357,25 +2384,179 @@ fn draw(s: &mut Session, p: &Value) -> Result<Value> {
     Ok(json!({ "id": id.0 }))
 }
 
+/// The hoop `embroidery.settings` was given: a hoop's name, a custom size or none.
+fn settings_hoop(s: &Session, h: &Value) -> Result<Option<sf_core::hoops::Hoop>> {
+    const CMD: &str = "embroidery.settings";
+    Ok(match h {
+        Value::Null => None,
+        Value::String(name) => Some(super::embroidery_hoops::find_hoop(s, name).ok_or_else(|| bad(CMD, format!("unknown hoop `{name}`")))?),
+        Value::Object(_) => {
+            let w = h.get("width").and_then(Value::as_f64).filter(|v| v.is_finite() && *v > 1.0).ok_or_else(|| bad(CMD, "hoop width (mm) > 1"))?;
+            let ht = h.get("height").and_then(Value::as_f64).filter(|v| v.is_finite() && *v > 1.0).ok_or_else(|| bad(CMD, "hoop height (mm) > 1"))?;
+            let shape = if str_param(h, "shape") == Some("oval") { sf_core::hoops::HoopShape::Oval } else { sf_core::hoops::HoopShape::Rect };
+            Some(sf_core::hoops::Hoop::new(str_param(h, "name").unwrap_or("Custom"), w, ht, shape))
+        }
+        _ => return Err(bad(CMD, "hoop is a name, {width, height, shape?} or null")),
+    })
+}
+
+/// Sets the design's machine profile (its settings and format), or clears it.
+fn settings_machine(s: &Session, cfg: &mut DocEmbroidery, m: &Value) -> Result<()> {
+    const CMD: &str = "embroidery.settings";
+    match m {
+        Value::Null => (cfg.machine, cfg.machine_format) = (String::new(), String::new()),
+        Value::String(f) if f.trim().is_empty() => (cfg.machine, cfg.machine_format) = (String::new(), String::new()),
+        Value::String(f) => {
+            let saved = &s.prefs.embroidery_machines;
+            let profile = sf_core::machines::find(saved, f).ok_or_else(|| {
+                let names: Vec<String> = sf_core::machines::profiles(saved).into_iter().map(|m| m.name).collect();
+                bad(CMD, format!("unknown machine `{f}`: one of {}", names.join(", ")))
+            })?;
+            cfg.settings = profile.apply(&cfg.settings);
+            // the user's profiles: the design keeps the format too, for where it isn't saved
+            cfg.machine_format = if profile.is_standard() { String::new() } else { profile.format.clone() };
+            cfg.machine = profile.name;
+        }
+        _ => return Err(bad(CMD, "machine is a machine profile's name (\"dst\", \"pes\", … or one of yours) or null")),
+    }
+    Ok(())
+}
+
+/// Sets the Check Design limits given; whether any was.
+fn settings_checks(lim: &mut sf_core::attr::CheckLimits, c: &Value) -> Result<bool> {
+    const CMD: &str = "embroidery.settings";
+    let o = c.as_object().ok_or_else(|| {
+        bad(CMD, "checks is {denseLayers?, longStitch?, smallLettering?, tinyObject?, garment?, shortStitch?, narrowSatin?, shortFill?}")
+    })?;
+    let mut changed = false;
+    // clothing or not sets the long-stitch limit, unless it is given too
+    if let Some(g) = o.get("garment") {
+        let g = g.as_bool().ok_or_else(|| bad(CMD, "checks.garment is true or false"))?;
+        lim.garment = g;
+        lim.long_stitch = if g { sf_core::attr::LONG_STITCH_GARMENT } else { sf_core::attr::LONG_STITCH_OTHER };
+        changed = true;
+    }
+    for (k, slot, lo, hi) in [
+        ("denseLayers", &mut lim.dense_layers, 1.5, 20.0),
+        ("longStitch", &mut lim.long_stitch, 2.0, 20.0),
+        ("smallLettering", &mut lim.small_lettering, 1.0, 30.0),
+        ("tinyObject", &mut lim.tiny_object, 0.1, 10.0),
+        ("shortStitch", &mut lim.short_stitch, 0.0, 3.0),
+        ("narrowSatin", &mut lim.narrow_satin, 0.0, 5.0),
+        ("shortFill", &mut lim.short_fill, 0.0, 10.0),
+    ] {
+        if let Some(v) = o.get(k) {
+            *slot = v.as_f64().filter(|x| (lo..=hi).contains(x)).ok_or_else(|| bad(CMD, format!("checks.{k} is a number from {lo} to {hi}")))?;
+            changed = true;
+        }
+    }
+    Ok(changed)
+}
+
+/// The cost model `embroidery.settings` was given, from the design's current one.
+fn settings_cost(current: Option<&sf_core::attr::CostModel>, v: &Value) -> Result<Option<sf_core::attr::CostModel>> {
+    const CMD: &str = "embroidery.settings";
+    Ok(match v {
+        Value::Null | Value::Bool(false) => None,
+        Value::Bool(true) => Some(current.cloned().unwrap_or_default()),
+        Value::Object(o) => {
+            let mut m = current.cloned().unwrap_or_default();
+            for (k, slot, hi) in [
+                ("perThousand", &mut m.per_thousand, 1000.0),
+                ("perHour", &mut m.per_hour, 10_000.0),
+                ("threadPerKm", &mut m.thread_per_km, 10_000.0),
+                ("setup", &mut m.setup, 1_000_000.0),
+            ] {
+                if let Some(v) = o.get(k) {
+                    *slot = v.as_f64().filter(|x| (0.0..=hi).contains(x)).ok_or_else(|| bad(CMD, format!("cost.{k} is 0 to {hi}")))?;
+                }
+            }
+            if let Some(v) = o.get("heads") {
+                m.heads = v
+                    .as_u64()
+                    .filter(|h| (1..=100).contains(h))
+                    .and_then(|h| u32::try_from(h).ok())
+                    .ok_or_else(|| bad(CMD, "cost.heads is 1 to 100"))?;
+            }
+            if let Some(v) = o.get("currency") {
+                m.currency = v
+                    .as_str()
+                    .filter(|c| c.chars().count() <= 4 && !c.chars().any(char::is_control))
+                    .ok_or_else(|| bad(CMD, "cost.currency is up to 4 characters"))?
+                    .to_string();
+            }
+            Some(m)
+        }
+        _ => return Err(bad(CMD, "cost is true, false or {perThousand?, perHour?, threadPerKm?, setup?, heads?, currency?}")),
+    })
+}
+
+/// Where in the hoop the design sits: its centre (none) or an offset in mm.
+fn settings_hoop_position(v: &Value) -> Result<Option<[f64; 2]>> {
+    const CMD: &str = "embroidery.settings";
+    Ok(match v {
+        Value::Null => None,
+        Value::String(c) if c == "centre" || c == "center" => None,
+        Value::Array(a) => {
+            let n = |i: usize| a.get(i).and_then(Value::as_f64).filter(|v| v.is_finite() && v.abs() <= 1000.0);
+            match (n(0), n(1), a.len()) {
+                (Some(x), Some(y), 2) => Some([x, y]),
+                _ => return Err(bad(CMD, "hoopPosition is [x, y]: mm from the hoop's centre, each within 1000")),
+            }
+        }
+        _ => return Err(bad(CMD, "hoopPosition is centre or [x, y] (mm from the hoop's centre)")),
+    })
+}
+
+/// Sets the registration marks' values given.
+fn settings_registration(r: &mut sf_core::model::RegistrationMarks, v: &Value) -> Result<()> {
+    const CMD: &str = "embroidery.settings";
+    let o = v.as_object().ok_or_else(|| bad(CMD, "registration is {shape?, size?, perOverlap?, color?}"))?;
+    if let Some(sh) = o.get("shape") {
+        r.shape =
+            sh.as_str().and_then(sf_core::model::MarkShape::from_id).ok_or_else(|| bad(CMD, "registration.shape is cross, circle or target"))?;
+    }
+    if let Some(v) = o.get("size") {
+        r.size = v.as_f64().filter(|x| (1.0..=20.0).contains(x)).ok_or_else(|| bad(CMD, "registration.size is 1 to 20 mm"))?;
+    }
+    if let Some(v) = o.get("perOverlap") {
+        r.per_overlap = v.as_u64().filter(|n| (1..=4).contains(n)).ok_or_else(|| bad(CMD, "registration.perOverlap is 1 to 4"))? as u8;
+    }
+    if let Some(v) = o.get("color") {
+        r.color = v.as_str().and_then(Rgb::from_hex).ok_or_else(|| bad(CMD, "registration.color is \"#rrggbb\""))?;
+    }
+    Ok(())
+}
+
+/// The basting `embroidery.settings` was given, from the design's current one.
+fn settings_basting(current: Option<sf_core::model::Basting>, v: &Value) -> Result<Option<sf_core::model::Basting>> {
+    const CMD: &str = "embroidery.settings";
+    Ok(match v {
+        Value::Null | Value::Bool(false) => None,
+        Value::Bool(true) => Some(current.unwrap_or_default()),
+        Value::Object(o) => {
+            let mut b = current.unwrap_or_default();
+            if let Some(h) = o.get("hoop") {
+                b.hoop = h.as_bool().ok_or_else(|| bad(CMD, "basting.hoop is true or false"))?;
+            }
+            for (k, slot, lo, hi) in [("margin", &mut b.margin, 0.0, 50.0), ("length", &mut b.length, 2.0, 12.0)] {
+                if let Some(v) = o.get(k) {
+                    *slot = v.as_f64().filter(|x| (lo..=hi).contains(x)).ok_or_else(|| bad(CMD, format!("basting.{k} is {lo} to {hi} mm")))?;
+                }
+            }
+            Some(b)
+        }
+        _ => return Err(bad(CMD, "basting is true, false or {hoop?, margin?, length?}")),
+    })
+}
+
 fn settings(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "embroidery.settings";
     let mut cfg: DocEmbroidery = s.doc()?.doc.embroidery.as_deref().cloned().unwrap_or_default();
     let mut changed = false;
     if let Some(h) = p.get("hoop") {
         changed = true;
-        cfg.hoop = match h {
-            Value::Null => None,
-            Value::String(name) => Some(super::embroidery_hoops::find_hoop(s, name).ok_or_else(|| bad(CMD, format!("unknown hoop `{name}`")))?),
-            Value::Object(_) => {
-                let w =
-                    h.get("width").and_then(Value::as_f64).filter(|v| v.is_finite() && *v > 1.0).ok_or_else(|| bad(CMD, "hoop width (mm) > 1"))?;
-                let ht =
-                    h.get("height").and_then(Value::as_f64).filter(|v| v.is_finite() && *v > 1.0).ok_or_else(|| bad(CMD, "hoop height (mm) > 1"))?;
-                let shape = if str_param(h, "shape") == Some("oval") { sf_core::hoops::HoopShape::Oval } else { sf_core::hoops::HoopShape::Rect };
-                Some(sf_core::hoops::Hoop::new(str_param(h, "name").unwrap_or("Custom"), w, ht, shape))
-            }
-            _ => return Err(bad(CMD, "hoop is a name, {width, height, shape?} or null")),
-        };
+        cfg.hoop = settings_hoop(s, h)?;
     }
     if let Some(f) = str_param(p, "fabric") {
         cfg.fabric = f.to_string();
@@ -2393,49 +2574,10 @@ fn settings(s: &mut Session, p: &Value) -> Result<Value> {
     // A machine first, so values given with it override the machine's.
     if let Some(m) = p.get("machine") {
         changed = true;
-        match m {
-            Value::Null => (cfg.machine, cfg.machine_format) = (String::new(), String::new()),
-            Value::String(f) if f.trim().is_empty() => (cfg.machine, cfg.machine_format) = (String::new(), String::new()),
-            Value::String(f) => {
-                let saved = &s.prefs.embroidery_machines;
-                let profile = sf_core::machines::find(saved, f).ok_or_else(|| {
-                    let names: Vec<String> = sf_core::machines::profiles(saved).into_iter().map(|m| m.name).collect();
-                    bad(CMD, format!("unknown machine `{f}`: one of {}", names.join(", ")))
-                })?;
-                cfg.settings = profile.apply(&cfg.settings);
-                // the user's profiles: the design keeps the format too, for where it isn't saved
-                cfg.machine_format = if profile.is_standard() { String::new() } else { profile.format.clone() };
-                cfg.machine = profile.name;
-            }
-            _ => return Err(bad(CMD, "machine is a machine profile's name (\"dst\", \"pes\", … or one of yours) or null")),
-        }
+        settings_machine(s, &mut cfg, m)?;
     }
     if let Some(c) = p.get("checks") {
-        let o = c.as_object().ok_or_else(|| {
-            bad(CMD, "checks is {denseLayers?, longStitch?, smallLettering?, tinyObject?, garment?, shortStitch?, narrowSatin?, shortFill?}")
-        })?;
-        let lim = &mut cfg.checks;
-        // clothing or not sets the long-stitch limit, unless it is given too
-        if let Some(g) = o.get("garment") {
-            let g = g.as_bool().ok_or_else(|| bad(CMD, "checks.garment is true or false"))?;
-            lim.garment = g;
-            lim.long_stitch = if g { sf_core::attr::LONG_STITCH_GARMENT } else { sf_core::attr::LONG_STITCH_OTHER };
-            changed = true;
-        }
-        for (k, slot, lo, hi) in [
-            ("denseLayers", &mut lim.dense_layers, 1.5, 20.0),
-            ("longStitch", &mut lim.long_stitch, 2.0, 20.0),
-            ("smallLettering", &mut lim.small_lettering, 1.0, 30.0),
-            ("tinyObject", &mut lim.tiny_object, 0.1, 10.0),
-            ("shortStitch", &mut lim.short_stitch, 0.0, 3.0),
-            ("narrowSatin", &mut lim.narrow_satin, 0.0, 5.0),
-            ("shortFill", &mut lim.short_fill, 0.0, 10.0),
-        ] {
-            if let Some(v) = o.get(k) {
-                *slot = v.as_f64().filter(|x| (lo..=hi).contains(x)).ok_or_else(|| bad(CMD, format!("checks.{k} is a number from {lo} to {hi}")))?;
-                changed = true;
-            }
-        }
+        changed |= settings_checks(&mut cfg.checks, c)?;
     }
     let num = |k: &str| p.get(k).and_then(Value::as_f64).filter(|v| v.is_finite() && *v >= 0.0);
     let st = &mut cfg.settings;
@@ -2477,39 +2619,7 @@ fn settings(s: &mut Session, p: &Value) -> Result<Value> {
         changed = true;
     }
     if let Some(v) = p.get("cost") {
-        cfg.cost = match v {
-            Value::Null | Value::Bool(false) => None,
-            Value::Bool(true) => Some(cfg.cost.clone().unwrap_or_default()),
-            Value::Object(o) => {
-                let mut m = cfg.cost.clone().unwrap_or_default();
-                for (k, slot, hi) in [
-                    ("perThousand", &mut m.per_thousand, 1000.0),
-                    ("perHour", &mut m.per_hour, 10_000.0),
-                    ("threadPerKm", &mut m.thread_per_km, 10_000.0),
-                    ("setup", &mut m.setup, 1_000_000.0),
-                ] {
-                    if let Some(v) = o.get(k) {
-                        *slot = v.as_f64().filter(|x| (0.0..=hi).contains(x)).ok_or_else(|| bad(CMD, format!("cost.{k} is 0 to {hi}")))?;
-                    }
-                }
-                if let Some(v) = o.get("heads") {
-                    m.heads = v
-                        .as_u64()
-                        .filter(|h| (1..=100).contains(h))
-                        .and_then(|h| u32::try_from(h).ok())
-                        .ok_or_else(|| bad(CMD, "cost.heads is 1 to 100"))?;
-                }
-                if let Some(v) = o.get("currency") {
-                    m.currency = v
-                        .as_str()
-                        .filter(|c| c.chars().count() <= 4 && !c.chars().any(char::is_control))
-                        .ok_or_else(|| bad(CMD, "cost.currency is up to 4 characters"))?
-                        .to_string();
-                }
-                Some(m)
-            }
-            _ => return Err(bad(CMD, "cost is true, false or {perThousand?, perHour?, threadPerKm?, setup?, heads?, currency?}")),
-        };
+        cfg.cost = settings_cost(cfg.cost.as_ref(), v)?;
         changed = true;
     }
     for (key, slot) in [("start", &mut st.start), ("end", &mut st.end)] {
@@ -2526,56 +2636,15 @@ fn settings(s: &mut Session, p: &Value) -> Result<Value> {
         }
     }
     if let Some(v) = p.get("hoopPosition") {
-        st.hoop_offset = match v {
-            Value::Null => None,
-            Value::String(c) if c == "centre" || c == "center" => None,
-            Value::Array(a) => {
-                let n = |i: usize| a.get(i).and_then(Value::as_f64).filter(|v| v.is_finite() && v.abs() <= 1000.0);
-                match (n(0), n(1), a.len()) {
-                    (Some(x), Some(y), 2) => Some([x, y]),
-                    _ => return Err(bad(CMD, "hoopPosition is [x, y]: mm from the hoop's centre, each within 1000")),
-                }
-            }
-            _ => return Err(bad(CMD, "hoopPosition is centre or [x, y] (mm from the hoop's centre)")),
-        };
+        st.hoop_offset = settings_hoop_position(v)?;
         changed = true;
     }
     if let Some(v) = p.get("registration") {
-        let o = v.as_object().ok_or_else(|| bad(CMD, "registration is {shape?, size?, perOverlap?, color?}"))?;
-        let r = &mut st.registration;
-        if let Some(sh) = o.get("shape") {
-            r.shape =
-                sh.as_str().and_then(sf_core::model::MarkShape::from_id).ok_or_else(|| bad(CMD, "registration.shape is cross, circle or target"))?;
-        }
-        if let Some(v) = o.get("size") {
-            r.size = v.as_f64().filter(|x| (1.0..=20.0).contains(x)).ok_or_else(|| bad(CMD, "registration.size is 1 to 20 mm"))?;
-        }
-        if let Some(v) = o.get("perOverlap") {
-            r.per_overlap = v.as_u64().filter(|n| (1..=4).contains(n)).ok_or_else(|| bad(CMD, "registration.perOverlap is 1 to 4"))? as u8;
-        }
-        if let Some(v) = o.get("color") {
-            r.color = v.as_str().and_then(Rgb::from_hex).ok_or_else(|| bad(CMD, "registration.color is \"#rrggbb\""))?;
-        }
+        settings_registration(&mut st.registration, v)?;
         changed = true;
     }
     if let Some(v) = p.get("basting") {
-        st.basting = match v {
-            Value::Null | Value::Bool(false) => None,
-            Value::Bool(true) => Some(st.basting.unwrap_or_default()),
-            Value::Object(o) => {
-                let mut b = st.basting.unwrap_or_default();
-                if let Some(h) = o.get("hoop") {
-                    b.hoop = h.as_bool().ok_or_else(|| bad(CMD, "basting.hoop is true or false"))?;
-                }
-                for (k, slot, lo, hi) in [("margin", &mut b.margin, 0.0, 50.0), ("length", &mut b.length, 2.0, 12.0)] {
-                    if let Some(v) = o.get(k) {
-                        *slot = v.as_f64().filter(|x| (lo..=hi).contains(x)).ok_or_else(|| bad(CMD, format!("basting.{k} is {lo} to {hi} mm")))?;
-                    }
-                }
-                Some(b)
-            }
-            _ => return Err(bad(CMD, "basting is true, false or {hoop?, margin?, length?}")),
-        };
+        st.basting = settings_basting(st.basting, v)?;
         changed = true;
     }
     if let Some(v) = p.get("tieStyle") {
@@ -3000,6 +3069,143 @@ pub(super) fn stitch_runs(pattern: &sf_core::Pattern) -> Vec<Vec<Vec<sf_core::Po
     blocks
 }
 
+/// The worksheet's heading for its kind.
+fn worksheet_heading(approval: bool, template: bool, full: bool) -> &'static str {
+    if approval {
+        "Approval sheet"
+    } else if template {
+        "Placement template"
+    } else if full {
+        "Pattern"
+    } else {
+        "Production worksheet"
+    }
+}
+
+/// The job's barcode (its text and bar widths): the design's name unless other text is given.
+fn worksheet_barcode(p: &Value, shown: bool, title: &str) -> Result<Option<(String, Vec<u8>)>> {
+    const CMD: &str = "embroidery.worksheet";
+    Ok(match str_param(p, "barcode").unwrap_or(if shown { "code128" } else { "none" }) {
+        "none" => None,
+        name => {
+            let kind = sf_core::barcode::Symbology::from_name(name).ok_or_else(|| bad(CMD, "`barcode` is code128, code39 or none"))?;
+            match str_param(p, "barcodeText").map(str::trim).filter(|t| !t.is_empty()) {
+                Some(text) => {
+                    let widths = sf_core::barcode::encode(kind, text)
+                        .ok_or_else(|| bad(CMD, "`barcodeText` is 1 to 48 characters the code has (Code 39: digits, letters, space and -.$/+%)"))?;
+                    Some((text.to_string(), widths))
+                }
+                // a name the code can't carry: no barcode rather than no worksheet
+                None => sf_core::barcode::encode(kind, title).map(|w| (title.to_string(), w)),
+            }
+        }
+    })
+}
+
+/// Draws the design's stitches on the sheet in their thread colours, at `(x, y, scale)`.
+fn worksheet_design(doc: &mut Document, pattern: &sf_core::Pattern, (ox, oy, k): (f64, f64, f64)) -> Result<()> {
+    use vectorcraft_geom::path::{Anchor, AnchorKind, PathData, SubPath};
+    let b = pattern.bounds();
+    let layer = doc.layers.first().map(|l| l.id);
+    for (i, runs) in stitch_runs(pattern).iter().enumerate().filter(|(_, r)| !r.is_empty()) {
+        let to_pt = |q: &sf_core::Point| kurbo::Point::new(ox + (q.x - b.min.x) * k, oy + (q.y - b.min.y) * k);
+        let subpaths = runs
+            .iter()
+            .map(|r| SubPath::new(r.iter().map(to_pt).map(|p| Anchor { p, h_in: p, h_out: p, kind: AnchorKind::Corner }).collect(), false))
+            .collect();
+        let c = pattern.thread(i).color;
+        let kind =
+            NodeKind::Path { path: PathData { subpaths }, rule: vectorcraft_geom::FillRule::NonZero, live: None, clipping: false, guide: false };
+        let mut n = vectorcraft_doc::Node::new(doc.alloc_id(), kind);
+        n.appearance = Appearance::basic(Paint::None, Paint::solid(Color::rgb8(c.r, c.g, c.b)), 0.5).into();
+        doc.insert(layer, usize::MAX, n).map_err(|e| EngineError::Other(e.to_string()))?;
+    }
+    Ok(())
+}
+
+/// A placement template's marks: lines through the design's middle to the page's margins, which
+/// way is up, and a bar to check the print is life size.
+fn worksheet_template_marks(doc: &mut Document, (cx, cy): (f64, f64), (pw, ph): (f64, f64)) -> Result<()> {
+    let black = Color::rgb8(0x1a, 0x1a, 0x1a);
+    let grey = Color::rgb8(0x66, 0x66, 0x66);
+    let grey_line = Color::rgb8(0x99, 0x99, 0x99);
+    sheet_lines(doc, &[vec![(20.0, cy), (pw - 20.0, cy)], vec![(cx, 104.0), (cx, ph - 96.0)]], grey_line, 0.5)?;
+    sheet_lines(doc, &[vec![(cx - 6.0, 116.0), (cx, 106.0), (cx + 6.0, 116.0)]], black, 1.0)?;
+    sheet_text(doc, cx + 9.0, 116.0, "Up", 9.0, black)?;
+    let bar = 100.0 * PT_PER_MM;
+    let y = ph - 84.0;
+    sheet_lines(
+        doc,
+        &[vec![(40.0, y), (40.0 + bar, y)], vec![(40.0, y - 5.0), (40.0, y + 5.0)], vec![(40.0 + bar, y - 5.0), (40.0 + bar, y + 5.0)]],
+        black,
+        1.0,
+    )?;
+    sheet_text(doc, 40.0, y + 18.0, "100 mm: print at 100 % (no fitting to the page) and check this bar", 8.0, grey)
+}
+
+/// The worksheet's figures: size, stitches, thread, time, hoop, stabiliser and cost.
+fn worksheet_figures(stats: &sf_core::stats::PatternStats, cfg: &DocEmbroidery, shown: f64) -> Vec<String> {
+    let st = &cfg.settings;
+    let mut lines = vec![
+        format!("Size: {:.1} × {:.1} mm (shown at {shown} %)", stats.width_mm, stats.height_mm),
+        format!("Stitches: {}   Colours: {}   Colour changes: {}   Trims: {}", stats.stitches, stats.colors.len(), stats.color_changes, stats.trims),
+        format!(
+            "Thread: {:.1} m top, {:.1} m bobbin   Sewing time: {} at {} stitches a minute",
+            stats.thread_m,
+            stats.bobbin_m,
+            stats.time_string(),
+            st.machine_speed.round()
+        ),
+        format!(
+            "Hoop: {}   Fabric: {}   Machine: {}",
+            cfg.hoop.as_ref().map_or("none", |h| h.name.as_str()),
+            if cfg.fabric.is_empty() { "none" } else { cfg.fabric.as_str() },
+            if cfg.machine.is_empty() { "none" } else { cfg.machine.as_str() }
+        ),
+    ];
+    // what to hoop under the fabric
+    if let Some(f) = cfg.fabric(&cfg.fabric) {
+        lines.push(format!("Stabiliser: {}", sf_core::fabrics::stabilizer_advice(&f)));
+    }
+    if let Some(m) = &cfg.cost {
+        let e = m.estimate(stats, 1);
+        lines.push(format!(
+            "Cost: {} a piece (stitches {}, machine time {}, thread {}, set-up {})",
+            m.money(e.per_piece),
+            m.money(e.stitches),
+            m.money(e.time),
+            m.money(e.thread),
+            m.money(e.setup)
+        ));
+    }
+    lines
+}
+
+/// Lists the design's colorways from `y`, a line or two each; the `y` below them.
+fn worksheet_colorways(doc: &mut Document, cfg: &DocEmbroidery, own: &[Thread], pw: f64, mut y: f64) -> Result<f64> {
+    let black = Color::rgb8(0x1a, 0x1a, 0x1a);
+    let width = ((pw - 98.0) / 4.8).max(20.0) as usize;
+    y += 8.0;
+    sheet_text(doc, 40.0, y, "Colorways", 11.0, black)?;
+    y += 16.0;
+    let schemes = std::iter::once(("The design's own".to_string(), own.to_vec()))
+        .chain(cfg.colorways.iter().enumerate().map(|(i, c)| (c.name.clone(), cfg.threads_of(i + 1, own))));
+    let mut printed = 0;
+    for (k, (name, threads)) in schemes.enumerate() {
+        let mark = if k == cfg.colorway { " (in use)" } else { "" };
+        let list: Vec<String> = threads.iter().enumerate().map(|(i, t)| format!("{}. {}", i + 1, t.label())).collect();
+        for line in wrap_text(&format!("{name}{mark}: {}", list.join(", ")), width).iter().take(3) {
+            if printed >= 14 {
+                break;
+            }
+            sheet_text(doc, 58.0, y, line, 9.0, black)?;
+            y += 12.0;
+            printed += 1;
+        }
+    }
+    Ok(y)
+}
+
 fn worksheet(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "embroidery.worksheet";
     let kind = str_param(p, "kind").unwrap_or("production");
@@ -3041,36 +3247,13 @@ fn worksheet(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let shows = |section: &str| !hidden.iter().any(|h| h == section);
     // the job's barcode: its name unless other text is given
-    let code = match str_param(p, "barcode").unwrap_or(if shows("barcode") { "code128" } else { "none" }) {
-        "none" => None,
-        name => {
-            let kind = sf_core::barcode::Symbology::from_name(name).ok_or_else(|| bad(CMD, "`barcode` is code128, code39 or none"))?;
-            match str_param(p, "barcodeText").map(str::trim).filter(|t| !t.is_empty()) {
-                Some(text) => {
-                    let widths = sf_core::barcode::encode(kind, text)
-                        .ok_or_else(|| bad(CMD, "`barcodeText` is 1 to 48 characters the code has (Code 39: digits, letters, space and -.$/+%)"))?;
-                    Some((text.to_string(), widths))
-                }
-                // a name the code can't carry: no barcode rather than no worksheet
-                None => sf_core::barcode::encode(kind, &title).map(|w| (title.clone(), w)),
-            }
-        }
-    };
+    let code = worksheet_barcode(p, shows("barcode"), &title)?;
     let black = Color::rgb8(0x1a, 0x1a, 0x1a);
     let grey = Color::rgb8(0x66, 0x66, 0x66);
     let mut doc = Document::new(pw, ph);
     doc.title = format!("{title} worksheet");
     // heading
-    let heading = if approval {
-        "Approval sheet"
-    } else if template {
-        "Placement template"
-    } else if full {
-        "Pattern"
-    } else {
-        "Production worksheet"
-    };
-    sheet_text(&mut doc, 40.0, 56.0, heading, 20.0, black)?;
+    sheet_text(&mut doc, 40.0, 56.0, worksheet_heading(approval, template, full), 20.0, black)?;
     sheet_text(&mut doc, 40.0, 78.0, &title, 13.0, black)?;
     let t = sf_formats::Timestamp::now();
     let mut sub = format!("{:04}-{:02}-{:02}", t.year, t.month, t.day);
@@ -3108,39 +3291,11 @@ fn worksheet(s: &mut Session, p: &Value) -> Result<Value> {
     }
     let (ox, oy) = (40.0 + (bw - b.width() * k) / 2.0, 110.0 + (bh - b.height() * k) / 2.0);
     let layer = doc.layers.first().map(|l| l.id);
-    for (i, runs) in stitch_runs(&pattern).iter().enumerate().filter(|(_, r)| !r.is_empty()) {
-        use vectorcraft_geom::path::{Anchor, AnchorKind, PathData, SubPath};
-        let to_pt = |q: &sf_core::Point| kurbo::Point::new(ox + (q.x - b.min.x) * k, oy + (q.y - b.min.y) * k);
-        let subpaths = runs
-            .iter()
-            .map(|r| SubPath::new(r.iter().map(to_pt).map(|p| Anchor { p, h_in: p, h_out: p, kind: AnchorKind::Corner }).collect(), false))
-            .collect();
-        let c = pattern.thread(i).color;
-        let kind =
-            NodeKind::Path { path: PathData { subpaths }, rule: vectorcraft_geom::FillRule::NonZero, live: None, clipping: false, guide: false };
-        let mut n = vectorcraft_doc::Node::new(doc.alloc_id(), kind);
-        n.appearance = Appearance::basic(Paint::None, Paint::solid(Color::rgb8(c.r, c.g, c.b)), 0.5).into();
-        doc.insert(layer, usize::MAX, n).map_err(|e| EngineError::Other(e.to_string()))?;
-    }
+    worksheet_design(&mut doc, &pattern, (ox, oy, k))?;
     // the figures (a pattern: one line under the design)
     let shown = (k / PT_PER_MM * 100.0).round();
     if template {
-        // lines through the design's middle to the page's margins, which way is up, and a bar
-        // to check the print is life size
-        let (cx, cy) = (ox + b.width() * k / 2.0, oy + b.height() * k / 2.0);
-        let grey_line = Color::rgb8(0x99, 0x99, 0x99);
-        sheet_lines(&mut doc, &[vec![(20.0, cy), (pw - 20.0, cy)], vec![(cx, 104.0), (cx, ph - 96.0)]], grey_line, 0.5)?;
-        sheet_lines(&mut doc, &[vec![(cx - 6.0, 116.0), (cx, 106.0), (cx + 6.0, 116.0)]], black, 1.0)?;
-        sheet_text(&mut doc, cx + 9.0, 116.0, "Up", 9.0, black)?;
-        let bar = 100.0 * PT_PER_MM;
-        let y = ph - 84.0;
-        sheet_lines(
-            &mut doc,
-            &[vec![(40.0, y), (40.0 + bar, y)], vec![(40.0, y - 5.0), (40.0, y + 5.0)], vec![(40.0 + bar, y - 5.0), (40.0 + bar, y + 5.0)]],
-            black,
-            1.0,
-        )?;
-        sheet_text(&mut doc, 40.0, y + 18.0, "100 mm: print at 100 % (no fitting to the page) and check this bar", 8.0, grey)?;
+        worksheet_template_marks(&mut doc, (ox + b.width() * k / 2.0, oy + b.height() * k / 2.0), (pw, ph))?;
     }
     if let Some(text) = placement {
         sheet_text(&mut doc, 40.0, if full { ph - 24.0 } else { 104.0 }, text, 8.0, grey)?;
@@ -3159,39 +3314,7 @@ fn worksheet(s: &mut Session, p: &Value) -> Result<Value> {
         return Ok(json!({ "kind": kind, "colors": stats.colors.len(), "scale": shown }));
     }
     let mut y = 512.0;
-    let st = &cfg.settings;
-    let mut lines = vec![
-        format!("Size: {:.1} × {:.1} mm (shown at {shown} %)", stats.width_mm, stats.height_mm),
-        format!("Stitches: {}   Colours: {}   Colour changes: {}   Trims: {}", stats.stitches, stats.colors.len(), stats.color_changes, stats.trims),
-        format!(
-            "Thread: {:.1} m top, {:.1} m bobbin   Sewing time: {} at {} stitches a minute",
-            stats.thread_m,
-            stats.bobbin_m,
-            stats.time_string(),
-            st.machine_speed.round()
-        ),
-        format!(
-            "Hoop: {}   Fabric: {}   Machine: {}",
-            cfg.hoop.as_ref().map_or("none", |h| h.name.as_str()),
-            if cfg.fabric.is_empty() { "none" } else { cfg.fabric.as_str() },
-            if cfg.machine.is_empty() { "none" } else { cfg.machine.as_str() }
-        ),
-    ];
-    // what to hoop under the fabric
-    if let Some(f) = cfg.fabric(&cfg.fabric) {
-        lines.push(format!("Stabiliser: {}", sf_core::fabrics::stabilizer_advice(&f)));
-    }
-    if let Some(m) = &cfg.cost {
-        let e = m.estimate(&stats, 1);
-        lines.push(format!(
-            "Cost: {} a piece (stitches {}, machine time {}, thread {}, set-up {})",
-            m.money(e.per_piece),
-            m.money(e.stitches),
-            m.money(e.time),
-            m.money(e.thread),
-            m.money(e.setup)
-        ));
-    }
+    let lines = worksheet_figures(&stats, &cfg, shown);
     if shows("figures") {
         for l in &lines {
             sheet_text(&mut doc, 40.0, y, l, 10.0, black)?;
@@ -3226,26 +3349,7 @@ fn worksheet(s: &mut Session, p: &Value) -> Result<Value> {
     }
     // the design's colorways, a line or two each: its threads colour by colour
     if !cfg.colorways.is_empty() && p.get("colorways").and_then(Value::as_bool).unwrap_or(true) && shows("colorways") {
-        let width = ((pw - 98.0) / 4.8).max(20.0) as usize;
-        y += 8.0;
-        sheet_text(&mut doc, 40.0, y, "Colorways", 11.0, black)?;
-        y += 16.0;
-        let own = &plan.own_threads;
-        let schemes = std::iter::once(("The design's own".to_string(), own.clone()))
-            .chain(cfg.colorways.iter().enumerate().map(|(i, c)| (c.name.clone(), cfg.threads_of(i + 1, own))));
-        let mut printed = 0;
-        for (k, (name, threads)) in schemes.enumerate() {
-            let mark = if k == cfg.colorway { " (in use)" } else { "" };
-            let list: Vec<String> = threads.iter().enumerate().map(|(i, t)| format!("{}. {}", i + 1, t.label())).collect();
-            for line in wrap_text(&format!("{name}{mark}: {}", list.join(", ")), width).iter().take(3) {
-                if printed >= 14 {
-                    break;
-                }
-                sheet_text(&mut doc, 58.0, y, line, 9.0, black)?;
-                y += 12.0;
-                printed += 1;
-            }
-        }
+        y = worksheet_colorways(&mut doc, &cfg, &plan.own_threads, pw, y)?;
     }
     if !notes.is_empty() && shows("notes") {
         // wrapped to the page, eight lines at most

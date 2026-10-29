@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    Appearance, Arc, Beside, Cap, Color, Document, EngineError, FillRule, Join, Node, NodeId, NodeKind, Paint, PathData, Point, PressureProfile,
+    Rect, Result, Selection, Session, SubPath, Value, Vec2, bad, index, json, po,
+};
 
 // ---------- helpers ----------
 
@@ -163,6 +166,33 @@ pub(super) fn target_paths(doc: &Document, sel: &Selection, area: Rect) -> Vec<N
     let editable = doc.editable();
     out.retain(|id| editable(*id));
     out
+}
+
+/// [`target_paths`] for the tools that cut fills, with each target's geometry and fill rule: the
+/// members of a compound path whose members are all closed paths give the compound path itself,
+/// once, so its fill (holes included) is cut as one shape under its own fill rule.
+pub(super) fn fill_targets(doc: &Document, sel: &Selection, area: Rect) -> Result<Vec<(NodeId, PathData, FillRule)>> {
+    let closed_compound = |n: &Node| {
+        matches!(&n.kind, NodeKind::Compound { children, .. }
+            if children.iter().all(|c| matches!(&c.kind, NodeKind::Path { path, .. } if path.is_closed())))
+    };
+    let editable = doc.editable();
+    let mut out: Vec<(NodeId, PathData, FillRule)> = vec![];
+    for id in target_paths(doc, sel, area) {
+        let compound = doc.parent_of(id).and_then(|p| doc.node(p)).filter(|p| closed_compound(p) && editable(p.id));
+        let target = compound.map_or(id, |c| c.id);
+        if out.iter().any(|t| t.0 == target) {
+            continue;
+        }
+        let (pd, rule) = match compound.map(|c| &c.kind) {
+            Some(NodeKind::Compound { children, rule }) => {
+                (PathData::new(children.iter().filter_map(|c| c.path_data()).flat_map(|p| p.subpaths.clone()).collect()), *rule)
+            }
+            _ => path_of(doc, id)?,
+        };
+        out.push((target, pd, rule));
+    }
+    Ok(out)
 }
 
 /// The members of a compound path with geometry `pd`: one path per subpath, with fresh ids.

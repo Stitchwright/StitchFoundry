@@ -74,6 +74,7 @@
 	Check Script	Sprawdź skrypt
 	Other Script…	Inny skrypt…
 	Document Setup…	Ustawienia dokumentu…
+	Switch Units	Przełącz jednostki
 	Document Color Mode	Tryb koloru dokumentu
 	CMYK Color	Kolor CMYK
 	RGB Color	Kolor RGB
@@ -155,6 +156,7 @@
 	Other Layers	Pozostałe warstwy
 	Unlock All	Odblokuj wszystko
 	Hide	Ukryj
+	Unselected Artwork	Niezaznaczoną kompozycję
 	Show All	Pokaż wszystko
 	Expand…	Rozszerz…
 	Expand Appearance	Rozszerz wygląd
@@ -188,6 +190,7 @@
 	Offset Path…	Odsuń ścieżkę…
 	Reverse Path Direction	Odwróć kierunek ścieżki
 	Simplify…	Uprość…
+	Smooth…	Wygładź…
 	Add Anchor Points	Dodaj punkty kontrolne
 	Remove Anchor Points	Usuń punkty kontrolne
 	Divide Objects Below	Podziel obiekty poniżej
@@ -762,6 +765,10 @@
 	Shaper	Kształtowanie
 	Expand Shaper Group	Rozszerz grupę kształtowania
 	Release Shaper Group	Uwolnij grupę kształtowania
+	Remove from Shaper Group	Usuń z grupy kształtowania
+@msg	source must be the id of a Shaper Group's original shape	source musi być identyfikatorem oryginalnego kształtu grupy kształtowania
+@msg	group must be the id of a Shaper Group	group musi być identyfikatorem grupy kształtowania
+@msg	the shape is not an editable original shape of that Shaper Group	kształt nie jest edytowalnym oryginalnym kształtem tej grupy kształtowania
 	Select Shaper Face	Zaznacz ścianę kształtowania
 	Constrain	Ogranicz
 	Free Transform	Swobodne przekształcanie
@@ -1672,6 +1679,7 @@ lighting	Light	Światło
 	Show Original Path	Pokaż oryginalną ścieżkę
 	Open this dialog with these settings next time	Następnym razem otwórz to okno dialogowe z tymi ustawieniami
 	Auto-Simplify	Uprość automatycznie
+	Auto-Smooth	Wygładź automatycznie
 	Transparency Options	Opcje przezroczystości
 	Color Mixer (Shift-click the chip)	Mikser kolorów (kliknij próbkę z Shift)
 	Fill: click for swatches, Shift-click for the color mixer	Wypełnienie: kliknij, aby wybrać próbkę, z Shift — mikser kolorów
@@ -1882,6 +1890,8 @@ lighting	Light	Światło
 	Repeat Tab	Powtórz tabulator
 	Right-Justified Tab	Tabulator prawy
 	Top-Justified Tab	Tabulator górny
+	X:	X:
+	Y:	Y:
 	Select a text object to set its tab stops.	Zaznacz obiekt tekstowy, aby ustawić jego tabulatory.
 	Select text	Zaznacz tekst
 	Snap to Unit	Przyciągaj do jednostek
@@ -1984,6 +1994,10 @@ lighting	Light	Światło
 	Outer Corner Tile	Kafelek narożnika zewnętrznego
 	Side Tile	Kafelek boczny
 	Inner Corner Tile	Kafelek narożnika wewnętrznego
+	Auto-Centered	Auto-wyśrodkowany
+	Auto-Between	Auto-pomiędzy
+	Auto-Sliced	Auto-cięty
+	Auto-Overlap	Auto-nakładanie
 	Start Tile	Kafelek początkowy
 	End Tile	Kafelek końcowy
 	Fit	Dopasowanie
@@ -4040,6 +4054,7 @@ imageTrace	Outline	Kontur
 @msg	`{key}` must be between {min} and {max} (got {x})	`{key}` musi mieścić się w zakresie od {min} do {max} (podano {x})
 @msg	`{key}` must be one of {_1}	`{key}` musi mieć jedną z wartości: {_1}
 @msg	`{key}` must be true or false	`{key}` musi mieć wartość true lub false
+@msg	`top` and `below` can't both be true	`top` i `below` nie mogą mieć jednocześnie wartości true
 @msg	`select` must be true or false	`select` musi mieć wartość true lub false
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors` i `maxAnchors` muszą być liczbami całkowitymi
 @msg	`{key}` must be a number not below 0	`{key}` musi być liczbą nie mniejszą niż 0
@@ -4117,6 +4132,7 @@ imageTrace	Outline	Kontur
 @msg	videoRulerPixelAspectRatio must be a number from 0.1 to 10	videoRulerPixelAspectRatio musi być liczbą od 0,1 do 10
 @msg	the Color Picker is not open	Próbnik kolorów nie jest otwarty
 @msg	the Simplify slider is not open	Suwak Uprość nie jest otwarty
+@msg	the Smooth slider is not open	Suwak Wygładź nie jest otwarty
 @msg	the screen color sampler is already open	narzędzie do pobierania koloru z ekranu jest już otwarte
 @msg	this system has no screen color sampler	ten system nie ma narzędzia do pobierania koloru z ekranu
 @msg	bad colour `{hex}` (#rrggbb)	nieprawidłowy kolor `{hex}` (#rrggbb)
@@ -4189,6 +4205,7 @@ imageTrace	Outline	Kontur
 @msg	missing `id` (see plugin.list)	brak `id` (patrz plugin.list)
 @msg	missing `name`	brak `name`
 @msg	missing `tool`	brak `tool`
+@msg	missing id	brak id
 @msg	missing index	brak indeksu
 @msg	missing number `{key}`	brak liczby `{key}`
 @msg	missing integer `{key}`	brak liczby całkowitej `{key}`
@@ -4221,6 +4238,7 @@ imageTrace	Outline	Kontur
 @msg	no current layer	brak bieżącej warstwy
 @msg	no data	brak danych
 @msg	no dialog open	brak otwartego okna dialogowego
+@msg	the open dialog has no Reset	otwarte okno dialogowe nie ma przycisku Resetuj
 @msg	no document	brak dokumentu
 @msg	no document open	brak otwartego dokumentu
 @msg	no effect applied yet	nie zastosowano jeszcze żadnego efektu
@@ -4306,6 +4324,7 @@ imageTrace	Outline	Kontur
 @msg	not in pattern editing mode	nie jest w trybie edycji wzorka
 @msg	nothing encoded	nic nie zakodowano
 @msg	nothing selected	nic nie zaznaczono
+@msg	nothing selected is in a group	nic z zaznaczenia nie należy do grupy
 @msg	nothing to align	nie ma czego wyrównać
 @msg	nothing to distort	nie ma czego zniekształcić
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	nie ma czego eksportować: dokument nie ma widocznej kompozycji (lub włącz Użyj obszarów kompozycji)
@@ -4380,6 +4399,7 @@ imageTrace	Outline	Kontur
 @msg	select an object in perspective	zaznacz obiekt w perspektywie
 @msg	select artwork (or a colour group) to recolor	zaznacz kompozycję (lub grupę kolorów), aby zmienić kolory
 @msg	select at least two objects	zaznacz co najmniej dwa obiekty
+@msg	exit isolation mode first	najpierw wyjdź z trybu izolacji
 @msg	select objects, not layers	zaznacz obiekty, nie warstwy
 @msg	select one path, or give its `id`	zaznacz jedną ścieżkę lub podaj jej `id`
 @msg	select paths to join	zaznacz ścieżki do połączenia
@@ -4432,10 +4452,14 @@ imageTrace	Outline	Kontur
 @msg	the layer or group is locked	warstwa lub grupa jest zablokowana
 @msg	the guide is on a hidden or locked layer	linia pomocnicza jest na ukrytej lub zablokowanej warstwie
 @msg	the target layer is locked or hidden	warstwa docelowa jest zablokowana lub ukryta
+@msg	the object is hidden or locked	obiekt jest ukryty lub zablokowany
+@msg	the object is outside the isolated group	obiekt znajduje się poza izolowaną grupą
+@msg	type objects can't be isolated	obiektów tekstowych nie można izolować
 @msg	the layer to flatten into is hidden	warstwa, na którą ma nastąpić spłaszczenie, jest ukryta
 @msg	the object already has an opacity mask	obiekt ma już maskę krycia
 @msg	the object has no geometry	obiekt nie ma geometrii
 @msg	the object has no opacity mask	obiekt nie ma maski krycia
+@msg	stop editing the opacity mask first	najpierw zakończ edycję maski krycia
 @msg	the object has no stroke	obiekt nie ma obrysu
 @msg	the object is beyond the plane's horizon	obiekt jest za horyzontem płaszczyzny
 @msg	the object isn't in perspective	obiekt nie jest w perspektywie
@@ -6436,8 +6460,6 @@ machine	Stop	Zatrzymanie
 	Top thread (m)	Nić górna (m)
 	Width (mm)	Szerokość (mm)
 	same	bez zmian
-	X:	X:
-	Y:	Y:
 	Direction	Kierunek
 	Along the selected line	Wzdłuż zaznaczonej linii
 	Add to Design	Dodaj do projektu

@@ -2,7 +2,7 @@ use super::anchors::{convert_anchor, curvature, curvature_edit, remove_anchor, r
 use super::cut::{erase_region, erase_segments, knife, split};
 use super::freehand::{blob, freehand};
 use super::smooth::{join_scrub, smooth_region};
-use super::*;
+use super::{CommandSpec, cmd, has_anchors, has_doc, has_selection};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![
@@ -38,7 +38,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Delete Anchor Point",
             [],
             None,
-            "{id, subpath?, anchor} remove one anchor, re-fitting the curve",
+            "{id, subpath?, anchor, curvature?} remove one anchor, re-fitting the curve (with curvature: true, the curve where it was follows the remaining anchors, as the Curvature tool curves its points)",
             has_doc,
             remove_anchor
         ),
@@ -128,7 +128,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Blob Brush",
             [],
             None,
-            "{points: [[x,y]…], size?: pt (10), merge?: true, mergeOnlySelection?: bool (false: merge with any touching same-color blob; true: only with selected ones), keepSelected?: bool (false: the drawn or merged path is not selected, and the rest of the selection stays; true: it is selected)} filled brush shape, merged with touching same-colour blobs → {id}",
+            "{points: [[x,y]…], size?: pt (10), fidelity?: pt (0.01–100; the brush follows the stroke fitted at this tolerance as path.freehand fits a Pencil stroke, and a higher value gives a smoother shape; without it the brush follows every point), merge?: true, mergeOnlySelection?: bool (false: merge with any touching same-color blob; true: only with selected ones), keepSelected?: bool (false: the drawn or merged path is not selected, and the rest of the selection stays; true: it is selected)} filled brush shape, merged with the topmost touching same-color blob and the touching ones next to it in stacking order in its group or layer → {id}",
             has_doc,
             blob
         ),

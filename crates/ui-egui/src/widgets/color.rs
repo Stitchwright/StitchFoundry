@@ -1,7 +1,7 @@
 use super::labels::{label_field, name_field, take_previous_label};
 use super::numeric::{STEP_DECIMALS, field_text, round_to, step_to_multiple};
 use super::text::{after_shift_enter, select_all, shift_enter_keeps_focus};
-use super::*;
+use super::{Color, Color32, Pos2, Rect, Response, Sense, Stroke, StrokeKind, Tokens, Ui, Vec2, id_with, pos2, vec2};
 
 /// Drag phase of a live slider/handle: previews while dragging, commits on release.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

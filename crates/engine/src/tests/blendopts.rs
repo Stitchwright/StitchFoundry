@@ -1,10 +1,11 @@
 //! Blend Options (defaults with nothing selected, `object.blend.info`) and the Blend tool:
-//! start points from clicked anchors, adding keys to a blend instead of nesting it (M8.18).
+//! start points from clicked anchors, adding keys to a blend instead of nesting it (M8.18), and
+//! Escape dropping the first pick.
 
 use serde_json::{Value, json};
 use vectorcraft_doc::live::{BlendOrientation, BlendSpacing, BlendSpec};
 use vectorcraft_doc::{Node, NodeKind};
-use vectorcraft_tools::{Mods, PointerEvent, PointerKind};
+use vectorcraft_tools::{Mods, PointerEvent, PointerKind, ToolKey};
 
 use crate::*;
 
@@ -138,6 +139,32 @@ fn the_blend_tool_blends_from_clicked_anchors_and_keeps_adding() {
     // Alt-click asks for Blend Options.
     let r = s.pointer(&PointerEvent::new(PointerKind::Down, 600.0, 500.0).with_mods(Mods { alt: true, ..Default::default() }), ViewInfo::default());
     assert!(matches!(r.unwrap().as_slice(), [UiRequest::Dialog(k, _)] if k == "blendOptions"));
+}
+
+#[test]
+fn escape_drops_the_blend_tools_first_pick() {
+    let mut s = session();
+    let (a, b, c) = (rect(&mut s, 0.0, 0.0, 40.0), rect(&mut s, 200.0, 0.0, 40.0), rect(&mut s, 400.0, 0.0, 40.0));
+    s.select_tool("blend", ViewInfo::default()).unwrap();
+    let click = |s: &mut Session, x: f64, y: f64| s.pointer(&PointerEvent::new(PointerKind::Down, x, y), ViewInfo::default()).unwrap();
+    let esc = |s: &mut Session| s.tool_key(ToolKey::Escape, Mods::default(), ViewInfo::default()).unwrap();
+    click(&mut s, 20.0, 20.0);
+    assert!(s.tool_busy());
+    let (layers, depth) = (s.doc().unwrap().doc.layers.clone(), s.doc().unwrap().history.undo.len());
+    assert!(esc(&mut s).is_empty());
+    assert!(!s.tool_busy(), "Escape drops the pick");
+    assert_eq!((&s.doc().unwrap().doc.layers, s.doc().unwrap().history.undo.len()), (&layers, depth), "and changes nothing");
+    // The next two clicks blend b and c; a is not part of it.
+    click(&mut s, 220.0, 20.0);
+    assert_eq!(s.doc().unwrap().doc.layers, layers, "b is picked first");
+    click(&mut s, 420.0, 20.0);
+    let g = s.doc().unwrap().selection.objects[0];
+    assert_eq!(spec(&s, g).0, vec![b, c]);
+    // Escape after the blend is made: the next click starts a new blend instead of adding to it.
+    esc(&mut s);
+    click(&mut s, 20.0, 20.0);
+    assert_eq!(s.doc().unwrap().selection.objects, vec![a]);
+    assert_eq!(spec(&s, g).0, vec![b, c], "a was not added");
 }
 
 #[test]

@@ -17,6 +17,7 @@
 //!
 //! The algorithms are vendored under MIT OR Apache-2.0; each file names its upstream source.
 
+#![forbid(unsafe_code)]
 pub mod distance;
 pub mod geom;
 pub mod interrupt;

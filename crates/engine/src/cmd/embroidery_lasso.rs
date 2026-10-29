@@ -14,7 +14,7 @@ use vectorcraft_doc::{Appearance, NodeKind};
 use vectorcraft_trace::Raster;
 
 use super::embroidery_photo::Picture;
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, f64_or, has_doc, str_param};
 
 /// The most fastening points, and pointer-path points per stretch, a call takes.
 const MAX_POINTS: usize = 2000;

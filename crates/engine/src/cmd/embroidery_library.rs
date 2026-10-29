@@ -8,7 +8,7 @@ use vectorcraft_color::{Color, Paint};
 use vectorcraft_doc::{Appearance, Document};
 
 use super::embroidery::{MACHINE_EXTS, MACHINE_READ_EXTS, sheet_text};
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, always, bad, bool_or, cmd, str_param};
 
 /// Designs listed at most.
 const MAX_DESIGNS: usize = 2000;

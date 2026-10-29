@@ -13,7 +13,7 @@ use vectorcraft_doc::NodeId;
 use vectorcraft_embroidery::PT_PER_MM;
 
 use super::embroidery::{ids_json, stitched_targets};
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, has_doc, has_selection, id_param, str_param};
 use crate::EngineError;
 
 pub fn specs() -> Vec<CommandSpec> {

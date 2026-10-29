@@ -29,7 +29,7 @@ fn ignore_color(params: &Value) -> [u8; 3] {
     let hex = params["ignoreColor"].as_str().unwrap_or("").trim_start_matches('#');
     let channel = |i: usize| hex.get(i * 2..i * 2 + 2).and_then(|h| u8::from_str_radix(h, 16).ok());
     match (hex.len(), channel(0), channel(1), channel(2)) {
-        (6, Some(r), Some(g), Some(b)) => [r, g, b],
+        (6, Some(r), Some(g), Some(b)) if hex.bytes().all(|b| b.is_ascii_hexdigit()) => [r, g, b],
         _ => [255; 3],
     }
 }
@@ -319,16 +319,9 @@ fn slider(ui: &mut Ui, label: &str, v: &mut f64, range: std::ops::RangeInclusive
     out
 }
 
-pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
-    let all = presets(app);
-    let mut st: TraceUi = pstate(ui.ctx(), "image-trace");
-    if st.params.is_null() {
-        st.preset = "Default".into();
-        st.params = all.first().map(|p| p.1.clone()).unwrap_or_default();
-    }
-    let (is_trace, is_image, stored) = target(app);
-    let any_trace = any_trace(app);
-    let object = target_key(app);
+/// Bring the panel's settings `st` in line with the selected object `object`, whose trace settings are `stored`;
+/// whether the object came back with the settings that waited for it.
+fn sync_with_object(st: &mut TraceUi, stored: Option<Value>, object: Option<(u64, NodeId)>) -> bool {
     let same = |a: &Value, b: &Value| a["preset"] == b["preset"] && a["params"] == b["params"];
     let mut restored = false;
     // Another object: the settings that wait for the one left are kept until it is selected again,
@@ -366,6 +359,20 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         st.synced = t;
         st.object = object;
     }
+    restored
+}
+
+pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
+    let all = presets(app);
+    let mut st: TraceUi = pstate(ui.ctx(), "image-trace");
+    if st.params.is_null() {
+        st.preset = "Default".into();
+        st.params = all.first().map(|p| p.1.clone()).unwrap_or_default();
+    }
+    let (is_trace, is_image, stored) = target(app);
+    let any_trace = any_trace(app);
+    let object = target_key(app);
+    let restored = sync_with_object(&mut st, stored, object);
     let mut retrace = false;
 
     ui.horizontal(|ui| {

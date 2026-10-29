@@ -640,3 +640,208 @@ fn draw_snap_gathers_once_per_document_state() {
     let q = snap.press(&c, Point::new(31.0, 2.0), &[], Some(&from));
     assert!((q.y - 0.0).abs() < 1e-9, "{q:?}");
 }
+
+/// A document holding point type `text` at (100, 300), 60 pt, turned `angle` radians about
+/// where it starts, and the type.
+fn glyph_doc(text: &str, angle: f64) -> (vectorcraft_doc::Document, vectorcraft_doc::TextObject) {
+    glyph_doc_with(text, angle, vectorcraft_doc::CharStyle { size: 60.0, ..Default::default() })
+}
+
+/// [`glyph_doc`] with the type in `style`.
+fn glyph_doc_with(text: &str, angle: f64, style: vectorcraft_doc::CharStyle) -> (vectorcraft_doc::Document, vectorcraft_doc::TextObject) {
+    let mut d = vectorcraft_doc::Document::new(500.0, 500.0);
+    let l = d.layers[0].id;
+    let id = d.alloc_id();
+    let at = Point::new(100.0, 300.0);
+    let mut t = vectorcraft_doc::TextObject::point(at, text, style);
+    t.xf = Affine::rotate_about(angle, at) * t.xf;
+    d.insert(Some(l), 0, Node::new(id, NodeKind::Text(Box::new(t.clone())))).unwrap();
+    (d, t)
+}
+
+/// Snap to Glyph: a Pen click near an anchor point of a glyph's outline lands on it, and not with
+/// Snap to Glyph off.
+#[test]
+fn pen_click_near_a_glyph_anchor_lands_on_it() {
+    use crate::{Action, PointerEvent, PointerKind, Tool};
+    let (d, t) = glyph_doc("H", 0.0);
+    let lay = layout_text(FontDb::global(), &t);
+    let g = lay.glyphs.iter().find(|g| !g.outline.elements().is_empty()).expect("a glyph with an outline");
+    // An anchor inside the glyph's bounds (a corner where the crossbar meets a stem), which no
+    // glyph bounds line passes through.
+    let bb = g.outline.bounding_box();
+    let inside = |p: Point| p.x > bb.x0 + 1.0 && p.x < bb.x1 - 1.0 && p.y > bb.y0 + 1.0 && p.y < bb.y1 - 1.0;
+    let anchor = t.xf * g.outline.segments().map(|s| s.start()).find(|p| inside(*p)).expect("an anchor inside the glyph");
+    let (s, p) = (Selection::default(), paint());
+    let click = anchor + Vec2::new(1.5, -1.0);
+    let first_anchor = |glyphs: bool| {
+        let c = ToolContext { snap_to_glyph: glyphs, ..cx(&d, &s, &p) };
+        let mut pen = crate::pen::PenTool::default();
+        let acts = pen.pointer(&c, &PointerEvent::new(PointerKind::Down, click.x, click.y));
+        let Some(Action::Preview(_, v)) = acts.get(1) else { panic!("{acts:?}") };
+        Point::new(v["anchors"][0]["x"].as_f64().unwrap(), v["anchors"][0]["y"].as_f64().unwrap())
+    };
+    assert!(first_anchor(true).distance(anchor) < 1e-9, "{:?} vs {anchor:?}", first_anchor(true));
+    assert!(first_anchor(false).distance(anchor) > 1e-3);
+    // Snap to Glyph works with Smart Guides on: Snap to Point alone does not land on glyph anchors.
+    let c = ToolContext { snap_to_glyph: true, smart_guides: false, snap_to_point: true, ..cx(&d, &s, &p) };
+    let mut pen = crate::pen::PenTool::default();
+    let acts = pen.pointer(&c, &PointerEvent::new(PointerKind::Down, click.x, click.y));
+    let Some(Action::Preview(_, v)) = acts.get(1) else { panic!("{acts:?}") };
+    let q = Point::new(v["anchors"][0]["x"].as_f64().unwrap(), v["anchors"][0]["y"].as_f64().unwrap());
+    assert!(q.distance(anchor) > 1e-3, "{q:?} landed on the glyph anchor with Smart Guides off");
+}
+
+/// Snap to Glyph: a single line of type has an x-height guide; a paragraph shows glyph bounds only.
+#[test]
+fn drawn_points_line_up_with_the_x_height_of_a_single_line() {
+    let (d, t) = glyph_doc("H", 0.0);
+    let lay = layout_text(FontDb::global(), &t);
+    let g = &lay.glyphs[0];
+    let face = FontDb::global().face_by_id(g.font_id).unwrap();
+    let x_height = (t.xf * g.xf * Point::new(0.0, -face.x_height())).y;
+    let p = Point::new(400.0, x_height + 2.0);
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_point(p, 4.0);
+    assert!((q.y - x_height).abs() < 1e-9, "{q:?}, x-height {x_height}");
+    let (q, _) = Targets::for_drawing(&d, &[], None, false).snap_point(p, 4.0);
+    assert_eq!(q.y, p.y);
+    let (d, _) = glyph_doc("H\nH", 0.0);
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_point(p, 4.0);
+    assert_eq!(q.y, p.y, "a paragraph has no x-height guide");
+    // Baseline Shift raises the x-height with the glyphs.
+    let (d, _) = glyph_doc_with("H", 0.0, vectorcraft_doc::CharStyle { size: 60.0, baseline_shift: 10.0, ..Default::default() });
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_point(Point::new(400.0, x_height - 10.0 + 2.0), 4.0);
+    assert!((q.y - (x_height - 10.0)).abs() < 1e-9, "{q:?}, shifted x-height {}", x_height - 10.0);
+    // Character Rotation turns the glyph, not its baseline shift.
+    let style = vectorcraft_doc::CharStyle { size: 60.0, baseline_shift: 10.0, rotation: 30.0, ..Default::default() };
+    let (d, _) = glyph_doc_with("H", 0.0, style);
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_point(Point::new(400.0, x_height - 10.0 + 2.0), 4.0);
+    assert!((q.y - (x_height - 10.0)).abs() < 1e-9, "{q:?}, shifted x-height {}", x_height - 10.0);
+    // Glyph Scaling widens a rotated glyph without raising its x-height.
+    let mut t =
+        vectorcraft_doc::TextObject::point(Point::ZERO, "HH HH", vectorcraft_doc::CharStyle { size: 60.0, rotation: 90.0, ..Default::default() });
+    let frame = kurbo::Shape::to_path(&kurbo::Rect::new(50.0, 100.0, 450.0, 400.0), 0.1);
+    t.kind = vectorcraft_doc::TextKind::Area { frame: vectorcraft_geom::PathData::from_bezpath(&frame) };
+    t.xf = Affine::IDENTITY;
+    t.para.justify = vectorcraft_doc::Justify::JustifyAll;
+    t.para.justification.glyph_scaling = [100.0, 100.0, 200.0];
+    let mut d = vectorcraft_doc::Document::new(500.0, 500.0);
+    let (l, id) = (d.layers[0].id, d.alloc_id());
+    d.insert(Some(l), 0, Node::new(id, NodeKind::Text(Box::new(t.clone())))).unwrap();
+    let lay = layout_text(FontDb::global(), &t);
+    assert_eq!(lay.lines.len(), 1);
+    let g = lay.glyphs.iter().find(|g| !g.outline.elements().is_empty()).expect("a glyph with an outline");
+    assert!(g.scale > 1.2, "Glyph Scaling widens the glyph: {}", g.scale);
+    let expected = (t.xf * g.origin).y - (300.0 - x_height);
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_point(Point::new(30.0, expected + 2.0), 4.0);
+    assert!((q.y - expected).abs() < 1e-9, "{q:?}, x-height {expected}");
+}
+
+/// Snap to Glyph: the x-height guide of type skewed along a slanted path runs through the glyph's
+/// x-height.
+#[test]
+fn the_x_height_guide_of_skewed_path_type_runs_through_the_glyphs_x_height() {
+    let mut path = kurbo::BezPath::new();
+    path.move_to((100.0, 400.0));
+    path.line_to((300.0, 54.0));
+    let mut t = vectorcraft_doc::TextObject::point(Point::ZERO, "H", vectorcraft_doc::CharStyle { size: 60.0, ..Default::default() });
+    t.kind = vectorcraft_doc::TextKind::OnPath { path: vectorcraft_geom::PathData::from_bezpath(&path), start: 0.0, end: None };
+    t.xf = Affine::IDENTITY;
+    t.path_effect = vectorcraft_doc::PathEffect::Skew;
+    let mut d = vectorcraft_doc::Document::new(500.0, 500.0);
+    let (l, id) = (d.layers[0].id, d.alloc_id());
+    d.insert(Some(l), 0, Node::new(id, NodeKind::Text(Box::new(t.clone())))).unwrap();
+    let lay = layout_text(FontDb::global(), &t);
+    let g = lay.glyphs.iter().find(|g| !g.outline.elements().is_empty()).expect("a glyph with an outline");
+    let face = FontDb::global().face_by_id(g.font_id).unwrap();
+    let top = t.xf * g.xf * Point::new(0.0, -face.x_height());
+    let ahead = Vec2::new(g.angle.cos(), g.angle.sin());
+    let normal = Vec2::new(ahead.y, -ahead.x);
+    // Beside the guide's line, past the glyph's end along it.
+    let p = top + ahead * 80.0 + normal * 1.5;
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_point(p, 4.0);
+    assert!((q - top).cross(ahead).abs() < 1e-6, "{q:?} is off the x-height line through {top:?}");
+}
+
+/// Snap to Glyph › Proximity Guides: the edges of each character's advance width are guides.
+#[test]
+fn drawn_points_line_up_with_the_edge_of_a_characters_width() {
+    let (d, t) = glyph_doc("HH", 0.0);
+    let lay = layout_text(FontDb::global(), &t);
+    let edge = (t.xf * lay.glyphs[1].origin).x;
+    let p = Point::new(edge + 0.3, 450.0);
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_point(p, 4.0);
+    assert!((q.x - edge).abs() < 1e-9, "{q:?}, edge {edge}");
+    let (q, _) = Targets::for_drawing(&d, &[], None, false).snap_point(p, 4.0);
+    assert_eq!(q.x, p.x);
+    // Character Rotation turns the glyphs, not their widths along the baseline.
+    let (d, t) = glyph_doc_with("HH", 0.0, vectorcraft_doc::CharStyle { size: 60.0, rotation: 30.0, ..Default::default() });
+    let lay = layout_text(FontDb::global(), &t);
+    let edge = (t.xf * lay.glyphs[1].origin).x;
+    let p = Point::new(edge + 0.3, 450.0);
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_point(p, 4.0);
+    assert!((q.x - edge).abs() < 1e-9, "{q:?}, edge {edge}");
+}
+
+/// Snap to Glyph › Angular Guides: in a rotated glyph a straight upright stroke is a guide at its
+/// angle, which a drawn point lands on beyond the glyph.
+#[test]
+fn a_rotated_glyph_has_angular_guides_along_its_strokes() {
+    let angle = 20f64.to_radians();
+    let (d, t) = glyph_doc("H", angle);
+    let lay = layout_text(FontDb::global(), &t);
+    let g = lay.glyphs.iter().find(|g| !g.outline.elements().is_empty()).expect("a glyph with an outline");
+    let stem = g
+        .outline
+        .segments()
+        .find_map(|s| match s {
+            PathSeg::Line(l) if (l.p1.x - l.p0.x).abs() < 1e-6 && (l.p1.y - l.p0.y).abs() > 10.0 => Some(l),
+            _ => None,
+        })
+        .expect("an upright stroke");
+    let (a, b) = (t.xf * stem.p0, t.xf * stem.p1);
+    let dir = (b - a) / (b - a).hypot();
+    // Past the far end of the stroke, a little beside its line.
+    let far = if (a - t.xf * Point::new(0.0, 0.0)).hypot() > (b - t.xf * Point::new(0.0, 0.0)).hypot() { a } else { b };
+    let out = if far == a { -dir } else { dir };
+    let p = far + out * 30.0 + Vec2::new(-dir.y, dir.x) * 1.5;
+    let on_line = |q: Point| (q - a).cross(dir).abs();
+    let (q, ov) = Targets::for_drawing(&d, &[], None, true).snap_point(p, 4.0);
+    assert!(on_line(q) < 1e-9, "{q:?} is {} off the stroke's line", on_line(q));
+    assert!(!lines(&ov).is_empty());
+    let (q, _) = Targets::for_drawing(&d, &[], None, false).snap_point(p, 4.0);
+    assert!(on_line(q) > 1e-3, "no angular guide with Snap to Glyph off");
+}
+
+/// Snap to Glyph: the baseline of type turned slightly runs at its angle, and a point near it
+/// lands on it even close to where it starts, far nearer the horizontal through that point.
+#[test]
+fn a_slightly_rotated_baseline_pulls_points_near_its_start() {
+    let (d, t) = glyph_doc("H", 2f64.to_radians());
+    let lay = layout_text(FontDb::global(), &t);
+    let m = t.xf * lay.line_xf;
+    let start = m * Point::new(lay.lines[0].x0, lay.lines[0].baseline);
+    let dir = (m * Point::new(1.0, 0.0)) - (m * Point::ZERO);
+    let dir = dir / dir.hypot();
+    let p = start - dir * 10.0 + Vec2::new(-dir.y, dir.x) * 1.0;
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_point(p, 4.0);
+    assert!((q - start).cross(dir).abs() < 1e-9, "{q:?} is off the baseline");
+}
+
+/// Snap to Glyph: a segment Shift keeps level slides along to where it crosses the baseline of
+/// rotated type.
+#[test]
+fn a_shift_constrained_point_slides_onto_a_rotated_baseline() {
+    let (d, t) = glyph_doc("H", 20f64.to_radians());
+    let lay = layout_text(FontDb::global(), &t);
+    let m = t.xf * lay.line_xf;
+    let start = m * Point::new(lay.lines[0].x0, lay.lines[0].baseline);
+    let dir = (m * Point::new(1.0, 0.0)) - (m * Point::ZERO);
+    let dir = dir / dir.hypot();
+    let crossing = start - dir * 40.0;
+    let (s, p) = (Selection::default(), paint());
+    let c = cx(&d, &s, &p);
+    let from = Leave::segment(&c, crossing - Vec2::new(60.0, 0.0), true);
+    let (q, _) = Targets::for_drawing(&d, &[], None, true).snap_from(crossing + Vec2::new(1.5, 0.3), Some(&from), 4.0);
+    assert!(q.distance(crossing) < 1e-9, "{q:?} vs {crossing:?}");
+}

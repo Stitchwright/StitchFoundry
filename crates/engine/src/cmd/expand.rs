@@ -22,7 +22,7 @@ use super::edit::selected_roots;
 use super::menucmds::{run_raw, squash};
 use super::object::as_clipping_path;
 use super::pathops::{assemble, node_path, outline_strokes, replace_leaves, styled_copy, with_transparency};
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, f64_or, has_selection, str_param};
 
 const C: &str = "object.expand";
 /// Expand Gradient To → Specify … Objects: the default and the most.
@@ -131,7 +131,11 @@ impl Expandable {
                 e.placed |= matches!(c.kind, NodeKind::PlacedDocument(_));
                 e.repeats |= matches!(c.kind, NodeKind::Repeat(_));
                 e.intertwines |= matches!(c.kind, NodeKind::Intertwine { .. });
-                e.stroke |= shape && !c.appearance.stroke_paint().is_none();
+                e.stroke |= match &c.kind {
+                    // Type's outlines take its characters' stroke (see `type.createOutlines`).
+                    NodeKind::Text(t) => t.runs.iter().any(|r| r.style.has_stroke()),
+                    _ => shape && !c.appearance.stroke_paint().is_none(),
+                };
                 e.gradient |= match &c.kind {
                     NodeKind::Text(t) => t.runs.iter().any(|r| matches!(r.style.fill, Paint::Gradient(_))),
                     _ => shape && c.appearance.items.iter().any(|i| gradient_fill(i).is_some()),

@@ -10,7 +10,7 @@ use vectorcraft_doc::{Node, NodeId, NodeKind};
 use vectorcraft_embroidery::{PT_PER_MM, is_line_art, node_thread, regions_mm};
 use vectorcraft_geom::Rect;
 
-use super::*;
+use super::{CommandSpec, Point, Result, Session, bad, cmd, finite_numbers, has_doc, leaf_targets, str_param};
 use crate::EngineError;
 
 const CMD: &str = "embroidery.placeArt";

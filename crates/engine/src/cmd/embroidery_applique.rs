@@ -10,7 +10,7 @@ use vectorcraft_doc::{Appearance, Document, Node, NodeId, NodeKind};
 use vectorcraft_geom::FillRule;
 
 use super::embroidery::stitched_targets;
-use super::*;
+use super::{CommandSpec, Result, Session, bad, bool_or, cmd, has_selection};
 use crate::EngineError;
 
 pub fn specs() -> Vec<CommandSpec> {

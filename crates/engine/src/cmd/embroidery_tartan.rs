@@ -7,7 +7,7 @@ use serde_json::{Value, json};
 use sf_core::geom::{Point, Polygon, poly};
 use vectorcraft_doc::NodeId;
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, color_value, has_selection};
 
 const CMD: &str = "embroidery.tartan";
 /// Most stripes in one sett.

@@ -1947,6 +1947,10 @@ font-technology	Variable	Variables
 	Outer Corner Tile	Mosaico de esquina exterior
 	Side Tile	Mosaico lateral
 	Inner Corner Tile	Mosaico de esquina interior
+	Auto-Centered	Auto-centrado
+	Auto-Between	Auto-entre
+	Auto-Sliced	Auto-cortado
+	Auto-Overlap	Auto-superposición
 	Start Tile	Mosaico inicial
 	End Tile	Mosaico final
 	Fit	Ajuste
@@ -3000,6 +3004,7 @@ font-technology	Variable	Variables
 	Show Original Path	Mostrar trazado original
 	Open this dialog with these settings next time	Abrir este cuadro de diálogo con estos ajustes la próxima vez
 	Auto-Simplify	Simplificar automáticamente
+	Auto-Smooth	Suavizar automáticamente
 	Color Panel Options	Opciones del panel Color
 	Show Package	Mostrar paquete
 	Show Panel	Mostrar panel
@@ -3036,6 +3041,7 @@ font-technology	Variable	Variables
 	Simplify	Simplificar
 	Simplify:	Simplificar:
 	Simplify…	Simplificar…
+	Smooth…	Suavizar…
 	Simulate Colored Paper	Simular papel de color
 	Simulate Paper	Simular papel
 	Double Column	Columna doble
@@ -3212,6 +3218,7 @@ font-technology	Variable	Variables
 	Swatch Options…	Opciones de muestra…
 	Swatch Tiles	Mosaicos de muestras
 	Swatches	Muestras
+	Switch Units	Cambiar unidades
 	Switch workspace	Cambiar espacio de trabajo
 	Add Content	Añadir contenido
 	Click to apply to the selected type	Haz clic para aplicarlo al texto seleccionado
@@ -3445,6 +3452,7 @@ font-technology	Variable	Variables
 	Unlock Guides	Desbloquear guías
 	Unnamed Objects	Objetos sin nombre
 	Unprintable margin:	Margen no imprimible:
+	Unselected Artwork	Ilustración no seleccionada
 	Unshift	Deshacer cambio
 	Untitled	Sin título
 	Update Link	Actualizar vínculo
@@ -3902,6 +3910,7 @@ axis	Both	Ambos
 @msg	`{key}` must be between {min} and {max} (got {x})	`{key}` debe estar entre {min} y {max} (se recibió {x})
 @msg	`{key}` must be one of {_1}	`{key}` debe ser uno de estos: {_1}
 @msg	`{key}` must be true or false	`{key}` debe ser true o false
+@msg	`top` and `below` can't both be true	`top` y `below` no pueden ser true a la vez
 @msg	`select` must be true or false	`select` debe ser true o false
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	`minAnchors` y `maxAnchors` deben ser números enteros
 @msg	`{key}` must be a number not below 0	`{key}` debe ser un número no inferior a 0
@@ -3979,6 +3988,7 @@ axis	Both	Ambos
 @msg	videoRulerPixelAspectRatio must be a number from 0.1 to 10	videoRulerPixelAspectRatio debe ser un número de 0,1 a 10
 @msg	the Color Picker is not open	el Selector de color no está abierto
 @msg	the Simplify slider is not open	el regulador de Simplificar no está abierto
+@msg	the Smooth slider is not open	el regulador de Suavizar no está abierto
 @msg	the screen color sampler is already open	el muestreador de color de la pantalla ya está abierto
 @msg	this system has no screen color sampler	este sistema no tiene muestreador de color de la pantalla
 @msg	bad colour `{hex}` (#rrggbb)	color no válido `{hex}` (#rrggbb)
@@ -4046,6 +4056,7 @@ axis	Both	Ambos
 @msg	missing `id` (see plugin.list)	falta `id` (consulta plugin.list)
 @msg	missing `name`	falta `name`
 @msg	missing `tool`	falta `tool`
+@msg	missing id	falta id
 @msg	missing index	falta index
 @msg	missing number `{key}`	falta el número `{key}`
 @msg	missing integer `{key}`	falta el número entero `{key}`
@@ -4078,6 +4089,7 @@ axis	Both	Ambos
 @msg	no current layer	no hay capa actual
 @msg	no data	no hay datos
 @msg	no dialog open	no hay ningún cuadro de diálogo abierto
+@msg	the open dialog has no Reset	el cuadro de diálogo abierto no tiene el botón Restablecer
 @msg	no document	no hay documento
 @msg	no document open	no hay ningún documento abierto
 @msg	no effect applied yet	todavía no se aplicó ningún efecto
@@ -4160,6 +4172,7 @@ axis	Both	Ambos
 @msg	not in pattern editing mode	no está en el modo de edición de motivos
 @msg	nothing encoded	no se codificó nada
 @msg	nothing selected	no hay nada seleccionado
+@msg	nothing selected is in a group	nada de lo seleccionado está en un grupo
 @msg	nothing to align	no hay nada que alinear
 @msg	nothing to distort	no hay nada que distorsionar
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	no hay nada que exportar: el documento no tiene ilustración visible (o activa Usar mesas de trabajo)
@@ -4233,6 +4246,7 @@ axis	Both	Ambos
 @msg	select an object in perspective	selecciona un objeto en perspectiva
 @msg	select artwork (or a colour group) to recolor	selecciona la ilustración (o un grupo de colores) que quieres volver a colorear
 @msg	select at least two objects	selecciona al menos dos objetos
+@msg	exit isolation mode first	sal primero del modo de aislamiento
 @msg	select objects, not layers	selecciona objetos, no capas
 @msg	select one path, or give its `id`	selecciona un trazado o indica su `id`
 @msg	select paths to join	selecciona los trazados que quieres unir
@@ -4285,10 +4299,14 @@ axis	Both	Ambos
 @msg	the layer or group is locked	la capa o el grupo está bloqueado
 @msg	the guide is on a hidden or locked layer	la guía está en una capa oculta o bloqueada
 @msg	the target layer is locked or hidden	la capa de destino está bloqueada u oculta
+@msg	the object is hidden or locked	el objeto está oculto o bloqueado
+@msg	the object is outside the isolated group	el objeto está fuera del grupo aislado
+@msg	type objects can't be isolated	los objetos de texto no se pueden aislar
 @msg	the layer to flatten into is hidden	la capa en la que acoplar está oculta
 @msg	the object already has an opacity mask	el objeto ya tiene una máscara de opacidad
 @msg	the object has no geometry	el objeto no tiene geometría
 @msg	the object has no opacity mask	el objeto no tiene máscara de opacidad
+@msg	stop editing the opacity mask first	detén primero la edición de la máscara de opacidad
 @msg	the object has no stroke	el objeto no tiene trazo
 @msg	the object is beyond the plane's horizon	el objeto está más allá del horizonte del plano
 @msg	the object isn't in perspective	el objeto no está en perspectiva
@@ -4472,6 +4490,10 @@ axis	Both	Ambos
 	Shaper	Shaper
 	Expand Shaper Group	Expandir grupo Shaper
 	Release Shaper Group	Soltar grupo Shaper
+	Remove from Shaper Group	Quitar del grupo Shaper
+@msg	source must be the id of a Shaper Group's original shape	source debe ser el identificador de una forma original de un grupo Shaper
+@msg	group must be the id of a Shaper Group	group debe ser el identificador de un grupo Shaper
+@msg	the shape is not an editable original shape of that Shaper Group	la forma no es una forma original editable de ese grupo Shaper
 	Select Shaper Face	Seleccionar cara Shaper
 	Constrain	Restringir
 	Free Transform	Transformación libre

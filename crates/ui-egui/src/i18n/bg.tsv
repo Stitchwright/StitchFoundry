@@ -1897,6 +1897,10 @@ font-technology	Variable	Променливи
 	Outer Corner Tile	Плочка за външен ъгъл
 	Side Tile	Странична плочка
 	Inner Corner Tile	Плочка за вътрешен ъгъл
+	Auto-Centered	Авто-центрирана
+	Auto-Between	Авто-между
+	Auto-Sliced	Авто-срязана
+	Auto-Overlap	Авто-застъпване
 	Start Tile	Начална плочка
 	End Tile	Крайна плочка
 	Fit	Пълно прилягане
@@ -2940,6 +2944,7 @@ font-technology	Variable	Променливи
 	Show Original Path	Показване на оригиналния път
 	Open this dialog with these settings next time	Отваряне на този прозорец с тези настройки следващия път
 	Auto-Simplify	Автоматично опростяване
+	Auto-Smooth	Автоматично изглаждане
 	Show Package	Показване на пакет
 	Show Panel	Показване на панел
 	Show Pattern Swatches	Показване на образци за мостра
@@ -2974,6 +2979,7 @@ font-technology	Variable	Променливи
 	Simplify	Опростяване
 	Simplify:	Опростяване:
 	Simplify…	Опростяване…
+	Smooth…	Изглаждане…
 	Simulate Colored Paper	Симулиране на цветна хартия
 	Simulate Paper	Симулиране на хартия
 	Double Column	Две колони
@@ -2984,10 +2990,10 @@ font-technology	Variable	Променливи
 	Sixth Space	Шесто разстояние
 	Size	Размер
 	Size Tile to Art	Оразмеряване на плочката според обектите
-	Size/Leading	Размер/Интервал
+	Size/Leading	Размер/междуредие
 	Size:	Размер:
 	Ridges per segment:	Изпъкналости на сегмент:
-	Size: {size}  Tracking: {tracking}	Размер: {size}  Интервал: {tracking}
+	Size: {size}  Tracking: {tracking}	Размер: {size}  Разредка: {tracking}
 	Skew	Искавяване
 	Skin Tone Ramps	Градиенти за цвят на кожата
 	Skip Blank Artboards	Пропускане на празни работни области
@@ -3150,6 +3156,7 @@ font-technology	Variable	Променливи
 	Swatch Options…	Опции на образец…
 	Swatch Tiles	Плочки на образец
 	Swatches	Образци
+	Switch Units	Превключване на мерните единици
 	Switch workspace	Превключване на работната среда
 	Add Content	Добавяне на съдържание
 	Click to apply to the selected type	Щракнете, за да приложите към избрания текст
@@ -3383,6 +3390,7 @@ font-technology	Variable	Променливи
 	Unlock Guides	Отключване на водачите
 	Unnamed Objects	Безименни обекти
 	Unprintable margin:	Непечатаемо поле:
+	Unselected Artwork	Неизбрани графични елементи
 	Unshift	Преместване назад (Unshift)
 	Untitled	Без заглавие
 	Update Link	Актуализиране на връзката
@@ -3658,8 +3666,8 @@ imageTrace	Outline	Контур
 	  — {n} characters from another font	  — {n} знака от друг шрифт
 	[Normal Character Style]	[Нормален стил на знак]
 	[Normal Paragraph Style]	[Нормален стил на абзац]
-	Top-to-Top Leading	Разстояние между редовете отгоре до горе
-	Bottom-to-Bottom Leading	Разстояние между редовете отдолу до долу
+	Top-to-Top Leading	Междуредие отгоре до горе
+	Bottom-to-Bottom Leading	Междуредие отдолу до долу
 	Burasagari	Бурасагари
 	Force	Принудително
 	About	Относно
@@ -3967,6 +3975,7 @@ axis	Both	И двете
 @msg	missing `id` (see plugin.list)	липсва `id` (вижте plugin.list)
 @msg	missing `name`	липсва `name`
 @msg	missing `tool`	липсва `tool`
+@msg	missing id	липсва id
 @msg	missing index	липсва индекс
 @msg	missing number `{key}`	липсва число `{key}`
 @msg	missing integer `{key}`	липсва цяло число `{key}`
@@ -3999,6 +4008,7 @@ axis	Both	И двете
 @msg	no current layer	няма текущ слой
 @msg	no data	няма данни
 @msg	no dialog open	няма отворен диалогов прозорец
+@msg	the open dialog has no Reset	отвореният диалогов прозорец няма бутон „Нулиране“
 @msg	no document	няма документ
 @msg	no document open	няма отворен документ
 @msg	no effect applied yet	все още няма приложен ефект
@@ -4082,6 +4092,7 @@ axis	Both	И двете
 @msg	not in pattern editing mode	не е в режим на редактиране на мостра
 @msg	nothing encoded	нищо не е кодирано
 @msg	nothing selected	нищо не е избрано
+@msg	nothing selected is in a group	нищо от избраното не е в група
 @msg	nothing to align	няма нищо за подравняване
 @msg	nothing to distort	няма нищо за изкривяване
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	няма нищо за експортиране: документът няма видима графика (или включете „Използване на работни области“)
@@ -4149,6 +4160,7 @@ axis	Both	И двете
 @msg	select an object in perspective	изберете обект в перспектива
 @msg	select artwork (or a colour group) to recolor	изберете графика (или цветова група) за преоцветяване
 @msg	select at least two objects	изберете поне два обекта
+@msg	exit isolation mode first	първо излезте от режима на изолация
 @msg	select objects, not layers	изберете обекти, а не слоеве
 @msg	select one path, or give its `id`	изберете един път или задайте неговия `id`
 @msg	select paths to join	изберете пътища за обединяване
@@ -4201,10 +4213,14 @@ axis	Both	И двете
 @msg	the layer or group is locked	слойът или групата са заключени
 @msg	the guide is on a hidden or locked layer	водачът е в скрит или заключен слой
 @msg	the target layer is locked or hidden	целевият слой е заключен или скрит
+@msg	the object is hidden or locked	обектът е скрит или заключен
+@msg	the object is outside the isolated group	обектът е извън изолираната група
+@msg	type objects can't be isolated	текстовите обекти не могат да бъдат изолирани
 @msg	the layer to flatten into is hidden	слоят, в който се сплесква, е скрит
 @msg	the object already has an opacity mask	обектите вече имат маска за непрозрачност
 @msg	the object has no geometry	обектът няма геометрия
 @msg	the object has no opacity mask	обектът няма маска за непрозрачност
+@msg	stop editing the opacity mask first	първо спрете редактирането на маската за непрозрачност
 @msg	the object has no stroke	обектът няма щрих
 @msg	the object is beyond the plane's horizon	обектът е извън хоризонта на равнината
 @msg	the object isn't in perspective	обектът не е в перспектива
@@ -4389,6 +4405,7 @@ axis	Both	И двете
 	Shaper	Инструмент за форми
 	Expand Shaper Group	Разширяване на групата от форми
 	Release Shaper Group	Освобождаване на групата от форми
+	Remove from Shaper Group	Премахване от групата от форми
 	Select Shaper Face	Избиране на лице на формата
 	Drag art, colors and text styles here to reuse them across documents. Libraries are stored on this machine — no account required.	Плъзнете графика, цветове и текстови стилове тук, за да ги използвате повторно в различни документи. Библиотеките се съхраняват на това устройство — не се изисква акаунт.
 	1 Color Job	Задание с 1 цвят
@@ -6738,7 +6755,7 @@ machine	Stop	Спиране
 	Word Spacing:	Разстояние между думите:
 	Letter Spacing:	Разстояние между буквите:
 	Glyph Scaling:	Мащабиране на знаците:
-	Auto Leading:	Автоматична междуредова разредка:
+	Auto Leading:	Автоматично междуредие:
 	Single Word Justification:	Подравняване на единична дума:
 	Full Justify	Пълно двустранно
 	Minimum must not exceed Desired, nor Desired Maximum.	Минималната стойност не може да надвишава желаната, нито желаната – максималната.

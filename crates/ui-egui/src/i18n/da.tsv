@@ -57,6 +57,7 @@
 	Check Script	Kontrollér script
 	Other Script…	Andet script…
 	Document Setup…	Dokumentopsætning…
+	Switch Units	Skift enheder
 	Document Color Mode	Dokumentets farvetilstand
 	CMYK Color	CMYK-farve
 	RGB Color	RGB-farve
@@ -175,6 +176,7 @@
 	Other Layers	Andre lag
 	Unlock All	Lås alle op
 	Hide	Skjul
+	Unselected Artwork	Ikke-markeret grafik
 	Show All	Vis alle
 	Expand…	Udvid…
 	Expand Appearance	Udvid udseende
@@ -207,6 +209,7 @@
 	Offset Path…	Forskyd kurve…
 	Reverse Path Direction	Omvend kurveretning
 	Simplify…	Forenkl…
+	Smooth…	Udglat…
 	Add Anchor Points	Tilføj ankerpunkter
 	Remove Anchor Points	Fjern ankerpunkter
 	Divide Objects Below	Opdel objekter nedenunder
@@ -753,6 +756,7 @@
 	Shaper	Shaper
 	Expand Shaper Group	Udvid shapergruppe
 	Release Shaper Group	Frigør shapergruppe
+	Remove from Shaper Group	Fjern fra shapergruppe
 	Select Shaper Face	Markér shaperflade
 	Constrain	Begræns
 	Free Transform	Fri transformering
@@ -1882,6 +1886,10 @@ lighting	Light	Lys
 	Outer Corner Tile	Ydre hjørneflise
 	Side Tile	Sideflise
 	Inner Corner Tile	Indre hjørneflise
+	Auto-Centered	Auto-centreret
+	Auto-Between	Auto-mellem
+	Auto-Sliced	Auto-skåret
+	Auto-Overlap	Auto-overlap
 	Start Tile	Startflise
 	End Tile	Slutflise
 	Fit	Tilpas
@@ -4080,6 +4088,7 @@ imageTrace	Outline	Kontur
 @msg	missing `id` (see plugin.list)	`id` mangler (se plugin.list)
 @msg	missing `name`	`name` mangler
 @msg	missing `tool`	`tool` mangler
+@msg	missing id	id mangler
 @msg	missing index	indeks mangler
 @msg	missing number `{key}`	tallet `{key}` mangler
 @msg	missing integer `{key}`	heltallet `{key}` mangler
@@ -4111,6 +4120,7 @@ imageTrace	Outline	Kontur
 @msg	no current layer	intet aktuelt lag
 @msg	no data	ingen data
 @msg	no dialog open	ingen åben dialogboks
+@msg	the open dialog has no Reset	den åbne dialogboks har ingen Nulstil-knap
 @msg	no document	intet dokument
 @msg	no document open	intet åbent dokument
 @msg	no effect applied yet	ingen effekt er anvendt endnu
@@ -4186,6 +4196,7 @@ imageTrace	Outline	Kontur
 @msg	not in pattern editing mode	ikke i mønsterredigeringstilstand
 @msg	nothing encoded	intet kodet
 @msg	nothing selected	intet markeret
+@msg	nothing selected is in a group	intet af det markerede er i en gruppe
 @msg	nothing to align	intet at justere
 @msg	nothing to distort	intet at forvrænge
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	intet at eksportere: dokumentet har ingen synlig grafik (eller aktivér Brug artboards)
@@ -4251,6 +4262,7 @@ imageTrace	Outline	Kontur
 @msg	select an object in perspective	markér et objekt i perspektiv
 @msg	select artwork (or a colour group) to recolor	markér grafik (eller en farvegruppe) for at skifte farver
 @msg	select at least two objects	markér mindst to objekter
+@msg	exit isolation mode first	afslut først isoleringstilstand
 @msg	select objects, not layers	markér objekter, ikke lag
 @msg	select one path, or give its `id`	markér én sti, eller angiv dens `id`
 @msg	select paths to join	markér stier, der skal forbindes
@@ -4301,10 +4313,14 @@ imageTrace	Outline	Kontur
 @msg	the layer or group is locked	laget eller gruppen er låst
 @msg	the guide is on a hidden or locked layer	hjælpelinjen ligger på et skjult eller låst lag
 @msg	the target layer is locked or hidden	mållaget er låst eller skjult
+@msg	the object is hidden or locked	objektet er skjult eller låst
+@msg	the object is outside the isolated group	objektet er uden for den isolerede gruppe
+@msg	type objects can't be isolated	tekstobjekter kan ikke isoleres
 @msg	the layer to flatten into is hidden	laget, der skal flades ud i, er skjult
 @msg	the object already has an opacity mask	objektet har allerede en opacitetsmaske
 @msg	the object has no geometry	objektet har ingen geometri
 @msg	the object has no opacity mask	objektet har ingen opacitetsmaske
+@msg	stop editing the opacity mask first	stop først redigeringen af opacitetsmasken
 @msg	the object has no stroke	objektet har ingen streg
 @msg	the object is beyond the plane's horizon	objektet er uden for planens horisont
 @msg	the object isn't in perspective	objektet er ikke i perspektiv
@@ -5026,7 +5042,7 @@ mark-style	Japanese	Japansk
 	This system has no screen color sampler	Dette system har ingen skærmfarvesampler
 	Color blindness – Tritanopia-type	Farveblindhed – tritanopitype
 	Panels Except Tools and Control	Paneler undtagen værktøjer og kontrol
-	Reset Tracking and Kerning	Nulstil spærring og kerning
+	Reset Tracking and Kerning	Nulstil sporing og kerning
 	Reset Horizontal Scale	Nulstil vandret skalering
 @msg	span must be "object" or "selection", got {v}	span skal være "object" eller "selection", fik {v}
 @msg	span: "selection" places a `gradient`, not a swatch	span: "selection" placerer en `gradient`, ikke en farveprøve
@@ -5178,6 +5194,7 @@ swatch	Bright Violet	Kraftig violet
 	Show Original Path	Vis oprindelig kurve
 	Open this dialog with these settings next time	Åbn denne dialogboks med disse indstillinger næste gang
 	Auto-Simplify	Forenkl automatisk
+	Auto-Smooth	Udglat automatisk
 @msg	check a layer to export	markér et lag, der skal eksporteres
 @msg	select the art to export first	markér først grafikken, der skal eksporteres
 @msg	no saved selection recalled	ingen gemt markering hentet

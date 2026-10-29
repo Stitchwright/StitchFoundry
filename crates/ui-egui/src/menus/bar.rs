@@ -1,7 +1,7 @@
-use super::entries::{Row, pretty_shortcut};
-use super::invoke::{field_event, focused_text_field, invoke, to_field};
+use super::entries::{Row, entries, pretty_shortcut};
+use super::invoke::{field_event, focused_text_field, invoke, to_field, with_held_keys};
 use super::tree::menu_tree_named;
-use super::*;
+use super::{Entry, Item, Tokens, Value, VectorcraftApp, cp, json, widgets};
 
 /// The menus simple mode shows: File, Edit, View and Help with only the commands it keeps
 /// ([`crate::simple::keeps`]), and Help's Show Everything.
@@ -191,7 +191,7 @@ fn render_row(app: &VectorcraftApp, ui: &mut egui::Ui, row: &Row, checks: bool, 
         None => ui.add_enabled(row.enabled, egui::Button::new(text).shortcut_text(sc)),
     };
     if r.clicked() {
-        *clicked = row.target();
+        *clicked = row.target().map(|target| with_held_keys(target, ui.input(|i| i.modifiers)));
         ui.close();
     }
 }

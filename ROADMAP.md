@@ -112,7 +112,7 @@ Weights, evidence and the missing items per area: [target-app-parity.md](docs/ta
 | Korean | `ko` | full | 100% |
 | Vietnamese | `vi` | full | 100% |
 
-Also shipped: Traditional Chinese (partial, 80%), Bulgarian, Finnish, Greek, Hungarian, Italian, Polish, Russian, Swedish, Ukrainian and Georgian (full), Czech (catalog complete; render-site gaps reduced; native review pending).
+Also shipped: Traditional Chinese (partial, 80%), Bulgarian, Finnish, Greek, Hungarian, Italian, Polish, Russian, Swedish, Ukrainian and Georgian (full), Catalan (full; AI-drafted, native review welcome), Czech (catalog complete; render-site gaps reduced; native review pending).
 The Georgian catalog has had a native speaker's review; no other catalog has. Details: [localization-parity.md](docs/localization-parity.md).
 
 ## Upcoming

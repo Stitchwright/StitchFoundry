@@ -11,7 +11,7 @@ use vectorcraft_doc::{NodeId, NodeKind};
 use vectorcraft_embroidery::PT_PER_MM;
 use vectorcraft_geom::path::{Anchor, PathData, SubPath};
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, cmd, has_doc};
 
 /// Stitches shorter than this (mm) are steps between rows or ties: they don't turn a stroke.
 const STEP: f64 = 0.5;

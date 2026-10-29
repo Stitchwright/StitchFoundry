@@ -7,7 +7,7 @@ use serde_json::{Value, json};
 use vectorcraft_doc::Document;
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, cmd, has_doc, str_param};
 
 /// Thread thickness of 40 wt polyester lying on fabric (mm), as the display draws it.
 const THREAD_WIDTH_MM: f64 = 0.36;

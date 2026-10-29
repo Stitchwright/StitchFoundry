@@ -5,7 +5,7 @@
 use serde_json::{Value, json};
 use sf_core::hoops::{Hoop, HoopShape};
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, bool_or, cmd, has_doc, str_param};
 
 /// Hoops of one's own kept, at most.
 const MAX_CUSTOM: usize = 100;

@@ -9,7 +9,7 @@ use vectorcraft_doc::{Document, Node, NodeId, NodeKind, TextKind, TextWrap, Wrap
 use vectorcraft_geom::{PathData, shapes};
 
 use super::typecmd::refresh_bounds;
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bool_or, checked_ids_or_selection, cmd, f64_or, has_selection};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![

@@ -28,6 +28,19 @@ impl Harness {
     fn frame(&mut self, events: Vec<Event>) {
         self.time += 0.05;
         let input = egui::RawInput { time: Some(self.time), events, screen_rect: Some(SCREEN), ..Default::default() };
+        self.run(input);
+    }
+
+    /// A frame whose input first goes through [`VectorcraftApp::release_lost_buttons`], with the
+    /// system reporting a mouse button down or not.
+    fn frame_with_system_buttons(&mut self, events: Vec<Event>, system_held: bool) {
+        self.time += 0.05;
+        let mut input = egui::RawInput { time: Some(self.time), events, screen_rect: Some(SCREEN), ..Default::default() };
+        self.app.release_lost_buttons(&self.ctx, &mut input, system_held);
+        self.run(input);
+    }
+
+    fn run(&mut self, input: egui::RawInput) {
         let app = &mut self.app;
         let mut out = self.ctx.run_ui(input, |ui| {
             app.logic(ui.ctx());
@@ -396,6 +409,53 @@ fn ui_docking_reports_the_layout_and_hit_rects() {
         let found = hits.iter().find(|h| h["hit"] == hit).unwrap_or_else(|| panic!("{hit} in {hits:?}"));
         assert_eq!(found["rect"].as_array().unwrap().len(), 4);
     }
+}
+
+/// Press on the main column's divider and drag it 60 pt toward the canvas, holding the button.
+fn press_on_the_main_column_divider(h: &mut Harness) -> f32 {
+    let edge =
+        hit_rects(&h.ctx).into_iter().filter(|(hit, _)| matches!(hit, Hit::Divider(_))).map(|(_, r)| r.center().x).fold(f32::NEG_INFINITY, f32::max);
+    h.press_and_move(pos2(edge, 600.0), pos2(edge - 60.0, 600.0));
+    dock_columns(&h.layout())[0].width
+}
+
+#[test]
+fn a_column_resize_whose_release_was_lost_ends_when_the_system_reports_no_button_down() {
+    let mut h = Harness::new();
+    let width = press_on_the_main_column_divider(&mut h);
+    for x in [900.0, 1000.0, 850.0, 1100.0] {
+        h.frame_with_system_buttons(vec![Event::PointerMoved(pos2(x, 600.0))], false);
+        assert_eq!(dock_columns(&h.layout())[0].width, width, "the column followed the pointer to {x}");
+    }
+    assert!(!h.ctx.input(|i| i.pointer.any_down()));
+}
+
+#[test]
+fn a_column_resize_continues_while_the_system_reports_the_button_down() {
+    let mut h = Harness::new();
+    let width = press_on_the_main_column_divider(&mut h);
+    h.frame_with_system_buttons(vec![Event::PointerMoved(pos2(900.0, 600.0))], true);
+    assert_ne!(dock_columns(&h.layout())[0].width, width);
+    assert!(h.ctx.input(|i| i.pointer.primary_down()));
+}
+
+#[test]
+fn a_lost_release_after_the_pointer_moved_away_is_not_a_click() {
+    let mut h = Harness::new();
+    h.frame(vec![Event::PointerMoved(pos2(800.0, 600.0)), button(pos2(800.0, 600.0), true)]);
+    h.frame_with_system_buttons(vec![Event::PointerMoved(pos2(1000.0, 600.0))], false);
+    assert!(!h.ctx.input(|i| i.pointer.any_down()));
+    assert!(!h.ctx.input(|i| i.pointer.any_click()), "the release at the press position made a click");
+}
+
+#[test]
+fn control_channel_drags_keep_their_button_between_steps() {
+    let mut h = Harness::new();
+    h.frame(vec![Event::PointerMoved(pos2(800.0, 600.0)), button(pos2(800.0, 600.0), true)]);
+    h.app.synthetic.push(button(pos2(820.0, 600.0), false));
+    let mut input = egui::RawInput { events: vec![Event::PointerMoved(pos2(810.0, 600.0))], ..Default::default() };
+    h.app.release_lost_buttons(&h.ctx, &mut input, false);
+    assert_eq!(input.events, [Event::PointerMoved(pos2(810.0, 600.0))]);
 }
 
 #[test]

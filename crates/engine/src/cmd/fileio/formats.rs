@@ -1,4 +1,4 @@
-use super::*;
+use super::{Result, Session, TEMPLATE_FORMATS, UNSUPPORTED, Unsupported, Value, bad, dxf, eps, json, metafile, native, pdf, svg, text, unsupported};
 
 /// One option a format's encoder reads from the export params.
 #[derive(Clone, Copy, Debug)]
@@ -75,6 +75,20 @@ pub(super) const RANGE: FormatOption = FormatOption {
 
 const SCALE: FormatOption = FormatOption { name: "scale", ty: "number", default: "1", description: "pixels per point (0.01–64)" };
 
+const WIDTH: FormatOption = FormatOption {
+    name: "width",
+    ty: "number",
+    default: "null",
+    description: "the width of each file in pixels: each artboard, rect or art bounds gets its own scale (0.01–64 pixels per point, stored in the file except in GIF, WebP and Targa); wins over height, ppi and scale",
+};
+
+const HEIGHT: FormatOption = FormatOption {
+    name: "height",
+    ty: "number",
+    default: "null",
+    description: "the height of each file in pixels, as width; wins over ppi and scale",
+};
+
 const QUALITY: FormatOption =
     FormatOption { name: "quality", ty: "integer", default: "90", description: "JPEG quality 0–100 (the JPEG Options dialog shows 0–10)" };
 
@@ -96,7 +110,7 @@ const PPI: FormatOption = FormatOption {
     name: "ppi",
     ty: "number",
     default: "72",
-    description: "resolution in pixels per inch (72 = one pixel per point; 150, 300…), stored in the file; wins over scale",
+    description: "resolution in pixels per inch (72 = one pixel per point; 150, 300…), stored in the file except in GIF, WebP and Targa; wins over scale",
 };
 
 const BACKGROUND: FormatOption = FormatOption {
@@ -198,6 +212,8 @@ const PALETTE_OPTIONS: &[FormatOption] = &[
     RECT,
     PPI,
     SCALE,
+    WIDTH,
+    HEIGHT,
     BACKGROUND,
     ANTI_ALIAS,
     INTERLACED,
@@ -219,7 +235,7 @@ const BYTE_ORDER: FormatOption = FormatOption {
 };
 
 const TIFF_OPTIONS: &[FormatOption] =
-    &[ARTBOARD, ARTBOARDS, RANGE, USE_ARTBOARDS, RECT, PPI, SCALE, BACKGROUND, ANTI_ALIAS, COLOR_MODEL, LZW, BYTE_ORDER, EMBED_ICC];
+    &[ARTBOARD, ARTBOARDS, RANGE, USE_ARTBOARDS, RECT, PPI, SCALE, WIDTH, HEIGHT, BACKGROUND, ANTI_ALIAS, COLOR_MODEL, LZW, BYTE_ORDER, EMBED_ICC];
 
 const BMP_COLOR_MODEL: FormatOption =
     FormatOption { name: "colorModel", ty: "string", default: "\"rgb\"", description: "rgb or gray (greys at every depth)" };
@@ -256,6 +272,8 @@ const BMP_OPTIONS: &[FormatOption] = &[
     RECT,
     PPI,
     SCALE,
+    WIDTH,
+    HEIGHT,
     BACKGROUND,
     ANTI_ALIAS,
     BMP_COLOR_MODEL,
@@ -275,7 +293,7 @@ const TGA_DEPTH: FormatOption = FormatOption {
     description: "bits per pixel: 16 (one-bit alpha), 24 (flattened on white) or 32 (keeps transparency)",
 };
 
-const TGA_OPTIONS: &[FormatOption] = &[ARTBOARD, ARTBOARDS, RANGE, USE_ARTBOARDS, RECT, PPI, SCALE, BACKGROUND, ANTI_ALIAS, TGA_DEPTH];
+const TGA_OPTIONS: &[FormatOption] = &[ARTBOARD, ARTBOARDS, RANGE, USE_ARTBOARDS, RECT, PPI, SCALE, WIDTH, HEIGHT, BACKGROUND, ANTI_ALIAS, TGA_DEPTH];
 
 const PSD_LAYERS: FormatOption = FormatOption {
     name: "layers",
@@ -306,6 +324,8 @@ const PSD_OPTIONS: &[FormatOption] = &[
     RECT,
     PPI,
     SCALE,
+    WIDTH,
+    HEIGHT,
     BACKGROUND,
     ANTI_ALIAS,
     COLOR_MODEL,
@@ -374,7 +394,7 @@ pub const FORMATS: &[Format] = &[
         read: true,
         write: true,
         raster: true,
-        options: &[ARTBOARD, ARTBOARDS, RANGE, USE_ARTBOARDS, RECT, PPI, SCALE, BACKGROUND, ANTI_ALIAS, INTERLACED, EMBED_ICC],
+        options: &[ARTBOARD, ARTBOARDS, RANGE, USE_ARTBOARDS, RECT, PPI, SCALE, WIDTH, HEIGHT, BACKGROUND, ANTI_ALIAS, INTERLACED, EMBED_ICC],
     },
     Format {
         id: "jpg",
@@ -392,6 +412,8 @@ pub const FORMATS: &[Format] = &[
             RECT,
             PPI,
             SCALE,
+            WIDTH,
+            HEIGHT,
             BACKGROUND,
             ANTI_ALIAS,
             QUALITY,
@@ -411,7 +433,7 @@ pub const FORMATS: &[Format] = &[
         read: true,
         write: true,
         raster: true,
-        options: &[ARTBOARD, ARTBOARDS, RANGE, USE_ARTBOARDS, RECT, PPI, SCALE, BACKGROUND, ANTI_ALIAS, LOSSLESS, WEBP_QUALITY],
+        options: &[ARTBOARD, ARTBOARDS, RANGE, USE_ARTBOARDS, RECT, PPI, SCALE, WIDTH, HEIGHT, BACKGROUND, ANTI_ALIAS, LOSSLESS, WEBP_QUALITY],
     },
     Format {
         id: "tiff",

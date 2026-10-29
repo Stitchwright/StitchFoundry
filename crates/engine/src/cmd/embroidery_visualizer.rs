@@ -9,7 +9,7 @@ use vectorcraft_doc::{Appearance, Document};
 use vectorcraft_embroidery::PT_PER_MM;
 
 use super::embroidery::sheet_text;
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 
 /// Margin round the product (mm).
 const MARGIN: f64 = 40.0;

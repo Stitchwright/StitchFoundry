@@ -306,7 +306,10 @@ fn past_the_measured_placements_an_instance_is_culled_by_an_estimate_of_its_art_
 /// Symbols 0 to 29 each hold two instances of the next, sheared two ways, so that the 2^30
 /// instances drawn from the first are all placed differently. Symbol 30 holds a square with a drop
 /// shadow. An instance of symbol 0 lies far left of the view. With `effect`, every instance has
-/// that effect of its own. The renderer must cull the instance of symbol 0 within 30 s.
+/// that effect of its own. The renderer must cull the instance of symbol 0 measuring symbol art at
+/// most 20,000 times ([`FrameStats::symbol_art`]); measuring the art for every placement would take
+/// 2^30 measurements or more. The frame runs on a thread of its own, and the test fails when it
+/// has not finished after 300 s.
 fn nested_instances_are_culled_in_bounded_time(effect: Option<vectorcraft_doc::Effect>) {
     let mut d = Document::new(100.0, 100.0);
     let mut art = rect_node(&mut d, Rect::new(0.0, 0.0, 1.0, 1.0), Paint::solid(Color::BLACK), Paint::None, 0.0);
@@ -334,11 +337,13 @@ fn nested_instances_are_culled_in_bounded_time(effect: Option<vectorcraft_doc::E
     std::thread::spawn(move || {
         let mut r = Renderer::new();
         let img = r.render(&d, 100, 100, Affine::IDENTITY, &RenderOptions::default());
-        tx.send((img.pixel(50, 50), r.stats.culled)).ok();
+        tx.send((img.pixel(50, 50), r.stats.culled, r.stats.symbol_art)).ok();
     });
-    let (pixel, culled) = rx.recv_timeout(std::time::Duration::from_secs(30)).expect("the frame within 30 s");
+    let (pixel, culled, measured) = rx.recv_timeout(std::time::Duration::from_secs(300)).expect("the frame within 300 s");
     assert_eq!(pixel, [0, 0, 0, 0]);
     assert!(culled > 0);
+    assert!(measured > 0, "the frame stats report no symbol art measures");
+    assert!(measured <= 20_000, "symbol art measured {measured} times");
 }
 
 #[test]
@@ -913,12 +918,92 @@ fn images_take_their_nearest_pixel_without_smoothing() {
     let im = ImageObject { key: "bw".into(), width: 2, height: 1, xf: Affine::scale(20.0), link: None, placement: Default::default(), pixels: None };
     d.insert(Some(d.layers[0].id), 0, Node::new(id, NodeKind::Image(Box::new(im)))).unwrap();
     // How many pixels across the image are neither black nor white.
-    let greys = |smooth_images| {
-        let r = Renderer::new().render(&d, 40, 20, Affine::IDENTITY, &RenderOptions { smooth_images, ..Default::default() });
+    let greys = |d: &Document, smooth_images| {
+        let r = Renderer::new().render(d, 40, 20, Affine::IDENTITY, &RenderOptions { smooth_images, ..Default::default() });
         (0..40).filter(|x| (16..240).contains(&r.pixel(*x, 10)[0])).count()
     };
-    assert!(greys(true) >= 4, "smooth: a ramp from black to white");
-    assert_eq!(greys(false), 0, "nearest: black, then white");
+    assert!(greys(&d, true) >= 4, "smooth: a ramp from black to white");
+    assert_eq!(greys(&d, false), 0, "nearest: black, then white");
+    // A pixelated image (an envelope's with Anti-Alias off) takes its nearest pixel either way.
+    d.node_mut(id).unwrap().extras_mut().pixelated = true;
+    assert_eq!(greys(&d, true), 0, "pixelated: black, then white");
+}
+
+/// An image masked by one white shape with Clip on draws as an image clipped by that shape, with
+/// nothing drawn offscreen; any other mask goes through the offscreen mask.
+#[test]
+fn an_image_masked_by_a_white_shape_draws_as_if_clipped() {
+    use vectorcraft_doc::{ImageBlob, ImageObject, NodeKind, OpacityMask};
+    let img = image::RgbaImage::from_pixel(2, 2, image::Rgba([255, 0, 0, 255]));
+    let mut png = vec![];
+    img.write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).unwrap();
+    let doc_masked = |mask_color: Color, shape: Rect| {
+        let mut d = Document::new(100.0, 100.0);
+        d.images.insert("red".into(), ImageBlob::new("image/png", png.clone()));
+        let id = d.alloc_id();
+        let im = ImageObject {
+            key: "red".into(),
+            width: 2,
+            height: 2,
+            xf: Affine::translate((10.0, 10.0)) * Affine::scale(40.0),
+            link: None,
+            placement: Default::default(),
+            pixels: None,
+        };
+        let shape = rect_node(&mut d, shape, Paint::solid(mask_color), Paint::None, 0.0);
+        let n = Node::new(id, NodeKind::Image(Box::new(im))).with_mask(Some(Box::new(OpacityMask::new(shape, true))));
+        d.insert(Some(d.layers[0].id), 0, n).unwrap();
+        d
+    };
+    let doc = |mask_color: Color| doc_masked(mask_color, Rect::new(10.0, 10.0, 50.0, 90.0));
+    let opts = RenderOptions { background: Some([255, 255, 255, 255]), ..Default::default() };
+    let draw = |d: &Document| {
+        let mut r = Renderer::new();
+        r.threads = 0;
+        OFFSCREEN_PIXELS.with(|n| n.set(0));
+        let img = r.render(d, 100, 100, Affine::IDENTITY, &opts);
+        (img, OFFSCREEN_PIXELS.with(|n| n.get()))
+    };
+    let (img, px) = draw(&doc(Color::WHITE));
+    assert_eq!(px, 0, "no offscreen mask");
+    assert_eq!(img.pixel(30, 50), [255, 0, 0, 255], "inside the shape");
+    assert_eq!(img.pixel(70, 50), [255, 255, 255, 255], "outside it");
+    let (img, px) = draw(&doc(Color::rgb(0.5, 0.5, 0.5)));
+    assert!(px > 0, "a grey mask is drawn offscreen");
+    assert!((100..160).contains(&img.pixel(30, 50)[1]), "at about half opacity: {:?}", img.pixel(30, 50));
+    // A white mask reaching past the image's frame shows nothing outside the frame.
+    let (img, _) = draw(&doc_masked(Color::WHITE, Rect::new(0.0, 10.0, 50.0, 90.0)));
+    assert_eq!(img.pixel(5, 50), [255, 255, 255, 255], "left of the frame");
+    assert_eq!(img.pixel(30, 50), [255, 0, 0, 255]);
+    // In isolation mode, outside the isolated object, it is dimmed like the art around it.
+    let mut d = doc(Color::WHITE);
+    let other = rect_node(&mut d, Rect::new(60.0, 60.0, 90.0, 90.0), Paint::solid(Color::BLACK), Paint::None, 0.0);
+    let other = d.insert(Some(d.layers[0].id), usize::MAX, other).unwrap();
+    let isolated = RenderOptions { isolated: Some(other), ..opts.clone() };
+    let img = Renderer::new().render(&d, 100, 100, Affine::IDENTITY, &isolated);
+    assert!(img.pixel(30, 50)[1] > 60, "dimmed: {:?}", img.pixel(30, 50));
+}
+
+/// A pixelated image drawn reduced with `image_mips` on takes its nearest full pixel, not a
+/// mip's average.
+#[test]
+fn a_pixelated_image_draws_reduced_without_mips() {
+    use vectorcraft_doc::{ImageBlob, ImageObject, NodeKind};
+    let img = image::RgbaImage::from_fn(64, 64, |x, y| image::Rgba(if (x + y) % 2 == 0 { [255, 0, 0, 255] } else { [0, 0, 255, 255] }));
+    let mut png = vec![];
+    img.write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).unwrap();
+    let mut d = Document::new(64.0, 64.0);
+    d.images.insert("check".into(), ImageBlob::new("image/png", png));
+    let id = d.alloc_id();
+    let im =
+        ImageObject { key: "check".into(), width: 64, height: 64, xf: Affine::IDENTITY, link: None, placement: Default::default(), pixels: None };
+    let mut n = Node::new(id, NodeKind::Image(Box::new(im)));
+    n.extras_mut().pixelated = true;
+    d.insert(Some(d.layers[0].id), 0, n).unwrap();
+    let on = RenderOptions { image_mips: true, ..Default::default() };
+    let r = Renderer::new().render(&d, 16, 16, Affine::scale(0.25), &on);
+    let mixed = (0..16).flat_map(|y| (0..16).map(move |x| (x, y))).filter(|(x, y)| r.pixel(*x, *y)[0] > 40 && r.pixel(*x, *y)[2] > 40).count();
+    assert_eq!(mixed, 0, "each pixel red or blue");
 }
 
 /// A PNG that says it is `w` × `h` 1-bit gray pixels (its header and no rows).

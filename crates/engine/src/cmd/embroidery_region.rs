@@ -8,7 +8,7 @@ use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 use vectorcraft_tools::builder::FACE_NAME;
 
-use super::*;
+use super::{CommandSpec, EngineError, NodeId, Point, Result, Session, bad, cmd, has_doc, point_param, str_param};
 
 const CMD: &str = "embroidery.fillRegion";
 

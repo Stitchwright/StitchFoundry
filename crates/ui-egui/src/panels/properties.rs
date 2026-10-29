@@ -147,6 +147,9 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
     actions.push((tl!("Simplify"), "object.path.simplify"));
     actions.push((tl!("Arrange: Bring to Front"), "object.arrange.bringToFront"));
     actions.push((tl!("Lock"), "object.lock"));
+    // Lock and Isolate Group are left out while their commands are off (in isolation mode, while
+    // an opacity mask is edited).
+    actions.retain(|(_, id)| !matches!(*id, "object.lock" | "object.isolate") || crate::menus::enabled(app, id));
     let w = (ui.available_width() - 6.0) / 2.0;
     for pair in actions.chunks(2) {
         ui.horizontal(|ui| {

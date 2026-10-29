@@ -9,7 +9,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, NodeId, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 use vectorcraft_doc::NodeKind;
 
 const CMD: &str = "embroidery.stumpwork";

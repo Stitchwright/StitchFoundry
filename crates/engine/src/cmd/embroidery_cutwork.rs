@@ -6,7 +6,7 @@
 use serde_json::{Value, json};
 use vectorcraft_doc::NodeId;
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, has_selection};
 
 const CMD: &str = "embroidery.cutwork";
 /// The needles' thread colours on screen (one per needle; the cuts aren't sewn in thread).

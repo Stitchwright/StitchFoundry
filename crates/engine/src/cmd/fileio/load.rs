@@ -7,7 +7,7 @@ use vectorcraft_doc::{Document, ImageBlob, ImageObject, Node, NodeKind};
 use vectorcraft_geom::Affine;
 use vectorcraft_render::effects::pixel::LoadedTexture;
 
-use super::super::*;
+use super::super::{Result, Session, bad, bool_or, clipboard, parse_range, str_param};
 use super::pdfimport::LoadOptions;
 use super::{Format, SAVE_FORMATS, absolute_path, file_stamp, format, format_for_name, psdread, read_file};
 use crate::cmd::links::Resolved;
@@ -449,8 +449,19 @@ pub fn open_template(s: &mut Session, name: &str, bytes: &[u8], path: Option<&st
 /// `opts` are the options it was read with.
 fn open_loaded(s: &mut Session, loaded: Loaded, links: Resolved, path: Option<String>, opts: &LoadOptions, as_template: bool) -> Result<Value> {
     let Loaded { mut doc, format, warnings, restored, converted, .. } = loaded.with_grid_prefs(&s.prefs);
-    // What reading the file left out of the document, if anything.
-    let losses: Vec<String> = warnings.iter().filter(|w| is_loss(w)).cloned().collect();
+    // EPS now has an ordinary Save path. Its preview, partial-program and damaged-editing
+    // fallbacks must ask before overwriting the richer source they could not fully read.
+    let losses: Vec<String> = warnings
+        .iter()
+        .filter(|w| {
+            is_loss(w)
+                || (format.id == "eps"
+                    && (matches!(w.as_str(), EDITING_DAMAGED | EDITING_STALE)
+                        || w.starts_with("this file's PostScript couldn't be read")
+                        || w.starts_with("the file was read up to an error")))
+        })
+        .cloned()
+        .collect();
     let source_path = path.clone().filter(|_| !losses.is_empty());
     // A template (saved by Save as Template, or an .ait/.vctemplate file) opens as a new untitled
     // document.

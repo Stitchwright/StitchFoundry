@@ -1,5 +1,8 @@
 use super::region::Region;
-use super::*;
+use super::{
+    Affine, BezPath, Breakpoint, Burasagari, EPS, FirstBaseline, FontDb, HyphenationOptions, Kinsoku, LeadingModel, SGlyph, hyphen_glyph,
+    hyphen_points_with, no_line_end, no_line_start, soft_line_start,
+};
 
 /// Vertical metrics of a line: (ascent, descent, leading, cap height, x height).
 #[derive(Clone, Copy, Debug, PartialEq)]

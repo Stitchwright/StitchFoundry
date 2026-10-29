@@ -57,6 +57,7 @@
 	Check Script	Script controleren
 	Other Script…	Ander script…
 	Document Setup…	Documentinstellingen…
+	Switch Units	Eenheden wisselen
 	Document Color Mode	Documentkleurmodus
 	CMYK Color	CMYK-kleur
 	RGB Color	RGB-kleur
@@ -189,6 +190,7 @@
 	Other Layers	Andere lagen
 	Unlock All	Alles ontgrendelen
 	Hide	Verbergen
+	Unselected Artwork	Niet-geselecteerde artwork
 	Show All	Alles tonen
 	Expand…	Uitbreiden…
 	Expand Appearance	Uiterlijk uitbreiden
@@ -221,6 +223,7 @@
 	Offset Path…	Pad verschuiven…
 	Reverse Path Direction	Padrichting omkeren
 	Simplify…	Vereenvoudigen…
+	Smooth…	Gladmaken…
 	Add Anchor Points	Ankerpunten toevoegen
 	Remove Anchor Points	Ankerpunten verwijderen
 	Divide Objects Below	Objecten eronder verdelen
@@ -767,6 +770,7 @@
 	Shaper	Shaper
 	Expand Shaper Group	Shapergroep uitbreiden
 	Release Shaper Group	Shapergroep vrijgeven
+	Remove from Shaper Group	Verwijderen uit shapergroep
 	Select Shaper Face	Shapervlak selecteren
 	Constrain	Beperken
 	Free Transform	Vrij transformeren
@@ -1521,7 +1525,7 @@ lighting	Light	Licht
 	Threshold	Drempel
 	Trace	Traceren
 	Trace the image with the Default preset	De afbeelding traceren met de standaardvoorinstelling
-	Size: {size}  Tracking: {tracking}	Grootte: {size}  Spatiëring: {tracking}
+	Size: {size}  Tracking: {tracking}	Grootte: {size}  Tracking: {tracking}
 	<Opacity Mask>	<Dekkingsmasker>
 	Create New Layer	Nieuwe laag maken
 	Create New Sublayer	Nieuwe sublaag maken
@@ -1896,6 +1900,10 @@ lighting	Light	Licht
 	Outer Corner Tile	Tegel voor buitenhoek
 	Side Tile	Zijtegel
 	Inner Corner Tile	Tegel voor binnenhoek
+	Auto-Centered	Auto-gecentreerd
+	Auto-Between	Auto-tussen
+	Auto-Sliced	Auto-verstek
+	Auto-Overlap	Auto-overlap
 	Start Tile	Begintegel
 	End Tile	Eindtegel
 	Fit	Passen
@@ -4094,6 +4102,7 @@ imageTrace	Outline	Contour
 @msg	missing `id` (see plugin.list)	`id` ontbreekt (zie plugin.list)
 @msg	missing `name`	`name` ontbreekt
 @msg	missing `tool`	`tool` ontbreekt
+@msg	missing id	id ontbreekt
 @msg	missing index	index ontbreekt
 @msg	New Window isn't available yet: a document opens in one window	Nieuw venster is nog niet beschikbaar: een document opent in één venster
 @msg	name the file	geef het bestand een naam
@@ -4123,6 +4132,7 @@ imageTrace	Outline	Contour
 @msg	no current layer	geen huidige laag
 @msg	no data	geen gegevens
 @msg	no dialog open	geen dialoogvenster geopend
+@msg	the open dialog has no Reset	het geopende dialoogvenster heeft geen knop Opnieuw instellen
 @msg	no document	geen document
 @msg	no document open	geen document geopend
 @msg	no effect applied yet	nog geen effect toegepast
@@ -4198,6 +4208,7 @@ imageTrace	Outline	Contour
 @msg	not in pattern editing mode	niet in patroonbewerkingsmodus
 @msg	nothing encoded	niets gecodeerd
 @msg	nothing selected	niets geselecteerd
+@msg	nothing selected is in a group	niets van de selectie zit in een groep
 @msg	nothing to align	niets om uit te lijnen
 @msg	nothing to distort	niets om te vervormen
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	niets om te exporteren: het document heeft geen zichtbare illustratie (of schakel Tekengebieden gebruiken in)
@@ -4263,6 +4274,7 @@ imageTrace	Outline	Contour
 @msg	select an object in perspective	selecteer een object in perspectief
 @msg	select artwork (or a colour group) to recolor	selecteer een illustratie (of een kleurgroep) om te herkleuren
 @msg	select at least two objects	selecteer minstens twee objecten
+@msg	exit isolation mode first	verlaat eerst de isolatiemodus
 @msg	select objects, not layers	selecteer objecten, geen lagen
 @msg	select one path, or give its `id`	selecteer één pad, of geef het `id`
 @msg	select paths to join	selecteer paden om te verbinden
@@ -4313,10 +4325,14 @@ imageTrace	Outline	Contour
 @msg	the layer or group is locked	de laag of groep is vergrendeld
 @msg	the guide is on a hidden or locked layer	de hulplijn staat op een verborgen of vergrendelde laag
 @msg	the target layer is locked or hidden	de doellaag is vergrendeld of verborgen
+@msg	the object is hidden or locked	het object is verborgen of vergrendeld
+@msg	the object is outside the isolated group	het object ligt buiten de geïsoleerde groep
+@msg	type objects can't be isolated	tekstobjecten kunnen niet worden geïsoleerd
 @msg	the layer to flatten into is hidden	de laag om in af te vlakken is verborgen
 @msg	the object already has an opacity mask	het object heeft al een dekkingmasker
 @msg	the object has no geometry	het object heeft geen geometrie
 @msg	the object has no opacity mask	het object heeft geen dekkingmasker
+@msg	stop editing the opacity mask first	stop eerst met het bewerken van het dekkingmasker
 @msg	the object has no stroke	het object heeft geen lijn
 @msg	the object is beyond the plane's horizon	het object ligt voorbij de horizon van het vlak
 @msg	the object isn't in perspective	het object is niet in perspectief
@@ -5038,7 +5054,7 @@ mark-style	Japanese	Japans
 	This system has no screen color sampler	Dit systeem heeft geen schermkleurkiezer
 	Color blindness – Tritanopia-type	Kleurenblindheid – type tritanopie
 	Panels Except Tools and Control	Alle panelen behalve Gereedschap en Bediening
-	Reset Tracking and Kerning	Spatiëring en kerning herstellen
+	Reset Tracking and Kerning	Tracking en kerning herstellen
 	Reset Horizontal Scale	Horizontale schaal herstellen
 @msg	span must be "object" or "selection", got {v}	span moet "object" of "selection" zijn, maar is {v}
 @msg	span: "selection" places a `gradient`, not a swatch	span: "selection" plaatst een `gradient`, geen staal
@@ -5189,6 +5205,7 @@ swatch	Bright Violet	Felviolet
 	Show Original Path	Oorspronkelijk pad tonen
 	Open this dialog with these settings next time	Dit dialoogvenster de volgende keer met deze instellingen openen
 	Auto-Simplify	Automatisch vereenvoudigen
+	Auto-Smooth	Automatisch gladmaken
 @msg	check a layer to export	vink een laag aan om te exporteren
 @msg	select the art to export first	selecteer eerst de illustratie die je wilt exporteren
 @msg	no saved selection recalled	geen opgeslagen selectie opgeroepen

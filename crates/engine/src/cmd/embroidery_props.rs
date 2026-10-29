@@ -8,7 +8,7 @@ use sf_core::fabrics::Fabric;
 use vectorcraft_doc::{Document, NodeId};
 
 use super::embroidery::{ids_json, patched, stitch_type, stitched_targets};
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, has_doc, has_selection, str_param};
 use crate::EngineError;
 
 pub fn specs() -> Vec<CommandSpec> {

@@ -5,14 +5,16 @@
 //! object updates live; the renderer doesn't paint the editing layer (the mask is seen through its
 //! effect, as in the reference app). Leaving the mode removes the layer, and saving or exporting
 //! never writes it ([`Document::without_edit_modes`]). Meanwhile the Transparency panel's commands
-//! act on the masked object (see `opacitymask::transparency_targets`).
+//! act on the masked object (see `opacitymask::transparency_targets`). Mask editing is not entered
+//! in isolation mode ([`outside_isolation_mode`]), and isolation mode is not entered while a mask is
+//! edited ([`outside_mask_editing`]).
 
 use std::sync::Arc;
 
 use serde_json::{Value, json};
 use vectorcraft_doc::{Document, MaskEdit, Node, NodeId, NodeKind, Selection};
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, cmd, has_doc, id_param};
 
 /// Name of the temporary mask-editing layer.
 pub const MASK_EDIT_LAYER: &str = "Opacity Mask Editing";
@@ -27,8 +29,8 @@ pub fn specs() -> Vec<CommandSpec> {
             "Edit Opacity Mask",
             ["Window", "Transparency"],
             None,
-            "{id?} edit the mask art of `id` (default: the first selected object with a mask) in place, as clicking the mask thumbnail in the Transparency panel does → {layer}",
-            has_doc,
+            "{id?} edit the mask art of `id` (default: the first selected object with a mask) in place, as clicking the mask thumbnail in the Transparency panel does; refused in isolation mode → {layer}",
+            outside_isolation_mode,
             enter
         ),
         cmd!(
@@ -45,11 +47,31 @@ pub fn specs() -> Vec<CommandSpec> {
             "View Opacity Mask",
             ["Window", "Transparency"],
             None,
-            "{on?: bool (default: toggle), id?} show only the opacity mask of `id` (default: the object whose mask is edited, else the first selected object with a mask) on the canvas, as greyscale coverage, and edit it, as Alt-clicking the mask thumbnail does; off shows the artwork again (still editing) → {on, id}",
-            has_doc,
+            "{on?: bool (default: toggle), id?} show only the opacity mask of `id` (default: the object whose mask is edited, else the first selected object with a mask) on the canvas, as greyscale coverage, and edit it, as Alt-clicking the mask thumbnail does; off shows the artwork again (still editing); refused in isolation mode → {on, id}",
+            outside_isolation_mode,
             view_mask
         ),
     ]
+}
+
+/// Is the document in isolation mode? Pattern editing mode and opacity mask editing isolate their
+/// art too, and do not count as isolation mode here.
+pub(crate) fn in_isolation_mode(st: &crate::DocState) -> bool {
+    st.isolation.is_some() && st.doc.pattern_edit.is_none() && st.doc.mask_edit.is_none()
+}
+
+/// A document is open and it is not in isolation mode ([`in_isolation_mode`]): opacity mask
+/// editing is not entered in isolation mode.
+pub(crate) fn outside_isolation_mode(s: &Session) -> std::result::Result<(), String> {
+    let st = s.active().ok_or("no document open")?;
+    if in_isolation_mode(st) { Err("exit isolation mode first".into()) } else { Ok(()) }
+}
+
+/// A document is open and no opacity mask is being edited: isolation mode is not entered while
+/// an opacity mask is edited.
+pub(crate) fn outside_mask_editing(s: &Session) -> std::result::Result<(), String> {
+    let st = s.active().ok_or("no document open")?;
+    if st.doc.mask_edit.is_some() { Err("stop editing the opacity mask first".into()) } else { Ok(()) }
 }
 
 /// Mask art made of `children`: a plain group, so the mask keeps one art node. Editing spreads it

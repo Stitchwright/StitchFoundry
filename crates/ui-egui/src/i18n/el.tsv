@@ -1862,6 +1862,7 @@ font-technology	Variable	Μεταβλητές
 	Simplify	Απλοποίηση
 	Simplify:	Απλοποίηση:
 	Simplify…	Απλοποίηση…
+	Smooth…	Εξομάλυνση…
 	Size	Μέγεθος
 	Size:	Μέγεθος:
 	Skew	Λοξότητα
@@ -2168,6 +2169,7 @@ axis	Both	Και τα δύο
 @msg	`{key}` must be between {min} and {max} (got {x})	Το `{key}` πρέπει να είναι μεταξύ {min} και {max} (δόθηκε {x})
 @msg	`{key}` must be one of {_1}	Το `{key}` πρέπει να είναι ένα από τα {_1}
 @msg	`{key}` must be true or false	Το `{key}` πρέπει να είναι true ή false
+@msg	`top` and `below` can't both be true	Τα `top` και `below` δεν μπορούν να είναι και τα δύο true
 @msg	`select` must be true or false	Το `select` πρέπει να είναι true ή false
 @msg	`minAnchors` and `maxAnchors` must be whole numbers	Τα `minAnchors` και `maxAnchors` πρέπει να είναι ακέραιοι αριθμοί
 @msg	`{key}` must be a number not below 0	Το `{key}` πρέπει να είναι αριθμός όχι μικρότερος από 0
@@ -2680,6 +2682,10 @@ theme	Appearance	Εμφάνιση
 	Outer Corner Tile	Πλακίδιο εξωτερικής γωνίας
 	Side Tile	Πλευρικό πλακίδιο
 	Inner Corner Tile	Πλακίδιο εσωτερικής γωνίας
+	Auto-Centered	Αυτόματο κεντραρισμένο
+	Auto-Between	Αυτόματο ενδιάμεσο
+	Auto-Sliced	Αυτόματο κομμένο
+	Auto-Overlap	Αυτόματη επικάλυψη
 	Start Tile	Αρχικό πλακίδιο
 	End Tile	Τελικό πλακίδιο
 	Stretch to fit	Επέκταση για προσαρμογή
@@ -3413,6 +3419,7 @@ theme	Appearance	Εμφάνιση
 	Show Original Path	Εμφάνιση αρχικής διαδρομής
 	Open this dialog with these settings next time	Άνοιγμα αυτού του παραθύρου με αυτές τις ρυθμίσεις την επόμενη φορά
 	Auto-Simplify	Αυτόματη απλοποίηση
+	Auto-Smooth	Αυτόματη εξομάλυνση
 	Show Package	Εμφάνιση συσκευασίας
 	Show Panel	Εμφάνιση πίνακα
 	Show Pattern Swatches	Εμφάνιση δειγμάτων μοτίβου
@@ -3452,7 +3459,7 @@ theme	Appearance	Εμφάνιση
 	Size Tile to Art	Προσαρμογή μεγέθους πλακιδίου στο σχέδιο
 	Size/Leading	Μέγεθος/διάστιχο
 	Ridges per segment:	Ράχες ανά τμήμα:
-	Size: {size}  Tracking: {tracking}	Μέγεθος: {size}  Αραίωση: {tracking}
+	Size: {size}  Tracking: {tracking}	Μέγεθος: {size}  Απόσταση χαρακτήρων: {tracking}
 	Skin Tone Ramps	Χρωματικές κλίμακες τόνων δέρματος
 	Skip Blank Artboards	Παράλειψη κενών πινάκων σχεδίασης
 	Sky Gradients	Ντεγκραντέ ουρανού
@@ -3563,6 +3570,7 @@ theme	Appearance	Εμφάνιση
 	Swatch Options	Επιλογές δείγματος χρώματος
 	Swatch Options…	Επιλογές δείγματος χρώματος…
 	Swatch Tiles	Πλακίδια δειγμάτων χρωμάτων
+	Switch Units	Αλλαγή μονάδων
 	Switch workspace	Αλλαγή χώρου εργασίας
 	Add Content	Προσθήκη περιεχομένου
 	Click to apply to the selected type	Κλικ για εφαρμογή στο επιλεγμένο κείμενο
@@ -3736,6 +3744,7 @@ theme	Appearance	Εμφάνιση
 	Unlock Guides	Ξεκλείδωμα οδηγών
 	Unnamed Objects	Αντικείμενα χωρίς όνομα
 	Unprintable margin:	Μη εκτυπώσιμο περιθώριο:
+	Unselected Artwork	Μη επιλεγμένα γραφικά στοιχεία
 	Unshift	Αναίρεση μετατόπισης
 	Update Link	Ενημέρωση συνδέσμου
 	Update Links	Ενημέρωση συνδέσμων
@@ -4027,6 +4036,7 @@ theme	Appearance	Εμφάνιση
 @msg	missing `id` (see plugin.list)	λείπει το `id` (δείτε plugin.list)
 @msg	missing `name`	λείπει το `name`
 @msg	missing `tool`	λείπει το `tool`
+@msg	missing id	λείπει το id
 @msg	missing index	λείπει ο δείκτης
 @msg	missing number `{key}`	λείπει ο αριθμός `{key}`
 @msg	missing integer `{key}`	λείπει ο ακέραιος `{key}`
@@ -4059,6 +4069,7 @@ theme	Appearance	Εμφάνιση
 @msg	no current layer	δεν υπάρχει τρέχον επίπεδο
 @msg	no data	δεν υπάρχουν δεδομένα
 @msg	no dialog open	δεν υπάρχει ανοιχτό παράθυρο διαλόγου
+@msg	the open dialog has no Reset	το ανοιχτό παράθυρο διαλόγου δεν έχει κουμπί Επαναφορά
 @msg	no document	δεν υπάρχει έγγραφο
 @msg	no document open	δεν υπάρχει ανοιχτό έγγραφο
 @msg	no effect applied yet	δεν έχει εφαρμοστεί ακόμη εφέ
@@ -4143,6 +4154,7 @@ theme	Appearance	Εμφάνιση
 @msg	not in pattern editing mode	δεν βρίσκεστε σε λειτουργία επεξεργασίας μοτίβου
 @msg	nothing encoded	δεν κωδικοποιήθηκε τίποτα
 @msg	nothing selected	δεν έχει επιλεγεί τίποτα
+@msg	nothing selected is in a group	τίποτα από τα επιλεγμένα δεν βρίσκεται σε ομάδα
 @msg	nothing to align	δεν υπάρχει τίποτα για στοίχιση
 @msg	nothing to distort	δεν υπάρχει τίποτα για παραμόρφωση
 @msg	nothing to export: the document has no visible art (or turn on Use Artboards)	δεν υπάρχει τίποτα για εξαγωγή: το έγγραφο δεν έχει ορατό σχέδιο (ή ενεργοποιήστε Χρήση πινάκων σχεδίασης)
@@ -4210,6 +4222,7 @@ theme	Appearance	Εμφάνιση
 @msg	select an object in perspective	επιλέξτε αντικείμενο σε προοπτική
 @msg	select artwork (or a colour group) to recolor	επιλέξτε σχέδιο (ή ομάδα χρωμάτων) για επαναχρωματισμό
 @msg	select at least two objects	επιλέξτε τουλάχιστον δύο αντικείμενα
+@msg	exit isolation mode first	βγείτε πρώτα από τη λειτουργία απομόνωσης
 @msg	select objects, not layers	επιλέξτε αντικείμενα, όχι επίπεδα
 @msg	select one path, or give its `id`	επιλέξτε μία διαδρομή ή δώστε το `id` της
 @msg	select paths to join	επιλέξτε διαδρομές για ένωση
@@ -4262,10 +4275,14 @@ theme	Appearance	Εμφάνιση
 @msg	the layer or group is locked	το επίπεδο ή η ομάδα είναι κλειδωμένα
 @msg	the guide is on a hidden or locked layer	ο οδηγός βρίσκεται σε κρυφό ή κλειδωμένο επίπεδο
 @msg	the target layer is locked or hidden	το επίπεδο προορισμού είναι κλειδωμένο ή κρυφό
+@msg	the object is hidden or locked	το αντικείμενο είναι κρυφό ή κλειδωμένο
+@msg	the object is outside the isolated group	το αντικείμενο βρίσκεται εκτός της απομονωμένης ομάδας
+@msg	type objects can't be isolated	τα αντικείμενα κειμένου δεν μπορούν να απομονωθούν
 @msg	the layer to flatten into is hidden	το επίπεδο προορισμού ισοπέδωσης είναι κρυφό
 @msg	the object already has an opacity mask	το αντικείμενο έχει ήδη μάσκα αδιαφάνειας
 @msg	the object has no geometry	το αντικείμενο δεν έχει γεωμετρία
 @msg	the object has no opacity mask	το αντικείμενο δεν έχει μάσκα αδιαφάνειας
+@msg	stop editing the opacity mask first	τερματίστε πρώτα την επεξεργασία της μάσκας αδιαφάνειας
 @msg	the object has no stroke	το αντικείμενο δεν έχει περίγραμμα
 @msg	the object is beyond the plane's horizon	το αντικείμενο βρίσκεται πέρα από τον ορίζοντα του επιπέδου
 @msg	the object isn't in perspective	το αντικείμενο δεν βρίσκεται σε προοπτική
@@ -4450,6 +4467,10 @@ theme	Appearance	Εμφάνιση
 	Shaper	Διαμορφωτής σχημάτων (Shaper Tool)
 	Expand Shaper Group	Ανάπτυξη ομάδας διαμόρφωσης σχημάτων
 	Release Shaper Group	Αποδέσμευση ομάδας διαμόρφωσης σχημάτων
+	Remove from Shaper Group	Αφαίρεση από ομάδα διαμόρφωσης σχημάτων
+@msg	source must be the id of a Shaper Group's original shape	Το source πρέπει να είναι το αναγνωριστικό ενός αρχικού σχήματος ομάδας διαμόρφωσης σχημάτων
+@msg	group must be the id of a Shaper Group	Το group πρέπει να είναι το αναγνωριστικό μιας ομάδας διαμόρφωσης σχημάτων
+@msg	the shape is not an editable original shape of that Shaper Group	Το σχήμα δεν είναι επεξεργάσιμο αρχικό σχήμα αυτής της ομάδας διαμόρφωσης σχημάτων
 	Select Shaper Face	Επιλογή επιφάνειας διαμορφωτή
 	Drag art, colors and text styles here to reuse them across documents. Libraries are stored on this machine — no account required.	Σύρετε εδώ σχέδια, χρώματα και στυλ κειμένου για χρήση σε άλλα έγγραφα. Οι βιβλιοθήκες αποθηκεύονται στον υπολογιστή — χωρίς λογαριασμό.
 	1 Color Job	Εργασία ενός χρώματος
@@ -5281,6 +5302,7 @@ effect	Points	Σημεία
 @msg	span: "selection" places the gradient itself: leave out `start` and `end` (they already place it in document coordinates)	span: το "selection" τοποθετεί το ίδιο το ντεγκραντέ: παραλείψτε τα `start` και `end` (το τοποθετούν ήδη σε συντεταγμένες εγγράφου)
 @msg	the Color Picker is not open	ο επιλογέας χρώματος δεν είναι ανοιχτός
 @msg	the Simplify slider is not open	ο ρυθμιστής Απλοποίησης δεν είναι ανοιχτός
+@msg	the Smooth slider is not open	ο ρυθμιστής Εξομάλυνσης δεν είναι ανοιχτός
 @msg	the action has no steps	η ενέργεια δεν έχει βήματα
 @msg	the file's layers weren't read ({_1}): it comes in as its page, in one layer	τα επίπεδα του αρχείου δεν διαβάστηκαν ({_1}): εισάγεται ως η σελίδα του, σε ένα επίπεδο
 @msg	the file's layers weren't read from its editing data ({_1}): they come from its PDF part	τα επίπεδα του αρχείου δεν διαβάστηκαν από τα δεδομένα επεξεργασίας του ({_1}): προέρχονται από το τμήμα PDF του

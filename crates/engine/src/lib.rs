@@ -37,7 +37,7 @@ pub use journal::Journal;
 pub use tooling::{UiRequest, ViewInfo};
 pub use vectorcraft_doc as doc;
 pub use vectorcraft_doc::cancel;
-pub use vectorcraft_pathops::{SIMPLIFY_LEVEL, simplify_level_tolerance};
+pub use vectorcraft_pathops::{SIMPLIFY_LEVEL, SMOOTH_AUTO_LEVEL, simplify_level_tolerance};
 pub use vectorcraft_tools as tools;
 
 /// Coordinates beyond this (points) are rejected: ~1,400 m, far past Illustrator's large canvas.

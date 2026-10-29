@@ -1,5 +1,9 @@
 use super::output::xml_text;
-use super::*;
+use super::{
+    Affine, AppearanceItem, Arc, BTreeSet, BezPath, BlendMode, CharStyle, FillRule, FontDb, FontFace, GradientKind, HashMap, Justify, Node, NodeId,
+    NodeKind, Paint, PathData, Props, Rect, StrokeAlign, TextKind, TextObject, Writer, base64_encode, css, css_string, fmt_num, font_descriptor,
+    xml_escape,
+};
 
 /// `chars` (sorted) as a CSS `unicode-range` (`U+41-5A,U+61`).
 fn unicode_range(chars: &BTreeSet<char>) -> String {

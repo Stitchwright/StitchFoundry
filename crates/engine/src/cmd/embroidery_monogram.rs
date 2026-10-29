@@ -13,7 +13,7 @@ use vectorcraft_geom::Rect;
 use vectorcraft_geom::path::{PathData, SubPath};
 
 use super::embroidery_lettering::{ensure_fonts, glyphs, lettering_name, loaded, not_loaded, own_size, ranged, size_warnings};
-use super::*;
+use super::{CommandSpec, Point, Result, Session, always, bad, cmd, has_doc, point_param, str_param};
 
 const CMD: &str = "embroidery.monogram";
 /// The middle letter of a classic monogram of three, × the others.

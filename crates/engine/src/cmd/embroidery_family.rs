@@ -12,7 +12,7 @@ use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
 use super::embroidery_lettering::ranged;
-use super::*;
+use super::{CommandSpec, EngineError, NodeId, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 
 const CMD: &str = "embroidery.familyTree";
 /// Generations a chart holds: the person and three more (great-grandchildren or -parents).

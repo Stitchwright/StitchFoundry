@@ -3,7 +3,7 @@
 //! preferences. OK sets them with `tool.setOption {tool, values}`. The Pencil also has `liveFit`
 //! (Live curve fitting, on: its preview fits the stroke while it is drawn).
 //!
-//! Fields: `tool`; `fidelity` (points; Pencil, Paintbrush and Smooth), `fill` (Pencil and
+//! Fields: `tool`; `fidelity` (points; Pencil, Paintbrush, Smooth and Blob Brush), `fill` (Pencil and
 //! Paintbrush), `keepSelected` (Pencil, Paintbrush and Blob Brush), `mergeOnlySelection` (Blob
 //! Brush), `closeWithin` and `editWithin` (screen pixels, 0 turns it off; Pencil and Paintbrush),
 //! `angle` (degrees) and `roundness` (percent; Eraser), `livePreview` (Pencil: the stroke shows

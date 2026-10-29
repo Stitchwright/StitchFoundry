@@ -200,6 +200,40 @@ fn cmd_shift_o_creates_outlines() {
     assert!(app.ui.dialog.is_none(), "not File › Open while typing");
 }
 
+/// Cmd+Alt+Shift+3 is Object › Hide › Unselected Artwork: it hides the object that is not
+/// selected. Cmd+Alt+3 still shows all, and Cmd+3 still hides the selection. In isolation mode
+/// the item is disabled.
+#[test]
+fn cmd_alt_shift_3_hides_unselected_artwork() {
+    let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), Default::default());
+    app.session.execute("file.new", &json!({"width": 200, "height": 200})).unwrap();
+    assert_eq!(crate::menus::shortcut_of("object.hide.unselected"), Some("Cmd+Alt+Shift+3"));
+    let rect = |app: &mut VectorcraftApp, x: f64| {
+        let r = app.session.execute("shape.rectangle", &json!({"x": x, "y": 10, "width": 20, "height": 20})).unwrap();
+        vectorcraft_doc::NodeId(r["id"].as_u64().unwrap())
+    };
+    let (a, b) = (rect(&mut app, 10.0), rect(&mut app, 50.0));
+    let shown = |app: &VectorcraftApp| [a, b].map(|id| app.session.doc().unwrap().doc.node(id).unwrap().visible);
+    let three = |modifiers| egui::Event::Key { key: Key::Num3, physical_key: None, pressed: true, repeat: false, modifiers };
+    app.session.execute("select.set", &json!({"ids": [a.0]})).unwrap();
+    frame(&mut app, vec![three(Modifiers::COMMAND | Modifiers::ALT | Modifiers::SHIFT)]);
+    assert_eq!(shown(&app), [true, false]);
+    frame(&mut app, vec![three(Modifiers::COMMAND | Modifiers::ALT)]);
+    assert_eq!(shown(&app), [true, true], "Cmd+Alt+3 shows all");
+    app.session.execute("select.set", &json!({"ids": [a.0]})).unwrap();
+    frame(&mut app, vec![three(Modifiers::COMMAND)]);
+    assert_eq!(shown(&app), [false, true], "Cmd+3 hides the selection");
+    // In isolation mode the menu item is off, and the shortcut hides nothing.
+    app.session.execute("object.showAll", &json!({})).unwrap();
+    app.session.execute("select.set", &json!({"ids": [a.0, b.0]})).unwrap();
+    let g = app.session.execute("object.group", &json!({})).unwrap()["id"].as_u64().unwrap();
+    app.session.execute("object.isolate", &json!({"id": g})).unwrap();
+    app.session.execute("select.set", &json!({"ids": [a.0]})).unwrap();
+    assert!(!crate::menus::enabled(&app, "object.hide.unselected"));
+    frame(&mut app, vec![three(Modifiers::COMMAND | Modifiers::ALT | Modifiers::SHIFT)]);
+    assert_eq!(shown(&app), [true, true], "nothing is hidden in isolation mode");
+}
+
 /// Cmd+Shift+B while the Type tool edits text is Type › Bold, not Hide Bounding Box (#724).
 #[test]
 fn cmd_shift_b_while_typing_is_bold_not_the_bounding_box() {

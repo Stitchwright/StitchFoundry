@@ -141,6 +141,7 @@ mod shortcutset;
 mod simplify_part;
 mod slices;
 mod smartguides;
+mod smooth_path;
 mod store;
 mod strokegeom;
 mod strokegradient;
@@ -166,6 +167,7 @@ mod transparencygrid;
 mod trap;
 mod typearea;
 mod typescale;
+mod typeundo;
 mod units;
 mod variables;
 mod webexport;
@@ -1669,6 +1671,71 @@ fn lock_hide_unlock_all_and_show_all_with_nothing_to_do_record_no_undo_step() {
         assert_eq!(history(&s), (before.0 + 1, 0, true), "{c} with a");
         s.execute("edit.undo", &json!({})).unwrap();
     }
+}
+
+/// Unlock All and Show All with `scope: "group"` unlock or show only the objects inside the groups
+/// that hold the selected objects: the group nearest above a selected object, or a selected group
+/// itself. With no selected object in a group they are refused and change nothing.
+#[test]
+fn unlock_all_and_show_all_within_the_groups_of_the_selection() {
+    let mut s = session();
+    let ids = |s: &mut Session, cmd: &str| NodeId(s.execute(cmd, &json!({})).unwrap()["id"].as_u64().unwrap());
+    let [a, b, m, k, h, s1, s2, j, j2] = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0].map(|i| rect(&mut s, i * 30.0, 0.0, 20.0, 20.0));
+    // `g` holds `m`, `k`, `h` and the group `sub`, which holds `s1` and `s2`; `other` holds `j` and `j2`.
+    s.execute("select.set", &json!({"ids": [s1.0, s2.0]})).unwrap();
+    let sub = ids(&mut s, "object.group");
+    s.execute("select.set", &json!({"ids": [m.0, k.0, h.0, sub.0]})).unwrap();
+    let g = ids(&mut s, "object.group");
+    s.execute("select.set", &json!({"ids": [j.0, j2.0]})).unwrap();
+    let other = ids(&mut s, "object.group");
+    for id in [a, k, s1, j] {
+        s.execute("layer.setProps", &json!({"id": id.0, "locked": true})).unwrap();
+    }
+    s.execute("layer.setProps", &json!({"id": h.0, "visible": false})).unwrap();
+    let locked = |s: &Session| [a, k, s1, j].map(|id| s.doc().unwrap().doc.node(id).unwrap().locked);
+    let group = json!({"scope": "group"});
+
+    // A member of `g`, or `g` itself, selected: `k` and `s1` inside `sub` are unlocked and selected.
+    for selected in [m, g] {
+        s.execute("select.set", &json!({"ids": [selected.0]})).unwrap();
+        let before = history(&s);
+        assert_eq!(s.execute("object.unlockAll", &group).unwrap(), json!({"count": 2}), "{selected:?}");
+        assert_eq!(locked(&s), [true, false, false, true], "{selected:?}");
+        assert_eq!(s.doc().unwrap().selection.objects, [k, s1], "{selected:?}");
+        assert_eq!(history(&s).0, before.0 + 1, "{selected:?}");
+        s.execute("edit.undo", &json!({})).unwrap();
+    }
+    // `s2` selected: only `sub` counts. With `m` selected too, `sub`'s objects are taken once.
+    for (selected, count) in [(vec![s2.0], 1), (vec![m.0, s2.0], 2)] {
+        s.execute("select.set", &json!({"ids": selected})).unwrap();
+        assert_eq!(s.execute("object.unlockAll", &group).unwrap(), json!({"count": count}), "{selected:?}");
+        assert!(!s.doc().unwrap().doc.node(s1).unwrap().locked, "{selected:?}");
+        s.execute("edit.undo", &json!({})).unwrap();
+    }
+    // Show All within `g` shows `h` and selects it; `other` holds nothing hidden.
+    s.execute("select.set", &json!({"ids": [m.0]})).unwrap();
+    assert_eq!(s.execute("object.showAll", &group).unwrap(), json!({"count": 1}));
+    assert_eq!(s.doc().unwrap().selection.objects, [h]);
+    s.execute("edit.undo", &json!({})).unwrap();
+    s.execute("select.set", &json!({"ids": [other.0]})).unwrap();
+    assert_eq!(s.execute("object.showAll", &group).unwrap(), json!({"count": 0}));
+
+    // `b`, outside every group, or nothing selected: refused, and nothing changes.
+    for selected in [vec![b.0], vec![]] {
+        s.execute("select.set", &json!({"ids": selected})).unwrap();
+        let (doc, before) = (s.doc().unwrap().doc.clone(), history(&s));
+        for cmd in ["object.unlockAll", "object.showAll"] {
+            let e = s.execute(cmd, &group).unwrap_err();
+            assert!(matches!(&e, EngineError::Other(msg) if msg == "nothing selected is in a group"), "{cmd}: {e:?}");
+        }
+        assert!(s.doc().unwrap().doc == doc && history(&s) == before, "{selected:?}");
+    }
+    // Any other scope is refused; `scope: "document"` and no scope take the whole document.
+    let e = s.execute("object.unlockAll", &json!({"scope": "layer"})).unwrap_err();
+    assert!(matches!(&e, EngineError::BadParams { msg, .. } if msg == "`scope` must be one of document, group"), "{e:?}");
+    assert_eq!(s.execute("object.unlockAll", &json!({"scope": "document"})).unwrap(), json!({"count": 4}));
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!(s.execute("object.showAll", &json!({})).unwrap(), json!({"count": 1}));
 }
 
 /// Set Bounds with the current position and size records no undo step on a rotated object, with

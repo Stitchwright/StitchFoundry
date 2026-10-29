@@ -17,7 +17,7 @@ use vectorcraft_embroidery::{PT_PER_MM, node_thread};
 use vectorcraft_geom::path::{PathData, SubPath};
 
 use super::embroidery::stitched_targets;
-use super::*;
+use super::{CommandSpec, Point, Result, Session, bad, cmd, has_doc, str_param};
 use crate::EngineError;
 
 const CMD: &str = "embroidery.addBorder";

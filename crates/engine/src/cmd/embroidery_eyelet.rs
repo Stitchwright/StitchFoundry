@@ -9,7 +9,7 @@
 use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, bad, cmd, has_doc, str_param};
 
 const CMD: &str = "embroidery.eyelet";
 const HOLE: (&str, &str) = ("#9aa5b1", "Hole: stitched round it; take the hoop off and cut it open inside the stitching");

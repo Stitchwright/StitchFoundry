@@ -1661,6 +1661,40 @@ fn free_distort_reset_puts_the_corners_back() {
     assert_eq!((effects.len(), effects[0].params["corners"].clone()), (1, rest));
 }
 
+/// While Alt is held, the Flare Tool Options' Cancel button reads Reset; Reset puts every option
+/// back to the tool's default and leaves the dialog open, letting Alt go shows Cancel again, and OK
+/// keeps the defaults.
+#[test]
+fn flare_options_alt_turns_cancel_into_reset() {
+    let mut app = app();
+    app.run("tool.options", json!({"tool": "flare"})).unwrap();
+    let d = app.ui.dialog.as_mut().unwrap();
+    for (k, v) in [("diameter", json!(250)), ("rays", json!(4)), ("ringsOn", json!(false)), ("growth", json!(80))] {
+        d.fields.insert(k.into(), v);
+    }
+    let mut f = Frames::new();
+    f.button(&mut app, "Cancel");
+    f.run(&mut app, vec![egui::Event::ModifiersChanged(egui::Modifiers::ALT)]);
+    let reset = f.button(&mut app, "Reset");
+    let texts = f.texts(&mut app);
+    assert!(!texts.iter().any(|(t, _)| t == "Cancel"), "Reset takes Cancel's place: {texts:?}");
+    f.press(&mut app, reset, true);
+    f.press(&mut app, reset, false);
+    let d = app.ui.dialog.as_ref().expect("Reset leaves the dialog open");
+    assert_eq!(
+        (d.f64("diameter", 0.0), d.f64("rays", 0.0), d.bool("ringsOn"), d.f64("growth", 0.0), d.f64("direction", 0.0)),
+        (100.0, 15.0, true, 20.0, 45.0)
+    );
+    f.run(&mut app, vec![egui::Event::ModifiersChanged(egui::Modifiers::NONE)]);
+    f.button(&mut app, "Cancel");
+    confirm(&mut app).unwrap();
+    let o = app.session.tool_options_of("flare");
+    assert_eq!(
+        (o["diameter"].as_f64(), o["rays"].as_u64(), o["ringsOn"].as_bool(), o["growth"].as_f64()),
+        (Some(100.0), Some(15), Some(true), Some(20.0))
+    );
+}
+
 /// The slider that screen readers name `label` in `out`'s tree: its node id, number and text.
 fn slider_node(out: &egui::FullOutput, label: &str) -> (egui::accesskit::NodeId, Option<f64>, Option<String>) {
     let nodes = &out.platform_output.accesskit_update.as_ref().expect("an accessibility tree").nodes;

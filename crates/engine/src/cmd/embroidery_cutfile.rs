@@ -11,7 +11,7 @@ use sf_core::geom::{FLATTEN_TOLERANCE, Point};
 use sf_core::model::ObjectKind;
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, bool_or, cmd, has_doc, str_param};
 
 /// How much larger than its stone a template hole is (mm), the trade's usual allowance.
 const HOLE_ALLOWANCE: f64 = 0.3;

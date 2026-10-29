@@ -9,7 +9,7 @@
 use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, always, bad, cmd, has_doc, str_param, targets};
 
 /// Room kept between the patches and the hoop's sewing field (mm).
 const MARGIN: f64 = 5.0;

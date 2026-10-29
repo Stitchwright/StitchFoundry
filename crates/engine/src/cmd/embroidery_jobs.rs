@@ -4,7 +4,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, str_param};
 
 /// Jobs kept, at most.
 const MAX_JOBS: usize = 2000;

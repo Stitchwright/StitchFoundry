@@ -15,7 +15,7 @@ use serde_json::{Map, Value, json};
 use vectorcraft_color::{Color, Paint};
 use vectorcraft_doc::TextStyleDef;
 
-use super::*;
+use super::{CommandSpec, EngineError, Result, Session, always, bad, cmd, color_value, has_doc, ids_param, index, ok, point_param, str_param};
 use crate::Clipboard;
 
 /// The extension of a library file.

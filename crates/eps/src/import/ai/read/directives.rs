@@ -1,6 +1,6 @@
 use super::art::{four, sane, two};
 use super::types::{FLIP, Kind, MAX_HEX, MAX_PATTERNS, MAX_STACK, PatternHead, Place, Raster, SKIPPED};
-use super::*;
+use super::{Arc, Node, PatternDef, Reader, Rect, Tok, V, marker};
 
 impl<'a> Reader<'a> {
     pub(super) fn push(&mut self, v: V) -> Result<(), String> {

@@ -8,7 +8,7 @@ use vectorcraft_doc::{Appearance, Node, NodeKind};
 use vectorcraft_geom::Point;
 use vectorcraft_geom::path::{Anchor, PathData, SubPath};
 
-use super::*;
+use super::{CommandSpec, Result, Session, bad, cmd, has_doc, id_param};
 use crate::EngineError;
 
 pub fn specs() -> Vec<CommandSpec> {

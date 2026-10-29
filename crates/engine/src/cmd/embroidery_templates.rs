@@ -6,7 +6,7 @@
 use serde_json::{Value, json};
 use vectorcraft_embroidery::PT_PER_MM;
 
-use super::*;
+use super::{CommandSpec, Result, Session, always, bad, cmd, has_doc, str_param};
 
 /// Templates of one's own kept, at most, and the largest (bytes of the saved template).
 const MAX_OWN: usize = 30;
