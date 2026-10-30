@@ -210,7 +210,7 @@ fn fax_data(rows: &[Vec<bool>], k: i32, eol: bool, aligned: bool) -> Vec<u8> {
     };
     for (i, row) in rows.iter().enumerate() {
         let at = written.0.borrow().len();
-        encoder.encode_line(row.iter().map(|b| if *b { fax::Color::Black } else { fax::Color::White }), row.len() as u16).unwrap();
+        encoder.encode_line(row.iter().map(|b| if *b { fax::Color::Black } else { fax::Color::White }), row.len() as u32).unwrap();
         let two_d = written.0.borrow()[at..].to_vec();
         align(&mut bits);
         if k < 0 {

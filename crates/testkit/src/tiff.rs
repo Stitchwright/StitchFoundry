@@ -217,7 +217,7 @@ fn group3_strip(g: &Group3, rows: &[Vec<bool>], last: bool) -> Vec<u8> {
         // The encoder codes each row against the one above (as T.6 and T.4's two-dimensional rows
         // are coded), the first against a white row.
         let at = written.0.borrow().len();
-        encoder.encode_line(row.iter().map(|b| if *b { fax::Color::Black } else { fax::Color::White }), row.len() as u16).unwrap();
+        encoder.encode_line(row.iter().map(|b| if *b { fax::Color::Black } else { fax::Color::White }), row.len() as u32).unwrap();
         let coded = written.0.borrow()[at..].to_vec();
         if g.compression == 2 {
             let pad = (8 - used(&bits) % 8) % 8;

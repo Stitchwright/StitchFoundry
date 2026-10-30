@@ -389,7 +389,7 @@ pub(super) fn cmyk_profile(name: &str, to_lab: impl Fn([f32; 4]) -> lab::Lab, fr
     p.color_space = DataColorSpace::Cmyk;
     p.pcs = DataColorSpace::Lab;
     p.rendering_intent = RenderingIntent::RelativeColorimetric;
-    p.white_point = moxcms::WHITE_POINT_D50.to_xyzd();
+    p.white_point = moxcms::white_point_d50().to_xyzd();
     p.media_white_point = Some(p.white_point);
     p.lut_a_to_b_perceptual = Some(a2b.clone());
     p.lut_a_to_b_saturation = Some(a2b.clone());

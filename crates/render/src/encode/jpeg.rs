@@ -5,7 +5,7 @@
 
 use std::collections::HashMap;
 
-use jpeg_encoder::{ColorType, Density, Encoder};
+use jpeg_encoder::{ColorType, Encoder, PixelDensity};
 use vectorcraft_color::cms::{self, lab};
 
 use crate::Rendered;
@@ -135,7 +135,7 @@ pub fn encode(px: &[u8], width: u32, height: u32, quality: u8, ppi: Option<f64>,
     let mut enc = Encoder::new(&mut buf, quality.clamp(1, 100));
     if let Some(ppi) = ppi {
         let d = ppi.round().clamp(1.0, u16::MAX as f64) as u16;
-        enc.set_density(Density::Inch { x: d, y: d });
+        enc.set_density(PixelDensity::dpi(d));
     }
     match o.method {
         Method::Baseline => {}

@@ -4,7 +4,7 @@
 //! Public descriptions: https://docs.stripe.com/api/checkout/sessions/create and
 //! https://docs.stripe.com/webhooks#verify-manually
 
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 use serde_json::Value;
 use sha2::Sha256;
 
