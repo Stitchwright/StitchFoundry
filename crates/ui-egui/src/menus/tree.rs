@@ -736,6 +736,7 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
             vec![
                 c("StitchFoundry on GitHub", "help.github"),
                 c("Report a Bug…", "help.reportBug"),
+                c("Suggest a Feature…", "help.suggestFeature"),
                 Sep,
                 c("Search Commands…", "help.commandPalette"),
                 c("StitchFoundry Help…", "help.show"),

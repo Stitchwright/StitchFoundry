@@ -9,7 +9,8 @@ use super::{CommandSpec, Result, Session, always, bad, cmd, str_param};
 /// This app's source repository.
 pub const GITHUB_URL: &str = "https://github.com/Stitchwright/StitchFoundry";
 
-/// Where bug reports go: StitchHub's report page, which files them as issues on this app's GitHub repository.
+/// Where bug reports and feature requests go: StitchHub's report page. A bug report becomes an issue on this app's
+/// GitHub repository; both are emailed to the people who make StitchFoundry.
 pub const BUG_REPORT_URL: &str = "https://hub.stitchbench.app/report-a-bug";
 
 /// The user guide, compiled in for the Help window.
@@ -29,6 +30,18 @@ pub fn specs() -> Vec<CommandSpec> {
             "{} → {url} StitchHub's bug report page, filled in with this app, its version and the system; a report becomes an issue on GitHub",
             always,
             |_, _| url(bug_report_url(env!("CARGO_PKG_VERSION"), std::env::consts::OS, std::env::consts::ARCH))
+        ),
+        cmd!(
+            query "help.suggestFeature",
+            "Suggest a Feature…",
+            ["Help"],
+            None,
+            "{} → {url} StitchHub's page for a feature request, filled in with this app, its version and the system; the idea is emailed to the people who make StitchFoundry",
+            always,
+            |_, _| url(format!(
+                "{}&kind=feature",
+                bug_report_url(env!("CARGO_PKG_VERSION"), std::env::consts::OS, std::env::consts::ARCH)
+            ))
         ),
         cmd!(query "help.links", "Links", [], None, "{} → {github}", always, |_, _| Ok(json!({ "github": GITHUB_URL }))),
         cmd!(
@@ -196,6 +209,9 @@ mod tests {
             bug_report_url("0.3.1 beta", "mac os", "aarch64"),
             "https://hub.stitchbench.app/report-a-bug?program=stitchfoundry&version=0.3.1%20beta&system=mac%20os%20aarch64"
         );
+        let f = s.execute("help.suggestFeature", &json!({})).unwrap()["url"].as_str().unwrap().to_string();
+        assert!(f.starts_with("https://hub.stitchbench.app/report-a-bug?program=stitchfoundry&version="), "{f}");
+        assert!(f.ends_with("&kind=feature"), "{f}");
         // Anything odd in the text can't add a parameter or leave the address.
         assert_eq!(percent_encode("a&b=c#d é"), "a%26b%3Dc%23d%20%C3%A9");
     }

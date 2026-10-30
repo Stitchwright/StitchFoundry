@@ -138,7 +138,7 @@ pub fn invoke(app: &mut VectorcraftApp, id: &str, p: Value) {
         return;
     }
     // Help links: the command returns the URL; a menu click opens it (agents just get the URL).
-    if matches!(id, "help.github" | "help.reportBug") {
+    if matches!(id, "help.github" | "help.reportBug" | "help.suggestFeature") {
         app.open_link(id);
         return;
     }

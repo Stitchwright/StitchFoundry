@@ -4990,6 +4990,7 @@ effect	Points	포인트
 	CMYK profile in effect	적용 중인 CMYK 프로파일
 	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	파일을 열 때 StitchFoundry가 아직 읽지 못하는 내용({what})이 제외되었습니다. 덮어쓰면 해당 내용이 영구적으로 사라집니다. 보존하려면 다른 이름으로 저장하세요.
 	Report a Bug…	버그 신고…
+	Suggest a Feature…	기능 제안…
 	Add Inclination Line	경사선 추가
 	After the selection	선택 항목 다음
 	Appliqué	아플리케

@@ -197,7 +197,7 @@ commercial embroidery software.
 
 ## Reporting bugs
 
-In the app, **Help → Report a Bug…** opens StitchHub's report page, filled in with the version and your system.
+In the app, **Help → Report a Bug…** opens StitchHub's report page, filled in with the version and your system. **Help → Suggest a Feature…** opens the same page for an idea, which is emailed to us.
 Describe what happened and send it: it becomes an issue in this repository (a public one, so leave out anything
 private). You can also [open an issue](https://github.com/Stitchwright/StitchFoundry/issues) yourself. A maintainer can
 have Claude work on an issue by labelling it `claude-fix`; Claude opens a pull request for review, and never merges.

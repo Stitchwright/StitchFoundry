@@ -5347,6 +5347,7 @@ effect	Points	Σημεία
 	VectorCraft documents: one locked object, updated when the file changes.	Έγγραφα VectorCraft: ένα κλειδωμένο αντικείμενο που ενημερώνεται όταν αλλάζει το αρχείο.
 	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	Κατά το άνοιγμα παραλείφθηκαν στοιχεία που το StitchFoundry δεν μπορεί ακόμη να διαβάσει ({what}): αν αντικαταστήσετε το αρχείο, θα χαθούν οριστικά. Αποθηκεύστε με άλλο όνομα για να τα διατηρήσετε.
 	Report a Bug…	Αναφορά σφάλματος…
+	Suggest a Feature…	Πρόταση λειτουργίας…
 	Add Inclination Line	Προσθήκη γραμμής κλίσης
 	After the selection	Μετά την επιλογή
 	Appliqué	Απλικέ
