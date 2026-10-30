@@ -5636,7 +5636,7 @@ name = "stitchfoundry-cloud"
 version = "0.14.0-rc.1"
 dependencies = [
  "argon2",
- "getrandom 0.3.4",
+ "getrandom 0.4.3",
  "hmac 0.12.1",
  "log",
  "postgres",
