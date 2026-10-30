@@ -5381,6 +5381,7 @@ imageTrace	Outline	Körvonal
 	VectorCraft documents: one locked object, updated when the file changes.	VectorCraft-dokumentumok: egyetlen zárolt objektum, amely a fájl változásakor frissül.
 	Opening it left out what StitchFoundry can't read yet ({what}): replacing it loses that for good. Save under another name to keep it.	Megnyitáskor kimaradt, amit a StitchFoundry még nem tud beolvasni ({what}): a fájl felülírásával ez végleg elvész. A megtartásához mentsd más néven.
 	Report a Bug…	Hiba bejelentése…
+	Suggest a Feature…	Funkció javaslata…
 	Add Inclination Line	Dőlésvonal hozzáadása
 	After the selection	A kijelölés után
 	Appliqué	Applikáció
