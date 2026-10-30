@@ -24,8 +24,8 @@ ureq = { version = "3.4", default-features = false, features = ["rustls", "platf
 tiny_http = "0.12"
 # Passwords (Argon2id), session tokens (SHA-256 of random bytes), Stripe's webhook signatures (HMAC-SHA256).
 argon2 = { version = "0.5", default-features = false, features = ["alloc", "password-hash"] }
-sha2 = { version = "0.10", default-features = false }
-hmac = "0.12"
+sha2 = { version = "0.11", default-features = false }
+hmac = "0.13"
 getrandom = "0.4"
 # Check My Sew-out's instructions and tools, shared with the app.
 sf-core = { workspace = true }
