@@ -15,6 +15,7 @@ mod css;
 mod cut;
 pub(crate) mod dimension;
 pub(crate) mod distortcmds;
+mod bugreport;
 mod docinfo;
 mod docmenu;
 pub(crate) mod docsetup;
@@ -405,6 +406,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(fonts::specs());
         v.extend(fontfiles::specs());
         v.extend(help::specs());
+        v.extend(bugreport::specs());
         v.extend(threads::specs());
         v.extend(textwrap::specs());
         v.extend(graph::specs());
