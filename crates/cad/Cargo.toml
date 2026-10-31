@@ -28,4 +28,4 @@ vectorcraft-text = { workspace = true, features = ["bundled-fonts"] }
 
 # The DWG tests write their drawings with acadrust's DWG writer (from a DXF this crate exports).
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-acadrust = { version = "=0.6.7", default-features = false }
+acadrust = { version = "=0.6.8", default-features = false }

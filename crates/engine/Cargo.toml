@@ -74,5 +74,5 @@ ruzstd = { workspace = true }
 
 # The DWG fuzz tests write a DWG of the rich document with acadrust's DWG writer.
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-acadrust = { version = "=0.6.7", default-features = false }
+acadrust = { version = "=0.6.8", default-features = false }
 sf-dwg = { workspace = true }
