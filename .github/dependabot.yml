@@ -35,6 +35,51 @@ updates:
         update-types: ["patch"]
         patterns: ["*"]
     open-pull-requests-limit: 10
+    # Updates held back on purpose (see the PR that added each rule). Remove a rule to try again.
+    ignore:
+      # egui/eframe/winit and friends are [patch.crates-io]'d to storytold forks: they move with
+      # the forks, by hand, not on upstream releases.
+      - dependency-name: "egui*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "eframe"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "epaint*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "ecolor"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "emath"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "winit"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # vello 0.3 breaks root-level blend modes (a render test draws blue instead of white).
+      - dependency-name: "vello_cpu"
+        versions: [">= 0.3"]
+      - dependency-name: "vello_common"
+        versions: [">= 0.3"]
+      # Pinned to the copies winit and accesskit bring in; bumping only ours builds a second copy.
+      - dependency-name: "zbus"
+        versions: [">= 6"]
+      - dependency-name: "x11rb"
+        versions: [">= 0.14"]
+      # Password hashing: 0.6 reworks the password-hash API (salts, hash_password). Migrate on purpose.
+      - dependency-name: "argon2"
+        versions: [">= 0.6"]
+      # harfrust 0.14+ replaces the shaping API (shape(), ShapeOptions); skrifa and write-fonts must
+      # move with it (shared font types). Wait for VectorCraft upstream to migrate the text crate.
+      - dependency-name: "harfrust"
+        versions: [">= 0.14"]
+      - dependency-name: "skrifa"
+        versions: [">= 0.48"]
+      - dependency-name: "write-fonts"
+        versions: [">= 0.49"]
+      # usvg/resvg 0.49 add the plus-lighter blend mode, which our document model can't hold yet.
+      - dependency-name: "usvg"
+        versions: [">= 0.49"]
+      - dependency-name: "resvg"
+        versions: [">= 0.49"]
+      # The pinned craft-libs PDF crates still use 0.3; bumping ours alone builds two decoders.
+      - dependency-name: "hayro-ccitt"
+        versions: [">= 0.4"]
     commit-message:
       prefix: "chore(deps)"
 

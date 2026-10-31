@@ -13,7 +13,7 @@
 //! Reading: [`user_password`] turns the permissions (owner) password of a file encrypted with RC4
 //! or 128-bit AES into its open (user) password, so either password opens it.
 
-use aes::cipher::{BlockEncrypt, KeyInit};
+use aes::cipher::{BlockCipherEncrypt, KeyInit};
 use md5::Md5;
 use sha2::{Digest, Sha256, Sha384, Sha512};
 
