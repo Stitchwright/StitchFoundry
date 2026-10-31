@@ -5,6 +5,7 @@ mod assets;
 mod attributes;
 pub mod brushlib;
 mod brushsym;
+mod bugreport;
 mod buildcmds;
 pub mod clipboard;
 mod colorcmds;
@@ -405,6 +406,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(fonts::specs());
         v.extend(fontfiles::specs());
         v.extend(help::specs());
+        v.extend(bugreport::specs());
         v.extend(threads::specs());
         v.extend(textwrap::specs());
         v.extend(graph::specs());
