@@ -67,8 +67,7 @@ fn replace_ci(s: &str, needle: &str, with: &str) -> String {
     let mut out = String::new();
     let mut i = 0;
     while i < hay.len() {
-        let hit = pat.len() <= hay.len() - i
-            && hay[i..i + pat.len()].iter().zip(&pat).all(|(a, b)| a.to_lowercase().eq(std::iter::once(*b)));
+        let hit = pat.len() <= hay.len() - i && hay[i..i + pat.len()].iter().zip(&pat).all(|(a, b)| a.to_lowercase().eq(std::iter::once(*b)));
         if hit {
             out.push_str(with);
             i += pat.len();
@@ -139,7 +138,8 @@ fn fence_safe(s: &str) -> String {
 
 fn build_report(p: &Value) -> Result<Value> {
     const C: &str = "help.bugReport.build";
-    let names: Vec<String> = p.get("mask").and_then(Value::as_array).map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect()).unwrap_or_default();
+    let names: Vec<String> =
+        p.get("mask").and_then(Value::as_array).map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect()).unwrap_or_default();
     let what = scrub(str_param(p, "what").unwrap_or("").trim(), &names);
     if what.is_empty() {
         return Err(bad(C, "missing `what`: say what happened"));
@@ -150,7 +150,9 @@ fn build_report(p: &Value) -> Result<Value> {
     let errors: Vec<String> = p
         .get("errors")
         .and_then(Value::as_array)
-        .map(|a| a.iter().filter_map(Value::as_str).take(MAX_ERRORS).map(|e| scrub(&e.chars().take(MAX_ERROR_LEN).collect::<String>(), &names)).collect())
+        .map(|a| {
+            a.iter().filter_map(Value::as_str).take(MAX_ERRORS).map(|e| scrub(&e.chars().take(MAX_ERROR_LEN).collect::<String>(), &names)).collect()
+        })
         .unwrap_or_default();
     let screenshot = str_param(p, "screenshot").filter(|s| !s.is_empty());
     if screenshot.is_some_and(|s| s.len() > MAX_SCREENSHOT) {
@@ -173,7 +175,11 @@ fn build_report(p: &Value) -> Result<Value> {
         std::env::consts::ARCH,
         if screen.is_empty() { "unknown".into() } else { fence_safe(&screen).replace('\n', " ") },
         if screenshot.is_some() { "attached" } else { "none" },
-        if errors.is_empty() { "  - none".into() } else { errors.iter().map(|e| format!("  - `{}`", e.replace('`', "'").replace('\n', " "))).collect::<Vec<_>>().join("\n") },
+        if errors.is_empty() {
+            "  - none".into()
+        } else {
+            errors.iter().map(|e| format!("  - `{}`", e.replace('`', "'").replace('\n', " "))).collect::<Vec<_>>().join("\n")
+        },
     );
     let payload = json!({
         "program": "stitchfoundry", "version": version, "os": std::env::consts::OS, "arch": std::env::consts::ARCH,
@@ -192,7 +198,12 @@ fn build(_: &mut Session, p: &Value) -> Result<Value> {
 
 fn queue_files(dir: &std::path::Path) -> Vec<String> {
     let mut v: Vec<String> = std::fs::read_dir(dir)
-        .map(|r| r.filter_map(|e| e.ok()).filter_map(|e| e.file_name().into_string().ok()).filter(|n| n.starts_with("report-") && n.ends_with(".json")).collect())
+        .map(|r| {
+            r.filter_map(|e| e.ok())
+                .filter_map(|e| e.file_name().into_string().ok())
+                .filter(|n| n.starts_with("report-") && n.ends_with(".json"))
+                .collect()
+        })
         .unwrap_or_default();
     v.sort();
     v
