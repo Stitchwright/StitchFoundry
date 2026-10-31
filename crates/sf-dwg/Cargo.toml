@@ -11,7 +11,7 @@ publish = false
 # acadrust memory-maps its input and reads in parallel: not on the web.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # Pinned exactly: it parses untrusted files. MPL-2.0, used unmodified as a library (NOTICE).
-acadrust = { version = "=0.6.7", default-features = false }
+acadrust = { version = "=0.6.8", default-features = false }
 
 [lints]
 workspace = true
