@@ -147,6 +147,8 @@ async fn run(host: Host, canvas: web_sys::HtmlCanvasElement, moving: Option<Movi
                         }
                         // Open in StitchFoundry: `?open=` names a design on MakerFoundry, opened once
                         if let Some(raw) = query_param("open") {
+                            // Read once: a reload or a shared link mustn't open the design again.
+                            forget_param("open");
                             match crate::open_link::allowed(&raw) {
                                 Ok(url) => {
                                     app.status("Opening the design from MakerFoundry…");
@@ -209,6 +211,23 @@ fn detect_language() {
 fn query_param(name: &str) -> Option<String> {
     let query = query();
     query.trim_start_matches('?').split('&').find_map(|kv| kv.strip_prefix(name)?.strip_prefix('=').map(str::to_string)).filter(|v| !v.is_empty())
+}
+
+/// Take `name` out of the page's address without reloading it (history.replaceState); the other
+/// parameters and the `#…` part stay.
+fn forget_param(name: &str) {
+    let Some(window) = web_sys::window() else { return };
+    let location = window.location();
+    let search = location.search().unwrap_or_default();
+    let kept = crate::open_link::without_param(&search, name);
+    if kept == search {
+        return;
+    }
+    let url = format!("{}{}{}", location.pathname().unwrap_or_default(), kept, location.hash().unwrap_or_default());
+    if let Ok(history) = window.history() {
+        // A browser refusing it leaves the address as it was, which is harmless.
+        let _ = history.replace_state_with_url(&wasm_bindgen::JsValue::NULL, "", Some(&url));
+    }
 }
 
 fn query() -> String {

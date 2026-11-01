@@ -1967,7 +1967,12 @@ A design page on MakerFoundry can open its embroidery file straight in StitchFou
 the link is the web app's address with `?open=` and the file's address on MakerFoundry, for example
 `https://stitchwright.github.io/StitchFoundry/?open=https%3A%2F%2Fmakerfoundry.app%2Fapi%2Fv1%2Fdesigns%2F42%2Ffile%2Frose.pes`.
 The design opens as a new document, as if the file had been dropped on the window; the status bar
-says so while it loads, and says why when it can't ("Couldn't open the design from MakerFoundry: …").
+says so while it loads, and says why when it can't. When MakerFoundry refuses the file, its own
+sentence is shown as it is ("That design isn't on MakerFoundry.", "This design is for sale: buy it
+on MakerFoundry, then download it there."); anything else, or an answer without MakerFoundry's
+sentence, shows "Couldn't open the design from MakerFoundry: …". The `open=` part leaves the page's
+address as soon as it's read, so reloading the page or sharing its address doesn't open the design
+again (the other parameters, such as `view`, stay).
 Only files on makerfoundry.app (or www.makerfoundry.app) over `https://` are fetched, without
 cookies, up to 32 MB; any other address is refused before anything is fetched. The file's name
 comes from the end of its address (or the `Content-Disposition` header when the site shares it),
