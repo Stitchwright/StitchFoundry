@@ -285,7 +285,12 @@ pub fn csv_items(text: &str) -> Vec<OrderItem> {
     let product = col(&["product", "product name", "item", "item name", "lineitem name", "title"]);
     let sku = col(&["sku", "lineitem sku", "item sku"]);
     let quantity = col(&["quantity", "qty", "lineitem quantity"]);
-    let known = [order, customer, product, sku, quantity];
+    // the line's own id, when the export has one (Etsy's Transaction ID, a line item id)
+    let line_id = col(&["transaction id", "line item id", "lineitem id", "order item id"]);
+    let known = [order, customer, product, sku, quantity, line_id];
+    // the lines of each order and product seen so far (an order's lines keep their order in an
+    // export, wherever newer orders push them)
+    let mut seen: std::collections::HashMap<(String, String), usize> = std::collections::HashMap::new();
     let mut out = Vec::new();
     for (i, row) in rows.iter().enumerate().take(MAX_ITEMS) {
         let f = csv_line(row, sep);
@@ -312,8 +317,14 @@ pub fn csv_items(text: &str) -> Vec<OrderItem> {
         }
         let number = get(order);
         let number = if number.is_empty() { format!("row {}", i + 2) } else { number };
+        // known again by its order, product and line id (else which of the order's lines of that
+        // product it is), never by its row: a newest-first export moves yesterday's rows down
+        let nth = seen.entry((number.clone(), get(product))).or_insert(0);
+        *nth += 1;
+        let line = get(line_id);
+        let line = if line.is_empty() { nth.to_string() } else { format!("id {line}") };
         out.push(OrderItem {
-            key: format!("csv:{number}:{}:{}", get(product), i + 2),
+            key: format!("csv:{number}:{}:{line}", get(product)),
             order: if number.starts_with('#') || number.starts_with("row") { number.clone() } else { format!("#{number}") },
             customer: get(customer),
             product: get(product),
@@ -583,7 +594,7 @@ fn make(
     let result = r.and_then(|r| {
         let first = text.lines().next().unwrap_or("design");
         let name = super::embroidery_lettering::safe_name(&format!("{} {first}", item.order.trim_start_matches('#')));
-        let path = folder.join(format!("{name}.stitchfoundry"));
+        let path = unused_path(folder, &name);
         s.execute("file.saveAs", &json!({ "path": path.to_string_lossy(), "format": "vectorcraft" }))?;
         let notes = format!("Order {} · {} · {}", item.order, item.product, text.replace('\n', " / "));
         let customer = if item.customer.is_empty() { item.order.clone() } else { item.customer.clone() };
@@ -608,6 +619,21 @@ fn make(
         }
     }
     result
+}
+
+/// `folder/name.stitchfoundry`, or `name 2`, `name 3`… when that file exists already: two items
+/// of an order with the same text (a towel and a bib saying "Rose") get a design each, and a
+/// design made earlier is never overwritten.
+fn unused_path(folder: &std::path::Path, name: &str) -> std::path::PathBuf {
+    let first = folder.join(format!("{name}.stitchfoundry"));
+    if !first.exists() {
+        return first;
+    }
+    (2..=MAX_ITEMS + 1)
+        .map(|n| folder.join(format!("{name} {n}.stitchfoundry")))
+        .find(|p| !p.exists())
+        // (more files of one name than an import can make: the last name is taken again)
+        .unwrap_or_else(|| folder.join(format!("{name} {}.stitchfoundry", MAX_ITEMS + 1)))
 }
 
 fn find_job(s: &mut Session, p: &Value) -> Result<Value> {
@@ -670,6 +696,27 @@ mod tests {
         assert!(shopify_items(&json!({"data": 5})).is_empty() && woocommerce_items(&json!({"x": 1})).is_empty() && csv_items("").is_empty());
     }
 
+    /// A CSV line is known again by its order and product (and line id), not its row: Etsy's
+    /// newest-first export moves yesterday's orders down when new ones come in.
+    #[test]
+    fn csv_lines_are_known_again_wherever_their_row_moves() {
+        let keys = |text: &str| csv_items(text).into_iter().map(|i| i.key).collect::<Vec<_>>();
+        let head = "Order ID,Buyer,Item Name,Quantity,Variations\n";
+        let yesterday = keys(&format!("{head}2001,Cara Diaz,Name Bib,1,Personalization:Mia\n2001,Cara Diaz,Name Bib,1,Personalization:Leo\n"));
+        let today = keys(&format!(
+            "{head}2002,Dan Ito,Towel,1,Personalization:Kai\n2001,Cara Diaz,Name Bib,1,Personalization:Mia\n2001,Cara Diaz,Name Bib,1,Personalization:Leo\n"
+        ));
+        assert_eq!(yesterday.len(), 2);
+        assert_ne!(yesterday[0], yesterday[1], "two bibs on one order are two lines");
+        assert_eq!(&today[1..], &yesterday[..], "yesterday's lines keep their keys");
+        // a line id column, when there is one, names the line (and isn't text to sew)
+        let head = "Order ID,Item Name,Transaction ID,Personalization\n";
+        let a = csv_items(&format!("{head}3001,Bib,77,Mia\n3001,Bib,78,Leo\n"));
+        let b = csv_items(&format!("{head}3001,Bib,78,Leo\n"));
+        assert_eq!(a[1].key, b[0].key);
+        assert_eq!(a[0].fields, vec![("personalization".to_string(), "Mia".to_string())]);
+    }
+
     #[test]
     fn rules_text_fonts_and_colours() {
         let item = &shopify_items(&shopify_answer())[0];
@@ -730,6 +777,31 @@ mod tests {
         assert!(s.execute("embroidery.orders.setup", &json!({"rules": [{"color": "plaid"}]})).is_err());
         assert!(s.execute("embroidery.orders.setup", &json!({"formats": ["svg"]})).is_err());
         assert!(s.execute("embroidery.job.find", &json!({"code": "J-9999"})).is_err());
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    /// Two items of one order with the same text get a design each: the bib's job order points at
+    /// the bib's design, not the towel's.
+    #[test]
+    fn items_with_the_same_text_get_a_design_each() {
+        let mut s = Session::new();
+        let dir = std::env::temp_dir().join(format!("sf-orders-same-{}", std::process::id()));
+        std::fs::remove_dir_all(&dir).ok();
+        s.execute("embroidery.fontDoc.fromType", &json!({"family": "Source Sans 3", "chars": "Rose", "size": 20})).unwrap();
+        s.execute("embroidery.fontDoc.save", &json!({})).unwrap();
+        s.execute("file.close", &json!({})).ok();
+        s.execute("embroidery.orders.setup", &json!({"shop": "csv", "folder": dir.to_string_lossy(), "rules": [{"template": "Name tape 100 × 30"}]}))
+            .unwrap();
+        let csv = "Order ID,Buyer,Item Name,Quantity,Personalization\n4001,Ann Lee,Towel,1,Rose\n4001,Ann Lee,Bib,1,Rose\n";
+        let r = s.execute("embroidery.orders.import", &json!({"source": "csv", "data": csv})).unwrap();
+        let made = r["made"].as_array().unwrap();
+        assert_eq!(made.len(), 2, "{r}");
+        let (towel, bib) = (made[0]["design"].as_str().unwrap(), made[1]["design"].as_str().unwrap());
+        assert_ne!(towel, bib, "{r}");
+        assert!(std::path::Path::new(towel).exists() && std::path::Path::new(bib).exists());
+        let job = s.execute("embroidery.job.find", &json!({"code": made[1]["job"]})).unwrap();
+        assert_eq!(job["job"]["design"].as_str(), Some(bib), "{job}");
+        assert_eq!(job["job"]["garment"].as_str(), Some("Bib"), "{job}");
         std::fs::remove_dir_all(&dir).ok();
     }
 }

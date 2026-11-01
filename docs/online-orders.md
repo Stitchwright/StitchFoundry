@@ -1,6 +1,6 @@
 # Online orders: setting up
 
-**Status:** 2026-10-25, first version (ORD-01). **Revision history:** 2026-10-25 first version.
+**Status:** 2026-10-25, first version (ORD-01). **Revision history:** 2026-10-25 first version. 2026-11-01: CSV lines known by order, product and line id instead of row; designs with the same name on one order no longer overwrite each other (ORD-02).
 
 StitchFoundry can read the orders from your online shop and make each personalized item into a
 design on its own. It takes the name or text the customer typed and sets it in the font and
@@ -90,6 +90,12 @@ StitchFoundry finds the columns by their header names:
 | Product | Product, Product Name, Item, Item Name, Lineitem Name, Title |
 | SKU | SKU, Lineitem SKU, Item SKU |
 | Quantity | Quantity, Qty, Lineitem Quantity |
+| Line id (optional) | Transaction ID, Line Item ID, Lineitem ID, Order Item ID |
+
+A CSV line is known again by its order number and product, and by its line id when the file has
+one (else by which of that order's lines of that product it is), never by its row. Etsy's file
+lists the newest orders first, so yesterday's orders move down a row each time a new one comes
+in; they still aren't made twice.
 
 Every other column counts as an order field. A **Variations** or **Options** column such as
 Etsy's (`Personalization:Rose, Colour:Navy`) is split into its fields. Commas, semicolons and
@@ -121,7 +127,10 @@ the reason, so you can look at them by hand.
 
 Each item becomes:
 
-- a design in **Save designs in** (My Designs/Orders unless you choose another folder);
+- a design in **Save designs in** (My Designs/Orders unless you choose another folder), named
+  after the order number and its first line of text; when that name is taken (a towel and a bib
+  on one order both saying "Rose"), the next design gets " 2", " 3"… added, so no design is ever
+  overwritten;
 - a **job order** carrying the shop's order number, the customer, the quantity and the product
   (Embroidery › Jobs);
 - the **machine files** you tick under **Machine files** (DST, PES, JEF…; none means just the
