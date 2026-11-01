@@ -7,7 +7,9 @@
 > (CLOUD-03); a monthly budget for the free offers (CLOUD-04). Hosted on Railway at `https://cloud.stitchfoundry.app`
 > since 2026-10-19 (Stripe in test mode); the official builds know it (CLOUD-05); the account's
 > lasting `id` in its answers, for MakerFoundry's records (CLOUD-06); password reset by email
-> (CLOUD-07).
+> (CLOUD-07). 2026-11-01: credits held for a request aren't held after a restart, a free check's
+> slot is taken before its request goes out, paid rounds aren't counted against the free budget,
+> and only the betas the apps send are passed on (CLOUD-08).
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
@@ -51,6 +53,8 @@ pass through this service; sales and subscriptions are the other services' own.
   out, the most it could cost is held (or, when that is more than the account has, all it has, if
   at least 25 credits); when the answer is in, only what it used is taken, never more than was
   held, and a request that fails or is refused costs nothing. Every change is a ledger entry.
+  A hold lasts only as long as its request: it is never written, so after a restart (a redeploy
+  in the middle of a request) no credits stay held.
 - **Buying credits:** the app asks for a checkout page for a pack (`POST /v1/checkout`); the buyer
   pays on Stripe's own page in the browser; Stripe tells the service with a signed webhook, which
   adds the credits once (even if Stripe sends it twice). Card details never reach the service. The
@@ -63,14 +67,19 @@ pass through this service; sales and subscriptions are the other services' own.
   can run up to ten rounds in one request, each reading everything again, and in the AI test jobs
   of 2026-10-22 one drawing so read 928,000 tokens ($4.30), more than any hold. A web search's hold
   counts each search as a round that reads everything again, with 40,000 tokens of results each. The answer comes back as Anthropic gave it, with
-  `x-stitchfoundry-credits` (what is left) and `x-stitchfoundry-spent`.
+  `x-stitchfoundry-credits` (what is left) and `x-stitchfoundry-spent`. Of the `anthropic-beta`
+  header, only the betas the apps send are passed on (`server-side-fallback-2026-07-01`); any
+  other, which could be billed above what the service charges, is dropped.
 - **Check My Sew-out:** `POST /v1/sewout` takes a check's requests (its first message must hold the
   photos) and sends them with the service's own sew-out instructions and tools, whatever the app
   sent, so the free checks can't pay for other requests. Each account gets `SF_CLOUD_FREE_CHECKS`
   (3) checks a calendar month free; after them a check costs `SF_CLOUD_CHECK_CREDITS` (10), once,
   whatever it uses. A check is named by the app (`x-stitchfoundry-check`) and covers 16 requests
   (the answer, the rounds of design changes, follow-up questions) for a day; after that its
-  requests are paid as any other.
+  requests are paid as any other. A free check takes its place among the month's free checks
+  before its first request goes out (and gives it back if that request fails), so checks started
+  at the same time can't all take the last free one; only its requests charged nothing count
+  against the free budget, not the paid ones after its day.
 - **Shared checks:** with the user's tick ("Share this check to help improve StitchFoundry", sent
   as `x-stitchfoundry-share: 1`), the service keeps the check: its photos, the app's summary of the
   design, Claude's answers and the changes it made, one round at a time. A later check made with
