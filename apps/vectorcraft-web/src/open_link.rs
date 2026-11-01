@@ -49,6 +49,29 @@ pub fn file_name(url: &str, disposition: Option<&str>) -> String {
     if name.is_empty() { "design".into() } else { name }
 }
 
+/// The longest error sentence shown from the site (characters).
+const MAX_MESSAGE: usize = 300;
+
+/// What the status bar says when the site refuses the design: its own sentence when the body is
+/// MakerFoundry's error JSON (`{"error":{"message":"…"}}`), else the status code. The sentence is
+/// untrusted text, so control characters are dropped and it is cut to [`MAX_MESSAGE`].
+pub fn refusal(status: u16, body: &str) -> String {
+    let sentence = serde_json::from_str::<serde_json::Value>(body)
+        .ok()
+        .and_then(|v| v.get("error")?.get("message")?.as_str().map(str::to_string))
+        .map(|m| m.chars().filter(|c| !c.is_control()).take(MAX_MESSAGE).collect::<String>())
+        .map(|m| m.trim().to_string())
+        .filter(|m| !m.is_empty());
+    sentence.unwrap_or_else(|| format!("Couldn't open the design from MakerFoundry: it answered {status}."))
+}
+
+/// The page's query string (`?a=1&open=…&b=2`, with or without its `?`) without the `name`
+/// parameter, so a reload or a shared link doesn't open the design again: `?a=1&b=2`, or empty.
+pub fn without_param(query: &str, name: &str) -> String {
+    let kept: Vec<&str> = query.trim_start_matches('?').split('&').filter(|kv| !kv.is_empty() && kv.split('=').next() != Some(name)).collect();
+    if kept.is_empty() { String::new() } else { format!("?{}", kept.join("&")) }
+}
+
 /// `s` with `%XX` escapes (and `+` as a space, as in a query) decoded, when that makes UTF-8.
 fn percent_decode(s: &str) -> Option<String> {
     let b = s.as_bytes();
@@ -74,6 +97,28 @@ fn percent_decode(s: &str) -> Option<String> {
     String::from_utf8(out).ok()
 }
 
+/// Why a design couldn't be opened: the site refused it (its own sentence, shown as it is), or
+/// anything else (shown after "Couldn't open the design from MakerFoundry:").
+#[cfg(target_arch = "wasm32")]
+enum Failure {
+    Refused(String),
+    Other(String),
+}
+
+#[cfg(target_arch = "wasm32")]
+impl From<String> for Failure {
+    fn from(e: String) -> Self {
+        Failure::Other(e)
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl From<&str> for Failure {
+    fn from(e: &str) -> Self {
+        Failure::Other(e.to_string())
+    }
+}
+
 /// Fetch the design at `url` and put it in `inbox`, which opens it; `note` gets the message the
 /// status bar shows when it can't be opened.
 #[cfg(target_arch = "wasm32")]
@@ -82,7 +127,7 @@ pub fn start(url: String, inbox: vectorcraft_ui_egui::Inbox, note: std::rc::Rc<s
     use wasm_bindgen_futures::JsFuture;
     let js = |e: wasm_bindgen::JsValue| e.as_string().unwrap_or_else(|| format!("{e:?}"));
     wasm_bindgen_futures::spawn_local(async move {
-        let got: Result<(String, Vec<u8>), String> = async {
+        let got: Result<(String, Vec<u8>), Failure> = async {
             let window = web_sys::window().ok_or("no window")?;
             // a cross-site request sends no cookies (credentials: same-origin, the default)
             let init = web_sys::RequestInit::new();
@@ -90,7 +135,14 @@ pub fn start(url: String, inbox: vectorcraft_ui_egui::Inbox, note: std::rc::Rc<s
             let response: web_sys::Response =
                 JsFuture::from(window.fetch_with_str_and_init(&url, &init)).await.map_err(js)?.dyn_into().map_err(js)?;
             if !response.ok() {
-                return Err(format!("MakerFoundry answered {}", response.status()));
+                // MakerFoundry's own sentence ("That design isn't on MakerFoundry."), shown as it is.
+                let status = response.status();
+                let body = match response.text() {
+                    Ok(p) => JsFuture::from(p).await.ok().and_then(|t| t.as_string()).unwrap_or_default(),
+                    Err(_) => String::new(),
+                };
+                let body: String = body.chars().take(64 * 1024).collect();
+                return Err(Failure::Refused(refusal(status, &body)));
             }
             let long = response.headers().get("content-length").ok().flatten().and_then(|n| n.parse::<usize>().ok()).is_some_and(|n| !fits(n));
             if long {
@@ -107,7 +159,11 @@ pub fn start(url: String, inbox: vectorcraft_ui_egui::Inbox, note: std::rc::Rc<s
         .await;
         match got {
             Ok(file) => inbox.lock().unwrap_or_else(|e| e.into_inner()).push(file),
-            Err(e) => {
+            Err(Failure::Refused(sentence)) => {
+                log::error!("vectorcraft-web: open {url}: {sentence}");
+                *note.borrow_mut() = Some(sentence);
+            }
+            Err(Failure::Other(e)) => {
                 log::error!("vectorcraft-web: open {url}: {e}");
                 *note.borrow_mut() = Some(format!("Couldn't open the design from MakerFoundry: {e}"));
             }
@@ -151,5 +207,37 @@ mod tests {
         assert_eq!(file_name("https://makerfoundry.app/f", Some("attachment; filename=../../etc/passwd")), "passwd");
         assert_eq!(file_name("https://makerfoundry.app/", None), "design");
         assert_eq!(file_name("https://makerfoundry.app/.hidden", None), "hidden");
+    }
+
+    #[test]
+    fn makerfoundrys_own_sentence_is_shown_on_a_refusal() {
+        let body = |m: &str| serde_json::json!({ "error": { "message": m } }).to_string();
+        assert_eq!(refusal(404, &body("That design isn't on MakerFoundry.")), "That design isn't on MakerFoundry.");
+        assert_eq!(
+            refusal(403, &body("This design is for sale: buy it on MakerFoundry, then download it there.")),
+            "This design is for sale: buy it on MakerFoundry, then download it there."
+        );
+        assert_eq!(
+            refusal(429, &body("Too many designs opened lately. Please wait a while.")),
+            "Too many designs opened lately. Please wait a while."
+        );
+        // Not that JSON: the status code.
+        let fallback = "Couldn't open the design from MakerFoundry: it answered 502.";
+        for other in ["", "<html>Bad gateway</html>", "{}", r#"{"error":"x"}"#, r#"{"error":{"message":""}}"#, r#"{"error":{"message":7}}"#] {
+            assert_eq!(refusal(502, other), fallback, "{other}");
+        }
+        // Untrusted text: no control characters, and capped.
+        assert_eq!(refusal(404, &body("Gone.\u{1b}[31m\nreally")), "Gone.[31mreally");
+        assert_eq!(refusal(404, &body(&"x".repeat(5000))).chars().count(), MAX_MESSAGE);
+    }
+
+    #[test]
+    fn the_open_parameter_leaves_the_address() {
+        assert_eq!(without_param("?open=https%3A%2F%2Fmakerfoundry.app%2Fx.pes", "open"), "");
+        assert_eq!(without_param("?lang=es&open=a&view", "open"), "?lang=es&view");
+        assert_eq!(without_param("open=a&webgl", "open"), "?webgl");
+        assert_eq!(without_param("?opener=1&open", "open"), "?opener=1");
+        assert_eq!(without_param("", "open"), "");
+        assert_eq!(without_param("?lang=es", "open"), "?lang=es");
     }
 }
