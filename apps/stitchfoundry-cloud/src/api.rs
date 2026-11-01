@@ -44,6 +44,15 @@ pub const RESEND_URL: &str = "https://api.resend.com/emails";
 /// The keys of a Messages request passed on; any others are left out.
 const PASSED: &[&str] = &["model", "max_tokens", "system", "messages", "tools", "tool_choice", "output_config", "fallbacks", "thinking"];
 
+/// The `anthropic-beta` features a request may turn on: the ones the apps send. Any other (a
+/// longer context window, say) could be billed above what [`pricing`] charges, so it is dropped.
+const BETAS: &[&str] = &[sf_core::ai::FALLBACK_BETA];
+
+/// The allowed betas of an `anthropic-beta` header (a comma-separated list), the rest left out.
+fn allowed_betas(header: &str) -> String {
+    header.split(',').map(str::trim).filter(|b| BETAS.contains(b)).collect::<Vec<_>>().join(",")
+}
+
 /// Why `tools` can't be passed on, if it can't. The app's own tools (`type` absent: they come back
 /// to the app to run) pass, and the basic web search, at most [`sf_core::ai::MAX_SEARCHES`]
 /// searches, so that what is held before a request covers it ([`pricing::estimate`]). Every other
@@ -754,23 +763,49 @@ impl Service {
         let month = sewout::month(now);
         let share = req.header("x-stitchfoundry-share") == Some("1");
         let follow_up = req.header("x-stitchfoundry-follow-up").filter(|c| sewout::good_id(c)).map(|c| format!("{id}-{c}"));
-        let (charge, free) = {
-            let store = self.store();
+        let (charge, free, started) = {
+            let mut store = self.store();
             match store.check(&check).filter(|c| c.account == id) {
                 // its rounds are covered by what the check cost
-                Some(c) if now.saturating_sub(c.created) < sewout::CHECK_LIFE && c.requests < sewout::MAX_ROUNDS => (Charge::Flat(0), c.free),
+                Some(c) if now.saturating_sub(c.created) < sewout::CHECK_LIFE && c.requests < sewout::MAX_ROUNDS => (Charge::Flat(0), c.free, false),
                 // past the check: as any request
-                Some(c) => (Charge::Metered, c.free),
+                Some(c) => (Charge::Metered, c.free, false),
                 None => {
                     let free = (store.checks_in(id, &month) as u64) < self.cfg.free_checks && self.free_left(&store, &month);
-                    (Charge::Flat(if free { 0 } else { self.cfg.check_credits }), free)
+                    // a free check takes its slot now, under the lock, so that checks started at
+                    // the same time can't all take the month's last one (given back on failure)
+                    if free {
+                        let slot = Check {
+                            account: id,
+                            month: month.clone(),
+                            created: now,
+                            requests: 0,
+                            free,
+                            shared: share,
+                            follow_up: follow_up.clone(),
+                            spent: 0,
+                        };
+                        if let Err(e) = store.start_check(&check, slot) {
+                            return store_error(e);
+                        }
+                    }
+                    (Charge::Flat(if free { 0 } else { self.cfg.check_credits }), free, free)
                 }
             }
         };
-        let mut resp = self.forward(req, id, key, &body, max_tokens, charge, if free { "sew-out check (free)" } else { "sew-out check" });
+        // only a round charged nothing is paid by the free offers; a free check's rounds past its
+        // life are paid in credits, so they aren't counted against the month's free budget too
+        let on_the_house = free && charge == Charge::Flat(0);
+        let mut resp = self.forward(req, id, key, &body, max_tokens, charge, if on_the_house { "sew-out check (free)" } else { "sew-out check" });
+        if started && !(200..300).contains(&resp.status) {
+            // the free slot wasn't used: give it back
+            if let Err(e) = self.store().drop_unstarted_check(&check) {
+                log::error!("sew-out check {check}: {e}");
+            }
+        }
         if (200..300).contains(&resp.status) {
             let mut store = self.store();
-            if free {
+            if on_the_house {
                 // a free check's rounds count against the month's free offers at what they cost
                 let cost = serde_json::from_str::<Value>(&resp.body).ok().map_or(0, |r| {
                     let price = r.get("model").and_then(Value::as_str).and_then(|m| self.cfg.model(m)).cloned().unwrap_or_else(|| self.cfg.dearest());
@@ -932,7 +967,7 @@ impl Service {
             ("content-type", "application/json".to_string()),
             ("x-api-key", key),
             ("anthropic-version", req.header("anthropic-version").unwrap_or("2023-06-01").to_string()),
-            ("anthropic-beta", req.header("anthropic-beta").unwrap_or_default().to_string()),
+            ("anthropic-beta", allowed_betas(req.header("anthropic-beta").unwrap_or_default())),
         ];
         let headers: Vec<(&str, String)> = headers.into_iter().filter(|(_, v)| !v.is_empty()).collect();
         let answer = self.upstream.post(ANTHROPIC_URL, &headers, &body.to_string());
@@ -1202,7 +1237,8 @@ mod tests {
         let t = sign_up(&s);
         let body = json!({"model": "claude-opus-5-5", "max_tokens": 16000, "messages": [{"role": "user", "content": "Which stabilizer?"}], "metadata": {"x": 1}});
         let mut r = req("POST", "/v1/messages", Some(&t), body);
-        r.headers.push(("anthropic-beta".into(), "server-side-fallback-2026-07-01".into()));
+        // the app's own beta goes on; one it doesn't send (billed differently) is left out
+        r.headers.push(("anthropic-beta".into(), "context-1m-2025-08-07, server-side-fallback-2026-07-01".into()));
         let out = s.handle(&r);
         assert_eq!(out.status, 200, "{}", out.body);
         assert_eq!(json_of(&out)["content"][0]["text"], "Use cut-away.", "Anthropic's reply as it came");
@@ -1212,7 +1248,7 @@ mod tests {
         let (url, headers, sent) = &calls[0];
         assert_eq!(url, ANTHROPIC_URL);
         assert!(headers.contains(&("x-api-key".to_string(), "sk-ant-service".to_string())));
-        assert!(headers.contains(&("anthropic-beta".to_string(), "server-side-fallback-2026-07-01".to_string())));
+        assert!(headers.contains(&("anthropic-beta".to_string(), "server-side-fallback-2026-07-01".to_string())), "{headers:?}");
         let sent: Value = serde_json::from_str(sent).unwrap();
         assert!(sent.get("metadata").is_none(), "only the request's own keys go on");
         drop(calls);
@@ -1319,6 +1355,115 @@ mod tests {
         let d = s.handle(&req("POST", "/v1/sewout/delete", Some(&t), json!({})));
         assert_eq!(json_of(&d)["deleted"], 1);
         assert!(s.store().shared("1-aaaaaaaa").0.is_empty());
+    }
+
+    /// Holds each request until `n` are on their way at once (or a few seconds pass), so requests
+    /// made at the same time really overlap.
+    struct Together {
+        n: usize,
+        waiting: Arc<(StdMutex<usize>, std::sync::Condvar)>,
+        reply: (u16, String),
+    }
+
+    impl Upstream for Together {
+        fn post(&self, _url: &str, _headers: &[(&str, String)], _body: &str) -> Result<(u16, String), String> {
+            let (count, cv) = &*self.waiting;
+            let mut c = count.lock().unwrap();
+            *c += 1;
+            cv.notify_all();
+            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+            while *c < self.n && std::time::Instant::now() < deadline {
+                c = cv.wait_timeout(c, std::time::Duration::from_millis(50)).unwrap().0;
+            }
+            Ok(self.reply.clone())
+        }
+    }
+
+    /// Two checks started at the same time when one free check is left: one is free, the other
+    /// pays, as when they come one after the other.
+    #[test]
+    fn checks_at_the_same_time_cant_both_take_the_last_free_one() {
+        let reply = json!({"type": "message", "model": "claude-opus-5-5", "content": [{"type": "text", "text": "ok"}], "usage": {"input_tokens": 10, "output_tokens": 10}});
+        let cfg = Config::from_env(|k| match k {
+            "ANTHROPIC_API_KEY" => Some("sk-ant-service".into()),
+            "SF_CLOUD_FREE_CHECKS" => Some("1".into()),
+            _ => None,
+        })
+        .unwrap();
+        let up = Together { n: 2, waiting: Arc::default(), reply: (200, reply.to_string()) };
+        let s = Arc::new(Service::with_clock(cfg, Store::in_memory(), Box::new(up), Box::new(|| 1_000_000)));
+        let t = sign_up(&s);
+        let runs: Vec<_> = ["aaaaaaaa", "bbbbbbbb"]
+            .iter()
+            .map(|id| {
+                let (s, r) = (s.clone(), check(&t, id, "aGVsbG8=", false));
+                std::thread::spawn(move || s.handle(&r).status)
+            })
+            .collect();
+        for r in runs {
+            assert_eq!(r.join().unwrap(), 200);
+        }
+        let a = json_of(&s.handle(&req("POST", "/v1/account", Some(&t), json!({}))));
+        assert_eq!(a["credits"], 90, "one free check, one paid: {a}");
+        assert_eq!(a["freeChecks"], 0);
+    }
+
+    /// A free check whose slot was taken but whose request failed gives the slot back.
+    #[test]
+    fn a_failed_free_check_gives_its_slot_back() {
+        let (s, _) = service((529, r#"{"type":"error","error":{"type":"overloaded_error","message":"busy"}}"#.into()), true);
+        let t = sign_up(&s);
+        assert_eq!(s.handle(&check(&t, "aaaaaaaa", "aGVsbG8=", false)).status, 529);
+        assert!(s.store().check("1-aaaaaaaa").is_none());
+        assert_eq!(json_of(&s.handle(&req("POST", "/v1/account", Some(&t), json!({}))))["freeChecks"], 3);
+    }
+
+    /// A free check's rounds after its day are paid in credits, so they don't count against the
+    /// month's free budget as well.
+    #[test]
+    fn a_free_checks_paid_rounds_dont_use_the_free_budget() {
+        let reply = json!({"type": "message", "model": "claude-opus-5-5", "content": [{"type": "text", "text": "ok"}], "usage": {"input_tokens": 10_000, "output_tokens": 2_000}});
+        let cfg = Config::from_env(|k| match k {
+            "ANTHROPIC_API_KEY" => Some("sk-ant-service".into()),
+            _ => None,
+        })
+        .unwrap();
+        let clock = Arc::new(std::sync::atomic::AtomicU64::new(1_000_000));
+        let c = clock.clone();
+        let fake = Fake { calls: Arc::default(), reply: (200, reply.to_string()) };
+        let s = Service::with_clock(cfg, Store::in_memory(), Box::new(fake), Box::new(move || c.load(std::sync::atomic::Ordering::SeqCst)));
+        let t = sign_up(&s);
+        let month = sewout::month(1_000_000);
+        let before = s.store().free_spent(&month);
+        assert_eq!(s.handle(&check(&t, "aaaaaaaa", "aGVsbG8=", false)).status, 200);
+        let free_check = s.store().free_spent(&month) - before;
+        assert!(free_check > 0);
+        // the next day, in the same month: a round of the same check is paid as any request
+        clock.store(1_000_000 + sewout::CHECK_LIFE, std::sync::atomic::Ordering::SeqCst);
+        assert_eq!(sewout::month(1_000_000 + sewout::CHECK_LIFE), month);
+        assert_eq!(s.handle(&check(&t, "aaaaaaaa", "aGVsbG8=", false)).status, 200);
+        assert_eq!(json_of(&s.handle(&req("POST", "/v1/account", Some(&t), json!({}))))["credits"], 76, "metered: 24 credits");
+        assert_eq!(s.store().free_spent(&month) - before, free_check, "not counted as free as well");
+    }
+
+    /// Only the betas the apps send are passed to Anthropic.
+    #[test]
+    fn only_allowed_betas_are_passed_on() {
+        assert_eq!(allowed_betas(sf_core::ai::FALLBACK_BETA), sf_core::ai::FALLBACK_BETA);
+        assert_eq!(allowed_betas("context-1m-2025-08-07"), "");
+        assert_eq!(allowed_betas(" context-1m-2025-08-07 ,server-side-fallback-2026-07-01"), "server-side-fallback-2026-07-01");
+        let reply = json!({"type": "message", "model": "claude-opus-5-5", "content": [], "usage": {"input_tokens": 1, "output_tokens": 1}});
+        let (s, calls) = service((200, reply.to_string()), true);
+        let t = sign_up(&s);
+        let mut r = req(
+            "POST",
+            "/v1/messages",
+            Some(&t),
+            json!({"model": "claude-opus-5-5", "max_tokens": 100, "messages": [{"role": "user", "content": "hi"}]}),
+        );
+        r.headers.push(("anthropic-beta".into(), "context-1m-2025-08-07".into()));
+        assert_eq!(s.handle(&r).status, 200);
+        assert!(!calls.lock().unwrap()[0].1.iter().any(|(k, _)| k == "anthropic-beta"), "no beta header at all");
     }
 
     #[test]
