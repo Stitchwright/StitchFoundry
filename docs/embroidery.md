@@ -1920,7 +1920,9 @@ MakerFoundry").
 
 The window's **Server** row sends to another MakerFoundry (one you run yourself, for testing:
 `http://127.0.0.1:8080` works on this computer), and so does the `MAKERFOUNDRY_URL` environment
-variable; anything else must be an `https://` address. From the control channel or MCP:
+variable; anything else must be an `https://` address. "This computer" means the host is
+exactly `127.0.0.1`, `localhost` or `[::1]`, and an address with a user name or password in it
+(`http://127.0.0.1:1@example.com`) is refused. From the control channel or MCP:
 `embroidery.publishToMakerFoundry {format?, photos?, server?, send?}` (`send: true` publishes at
 once) → `{open, signedIn, format, photos, server, sending, url, error}`. The web app sends from the
 browser, which MakerFoundry allows for stitchfoundry.app.
