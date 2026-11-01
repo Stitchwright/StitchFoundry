@@ -60,20 +60,30 @@ pub fn scrub(text: &str, names: &[String]) -> String {
     mask_phones(&mask_emails(&out))
 }
 
-/// Case-insensitive replacement (by chars, so odd Unicode can't split a boundary).
+/// Case-insensitive replacement. Both sides are compared lowercased, char by char, so a letter
+/// whose lowercase is several chars (`İ` → `i̇`) still matches; a hit must start and end on whole
+/// characters of `s`, so odd Unicode can't split a boundary.
 fn replace_ci(s: &str, needle: &str, with: &str) -> String {
-    let hay: Vec<char> = s.chars().collect();
     let pat: Vec<char> = needle.chars().flat_map(char::to_lowercase).collect();
+    let orig: Vec<char> = s.chars().collect();
+    // Each lowercased char, with the index in `orig` of the char it came from.
+    let low: Vec<(char, usize)> = orig.iter().enumerate().flat_map(|(k, c)| c.to_lowercase().map(move |l| (l, k))).collect();
+    let starts = |j: usize| j == 0 || j >= low.len() || low.get(j - 1).map(|p| p.1) != low.get(j).map(|p| p.1);
     let mut out = String::new();
-    let mut i = 0;
-    while i < hay.len() {
-        let hit = pat.len() <= hay.len() - i && hay[i..i + pat.len()].iter().zip(&pat).all(|(a, b)| a.to_lowercase().eq(std::iter::once(*b)));
+    let mut j = 0;
+    while let Some(&(_, k)) = low.get(j) {
+        let end = j + pat.len();
+        let hit = !pat.is_empty() && starts(j) && starts(end) && low.get(j..end).is_some_and(|w| w.iter().map(|p| p.0).eq(pat.iter().copied()));
         if hit {
             out.push_str(with);
-            i += pat.len();
+            j = end;
         } else {
-            out.push(hay[i]);
-            i += 1;
+            out.extend(orig.get(k));
+            // Step over the rest of this char's lowercase form.
+            j += 1;
+            while low.get(j).is_some_and(|p| p.1 == k) {
+                j += 1;
+            }
         }
     }
     out
@@ -239,6 +249,17 @@ mod tests {
         let t = scrub("Mail jo@x.com or call +1 (555) 123-4567; Acme Corp ordered 3 hoops. ACME CORP!", &["acme corp".into()]);
         assert!(!t.contains("jo@x.com") && !t.contains("555") && !t.to_lowercase().contains("acme"), "{t}");
         assert!(t.contains("[email]") && t.contains("[phone]") && t.contains("ordered 3 hoops"), "{t}");
+    }
+
+    #[test]
+    fn scrub_hides_names_whose_letters_lowercase_to_several_chars() {
+        // Issue 31: `İ` lowercases to `i` + a combining dot, so the name used to stay visible.
+        for text in ["Hi, I am İlker.", "Hi, I am İLKER.", "Hi, I am i\u{307}lker."] {
+            let t = scrub(text, &["İlker".into()]);
+            assert_eq!(t, "Hi, I am [name].", "{text}");
+        }
+        assert_eq!(scrub("Bob and BOB", &["bob".into()]), "[name] and [name]");
+        assert_eq!(scrub("Ib", &["İbrahim".into()]), "Ib");
     }
 
     #[test]
