@@ -31,6 +31,33 @@ pub fn fits(len: usize) -> bool {
     len <= MAX_BYTES
 }
 
+/// A design's bytes as they download, refused as soon as they would pass [`MAX_BYTES`], so a
+/// reply without a `Content-Length` (or with a false one) can't fill the tab's memory.
+#[derive(Default)]
+pub struct Capped {
+    bytes: Vec<u8>,
+}
+
+impl Capped {
+    /// Whether `len` more bytes fit.
+    pub fn room_for(&self, len: usize) -> bool {
+        fits(self.bytes.len().saturating_add(len))
+    }
+
+    /// Adds `chunk` → false (nothing added) when it doesn't fit.
+    pub fn push(&mut self, chunk: &[u8]) -> bool {
+        if !self.room_for(chunk.len()) {
+            return false;
+        }
+        self.bytes.extend_from_slice(chunk);
+        true
+    }
+
+    pub fn into_bytes(self) -> Vec<u8> {
+        self.bytes
+    }
+}
+
 /// The name the file opens under: the `filename` of a `Content-Disposition` header when the site
 /// exposes it, else the last part of the address's path; never a path, never empty.
 pub fn file_name(url: &str, disposition: Option<&str>) -> String {
@@ -149,12 +176,26 @@ pub fn start(url: String, inbox: vectorcraft_ui_egui::Inbox, note: std::rc::Rc<s
                 return Err("the design is too big to open".into());
             }
             let disposition = response.headers().get("content-disposition").ok().flatten();
-            let buffer = JsFuture::from(response.array_buffer().map_err(js)?).await.map_err(js)?;
-            let bytes = js_sys::Uint8Array::new(&buffer);
-            if !fits(bytes.length() as usize) {
-                return Err("the design is too big to open".into());
+            // read piece by piece, stopping at the cap: the length the site gives may be missing
+            let body = response.body().ok_or("the site sent no file")?;
+            let reader: web_sys::ReadableStreamDefaultReader = body.get_reader().dyn_into().map_err(|o: js_sys::Object| js(o.into()))?;
+            let mut got = Capped::default();
+            loop {
+                let step = JsFuture::from(reader.read()).await.map_err(js)?;
+                let done = js_sys::Reflect::get(&step, &"done".into()).map_err(js)?.as_bool().unwrap_or(true);
+                if done {
+                    break;
+                }
+                let value = js_sys::Reflect::get(&step, &"value".into()).map_err(js)?;
+                let chunk: js_sys::Uint8Array = value.dyn_into().map_err(js)?;
+                if !got.room_for(chunk.length() as usize) {
+                    // (the download is given up; whether the site hears of it doesn't matter)
+                    let _ = reader.cancel();
+                    return Err("the design is too big to open".into());
+                }
+                got.push(&chunk.to_vec());
             }
-            Ok((file_name(&url, disposition.as_deref()), bytes.to_vec()))
+            Ok((file_name(&url, disposition.as_deref()), got.into_bytes()))
         }
         .await;
         match got {
@@ -197,6 +238,26 @@ mod tests {
         }
         assert!(allowed(&format!("https://makerfoundry.app/{}", "a".repeat(3000))).is_err());
         assert!(fits(MAX_BYTES) && !fits(MAX_BYTES + 1));
+    }
+
+    /// The download stops as soon as it would pass the cap, whatever length the site gave (or
+    /// didn't): nothing past [`MAX_BYTES`] is kept.
+    #[test]
+    fn a_download_stops_at_the_cap() {
+        let mut got = Capped::default();
+        let chunk = vec![0u8; 1024 * 1024];
+        let mut taken = 0;
+        while got.push(&chunk) {
+            taken += 1;
+            assert!(taken <= MAX_BYTES / chunk.len(), "kept past the cap");
+        }
+        assert_eq!(taken, MAX_BYTES / chunk.len());
+        assert!(!got.room_for(1) && got.room_for(0));
+        assert!(!got.push(&[1]), "not one byte more");
+        assert_eq!(got.into_bytes().len(), MAX_BYTES);
+        let mut small = Capped::default();
+        assert!(small.push(b"PES") && !small.room_for(usize::MAX - 2));
+        assert_eq!(small.into_bytes(), b"PES");
     }
 
     #[test]

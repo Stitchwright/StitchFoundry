@@ -1976,7 +1976,8 @@ sentence, shows "Couldn't open the design from MakerFoundry: …". The `open=` p
 address as soon as it's read, so reloading the page or sharing its address doesn't open the design
 again (the other parameters, such as `view`, stay).
 Only files on makerfoundry.app (or www.makerfoundry.app) over `https://` are fetched, without
-cookies, up to 32 MB; any other address is refused before anything is fetched. The file's name
+cookies, up to 32 MB (the download stops as soon as it passes that, even when the site doesn't
+say how big the file is); any other address is refused before anything is fetched. The file's name
 comes from the end of its address (or the `Content-Disposition` header when the site shares it),
 and its extension says how it's read, so the address should end in the file's name (`…/rose.pes`).
 MakerFoundry has to allow the web app's site (`https://stitchwright.github.io`) to fetch the file.
