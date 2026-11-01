@@ -95,7 +95,8 @@ StitchFoundry finds the columns by their header names:
 A CSV line is known again by its order number and product, and by its line id when the file has
 one (else by which of that order's lines of that product it is), never by its row. Etsy's file
 lists the newest orders first, so yesterday's orders move down a row each time a new one comes
-in; they still aren't made twice.
+in; they still aren't made twice. Lines made by earlier versions (which went by row) are
+recognised too, so updating StitchFoundry doesn't make old orders again.
 
 Every other column counts as an order field. A **Variations** or **Options** column such as
 Etsy's (`Personalization:Rose, Colour:Navy`) is split into its fields. Commas, semicolons and

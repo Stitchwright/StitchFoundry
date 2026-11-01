@@ -117,6 +117,23 @@ pub struct OrderItem {
     /// The item's fields: the shop's personalization (Shopify's custom attributes, WooCommerce's
     /// item meta data, a CSV's other columns).
     pub fields: Vec<(String, String)>,
+    /// A CSV line's keys as earlier versions wrote them (`csv:order:product:row`): the start
+    /// they share, and which of the order's lines of that product this is. The line counts as
+    /// made when that many of them were made, so updating doesn't make old orders again.
+    pub legacy: Option<(String, usize)>,
+}
+
+impl OrderItem {
+    /// Whether the item is among the lines `done`.
+    fn made(&self, done: &[String]) -> bool {
+        if done.contains(&self.key) {
+            return true;
+        }
+        let Some((start, nth)) = &self.legacy else { return false };
+        let old =
+            done.iter().filter(|k| k.strip_prefix(start.as_str()).is_some_and(|row| !row.is_empty() && row.bytes().all(|b| b.is_ascii_digit())));
+        old.count() >= *nth
+    }
 }
 
 /// `v` as text (numbers and booleans written out), at most [`MAX_FIELD`] characters.
@@ -174,6 +191,7 @@ pub fn shopify_items(answer: &Value) -> Vec<OrderItem> {
                 sku: text(&li["sku"]),
                 quantity: quantity.min(10_000) as u32,
                 fields,
+                legacy: None,
             });
         }
     }
@@ -219,6 +237,7 @@ pub fn woocommerce_items(orders: &Value) -> Vec<OrderItem> {
                 sku: text(&li["sku"]),
                 quantity: count(&li["quantity"]),
                 fields,
+                legacy: None,
             });
         }
     }
@@ -324,13 +343,14 @@ pub fn csv_items(text: &str) -> Vec<OrderItem> {
         let line = get(line_id);
         let line = if line.is_empty() { nth.to_string() } else { format!("id {line}") };
         out.push(OrderItem {
-            key: format!("csv:{number}:{}:{line}", get(product)),
+            key: format!("csv-line:{number}:{}:{line}", get(product)),
             order: if number.starts_with('#') || number.starts_with("row") { number.clone() } else { format!("#{number}") },
             customer: get(customer),
             product: get(product),
             sku: get(sku),
             quantity: count(&Value::String(get(quantity))),
             fields,
+            legacy: Some((format!("csv:{number}:{}:", get(product)), *nth)),
         });
     }
     out
@@ -527,7 +547,7 @@ fn import(s: &mut Session, p: &Value) -> Result<Value> {
     let mut skipped = Vec::new();
     let mut done = Vec::new();
     for item in &items {
-        if setup.done.contains(&item.key) {
+        if item.made(&setup.done) {
             continue;
         }
         let skip = |why: &str| json!({ "order": item.order, "product": item.product, "why": why });
@@ -715,6 +735,13 @@ mod tests {
         let b = csv_items(&format!("{head}3001,Bib,78,Leo\n"));
         assert_eq!(a[1].key, b[0].key);
         assert_eq!(a[0].fields, vec![("personalization".to_string(), "Mia".to_string())]);
+        // lines made by an earlier version (keyed by row) aren't made again
+        let old = vec!["csv:2001:Name Bib:3".to_string()];
+        let items = csv_items(&format!("{head}2001,Bib,77,Mia\n"));
+        assert!(!items[0].made(&old), "another product");
+        let items = csv_items("Order ID,Item Name,Personalization\n2002,Towel,Kai\n2001,Name Bib,Mia\n2001,Name Bib,Leo\n");
+        assert!(items[1].made(&old) && !items[2].made(&old), "one of the two bibs was made");
+        assert!(!items[0].made(&old));
     }
 
     #[test]
