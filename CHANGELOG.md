@@ -3,6 +3,21 @@
 Release notes for each version, newest first, written for the people who use StitchFoundry. The
 release workflow copies a version's section into its GitHub release (`docs/releasing.md`).
 
+## 0.14.0
+
+The first full release of 0.14. It has everything in the 0.14.0-rc.1 test release below (Simple
+mode, Online Orders, 39 built-in fonts, Save for a Memory Card and more), plus:
+
+- **Open in StitchFoundry from MakerFoundry**: when a design can't be opened, the web app now
+  shows MakerFoundry's own explanation, and the link is cleared from the address bar.
+- **Help › Suggest a Feature…** lets you send us an idea, next to Report a Bug.
+- **The web app** no longer stops when it checks for updates.
+- **Drawing and text**, from the VectorCraft editor StitchFoundry is built on: steadier Shape
+  Builder and Join, angle constraints for arrow keys and Shift-drags, better Character and
+  Paragraph panels, and SVG, PDF and EPS files that keep more of what you made.
+
+As always, test-sew a design before using it on a garment that matters.
+
 ## 0.14.0-rc.1 (test release)
 
 Everything since 0.13.1-rc.2. A test release: please tell us what doesn't work, and test-sew

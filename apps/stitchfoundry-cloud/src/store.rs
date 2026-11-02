@@ -20,8 +20,9 @@ pub struct Account {
     pub password: String,
     /// Credits to spend.
     pub credits: u64,
-    /// Credits held for requests on their way.
-    #[serde(default)]
+    /// Credits held for requests on their way. Never written: a request's hold lives only as long
+    /// as the process serving it, so after a restart (a redeploy) nothing stays held.
+    #[serde(skip)]
     pub reserved: u64,
     pub created: u64,
 }
@@ -254,6 +255,27 @@ impl Store {
 
     pub fn check(&self, id: &str) -> Option<&Check> {
         self.state.checks.get(id)
+    }
+
+    /// Notes a free check before its first request goes out, so that requests made at the same
+    /// time count it ([`Store::checks_in`]) and can't all take the month's last free check.
+    /// Nothing changes when the check exists already.
+    pub fn start_check(&mut self, id: &str, check: Check) -> Result<(), StoreError> {
+        if self.state.checks.contains_key(id) {
+            return Ok(());
+        }
+        self.state.checks.insert(id.to_string(), Check { requests: 0, spent: 0, ..check });
+        self.save()
+    }
+
+    /// Forgets a check [`Store::start_check`] noted whose first request didn't go through (it
+    /// has had no requests), giving its free slot back.
+    pub fn drop_unstarted_check(&mut self, id: &str) -> Result<(), StoreError> {
+        if self.state.checks.get(id).is_some_and(|c| c.requests == 0) {
+            self.state.checks.remove(id);
+            self.save()?;
+        }
+        Ok(())
     }
 
     /// The checks `account` started in `month`.
@@ -586,6 +608,32 @@ mod tests {
         s.reserve(id, 50).unwrap();
         assert_eq!(s.settle(id, 50, 0, "ask", 2).unwrap(), 88);
         assert_eq!(s.recent(id).iter().filter(|e| e.kind == "ai").count(), 1);
+    }
+
+    /// Credits held when the service stops (a redeploy mid-request) aren't held after it starts
+    /// again: the request that held them is gone, so all the credits can be spent.
+    #[test]
+    fn held_credits_are_not_held_after_a_restart() {
+        let dir = std::env::temp_dir().join(format!("sf-cloud-store-held-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let id = {
+            let mut s = Store::open(&dir).unwrap();
+            let id = s.create("a@b.c", "hash".into(), 100, 1000).unwrap();
+            s.reserve(id, 80).unwrap();
+            // any later change writes the state, the hold with it if it were kept
+            s.add_session("t1".into(), id, 1001).unwrap();
+            id
+        };
+        let mut s = Store::open(&dir).unwrap();
+        assert_eq!(s.account(id).unwrap().reserved, 0, "no request is on its way after a restart");
+        assert_eq!(s.reserve(id, 100), Ok(()), "every credit can be held again");
+        // a state written by an earlier version, with the hold in it, is read without it
+        let old = std::fs::read_to_string(dir.join("state.json")).unwrap().replace("\"credits\":100", "\"credits\":100,\"reserved\":80");
+        assert!(old.contains("\"reserved\":80"));
+        std::fs::write(dir.join("state.json"), old).unwrap();
+        let s = Store::open(&dir).unwrap();
+        assert_eq!(s.account(id).unwrap().reserved, 0);
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     /// After a breach: sessions made before the time end, later ones go on.
