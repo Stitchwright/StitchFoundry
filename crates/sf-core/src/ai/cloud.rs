@@ -13,14 +13,36 @@ pub const TOKEN_NAME: &str = "stitchfoundry-session";
 pub const TOKEN_PREFIX: &str = "sfs_";
 
 /// `server` tidied (no trailing slash) when it is an address the app may send to: HTTPS, or
-/// plain HTTP on this computer (for running the service locally).
+/// plain HTTP on this computer (for running the service locally). The host is compared whole,
+/// after the address is split into its parts, and an address with a user name or password in it
+/// (`http://127.0.0.1:1@evil.example`, whose host is `evil.example`) is refused, so the session
+/// token and password never go in clear text to another computer.
 pub fn clean_server(server: &str) -> Option<String> {
     let s = server.trim().trim_end_matches('/');
-    let local = ["http://127.0.0.1", "http://localhost", "http://[::1]"]
-        .iter()
-        .any(|p| s.strip_prefix(p).is_some_and(|rest| rest.is_empty() || rest.starts_with(':') || rest.starts_with('/')));
-    let ok = (s.starts_with("https://") && s.len() > "https://".len() || local) && !s.chars().any(|c| c.is_whitespace() || c.is_control());
-    ok.then(|| s.to_string())
+    // (a backslash too: URL readers differ on it, some reading it as a slash)
+    if s.chars().any(|c| c.is_whitespace() || c.is_control() || c == '\\') {
+        return None;
+    }
+    let (https, rest) = match (s.strip_prefix("https://"), s.strip_prefix("http://")) {
+        (Some(rest), _) => (true, rest),
+        (None, Some(rest)) => (false, rest),
+        (None, None) => return None,
+    };
+    // the authority ends where the path, query or fragment starts
+    let authority = rest.split(['/', '?', '#']).next().unwrap_or_default();
+    if authority.is_empty() || authority.contains('@') {
+        return None;
+    }
+    // host and port: `[::1]:8080`, `localhost:8080`, `example.com`
+    let (host, port) = match (authority.starts_with('['), authority.find(']'), authority.find(':')) {
+        (true, Some(end), _) => (authority.get(..=end)?, authority.get(end + 1..)?),
+        (true, None, _) => return None,
+        (false, _, Some(i)) => (authority.get(..i)?, authority.get(i..)?),
+        (false, _, None) => (authority, ""),
+    };
+    let port_ok = port.is_empty() || port.strip_prefix(':').is_some_and(|p| !p.is_empty() && p.len() <= 5 && p.bytes().all(|b| b.is_ascii_digit()));
+    let local = ["127.0.0.1", "localhost", "[::1]"].contains(&host.to_ascii_lowercase().as_str());
+    (!host.is_empty() && port_ok && (https || local)).then(|| s.to_string())
 }
 
 /// A POST of `body` to `path` on `server`, signed in with `token` when given.
@@ -131,7 +153,28 @@ mod tests {
         assert_eq!(clean_server(" https://cloud.example.com/ ").as_deref(), Some("https://cloud.example.com"));
         assert_eq!(clean_server("http://127.0.0.1:8080").as_deref(), Some("http://127.0.0.1:8080"));
         assert_eq!(clean_server("http://localhost").as_deref(), Some("http://localhost"));
+        assert_eq!(clean_server("http://[::1]:7000/").as_deref(), Some("http://[::1]:7000"));
+        assert_eq!(clean_server("http://localhost/@x").as_deref(), Some("http://localhost/@x"), "an @ in the path is the path's");
         for bad in ["", "https://", "http://cloud.example.com", "ftp://x", "http://localhost.evil.com", "https://a b.com"] {
+            assert_eq!(clean_server(bad), None, "{bad}");
+        }
+    }
+
+    /// The host is compared whole: an address that starts like this computer's but names another
+    /// (through a user name and password, or a longer host) is refused.
+    #[test]
+    fn a_local_looking_address_with_another_host_is_refused() {
+        for bad in [
+            "http://127.0.0.1:1@evil.example",
+            "http://localhost:80@evil.example",
+            "http://localhost@evil.example",
+            "http://[::1]@evil.example",
+            "http://127.0.0.1.evil.example",
+            "http://127.0.0.1:80\\@evil.example",
+            "http://localhost:x",
+            "http://[::1",
+            "https://user:pass@cloud.example.com",
+        ] {
             assert_eq!(clean_server(bad), None, "{bad}");
         }
     }
