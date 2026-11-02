@@ -91,36 +91,79 @@ fn mask_emails(s: &str) -> String {
         .collect()
 }
 
-/// A run of 7 or more digits, allowing `+ - ( ) .` and spaces between them, is a phone number.
+/// A run of 7 or more digits, allowing `+ - ( ) .` and spaces between them, is a phone number,
+/// except for what a bug report needs to keep: an ISO date (`2026-10-31`), a number followed by a
+/// unit (`1234567 bytes`) and a number grouped in thousands with spaces (`1 234 567`).
 fn mask_phones(s: &str) -> String {
     let chars: Vec<char> = s.chars().collect();
     let mut out = String::new();
     let mut i = 0;
-    while i < chars.len() {
-        if chars[i].is_ascii_digit() || (chars[i] == '+' && chars.get(i + 1).is_some_and(char::is_ascii_digit)) {
-            let mut j = i;
-            let mut digits = 0;
-            let mut last_digit = i;
-            while j < chars.len() && (chars[j].is_ascii_digit() || matches!(chars[j], '+' | '-' | '(' | ')' | '.' | ' ')) {
-                if chars[j].is_ascii_digit() {
-                    digits += 1;
-                    last_digit = j;
-                }
-                j += 1;
-            }
-            if digits >= 7 {
-                out.push_str("[phone]");
-                i = last_digit + 1;
-            } else {
-                out.extend(&chars[i..=i]);
-                i += 1;
-            }
-        } else {
-            out.push(chars[i]);
+    while let Some(&c) = chars.get(i) {
+        let starts_number = c.is_ascii_digit() || (matches!(c, '+' | '(') && chars.get(i + 1).is_some_and(char::is_ascii_digit));
+        let after_digit = i > 0 && chars.get(i - 1).is_some_and(char::is_ascii_digit);
+        if !starts_number || after_digit {
+            out.push(c);
             i += 1;
+            continue;
         }
+        if let Some(len) = iso_date_len(&chars, i) {
+            out.extend(chars.iter().skip(i).take(len));
+            i += len;
+            continue;
+        }
+        let mut j = i;
+        let mut digits = 0;
+        let mut last_digit = i;
+        while let Some(&d) = chars.get(j) {
+            if d.is_ascii_digit() {
+                digits += 1;
+                last_digit = j;
+            } else if !matches!(d, '+' | '-' | '(' | ')' | '.' | ' ') {
+                break;
+            }
+            j += 1;
+        }
+        let run: Vec<char> = chars.iter().skip(i).take(last_digit + 1 - i).copied().collect();
+        if digits >= 7 && !(is_thousands(&run) || (is_plain_number(&run) && unit_follows(&chars, last_digit + 1))) {
+            out.push_str("[phone]");
+        } else {
+            out.extend(&run);
+        }
+        i = last_digit + 1;
     }
     out
+}
+
+/// Length of an ISO date (`dddd-dd-dd`) starting at `i`, if one does and no digit follows it.
+fn iso_date_len(chars: &[char], i: usize) -> Option<usize> {
+    let d = |k: usize| chars.get(i + k).is_some_and(char::is_ascii_digit);
+    let dash = |k: usize| chars.get(i + k) == Some(&'-');
+    let ok = (0..4).all(d) && dash(4) && d(5) && d(6) && dash(7) && d(8) && d(9) && !d(10);
+    ok.then_some(10)
+}
+
+/// Digits only, optionally with a decimal point: `1234567`, `1234567.5`.
+fn is_plain_number(run: &[char]) -> bool {
+    run.iter().all(|c| c.is_ascii_digit() || *c == '.') && run.iter().filter(|c| **c == '.').count() <= 1
+}
+
+/// `1 234 567` or `12 345 678`: a group of one or two digits, then groups of exactly three, split
+/// by single spaces. (A first group of three is left out: `612 345 678` is a phone number format.)
+fn is_thousands(run: &[char]) -> bool {
+    let text: String = run.iter().collect();
+    let mut groups = text.split(' ');
+    let Some(first) = groups.next() else { return false };
+    let rest: Vec<&str> = groups.collect();
+    let all_digits = |g: &str| !g.is_empty() && g.chars().all(|c| c.is_ascii_digit());
+    all_digits(first) && first.len() <= 2 && rest.len() >= 2 && rest.iter().all(|g| g.len() == 3 && all_digits(g))
+}
+
+/// Whether a unit word (bytes, stitches…) follows position `j`, after optional spaces.
+fn unit_follows(chars: &[char], j: usize) -> bool {
+    const UNITS: &[&str] =
+        &["b", "byte", "bytes", "kb", "mb", "gb", "st", "sts", "stitch", "stitches", "ms", "px", "mm", "cm", "colors", "colours", "jumps", "trims"];
+    let word: String = chars.iter().skip(j).skip_while(|c| **c == ' ').take_while(|c| c.is_alphabetic()).flat_map(|c| c.to_lowercase()).collect();
+    UNITS.contains(&word.as_str())
 }
 
 /// A reporter's email, if it looks like one (one `@`, a dot in the domain, no spaces).
@@ -239,6 +282,21 @@ mod tests {
         let t = scrub("Mail jo@x.com or call +1 (555) 123-4567; Acme Corp ordered 3 hoops. ACME CORP!", &["acme corp".into()]);
         assert!(!t.contains("jo@x.com") && !t.contains("555") && !t.to_lowercase().contains("acme"), "{t}");
         assert!(t.contains("[email]") && t.contains("[phone]") && t.contains("ordered 3 hoops"), "{t}");
+    }
+
+    #[test]
+    fn scrub_keeps_dates_sizes_and_stitch_counts() {
+        // Issue 32: these were masked as [phone].
+        assert_eq!(scrub("Crashed on 2026-10-31 at 14:32", &[]), "Crashed on 2026-10-31 at 14:32");
+        assert_eq!(scrub("Crashed 2026-10-31 14:32:07", &[]), "Crashed 2026-10-31 14:32:07");
+        assert_eq!(scrub("file 1234567 bytes", &[]), "file 1234567 bytes");
+        assert_eq!(scrub("Stitch count 1 234 567", &[]), "Stitch count 1 234 567");
+        assert_eq!(scrub("12345678 stitches", &[]), "12345678 stitches");
+        // Phone numbers are still hidden.
+        for phone in ["5551234567", "555-123-4567", "+44 20 7946 0958", "612 345 678", "(555) 123 4567", "06 12 34 56 78"] {
+            let t = scrub(&format!("call {phone} now"), &[]);
+            assert_eq!(t, "call [phone] now", "{phone}");
+        }
     }
 
     #[test]
