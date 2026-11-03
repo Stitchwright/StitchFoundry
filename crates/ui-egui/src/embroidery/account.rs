@@ -207,7 +207,11 @@ fn refresh(app: &mut VectorcraftApp) {
     }
     let Some(server) = server(app) else { return };
     let token = app.embroidery.account.token.clone();
+    // reading the account again (often on its own, after another answer) keeps what that answer
+    // said ("A new link is on its way")
+    let note = app.embroidery.account.note.take();
     send(app, cloud::account(&server, &token), Action::Refresh);
+    app.embroidery.account.note = note;
 }
 
 fn buy(app: &mut VectorcraftApp, pack: &str) {
