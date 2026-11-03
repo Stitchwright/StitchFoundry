@@ -67,6 +67,9 @@ pub fn start() {
         return;
     };
     detect_language();
+    // First, so it runs before eframe's and our own key listeners: autofill sends key and input
+    // events they can't read.
+    crate::events::drop_malformed_events();
     wasm_bindgen_futures::spawn_local(async move {
         // Before the first frame, which looks for copies a crash left behind.
         let locks = WebLocks::start(RECOVERY_PREFIX).await;
