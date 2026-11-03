@@ -30,6 +30,11 @@ pub struct Account {
     /// existed have no such field and are read as confirmed.
     #[serde(default = "confirmed_by_default")]
     pub verified: bool,
+    /// The QA run a test account was made for (`/v1/test/provision`, staging only); `None` for
+    /// every real account. Accounts written before test mode existed have no such field and are
+    /// read as real, and a real account's record is written without it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub test_run: Option<String>,
 }
 
 /// Accounts made before email confirmation count as confirmed.
@@ -134,6 +139,18 @@ struct State {
 const RECENT: usize = 50;
 /// Sessions last this long unused (seconds): 90 days.
 pub const SESSION_TTL: u64 = 90 * 24 * 3600;
+
+/// What deleting a QA run's test accounts removed ([`Store::delete_test_run`]).
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+pub struct Removed {
+    pub accounts: usize,
+    pub sessions: usize,
+    pub ledger: usize,
+    pub checks: usize,
+    pub reports: usize,
+    /// Reset and confirmation links.
+    pub links: usize,
+}
 
 #[derive(Debug, thiserror::Error, PartialEq)]
 pub enum StoreError {
@@ -480,13 +497,131 @@ impl Store {
         }
         self.state.next_id += 1;
         let id = self.state.next_id;
-        let account = Account { id, email: email.to_string(), password: password_hash, credits, reserved: 0, created: now, verified };
+        let account = Account { id, email: email.to_string(), password: password_hash, credits, reserved: 0, created: now, verified, test_run: None };
         self.state.accounts.insert(id, account);
         if credits > 0 {
             self.log(Entry { at: now, account: id, kind: "signup".into(), credits: credits as i64, balance: credits, note: String::new() })?;
         }
         self.save()?;
         Ok(id)
+    }
+
+    // ---------- test accounts (staging only) ----------
+
+    /// Whether `account` is a test account (made by `/v1/test/provision`). Test accounts never
+    /// count in the service's totals (the month's free budget).
+    pub fn is_test(&self, account: u64) -> bool {
+        self.state.accounts.get(&account).is_some_and(|a| a.test_run.is_some())
+    }
+
+    /// Whether any account belongs to QA run `run`.
+    pub fn has_test_run(&self, run: &str) -> bool {
+        self.state.accounts.values().any(|a| a.test_run.as_deref() == Some(run))
+    }
+
+    /// Test accounts for QA run `run`: each `(email, password_hash)` confirmed already, tagged with
+    /// the run, with `credits` to start (a `test` ledger entry, not a `signup`). All or none: when
+    /// an email is taken nothing is made.
+    pub fn create_test_accounts(&mut self, run: &str, users: Vec<(String, String)>, credits: u64, now: u64) -> Result<Vec<u64>, StoreError> {
+        if users.iter().any(|(email, _)| self.by_email(email).is_some()) {
+            return Err(StoreError::Taken);
+        }
+        let mut ids = Vec::with_capacity(users.len());
+        for (email, password) in users {
+            self.state.next_id += 1;
+            let id = self.state.next_id;
+            let account = Account { id, email, password, credits, reserved: 0, created: now, verified: true, test_run: Some(run.to_string()) };
+            self.state.accounts.insert(id, account);
+            if credits > 0 {
+                let note = format!("test run {run}");
+                self.log(Entry { at: now, account: id, kind: "test".into(), credits: credits as i64, balance: credits, note })?;
+            }
+            ids.push(id);
+        }
+        self.save()?;
+        Ok(ids)
+    }
+
+    /// Deletes every test account of QA run `run` and everything kept for it: sessions, ledger
+    /// entries, sew-out checks (shared photos and rounds too), reports, reset and confirmation
+    /// links, and the refunds noted as paid. Real accounts are never touched.
+    pub fn delete_test_run(&mut self, run: &str) -> Result<Removed, StoreError> {
+        let ids: BTreeSet<u64> = self.state.accounts.values().filter(|a| a.test_run.as_deref() == Some(run)).map(|a| a.id).collect();
+        let mut removed = Removed::default();
+        if ids.is_empty() {
+            return Ok(removed);
+        }
+        let checks: Vec<String> = self.state.checks.iter().filter(|(_, c)| ids.contains(&c.account)).map(|(id, _)| id.clone()).collect();
+        let reports: Vec<String> = self.state.reports.iter().filter(|(_, r)| ids.contains(&r.account)).map(|(id, _)| id.clone()).collect();
+        for id in checks.iter().chain(&reports) {
+            self.forget_kept(id)?;
+        }
+        removed.checks = checks.len();
+        removed.reports = reports.len();
+        for id in &checks {
+            self.state.checks.remove(id);
+        }
+        for id in &reports {
+            self.state.reports.remove(id);
+        }
+        let before = self.state.sessions.len();
+        self.state.sessions.retain(|_, s| !ids.contains(&s.account));
+        removed.sessions = before - self.state.sessions.len();
+        let before = self.state.resets.len() + self.state.verifies.len();
+        self.state.resets.retain(|_, r| !ids.contains(&r.account));
+        self.state.verifies.retain(|_, v| !ids.contains(&v.account));
+        removed.links = before - self.state.resets.len() - self.state.verifies.len();
+        // a reported check's refund is noted as `refund-<account>-<check>`
+        self.state.paid.retain(|key| !ids.iter().any(|id| key.starts_with(&format!("refund-{id}-"))));
+        for id in &ids {
+            self.state.accounts.remove(id);
+            self.state.recent.remove(id);
+        }
+        removed.accounts = ids.len();
+        removed.ledger = self.forget_ledger(&ids)?;
+        self.save()?;
+        Ok(removed)
+    }
+
+    /// Removes `accounts`' entries from the ledger → how many there were. The ledger is otherwise
+    /// only ever added to; only test accounts' entries are ever taken out.
+    fn forget_ledger(&self, accounts: &BTreeSet<u64>) -> Result<usize, StoreError> {
+        match &self.backend {
+            Backend::Memory(_) => Ok(0),
+            Backend::Dir(dir) => {
+                let io = |e: std::io::Error| StoreError::Io(e.to_string());
+                let path = dir.join("ledger.jsonl");
+                let text = match std::fs::read_to_string(&path) {
+                    Ok(t) => t,
+                    Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(0),
+                    Err(e) => return Err(io(e)),
+                };
+                let mut kept = String::with_capacity(text.len());
+                let mut n = 0;
+                for line in text.lines() {
+                    let theirs = serde_json::from_str::<Entry>(line).is_ok_and(|e| accounts.contains(&e.account));
+                    if theirs {
+                        n += 1;
+                    } else {
+                        kept.push_str(line);
+                        kept.push('\n');
+                    }
+                }
+                if n > 0 {
+                    // through a temporary file, so a crash never leaves half a ledger
+                    let tmp = dir.join("ledger.jsonl.tmp");
+                    std::fs::write(&tmp, kept).map_err(io)?;
+                    std::fs::rename(&tmp, &path).map_err(io)?;
+                }
+                Ok(n)
+            }
+            Backend::Db(c) => {
+                let mut c = c.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                let ids: Vec<i64> = accounts.iter().filter_map(|id| i64::try_from(*id).ok()).collect();
+                let n = c.execute("DELETE FROM sf_ledger WHERE account = ANY($1)", &[&ids]).map_err(db_error)?;
+                Ok(usize::try_from(n).unwrap_or(usize::MAX))
+            }
+        }
     }
 
     pub fn add_session(&mut self, token_hash: String, account: u64, now: u64) -> Result<(), StoreError> {
@@ -630,6 +765,11 @@ impl Store {
         Ok(balance)
     }
 }
+
+/// Tests that use the database (`SF_CLOUD_TEST_DATABASE_URL`) empty the same tables, so they take
+/// turns.
+#[cfg(test)]
+pub(crate) static DB_LOCK: Mutex<()> = Mutex::new(());
 
 #[cfg(test)]
 mod tests {
@@ -790,6 +930,7 @@ mod tests {
     #[test]
     fn the_database_keeps_accounts_credits_and_shared_checks() {
         let Ok(url) = std::env::var("SF_CLOUD_TEST_DATABASE_URL") else { return };
+        let _db = DB_LOCK.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         let mut c = postgres::Client::connect(&url, postgres::NoTls).unwrap();
         c.batch_execute("DROP TABLE IF EXISTS sf_state, sf_ledger, sf_shared_files, sf_shared_rounds").unwrap();
         let id = {
