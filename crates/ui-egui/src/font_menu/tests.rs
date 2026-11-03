@@ -86,7 +86,11 @@ fn recent_fonts_are_first_available_unique_and_expandable() {
 
 #[test]
 fn recent_section_rebuilds_and_arrows_skip_its_headings() {
-    let names = vectorcraft_text::FontDb::global().menu_family_list();
+    // Other tests add this family to the process-wide database while this one runs; adding it
+    // first makes theirs no-ops, so the list this test reads can't change under it.
+    let db = vectorcraft_text::FontDb::global();
+    db.add_font(vectorcraft_text::test_fonts::two_axis_font().unwrap());
+    let names = db.menu_family_list();
     if names.len() < 3 {
         return;
     }
