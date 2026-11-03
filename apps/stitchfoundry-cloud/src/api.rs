@@ -3,7 +3,9 @@
 //! in the Anthropic API's shape (`{"type": "error", "error": {"type", "message"}}`), so the app
 //! reads them as it reads Anthropic's own.
 //!
-//! - `GET  /v1/health`: whether AI requests and payments are set up.
+//! - `GET  /v1/health`: whether AI requests and payments are set up, and the commit running
+//!   (`commit`, from Railway's `RAILWAY_GIT_COMMIT_SHA`; `null` elsewhere), so a staging test run
+//!   knows which commit it tested.
 //! - `POST /v1/signup {email, password}`, `POST /v1/signin {email, password}` → `{token, account}`.
 //! - `POST /v1/signout` (with the token).
 //! - `POST /v1/password/forgot {email}`: a link to reset the password, emailed if the account
@@ -338,7 +340,7 @@ impl Service {
             ("OPTIONS", _) => Response { status: 204, content_type: "text/plain", body: String::new(), headers: Vec::new() },
             ("GET", "/v1/health") => Response::json(
                 200,
-                &json!({ "ok": true, "ai": self.cfg.anthropic_key.is_some(), "payments": self.cfg.stripe_key.is_some() && self.cfg.stripe_webhook_secret.is_some(), "email": self.cfg.resend_key.is_some() }),
+                &json!({ "ok": true, "ai": self.cfg.anthropic_key.is_some(), "payments": self.cfg.stripe_key.is_some() && self.cfg.stripe_webhook_secret.is_some(), "email": self.cfg.resend_key.is_some(), "commit": self.cfg.commit }),
             ),
             ("POST", "/v1/signup") => self.signup(req),
             ("POST", "/v1/signin") => self.signin(req),
@@ -1942,7 +1944,7 @@ mod tests {
         let t = sign_up(&s);
         assert_eq!(
             json_of(&s.handle(&req("GET", "/v1/health", None, json!({})))),
-            json!({"ok": true, "ai": false, "payments": false, "email": false})
+            json!({"ok": true, "ai": false, "payments": false, "email": false, "commit": null})
         );
         assert_eq!(s.handle(&req("POST", "/v1/messages", Some(&t), json!({}))).status, 503);
         assert_eq!(s.handle(&req("POST", "/v1/checkout", Some(&t), json!({"pack": "small"}))).status, 503);

@@ -7,8 +7,9 @@
 use std::io::Read;
 use std::sync::Arc;
 
-use stitchfoundry_cloud::api::{Https, MAX_BODY, Request, Service};
+use stitchfoundry_cloud::api::{Https, MAX_BODY, Request, Service, Upstream};
 use stitchfoundry_cloud::config::Config;
+use stitchfoundry_cloud::mail_catcher::MailCatcher;
 use stitchfoundry_cloud::store::Store;
 
 fn main() {
@@ -37,7 +38,16 @@ fn run() -> Result<(), String> {
         if cfg.anthropic_key.is_some() { "on" } else { "off (no ANTHROPIC_API_KEY)" },
         if cfg.stripe_key.is_some() && cfg.stripe_webhook_secret.is_some() { "on" } else { "off (no STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET)" },
     );
-    let service = Arc::new(Service::new(cfg, store, Box::new(Https::default())));
+    // staging: every email goes to the test mailbox, never through Resend
+    let upstream: Box<dyn Upstream> = match &cfg.mail_catcher {
+        Some(address) => {
+            let catcher = MailCatcher::new(address, Box::new(Https::default()))?;
+            eprintln!("stitchfoundry-cloud: email goes to the test mailbox at {}, never to Resend", catcher.send_url());
+            Box::new(catcher)
+        }
+        None => Box::new(Https::default()),
+    };
+    let service = Arc::new(Service::new(cfg, store, upstream));
     let server = tiny_http::Server::http(&addr).map_err(|e| format!("can't listen on {addr}: {e}"))?;
     for mut incoming in server.incoming_requests() {
         let service = service.clone();

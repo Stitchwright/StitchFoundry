@@ -70,6 +70,14 @@ pub struct Config {
     /// Who account emails (password resets) come from (`SF_CLOUD_MAIL_FROM`, an address on a
     /// domain Resend has verified), through Resend; without `RESEND_API_KEY` there are none.
     pub mail_from: String,
+    /// A staging service's test mailbox (`SF_CLOUD_MAIL_CATCHER_URL`, Mailpit's address, e.g.
+    /// `http://mailpit.railway.internal:8025`): every email goes there instead of through Resend
+    /// ([`crate::mail_catcher`]). Setting it turns email on by itself; `RESEND_API_KEY` is then
+    /// ignored, so a real key can never travel with a staging email.
+    pub mail_catcher: Option<String>,
+    /// The commit this service was built from (`RAILWAY_GIT_COMMIT_SHA`, set by Railway: hex
+    /// digits only), shown by `/v1/health` so a staging test run can say which commit passed.
+    pub commit: Option<String>,
     /// Sessions made before this time (Unix seconds) end when the service starts
     /// (`SF_CLOUD_END_SESSIONS_BEFORE`: `2026-10-22T09:00:00Z`, a date, or Unix seconds): set it
     /// with new keys after a breach, and everyone signs in again. Later restarts end nothing more.
@@ -108,6 +116,10 @@ pub fn parse_time(text: &str) -> Option<u64> {
     u64::try_from(days * 86_400 + hh * 3600 + mm * 60 + ss).ok()
 }
 
+/// What stands in for Resend's key while emails go to a test mailbox: it turns email on and is
+/// never sent anywhere ([`crate::mail_catcher`] leaves the key behind).
+pub const MAIL_CATCHER_KEY: &str = "mail-catcher";
+
 /// The default packs, as the owner priced them (2026-10-18): $10, $25 and $50.
 pub const DEFAULT_PACKS: &str = "small:1000:1000,medium:2750:2500,large:6000:5000";
 
@@ -126,6 +138,7 @@ impl Config {
             return Err("SF_CLOUD_CENTS_PER_CREDIT must be more than 0".into());
         }
         let nonempty = |name: &str| env(name).map(|v| v.trim().to_string()).filter(|v| !v.is_empty());
+        let mail_catcher = nonempty("SF_CLOUD_MAIL_CATCHER_URL");
         Ok(Config {
             // Railway (and most container hosts) give the port in PORT
             addr: env("SF_CLOUD_ADDR").or_else(|| nonempty("PORT").map(|p| format!("0.0.0.0:{p}"))).unwrap_or_else(|| "127.0.0.1:8080".into()),
@@ -149,10 +162,13 @@ impl Config {
             check_credits: num("SF_CLOUD_CHECK_CREDITS", 10.0)? as u64,
             free_budget_cents: num("SF_CLOUD_FREE_BUDGET_CENTS", 2500.0)? as u64,
             database_url: nonempty("DATABASE_URL"),
-            resend_key: nonempty("RESEND_API_KEY"),
+            // (with a test mailbox, email is on and no Resend key is kept)
+            resend_key: if mail_catcher.is_some() { Some(MAIL_CATCHER_KEY.into()) } else { nonempty("RESEND_API_KEY") },
             reports_to: nonempty("SF_CLOUD_REPORTS_TO"),
             reports_from: nonempty("SF_CLOUD_REPORTS_FROM").unwrap_or_else(|| "StitchFoundry <reports@stitchfoundry.app>".into()),
             mail_from: nonempty("SF_CLOUD_MAIL_FROM").unwrap_or_else(|| "StitchFoundry <accounts@stitchfoundry.app>".into()),
+            mail_catcher,
+            commit: nonempty("RAILWAY_GIT_COMMIT_SHA").filter(|c| (7..=64).contains(&c.len()) && c.bytes().all(|b| b.is_ascii_hexdigit())),
             end_sessions_before: match nonempty("SF_CLOUD_END_SESSIONS_BEFORE") {
                 None => None,
                 Some(v) => Some(parse_time(&v).ok_or("SF_CLOUD_END_SESSIONS_BEFORE is a UTC time like 2026-10-22T09:00:00Z")?),
@@ -215,6 +231,29 @@ mod tests {
         let env = |k: &str| (k == "SF_CLOUD_END_SESSIONS_BEFORE").then(|| "2026-10-22".to_string());
         assert_eq!(Config::from_env(env).unwrap().end_sessions_before, Some(1_792_627_200));
         assert!(Config::from_env(|k| (k == "SF_CLOUD_END_SESSIONS_BEFORE").then(|| "soon".to_string())).is_err());
+    }
+
+    #[test]
+    fn a_test_mailbox_turns_email_on_and_drops_resends_key() {
+        let c = Config::from_env(|_| None).unwrap();
+        assert!(c.mail_catcher.is_none() && c.resend_key.is_none());
+        let c = Config::from_env(|k| match k {
+            "SF_CLOUD_MAIL_CATCHER_URL" => Some(" http://mailpit.railway.internal:8025 ".into()),
+            "RESEND_API_KEY" => Some("re_live_secret".into()),
+            _ => None,
+        })
+        .unwrap();
+        assert_eq!(c.mail_catcher.as_deref(), Some("http://mailpit.railway.internal:8025"));
+        assert_eq!(c.resend_key.as_deref(), Some(MAIL_CATCHER_KEY));
+    }
+
+    #[test]
+    fn the_commit_is_read_only_when_it_is_one() {
+        let commit = |v: &str| Config::from_env(|k| (k == "RAILWAY_GIT_COMMIT_SHA").then(|| v.to_string())).unwrap().commit;
+        assert_eq!(commit(" 84f911b7a0 ").as_deref(), Some("84f911b7a0"));
+        for bad in ["", "abc", "not-a-commit", "84f911b7a0<script>"] {
+            assert_eq!(commit(bad), None, "{bad}");
+        }
     }
 
     #[test]
