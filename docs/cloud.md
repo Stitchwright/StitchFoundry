@@ -10,8 +10,8 @@
 > (CLOUD-07). 2026-11-01: credits held for a request aren't held after a restart, a free check's
 > slot is taken before its request goes out, paid rounds aren't counted against the free budget,
 > and only the betas the apps send are passed on (CLOUD-08). 2026-11-03: a new account confirms its
-> email through an emailed link before it spends anything (CLOUD-10). 2026-11-03: test mode, for a
-staging copy only: a QA bot makes and deletes verified test accounts (CLOUD-11).
+> email through an emailed link before it spends anything (CLOUD-10); a staging service's email can go to a Mailpit test mailbox (`SF_CLOUD_MAIL_CATCHER_URL`, CLOUD-11), and `/v1/health` says which commit is running (`commit`, CLOUD-12). 2026-11-03: test mode, for a
+> staging copy only: a QA bot makes and deletes verified test accounts (CLOUD-13).
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
@@ -196,6 +196,7 @@ target/release/stitchfoundry-cloud
 | `SF_CLOUD_FREE_CHECKS`, `SF_CLOUD_CHECK_CREDITS` | sew-out checks free a month (3) and a check's price after them (10) |
 | `SF_CLOUD_FREE_BUDGET_CENTS` | the most the free offers may cost in AI a month (2500: $25; see Prices) |
 | `SF_CLOUD_MAIL_FROM` | who account emails (confirmation links, password resets) come from (`StitchFoundry <accounts@stitchfoundry.app>`), through Resend (`RESEND_API_KEY`); without the key there's no reset by email, and new accounts start confirmed |
+| `SF_CLOUD_MAIL_CATCHER_URL` | **staging only**: a Mailpit test mailbox's address (`http://mailpit.railway.internal:8025`, or `http://user:password@host:port` when its send API has a password). Every email (confirmation links, resets, reports) goes to its send API instead of Resend, so nobody real gets staging mail and the end-to-end tests can read it. Setting it turns email on by itself and `RESEND_API_KEY` is ignored (never sent anywhere). Never set it in production (CLOUD-11) |
 | `RESEND_API_KEY`, `SF_CLOUD_REPORTS_TO`, `SF_CLOUD_REPORTS_FROM` | sew-out reports emailed through Resend to this address (e.g. `support@stitchfoundry.app`), from an address on a domain Resend has verified (`StitchFoundry <reports@stitchfoundry.app>`); without them reports are only kept |
 | `SF_CLOUD_TEST_MODE`, `SF_CLOUD_TEST_SECRET`, `SF_CLOUD_ENV` | test mode, for a staging copy only (see Test mode); off by default |
 | `SF_CLOUD_END_SESSIONS_BEFORE` | sessions made before this UTC time (`2026-10-22T09:00:00Z`, a date, or Unix seconds) end when the service starts: everyone signs in again (see After a breach) |
@@ -209,7 +210,7 @@ added or spent) and `sf_shared_files` and `sf_shared_rounds` (shared checks).
 To try the database code against a database of your own: `SF_CLOUD_TEST_DATABASE_URL=postgres://…
 cargo test -p stitchfoundry-cloud` (it empties StitchFoundry's tables there).
 
-## Test mode (staging only, CLOUD-11)
+## Test mode (staging only, CLOUD-13)
 
 A staging copy of the service can let a QA bot make verified test accounts for a run of its tests
 and delete them afterwards. **Test mode is for a staging copy only, never production**, and the

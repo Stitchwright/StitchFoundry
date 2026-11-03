@@ -3,7 +3,9 @@
 //! in the Anthropic API's shape (`{"type": "error", "error": {"type", "message"}}`), so the app
 //! reads them as it reads Anthropic's own.
 //!
-//! - `GET  /v1/health`: whether AI requests and payments are set up.
+//! - `GET  /v1/health`: whether AI requests and payments are set up, and the commit running
+//!   (`commit`, from Railway's `RAILWAY_GIT_COMMIT_SHA`; `null` elsewhere), so a staging test run
+//!   knows which commit it tested.
 //! - `POST /v1/signup {email, password}`, `POST /v1/signin {email, password}` → `{token, account}`.
 //! - `POST /v1/signout` (with the token).
 //! - `POST /v1/password/forgot {email}`: a link to reset the password, emailed if the account
@@ -368,7 +370,7 @@ impl Service {
             ("OPTIONS", _) => Response { status: 204, content_type: "text/plain", body: String::new(), headers: Vec::new() },
             ("GET", "/v1/health") => Response::json(
                 200,
-                &json!({ "ok": true, "ai": self.cfg.anthropic_key.is_some(), "payments": self.cfg.stripe_key.is_some() && self.cfg.stripe_webhook_secret.is_some(), "email": self.cfg.resend_key.is_some() }),
+                &json!({ "ok": true, "ai": self.cfg.anthropic_key.is_some(), "payments": self.cfg.stripe_key.is_some() && self.cfg.stripe_webhook_secret.is_some(), "email": self.cfg.resend_key.is_some(), "commit": self.cfg.commit }),
             ),
             ("POST", "/v1/signup") => self.signup(req),
             ("POST", "/v1/signin") => self.signin(req),
@@ -2079,7 +2081,7 @@ mod tests {
         let t = sign_up(&s);
         assert_eq!(
             json_of(&s.handle(&req("GET", "/v1/health", None, json!({})))),
-            json!({"ok": true, "ai": false, "payments": false, "email": false})
+            json!({"ok": true, "ai": false, "payments": false, "email": false, "commit": null})
         );
         assert_eq!(s.handle(&req("POST", "/v1/messages", Some(&t), json!({}))).status, 503);
         assert_eq!(s.handle(&req("POST", "/v1/checkout", Some(&t), json!({"pack": "small"}))).status, 503);
@@ -2107,7 +2109,7 @@ mod tests {
         assert_eq!(thousands(1_234_567), "1,234,567");
     }
 
-    // ---------- CLOUD-11: test mode (staging only) ----------
+    // ---------- CLOUD-13: test mode (staging only) ----------
 
     const SECRET: &str = "0123456789abcdef0123456789abcdef";
 
@@ -2373,8 +2375,11 @@ mod tests {
         assert_eq!(json_of(&s.handle(&req("POST", "/v1/report", Some(&real), report_body(None))))["emailed"], true);
         let subjects = emails(&calls).into_iter().map(|(_, subject, _)| subject).collect::<Vec<_>>();
         assert_eq!(subjects, ["[test run totals] Sew-out report: Gaps on knit", "Sew-out report: Gaps on knit"]);
-        // the health answer has no totals in it at all
-        assert_eq!(json_of(&s.handle(&req("GET", "/v1/health", None, json!({})))), json!({"ok": true, "ai": true, "payments": true, "email": true}));
+        // the health answer has no totals in it at all (only on/off flags and the running commit)
+        assert_eq!(
+            json_of(&s.handle(&req("GET", "/v1/health", None, json!({})))),
+            json!({"ok": true, "ai": true, "payments": true, "email": true, "commit": null})
+        );
     }
 
     #[test]
