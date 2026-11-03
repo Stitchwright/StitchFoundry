@@ -237,7 +237,11 @@ but …`) when any of these fails:
   instead `DATABASE_URL`, when set, must name a staging database: **its host or its database name
   must contain `staging`** (the user name and password don't count). On Railway, give the staging
   environment's database service a private address with `staging` in it (for example
-  `postgres-staging.railway.internal`), or name the database `stitchfoundry_staging`. An address
+  `postgres-staging.railway.internal`), or name the database `stitchfoundry_staging`. Railway's own
+  address also counts when Railway says the environment is `staging` (`RAILWAY_ENVIRONMENT_NAME`)
+  and every host is on its private network (`*.railway.internal`, which only reaches services of
+  the same environment), so `${{Postgres.DATABASE_URL}}` works unchanged; a public address is
+  still refused. An address
   that can't be read is refused. Without `DATABASE_URL` (the data folder, which production doesn't
   use) this check passes.
 

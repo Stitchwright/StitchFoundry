@@ -135,7 +135,11 @@ fn url_host(url: &str) -> String {
 ///   `DATABASE_URL`, when set, must therefore name a staging database: its host or its database
 ///   name must contain `staging` (on Railway, name the staging database's service
 ///   `postgres-staging`, whose private host is then `postgres-staging.railway.internal`; or name
-///   the database `stitchfoundry_staging`). An address that can't be read is refused. Without
+///   the database `stitchfoundry_staging`). Or, on Railway: `RAILWAY_ENVIRONMENT_NAME` (set by
+///   Railway) is `staging` and every host is on Railway's private network (`*.railway.internal`),
+///   which only reaches services of the same environment, so `${{Postgres.DATABASE_URL}}` works
+///   as Railway gives it; a public address (a pasted production proxy) is still refused. An
+///   address that can't be read is refused. Without
 ///   `DATABASE_URL` (the data folder, which production doesn't use) this check passes.
 pub fn production_guard(cfg: &Config, env: &dyn Fn(&str) -> Option<String>) -> Result<(), String> {
     let refuse = |why: &str| Err(format!("SF_CLOUD_TEST_MODE is on but {why}: test mode is for a staging copy only, never production"));
@@ -161,7 +165,10 @@ pub fn production_guard(cfg: &Config, env: &dyn Fn(&str) -> Option<String>) -> R
         let marked = |s: &str| s.to_ascii_lowercase().contains(STAGING_MARKER);
         let hosts = db.get_hosts();
         let host_marked = !hosts.is_empty() && hosts.iter().all(|h| matches!(h, postgres::config::Host::Tcp(h) if marked(h)));
-        if !host_marked && !db.get_dbname().is_some_and(marked) {
+        let railway_staging = env("RAILWAY_ENVIRONMENT_NAME").is_some_and(|e| e.trim().eq_ignore_ascii_case(STAGING_MARKER))
+            && !hosts.is_empty()
+            && hosts.iter().all(|h| matches!(h, postgres::config::Host::Tcp(h) if h.to_ascii_lowercase().ends_with(".railway.internal")));
+        if !host_marked && !railway_staging && !db.get_dbname().is_some_and(marked) {
             return refuse("DATABASE_URL doesn't name a staging database (its host or database name must contain \"staging\")");
         }
     }
@@ -222,8 +229,8 @@ impl Config {
             return Err("SF_CLOUD_CENTS_PER_CREDIT must be more than 0".into());
         }
         let nonempty = |name: &str| env(name).map(|v| v.trim().to_string()).filter(|v| !v.is_empty());
-        let test_mode = switch("SF_CLOUD_TEST_MODE", env("SF_CLOUD_TEST_MODE"))?;
         let mail_catcher = nonempty("SF_CLOUD_MAIL_CATCHER_URL");
+        let test_mode = switch("SF_CLOUD_TEST_MODE", env("SF_CLOUD_TEST_MODE"))?;
         let cfg = Config {
             // Railway (and most container hosts) give the port in PORT
             addr: env("SF_CLOUD_ADDR").or_else(|| nonempty("PORT").map(|p| format!("0.0.0.0:{p}"))).unwrap_or_else(|| "127.0.0.1:8080".into()),
@@ -371,7 +378,7 @@ mod tests {
         assert!(parse_packs("a:0:100").is_err() && parse_packs("a:10:10").is_err() && parse_packs("a b:10:100").is_err() && parse_packs("").is_err());
     }
 
-    /// CLOUD-13: a staging setup test mode starts with (each test below changes one thing).
+    /// CLOUD-11: a staging setup test mode starts with (each test below changes one thing).
     fn staging(k: &str) -> Option<String> {
         match k {
             "SF_CLOUD_TEST_MODE" => Some("1".into()),
@@ -460,6 +467,28 @@ mod tests {
         ] {
             refused(staging_with("DATABASE_URL", Some(url)), "DATABASE_URL");
         }
+    }
+
+    #[test]
+    fn test_mode_takes_railways_staging_environment_as_the_databases_marker() {
+        let railway = |name: &'static str, url: &'static str| {
+            move |k: &str| match k {
+                "RAILWAY_ENVIRONMENT_NAME" => Some(name.to_string()),
+                "DATABASE_URL" => Some(url.to_string()),
+                _ => staging(k),
+            }
+        };
+        // Railway's own address for the environment's database, as `${{Postgres.DATABASE_URL}}` gives it
+        assert!(Config::from_env(railway("staging", "postgresql://postgres:pw@postgres-fetv.railway.internal:5432/railway")).unwrap().test_mode);
+        // not in another environment, and never a public address (a pasted production proxy)
+        for (name, url) in [
+            ("test", "postgresql://postgres:pw@postgres.railway.internal:5432/railway"),
+            ("staging", "postgresql://postgres:pw@maglev.proxy.rlwy.net:41234/railway"),
+            ("staging", "postgresql://postgres:pw@railway.internal.example.com/railway"),
+        ] {
+            refused(railway(name, url), "DATABASE_URL");
+        }
+        refused(railway("production", "postgresql://postgres:pw@postgres.railway.internal:5432/railway"), "RAILWAY_ENVIRONMENT_NAME is production");
     }
 
     #[test]
