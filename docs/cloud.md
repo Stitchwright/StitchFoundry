@@ -9,7 +9,8 @@
 > lasting `id` in its answers, for MakerFoundry's records (CLOUD-06); password reset by email
 > (CLOUD-07). 2026-11-01: credits held for a request aren't held after a restart, a free check's
 > slot is taken before its request goes out, paid rounds aren't counted against the free budget,
-> and only the betas the apps send are passed on (CLOUD-08). 2026-11-03: a staging service's email can go to a Mailpit test mailbox (`SF_CLOUD_MAIL_CATCHER_URL`, CLOUD-11), and `/v1/health` says which commit is running (`commit`, CLOUD-12).
+> and only the betas the apps send are passed on (CLOUD-08). 2026-11-03: a new account confirms its
+> email through an emailed link before it spends anything (CLOUD-10); a staging service's email can go to a Mailpit test mailbox (`SF_CLOUD_MAIL_CATCHER_URL`, CLOUD-11), and `/v1/health` says which commit is running (`commit`, CLOUD-12).
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
@@ -44,6 +45,22 @@ pass through this service; sales and subscriptions are the other services' own.
   passwords in 15 minutes lock that email out for the rest of the 15 minutes. The same account
   signs in to MakerFoundry (owner's decision, 2026-10-19), which keeps its own records under the
   account's `id`.
+- **Confirming the email (CLOUD-10):** with email set up (`RESEND_API_KEY`), sign-up makes the
+  account unconfirmed and emails a link (from `SF_CLOUD_MAIL_FROM`) to `/verify`, a page with no
+  scripts that confirms the address and says so. The link works once, for 48 hours; the service
+  keeps only its SHA-256, and sending it again replaces the earlier one. Until the email is
+  confirmed the account can sign in and read itself (`/v1/account` says `verified: false` and the
+  `email` the link went to), but nothing that spends is allowed: AI requests, sew-out checks (the
+  free ones too), holding or taking credits, and buying credits (so payments only come from
+  confirmed addresses) all answer 403 "Confirm your email first: we sent a link to … (send it
+  again from your Foundry Account window)". The sign-up credits are granted at sign-up as before,
+  waiting. `POST /v1/verify/resend` (signed in) sends the link again, at most five emails an
+  address in 15 minutes, sign-up's counted. A password reset also confirms the email, since its
+  link came by email. Without `RESEND_API_KEY` nobody could confirm, so accounts are made
+  confirmed (and one left waiting from when email was on is confirmed when it next spends);
+  `/v1/health`'s `email` says which. Accounts made before CLOUD-10 count as confirmed: their stored
+  records have no `verified` field, which is read as confirmed (in `state.json` and in Postgres's
+  `sf_state` alike, so there is no migration to run).
 - **Forgotten passwords:** `POST /v1/password/forgot` emails a link (through Resend, from
   `SF_CLOUD_MAIL_FROM`) that opens `/reset`, a page with no scripts where the new password is set.
   The link works once, for an hour; the service keeps only its SHA-256. Setting a new password
@@ -140,9 +157,12 @@ database beside it.
    `https://<the address>/v1/stripe/webhook`, for the events `checkout.session.completed` and
    `checkout.session.async_payment_succeeded`; put its signing secret in `STRIPE_WEBHOOK_SECRET`.
    Try it with Stripe's test keys and test cards before the live ones.
-7. **Check it:** `https://<the address>/v1/health` answers `{"ok": true, "ai": true, "payments":
+7. **Email:** `RESEND_API_KEY` (a key from resend.com, whose domain, `stitchfoundry.app`, is
+   verified there) turns on the emailed links: confirming a new account's email and resetting a
+   password. Without it new accounts start confirmed and there is no reset by email.
+8. **Check it:** `https://<the address>/v1/health` answers `{"ok": true, "ai": true, "payments":
    true, "email": true}` when everything is set.
-8. **The app:** builds made with `SF_CLOUD_URL=https://<the address>` know the service. The
+9. **The app:** builds made with `SF_CLOUD_URL=https://<the address>` know the service. The
    official builds (`builds.yml`, `release.yml`, `pages.yml` and the Windows workflows) are made
    with `SF_CLOUD_URL=https://cloud.stitchfoundry.app`, StitchFoundry's own service; builds of
    your own know none until you set it. Anyone can type another address in StitchFoundry
@@ -166,7 +186,7 @@ target/release/stitchfoundry-cloud
 | `SF_CLOUD_ADDR` | where it listens (else `0.0.0.0:$PORT` when `PORT` is set, else `127.0.0.1:8080`) |
 | `DATABASE_URL` | a Postgres database, reached over a private network (no TLS); without it, the data folder |
 | `SF_CLOUD_DATA` | the data folder (`state.json`, `ledger.jsonl`, `shared/`) when there is no database: back it up |
-| `SF_CLOUD_PUBLIC_URL` | the address people reach it at, for Stripe's return pages |
+| `SF_CLOUD_PUBLIC_URL` | the address people reach it at, for Stripe's return pages and the emailed links (`/verify`, `/reset`) |
 | `ANTHROPIC_API_KEY` | the service's Anthropic key; without it AI requests answer "not open yet" |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe's secret key and the webhook's signing secret; without them nothing can be bought |
 | `SF_CLOUD_SIGNUP_CREDITS` | credits a new account starts with (100) |
@@ -174,8 +194,8 @@ target/release/stitchfoundry-cloud
 | `SF_CLOUD_PACKS` | the packs on sale (see Prices) |
 | `SF_CLOUD_FREE_CHECKS`, `SF_CLOUD_CHECK_CREDITS` | sew-out checks free a month (3) and a check's price after them (10) |
 | `SF_CLOUD_FREE_BUDGET_CENTS` | the most the free offers may cost in AI a month (2500: $25; see Prices) |
-| `SF_CLOUD_MAIL_FROM` | who password-reset emails come from (`StitchFoundry <accounts@stitchfoundry.app>`), through Resend (`RESEND_API_KEY`); without the key there's no reset by email |
-| `SF_CLOUD_MAIL_CATCHER_URL` | **staging only**: a Mailpit test mailbox's address (`http://mailpit.railway.internal:8025`, or `http://user:password@host:port` when its send API has a password). Every email (resets, reports, confirmations) goes to its send API instead of Resend, so nobody real gets staging mail and the end-to-end tests can read it. Setting it turns email on by itself and `RESEND_API_KEY` is ignored (never sent anywhere). Never set it in production (CLOUD-11) |
+| `SF_CLOUD_MAIL_FROM` | who account emails (confirmation links, password resets) come from (`StitchFoundry <accounts@stitchfoundry.app>`), through Resend (`RESEND_API_KEY`); without the key there's no reset by email, and new accounts start confirmed |
+| `SF_CLOUD_MAIL_CATCHER_URL` | **staging only**: a Mailpit test mailbox's address (`http://mailpit.railway.internal:8025`, or `http://user:password@host:port` when its send API has a password). Every email (confirmation links, resets, reports) goes to its send API instead of Resend, so nobody real gets staging mail and the end-to-end tests can read it. Setting it turns email on by itself and `RESEND_API_KEY` is ignored (never sent anywhere). Never set it in production (CLOUD-11) |
 | `RESEND_API_KEY`, `SF_CLOUD_REPORTS_TO`, `SF_CLOUD_REPORTS_FROM` | sew-out reports emailed through Resend to this address (e.g. `support@stitchfoundry.app`), from an address on a domain Resend has verified (`StitchFoundry <reports@stitchfoundry.app>`); without them reports are only kept |
 | `SF_CLOUD_END_SESSIONS_BEFORE` | sessions made before this UTC time (`2026-10-22T09:00:00Z`, a date, or Unix seconds) end when the service starts: everyone signs in again (see After a breach) |
 
@@ -221,13 +241,15 @@ redeploy, then revoke the old one, so the service never stops.
 | | |
 |---|---|
 | `GET /v1/health` | `{ok, ai, payments, email}`: whether AI requests, payments and emails (Resend) are set up |
-| `POST /v1/signup {email, password}` | a new account → `{token, account: {id, email, credits}}` |
+| `POST /v1/signup {email, password}` | a new account → `{token, account: {id, email, verified, credits}}`; with email set up it starts unconfirmed and a confirmation link is emailed |
 | `POST /v1/signin {email, password}` | → `{token, account}` |
 | `POST /v1/signout` | ends the session |
 | `POST /v1/password/forgot {email}` | emails a reset link if there's an account with that email → `{sent, message}` (the same answer either way; 503 without Resend, 429 after five in 15 minutes) |
 | `GET /reset?token=…`, `POST /reset` | the page the link opens, and its form (`token`, `password`, `again`) |
 | `POST /v1/password/reset {token, password}` | the same for apps → `{ok}`; 400 when the link expired, was used, or the password is too short |
-| `GET` or `POST /v1/account` | → `{id, email, credits, freeChecks, checkCredits, sharedChecks, packs, payments, history}` |
+| `GET /verify?token=…` | the page the confirmation link opens: it confirms the email, or says the link expired or was used |
+| `POST /v1/verify/resend` | the confirmation link again, for the signed-in account → `{sent, verified, message}` (429 after five emails in 15 minutes) |
+| `GET` or `POST /v1/account` | → `{id, email, verified, credits, freeChecks, checkCredits, sharedChecks, packs, payments, history}` |
 | `POST /v1/checkout {pack}` | → `{url}`: Stripe's checkout page |
 | `POST /v1/stripe/webhook` | Stripe's signed events |
 | `POST /v1/messages` | an Anthropic Messages request, paid in credits |
@@ -238,4 +260,5 @@ redeploy, then revoke the old one, so the service never stops.
 Requests other than sign-up and sign-in carry `Authorization: Bearer <token>`. Every answer allows
 the web app to call from a browser (CORS; sessions are bearer tokens, never cookies). Errors come
 in the Anthropic API's shape, `{"type": "error", "error": {"type", "message"}}`: 401 to sign in
-again, 402 for too few credits, 429 to wait, 503 for what isn't set up.
+again, 402 for too few credits, 403 (`permission_error`) until the email is confirmed, with a
+message to show as it is, 429 to wait, 503 for what isn't set up.

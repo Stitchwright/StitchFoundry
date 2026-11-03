@@ -944,6 +944,9 @@ Decided by the owner on 2026-10-11: StitchFoundry is free and open source, and s
   with a Postgres database (CLOUD-03, built: `DATABASE_URL`, `packaging/cloud/Dockerfile`, the steps
   in `docs/cloud.md`). The app's side (CLOUD-02, built): Foundry Account signs in, shows the
   credits and buys packs; with it on, every AI feature is paid in credits through the service.
+  A new account confirms its email through an emailed link before it spends anything (CLOUD-10,
+  built: the service enforces it for every Foundry app; the Account window says to check the
+  email and sends the link again).
   Uploads need terms of service: users confirm they may use the art, and prompts for others'
   characters or logos are refused (Design from Prompt already asks Claude to decline them; with
   your own key, Redraw Image only reminds users, as the owner decided on 2026-10-11). Server secrets (API keys, billing settings) live in

@@ -192,6 +192,10 @@ pub enum ArtError {
     /// The StitchFoundry session ended, or there is none.
     #[error("Sign in to your Foundry account (Embroidery › Foundry Account…).")]
     SignIn,
+    /// The Foundry account's email isn't confirmed yet (403), with the service's message, which
+    /// says where the link went and how to have it sent again.
+    #[error("{0}")]
+    Unconfirmed(String),
     /// The Foundry account hasn't the credits.
     #[error("Not enough Foundry credits: buy more in Foundry Account.")]
     NoCredits,

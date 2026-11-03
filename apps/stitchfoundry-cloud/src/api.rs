@@ -11,7 +11,11 @@
 //! - `POST /v1/password/forgot {email}`: a link to reset the password, emailed if the account
 //!   exists (the answer is the same either way); `GET /reset?token=…` is the page it opens, and
 //!   `POST /reset` (its form) or `POST /v1/password/reset {token, password}` sets the new one.
-//! - `GET  /v1/account` → `{id, email, credits, packs, history}`.
+//! - `GET  /verify?token=…`: the page the email-confirmation link (sent at sign-up) opens, which
+//!   confirms the account's email; `POST /v1/verify/resend` (signed in) sends the link again.
+//!   Until the email is confirmed, the account can sign in and read itself but spends nothing:
+//!   AI requests, sew-out checks (free ones too) and buying credits answer 403.
+//! - `GET  /v1/account` → `{id, email, verified, credits, packs, history}`.
 //! - `POST /v1/checkout {pack}` → `{url}`: Stripe's checkout page for the pack.
 //! - `POST /v1/stripe/webhook`: Stripe's signed word that a checkout was paid.
 //! - `POST /v1/messages`: an Anthropic Messages API request, sent with the service's key and paid
@@ -163,6 +167,8 @@ pub struct Service {
     throttle: Mutex<Throttle>,
     /// Reset emails lately, by address (so nobody's inbox can be flooded).
     resets: Mutex<Throttle>,
+    /// Confirmation emails lately, by address (sign-up's and the ones sent again).
+    verifies: Mutex<Throttle>,
     in_flight: Mutex<HashMap<u64, u32>>,
     upstream: Box<dyn Upstream>,
     clock: Box<dyn Fn() -> u64 + Send + Sync>,
@@ -192,6 +198,11 @@ fn thousands(n: u64) -> String {
 
 /// Why a reset link doesn't work.
 const EXPIRED: &str = "This link has expired or was used already: ask for a new one where you sign in";
+/// Why a confirmation link doesn't work.
+const VERIFY_EXPIRED: &str = "This link has expired or was used already. If your Foundry Account still asks you to confirm your email, send a new link from its window in the app.";
+/// What an account whose email isn't confirmed is told when it tries to spend (the address added
+/// where it is known).
+const CONFIRM_FIRST: &str = "Confirm your email first: open the link we sent you (send it again from your Foundry Account window)";
 
 /// `text` with a capital first letter.
 fn capitalized(text: &str) -> String {
@@ -249,11 +260,16 @@ fn reset_form_html(token: &str, problem: &str) -> String {
     )
 }
 
-/// A reset page around `body`. The link's token is in its address, so the page is never cached,
-/// framed, or named to another site it links to.
+/// A reset page around `body`.
 fn reset_html(body: &str) -> Response {
+    link_html("Reset your password", body)
+}
+
+/// A page an emailed link opens, titled `title`, around `body`. The link's token is in its
+/// address, so the page is never cached, framed, or named to another site it links to.
+fn link_html(title: &str, body: &str) -> Response {
     let html = format!(
-        "<!doctype html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>Reset your password · StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em;line-height:1.5\"><h1>StitchFoundry</h1><h2>Reset your password</h2>{body}</body>"
+        "<!doctype html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>{title} · StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em;line-height:1.5\"><h1>StitchFoundry</h1><h2>{title}</h2>{body}</body>"
     );
     let headers = [
         ("Cache-Control", "no-store"),
@@ -274,6 +290,7 @@ fn store_error(e: StoreError) -> Response {
         StoreError::Taken => Response::error(409, "invalid_request_error", "an account with that email already exists: sign in instead"),
         StoreError::NoAccount => Response::error(401, "authentication_error", "sign in again"),
         StoreError::NotEnough => Response::error(402, "billing_error", "not enough Foundry credits: buy more in Account"),
+        StoreError::Unconfirmed => Response::error(403, "permission_error", format!("{CONFIRM_FIRST}.")),
         StoreError::Io(e) => {
             log::error!("store: {e}");
             Response::error(500, "api_error", "the service couldn't save: try again later")
@@ -287,7 +304,16 @@ impl Service {
     }
 
     pub fn with_clock(cfg: Config, store: Store, upstream: Box<dyn Upstream>, clock: Box<dyn Fn() -> u64 + Send + Sync>) -> Service {
-        Service { cfg, store: Mutex::new(store), throttle: Mutex::default(), resets: Mutex::default(), in_flight: Mutex::default(), upstream, clock }
+        Service {
+            cfg,
+            store: Mutex::new(store),
+            throttle: Mutex::default(),
+            resets: Mutex::default(),
+            verifies: Mutex::default(),
+            in_flight: Mutex::default(),
+            upstream,
+            clock,
+        }
     }
 
     fn store(&self) -> std::sync::MutexGuard<'_, Store> {
@@ -323,6 +349,8 @@ impl Service {
             ("POST", "/v1/password/reset") => self.reset_json(req),
             ("GET", "/reset") => self.reset_page(req),
             ("POST", "/reset") => self.reset_form(req),
+            ("GET", "/verify") => self.verify_page(req),
+            ("POST", "/v1/verify/resend") => self.resend_verify(req),
             // (POST too: the app's client only posts)
             ("GET" | "POST", "/v1/account") => self.account(req),
             ("POST", "/v1/checkout") => self.checkout(req),
@@ -360,6 +388,9 @@ impl Service {
             // own records under it, since it never changes
             "id": id,
             "email": a.map(|a| a.email.as_str()),
+            // whether the email is confirmed; until it is, nothing can be spent, and the link
+            // went to `email`
+            "verified": a.is_some_and(|a| self.verified(a)),
             "credits": a.map_or(0, |a| a.credits.saturating_sub(a.reserved)),
             "freeChecks": free_checks,
             "checkCredits": self.cfg.check_credits,
@@ -368,6 +399,122 @@ impl Service {
             "sharedChecks": store.shared_checks(id).len(),
             "reports": store.reports(id).len(),
         })
+    }
+
+    /// Whether `a`'s email counts as confirmed: confirmed, or the service sends no email (then
+    /// nobody could confirm, so nobody is kept waiting).
+    fn verified(&self, a: &crate::store::Account) -> bool {
+        a.verified || self.cfg.resend_key.is_none()
+    }
+
+    /// Refuses (403) an account whose email isn't confirmed, saying where the link went. With no
+    /// email set up, an account still waiting (made while it was) is confirmed now.
+    fn confirmed(&self, id: u64) -> Result<(), Response> {
+        let mut store = self.store();
+        let Some(a) = store.account(id) else { return Err(store_error(StoreError::NoAccount)) };
+        if a.verified {
+            return Ok(());
+        }
+        if self.cfg.resend_key.is_none() {
+            return store.confirm(id).map_err(store_error);
+        }
+        Err(Response::error(
+            403,
+            "permission_error",
+            format!("Confirm your email first: we sent a link to {} (send it again from your Foundry Account window).", a.email),
+        ))
+    }
+
+    /// Emails `email` (account `id`'s) a link that confirms it, replacing any earlier one.
+    fn send_verify(&self, id: u64, email: &str, now: u64) -> Result<(), String> {
+        let Some(key) = &self.cfg.resend_key else { return Err("email isn't set up".into()) };
+        let (token, hash) = auth::new_verify_token()?;
+        self.store().add_verify(hash, id, now).map_err(|e| e.to_string())?;
+        let link = format!("{}/verify?token={token}", self.cfg.public_url);
+        let text = format!(
+            "Welcome to your Foundry Account, for StitchFoundry and its sister apps.\n\n\
+             To confirm that {email} is your address, open this link within 48 hours:\n{link}\n\n\
+             Until you do, you can sign in, but the AI features, the free sew-out checks and buying \
+             credits wait. Your free starting credits are kept for you.\n\n\
+             If the link has expired, send a new one from the Foundry Account window in the app.\n\n\
+             If you didn't make this account, ignore this email.\n\n\
+             StitchFoundry · support@stitchfoundry.app\n"
+        );
+        let mail = json!({ "from": self.cfg.mail_from, "to": [email], "reply_to": "support@stitchfoundry.app", "subject": "Confirm your email for your Foundry Account", "text": text });
+        match self.upstream.post(
+            RESEND_URL,
+            &[("authorization", format!("Bearer {key}")), ("content-type", "application/json".into())],
+            &mail.to_string(),
+        ) {
+            Ok((status, _)) if (200..300).contains(&status) => Ok(()),
+            // (logged without the link, which would confirm the address)
+            Ok((status, _)) => {
+                log::error!("confirmation email for account {id} refused ({status})");
+                Err(format!("refused ({status})"))
+            }
+            Err(e) => {
+                log::error!("confirmation email for account {id} didn't go: {e}");
+                Err(e)
+            }
+        }
+    }
+
+    /// Whether another confirmation email may go to `email` now (counting this one if so).
+    fn verify_email_allowed(&self, email: &str, now: u64) -> bool {
+        let mut throttle = self.verifies.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        if !throttle.allowed(email, now) {
+            return false;
+        }
+        throttle.failed(email, now);
+        true
+    }
+
+    /// `POST /v1/verify/resend`: the confirmation link again, for a signed-in account still
+    /// waiting → `{sent, verified, message}`; at most five emails an address in 15 minutes.
+    fn resend_verify(&self, req: &Request) -> Response {
+        let id = match self.signed_in(req) {
+            Ok(id) => id,
+            Err(r) => return r,
+        };
+        let Some((email, verified)) = self.store().account(id).map(|a| (a.email.clone(), self.verified(a))) else {
+            return store_error(StoreError::NoAccount);
+        };
+        if verified {
+            return Response::json(200, &json!({ "sent": false, "verified": true, "message": "Your email is confirmed already." }));
+        }
+        let now = (self.clock)();
+        if !self.verify_email_allowed(&email, now) {
+            return Response::error(429, "rate_limit_error", "a few links went to that address lately: wait 15 minutes and try again");
+        }
+        match self.send_verify(id, &email, now) {
+            Ok(()) => Response::json(
+                200,
+                &json!({ "sent": true, "verified": false, "message": format!("A new link is on its way to {email}. It works for 48 hours.") }),
+            ),
+            Err(_) => Response::error(502, "api_error", "the email couldn't be sent: try again later"),
+        }
+    }
+
+    /// The page a confirmation link opens: it confirms the email, and says so.
+    fn verify_page(&self, req: &Request) -> Response {
+        let token = query_value(&req.path, "token").unwrap_or_default();
+        let title = "Confirm your email";
+        if !auth::is_verify_token(&token) {
+            return link_html(title, &format!("<p>{VERIFY_EXPIRED}</p>"));
+        }
+        let now = (self.clock)();
+        let used = self.store().use_verify(&auth::token_hash(&token), now);
+        match used {
+            Ok(Some(_)) => link_html(
+                title,
+                "<p>Your email is confirmed: your Foundry Account is ready to use.</p><p>You can close this page. In the app, open the Foundry Account window and press Refresh.</p>",
+            ),
+            Ok(None) => link_html(title, &format!("<p>{VERIFY_EXPIRED}</p>")),
+            Err(e) => {
+                log::error!("verify: {e}");
+                link_html(title, "<p>Your email couldn't be confirmed just now: open the link again in a few minutes.</p>")
+            }
+        }
     }
 
     /// Whether the free offers have budget left in `month` (`SF_CLOUD_FREE_BUDGET_CENTS`).
@@ -413,12 +560,15 @@ impl Service {
         };
         let now = (self.clock)();
         let month = sewout::month(now);
+        // with email set up, the account waits for its address to be confirmed; without, nobody
+        // could confirm it, so it starts confirmed
+        let verified = self.cfg.resend_key.is_none();
         let id = {
             let mut store = self.store();
             // the starting credits, while the month's free offers can afford them
             let cost = pricing::grant_cost_cents(&self.cfg, self.cfg.signup_credits);
             let credits = if store.free_spent(&month).saturating_add(cost) <= self.cfg.free_budget_cents { self.cfg.signup_credits } else { 0 };
-            let id = match store.create(&email, hash, credits, now) {
+            let id = match store.create(&email, hash, credits, verified, now) {
                 Ok(id) => id,
                 Err(e) => return store_error(e),
             };
@@ -429,6 +579,10 @@ impl Service {
             }
             id
         };
+        // (an email that didn't go is sent again from the account window)
+        if !verified && self.verify_email_allowed(&email, now) {
+            let _ = self.send_verify(id, &email, now);
+        }
         self.new_session(id)
     }
 
@@ -640,6 +794,10 @@ impl Service {
             Ok(id) => id,
             Err(r) => return r,
         };
+        // payments go only to confirmed addresses (receipts, refunds)
+        if let Err(r) = self.confirmed(id) {
+            return r;
+        }
         let Some(key) = &self.cfg.stripe_key else {
             return Response::error(503, "api_error", "buying credits isn't open yet");
         };
@@ -730,6 +888,9 @@ impl Service {
             Ok(id) => id,
             Err(r) => return r,
         };
+        if let Err(r) = self.confirmed(id) {
+            return r;
+        }
         let Some(key) = self.cfg.anthropic_key.clone() else {
             return Response::error(503, "api_error", "StitchFoundry's AI isn't open yet: use your own Anthropic API key for now");
         };
@@ -747,6 +908,9 @@ impl Service {
             Ok(id) => id,
             Err(r) => return r,
         };
+        if let Err(r) = self.confirmed(id) {
+            return r;
+        }
         let Some(key) = self.cfg.anthropic_key.clone() else {
             return Response::error(503, "api_error", "StitchFoundry's AI isn't open yet: use your own Anthropic API key for now");
         };
@@ -1131,6 +1295,7 @@ mod tests {
     fn a_forgotten_password_is_reset_through_an_emailed_link() {
         let (s, calls) = service_with_email();
         let t = sign_up(&s);
+        calls.lock().unwrap().clear(); // (the sign-up's confirmation email)
         assert_eq!(json_of(&s.handle(&req("GET", "/v1/health", None, json!({}))))["email"], true);
         // an unknown address gets the same answer, and no email
         let unknown = s.handle(&req("POST", "/v1/password/forgot", None, json!({"email": "nobody@example.com"})));
@@ -1182,6 +1347,7 @@ mod tests {
     fn reset_emails_are_limited_and_need_resend() {
         let (s, calls) = service_with_email();
         sign_up(&s);
+        calls.lock().unwrap().clear(); // (the sign-up's confirmation email)
         let ask = || s.handle(&req("POST", "/v1/password/forgot", None, json!({"email": "denise@example.com"}))).status;
         for _ in 0..auth::MAX_FAILURES {
             assert_eq!(ask(), 200);
@@ -1193,6 +1359,179 @@ mod tests {
         sign_up(&s);
         assert_eq!(s.handle(&req("POST", "/v1/password/forgot", None, json!({"email": "denise@example.com"}))).status, 503);
         assert_eq!(json_of(&s.handle(&req("GET", "/v1/health", None, json!({}))))["email"], false);
+    }
+
+    /// A service with email, AI and payments set up, on a clock the test moves. Its fake answers
+    /// every call with one reply that serves as an email's, an AI answer and a checkout page.
+    fn service_confirming() -> (Service, Calls, Arc<std::sync::atomic::AtomicU64>) {
+        let reply = json!({"type": "message", "model": "claude-opus-5-5", "content": [{"type": "text", "text": "ok"}], "usage": {"input_tokens": 10, "output_tokens": 10}, "url": "https://checkout.stripe.com/c/pay/cs_1"});
+        let calls: Calls = Arc::default();
+        let cfg = Config::from_env(|k| match k {
+            "RESEND_API_KEY" => Some("re_test".into()),
+            "ANTHROPIC_API_KEY" => Some("sk-ant-service".into()),
+            "STRIPE_SECRET_KEY" => Some("sk_test_x".into()),
+            "STRIPE_WEBHOOK_SECRET" => Some("whsec_x".into()),
+            "SF_CLOUD_PUBLIC_URL" => Some("https://cloud.example.com".into()),
+            _ => None,
+        })
+        .unwrap();
+        let clock = Arc::new(std::sync::atomic::AtomicU64::new(1_000_000));
+        let c = clock.clone();
+        let fake = Fake { calls: calls.clone(), reply: (200, reply.to_string()) };
+        let s = Service::with_clock(cfg, Store::in_memory(), Box::new(fake), Box::new(move || c.load(std::sync::atomic::Ordering::SeqCst)));
+        (s, calls, clock)
+    }
+
+    /// The emails sent so far: (to, subject, text).
+    fn emails(calls: &Calls) -> Vec<(String, String, String)> {
+        calls
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|c| c.0 == RESEND_URL)
+            .map(|c| {
+                let m: Value = serde_json::from_str(&c.2).unwrap();
+                (m["to"][0].as_str().unwrap().into(), m["subject"].as_str().unwrap().into(), m["text"].as_str().unwrap().into())
+            })
+            .collect()
+    }
+
+    /// The token in the last confirmation link emailed.
+    fn verify_token(calls: &Calls) -> String {
+        let (_, _, text) = emails(calls).pop().unwrap();
+        let link = text.split_whitespace().find(|w| w.starts_with("https://")).unwrap();
+        link.strip_prefix("https://cloud.example.com/verify?token=").unwrap().to_string()
+    }
+
+    fn ai(t: &str) -> Request {
+        req("POST", "/v1/messages", Some(t), json!({"model": "claude-opus-5-5", "max_tokens": 100, "messages": [{"role": "user", "content": "hi"}]}))
+    }
+
+    /// CLOUD-10: a new account can sign in and read itself, but spends nothing (AI, a free sew-out
+    /// check, buying credits) until the link emailed at sign-up confirms its address.
+    #[test]
+    fn a_new_account_confirms_its_email_before_it_spends() {
+        let (s, calls, _) = service_confirming();
+        let r = s.handle(&req("POST", "/v1/signup", None, json!({"email": "Denise@Example.com", "password": "fire truck 1"})));
+        assert_eq!(r.status, 200, "{}", r.body);
+        assert_eq!(json_of(&r)["account"]["verified"], false);
+        let t = json_of(&r)["token"].as_str().unwrap().to_string();
+        let account = || json_of(&s.handle(&req("GET", "/v1/account", Some(&t), json!({}))));
+        let a = account();
+        assert_eq!((a["verified"].clone(), a["email"].clone(), a["credits"].clone()), (json!(false), json!("denise@example.com"), json!(100)));
+        // the link went to the address, through Resend, for 48 hours
+        let sent = emails(&calls);
+        assert_eq!(sent.len(), 1);
+        assert_eq!(sent[0].0, "denise@example.com");
+        assert!(sent[0].1.contains("Confirm your email") && sent[0].2.contains("within 48 hours"), "{sent:?}");
+        let token = verify_token(&calls);
+        assert!(auth::is_verify_token(&token), "{token}");
+        // spending is refused, saying where the link went; nothing reaches Anthropic or Stripe
+        for r in [
+            s.handle(&ai(&t)),
+            s.handle(&check(&t, "aaaaaaaa", "aGVsbG8=", false)),
+            s.handle(&req("POST", "/v1/checkout", Some(&t), json!({"pack": "small"}))),
+        ] {
+            assert_eq!(r.status, 403, "{}", r.body);
+            let m = json_of(&r)["error"]["message"].as_str().unwrap().to_string();
+            assert!(m.starts_with("Confirm your email first") && m.contains("denise@example.com") && m.contains("Foundry Account"), "{m}");
+        }
+        assert_eq!(calls.lock().unwrap().len(), 1, "only the email went out");
+        let a = account();
+        assert_eq!((a["credits"].clone(), a["freeChecks"].clone()), (json!(100), json!(3)), "the starting credits and free checks wait");
+        // a wrong or made-up link confirms nothing, and isn't echoed
+        for bad in [format!("sfv_{}", "0".repeat(64)), "%3Cscript%3E".into(), format!("sfr_{}", &token[4..])] {
+            let page = s.handle(&req("GET", &format!("/verify?token={bad}"), None, json!({})));
+            assert!(page.body.contains("expired or was used") && !page.body.contains("<script"), "{}", page.body);
+        }
+        assert_eq!(account()["verified"], false);
+        // the link confirms it, on a page that says so
+        let page = s.handle(&req("GET", &format!("/verify?token={token}"), None, json!({})));
+        assert!(page.content_type.starts_with("text/html") && page.body.contains("Your email is confirmed"), "{}", page.body);
+        assert!(page.headers.iter().any(|h| h.0 == "Referrer-Policy" && h.1 == "no-referrer"));
+        assert_eq!(account()["verified"], true);
+        // ... once
+        assert!(s.handle(&req("GET", &format!("/verify?token={token}"), None, json!({}))).body.contains("expired or was used"));
+        // and now it spends
+        assert_eq!(s.handle(&ai(&t)).status, 200);
+        assert_eq!(s.handle(&check(&t, "aaaaaaaa", "aGVsbG8=", false)).status, 200);
+        assert_eq!(
+            json_of(&s.handle(&req("POST", "/v1/checkout", Some(&t), json!({"pack": "small"}))))["url"],
+            "https://checkout.stripe.com/c/pay/cs_1"
+        );
+        assert_eq!(account()["freeChecks"], 2);
+    }
+
+    /// A confirmation link works for 48 hours; after that a new one is sent from the account.
+    #[test]
+    fn an_expired_confirmation_link_confirms_nothing() {
+        let (s, calls, clock) = service_confirming();
+        let t = sign_up(&s);
+        let old = verify_token(&calls);
+        clock.store(1_000_000 + auth::VERIFY_TTL, std::sync::atomic::Ordering::SeqCst);
+        assert!(s.handle(&req("GET", &format!("/verify?token={old}"), None, json!({}))).body.contains("expired or was used"));
+        assert_eq!(json_of(&s.handle(&req("GET", "/v1/account", Some(&t), json!({}))))["verified"], false);
+        assert_eq!(s.handle(&ai(&t)).status, 403);
+        let r = s.handle(&req("POST", "/v1/verify/resend", Some(&t), json!({})));
+        assert_eq!(r.status, 200, "{}", r.body);
+        assert_eq!(json_of(&r)["sent"], true);
+        let new = verify_token(&calls);
+        assert_ne!(new, old);
+        assert!(s.handle(&req("GET", &format!("/verify?token={new}"), None, json!({}))).body.contains("Your email is confirmed"));
+        assert_eq!(s.handle(&ai(&t)).status, 200);
+    }
+
+    /// The link is sent again on asking, signed in, at most five emails an address in 15 minutes
+    /// (sign-up's counted); a new link replaces the earlier one; a confirmed account gets none.
+    #[test]
+    fn the_confirmation_link_is_sent_again_a_few_times_at_most() {
+        let (s, calls, clock) = service_confirming();
+        let t = sign_up(&s);
+        let first = verify_token(&calls);
+        let resend = |t: Option<&str>| s.handle(&req("POST", "/v1/verify/resend", t, json!({})));
+        assert_eq!(resend(None).status, 401);
+        for _ in 1..auth::MAX_FAILURES {
+            let r = resend(Some(&t));
+            assert_eq!(r.status, 200, "{}", r.body);
+            assert!(json_of(&r)["message"].as_str().unwrap().contains("denise@example.com"));
+        }
+        let r = resend(Some(&t));
+        assert_eq!(r.status, 429, "an inbox can't be flooded");
+        assert_eq!(emails(&calls).len(), auth::MAX_FAILURES);
+        clock.store(1_000_000 + auth::WINDOW, std::sync::atomic::Ordering::SeqCst);
+        assert_eq!(resend(Some(&t)).status, 200, "after 15 minutes");
+        // only the latest link works
+        assert!(s.handle(&req("GET", &format!("/verify?token={first}"), None, json!({}))).body.contains("expired or was used"));
+        let last = verify_token(&calls);
+        assert!(s.handle(&req("GET", &format!("/verify?token={last}"), None, json!({}))).body.contains("Your email is confirmed"));
+        let n = emails(&calls).len();
+        let r = json_of(&resend(Some(&t)));
+        assert_eq!((r["sent"].clone(), r["verified"].clone()), (json!(false), json!(true)));
+        assert_eq!(emails(&calls).len(), n, "nothing to confirm, nothing sent");
+    }
+
+    /// Without email (no Resend key) nobody could confirm, so accounts start confirmed, and one
+    /// still waiting from when email was set up is confirmed when it next spends.
+    #[test]
+    fn without_email_accounts_start_confirmed() {
+        let reply = json!({"type": "message", "model": "claude-opus-5-5", "content": [], "usage": {"input_tokens": 1, "output_tokens": 1}});
+        let (s, calls) = service((200, reply.to_string()), true);
+        let t = sign_up(&s);
+        assert!(s.store().account(1).unwrap().verified, "made confirmed");
+        assert_eq!(json_of(&s.handle(&req("GET", "/v1/health", None, json!({}))))["email"], false);
+        assert_eq!(json_of(&s.handle(&req("GET", "/v1/account", Some(&t), json!({}))))["verified"], true);
+        assert_eq!(s.handle(&ai(&t)).status, 200);
+        assert!(calls.lock().unwrap().iter().all(|c| c.0 != RESEND_URL));
+        // an account made while email was on, the key since removed
+        let mut store = Store::in_memory();
+        let id = store.create("old@example.com", auth::hash_password("fire truck 1").unwrap(), 100, false, 0).unwrap();
+        let (token, hash) = auth::new_token().unwrap();
+        store.add_session(hash, id, 0).unwrap();
+        let cfg = Config::from_env(|k| (k == "ANTHROPIC_API_KEY").then(|| "sk-ant-service".to_string())).unwrap();
+        let s = Service::with_clock(cfg, store, Box::new(Fake { calls: Arc::default(), reply: (200, reply.to_string()) }), Box::new(|| 1_000));
+        assert_eq!(json_of(&s.handle(&req("GET", "/v1/account", Some(&token), json!({}))))["verified"], true);
+        assert_eq!(s.handle(&ai(&token)).status, 200, "{}", s.handle(&ai(&token)).body);
+        assert!(s.store().account(id).unwrap().verified);
     }
 
     #[test]
