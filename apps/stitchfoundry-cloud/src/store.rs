@@ -25,6 +25,16 @@ pub struct Account {
     #[serde(skip)]
     pub reserved: u64,
     pub created: u64,
+    /// Whether the account's email is confirmed (the link emailed at sign-up was opened). Until it
+    /// is, the account can sign in but spends nothing. Accounts written before confirmation
+    /// existed have no such field and are read as confirmed.
+    #[serde(default = "confirmed_by_default")]
+    pub verified: bool,
+}
+
+/// Accounts made before email confirmation count as confirmed.
+fn confirmed_by_default() -> bool {
+    true
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -78,6 +88,13 @@ pub struct Reset {
     pub expires: u64,
 }
 
+/// An email-confirmation link on its way: whose, and until when it works.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Verify {
+    pub account: u64,
+    pub expires: u64,
+}
+
 /// A sew-out report someone sent (Report to StitchFoundry): whose, and when. Its photos and
 /// text are kept as a shared check's are, under its id.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -108,6 +125,9 @@ struct State {
     /// Password-reset links by the SHA-256 of their token (the token itself is never kept).
     #[serde(default)]
     resets: BTreeMap<String, Reset>,
+    /// Email-confirmation links by the SHA-256 of their token (the token itself is never kept).
+    #[serde(default)]
+    verifies: BTreeMap<String, Verify>,
 }
 
 /// The most recent entries kept for an account's history.
@@ -123,6 +143,8 @@ pub enum StoreError {
     NoAccount,
     #[error("not enough credits")]
     NotEnough,
+    #[error("the account's email isn't confirmed")]
+    Unconfirmed,
     #[error("couldn't save: {0}")]
     Io(String),
 }
@@ -450,14 +472,16 @@ impl Store {
         self.state.recent.get(&id).map_or(&[], Vec::as_slice)
     }
 
-    /// A new account with `credits` to start.
-    pub fn create(&mut self, email: &str, password_hash: String, credits: u64, now: u64) -> Result<u64, StoreError> {
+    /// A new account with `credits` to start, its email confirmed already (`verified`) or waiting
+    /// for its link.
+    pub fn create(&mut self, email: &str, password_hash: String, credits: u64, verified: bool, now: u64) -> Result<u64, StoreError> {
         if self.by_email(email).is_some() {
             return Err(StoreError::Taken);
         }
         self.state.next_id += 1;
         let id = self.state.next_id;
-        self.state.accounts.insert(id, Account { id, email: email.to_string(), password: password_hash, credits, reserved: 0, created: now });
+        let account = Account { id, email: email.to_string(), password: password_hash, credits, reserved: 0, created: now, verified };
+        self.state.accounts.insert(id, account);
         if credits > 0 {
             self.log(Entry { at: now, account: id, kind: "signup".into(), credits: credits as i64, balance: credits, note: String::new() })?;
         }
@@ -501,6 +525,37 @@ impl Store {
         self.state.resets.get(token_hash).filter(|r| r.expires > now).map(|r| r.account)
     }
 
+    /// A new email-confirmation link for `account`, working until `VERIFY_TTL` from `now`. An
+    /// account has one link at a time: sending it again replaces the earlier one.
+    pub fn add_verify(&mut self, token_hash: String, account: u64, now: u64) -> Result<(), StoreError> {
+        self.state.verifies.retain(|_, v| v.account != account && v.expires > now);
+        self.state.verifies.insert(token_hash, Verify { account, expires: now.saturating_add(crate::auth::VERIFY_TTL) });
+        self.save()
+    }
+
+    /// Uses a confirmation link: the account's email is confirmed and the link is gone.
+    /// `Ok(None)` when the link has expired, was used or never was.
+    pub fn use_verify(&mut self, token_hash: &str, now: u64) -> Result<Option<u64>, StoreError> {
+        let Some(account) = self.state.verifies.get(token_hash).filter(|v| v.expires > now).map(|v| v.account) else { return Ok(None) };
+        let a = self.state.accounts.get_mut(&account).ok_or(StoreError::NoAccount)?;
+        a.verified = true;
+        self.state.verifies.retain(|_, v| v.account != account);
+        self.save()?;
+        Ok(Some(account))
+    }
+
+    /// Confirms `account`'s email without a link (an account made while the service sent email,
+    /// now that it sends none).
+    pub fn confirm(&mut self, account: u64) -> Result<(), StoreError> {
+        let a = self.state.accounts.get_mut(&account).ok_or(StoreError::NoAccount)?;
+        if !a.verified {
+            a.verified = true;
+            self.state.verifies.retain(|_, v| v.account != account);
+            self.save()?;
+        }
+        Ok(())
+    }
+
     /// Ends every session made before `t` (Unix seconds) → how many ended.
     pub fn end_sessions_before(&mut self, t: u64) -> Result<usize, StoreError> {
         let before = self.state.sessions.len();
@@ -519,6 +574,9 @@ impl Store {
         let Some(account) = self.reset_for(token_hash, now) else { return Ok(None) };
         let a = self.state.accounts.get_mut(&account).ok_or(StoreError::NoAccount)?;
         a.password = password_hash;
+        // the reset link came by email, so the address is the owner's
+        a.verified = true;
+        self.state.verifies.retain(|_, v| v.account != account);
         self.state.resets.retain(|_, r| r.account != account);
         self.state.sessions.retain(|_, s| s.account != account);
         self.save()?;
@@ -543,9 +601,13 @@ impl Store {
     }
 
     /// Holds `credits` of the account's for a request on its way: refused when the credits not held
-    /// already don't cover it.
+    /// already don't cover it, or the account's email isn't confirmed.
     pub fn reserve(&mut self, account: u64, credits: u64) -> Result<(), StoreError> {
         let a = self.state.accounts.get_mut(&account).ok_or(StoreError::NoAccount)?;
+        // nothing is spent, not even a free check's nothing, before the email is confirmed
+        if !a.verified {
+            return Err(StoreError::Unconfirmed);
+        }
         if a.credits.saturating_sub(a.reserved) < credits {
             return Err(StoreError::NotEnough);
         }
@@ -579,8 +641,8 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
         let id = {
             let mut s = Store::open(&dir).unwrap();
-            let id = s.create("a@b.c", "hash".into(), 50, 1000).unwrap();
-            assert_eq!(s.create("a@b.c", "h".into(), 0, 1000), Err(StoreError::Taken));
+            let id = s.create("a@b.c", "hash".into(), 50, true, 1000).unwrap();
+            assert_eq!(s.create("a@b.c", "h".into(), 0, true, 1000), Err(StoreError::Taken));
             s.add_session("t1".into(), id, 1000).unwrap();
             assert!(s.add_credits(id, 500, "purchase", "cs_1", "small pack", 1001).unwrap());
             assert!(!s.add_credits(id, 500, "purchase", "cs_1", "small pack", 1002).unwrap(), "once a checkout");
@@ -599,7 +661,7 @@ mod tests {
     #[test]
     fn credits_are_held_for_a_request_then_only_what_it_cost_is_taken() {
         let mut s = Store::in_memory();
-        let id = s.create("a@b.c", "h".into(), 100, 0).unwrap();
+        let id = s.create("a@b.c", "h".into(), 100, true, 0).unwrap();
         s.reserve(id, 80).unwrap();
         assert_eq!(s.reserve(id, 30), Err(StoreError::NotEnough), "80 of 100 held already");
         assert_eq!(s.settle(id, 80, 12, "ask", 1).unwrap(), 88);
@@ -618,7 +680,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
         let id = {
             let mut s = Store::open(&dir).unwrap();
-            let id = s.create("a@b.c", "hash".into(), 100, 1000).unwrap();
+            let id = s.create("a@b.c", "hash".into(), 100, true, 1000).unwrap();
             s.reserve(id, 80).unwrap();
             // any later change writes the state, the hold with it if it were kept
             s.add_session("t1".into(), id, 1001).unwrap();
@@ -640,7 +702,7 @@ mod tests {
     #[test]
     fn sessions_made_before_a_time_end() {
         let mut s = Store::in_memory();
-        let id = s.create("a@b.c", "pw".into(), 0, 0).unwrap();
+        let id = s.create("a@b.c", "pw".into(), 0, true, 0).unwrap();
         s.add_session("old".into(), id, 1000).unwrap();
         s.add_session("new".into(), id, 5000).unwrap();
         assert_eq!(s.end_sessions_before(3000).unwrap(), 1);
@@ -651,8 +713,8 @@ mod tests {
     #[test]
     fn a_reset_link_works_once_for_an_hour_and_ends_the_sessions() {
         let mut s = Store::in_memory();
-        let id = s.create("a@b.c", "old".into(), 0, 0).unwrap();
-        let other = s.create("d@e.f", "theirs".into(), 0, 0).unwrap();
+        let id = s.create("a@b.c", "old".into(), 0, true, 0).unwrap();
+        let other = s.create("d@e.f", "theirs".into(), 0, true, 0).unwrap();
         s.add_session("t1".into(), id, 0).unwrap();
         s.add_session("t2".into(), other, 0).unwrap();
         s.add_reset("r1".into(), id, 0).unwrap();
@@ -671,6 +733,58 @@ mod tests {
         assert_eq!(s.use_reset("r3", "again".into(), 301).unwrap(), None, "once");
     }
 
+    /// CLOUD-10: an unconfirmed account holds no credits until its link is used; the link works
+    /// once, for 48 hours, and a new one replaces the old.
+    #[test]
+    fn a_confirmation_link_works_once_for_two_days_and_lets_the_account_spend() {
+        let ttl = crate::auth::VERIFY_TTL;
+        let mut s = Store::in_memory();
+        let id = s.create("a@b.c", "h".into(), 100, false, 0).unwrap();
+        assert!(!s.account(id).unwrap().verified);
+        assert_eq!(s.reserve(id, 0), Err(StoreError::Unconfirmed), "not even a free check's nothing");
+        assert_eq!(s.reserve(id, 10), Err(StoreError::Unconfirmed));
+        s.add_verify("v1".into(), id, 0).unwrap();
+        assert_eq!(s.use_verify("v1", ttl).unwrap(), None, "48 hours");
+        assert_eq!(s.use_verify("nope", 10).unwrap(), None);
+        assert!(!s.account(id).unwrap().verified, "an expired or wrong link confirms nothing");
+        // sending it again replaces the earlier link
+        s.add_verify("v2".into(), id, 100).unwrap();
+        s.add_verify("v3".into(), id, 200).unwrap();
+        assert_eq!(s.use_verify("v2", 300).unwrap(), None);
+        assert_eq!(s.use_verify("v3", 300).unwrap(), Some(id));
+        assert!(s.account(id).unwrap().verified);
+        assert_eq!(s.use_verify("v3", 301).unwrap(), None, "once");
+        assert_eq!(s.reserve(id, 10), Ok(()));
+        // a password reset came by email too: it confirms the address
+        let other = s.create("d@e.f", "h".into(), 0, false, 0).unwrap();
+        s.add_reset("r1".into(), other, 0).unwrap();
+        assert_eq!(s.use_reset("r1", "new".into(), 10).unwrap(), Some(other));
+        assert!(s.account(other).unwrap().verified);
+    }
+
+    /// Accounts written before email confirmation existed (no `verified` in them) are read as
+    /// confirmed; a new unconfirmed one stays unconfirmed, with its link, after a restart.
+    #[test]
+    fn accounts_from_before_confirmation_count_as_confirmed() {
+        let dir = std::env::temp_dir().join(format!("sf-cloud-store-verified-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let old = r#"{"next_id":1,"accounts":{"1":{"id":1,"email":"old@b.c","password":"h","credits":100,"created":5}},"sessions":{},"paid":[]}"#;
+        std::fs::write(dir.join("state.json"), old).unwrap();
+        {
+            let mut s = Store::open(&dir).unwrap();
+            assert!(s.account(1).unwrap().verified, "an old account is confirmed");
+            assert_eq!(s.reserve(1, 10), Ok(()));
+            let id = s.create("new@b.c", "h".into(), 100, false, 10).unwrap();
+            s.add_verify("v1".into(), id, 10).unwrap();
+        }
+        let mut s = Store::open(&dir).unwrap();
+        assert!(s.account(1).unwrap().verified);
+        assert!(!s.account(2).unwrap().verified, "a new account waits for its link");
+        assert_eq!(s.use_verify("v1", 20).unwrap(), Some(2), "the link outlives a restart");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
     /// The Postgres store, with a database to try it on (`SF_CLOUD_TEST_DATABASE_URL`, whose
     /// StitchFoundry tables it empties); skipped without one.
     #[test]
@@ -680,7 +794,7 @@ mod tests {
         c.batch_execute("DROP TABLE IF EXISTS sf_state, sf_ledger, sf_shared_files, sf_shared_rounds").unwrap();
         let id = {
             let mut s = Store::open_db(&url).unwrap();
-            let id = s.create("a@b.c", "hash".into(), 100, 1000).unwrap();
+            let id = s.create("a@b.c", "hash".into(), 100, true, 1000).unwrap();
             s.add_session("t1".into(), id, 1000).unwrap();
             assert!(s.add_credits(id, 1000, "purchase", "cs_1", "small pack", 1001).unwrap());
             let check =
@@ -704,5 +818,19 @@ mod tests {
         assert_eq!(s.delete_shared(&["1-aaaaaaaa".into()]).unwrap(), 1);
         assert!(s.shared("1-aaaaaaaa").0.is_empty());
         assert!(s.shared_checks(id).is_empty());
+        // CLOUD-10: an unconfirmed account and its link are kept; a record written before
+        // confirmation existed (no `verified`) is read as confirmed
+        let new = s.create("new@b.c", "hash".into(), 100, false, 3000).unwrap();
+        s.add_verify("v1".into(), new, 3000).unwrap();
+        drop(s);
+        let mut s = Store::open_db(&url).unwrap();
+        assert!(s.account(id).unwrap().verified && !s.account(new).unwrap().verified);
+        assert_eq!(s.use_verify("v1", 3001).unwrap(), Some(new));
+        drop(s);
+        let old = r#"{"next_id":1,"accounts":{"1":{"id":1,"email":"old@b.c","password":"h","credits":100,"created":5}},"sessions":{},"paid":[]}"#;
+        c.execute("UPDATE sf_state SET data = $1 WHERE id = 1", &[&old]).unwrap();
+        let mut s = Store::open_db(&url).unwrap();
+        assert!(s.account(1).unwrap().verified, "an old account is confirmed");
+        assert_eq!(s.reserve(1, 10), Ok(()));
     }
 }

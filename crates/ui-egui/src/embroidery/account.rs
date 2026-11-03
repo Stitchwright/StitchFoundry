@@ -4,6 +4,10 @@
 //! on, Design from Prompt, Redraw Image, Ask About Embroidery and Check My Sew-out send their
 //! requests through the service ([`prompt::post`] reroutes them: [`cloud::through_cloud`]).
 //!
+//! A new account's email waits to be confirmed (the service emails a link); until it is, the
+//! window says to check the email and offers to send the link again, and the service refuses to
+//! spend credits, saying so in words the AI windows show as they are.
+//!
 //! The session token is kept by the host's secret store, never in the settings; the password is
 //! sent once and forgotten. The service's address comes from the build (`SF_CLOUD_URL`), the
 //! `STITCHFOUNDRY_CLOUD_URL` environment variable, or the window's Server row.
@@ -31,6 +35,8 @@ enum Action {
     Buy,
     SignOut,
     DeleteShared,
+    /// The email-confirmation link sent again.
+    Resend,
 }
 
 /// The window and the account between frames.
@@ -118,6 +124,12 @@ pub fn key_to_send(app: &mut VectorcraftApp) -> String {
     if paying_with_credits(app) { app.embroidery.account.token.clone() } else { app.embroidery.prompt.key.clone() }
 }
 
+/// Whether the account, as last read, is waiting for its email to be confirmed.
+pub fn unconfirmed(app: &VectorcraftApp) -> bool {
+    let st = &app.embroidery.account;
+    !st.token.is_empty() && st.info.as_ref().is_some_and(|i| i["verified"] == Value::Bool(false))
+}
+
 /// `ui.account`: opens the window and reads the account.
 pub fn open(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     if !prompt::available(app) {
@@ -131,8 +143,23 @@ pub fn open(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     if !app.embroidery.account.token.is_empty() {
         app.embroidery.account.stale = true;
     }
+    let resending = p.get("resend").and_then(Value::as_bool) == Some(true);
+    if resending {
+        if app.embroidery.account.token.is_empty() {
+            return Err("Sign in first: the link goes to the account's email.".into());
+        }
+        resend_link(app);
+    }
     let st = &app.embroidery.account;
-    Ok(json!({ "open": true, "signedIn": !st.token.is_empty(), "server": server(app), "credits": credits(app), "payWithCredits": st.use_credits }))
+    Ok(json!({
+        "open": true,
+        "signedIn": !st.token.is_empty(),
+        "server": server(app),
+        "credits": credits(app),
+        "payWithCredits": st.use_credits,
+        "verified": st.info.as_ref().and_then(|i| i["verified"].as_bool()),
+        "resending": resending && st.pending.is_some(),
+    }))
 }
 
 fn send(app: &mut VectorcraftApp, http: Result<HttpRequest, ArtError>, action: Action) {
@@ -187,6 +214,16 @@ fn buy(app: &mut VectorcraftApp, pack: &str) {
     let Some(server) = server(app) else { return };
     let token = app.embroidery.account.token.clone();
     send(app, cloud::checkout(&server, &token, pack), Action::Buy);
+}
+
+/// Send the Link Again: the email-confirmation link, to the account's email.
+fn resend_link(app: &mut VectorcraftApp) {
+    let Some(server) = server(app) else {
+        app.embroidery.account.error = Some(ArtError::NoServer.to_string());
+        return;
+    };
+    let token = app.embroidery.account.token.clone();
+    send(app, cloud::resend_verify(&server, &token), Action::Resend);
 }
 
 fn delete_shared(app: &mut VectorcraftApp) {
@@ -254,7 +291,13 @@ fn answered(app: &mut VectorcraftApp, action: Action, r: Result<Value, ArtError>
             st.use_credits = true;
             st.info = Some(v["account"].clone());
             st.stale = true;
-            st.note = Some(if action == Action::SignUp { "Account made: welcome to StitchFoundry.".into() } else { "Signed in.".into() });
+            st.note = Some(match action {
+                Action::SignUp if v["account"]["verified"] == Value::Bool(false) => {
+                    "Account made: check your email and open the link we sent to confirm it.".into()
+                }
+                Action::SignUp => "Account made: welcome to StitchFoundry.".into(),
+                _ => "Signed in.".into(),
+            });
             keep(app, CREDITS_NAME, Some("1"));
         }
         Action::Refresh => app.embroidery.account.info = Some(v),
@@ -269,6 +312,15 @@ fn answered(app: &mut VectorcraftApp, action: Action, r: Result<Value, ArtError>
         Action::DeleteShared => {
             app.embroidery.account.note = Some("Your shared sew-out checks are deleted.".into());
             app.embroidery.account.stale = true;
+        }
+        Action::Resend => {
+            let st = &mut app.embroidery.account;
+            st.note = Some(if v["verified"] == Value::Bool(true) {
+                "Your email is confirmed already.".into()
+            } else {
+                "A new link is on its way: check your email (and its spam folder).".into()
+            });
+            st.stale = true;
         }
     }
 }
@@ -355,7 +407,13 @@ pub fn paid_line(app: &mut VectorcraftApp, ui: &mut egui::Ui, t: &Tokens) -> boo
     load(app);
     let credits_on = paying_with_credits(app);
     ui.horizontal_wrapped(|ui| {
-        if credits_on {
+        if credits_on && unconfirmed(app) {
+            ui.label(RichText::new(tl!("Confirm your email to use your Foundry credits.")).size(11.0).color(t.warning));
+            if ui.link(RichText::new(tl!("Account")).size(11.0)).clicked() {
+                app.embroidery.account.open = true;
+                app.embroidery.account.stale = true;
+            }
+        } else if credits_on {
             let line = match credits(app) {
                 Some(n) => crate::i18n::fmt(tl!("Paid with Foundry credits ({n} left)."), &[("n", &n.to_string())]),
                 None => tl!("Paid with Foundry credits.").to_string(),
@@ -451,6 +509,29 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 if let Some(email) = info["email"].as_str() {
                     ui.label(crate::i18n::fmt(tl!("Signed in as {email}"), &[("email", email)]));
                 }
+                if info["verified"] == Value::Bool(false) {
+                    egui::Frame::group(ui.style()).fill(t.panel).corner_radius(6.0).inner_margin(8.0).show(ui, |ui| {
+                        ui.label(RichText::new(tl!("Check your email to confirm your account")).strong().color(t.warning));
+                        ui.label(
+                            RichText::new(crate::i18n::fmt(
+                                tl!(
+                                    "We sent a link to {email}. Until you open it, the AI features, the free sew-out checks and buying credits wait."
+                                ),
+                                &[("email", info["email"].as_str().unwrap_or_default())],
+                            ))
+                            .size(11.0)
+                            .color(t.text_dim),
+                        );
+                        ui.horizontal(|ui| {
+                            if ui.add_enabled(!busy, egui::Button::new(tl!("Send the Link Again"))).clicked() {
+                                todo = Some(Box::new(resend_link));
+                            }
+                            if ui.add_enabled(!busy, egui::Button::new(tl!("I've Confirmed It"))).clicked() {
+                                todo = Some(Box::new(refresh));
+                            }
+                        });
+                    });
+                }
                 let n = info["credits"].as_u64();
                 ui.label(
                     RichText::new(match n {
@@ -543,4 +624,10 @@ pub fn window(app: &mut VectorcraftApp, ctx: &egui::Context) {
 #[cfg(test)]
 pub(crate) fn test_sign_in(app: &mut VectorcraftApp, create: bool) {
     sign_in(app, create);
+}
+
+/// Whether no account request is on its way (tests).
+#[cfg(test)]
+pub(crate) fn test_idle(app: &VectorcraftApp) -> bool {
+    app.embroidery.account.pending.is_none()
 }

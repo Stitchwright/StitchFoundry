@@ -1878,6 +1878,13 @@ features: instead of your own Anthropic API key, Foundry credits.
 - **Sign in** with your email and password, or **Create Account** (a new account starts with free
   credits). The password is sent once and forgotten; the app keeps only the sign-in, on this
   computer, as it keeps the API key.
+- **Confirm your email.** A new account is sent an email with a link; open it within 48 hours to
+  confirm the address. Until then you can sign in, and the window says **Check your email to
+  confirm your account**, but the AI features, the free sew-out checks and buying credits wait
+  (they say "Confirm your email first: we sent a link to …"); your free starting credits are kept
+  for you. **Send the Link Again** emails a new link (a few times in 15 minutes at most); after
+  opening it, press **I've Confirmed It** (or **Refresh**). Resetting your password also confirms
+  the email.
 - The window shows your **credits**, the free sew-out checks left this month, and the packs to
   **Buy…**: the payment page opens in your browser, on Stripe's secure site (your card never
   reaches StitchFoundry); afterwards press **Refresh**.
