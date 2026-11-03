@@ -653,7 +653,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "ui.account",
         "Foundry Account…",
         "",
-        "{create?: bool (open on Create Account, else Sign In)} open Foundry Account: make an account or sign in to the StitchFoundry service or make an account, see the credits and buy more (Stripe's page opens in the browser), and choose to pay for the AI features with them instead of your own Anthropic API key (desktop and web) → {open, signedIn, server, credits, payWithCredits}",
+        "{create?: bool (open on Create Account, else Sign In), resend?: bool (send the email-confirmation link again; signed in)} open Foundry Account: make an account or sign in to the StitchFoundry service, confirm its email (a new account's link is emailed; until it is opened nothing can be spent, and the window offers Send the Link Again), see the credits and buy more (Stripe's page opens in the browser), and choose to pay for the AI features with them instead of your own Anthropic API key (desktop and web) → {open, signedIn, server, credits, payWithCredits, verified, resending}",
     ),
     (
         "ui.familyTree",

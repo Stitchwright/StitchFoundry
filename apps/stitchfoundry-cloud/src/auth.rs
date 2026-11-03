@@ -11,6 +11,8 @@ use sha2::{Digest, Sha256};
 pub const PASSWORD_LEN: (usize, usize) = (8, 200);
 /// How long a password-reset link works (seconds): an hour, once.
 pub const RESET_TTL: u64 = 3600;
+/// How long an email-confirmation link works (seconds): 48 hours, once.
+pub const VERIFY_TTL: u64 = 48 * 3600;
 /// Wrong passwords allowed for one email within [`WINDOW`] seconds; also the reset emails one
 /// address may be sent in that time.
 pub const MAX_FAILURES: usize = 5;
@@ -81,6 +83,18 @@ pub fn is_reset_token(token: &str) -> bool {
     token.strip_prefix("sfr_").is_some_and(|h| h.len() == 64 && h.bytes().all(|b| b.is_ascii_hexdigit()))
 }
 
+/// A new email-confirmation token (emailed in a link) and its hash (kept).
+pub fn new_verify_token() -> Result<(String, String), String> {
+    let token = format!("sfv_{}", hex(&random::<32>()?));
+    let hash = token_hash(&token);
+    Ok((token, hash))
+}
+
+/// Whether `token` has the shape of an email-confirmation token.
+pub fn is_verify_token(token: &str) -> bool {
+    token.strip_prefix("sfv_").is_some_and(|h| h.len() == 64 && h.bytes().all(|b| b.is_ascii_hexdigit()))
+}
+
 /// The SHA-256 of a token, as kept.
 pub fn token_hash(token: &str) -> String {
     hex(&Sha256::digest(token.as_bytes()))
@@ -143,6 +157,9 @@ mod tests {
         for bad in ["", "sfr_", "sfs_00", "sfr_<script>", &t, &format!("{r}0")] {
             assert!(!is_reset_token(bad), "{bad}");
         }
+        let (v, vh) = new_verify_token().unwrap();
+        assert!(is_verify_token(&v) && v.len() == 68 && token_hash(&v) == vh);
+        assert!(!is_verify_token(&r) && !is_reset_token(&v), "a reset link can't confirm, nor the other way");
         let mut th = Throttle::default();
         for i in 0..MAX_FAILURES as u64 {
             assert!(th.allowed("a@b.c", i));

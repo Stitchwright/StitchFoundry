@@ -67,9 +67,15 @@ pub fn sign_out(server: &str, token: &str) -> Result<HttpRequest, ArtError> {
     request(server, "/v1/signout", Some(token), &json!({}))
 }
 
-/// The account: `{email, credits, packs: [{id, credits, cents}], payments, history}`.
+/// The account: `{email, verified, credits, packs: [{id, credits, cents}], payments, history}`.
 pub fn account(server: &str, token: &str) -> Result<HttpRequest, ArtError> {
     request(server, "/v1/account", Some(token), &json!({}))
+}
+
+/// The email-confirmation link sent again (to an account whose email isn't confirmed):
+/// `{sent, verified, message}`.
+pub fn resend_verify(server: &str, token: &str) -> Result<HttpRequest, ArtError> {
+    request(server, "/v1/verify/resend", Some(token), &json!({}))
 }
 
 /// A checkout page for pack `pack`: `{url}` to open in the browser.
@@ -95,6 +101,8 @@ pub fn status_error(status: u16, body: &str) -> ArtError {
         .and_then(|v| v.pointer("/error/message").and_then(Value::as_str).map(str::to_string))
         .unwrap_or_default();
     match status {
+        // the email isn't confirmed: the service says where the link went
+        403 if !message.is_empty() => ArtError::Unconfirmed(message),
         401 | 403 => ArtError::SignIn,
         402 => ArtError::NoCredits,
         409 => ArtError::Taken,
@@ -192,6 +200,16 @@ mod tests {
         assert_eq!(parse(200, r#"{"credits": 5}"#).unwrap()["credits"], 5);
         assert_eq!(parse(402, r#"{"type":"error","error":{"type":"x","message":"not enough credits"}}"#), Err(ArtError::NoCredits));
         assert_eq!(parse(401, "{}"), Err(ArtError::SignIn));
+        // an account whose email isn't confirmed: the service's words, as they are
+        let unconfirmed = r#"{"type":"error","error":{"type":"permission_error","message":"Confirm your email first: we sent a link to d@e.f (send it again from your Foundry Account window)."}}"#;
+        assert_eq!(
+            parse(403, unconfirmed),
+            Err(ArtError::Unconfirmed("Confirm your email first: we sent a link to d@e.f (send it again from your Foundry Account window).".into()))
+        );
+        assert_eq!(parse(403, "{}"), Err(ArtError::SignIn));
+        let r = resend_verify("https://c.example", "sfs_abc").unwrap();
+        assert_eq!(r.url, "https://c.example/v1/verify/resend");
+        assert!(r.headers.contains(&("authorization", "Bearer sfs_abc".to_string())));
         assert_eq!(parse(409, "{}"), Err(ArtError::Taken));
         assert_eq!(parse(503, "{}"), Err(ArtError::CloudClosed));
         assert_eq!(

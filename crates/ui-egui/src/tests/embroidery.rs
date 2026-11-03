@@ -1128,6 +1128,90 @@ mod ask_about_embroidery {
         assert_eq!(account::key_to_send(&mut app), "sk-ant-test");
     }
 
+    /// CLOUD-10: a new account waits for its email to be confirmed: the Account window says to check
+    /// the email and sends the link again (as `ui.account {resend}` does), and an AI request the
+    /// service refuses shows the service's own words.
+    #[test]
+    fn an_unconfirmed_account_is_told_to_check_its_email_and_can_have_the_link_again() {
+        use crate::embroidery::account;
+        let token = "sfs_0123456789abcdef";
+        let refused = "Confirm your email first: we sent a link to denise@example.com (send it again from your Foundry Account window).";
+        let unconfirmed = json!({"email": "denise@example.com", "verified": false, "credits": 100, "freeChecks": 3, "packs": [], "payments": false});
+        let (mut app, sent, _) = app(vec![
+            (200, json!({"token": token, "account": unconfirmed}).to_string()),
+            (200, unconfirmed.to_string()),
+            (403, json!({"type": "error", "error": {"type": "permission_error", "message": refused}}).to_string()),
+            (200, json!({"sent": true, "verified": false, "message": "A new link is on its way to denise@example.com."}).to_string()),
+            (200, unconfirmed.to_string()),
+        ]);
+        app.embroidery.account.server = "https://cloud.example".into();
+        app.run("ui.account", json!({"create": true})).unwrap();
+        assert!(app.run("ui.account", json!({"resend": true})).is_err(), "signed out: no account to send it to");
+        let ctx = egui::Context::default();
+        let settle = |app: &mut VectorcraftApp| {
+            for _ in 0..400 {
+                account::poll(app, &ctx);
+                let st = &app.embroidery.account;
+                let read = !st.token.is_empty() && !st.stale && st.info.is_some() && account::test_idle(app);
+                if st.error.is_some() || read {
+                    return;
+                }
+                std::thread::sleep(Duration::from_millis(5));
+            }
+        };
+        app.embroidery.account.email = "denise@example.com".into();
+        app.embroidery.account.password = "fire truck 1".into();
+        account::test_sign_in(&mut app, true);
+        for _ in 0..400 {
+            account::poll(&mut app, &ctx);
+            if !app.embroidery.account.token.is_empty() || app.embroidery.account.error.is_some() {
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert_eq!(app.embroidery.account.note.as_deref(), Some("Account made: check your email and open the link we sent to confirm it."));
+        settle(&mut app);
+        assert!(account::unconfirmed(&app));
+        let texts = account_text(&mut app);
+        assert!(texts.iter().any(|t| t == "Check your email to confirm your account"), "{texts:?}");
+        assert!(texts.iter().any(|t| t == "Send the Link Again"), "{texts:?}");
+        // an AI request refused for it says what the service said
+        app.run("ui.askAboutEmbroidery", json!({"question": "Which stabilizer?"})).unwrap();
+        wait(&mut app);
+        assert_eq!(app.embroidery.ask.error.as_deref(), Some(refused));
+        assert!(!app.embroidery.account.token.is_empty(), "still signed in");
+        // the link again
+        let r = app.run("ui.account", json!({"resend": true})).unwrap();
+        assert_eq!(r["verified"], false);
+        settle(&mut app);
+        assert_eq!(sent.lock().unwrap()[3].url, "https://cloud.example/v1/verify/resend");
+        assert!(sent.lock().unwrap()[3].headers.contains(&("authorization", format!("Bearer {token}"))));
+        assert_eq!(app.embroidery.account.note.as_deref(), Some("A new link is on its way: check your email (and its spam folder)."));
+    }
+
+    /// Every piece of text the Account window paints.
+    fn account_text(app: &mut VectorcraftApp) -> Vec<String> {
+        let ctx = egui::Context::default();
+        crate::theme::install_fonts(&ctx);
+        crate::theme::apply(&ctx, Default::default());
+        let raw =
+            || egui::RawInput { screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1200.0, 900.0))), ..Default::default() };
+        for _ in 0..3 {
+            ctx.run_ui(raw(), |ui| crate::embroidery::account::window(app, &ui.ctx().clone())).textures_delta.clear();
+        }
+        let out = ctx.run_ui(raw(), |ui| crate::embroidery::account::window(app, &ui.ctx().clone()));
+        fn walk(s: &egui::Shape, into: &mut Vec<String>) {
+            match s {
+                egui::Shape::Text(t) => into.push(t.galley.text().to_string()),
+                egui::Shape::Vec(v) => v.iter().for_each(|s| walk(s, into)),
+                _ => {}
+            }
+        }
+        let mut texts = Vec::new();
+        out.shapes.iter().for_each(|c| walk(&c.shape, &mut texts));
+        texts
+    }
+
     /// SO-01: photos of a sew-out are made the size Claude looks at; a check sends them with how
     /// the design should look, its summary and the answers, under the check's own instructions, and
     /// the answer (and the questions after it) are an Ask conversation in its sew-out mode.
