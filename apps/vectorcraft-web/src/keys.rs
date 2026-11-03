@@ -55,7 +55,10 @@ fn to_the_app(e: &web_sys::KeyboardEvent) -> bool {
 pub(crate) fn keep_app_keys() {
     use wasm_bindgen::JsCast as _;
     let Some(window) = web_sys::window() else { return };
-    let on_key = wasm_bindgen::closure::Closure::<dyn FnMut(web_sys::KeyboardEvent)>::new(|e: web_sys::KeyboardEvent| {
+    let on_key = wasm_bindgen::closure::Closure::<dyn FnMut(web_sys::Event)>::new(|e: web_sys::Event| {
+        // Autofill can send a `keydown` that isn't a keyboard event (`crate::events` drops those
+        // first; this is the second line).
+        let Ok(e) = e.dyn_into::<web_sys::KeyboardEvent>() else { return };
         // An IME's keys are its own until it commits.
         if e.is_composing() || !to_the_app(&e) {
             return;
