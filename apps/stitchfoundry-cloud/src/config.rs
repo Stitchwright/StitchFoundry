@@ -75,6 +75,9 @@ pub struct Config {
     /// ([`crate::mail_catcher`]). Setting it turns email on by itself; `RESEND_API_KEY` is then
     /// ignored, so a real key can never travel with a staging email.
     pub mail_catcher: Option<String>,
+    /// The commit this service was built from (`RAILWAY_GIT_COMMIT_SHA`, set by Railway: hex
+    /// digits only), shown by `/v1/health` so a staging test run can say which commit passed.
+    pub commit: Option<String>,
     /// Sessions made before this time (Unix seconds) end when the service starts
     /// (`SF_CLOUD_END_SESSIONS_BEFORE`: `2026-10-22T09:00:00Z`, a date, or Unix seconds): set it
     /// with new keys after a breach, and everyone signs in again. Later restarts end nothing more.
@@ -165,6 +168,7 @@ impl Config {
             reports_from: nonempty("SF_CLOUD_REPORTS_FROM").unwrap_or_else(|| "StitchFoundry <reports@stitchfoundry.app>".into()),
             mail_from: nonempty("SF_CLOUD_MAIL_FROM").unwrap_or_else(|| "StitchFoundry <accounts@stitchfoundry.app>".into()),
             mail_catcher,
+            commit: nonempty("RAILWAY_GIT_COMMIT_SHA").filter(|c| (7..=64).contains(&c.len()) && c.bytes().all(|b| b.is_ascii_hexdigit())),
             end_sessions_before: match nonempty("SF_CLOUD_END_SESSIONS_BEFORE") {
                 None => None,
                 Some(v) => Some(parse_time(&v).ok_or("SF_CLOUD_END_SESSIONS_BEFORE is a UTC time like 2026-10-22T09:00:00Z")?),
@@ -241,6 +245,15 @@ mod tests {
         .unwrap();
         assert_eq!(c.mail_catcher.as_deref(), Some("http://mailpit.railway.internal:8025"));
         assert_eq!(c.resend_key.as_deref(), Some(MAIL_CATCHER_KEY));
+    }
+
+    #[test]
+    fn the_commit_is_read_only_when_it_is_one() {
+        let commit = |v: &str| Config::from_env(|k| (k == "RAILWAY_GIT_COMMIT_SHA").then(|| v.to_string())).unwrap().commit;
+        assert_eq!(commit(" 84f911b7a0 ").as_deref(), Some("84f911b7a0"));
+        for bad in ["", "abc", "not-a-commit", "84f911b7a0<script>"] {
+            assert_eq!(commit(bad), None, "{bad}");
+        }
     }
 
     #[test]

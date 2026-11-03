@@ -9,7 +9,7 @@
 > lasting `id` in its answers, for MakerFoundry's records (CLOUD-06); password reset by email
 > (CLOUD-07). 2026-11-01: credits held for a request aren't held after a restart, a free check's
 > slot is taken before its request goes out, paid rounds aren't counted against the free budget,
-> and only the betas the apps send are passed on (CLOUD-08). 2026-11-03: a staging service's email can go to a Mailpit test mailbox (`SF_CLOUD_MAIL_CATCHER_URL`, CLOUD-11).
+> and only the betas the apps send are passed on (CLOUD-08). 2026-11-03: a staging service's email can go to a Mailpit test mailbox (`SF_CLOUD_MAIL_CATCHER_URL`, CLOUD-11), and `/v1/health` says which commit is running (`commit`, CLOUD-12).
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
