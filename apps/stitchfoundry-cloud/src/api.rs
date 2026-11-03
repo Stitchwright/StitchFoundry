@@ -1090,7 +1090,7 @@ impl Service {
         // only a round charged nothing is paid by the free offers; a free check's rounds past its
         // life are paid in credits, so they aren't counted against the month's free budget too
         let on_the_house = free && charge == Charge::Flat(0);
-        let mut resp = self.forward(req, id, key, &body, max_tokens, charge, if on_the_house && !store.is_test(id) { "sew-out check (free)" } else { "sew-out check" });
+        let mut resp = self.forward(req, id, key, &body, max_tokens, charge, if on_the_house { "sew-out check (free)" } else { "sew-out check" });
         if started && !(200..300).contains(&resp.status) {
             // the free slot wasn't used: give it back
             if let Err(e) = self.store().drop_unstarted_check(&check) {
