@@ -21,6 +21,10 @@
 //! - `POST /v1/messages`: an Anthropic Messages API request, sent with the service's key and paid
 //!   for in credits (`x-stitchfoundry-credits` on the reply: what is left).
 //!
+//! - `POST /v1/test/provision {run, credits?}` and `POST /v1/test/cleanup {run}`: only in test
+//!   mode (`SF_CLOUD_TEST_MODE`, a staging copy; otherwise 404 like any unknown route), with
+//!   `X-Test-Secret`: verified test accounts for a QA bot's run, and their deletion.
+//!
 //! The token comes as `Authorization: Bearer sfs_…`.
 
 use std::collections::HashMap;
@@ -79,6 +83,32 @@ fn tools_refused(tools: &Value) -> Option<String> {
         }
     }
     None
+}
+
+/// The roles a QA run gets a test account for (`/v1/test/provision`).
+pub const TEST_ROLES: &[&str] = &["tech", "shop", "garment", "customer", "staff", "tech2"];
+/// The most starting credits a test account may be given.
+pub const MAX_TEST_CREDITS: u64 = 100_000;
+/// The longest QA run id.
+pub const MAX_RUN_ID: usize = 32;
+
+/// Whether `run` is a QA run id: 1 to [`MAX_RUN_ID`] of `a-z`, `0-9` and `-`.
+fn good_run_id(run: &str) -> bool {
+    (1..=MAX_RUN_ID).contains(&run.len()) && run.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')
+}
+
+/// Whether `given` is `secret`, compared in constant time (their SHA-256s, byte by byte, all of
+/// them), so the answer's timing says nothing about how much of it was right.
+fn same_secret(given: &str, secret: &str) -> bool {
+    use sha2::{Digest, Sha256};
+    let (a, b) = (Sha256::digest(given.as_bytes()), Sha256::digest(secret.as_bytes()));
+    a.iter().zip(b.iter()).fold(0u8, |d, (x, y)| d | (x ^ y)) == 0
+}
+
+/// The answer to any unknown route, which a test route gives too when it isn't on or the secret
+/// is wrong (so nothing says it exists).
+fn not_found() -> Response {
+    Response::error(404, "not_found_error", "no such endpoint")
 }
 
 /// The headers that let the web app call from a browser.
@@ -363,7 +393,107 @@ impl Service {
             ("GET", "/cancelled") => {
                 Response::page("The payment was cancelled; nothing was charged.", "You can close this tab and go back to StitchFoundry.")
             }
-            _ => Response::error(404, "not_found_error", "no such endpoint"),
+            // staging only: not even routed unless test mode is on
+            ("POST", "/v1/test/provision") if self.cfg.test_mode => self.test_provision(req),
+            ("POST", "/v1/test/cleanup") if self.cfg.test_mode => self.test_cleanup(req),
+            _ => not_found(),
+        }
+    }
+
+    /// Whether the request carries the test secret (`X-Test-Secret`). Never true outside test
+    /// mode, or without a secret set.
+    fn test_allowed(&self, req: &Request) -> bool {
+        match (&self.cfg.test_secret, req.header("x-test-secret")) {
+            (Some(secret), Some(given)) if self.cfg.test_mode => same_secret(given.trim(), secret),
+            _ => false,
+        }
+    }
+
+    /// A QA run's id from the body's `run`, or the answer refusing it.
+    fn test_run(v: &Value) -> Result<String, Response> {
+        match v.get("run").and_then(Value::as_str) {
+            Some(r) if good_run_id(r) => Ok(r.to_string()),
+            _ => Err(Response::error(400, "invalid_request_error", format!("run is 1 to {MAX_RUN_ID} of a-z, 0-9 and -"))),
+        }
+    }
+
+    /// `POST /v1/test/provision {run, credits?}` (test mode, `X-Test-Secret`): a verified test
+    /// account for each of [`TEST_ROLES`], `qa-bot+<run>-<role>@test.invalid`, with a random
+    /// password given only in this answer (never logged or kept but as its hash) →
+    /// `{run, users: [{role, id, email, password, credits}]}`. 409 when the run exists already.
+    fn test_provision(&self, req: &Request) -> Response {
+        if !self.test_allowed(req) {
+            return not_found();
+        }
+        let v = match body_json(req) {
+            Ok(v) => v,
+            Err(r) => return r,
+        };
+        let run = match Self::test_run(&v) {
+            Ok(r) => r,
+            Err(r) => return r,
+        };
+        let credits = match v.get("credits") {
+            None | Some(Value::Null) => 0,
+            Some(c) => match c.as_u64().filter(|c| *c <= MAX_TEST_CREDITS) {
+                Some(c) => c,
+                None => return Response::error(400, "invalid_request_error", format!("credits is 0 to {MAX_TEST_CREDITS}")),
+            },
+        };
+        if self.store().has_test_run(&run) {
+            return Response::error(409, "invalid_request_error", "that run has test accounts already: clean it up first");
+        }
+        // the passwords and their hashes, made before the store is locked (hashing takes a while)
+        let mut users = Vec::with_capacity(TEST_ROLES.len());
+        for role in TEST_ROLES {
+            let password = match auth::new_password() {
+                Ok(p) => p,
+                Err(e) => return Response::error(500, "api_error", e),
+            };
+            let hash = match auth::hash_password(&password) {
+                Ok(h) => h,
+                Err(e) => return Response::error(500, "api_error", e),
+            };
+            users.push((*role, format!("qa-bot+{run}-{role}@test.invalid"), password, hash));
+        }
+        let now = (self.clock)();
+        let made =
+            self.store().create_test_accounts(&run, users.iter().map(|(_, email, _, hash)| (email.clone(), hash.clone())).collect(), credits, now);
+        let ids = match made {
+            Ok(ids) => ids,
+            Err(e) => return store_error(e),
+        };
+        log::info!("test run {run}: {} test accounts made", ids.len());
+        let list: Vec<Value> = users
+            .iter()
+            .zip(ids)
+            .map(|((role, email, password, _), id)| json!({ "role": role, "id": id, "email": email, "password": password, "credits": credits }))
+            .collect();
+        Response::json(200, &json!({ "run": run, "users": list }))
+    }
+
+    /// `POST /v1/test/cleanup {run}` (test mode, `X-Test-Secret`): deletes the run's test accounts
+    /// and everything kept for them → `{run, removed: {accounts, sessions, ledger, checks,
+    /// reports, links}}`.
+    fn test_cleanup(&self, req: &Request) -> Response {
+        if !self.test_allowed(req) {
+            return not_found();
+        }
+        let v = match body_json(req) {
+            Ok(v) => v,
+            Err(r) => return r,
+        };
+        let run = match Self::test_run(&v) {
+            Ok(r) => r,
+            Err(r) => return r,
+        };
+        let removed = self.store().delete_test_run(&run);
+        match removed {
+            Ok(removed) => {
+                log::info!("test run {run}: {} test accounts deleted", removed.accounts);
+                Response::json(200, &json!({ "run": run, "removed": removed }))
+            }
+            Err(e) => store_error(e),
         }
     }
 
@@ -971,7 +1101,8 @@ impl Service {
         }
         if (200..300).contains(&resp.status) {
             let mut store = self.store();
-            if on_the_house {
+            // (a test account's free checks never count in the service's totals)
+            if on_the_house && !store.is_test(id) {
                 // a free check's rounds count against the month's free offers at what they cost
                 let cost = serde_json::from_str::<Value>(&resp.body).ok().map_or(0, |r| {
                     let price = r.get("model").and_then(Value::as_str).and_then(|m| self.cfg.model(m)).cloned().unwrap_or_else(|| self.cfg.dearest());
@@ -1042,7 +1173,7 @@ impl Service {
             Err(why) => return Response::error(400, "invalid_request_error", why),
         };
         let now = (self.clock)();
-        let (rid, email, refunded) = {
+        let (rid, email, refunded, test_run) = {
             let mut store = self.store();
             if store.reports_since(id, now.saturating_sub(24 * 3600)) >= sewout::MAX_REPORTS_A_DAY {
                 return Response::error(
@@ -1052,6 +1183,7 @@ impl Service {
                 );
             }
             let email = store.account(id).map(|a| a.email.clone()).unwrap_or_default();
+            let test_run = store.account(id).and_then(|a| a.test_run.clone());
             let rid = format!("report-{id}-{now}-{}", store.reports(id).len() + 1);
             let kept = report.kept(&rid, id, &email, now);
             if let Err(e) = store.keep_report(&rid, crate::store::Report { account: id, created: now }, &report.photos, &kept) {
@@ -1073,12 +1205,16 @@ impl Service {
                 }
                 _ => 0,
             };
-            (rid, email, refunded)
+            (rid, email, refunded, test_run)
         };
         // the report is kept; the email is how the owner hears of it
         let emailed = match (&self.cfg.resend_key, &self.cfg.reports_to) {
             (Some(key), Some(to)) => {
-                let mail = report.email(&self.cfg.reports_from, to, &rid, &email);
+                let mut mail = report.email(&self.cfg.reports_from, to, &rid, &email);
+                // a QA bot's report says so, so the owner never takes it for a real one
+                if let Some(run) = &test_run {
+                    mail["subject"] = json!(format!("[test run {run}] {}", report.subject()));
+                }
                 match self.upstream.post(
                     RESEND_URL,
                     &[("authorization", format!("Bearer {key}")), ("content-type", "application/json".into())],
@@ -1183,6 +1319,7 @@ enum Charge {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::BTreeSet;
     use std::sync::{Arc, Mutex as StdMutex};
 
     type Calls = Arc<StdMutex<Vec<(String, Vec<(String, String)>, String)>>>;
@@ -1970,5 +2107,285 @@ mod tests {
         assert_eq!(thousands(0), "0");
         assert_eq!(thousands(999), "999");
         assert_eq!(thousands(1_234_567), "1,234,567");
+    }
+
+    // ---------- CLOUD-13: test mode (staging only) ----------
+
+    const SECRET: &str = "0123456789abcdef0123456789abcdef";
+
+    /// A staging service in test mode over `store`, with AI and (test) payments set up, and
+    /// reports emailed when `email` is set.
+    fn test_service(store: Store, email: bool) -> (Service, Calls) {
+        let reply = json!({"type": "message", "model": "claude-opus-5-5", "content": [{"type": "text", "text": "Overlap the shapes 1 mm."}], "usage": {"input_tokens": 10_000, "output_tokens": 2_000}});
+        let calls: Calls = Arc::default();
+        let cfg = Config::from_env(|k| match k {
+            "SF_CLOUD_TEST_MODE" => Some("on".into()),
+            "SF_CLOUD_ENV" => Some("staging".into()),
+            "SF_CLOUD_TEST_SECRET" => Some(SECRET.into()),
+            "ANTHROPIC_API_KEY" => Some("sk-ant-service".into()),
+            "STRIPE_SECRET_KEY" => Some("sk_test_x".into()),
+            "STRIPE_WEBHOOK_SECRET" => Some("whsec_x".into()),
+            "RESEND_API_KEY" if email => Some("re_test".into()),
+            "SF_CLOUD_REPORTS_TO" if email => Some("support@stitchfoundry.app".into()),
+            _ => None,
+        })
+        .unwrap();
+        let s = Service::with_clock(cfg, store, Box::new(Fake { calls: calls.clone(), reply: (200, reply.to_string()) }), Box::new(|| 1_000_000));
+        (s, calls)
+    }
+
+    /// A test route's request, with `secret` as `X-Test-Secret` if any.
+    fn test_req(path: &str, secret: Option<&str>, body: Value) -> Request {
+        let mut r = req("POST", path, None, body);
+        if let Some(sec) = secret {
+            r.headers.push(("X-Test-Secret".into(), sec.into()));
+        }
+        r
+    }
+
+    fn report_body(check: Option<&str>) -> Value {
+        json!({"consent": true, "title": "Gaps on knit", "report": "The fill pulled in on knit.",
+            "photos": [{"mediaType": "image/jpeg", "data": "aGVsbG8="}], "app": "0.13.1", "check": check})
+    }
+
+    #[test]
+    fn the_test_routes_dont_exist_when_test_mode_is_off() {
+        let (s, _) = service((200, String::new()), true);
+        let unknown = s.handle(&req("POST", "/v1/nope", None, json!({})));
+        for path in ["/v1/test/provision", "/v1/test/cleanup"] {
+            let r = s.handle(&test_req(path, Some(SECRET), json!({"run": "r1"})));
+            assert_eq!((r.status, &r.body), (404, &unknown.body), "{path}: as any unknown route");
+        }
+        // even a secret configured without test mode opens nothing
+        let cfg = Config::from_env(|k| (k == "SF_CLOUD_TEST_SECRET").then(|| SECRET.to_string())).unwrap();
+        assert!(!cfg.test_mode && cfg.test_secret.is_none());
+        let s = Service::with_clock(cfg, Store::in_memory(), Box::new(Fake { calls: Arc::default(), reply: (200, String::new()) }), Box::new(|| 0));
+        assert_eq!(s.handle(&test_req("/v1/test/provision", Some(SECRET), json!({"run": "r1"}))).status, 404);
+        assert!(s.store().by_email("qa-bot+r1-tech@test.invalid").is_none());
+    }
+
+    #[test]
+    fn the_test_routes_need_the_secret_and_a_good_run() {
+        let (s, _) = test_service(Store::in_memory(), false);
+        let unknown = s.handle(&req("POST", "/v1/nope", None, json!({})));
+        for secret in [None, Some(""), Some("wrong"), Some(&SECRET[..31])] {
+            for path in ["/v1/test/provision", "/v1/test/cleanup"] {
+                let r = s.handle(&test_req(path, secret, json!({"run": "r1"})));
+                assert_eq!((r.status, &r.body), (404, &unknown.body), "{path} with {secret:?}: nothing said");
+            }
+        }
+        assert!(s.store().by_email("qa-bot+r1-tech@test.invalid").is_none());
+        let long = "a".repeat(MAX_RUN_ID + 1);
+        for run in [json!(""), json!("Run1"), json!("r_1"), json!("r 1"), json!("r1@x"), json!(long), json!(5), Value::Null] {
+            assert_eq!(s.handle(&test_req("/v1/test/provision", Some(SECRET), json!({"run": run}))).status, 400, "{run}");
+            assert_eq!(s.handle(&test_req("/v1/test/cleanup", Some(SECRET), json!({"run": run}))).status, 400, "{run}");
+        }
+        for credits in [json!(MAX_TEST_CREDITS + 1), json!(-1), json!(1.5), json!("10")] {
+            assert_eq!(s.handle(&test_req("/v1/test/provision", Some(SECRET), json!({"run": "r1", "credits": credits}))).status, 400, "{credits}");
+        }
+        assert_eq!(s.handle(&test_req("/v1/test/provision", Some(SECRET), json!({"run": "r1"}))).status, 200);
+        assert_eq!(s.handle(&test_req("/v1/test/provision", Some(SECRET), json!({"run": "r1"}))).status, 409, "a run once");
+    }
+
+    /// Provisions QA run `run` with `credits` each and checks what came back → the users.
+    fn provision_checked(s: &Service, run: &str, credits: u64) -> Vec<Value> {
+        let r = s.handle(&test_req("/v1/test/provision", Some(SECRET), json!({"run": run, "credits": credits})));
+        assert_eq!(r.status, 200, "{}", r.body);
+        let users = json_of(&r)["users"].as_array().unwrap().clone();
+        assert_eq!(users.len(), TEST_ROLES.len());
+        let mut passwords = BTreeSet::new();
+        for (u, role) in users.iter().zip(TEST_ROLES) {
+            assert_eq!(u["role"], *role);
+            assert_eq!(u["email"], format!("qa-bot+{run}-{role}@test.invalid"));
+            assert_eq!(u["credits"], credits);
+            assert!(passwords.insert(u["password"].as_str().unwrap().to_string()), "a password each");
+            let a = s.store().account(u["id"].as_u64().unwrap()).cloned().unwrap();
+            assert!(a.verified && a.test_run.as_deref() == Some(run));
+            assert_ne!(a.password, u["password"].as_str().unwrap(), "kept only as its hash");
+        }
+        users
+    }
+
+    /// Signs in as `user` with the password given once and uses the account: an AI request (paid in
+    /// credits), a free shared sew-out check, a report of it → (token, check id, report id).
+    fn use_test_account(s: &Service, user: &Value, month: &str, budget: u64) -> (String, String, String) {
+        let r = s.handle(&req("POST", "/v1/signin", None, json!({"email": user["email"], "password": user["password"]})));
+        assert_eq!(r.status, 200, "{}", r.body);
+        let t = json_of(&r)["token"].as_str().unwrap().to_string();
+        let a = json_of(&s.handle(&req("GET", "/v1/account", Some(&t), json!({}))));
+        assert_eq!(
+            (a["verified"].clone(), a["credits"].clone(), a["history"][0]["kind"].clone()),
+            (json!(true), user["credits"].clone(), json!("test"))
+        );
+        assert_eq!(s.handle(&ai(&t)).status, 200);
+        assert!(json_of(&s.handle(&req("GET", "/v1/account", Some(&t), json!({}))))["credits"].as_u64() < user["credits"].as_u64());
+        assert_eq!(s.handle(&check(&t, "aaaaaaaa", "aGVsbG8=", true)).status, 200);
+        assert_eq!(s.store().free_spent(month), budget, "a test account's free check isn't counted");
+        let check_id = format!("{}-aaaaaaaa", user["id"]);
+        assert_eq!(s.store().shared(&check_id).0, ["image-1.jpg"]);
+        let r = s.handle(&req("POST", "/v1/report", Some(&t), report_body(Some("aaaaaaaa"))));
+        assert_eq!(r.status, 200, "{}", r.body);
+        let rid = json_of(&r)["report"].as_str().unwrap().to_string();
+        assert_eq!(s.store().shared(&rid).0, ["photo-1.jpg"]);
+        (t, check_id, rid)
+    }
+
+    /// Checks nothing of `users` is left: accounts, history, checks, reports, the session `token`,
+    /// signing in, the shared check `check_id` and the report `rid`.
+    fn assert_run_gone(s: &Service, users: &[Value], month: &str, token: &str, check_id: &str, rid: &str) {
+        for u in users {
+            let id = u["id"].as_u64().unwrap();
+            assert!(s.store().account(id).is_none());
+            assert!(s.store().by_email(u["email"].as_str().unwrap()).is_none());
+            assert!(s.store().recent(id).is_empty());
+            assert_eq!(s.store().checks_in(id, month), 0);
+            assert!(s.store().reports(id).is_empty());
+            let signin = s.handle(&req("POST", "/v1/signin", None, json!({"email": u["email"], "password": u["password"]})));
+            assert_eq!(signin.status, 401);
+        }
+        assert_eq!(s.handle(&req("GET", "/v1/account", Some(token), json!({}))).status, 401, "the session ended");
+        assert!(s.store().check(check_id).is_none());
+        assert_eq!(s.store().shared(check_id), (vec![], vec![]));
+        assert_eq!(s.store().shared(rid), (vec![], vec![]));
+    }
+
+    /// Provision → sign in with a returned password → use the account (AI, a shared free check, a
+    /// report) → cleanup removes everything, and a real account is untouched; `ledger` counts the
+    /// ledger entries kept for accounts `ids` where the store keeps a ledger.
+    fn provision_use_and_clean_up(store: Store, ledger: &dyn Fn(&[u64]) -> Option<usize>) {
+        let (s, _) = test_service(store, false);
+        let real = sign_up(&s);
+        let month = sewout::month(1_000_000);
+        let budget = s.store().free_spent(&month);
+        let users = provision_checked(&s, "qa-7", 500);
+        let ids: Vec<u64> = users.iter().map(|u| u["id"].as_u64().unwrap()).collect();
+        assert_eq!(s.store().free_spent(&month), budget, "test accounts' credits aren't free offers");
+        let (t, check_id, rid) = use_test_account(&s, &users[0], &month, budget);
+        // the real account does the same; its free check counts
+        assert_eq!(s.handle(&check(&real, "bbbbbbbb", "aGVsbG8=", true)).status, 200);
+        let with_real = s.store().free_spent(&month);
+        assert!(with_real > budget);
+        if let Some(n) = ledger(&ids) {
+            assert!(n >= 7, "6 starting credits and an AI request: {n}");
+        }
+        // cleanup: the wrong secret changes nothing
+        assert_eq!(s.handle(&test_req("/v1/test/cleanup", Some("nope"), json!({"run": "qa-7"}))).status, 404);
+        assert!(s.store().account(ids[0]).is_some());
+        let r = s.handle(&test_req("/v1/test/cleanup", Some(SECRET), json!({"run": "qa-7"})));
+        assert_eq!(r.status, 200, "{}", r.body);
+        let removed = &json_of(&r)["removed"];
+        assert_eq!(
+            (removed["accounts"].clone(), removed["sessions"].clone(), removed["checks"].clone(), removed["reports"].clone()),
+            (json!(6), json!(1), json!(1), json!(1))
+        );
+        assert_run_gone(&s, &users, &month, &t, &check_id, &rid);
+        if let Some(n) = ledger(&ids) {
+            assert_eq!(n, 0, "their ledger entries are gone");
+        }
+        // the real account and its check are untouched, and the run can be made again
+        let a = json_of(&s.handle(&req("GET", "/v1/account", Some(&real), json!({}))));
+        assert_eq!((a["email"].clone(), a["sharedChecks"].clone()), (json!("denise@example.com"), json!(1)));
+        assert_eq!(s.store().shared("1-bbbbbbbb").0, ["image-1.jpg"]);
+        assert_eq!(s.store().free_spent(&month), with_real);
+        let again = s.handle(&test_req("/v1/test/cleanup", Some(SECRET), json!({"run": "qa-7"})));
+        assert_eq!(json_of(&again)["removed"]["accounts"], 0);
+        assert_eq!(s.handle(&test_req("/v1/test/provision", Some(SECRET), json!({"run": "qa-7"}))).status, 200);
+    }
+
+    #[test]
+    fn test_accounts_are_provisioned_used_and_cleaned_up_in_memory() {
+        provision_use_and_clean_up(Store::in_memory(), &|_| None);
+    }
+
+    #[test]
+    fn test_accounts_are_provisioned_used_and_cleaned_up_in_the_data_folder() {
+        let dir = std::env::temp_dir().join(format!("sf-cloud-test-mode-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let ledger_dir = dir.clone();
+        let ledger = move |ids: &[u64]| {
+            let text = std::fs::read_to_string(ledger_dir.join("ledger.jsonl")).unwrap_or_default();
+            Some(text.lines().filter_map(|l| serde_json::from_str::<crate::store::Entry>(l).ok()).filter(|e| ids.contains(&e.account)).count())
+        };
+        provision_use_and_clean_up(Store::open(&dir).unwrap(), &ledger);
+        // the real account's ledger is still there, and its shared check on disk
+        let text = std::fs::read_to_string(dir.join("ledger.jsonl")).unwrap();
+        assert!(text.lines().any(|l| l.contains("\"kind\":\"signup\"")));
+        assert!(dir.join("shared").join("1-bbbbbbbb").exists());
+        // and what is left reads back after a restart
+        let s = Store::open(&dir).unwrap();
+        assert_eq!(s.account(1).map(|a| a.email.as_str()), Some("denise@example.com"));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// The same against Postgres (`SF_CLOUD_TEST_DATABASE_URL`, whose StitchFoundry tables it
+    /// empties); skipped without one.
+    #[test]
+    fn test_accounts_are_provisioned_used_and_cleaned_up_in_the_database() {
+        let Ok(url) = std::env::var("SF_CLOUD_TEST_DATABASE_URL") else { return };
+        let _db = crate::store::DB_LOCK.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut c = postgres::Client::connect(&url, postgres::NoTls).unwrap();
+        c.batch_execute("DROP TABLE IF EXISTS sf_state, sf_ledger, sf_shared_files, sf_shared_rounds").unwrap();
+        let c = StdMutex::new(c);
+        let ledger = |ids: &[u64]| {
+            let ids: Vec<i64> = ids.iter().map(|i| *i as i64).collect();
+            let n: i64 = c.lock().unwrap().query_one("SELECT count(*) FROM sf_ledger WHERE account = ANY($1)", &[&ids]).unwrap().get(0);
+            Some(n as usize)
+        };
+        provision_use_and_clean_up(Store::open_db(&url).unwrap(), &ledger);
+        let mut c = c.lock().unwrap();
+        let n: i64 = c.query_one("SELECT count(*) FROM sf_shared_files WHERE check_id = '1-bbbbbbbb'", &[]).unwrap().get(0);
+        assert_eq!(n, 1, "the real account's shared check stays");
+        let s = Store::open_db(&url).unwrap();
+        assert!(s.account(1).is_some());
+        assert!(s.by_email("qa-bot+qa-7-tech@test.invalid").is_some(), "the run made again after cleanup was saved");
+    }
+
+    /// Test accounts count in no total: not the month's free budget (their starting credits nor
+    /// their free checks), and a report of theirs emailed to the owner says it is a test.
+    #[test]
+    fn test_accounts_never_count_in_the_services_totals() {
+        let (s, calls) = test_service(Store::in_memory(), true);
+        let month = sewout::month(1_000_000);
+        let r = s.handle(&test_req("/v1/test/provision", Some(SECRET), json!({"run": "totals", "credits": 1000})));
+        let users = json_of(&r)["users"].as_array().unwrap().clone();
+        assert_eq!(s.store().free_spent(&month), 0, "provisioning spends nothing of the free budget");
+        let mut tokens = vec![];
+        for u in &users {
+            let r = s.handle(&req("POST", "/v1/signin", None, json!({"email": u["email"], "password": u["password"]})));
+            tokens.push(json_of(&r)["token"].as_str().unwrap().to_string());
+        }
+        for (i, t) in tokens.iter().enumerate() {
+            assert_eq!(s.handle(&check(t, &format!("{:08x}", i + 1), "aGVsbG8=", false)).status, 200);
+        }
+        assert_eq!(s.store().free_spent(&month), 0, "nor do their free checks");
+        assert!(s.store().is_test(users[0]["id"].as_u64().unwrap()));
+        // a real account's do
+        let real = sign_up(&s);
+        let real_id = 1 + users.len() as u64;
+        // (email is on here, so it waits for its link; confirmed as the link would)
+        s.store().confirm(real_id).unwrap();
+        let after_signup = s.store().free_spent(&month);
+        assert!(after_signup > 0);
+        assert!(!s.store().is_test(real_id));
+        assert_eq!(s.handle(&check(&real, "abcdef01", "aGVsbG8=", false)).status, 200);
+        assert!(s.store().free_spent(&month) > after_signup);
+        // a test account's report is marked as one for the owner; a real one's isn't
+        calls.lock().unwrap().clear();
+        assert_eq!(json_of(&s.handle(&req("POST", "/v1/report", Some(&tokens[0]), report_body(None))))["emailed"], true);
+        assert_eq!(json_of(&s.handle(&req("POST", "/v1/report", Some(&real), report_body(None))))["emailed"], true);
+        let subjects = emails(&calls).into_iter().map(|(_, subject, _)| subject).collect::<Vec<_>>();
+        assert_eq!(subjects, ["[test run totals] Sew-out report: Gaps on knit", "Sew-out report: Gaps on knit"]);
+        // the health answer has no totals in it at all (only on/off flags and the running commit)
+        assert_eq!(
+            json_of(&s.handle(&req("GET", "/v1/health", None, json!({})))),
+            json!({"ok": true, "ai": true, "payments": true, "email": true, "commit": null})
+        );
+    }
+
+    #[test]
+    fn secrets_are_compared_whole() {
+        assert!(same_secret(SECRET, SECRET));
+        assert!(!same_secret(&SECRET[..31], SECRET) && !same_secret("", SECRET) && !same_secret(&format!("{SECRET}x"), SECRET));
+        assert!(good_run_id("qa-2026-11-03-1") && !good_run_id("") && !good_run_id("QA"));
     }
 }

@@ -10,7 +10,8 @@
 > (CLOUD-07). 2026-11-01: credits held for a request aren't held after a restart, a free check's
 > slot is taken before its request goes out, paid rounds aren't counted against the free budget,
 > and only the betas the apps send are passed on (CLOUD-08). 2026-11-03: a new account confirms its
-> email through an emailed link before it spends anything (CLOUD-10); a staging service's email can go to a Mailpit test mailbox (`SF_CLOUD_MAIL_CATCHER_URL`, CLOUD-11), and `/v1/health` says which commit is running (`commit`, CLOUD-12).
+> email through an emailed link before it spends anything (CLOUD-10); a staging service's email can go to a Mailpit test mailbox (`SF_CLOUD_MAIL_CATCHER_URL`, CLOUD-11), and `/v1/health` says which commit is running (`commit`, CLOUD-12). 2026-11-03: test mode, for a
+> staging copy only: a QA bot makes and deletes verified test accounts (CLOUD-13).
 
 StitchFoundry's AI features (Design from Prompt, Redraw Image with Claude, Ask About Embroidery,
 Check My Sew-out) work with the user's own Anthropic API key. The cloud service is the other way:
@@ -197,6 +198,7 @@ target/release/stitchfoundry-cloud
 | `SF_CLOUD_MAIL_FROM` | who account emails (confirmation links, password resets) come from (`StitchFoundry <accounts@stitchfoundry.app>`), through Resend (`RESEND_API_KEY`); without the key there's no reset by email, and new accounts start confirmed |
 | `SF_CLOUD_MAIL_CATCHER_URL` | **staging only**: a Mailpit test mailbox's address (`http://mailpit.railway.internal:8025`, or `http://user:password@host:port` when its send API has a password). Every email (confirmation links, resets, reports) goes to its send API instead of Resend, so nobody real gets staging mail and the end-to-end tests can read it. Setting it turns email on by itself and `RESEND_API_KEY` is ignored (never sent anywhere). Never set it in production (CLOUD-11) |
 | `RESEND_API_KEY`, `SF_CLOUD_REPORTS_TO`, `SF_CLOUD_REPORTS_FROM` | sew-out reports emailed through Resend to this address (e.g. `support@stitchfoundry.app`), from an address on a domain Resend has verified (`StitchFoundry <reports@stitchfoundry.app>`); without them reports are only kept |
+| `SF_CLOUD_TEST_MODE`, `SF_CLOUD_TEST_SECRET`, `SF_CLOUD_ENV` | test mode, for a staging copy only (see Test mode); off by default |
 | `SF_CLOUD_END_SESSIONS_BEFORE` | sessions made before this UTC time (`2026-10-22T09:00:00Z`, a date, or Unix seconds) end when the service starts: everyone signs in again (see After a breach) |
 
 It speaks plain HTTP: put it behind a TLS proxy (Caddy, nginx, or the host's load balancer, as
@@ -208,7 +210,67 @@ added or spent) and `sf_shared_files` and `sf_shared_rounds` (shared checks).
 To try the database code against a database of your own: `SF_CLOUD_TEST_DATABASE_URL=postgres://…
 cargo test -p stitchfoundry-cloud` (it empties StitchFoundry's tables there).
 
-## After a breach
+## Test mode (staging only, CLOUD-13)
+
+A staging copy of the service can let a QA bot make verified test accounts for a run of its tests
+and delete them afterwards. **Test mode is for a staging copy only, never production**, and the
+service refuses to start with it on when anything looks like production.
+
+| Setting | What it is |
+|---|---|
+| `SF_CLOUD_TEST_MODE` | `1`/`true`/`on`/`yes` turns test mode on; off by default (`0`/`false`/`off`/`no` or unset). Any other value stops the service from starting |
+| `SF_CLOUD_TEST_SECRET` | the secret the test routes need in `X-Test-Secret`: at least 32 characters (only read in test mode) |
+| `SF_CLOUD_ENV` | which copy this is: test mode needs `staging` |
+
+**The production guard.** With `SF_CLOUD_TEST_MODE` on, the service starts only on an explicit
+staging setup and exits with an error saying why (`stitchfoundry-cloud: SF_CLOUD_TEST_MODE is on
+but …`) when any of these fails:
+
+- `SF_CLOUD_ENV` is `staging` (missing or anything else is refused);
+- `SF_CLOUD_TEST_SECRET` is set, 32 characters or more;
+- `SF_CLOUD_PUBLIC_URL` isn't the production address: its host isn't `cloud.stitchfoundry.app`,
+  whatever the case, scheme, port or trailing slash;
+- `STRIPE_SECRET_KEY` isn't a live key (`sk_live_…` or a restricted `rk_live_…`);
+- Railway's `RAILWAY_ENVIRONMENT_NAME`, when Railway sets it, isn't `production`;
+- the database is a staging one. Production keeps its data in Postgres, and a staging copy's
+  database may hold a copy of the same data, so nothing in the data itself can tell them apart;
+  instead `DATABASE_URL`, when set, must name a staging database: **its host or its database name
+  must contain `staging`** (the user name and password don't count). On Railway, give the staging
+  environment's database service a private address with `staging` in it (for example
+  `postgres-staging.railway.internal`), or name the database `stitchfoundry_staging`. Railway's own
+  address also counts when Railway says the environment is `staging` (`RAILWAY_ENVIRONMENT_NAME`)
+  and every host is on its private network (`*.railway.internal`, which only reaches services of
+  the same environment), so `${{Postgres.DATABASE_URL}}` works unchanged; a public address is
+  still refused. An address
+  that can't be read is refused. Without `DATABASE_URL` (the data folder, which production doesn't
+  use) this check passes.
+
+With test mode off, nothing changes: the routes below aren't routed at all and answer 404 like any
+unknown address, and `SF_CLOUD_TEST_SECRET` isn't read.
+
+**The routes.** Both need `X-Test-Secret` (compared in constant time); without it, or with the
+wrong one, they answer 404 exactly as an unknown address does.
+
+- `POST /v1/test/provision {run, credits?}`: `run` is 1 to 32 of `a-z`, `0-9` and `-`; `credits`
+  (0 by default, at most 100,000) is what each account starts with. It makes one account for each
+  role, `tech`, `shop`, `garment`, `customer`, `staff` and `tech2`, as
+  `qa-bot+<run>-<role>@test.invalid`, its email confirmed already, tagged as a test account of the
+  run, with a random password → `{run, users: [{role, id, email, password, credits}]}`. The
+  passwords are in this answer only: never logged, kept only as their Argon2id hashes. A run that
+  has accounts already answers 409 (clean it up first).
+- `POST /v1/test/cleanup {run}`: deletes the run's test accounts and everything kept for them:
+  sessions, ledger entries (the one time entries leave the ledger), sew-out checks with their
+  shared photos and rounds, reports, reset and confirmation links → `{run, removed: {accounts,
+  sessions, ledger, checks, reports, links}}`. Real accounts are never touched.
+
+**Test accounts count in no total.** The only total the service keeps is the month's free-offer
+budget (`SF_CLOUD_FREE_BUDGET_CENTS`): test accounts' starting credits never count against it (their
+ledger entry is `test`, not `signup`), nor do their free sew-out checks. `/v1/health` reports no
+totals. A report a test account sends is emailed with `[test run <run>]` before its subject, so
+the owner never takes it for a real one. The tag is a `test_run` field on the stored account;
+accounts written before test mode have none and are read as real accounts (no migration), as
+`verified` is read.
+
 
 If the host, a key or the database may have been exposed, give every secret a new value and sign
 everyone out. For each key: make a new one, put it in the Railway variable, let the service
@@ -256,6 +318,7 @@ redeploy, then revoke the old one, so the service never stops.
 | `POST /v1/sewout` | a Check My Sew-out request (`x-stitchfoundry-check`, `-share`, `-follow-up`) → as `/v1/messages`, with `x-stitchfoundry-free-checks` |
 | `POST /v1/sewout/delete {check?}` | deletes a shared check, or all of the account's and its reports → `{deleted, reports}` |
 | `POST /v1/report {consent: true, title, report, note, photos: [{mediaType, data}], conversation?, design?, app, check?}` | Report to StitchFoundry: kept privately, emailed to the owner when Resend is set up (five an account a day); the credits the reported check cost are given back, once → `{report, emailed, refunded}` |
+| `POST /v1/test/provision {run, credits?}`, `POST /v1/test/cleanup {run}` | test mode only (staging), with `X-Test-Secret`; otherwise 404 (see Test mode) |
 
 Requests other than sign-up and sign-in carry `Authorization: Bearer <token>`. Every answer allows
 the web app to call from a browser (CORS; sessions are bearer tokens, never cookies). Errors come

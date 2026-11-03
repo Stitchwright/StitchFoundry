@@ -71,6 +71,11 @@ pub fn new_token() -> Result<(String, String), String> {
     Ok((token, hash))
 }
 
+/// A new random password (a test account's, given once): 24 random bytes as hex.
+pub fn new_password() -> Result<String, String> {
+    Ok(hex(&random::<24>()?))
+}
+
 /// A new password-reset token (emailed in a link) and its hash (kept).
 pub fn new_reset_token() -> Result<(String, String), String> {
     let token = format!("sfr_{}", hex(&random::<32>()?));

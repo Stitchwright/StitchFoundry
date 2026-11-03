@@ -82,6 +82,97 @@ pub struct Config {
     /// (`SF_CLOUD_END_SESSIONS_BEFORE`: `2026-10-22T09:00:00Z`, a date, or Unix seconds): set it
     /// with new keys after a breach, and everyone signs in again. Later restarts end nothing more.
     pub end_sessions_before: Option<u64>,
+    /// Test mode (`SF_CLOUD_TEST_MODE`, off by default), for a staging copy only: mounts
+    /// `/v1/test/provision` and `/v1/test/cleanup`, which make and delete verified test accounts
+    /// for a QA bot. [`Config::from_env`] refuses to start with it on when the setup looks like
+    /// production ([`production_guard`]).
+    pub test_mode: bool,
+    /// The secret those routes need (`SF_CLOUD_TEST_SECRET`, at least [`MIN_TEST_SECRET`]
+    /// characters), sent as `X-Test-Secret`; only read in test mode.
+    pub test_secret: Option<String>,
+    /// Which copy of the service this is (`SF_CLOUD_ENV`): test mode needs `staging`.
+    pub env: Option<String>,
+}
+
+/// The shortest test secret accepted.
+pub const MIN_TEST_SECRET: usize = 32;
+/// The production service's host: test mode never starts with this public address.
+pub const PRODUCTION_HOST: &str = "cloud.stitchfoundry.app";
+/// What a database's host or name must contain for test mode to use it.
+pub const STAGING_MARKER: &str = "staging";
+
+/// Whether `text` turns a switch on (`1`, `true`, `on`, `yes`) or off (`0`, `false`, `off`, `no`,
+/// empty); anything else is refused, so a typo never leaves it in a state nobody meant.
+fn switch(name: &str, text: Option<String>) -> Result<bool, String> {
+    match text.as_deref().map(|t| t.trim().to_ascii_lowercase()).as_deref() {
+        None | Some("" | "0" | "false" | "off" | "no") => Ok(false),
+        Some("1" | "true" | "on" | "yes") => Ok(true),
+        Some(_) => Err(format!("{name} is on (1, true) or off (0, false)")),
+    }
+}
+
+/// The host of a public address (`https://Cloud.Example.com:443/` → `cloud.example.com`).
+fn url_host(url: &str) -> String {
+    let u = url.trim().to_ascii_lowercase();
+    let rest = u.split_once("://").map_or(u.as_str(), |(_, r)| r);
+    let authority = rest.split(['/', '?', '#']).next().unwrap_or_default();
+    let host_port = authority.rsplit_once('@').map_or(authority, |(_, h)| h);
+    let host = host_port.split(':').next().unwrap_or_default();
+    host.trim_end_matches('.').to_string()
+}
+
+/// Why test mode can't start with these settings, if it can't. It fails closed: test mode starts
+/// only on an explicit staging setup, and never when anything looks like production.
+///
+/// - `SF_CLOUD_ENV` must be `staging`.
+/// - `SF_CLOUD_TEST_SECRET` must be at least [`MIN_TEST_SECRET`] characters.
+/// - `SF_CLOUD_PUBLIC_URL` must not be the production address (`cloud.stitchfoundry.app`, in any
+///   case, scheme, port or trailing slash).
+/// - `STRIPE_SECRET_KEY` must not be a live key (`sk_live_…`, `rk_live_…`).
+/// - Railway's `RAILWAY_ENVIRONMENT_NAME`, when set, must not be `production`.
+/// - The database: production keeps its data in Postgres (`DATABASE_URL`), and a staging copy's
+///   database could hold a copy of the same data, so nothing in the data tells them apart.
+///   `DATABASE_URL`, when set, must therefore name a staging database: its host or its database
+///   name must contain `staging` (on Railway, name the staging database's service
+///   `postgres-staging`, whose private host is then `postgres-staging.railway.internal`; or name
+///   the database `stitchfoundry_staging`). Or, on Railway: `RAILWAY_ENVIRONMENT_NAME` (set by
+///   Railway) is `staging` and every host is on Railway's private network (`*.railway.internal`),
+///   which only reaches services of the same environment, so `${{Postgres.DATABASE_URL}}` works
+///   as Railway gives it; a public address (a pasted production proxy) is still refused. An
+///   address that can't be read is refused. Without
+///   `DATABASE_URL` (the data folder, which production doesn't use) this check passes.
+pub fn production_guard(cfg: &Config, env: &dyn Fn(&str) -> Option<String>) -> Result<(), String> {
+    let refuse = |why: &str| Err(format!("SF_CLOUD_TEST_MODE is on but {why}: test mode is for a staging copy only, never production"));
+    match cfg.env.as_deref().map(str::to_ascii_lowercase).as_deref() {
+        Some("staging") => {}
+        None => return refuse("SF_CLOUD_ENV isn't set (test mode needs SF_CLOUD_ENV=staging)"),
+        Some(_) => return refuse("SF_CLOUD_ENV isn't staging"),
+    }
+    if cfg.test_secret.as_ref().is_none_or(|s| s.chars().count() < MIN_TEST_SECRET) {
+        return refuse(&format!("SF_CLOUD_TEST_SECRET is missing or shorter than {MIN_TEST_SECRET} characters"));
+    }
+    if url_host(&cfg.public_url) == PRODUCTION_HOST {
+        return refuse("SF_CLOUD_PUBLIC_URL is the production address");
+    }
+    if cfg.stripe_key.as_deref().is_some_and(|k| k.starts_with("sk_live_") || k.starts_with("rk_live_")) {
+        return refuse("STRIPE_SECRET_KEY is a live key");
+    }
+    if env("RAILWAY_ENVIRONMENT_NAME").is_some_and(|e| e.trim().eq_ignore_ascii_case("production")) {
+        return refuse("RAILWAY_ENVIRONMENT_NAME is production");
+    }
+    if let Some(url) = &cfg.database_url {
+        let Ok(db) = url.parse::<postgres::Config>() else { return refuse("DATABASE_URL can't be read") };
+        let marked = |s: &str| s.to_ascii_lowercase().contains(STAGING_MARKER);
+        let hosts = db.get_hosts();
+        let host_marked = !hosts.is_empty() && hosts.iter().all(|h| matches!(h, postgres::config::Host::Tcp(h) if marked(h)));
+        let railway_staging = env("RAILWAY_ENVIRONMENT_NAME").is_some_and(|e| e.trim().eq_ignore_ascii_case(STAGING_MARKER))
+            && !hosts.is_empty()
+            && hosts.iter().all(|h| matches!(h, postgres::config::Host::Tcp(h) if h.to_ascii_lowercase().ends_with(".railway.internal")));
+        if !host_marked && !railway_staging && !db.get_dbname().is_some_and(marked) {
+            return refuse("DATABASE_URL doesn't name a staging database (its host or database name must contain \"staging\")");
+        }
+    }
+    Ok(())
 }
 
 /// `text` as Unix seconds: digits, or a UTC date `YYYY-MM-DD` with an optional `THH:MM[:SS]` and
@@ -139,7 +230,8 @@ impl Config {
         }
         let nonempty = |name: &str| env(name).map(|v| v.trim().to_string()).filter(|v| !v.is_empty());
         let mail_catcher = nonempty("SF_CLOUD_MAIL_CATCHER_URL");
-        Ok(Config {
+        let test_mode = switch("SF_CLOUD_TEST_MODE", env("SF_CLOUD_TEST_MODE"))?;
+        let cfg = Config {
             // Railway (and most container hosts) give the port in PORT
             addr: env("SF_CLOUD_ADDR").or_else(|| nonempty("PORT").map(|p| format!("0.0.0.0:{p}"))).unwrap_or_else(|| "127.0.0.1:8080".into()),
             data_dir: PathBuf::from(env("SF_CLOUD_DATA").unwrap_or_else(|| "stitchfoundry-cloud-data".into())),
@@ -173,7 +265,15 @@ impl Config {
                 None => None,
                 Some(v) => Some(parse_time(&v).ok_or("SF_CLOUD_END_SESSIONS_BEFORE is a UTC time like 2026-10-22T09:00:00Z")?),
             },
-        })
+            test_mode,
+            // (only read in test mode; with it off the routes don't exist)
+            test_secret: if test_mode { nonempty("SF_CLOUD_TEST_SECRET") } else { None },
+            env: nonempty("SF_CLOUD_ENV"),
+        };
+        if cfg.test_mode {
+            production_guard(&cfg, &env)?;
+        }
+        Ok(cfg)
     }
 
     /// What model `name` costs, if the service knows it.
@@ -276,5 +376,124 @@ mod tests {
         assert_eq!(c.public_url, "https://cloud.example");
         assert!(Config::from_env(|k| (k == "SF_CLOUD_MARKUP").then(|| "lots".to_string())).is_err());
         assert!(parse_packs("a:0:100").is_err() && parse_packs("a:10:10").is_err() && parse_packs("a b:10:100").is_err() && parse_packs("").is_err());
+    }
+
+    /// CLOUD-11: a staging setup test mode starts with (each test below changes one thing).
+    fn staging(k: &str) -> Option<String> {
+        match k {
+            "SF_CLOUD_TEST_MODE" => Some("1".into()),
+            "SF_CLOUD_ENV" => Some("staging".into()),
+            "SF_CLOUD_TEST_SECRET" => Some("0123456789abcdef0123456789abcdef".into()),
+            "SF_CLOUD_PUBLIC_URL" => Some("https://cloud-staging.stitchfoundry.app".into()),
+            "STRIPE_SECRET_KEY" => Some("sk_test_x".into()),
+            "DATABASE_URL" => Some("postgresql://postgres:pw@postgres-staging.railway.internal:5432/railway".into()),
+            _ => None,
+        }
+    }
+
+    /// `staging` with `name` set to `value` (or removed with `None`).
+    fn staging_with(name: &'static str, value: Option<&'static str>) -> impl Fn(&str) -> Option<String> {
+        move |k: &str| if k == name { value.map(str::to_string) } else { staging(k) }
+    }
+
+    fn refused(env: impl Fn(&str) -> Option<String>, why: &str) {
+        let e = Config::from_env(env).unwrap_err();
+        assert!(e.contains(why) && e.contains("staging copy only"), "{e}");
+    }
+
+    #[test]
+    fn test_mode_is_off_by_default_and_starts_on_a_staging_setup() {
+        let c = Config::from_env(|_| None).unwrap();
+        assert!(!c.test_mode && c.test_secret.is_none());
+        // off, everything else is as before: the secret isn't even read
+        let c = Config::from_env(staging_with("SF_CLOUD_TEST_MODE", Some("off"))).unwrap();
+        assert!(!c.test_mode && c.test_secret.is_none());
+        let c = Config::from_env(staging).unwrap();
+        assert!(c.test_mode);
+        assert_eq!(c.test_secret.as_deref(), Some("0123456789abcdef0123456789abcdef"));
+        // the database's name may carry the marker instead of its host; the data folder passes
+        assert!(Config::from_env(staging_with("DATABASE_URL", Some("postgres://u:p@db.internal/stitchfoundry_staging"))).unwrap().test_mode);
+        assert!(Config::from_env(staging_with("DATABASE_URL", Some("host=staging-db.internal user=u dbname=sf"))).unwrap().test_mode);
+        assert!(Config::from_env(staging_with("DATABASE_URL", None)).unwrap().test_mode);
+        // a typo is refused rather than guessed
+        assert!(Config::from_env(staging_with("SF_CLOUD_TEST_MODE", Some("maybe"))).is_err());
+    }
+
+    #[test]
+    fn test_mode_refuses_without_sf_cloud_env() {
+        refused(staging_with("SF_CLOUD_ENV", None), "SF_CLOUD_ENV isn't set");
+    }
+
+    #[test]
+    fn test_mode_refuses_an_env_other_than_staging() {
+        refused(staging_with("SF_CLOUD_ENV", Some("production")), "SF_CLOUD_ENV isn't staging");
+        refused(staging_with("SF_CLOUD_ENV", Some("prod")), "SF_CLOUD_ENV isn't staging");
+    }
+
+    #[test]
+    fn test_mode_refuses_a_missing_or_short_secret() {
+        refused(staging_with("SF_CLOUD_TEST_SECRET", None), "SF_CLOUD_TEST_SECRET");
+        refused(staging_with("SF_CLOUD_TEST_SECRET", Some("   ")), "SF_CLOUD_TEST_SECRET");
+        refused(staging_with("SF_CLOUD_TEST_SECRET", Some("0123456789abcdef0123456789abcde")), "shorter than 32");
+    }
+
+    #[test]
+    fn test_mode_refuses_the_production_address() {
+        for url in [
+            "https://cloud.stitchfoundry.app",
+            "https://cloud.stitchfoundry.app/",
+            "HTTPS://Cloud.StitchFoundry.App//",
+            "https://cloud.stitchfoundry.app:443/v1",
+            "http://cloud.stitchfoundry.app",
+        ] {
+            refused(staging_with("SF_CLOUD_PUBLIC_URL", Some(url)), "SF_CLOUD_PUBLIC_URL is the production address");
+        }
+    }
+
+    #[test]
+    fn test_mode_refuses_a_live_stripe_key() {
+        refused(staging_with("STRIPE_SECRET_KEY", Some("sk_live_abc")), "live key");
+        refused(staging_with("STRIPE_SECRET_KEY", Some("rk_live_abc")), "live key");
+    }
+
+    #[test]
+    fn test_mode_refuses_a_database_not_named_staging() {
+        for url in [
+            "postgresql://postgres:pw@postgres.railway.internal:5432/railway",
+            // the marker in the password or user doesn't count: only the host or the database's name
+            "postgres://staging:staging@db.internal/stitchfoundry",
+            "host=db.internal user=staging dbname=sf",
+            "not a database address ://",
+        ] {
+            refused(staging_with("DATABASE_URL", Some(url)), "DATABASE_URL");
+        }
+    }
+
+    #[test]
+    fn test_mode_takes_railways_staging_environment_as_the_databases_marker() {
+        let railway = |name: &'static str, url: &'static str| {
+            move |k: &str| match k {
+                "RAILWAY_ENVIRONMENT_NAME" => Some(name.to_string()),
+                "DATABASE_URL" => Some(url.to_string()),
+                _ => staging(k),
+            }
+        };
+        // Railway's own address for the environment's database, as `${{Postgres.DATABASE_URL}}` gives it
+        assert!(Config::from_env(railway("staging", "postgresql://postgres:pw@postgres-fetv.railway.internal:5432/railway")).unwrap().test_mode);
+        // not in another environment, and never a public address (a pasted production proxy)
+        for (name, url) in [
+            ("test", "postgresql://postgres:pw@postgres.railway.internal:5432/railway"),
+            ("staging", "postgresql://postgres:pw@maglev.proxy.rlwy.net:41234/railway"),
+            ("staging", "postgresql://postgres:pw@railway.internal.example.com/railway"),
+        ] {
+            refused(railway(name, url), "DATABASE_URL");
+        }
+        refused(railway("production", "postgresql://postgres:pw@postgres.railway.internal:5432/railway"), "RAILWAY_ENVIRONMENT_NAME is production");
+    }
+
+    #[test]
+    fn test_mode_refuses_railways_production_environment() {
+        let env = |k: &str| if k == "RAILWAY_ENVIRONMENT_NAME" { Some("production".to_string()) } else { staging(k) };
+        refused(env, "RAILWAY_ENVIRONMENT_NAME is production");
     }
 }
