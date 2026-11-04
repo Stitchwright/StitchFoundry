@@ -48,7 +48,7 @@ pub fn check(enum_src: &str, manifest: &str) -> Vec<String> {
         }
     }
     for v in variants.iter().filter(|v| !ids.contains(v.name.as_str())) {
-        out.push(format!("Cursor::{} has no entry in {MANIFEST} (see CLAUDE.md › Adding a cursor)", v.name));
+        out.push(format!("Cursor::{} has no entry in {MANIFEST} (see AGENTS.md › Adding a cursor)", v.name));
     }
     out
 }
