@@ -302,6 +302,7 @@ redeploy, then revoke the old one, so the service never stops.
 
 | | |
 |---|---|
+| `GET /` | a short "Foundry Account" page saying what the address is, linking to stitchfoundry.app (CLOUD-14). Another page address a browser asks for (`Accept: text/html`, outside `/v1/`) gets a 404 page; API clients still get the JSON error. Every answer sends `X-Content-Type-Options: nosniff`; pages also send a CSP with `frame-ancestors 'none'`, `X-Frame-Options: DENY` and a `Referrer-Policy` |
 | `GET /v1/health` | `{ok, ai, payments, email}`: whether AI requests, payments and emails (Resend) are set up |
 | `POST /v1/signup {email, password}` | a new account → `{token, account: {id, email, verified, credits}}`; with email set up it starts unconfirmed and a confirmation link is emailed |
 | `POST /v1/signin {email, password}` | → `{token, account}` |
