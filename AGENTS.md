@@ -1,6 +1,16 @@
-# StitchFoundry (built on VectorCraft) — instructions for agents
+# StitchFoundry — instructions for agents
 
-VectorCraft is a clean-room, open-source, Rust-native vector illustration app targeting Adobe Illustrator parity (and beyond). It runs natively on macOS, Windows and Linux, and on the web via WASM. Siblings: `../photocraft` (Photoshop-class) and `../pdfcraft` (Acrobat-class); same conventions.
+`CLAUDE.md` is just `@AGENTS.md`; this file is the single source of truth.
+
+StitchFoundry is based on VectorCraft by the ArtCraft team (credit line; keep it).
+
+> **This repository is StitchFoundry by SiteSentrix:** VectorCraft plus machine-embroidery
+> digitizing. For any embroidery work, read [`docs/stitchfoundry-spec.md`](docs/stitchfoundry-spec.md) first (product,
+> embroidery rules, current state, feature parity matrix, roadmap and task ids), then
+> [`docs/embroidery.md`](docs/embroidery.md) (behaviour as users see it). Everything below
+> still applies unchanged.
+
+StitchFoundry is a clean-room, open-source, Rust-native vector illustration app with machine-embroidery digitizing, built on VectorCraft (a vector app targeting Illustrator-class parity). It runs natively on macOS, Windows and Linux, and on the web via WASM. VectorCraft's siblings (`../photocraft`, `../pdfcraft`) share its conventions.
 
 Formerly **DrawCraft** (renamed 2026-10-01): old `.drawcraft` files and `"format": "drawcraft"` headers still open (`vectorcraft_format::LEGACY_EXTENSION`), and preferences migrate from the old config folder. Keep those paths working; use the new name everywhere else.
 
@@ -19,6 +29,7 @@ Formerly **DrawCraft** (renamed 2026-10-01): old `.drawcraft` files and `"format
   - Behaviour comes only from public documentation (helpx, published specs, public forum posts), cited by URL, and from files users send us that they own (used locally, never committed). Never copy Adobe icons, artwork, presets or wording beyond feature names.
   - If a task seems to need any of this, stop and say so instead. `cargo xtask cleanroom` (run by `cargo xtask ci`) fails on Adobe copyright notices and on fixtures made with Adobe applications.
   - Never copy GPL/AGPL code (Inkscape, lib2geom…).
+  - Never copy code from Roidery (github.com/lork-fork/Roidery), another VectorCraft embroidery fork, even though its licence would allow it (owner's decision, 2026-10-16). Its public README may be read for ideas, as any product's.
 - **Assets: no Adobe iconography or images — ever (absolute rule, from the project owner).**
   - Never add, copy, trace, redraw-from, embed or ship any icon, image, artwork, cursor, preset, swatch/brush/symbol/pattern/style library, ICC profile or screenshot from Adobe products or from any other source whose licence doesn't allow it.
   - Every image, icon, font or other asset must be one of:
@@ -35,6 +46,7 @@ Formerly **DrawCraft** (renamed 2026-10-01): old `.drawcraft` files and `"format
 - **Never crash: no panics in shipped code.** A crash loses the user's unsaved work. Files, pasted data, MCP and control messages, and command params are all untrusted input.
   - Fallible work returns `Result` (or `Option`); callers handle it or propagate it with `?`. Failures reach the user as an error message (`EngineError` for commands, the crate's own error type or `String` below the engine), never as an abort.
   - Workspace clippy lints ban these outside tests, so `cargo xtask ci` fails on them: `unwrap()`, `expect()`, `panic!`, `unreachable!`, `todo!`, `unimplemented!`. Use instead: `?`, `.ok_or(…)?`, `let … else { return … }`, `if let`, `unwrap_or` / `unwrap_or_default` / `unwrap_or_else`, `.first()` / `.last()` / `.split_last()`, and a real error for a match arm you believe is impossible.
+  - New workspace crates must include `[lints] workspace = true` in `Cargo.toml` to inherit `[workspace.lints]`. Production crate roots must declare `#![forbid(unsafe_code)]` before modules or other crate items; crate-level `//!` documentation may precede it.
   - Don't panic implicitly either: use `.get(i)` instead of `v[i]` or `&s[a..b]` when the index comes from data. Don't divide integers by something that can be zero, cap sizes and counts read from input (allocations, images, loops), and check that floats are finite before casting them or looping on them.
   - Don't silence errors just to satisfy the lint: use `let _ =` or `.ok()` only where ignoring the failure is the right behaviour, with a comment saying why.
   - Tests may unwrap and panic (`#[test]`, `#[cfg(test)]`, `tests/`, `testkit`). Integration-test files start with an `#![allow(…)]` for that.
@@ -58,6 +70,20 @@ Formerly **DrawCraft** (renamed 2026-10-01): old `.drawcraft` files and `"format
 - Shell gotcha: `mv`/`cp` are aliased interactive here — use `/bin/mv -f` / `/bin/cp -f`.
 - Parallel agents: separate `CARGO_TARGET_DIR` per agent; edit only the crates you own; write manifests atomically. Each target dir grows to ~30 GB: delete yours when you finish (a full disk fails links with `errno=28`).
 
+## Debugging
+When something fails and the cause isn't obvious, follow the `/debug` skill
+(`.claude/skills/debug/SKILL.md`, based on Kuhlmann, *The Book of Debugging*). What matters most:
+- **Reproduce first, and make the loop fast**: one named input and one command; never the full CI
+  as the loop. Run the one failing test, or the command on its own with `vectorcraft-cli run --cmd …` (`embroidery.exportImage` to see stitches).
+- **Look at what the program actually did** before theorising, and build a flag or command when you
+  keep wanting to see something.
+- **One hypothesis per experiment**, written down with what either result will teach; cap guessing
+  at about an hour, then switch strategy (bisect, instrument, follow the data).
+- **Verify the fix** by undoing it (the bug returns) and redoing it (it goes); keep the repro as a
+  regression test; look for the same mistake elsewhere.
+- Keep a debugging log in `docs/debug-logs/YYYY-MM-DD-<topic>.md` for anything that takes more
+  than one sitting, and reference it from the commit.
+
 ## Roadmap and progress docs
 The progress docs follow craftrules' [`standards/progress-docs.md`](https://github.com/storytold/craftrules/blob/main/standards/progress-docs.md):
 - [`ROADMAP.md`](ROADMAP.md): stage, headline numbers, dimensions, features, languages, upcoming, progress log.
@@ -68,6 +94,17 @@ The progress docs follow craftrules' [`standards/progress-docs.md`](https://gith
 When a task lands, update in the same PR: the area row in `docs/target-app-parity.md` (score, missing items, hours) and its evidence list, the gap entry in `docs/gaps.md` if it closed or shrank, the checklist it belongs to, the milestone row in `docs/roadmap.md`, and the ROADMAP's tables and progress log when a headline number moves. Update each touched doc's status line and revision history.
 - Grade by behaviour against the public documentation (`plan/illustrator/` notes), not by whether a menu item exists. Scores are self-assessed, so err low; mark each number measured or estimated.
 - Keep the README's Status section in step with the ROADMAP headline.
+
+## Issues, branches and PRs
+- Work comes from open issues labelled `claude-queue` (p1 before p2 before p3, oldest first). Relabel to `claude-working` before any code; finish with `claude-done` or `claude-blocked` (plus a comment). `claude-proposed` issues are suggestions: only the owner promotes them.
+- The platform names the branch. Put "issue <n>" in the PR title and `Closes #<n>` (or `Fixes #<n>`) in the body. Never merge, never force-push, never touch `main` directly.
+- Record each landed task in `PROGRESS.md` (nightly log).
+- Private-repo note: GitHub Free has no required checks on private repos, so never use `gh pr merge --auto` there; keep PR CI short and run heavy jobs on main, nightly or path filters.
+- The gate is `cargo xtask ci`; CI runs the same steps.
+
+## Commit authorship
+- Commit as Bruce Wattendorf `<bwattendorf@gmail.com>`; end the message with the trailers `Co-Authored-By: Claude <noreply@anthropic.com>` and the session URL line. Never name a model in commits or PR bodies.
+- Never rewrite commits already pushed to change their author.
 
 ## Contributor credits (About window)
 
