@@ -25,6 +25,14 @@
 //!   mode (`SF_CLOUD_TEST_MODE`, a staging copy; otherwise 404 like any unknown route), with
 //!   `X-Test-Secret`: verified test accounts for a QA bot's run, and their deletion.
 //!
+//! - `GET  /`: a short page saying what this address is (the apps and the site use it, people
+//!   don't), so a browser opening it finds a titled page instead of an error. Any other `GET` a
+//!   browser makes for a page (`Accept: text/html`, outside `/v1/`) is answered with a "not found"
+//!   page; everything else unknown gets the JSON error.
+//!
+//! Every answer says `X-Content-Type-Options: nosniff`; every page also forbids framing and limits
+//! what it may load ([`PAGE_HEADERS`]).
+//!
 //! The token comes as `Authorization: Bearer sfs_…`.
 
 use std::collections::HashMap;
@@ -111,6 +119,40 @@ fn not_found() -> Response {
     Response::error(404, "not_found_error", "no such endpoint")
 }
 
+/// The page a browser finds at `/`.
+fn home() -> Response {
+    let body = format!(
+        "<p>This is the Foundry Account service: the StitchFoundry apps and site use it for sign-in, AI credits and sew-out checks. There is nothing to do here in a browser.</p><p>Sign in, buy credits or reset a forgotten password from the app (Account), or on the site.</p><p><a href=\"{SITE_URL}\" style=\"display:inline-block;padding:.6em 1.2em;border-radius:.4em;background:#2a5bd7;color:#fff;text-decoration:none\">Go to stitchfoundry.app</a></p>"
+    );
+    Response::html(200, "Foundry Account", &body)
+}
+
+/// The page for an unknown address a browser asked for.
+fn not_found_page() -> Response {
+    let body = format!("<p>There is no page at this address.</p><p><a href=\"{SITE_URL}\">Go to stitchfoundry.app</a></p>");
+    Response::html(404, "Page not found", &body)
+}
+
+/// The headers on every HTML page: no framing, nothing loaded from anywhere (inline style only),
+/// and other sites told only this site's address when a link is followed.
+pub const PAGE_HEADERS: &[(&str, &str)] = &[
+    ("Referrer-Policy", "strict-origin-when-cross-origin"),
+    ("X-Frame-Options", "DENY"),
+    ("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'"),
+];
+
+/// [`PAGE_HEADERS`] as a response's headers.
+fn page_headers() -> Vec<(String, String)> {
+    PAGE_HEADERS.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect()
+}
+
+/// A page: the `<!doctype>`, language, title and the shared look around `body`.
+fn page_html(title: &str, body: &str) -> String {
+    format!(
+        "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>{title} · StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em;line-height:1.5\"><h1>StitchFoundry</h1><h2>{title}</h2>{body}</body></html>"
+    )
+}
+
 /// The headers that let the web app call from a browser.
 const CORS: &[(&str, &str)] = &[
     ("Access-Control-Allow-Origin", "*"),
@@ -150,13 +192,18 @@ impl Response {
         Response::json(status, &json!({ "type": "error", "error": { "type": kind, "message": message.into() } }))
     }
 
+    /// An HTML page titled `title` around `body`, with [`PAGE_HEADERS`].
+    fn html(status: u16, title: &str, body: &str) -> Response {
+        Response { status, content_type: "text/html; charset=utf-8", body: page_html(title, body), headers: page_headers() }
+    }
+
     /// A page for Stripe's return addresses: `text`, what to do next, and a way to the site (the
     /// app has no address a page could go back to, so it says where to look instead).
     fn page(text: &str, next: &str) -> Response {
         let body = format!(
-            "<!doctype html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em;line-height:1.5\"><h1>StitchFoundry</h1><p>{text}</p><p>{next}</p><p><a href=\"{SITE_URL}\" style=\"display:inline-block;padding:.6em 1.2em;border-radius:.4em;background:#2a5bd7;color:#fff;text-decoration:none\">Back to stitchfoundry.app</a></p></body>"
+            "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em;line-height:1.5\"><h1>StitchFoundry</h1><p>{text}</p><p>{next}</p><p><a href=\"{SITE_URL}\" style=\"display:inline-block;padding:.6em 1.2em;border-radius:.4em;background:#2a5bd7;color:#fff;text-decoration:none\">Back to stitchfoundry.app</a></p></body></html>"
         );
-        Response { status: 200, content_type: "text/html; charset=utf-8", body, headers: Vec::new() }
+        Response { status: 200, content_type: "text/html; charset=utf-8", body, headers: page_headers() }
     }
 }
 
@@ -299,7 +346,7 @@ fn reset_html(body: &str) -> Response {
 /// address, so the page is never cached, framed, or named to another site it links to.
 fn link_html(title: &str, body: &str) -> Response {
     let html = format!(
-        "<!doctype html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>{title} · StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em;line-height:1.5\"><h1>StitchFoundry</h1><h2>{title}</h2>{body}</body>"
+        "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>{title} · StitchFoundry</title><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;padding:0 1em;line-height:1.5\"><h1>StitchFoundry</h1><h2>{title}</h2>{body}</body></html>"
     );
     let headers = [
         ("Cache-Control", "no-store"),
@@ -357,6 +404,7 @@ impl Service {
     pub fn handle(&self, req: &Request) -> Response {
         let mut r = self.route(req);
         r.headers.extend(CORS.iter().map(|(k, v)| (k.to_string(), v.to_string())));
+        r.headers.push(("X-Content-Type-Options".into(), "nosniff".into()));
         r
     }
 
@@ -368,6 +416,7 @@ impl Service {
         match (req.method.as_str(), path) {
             // a browser asking whether it may call
             ("OPTIONS", _) => Response { status: 204, content_type: "text/plain", body: String::new(), headers: Vec::new() },
+            ("GET", "/") => home(),
             ("GET", "/v1/health") => Response::json(
                 200,
                 &json!({ "ok": true, "ai": self.cfg.anthropic_key.is_some(), "payments": self.cfg.stripe_key.is_some() && self.cfg.stripe_webhook_secret.is_some(), "email": self.cfg.resend_key.is_some(), "commit": self.cfg.commit }),
@@ -396,6 +445,8 @@ impl Service {
             // staging only: not even routed unless test mode is on
             ("POST", "/v1/test/provision") if self.cfg.test_mode => self.test_provision(req),
             ("POST", "/v1/test/cleanup") if self.cfg.test_mode => self.test_cleanup(req),
+            // a browser asking for a page that isn't here
+            ("GET", p) if !p.starts_with("/v1/") && req.header("accept").is_some_and(|a| a.contains("text/html")) => not_found_page(),
             _ => not_found(),
         }
     }
@@ -2107,6 +2158,70 @@ mod tests {
         assert_eq!(thousands(0), "0");
         assert_eq!(thousands(999), "999");
         assert_eq!(thousands(1_234_567), "1,234,567");
+    }
+
+    // ---------- CLOUD-14: the home page, browser 404s, page headers ----------
+
+    fn browser(path: &str) -> Request {
+        Request { method: "GET".into(), path: path.into(), headers: vec![("Accept".into(), "text/html,*/*".into())], body: Vec::new() }
+    }
+
+    fn has(r: &Response, name: &str, value: &str) -> bool {
+        r.headers.iter().any(|(k, v)| k.eq_ignore_ascii_case(name) && v == value)
+    }
+
+    /// A page fit to show: language, title, and the headers that stop sniffing and framing.
+    fn assert_page(r: &Response, title: &str) {
+        assert_eq!(r.content_type, "text/html; charset=utf-8");
+        assert!(r.body.starts_with("<!doctype html><html lang=\"en\">") && r.body.ends_with("</html>"), "{}", r.body);
+        assert!(r.body.contains(&format!("<title>{title}")), "{}", r.body);
+        assert!(has(r, "X-Content-Type-Options", "nosniff"));
+        assert!(has(r, "X-Frame-Options", "DENY"));
+        let csp = r.headers.iter().find(|(k, _)| k == "Content-Security-Policy").map(|(_, v)| v.as_str()).unwrap_or_default();
+        assert!(csp.contains("frame-ancestors 'none'") && csp.contains("default-src 'none'"), "{csp}");
+        assert!(r.headers.iter().any(|(k, v)| k == "Referrer-Policy" && !v.is_empty()));
+    }
+
+    #[test]
+    fn the_home_page_says_what_this_is() {
+        let (s, _) = service((200, String::new()), false);
+        // any client: a browser, or a plain request with no Accept (the quality check's)
+        for r in [s.handle(&browser("/")), s.handle(&req("GET", "/", None, json!({})))] {
+            assert_eq!(r.status, 200);
+            assert_page(&r, "Foundry Account · StitchFoundry");
+            assert!(r.body.contains("href=\"https://stitchfoundry.app\""));
+        }
+        // a query string is the same page
+        assert_eq!(s.handle(&browser("/?from=mail")).status, 200);
+    }
+
+    #[test]
+    fn a_browser_gets_a_page_for_an_unknown_address_and_the_api_keeps_its_json() {
+        let (s, _) = service((200, String::new()), false);
+        let r = s.handle(&browser("/no-such-page"));
+        assert_eq!(r.status, 404);
+        assert_page(&r, "Page not found · StitchFoundry");
+        // API clients, and /v1/ even from a browser, still get the JSON error
+        for r in [
+            s.handle(&req("GET", "/no-such-page", None, json!({}))),
+            s.handle(&browser("/v1/nope")),
+            s.handle(&req("POST", "/no-such-page", None, json!({}))),
+        ] {
+            assert_eq!(r.status, 404);
+            assert_eq!(json_of(&r)["error"]["type"], "not_found_error");
+            assert!(has(&r, "X-Content-Type-Options", "nosniff"));
+        }
+    }
+
+    #[test]
+    fn every_page_has_a_language_title_and_headers() {
+        let (s, _) = service((200, String::new()), true);
+        assert_page(&s.handle(&browser("/paid?pack=small")), "StitchFoundry");
+        assert_page(&s.handle(&browser("/cancelled")), "StitchFoundry");
+        assert_page(&s.handle(&browser("/reset?token=nope")), "Reset your password · StitchFoundry");
+        assert_page(&s.handle(&browser("/verify?token=nope")), "");
+        // JSON answers say nosniff too
+        assert!(has(&s.handle(&req("GET", "/v1/health", None, json!({}))), "X-Content-Type-Options", "nosniff"));
     }
 
     // ---------- CLOUD-13: test mode (staging only) ----------
