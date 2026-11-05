@@ -9,3 +9,5 @@
 - 2026-11-02 nightly sweep: no reported bugs to triage; no vulnerable dependencies (6 unmaintained notices); filed #39 (XXX reader 32-bit overflow) and #40 (hand-rolled date math).
 - Fix #32: the bug-report scrub keeps ISO dates, numbers followed by a unit and space-grouped thousands instead of masking them as [phone].
 - 2026-11-04, issue 52: AGENTS.md rewritten for StitchFoundry (upstream credit kept, issue/PR workflow added); CLAUDE.md is now `@AGENTS.md`.
+- 2026-11-05 nightly sweep: no reports to triage; ran `cargo xtask ci` and cargo audit on main; one cloud-service finding kept private for the owner.
+- Fix #47: embroidery file names (team names, queue, jobs, orders, patches, tiles) never end up as a Windows device name: `Con` exports as `Con-.dst`.

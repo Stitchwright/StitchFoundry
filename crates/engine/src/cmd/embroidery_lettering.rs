@@ -1395,11 +1395,13 @@ fn team_names_read(_: &mut Session, p: &Value) -> Result<Value> {
     Ok(json!({ "names": names }))
 }
 
-/// A name as a file name: no characters files can't have, not too long, not empty.
+/// A name as a file name: no characters files can't have, not too long, not empty, and not a
+/// Windows device name (`fileio::safe_file_name`).
 pub(super) fn safe_name(name: &str) -> String {
     let s: String = name.chars().map(|c| if c.is_control() || "/\\:*?\"<>|".contains(c) { '_' } else { c }).take(60).collect();
     let s = s.trim().trim_matches('.').trim();
-    if s.is_empty() { "name".to_string() } else { s.to_string() }
+    // (and never a Windows device name: `Con` would write to the console, not a file)
+    if s.is_empty() { "name".to_string() } else { super::fileio::safe_file_name(s) }
 }
 
 /// `base`, or `base 2`, `base 3`… when one is taken already (in any case), now taken.
@@ -1597,7 +1599,7 @@ fn team_names_export(s: &mut Session, p: &Value) -> Result<Value> {
         let opts = sf_formats::WriteOptions { name: name.replace(['\n', '\r'], " "), center: true, ..sf_formats::WriteOptions::default() };
         let bytes =
             sf_formats::write(format, plan.pattern(), &opts).map_err(|e| EngineError::Other(format!("{} export failed: {e}", format.name())))?;
-        let stem = unique(&mut taken, &format!("{prefix}{}", safe_name(name)));
+        let stem = unique(&mut taken, &super::fileio::safe_file_name(&format!("{prefix}{}", safe_name(name))));
         let path = std::path::Path::new(dir).join(format!("{stem}.{}", format.extension())).to_string_lossy().to_string();
         crate::cmd::fileio::write_file(&path, &bytes)?;
         files.push(path);
@@ -1619,6 +1621,9 @@ mod tests {
         assert_eq!(csv_rows(&"x\n".repeat(10_000)).len(), MAX_NAMES + 1);
         assert_eq!(safe_name(" A/B: c? "), "A_B_ c_");
         assert_eq!(safe_name("..."), "name");
+        // Windows device names get a `-` (issue 47)
+        assert_eq!([safe_name("Con"), safe_name("nul"), safe_name("COM1"), safe_name("aux.x")], ["Con-", "nul-", "COM1-", "aux-.x"]);
+        assert_eq!([safe_name("Connor"), safe_name("COM10")], ["Connor", "COM10"]);
         let mut taken = HashSet::new();
         assert_eq!([unique(&mut taken, "Lee"), unique(&mut taken, "lee"), unique(&mut taken, "Lee")], ["Lee", "lee 2", "Lee 3"]);
     }
