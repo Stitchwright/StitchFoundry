@@ -72,7 +72,7 @@ pub(super) fn looks_like_photo(raster: &Raster) -> bool {
     const PHOTO_COLORS: usize = 300;
     let step = (raster.rgba.len() / 4 / 65_536).max(1);
     let mut seen = std::collections::HashSet::new();
-    for px in raster.rgba.chunks_exact(4).step_by(step) {
+    for px in raster.rgba.as_chunks::<4>().0.iter().step_by(step) {
         if let [r, g, b, a] = *px
             && a >= 128
         {
@@ -373,9 +373,10 @@ pub(super) fn quantise(r: &Raster, palette: &[Rgb]) -> Vec<Option<usize>> {
     let labs: Vec<[f64; 3]> = palette.iter().map(|c| c.to_lab()).collect();
     let mut cache: std::collections::HashMap<u32, usize> = std::collections::HashMap::new();
     r.rgba
-        .chunks_exact(4)
-        .map(|c| {
-            let (cr, cg, cb, a) = (c.first().copied()?, c.get(1).copied()?, c.get(2).copied()?, c.get(3).copied()?);
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .map(|&[cr, cg, cb, a]| {
             if a < 128 {
                 return None;
             }

@@ -112,8 +112,7 @@ pub(crate) fn read(bytes: &[u8]) -> Result<Pattern, FormatError> {
 /// Decodes U01 records (up to the end record) into a pattern named `name`.
 pub(crate) fn read_records(body: &[u8], name: String) -> Result<Pattern, FormatError> {
     let mut dec = Decoder::new(10.0, true);
-    for chunk in body.chunks_exact(3) {
-        let Ok(b) = <[u8; 3]>::try_from(chunk) else { break };
+    for b in body.as_chunks::<3>().0.iter().copied() {
         let (dx, dy) = delta(&b);
         match b[0] & 0x1F {
             STITCH => dec.stitch(dx, dy)?,
@@ -142,7 +141,7 @@ pub(crate) fn sniff_records(body: &[u8]) -> bool {
     if body.len() < 6 || !body.len().is_multiple_of(3) {
         return false;
     }
-    let mut records = body.chunks_exact(3).map(|c| c.first().copied().unwrap_or(0xFF) & 0x1F);
+    let mut records = body.as_chunks::<3>().0.iter().map(|c| c[0] & 0x1F);
     let last = records.next_back();
     last == Some(END) && records.all(|f| matches!(f, STITCH | JUMP | TRIM | STOP | NEEDLE_1..=NEEDLE_15))
 }

@@ -21,7 +21,7 @@ fn main() {
     let bytes = std::fs::read(&args[1]).unwrap();
     assert_eq!(bytes.len(), w * h * 4, "file size is not WIDTH × HEIGHT × 4");
     let start = Instant::now();
-    let rgba: Vec<[f32; 4]> = bytes.chunks_exact(4).map(|p| [0, 1, 2, 3].map(|c| f32::from(p[c]) / 255.0)).collect();
+    let rgba: Vec<[f32; 4]> = bytes.as_chunks::<4>().0.iter().map(|p| p.map(|c| f32::from(c) / 255.0)).collect();
     let img = RgbImage::from_rgba(&rgba, w, h);
     let canvas = Rect::new(0, 0, w as i32, h as i32);
     let region = select_subject(&ImageSampler { img: &img, origin: (0, 0) }, canvas);

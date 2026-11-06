@@ -633,8 +633,7 @@ fn fill_rings(
             }
         }
         xs.sort_by(f32::total_cmp);
-        for pair in xs.chunks_exact(2) {
-            let (Some(&xa), Some(&xb)) = (pair.first(), pair.get(1)) else { continue };
+        for &[xa, xb] in xs.as_chunks::<2>().0 {
             let (xa, xb) = (xa.max(area.left()), xb.min(area.right()));
             if xb <= xa {
                 continue;
