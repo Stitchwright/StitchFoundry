@@ -20,7 +20,7 @@ concurrency:
 jobs:
   lint:
     # Upstream's CI: skipped in forks such as StitchFoundry.
-    if: github.repository == 'storytold/vectorcraft'
+    if: github.repository == 'StitchFoundry/StitchFoundry'
     timeout-minutes: 15
     runs-on: ubuntu-latest
     env:
