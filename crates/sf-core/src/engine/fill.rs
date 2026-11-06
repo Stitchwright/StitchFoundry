@@ -717,7 +717,7 @@ fn plan(rings: &[Vec<Point>], cfg: &ScanConfig) -> Option<Plan> {
         }
         xs.sort_by(|a, b| a.x.total_cmp(&b.x));
         let mut ids = Vec::new();
-        for pair in xs.chunks_exact(2) {
+        for pair in xs.as_chunks::<2>().0.iter() {
             let (l, r) = (pair[0], pair[1]);
             if r.x - l.x < 1e-6 {
                 continue;

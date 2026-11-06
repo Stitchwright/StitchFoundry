@@ -324,7 +324,7 @@ fn interior_point(ring: &[Point]) -> Option<Point> {
         })
         .collect();
     xs.sort_by(f64::total_cmp);
-    xs.chunks_exact(2).max_by(|a, b| (a[1] - a[0]).total_cmp(&(b[1] - b[0]))).map(|w| Point::new((w[0] + w[1]) * 0.5, c.y))
+    xs.as_chunks::<2>().0.iter().max_by(|a, b| (a[1] - a[0]).total_cmp(&(b[1] - b[0]))).map(|w| Point::new((w[0] + w[1]) * 0.5, c.y))
 }
 
 /// The two stretches of `region` a line through `c` (inside `hole`) along `d` crosses

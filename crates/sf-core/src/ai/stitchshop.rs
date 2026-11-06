@@ -102,7 +102,7 @@ pub fn file_name(name: &str) -> String {
 pub fn dst_stitches(file: &[u8]) -> Option<usize> {
     let body = file.get(512..)?;
     let mut n = 0usize;
-    for r in body.chunks_exact(3) {
+    for r in body.as_chunks::<3>().0.iter() {
         let flags = r.get(2).copied().unwrap_or(0);
         if flags == 0xF3 {
             break;
