@@ -259,7 +259,7 @@ fn convert(s: &mut Session, p: &Value) -> Result<Value> {
     let ids: Vec<NodeId> = if everything {
         vectorcraft_embroidery::stitched_nodes(d).iter().filter(|n| manual(n)).map(|n| n.id).collect()
     } else {
-        super::embroidery::stitched_targets(s, p)?.into_iter().filter(|id| d.node(*id).is_some_and(&manual)).collect()
+        super::embroidery::stitched_targets(s, p)?.into_iter().filter(|id| d.node(*id).is_some_and(manual)).collect()
     };
     if ids.is_empty() {
         return Err(bad(CMD, "select manual stitches: an opened machine file's threads"));

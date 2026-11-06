@@ -89,7 +89,7 @@ fn cutout_preview(s: &mut Session, p: &Value) -> Result<Value> {
     let (alpha, subject) = cut_out(&small, None, &[], &[], bias).ok_or_else(|| bad(CMD, "the image is empty"))?;
     let kept = alpha.iter().filter(|a| **a >= 128).count() as f64 / alpha.len().max(1) as f64;
     let mut rgba = small.rgba.clone();
-    for (px, a) in rgba.chunks_exact_mut(4).zip(&alpha) {
+    for (px, a) in rgba.as_chunks_mut::<4>().0.iter_mut().zip(&alpha) {
         if let Some(v) = px.get_mut(3) {
             *v = *a;
         }
@@ -167,7 +167,7 @@ fn refine_cutout(s: &mut Session, p: &Value) -> Result<Value> {
     };
     // the whole picture, its background (transparent in the cut-out) seen again
     let mut opaque = pic.raster.rgba.clone();
-    for px in opaque.chunks_exact_mut(4) {
+    for px in opaque.as_chunks_mut::<4>().0.iter_mut() {
         if let Some(a) = px.get_mut(3) {
             *a = 255;
         }
@@ -178,7 +178,7 @@ fn refine_cutout(s: &mut Session, p: &Value) -> Result<Value> {
         return Err(bad(CMD, "that would take everything away"));
     }
     let mut rgba = pic.raster.rgba.clone();
-    for (px, a) in rgba.chunks_exact_mut(4).zip(&alpha) {
+    for (px, a) in rgba.as_chunks_mut::<4>().0.iter_mut().zip(&alpha) {
         if let Some(v) = px.get_mut(3) {
             *v = *a;
         }
@@ -322,7 +322,7 @@ fn remove_background(s: &mut Session, p: &Value) -> Result<Value> {
         return Err(bad(CMD, "nothing in the box looks different from the background: draw the box round the subject, or mark it to keep"));
     }
     let mut rgba = pic.raster.rgba.clone();
-    for (px, a) in rgba.chunks_exact_mut(4).zip(&alpha) {
+    for (px, a) in rgba.as_chunks_mut::<4>().0.iter_mut().zip(&alpha) {
         if let Some(v) = px.get_mut(3) {
             *v = *a;
         }
