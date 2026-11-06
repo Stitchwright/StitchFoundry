@@ -197,7 +197,7 @@ fn refine_cutout(s: &mut Session, p: &Value) -> Result<Value> {
 fn select_subject(raster: &Raster) -> Option<Vec<u8>> {
     use sf_photo::segment::{ImageSampler, RgbImage};
     let (w, h) = (raster.width as usize, raster.height as usize);
-    let rgba: Vec<[f32; 4]> = raster.rgba.chunks_exact(4).map(|p| [p[0], p[1], p[2], p[3]].map(|c| f32::from(c) / 255.0)).collect();
+    let rgba: Vec<[f32; 4]> = raster.rgba.as_chunks::<4>().0.iter().map(|p| p.map(|c| f32::from(c) / 255.0)).collect();
     if rgba.len() != w * h || w == 0 || h == 0 {
         return None;
     }

@@ -1667,7 +1667,9 @@ fn pick_everywhere(img: &vectorcraft_trace::Raster, x: u32, y: u32, tolerance: u
     let mut pixels = 0usize;
     let mask: Vec<bool> = img
         .rgba
-        .chunks_exact(4)
+        .as_chunks::<4>()
+        .0
+        .iter()
         .map(|c| {
             let near = c[3] >= 128 && c.iter().zip(c0).all(|(a, b)| a.abs_diff(b) <= tolerance);
             if near {
