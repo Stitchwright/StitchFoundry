@@ -119,7 +119,7 @@ fn windows_drive(path: &str, system: &str) -> Option<String> {
 
 #[cfg(target_os = "macos")]
 mod platform {
-    use super::*;
+    use super::{Command, NOT_REMOVABLE, mac_sticks, mac_volume, run};
 
     pub fn eject(folder: &str) -> Result<String, String> {
         let (volume, name) = mac_volume(folder).ok_or(NOT_REMOVABLE)?;
@@ -160,7 +160,7 @@ mod platform {
 
 #[cfg(windows)]
 mod platform {
-    use super::*;
+    use super::{Command, NOT_REMOVABLE, run, windows_drive, windows_sticks};
 
     pub fn eject(folder: &str) -> Result<String, String> {
         let system = std::env::var("SystemDrive").unwrap_or_else(|_| "C:".into());
