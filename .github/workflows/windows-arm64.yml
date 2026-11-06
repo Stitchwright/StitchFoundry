@@ -28,7 +28,7 @@ permissions:
 jobs:
   package:
     # Upstream's CI: skipped in forks such as StitchFoundry.
-    if: github.repository == 'storytold/vectorcraft'
+    if: github.repository == 'StitchFoundry/StitchFoundry'
     name: package (cross-compiled on x64)
     runs-on: windows-latest
     timeout-minutes: 90
@@ -59,7 +59,7 @@ jobs:
 
   install:
     # Upstream's CI: skipped in forks such as StitchFoundry.
-    if: github.repository == 'storytold/vectorcraft'
+    if: github.repository == 'StitchFoundry/StitchFoundry'
     name: install and run on ARM64
     needs: package
     runs-on: windows-11-arm
