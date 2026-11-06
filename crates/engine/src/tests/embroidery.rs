@@ -4404,10 +4404,14 @@ const TEST_FONT_SVG: &str = r##"<svg xmlns="http://www.w3.org/2000/svg" xmlns:in
 fn the_kiosk_sets_a_name_in_a_template_and_locks_with_a_pin() {
     const PT: f64 = vectorcraft_embroidery::PT_PER_MM;
     let mut s = session();
-    // no font yet
-    assert!(s.execute("embroidery.kiosk.order", &json!({"text": "AB"})).is_err());
+    // no font yet (a build with fonts built in has some from the start)
+    if vectorcraft_embroidery::fonts::BUNDLED_FONTS.is_empty() {
+        assert!(s.execute("embroidery.kiosk.order", &json!({"text": "AB"})).is_err());
+    }
     s.execute("embroidery.font.load", &json!({"json": TEST_FONT_JSON, "svg": TEST_FONT_SVG})).unwrap();
-    let r = s.execute("embroidery.kiosk.order", &json!({"text": "AB", "template": "name tape 100 × 30", "color": "#D62828"})).unwrap();
+    let r = s
+        .execute("embroidery.kiosk.order", &json!({"text": "AB", "font": "Test Script", "template": "name tape 100 × 30", "color": "#D62828"}))
+        .unwrap();
     assert_eq!(
         (r["template"].as_str(), r["font"].as_str(), r["color"].as_str(), r["title"].as_str()),
         (Some("Name tape 100 × 30"), Some("Test Script"), Some("#d62828"), Some("AB")),
@@ -4422,7 +4426,7 @@ fn the_kiosk_sets_a_name_in_a_template_and_locks_with_a_pin() {
     let threads: Vec<String> = s.embroidery_plan().unwrap().pattern().threads.iter().map(|t| t.color.to_hex()).collect();
     assert!(threads.iter().any(|t| t == "#d62828"), "{threads:?}");
     // a long name made smaller to fit
-    let r = s.execute("embroidery.kiosk.order", &json!({"text": "ABABABABABABABAB"})).unwrap();
+    let r = s.execute("embroidery.kiosk.order", &json!({"text": "ABABABABABABABAB", "font": "Test Script"})).unwrap();
     assert!(r["widthMm"].as_f64().unwrap() <= 90.5, "{r}");
     // the shop's offer, locked with a PIN
     let r = s.execute("embroidery.kiosk", &json!({"on": true, "pin": "2468", "templates": ["cap front"], "colors": ["#FFFFFF"]})).unwrap();
@@ -4432,7 +4436,7 @@ fn the_kiosk_sets_a_name_in_a_template_and_locks_with_a_pin() {
     );
     assert!(s.execute("embroidery.kiosk.order", &json!({"text": "AB", "template": "Left chest logo"})).is_err());
     assert!(s.execute("embroidery.kiosk.order", &json!({"text": "AB", "color": "#000000"})).is_err());
-    let r = s.execute("embroidery.kiosk.order", &json!({"text": "AB"})).unwrap();
+    let r = s.execute("embroidery.kiosk.order", &json!({"text": "AB", "font": "Test Script"})).unwrap();
     assert_eq!((r["template"].as_str(), r["color"].as_str()), (Some("Cap front"), Some("#ffffff")));
     // changing or leaving it takes the PIN
     assert!(s.execute("embroidery.kiosk", &json!({"fonts": []})).is_err());
@@ -4521,7 +4525,9 @@ fn embroidery_font_folders_are_remembered() {
     let mut gone = session();
     gone.prefs.embroidery_font_dirs = vec!["/nonexistent/sf-font".into()];
     let r = gone.execute("embroidery.fonts", &json!({})).unwrap();
-    assert!(r["fonts"].as_array().unwrap().is_empty() && r["warnings"].to_string().contains("nonexistent"), "{r}");
+    // (the fonts built into the app, in a build that has them, are listed too)
+    let loaded = r["fonts"].as_array().unwrap().iter().filter(|f| f["builtIn"] != true).count();
+    assert!(loaded == 0 && r["warnings"].to_string().contains("nonexistent"), "{r}");
     assert_eq!(gone.prefs.embroidery_font_dirs.len(), 1);
     std::fs::remove_dir_all(&dir).ok();
 }
