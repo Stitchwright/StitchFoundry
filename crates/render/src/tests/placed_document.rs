@@ -232,26 +232,36 @@ fn a_bitmap_that_cant_be_made_is_not_asked_for_again() {
 fn a_ready_bitmap_draws_again_where_its_file_shows() {
     let _serial = serial();
     vectorcraft_doc::placed_document::set_loader(blue_page);
-    let mut d = Document::new(100.0, 100.0);
-    for key in ["area-a", "area-b"] {
-        d.images.insert(key.into(), ImageBlob::new("application/json", format!("{{\"doc\": \"{key}\"}}").into_bytes()));
-    }
-    let l = d.layers[0].id;
-    // 20 × 10 point boxes: A loose at (5, 5), with a shadow at (30, 40) and in a group at (5, 80);
-    // B at (75, 5). Only the shadow reaches past x = 50, and only the group's member past y = 50.
-    let at = |x: f64, y: f64| Affine::translate((x, y)) * Affine::scale(0.5);
-    d.insert(Some(l), 0, placed_node(60, "area-a", 40.0, 20.0, at(5.0, 5.0))).unwrap();
-    let group = NodeKind::Group { children: vec![Arc::new(placed_node(61, "area-a", 40.0, 20.0, at(5.0, 80.0)))], clip: false };
-    d.insert(Some(l), 1, Node::new(NodeId(62), group)).unwrap();
-    let mut shadowed = placed_node(63, "area-a", 40.0, 20.0, at(30.0, 40.0));
-    let params = serde_json::json!({"x": 4, "y": 4, "blur": 1, "opacity": 100});
-    shadowed.appearance.effects.push(vectorcraft_doc::Effect { id: "stylize.dropShadow".into(), params, visible: true });
-    d.insert(Some(l), 2, shadowed).unwrap();
-    d.insert(Some(l), 3, placed_node(64, "area-b", 40.0, 20.0, at(75.0, 5.0))).unwrap();
+    // The same layout showing files `ka` and `kb`, which can be read or not (`readable`).
+    let build = |ka: &str, kb: &str, readable: bool| {
+        let mut d = Document::new(100.0, 100.0);
+        for key in [ka, kb] {
+            let bytes = if readable { format!("{{\"doc\": \"{key}\"}}") } else { format!("bad {key}") };
+            d.images.insert(key.into(), ImageBlob::new("application/json", bytes.into_bytes()));
+        }
+        let l = d.layers[0].id;
+        // 20 × 10 point boxes: A loose at (5, 5), with a shadow at (30, 40) and in a group at (5, 80);
+        // B at (75, 5). Only the shadow reaches past x = 50, and only the group's member past y = 50.
+        let at = |x: f64, y: f64| Affine::translate((x, y)) * Affine::scale(0.5);
+        d.insert(Some(l), 0, placed_node(60, ka, 40.0, 20.0, at(5.0, 5.0))).unwrap();
+        let group = NodeKind::Group { children: vec![Arc::new(placed_node(61, ka, 40.0, 20.0, at(5.0, 80.0)))], clip: false };
+        d.insert(Some(l), 1, Node::new(NodeId(62), group)).unwrap();
+        let mut shadowed = placed_node(63, ka, 40.0, 20.0, at(30.0, 40.0));
+        let params = serde_json::json!({"x": 4, "y": 4, "blur": 1, "opacity": 100});
+        shadowed.appearance.effects.push(vectorcraft_doc::Effect { id: "stylize.dropShadow".into(), params, visible: true });
+        d.insert(Some(l), 2, shadowed).unwrap();
+        d.insert(Some(l), 3, placed_node(64, kb, 40.0, 20.0, at(75.0, 5.0))).unwrap();
+        d
+    };
     let opts = RenderOptions { background: Some([255, 255, 255, 255]), progressive_placed: true, ..Default::default() };
     let mut r = Renderer::new();
+    // Before: the placeholder boxes, from files that can't be read. They are the same whatever
+    // the background threads do; drawing the real file first could show a bitmap made mid-frame.
+    let before = r.render(&build("area-gone-a", "area-gone-b", false), 100, 100, Affine::IDENTITY, &opts);
+    settle();
+    let mut d = build("area-a", "area-b", true);
     let generation = placed_document::generation();
-    let before = r.render(&d, 100, 100, Affine::IDENTITY, &opts);
+    r.render(&d, 100, 100, Affine::IDENTITY, &opts);
     settle();
     let made = placed_document::made_between(generation, placed_document::generation()).expect("known");
     let files = |keys: &[&str]| keys.iter().map(|k| k.to_string()).collect::<std::collections::HashSet<_>>();
