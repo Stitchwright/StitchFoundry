@@ -231,7 +231,7 @@ pub(crate) fn write(pattern: &Pattern, opts: &WriteOptions) -> Result<Vec<u8>, F
 
 /// A UTF-16BE string.
 fn decode_utf16(b: &[u8]) -> String {
-    let units: Vec<u16> = b.chunks_exact(2).map(|c| u16::from_be_bytes([c.first().copied().unwrap_or(0), c.get(1).copied().unwrap_or(0)])).collect();
+    let units: Vec<u16> = b.as_chunks::<2>().0.iter().map(|c| u16::from_be_bytes(*c)).collect();
     String::from_utf16_lossy(&units)
 }
 

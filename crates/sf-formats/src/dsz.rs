@@ -50,9 +50,8 @@ fn op(b: &[u8; 3]) -> Op {
 pub(crate) fn read(bytes: &[u8]) -> Result<Pattern, FormatError> {
     let body = bytes.get(HEADER..).ok_or(FormatError::Truncated)?;
     let mut dec = Decoder::new(10.0, true);
-    for chunk in body.chunks_exact(3) {
-        let Ok(b) = <[u8; 3]>::try_from(chunk) else { break };
-        match op(&b) {
+    for b in body.as_chunks::<3>().0 {
+        match op(b) {
             Op::Stitch(dx, dy) => dec.stitch(dx, dy)?,
             Op::Jump(dx, dy) => dec.jump(dx, dy)?,
             Op::Command(cmd) => dec.command(cmd)?,
@@ -70,9 +69,8 @@ pub(crate) fn sniff(bytes: &[u8]) -> bool {
     }
     let Some(body) = bytes.get(HEADER..) else { return false };
     let (mut stitches, mut records) = (0usize, 0usize);
-    for chunk in body.chunks_exact(3) {
-        let Ok(b) = <[u8; 3]>::try_from(chunk) else { break };
-        match op(&b) {
+    for b in body.as_chunks::<3>().0 {
+        match op(b) {
             Op::Stitch(..) => stitches += 1,
             Op::End => break,
             _ => {}

@@ -244,8 +244,7 @@ pub(crate) fn read(bytes: &[u8]) -> Result<Pattern, FormatError> {
 pub(crate) fn read_records(body: &[u8], name: String) -> Result<Pattern, FormatError> {
     let mut dec = Decoder::new(10.0, true);
     let mut run: Vec<(i64, i64)> = Vec::new();
-    for chunk in body.chunks_exact(3) {
-        let Ok(b) = <[u8; 3]>::try_from(chunk) else { break };
+    for b in body.as_chunks::<3>().0.iter().copied() {
         if b[2] & 0xF0 == 0xF0 {
             break;
         }
