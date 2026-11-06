@@ -118,7 +118,7 @@ fn interior_point(polygon: &Polygon) -> Point {
         }
     }
     xs.sort_by(f64::total_cmp);
-    xs.chunks_exact(2).max_by(|a, b| (a[1] - a[0]).total_cmp(&(b[1] - b[0]))).map(|s| Point::new((s[0] + s[1]) * 0.5, y)).unwrap_or(c)
+    xs.as_chunks::<2>().0.iter().max_by(|a, b| (a[1] - a[0]).total_cmp(&(b[1] - b[0]))).map(|s| Point::new((s[0] + s[1]) * 0.5, y)).unwrap_or(c)
 }
 
 /// Radial fill: satin-like rays between the outline and a centre. Ray lengths
@@ -318,7 +318,7 @@ pub(crate) fn motif_fill(polygon: &Polygon, params: &FillParams, angle: f64, out
             }
         }
         xs.sort_by(f64::total_cmp);
-        let mut spans: Vec<(f64, f64)> = xs.chunks_exact(2).filter_map(|w| (w[1] - w[0] >= size).then_some((w[0], w[1]))).collect();
+        let mut spans: Vec<(f64, f64)> = xs.as_chunks::<2>().0.iter().filter_map(|w| (w[1] - w[0] >= size).then_some((w[0], w[1]))).collect();
         let back = r % 2 == 1;
         if back {
             spans.reverse();

@@ -162,7 +162,7 @@ fn guide_chord(ring: &Ring, g: &Guide) -> Option<(f64, f64)> {
     }
     // the guide midpoint is at t = 0.5
     let mut best: Option<(f64, (f64, f64))> = None;
-    for pair in hits.chunks_exact(2) {
+    for pair in hits.as_chunks::<2>().0.iter() {
         let (t0, p0, _) = pair[0];
         let (t1, p1, _) = pair[1];
         let dist = if (t0..=t1).contains(&0.5) { 0.0 } else { (t0 - 0.5).abs().min((t1 - 0.5).abs()) };
@@ -261,7 +261,7 @@ fn cap_rows(cap: &[Point], station: (Point, Point), inner: Point, step: f64) -> 
             break;
         }
         ts.sort_by(f64::total_cmp);
-        let Some((t0, t1)) = ts.chunks_exact(2).map(|c| (c[0], c[1])).max_by(|x, y| (x.1 - x.0).total_cmp(&(y.1 - y.0))) else { break };
+        let Some((t0, t1)) = ts.as_chunks::<2>().0.iter().map(|c| (c[0], c[1])).max_by(|x, y| (x.1 - x.0).total_cmp(&(y.1 - y.0))) else { break };
         if t1 - t0 < 1e-6 {
             break;
         }
@@ -456,7 +456,7 @@ fn shortest_chord(ring: &Ring, g: Guide) -> Option<Guide> {
         let d = Point::new(d0.x * c - d0.y * s, d0.x * s + d0.y * c);
         let hits = ring.line_hits(m, d);
         // the inside stretch of the line around the midpoint (t = 0)
-        hits.chunks_exact(2).find(|h| h[0].0 <= 0.0 && 0.0 <= h[1].0).map(|h| (h[1].0 - h[0].0, Guide::new(m + d * h[0].0, m + d * h[1].0)))
+        hits.as_chunks::<2>().0.iter().find(|h| h[0].0 <= 0.0 && 0.0 <= h[1].0).map(|h| (h[1].0 - h[0].0, Guide::new(m + d * h[0].0, m + d * h[1].0)))
     };
     let shortest =
         |degs: &mut dyn Iterator<Item = f64>| degs.filter_map(|deg| chord(deg).map(|(len, g)| (len, deg, g))).min_by(|x, y| x.0.total_cmp(&y.0));
