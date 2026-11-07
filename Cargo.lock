@@ -7089,6 +7089,7 @@ dependencies = [
  "log",
  "rfd",
  "serde_json",
+ "sf-core",
  "vectorcraft-engine",
  "vectorcraft-format",
  "vectorcraft-text",

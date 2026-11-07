@@ -20,6 +20,7 @@ pub mod effort;
 pub mod makerfoundry;
 pub mod picture;
 pub mod sewout;
+pub mod staging;
 pub mod stitchshop;
 
 /// The Messages API endpoint.

@@ -14,13 +14,21 @@ const MAX_ADDRESS: usize = 2000;
 /// The address in `raw` (the `open=` value, percent-encoded) when it may be fetched: HTTPS, on an
 /// allowed site, with no user name, port or spaces; else why not.
 pub fn allowed(raw: &str) -> Result<String, &'static str> {
+    allowed_in(raw, sf_core::ai::staging::active())
+}
+
+/// [`allowed`], with the staging MakerFoundry's host (exact, no port) accepted too only when
+/// `staging` is on (`?services=staging`).
+pub fn allowed_in(raw: &str, staging: bool) -> Result<String, &'static str> {
     let url = percent_decode(raw).ok_or("the link to the design isn't a valid address")?;
     if url.len() > MAX_ADDRESS || url.chars().any(|c| c.is_whitespace() || c.is_control()) {
         return Err("the link to the design isn't a valid address");
     }
     let rest = url.strip_prefix("https://").ok_or("designs open only from https:// addresses")?;
     let host = rest.split(['/', '?', '#']).next().unwrap_or_default();
-    if host.contains(['@', ':']) || !ALLOWED_HOSTS.contains(&host.to_ascii_lowercase().as_str()) {
+    let host_lc = host.to_ascii_lowercase();
+    let known = ALLOWED_HOSTS.contains(&host_lc.as_str()) || (staging && host_lc == sf_core::ai::staging::MAKERFOUNDRY_HOST);
+    if host.contains(['@', ':']) || !known {
         return Err("designs open only from MakerFoundry");
     }
     Ok(url)
@@ -242,6 +250,25 @@ mod tests {
 
     /// The download stops as soon as it would pass the cap, whatever length the site gave (or
     /// didn't): nothing past [`MAX_BYTES`] is kept.
+    #[test]
+    fn the_staging_host_opens_only_in_staging_mode() {
+        let staging = "https://makerfoundry-test-test.up.railway.app/api/v1/designs/1/file/a.pes";
+        assert!(allowed_in(staging, true).is_ok());
+        assert!(allowed_in(staging, false).is_err());
+        // production still opens in staging mode
+        assert!(allowed_in("https://makerfoundry.app/x.pes", true).is_ok());
+        for bad in [
+            "https://makerfoundry-test-test.up.railway.app.evil.example/x.pes",
+            "https://evil-makerfoundry-test-test.up.railway.app/x.pes",
+            "https://makerfoundry-test-test.up.railway.app:8443/x.pes",
+            "http://makerfoundry-test-test.up.railway.app/x.pes",
+            "https://user@makerfoundry-test-test.up.railway.app/x.pes",
+            "https://other-test.up.railway.app/x.pes",
+        ] {
+            assert!(allowed_in(bad, true).is_err(), "{bad}");
+        }
+    }
+
     #[test]
     fn a_download_stops_at_the_cap() {
         let mut got = Capped::default();

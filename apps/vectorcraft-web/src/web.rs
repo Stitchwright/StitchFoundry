@@ -103,6 +103,7 @@ struct Moving {
 /// Run the app on `canvas`: the `moving` one when starting again after losing the graphics, else
 /// a new one.
 async fn run(host: Host, canvas: web_sys::HtmlCanvasElement, moving: Option<Moving>) {
+    staging_mode();
     track_drag(&canvas, &host.drag);
     let kept = moving.as_ref().map(|m| m.kept);
     // The app until the new runner takes it (still here if starting fails before).
@@ -207,6 +208,39 @@ fn detect_language() {
     i18n::set_system_locales(tags.as_slice());
     if let Some(el) = element(LOADING_ID) {
         el.set_text_content(Some(i18n::message(i18n::system_lang(), "Loading StitchFoundry…").as_str()));
+    }
+}
+
+/// `?services=staging`: use the staging services (compiled-in addresses, `sf_core::ai::staging`)
+/// for this tab, remembered for the tab's session only, with a banner. Any other value is ignored.
+fn staging_mode() {
+    const KEY: &str = "stitchfoundry-services";
+    let session = web_sys::window().and_then(|w| w.session_storage().ok().flatten());
+    let remembered = session.as_ref().and_then(|s| s.get_item(KEY).ok().flatten());
+    let on = sf_core::ai::staging::chosen(query_param("services").as_deref(), remembered.as_deref());
+    sf_core::ai::staging::set(on);
+    if !on {
+        return;
+    }
+    if let Some(s) = &session {
+        // (not remembered: the next load of the address asks again)
+        let _ = s.set_item(KEY, "staging");
+    }
+    let Some(document) = web_sys::window().and_then(|w| w.document()) else { return };
+    if document.get_element_by_id("vectorcraft_staging_banner").is_some() {
+        return;
+    }
+    let Ok(banner) = document.create_element("div") else { return };
+    banner.set_id("vectorcraft_staging_banner");
+    banner.set_text_content(Some(sf_core::ai::staging::BANNER));
+    let _ = banner.set_attribute("role", "status");
+    let _ = banner.set_attribute(
+        "style",
+        "position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:10;padding:2px 12px;background:#c0392b;color:#fff;\
+         font:bold 12px system-ui,sans-serif;border-radius:0 0 6px 6px;pointer-events:none",
+    );
+    if let Some(body) = document.body() {
+        let _ = body.append_child(&banner);
     }
 }
 

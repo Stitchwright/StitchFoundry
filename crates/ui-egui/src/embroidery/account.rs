@@ -102,6 +102,10 @@ pub(crate) fn keep(app: &VectorcraftApp, name: &str, value: Option<&str>) {
 
 /// The service's address in use (`None`: accounts aren't open).
 pub fn server(app: &VectorcraftApp) -> Option<String> {
+    // staging mode (web `?services=staging`) wins over a kept or typed address
+    if let Some(s) = vectorcraft_embroidery::sf_core::ai::staging::cloud() {
+        return cloud::clean_server(s);
+    }
     let typed = app.embroidery.account.server.trim();
     if typed.is_empty() { cloud::clean_server(&default_server()) } else { cloud::clean_server(typed) }
 }

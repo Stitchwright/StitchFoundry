@@ -1982,6 +1982,11 @@ on MakerFoundry, then download it there."); anything else, or an answer without 
 sentence, shows "Couldn't open the design from MakerFoundry: …". The `open=` part leaves the page's
 address as soon as it's read, so reloading the page or sharing its address doesn't open the design
 again (the other parameters, such as `view`, stay).
+**Staging (for release tests):** `?services=staging` makes that browser tab use the staging account
+service and staging MakerFoundry, with a banner "STAGING services (test data)"; it is remembered
+for the tab's session only. The two staging addresses are compiled in (`sf_core::ai::staging`),
+https only, never taken from the page's address; any other `services=` value is ignored, and
+production stays the default. In staging mode `?open=` also accepts the staging MakerFoundry host.
 Only files on makerfoundry.app (or www.makerfoundry.app) over `https://` are fetched, without
 cookies, up to 32 MB (the download stops as soon as it passes that, even when the site doesn't
 say how big the file is); any other address is refused before anything is fetched. The file's name
