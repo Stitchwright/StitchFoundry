@@ -215,6 +215,11 @@ pub struct DecorObject {
 /// The most pieces one object places.
 pub const MAX_ITEMS: usize = 20_000;
 
+/// The most stitches one decoration object sews. A cord's zigzag follows the path's own length,
+/// which document coordinates let reach kilometres, and a file can hold any number of pieces or
+/// holes, so sewing stops here instead of exhausting memory.
+pub const MAX_STITCHES: usize = 200_000;
+
 /// Standard sizes to pick from: sequins (mm), rhinestones by their SS size, beads.
 pub fn palette() -> Vec<(DecorKind, &'static str, f64)> {
     let mut v: Vec<(DecorKind, &'static str, f64)> =
@@ -352,6 +357,9 @@ pub fn stitches(obj: &DecorObject, hint: Option<Point>) -> Vec<Stitch> {
         DecorKind::Sequin => {
             let mut here = first;
             for it in &obj.items {
+                if out.len() >= MAX_STITCHES {
+                    break;
+                }
                 walk(&mut out, here, it.at, 2.5);
                 let r = it.size / 2.0 + 0.3;
                 let dirs: &[f64] = match p.fixing {
@@ -377,6 +385,9 @@ pub fn stitches(obj: &DecorObject, hint: Option<Point>) -> Vec<Stitch> {
         DecorKind::Bead => {
             let mut here = first;
             for it in &obj.items {
+                if out.len() >= MAX_STITCHES {
+                    break;
+                }
                 let half = Point::new(it.size / 2.0, 0.0).rotated(it.angle);
                 let (a, b) = (it.at - half, it.at + half);
                 walk(&mut out, here, a, 2.5);
@@ -390,6 +401,9 @@ pub fn stitches(obj: &DecorObject, hint: Option<Point>) -> Vec<Stitch> {
         DecorKind::Cord => {
             // a zigzag over the cord, as wide as it and a little more, 2.5 mm a swing
             for (line, closed) in &obj.lines {
+                if out.len() >= MAX_STITCHES {
+                    break;
+                }
                 let mut pts = line.clone();
                 if *closed && let Some(f) = pts.first().copied() {
                     pts.push(f);
@@ -403,12 +417,12 @@ pub fn stitches(obj: &DecorObject, hint: Option<Point>) -> Vec<Stitch> {
                 for seg in pts.windows(2) {
                     let (Some(a), Some(b)) = (seg.first().copied(), seg.get(1).copied()) else { continue };
                     let len = a.distance(b);
-                    if len < 1e-9 {
+                    if !len.is_finite() || len < 1e-9 {
                         continue;
                     }
                     let n = (b - a).normalized().perp();
                     let mut t = 2.5 - walked % 2.5;
-                    while t <= len {
+                    while t <= len && out.len() < MAX_STITCHES {
                         out.push(Stitch::at(a.lerp(b, t / len) + n * (w * side), Cmd::Stitch));
                         side = -side;
                         t += 2.5;
@@ -423,6 +437,9 @@ pub fn stitches(obj: &DecorObject, hint: Option<Point>) -> Vec<Stitch> {
         DecorKind::Boring => {
             // the hole's outline run, a stop to cut it, then a satin edge round it
             for (ring, _) in &obj.lines {
+                if out.len() >= MAX_STITCHES {
+                    break;
+                }
                 let Some(start) = ring.first().copied() else { continue };
                 let mut prev = start;
                 out.push(Stitch::at(start, Cmd::Stitch));
@@ -520,6 +537,27 @@ mod tests {
         let multi = DecorParams { sizes: vec![3.0, 6.0], flip: true, ..p.clone() };
         let m = along(&line, false, &multi, 0);
         assert_eq!((m[0].size, m[1].size, m[0].flip, m[1].flip), (3.0, 6.0, false, true));
+    }
+
+    #[test]
+    fn a_very_long_cord_stops_at_the_stitch_cap() {
+        // issue #66: one 10 km line used to give 4,000,004 stitches
+        let p = DecorParams::of(DecorKind::Cord);
+        let line = vec![Point::new(0.0, 0.0), Point::new(10_000_000.0, 0.0)];
+        let lines = vec![(line.clone(), false), (line, false)];
+        let st = stitches(&DecorObject { params: p, items: Vec::new(), lines }, None);
+        assert!(st.len() <= MAX_STITCHES + 8, "{}", st.len());
+        // a non-finite length sews nothing along it rather than looping
+        let bad = vec![Point::new(0.0, 0.0), Point::new(f64::INFINITY, 0.0)];
+        let st = stitches(&DecorObject { params: DecorParams::of(DecorKind::Cord), items: Vec::new(), lines: vec![(bad, false)] }, None);
+        assert!(st.len() <= 8, "{}", st.len());
+        // pieces from a file, each far from the last, stop at the cap too
+        let far: Vec<DecorItem> =
+            (0..2_000).map(|k| DecorItem { at: Point::new(if k % 2 == 0 { 0.0 } else { 10_000.0 }, 0.0), ..DecorItem::default() }).collect();
+        for kind in [DecorKind::Sequin, DecorKind::Bead] {
+            let st = stitches(&DecorObject { params: DecorParams::of(kind), items: far.clone(), lines: Vec::new() }, None);
+            assert!(st.len() <= MAX_STITCHES + 2_100, "{kind:?}: {}", st.len());
+        }
     }
 
     #[test]
