@@ -621,7 +621,7 @@ pub fn report_window(app: &mut VectorcraftApp, ctx: &egui::Context) {
             ui.add_enabled_ui(has_design, |ui| {
                 ui.checkbox(&mut f.design, tl!("Include a summary of the design"));
             });
-            ui.checkbox(&mut f.consent, tl!("I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else."));
+            ui.checkbox(&mut f.consent, tl!("I agree to send this to the StitchFoundry team to improve the software. It won't be shared with anyone else."));
             if let Some(e) = &f.error {
                 ui.label(RichText::new(crate::i18n::msg(e)).color(t.error));
             }

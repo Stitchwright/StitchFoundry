@@ -5508,7 +5508,7 @@ theme	Appearance	Външен вид
 @msg	{_1} export failed: {e}	Експортирането в {_1} не успя: {e}
 	Stitch Lines	Линии на бодовете
 	Tatami	Татами
-	By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	От SiteSentrix, на основата на VectorCraft от екипа на ArtCraft. MIT OR Apache-2.0. Шрифтове: Source Sans 3, Inter, JetBrains Mono (OFL). Икони: Lucide (ISC) + VectorCraft.
+	From the StitchFoundry family, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	От StitchFoundry, на основата на VectorCraft от екипа на ArtCraft. MIT OR Apache-2.0. Шрифтове: Source Sans 3, Inter, JetBrains Mono (OFL). Икони: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source machine embroidery digitizing in pure Rust.	Версия {version} — дигитализиране на машинна бродерия с отворен код, изцяло на Rust.
 	Machine embroidery digitizing — fast, open, scriptable.	Дигитализиране на машинна бродерия — бързо, отворено, с възможност за скриптове.
 	Split Here	Разделяне тук
@@ -6789,7 +6789,6 @@ machine	Stop	Спиране
 	Claude is writing the report…	Claude пише доклада…
 	Have Claude Write It	Нека Claude го напише
 	Help make StitchFoundry better	Помогнете StitchFoundry да стане по-добър
-	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Съгласен съм да изпратя това на SiteSentrix, създателя на StitchFoundry, за подобряване на програмата. Няма да бъде споделено с никого другиго.
 	Include a summary of the design	Прилагане на обобщение на дизайна
 	Include the conversation with Claude	Прилагане на разговора с Claude
 	Include the photos ({n})	Прилагане на снимките ({n})

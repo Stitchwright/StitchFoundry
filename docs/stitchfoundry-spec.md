@@ -853,6 +853,8 @@ appliqué, satin-heavy badge, large fill) as `.vectorcraft` files in `crates/eng
    installers, copyright and notices say SiteSentrix, and the GitHub links follow when the
    repositories move to the SiteSentrix organization. The app id `com.stitchwright.stitchfoundry`
    stays, so settings and installs carry over.
+   2026-11-05: the public company name for the sewing family is **StitchFoundry** (Stitchwright is
+   used by another company); customer-facing text no longer names SiteSentrix (issue #61).
    ("StitchForge", the working name, is taken in this niche: stitchforge.com is a pre-launch AI
    image-to-embroidery service.) Planned siblings: **StitchBench** and **StitchShop** (running an
    embroidery business: quotes by stitch count, orders and approvals, mockups, production

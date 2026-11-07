@@ -5,7 +5,7 @@
 <h1 align="center">StitchFoundry</h1>
 
 <p align="center">
-  <b>Open-source machine-embroidery digitizing, by SiteSentrix.</b>
+  <b>Open-source machine-embroidery digitizing, part of the StitchFoundry family.</b>
 </p>
 
 <p align="center">

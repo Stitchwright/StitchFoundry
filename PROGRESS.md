@@ -11,3 +11,4 @@
 - 2026-11-04, issue 52: AGENTS.md rewritten for StitchFoundry (upstream credit kept, issue/PR workflow added); CLAUDE.md is now `@AGENTS.md`.
 - 2026-11-05 nightly sweep: no reports to triage; ran `cargo xtask ci` and cargo audit on main; one cloud-service finding kept private for the owner.
 - Fix #47: embroidery file names (team names, queue, jobs, orders, patches, tiles) never end up as a Windows device name: `Con` exports as `Con-.dst`.
+- Issue 61: customer-facing text names StitchFoundry instead of SiteSentrix (About, consent checkbox, README, website, installers, docs). Legal lines (LICENSE, NOTICE, copyright, ASSETS) untouched, waiting for Bruce. Consent-box translations dropped (English shows until retranslated).

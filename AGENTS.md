@@ -4,7 +4,7 @@
 
 StitchFoundry is based on VectorCraft by the ArtCraft team (credit line; keep it).
 
-> **This repository is StitchFoundry by SiteSentrix:** VectorCraft plus machine-embroidery
+> **This repository is StitchFoundry (the StitchFoundry family):** VectorCraft plus machine-embroidery
 > digitizing. For any embroidery work, read [`docs/stitchfoundry-spec.md`](docs/stitchfoundry-spec.md) first (product,
 > embroidery rules, current state, feature parity matrix, roadmap and task ids), then
 > [`docs/embroidery.md`](docs/embroidery.md) (behaviour as users see it). Everything below
