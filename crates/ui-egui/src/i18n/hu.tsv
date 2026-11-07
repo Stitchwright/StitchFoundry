@@ -5535,7 +5535,7 @@ imageTrace	Outline	Körvonal
 @msg	{_1} export failed: {e}	Sikertelen exportálás ({_1}): {e}
 	Stitch Lines	Öltésvonalak
 	Tatami	Tatami
-	By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Készítette: SiteSentrix, a VectorCraft alapján, amelyet az ArtCraft csapata készít. MIT OR Apache-2.0. Betűtípusok: Source Sans 3, Inter, JetBrains Mono (OFL). Ikonok: Lucide (ISC) + VectorCraft.
+	From the StitchFoundry family, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Készítette: StitchFoundry, a VectorCraft alapján, amelyet az ArtCraft csapata készít. MIT OR Apache-2.0. Betűtípusok: Source Sans 3, Inter, JetBrains Mono (OFL). Ikonok: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source machine embroidery digitizing in pure Rust.	Verzió: {version} – nyílt forráskódú gépi hímzés-digitalizálás tiszta Rust nyelven.
 	Machine embroidery digitizing — fast, open, scriptable.	Gépi hímzés digitalizálása – gyorsan, nyíltan, szkriptelhetően.
 	Split Here	Felosztás itt
@@ -6833,7 +6833,6 @@ machine	Stop	Megállás
 	Claude is writing the report…	Claude írja a jelentést…
 	Have Claude Write It	Írja meg Claude
 	Help make StitchFoundry better	Segítsen jobbá tenni a StitchFoundryt
-	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Hozzájárulok, hogy ezt elküldjem a SiteSentrixnek, a StitchFoundry készítőjének, a program fejlesztéséhez. Senki mással nem osztják meg.
 	Include a summary of the design	A minta összefoglalójának csatolása
 	Include the conversation with Claude	A Claude-dal folytatott beszélgetés csatolása
 	Include the photos ({n})	A fotók csatolása ({n})

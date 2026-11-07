@@ -1862,7 +1862,7 @@ It** asks Claude, in the same conversation, for a short report: a title, what we
 StitchFoundry's stitches, settings or advice were part of the cause or it was the machine, thread,
 fabric or hooping, and what the software could do differently. Edit it as you like, add a note,
 and choose what goes with it: the photos, the conversation with Claude, a summary of the design.
-Nothing is sent until you tick **I agree to send this to SiteSentrix…** and press **Send Report**;
+Nothing is sent until you tick **I agree to send this to the StitchFoundry team…** and press **Send Report**;
 it needs a Foundry Account (any account, whichever way the check was paid), and an account
 can send five a day (`ui.reportSewout {title?, report?, note?, consent?, draft?, send?}`). A check you report is on us: the credits it cost (the check, its follow-up questions and Claude's draft) come back to your account, once a check.
 
@@ -1901,7 +1901,7 @@ names another service (one you run yourself: `docs/cloud.md`), and so does the
 
 ## Publish to MakerFoundry
 
-[MakerFoundry](https://makerfoundry.app) is SiteSentrix's place to share and sell embroidery
+[MakerFoundry](https://makerfoundry.app) is the StitchFoundry family's place to share and sell embroidery
 designs, and it uses the same Foundry Account. **File › Publish to MakerFoundry…** sends the open
 design there as a **draft** in your account:
 

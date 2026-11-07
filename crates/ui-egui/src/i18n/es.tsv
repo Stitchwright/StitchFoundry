@@ -4896,7 +4896,7 @@ lighting	Light	Luz
 	Tatami	Tatami
 
 # Embroidery (StitchFoundry), phase 1
-	By SiteSentrix, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	De SiteSentrix, basado en VectorCraft del equipo de ArtCraft. MIT OR Apache-2.0. Fuentes: Source Sans 3, Inter, JetBrains Mono (OFL). Iconos: Lucide (ISC) + VectorCraft.
+	From the StitchFoundry family, based on VectorCraft by the ArtCraft team. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	De StitchFoundry, basado en VectorCraft del equipo de ArtCraft. MIT OR Apache-2.0. Fuentes: Source Sans 3, Inter, JetBrains Mono (OFL). Iconos: Lucide (ISC) + VectorCraft.
 	Version {version} — open-source machine embroidery digitizing in pure Rust.	Versión {version}: digitalización de bordado a máquina de código abierto en Rust puro.
 	Machine embroidery digitizing — fast, open, scriptable.	Digitalización de bordado a máquina: rápida, abierta y programable.
 	Split Here	Dividir aquí
@@ -6807,7 +6807,6 @@ mark-style	Japanese	Japonesas
 	Claude is writing the report…	Claude está escribiendo el informe…
 	Have Claude Write It	Que lo escriba Claude
 	Help make StitchFoundry better	Ayuda a mejorar StitchFoundry
-	I agree to send this to SiteSentrix, the maker of StitchFoundry, to improve the software. It won't be shared with anyone else.	Acepto enviar esto a SiteSentrix, el creador de StitchFoundry, para mejorar el programa. No se compartirá con nadie más.
 	Include a summary of the design	Incluir un resumen del diseño
 	Include the conversation with Claude	Incluir la conversación con Claude
 	Include the photos ({n})	Incluir las fotos ({n})

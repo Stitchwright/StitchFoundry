@@ -304,6 +304,7 @@ app-specific password, set the secret again (no spaces or line breaks), and re-r
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-05 | minor | The public company name for the sewing family is StitchFoundry; installer publisher/vendor now say StitchFoundry (issue #61) |
 | 2026-10-25 | minor | Release notes come from the version's section of `CHANGELOG.md`, ahead of the generated notes |
 | 2026-10-20 | minor | The `release` environment is the standard for every signing SiteSentrix/Stitchwright repo; its 12 secrets; how to test signing (the Release run's Signature check and Gatekeeper check); macOS releases on the standard `macos-15` runner |
 | 2026-10-14 | minor | RPM glibc floor names libm's `GLIBC_2.35`: RHEL 9's glibc 2.34 provides libc's through backports |
